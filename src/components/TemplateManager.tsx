@@ -11,7 +11,6 @@ interface Template {
   connectedLoad: number;
   breakerSize: string | null;
   cableSize: string | null;
-  repeatCount: number;
 }
 
 interface TemplateManagerProps {
@@ -23,10 +22,10 @@ interface TemplateManagerProps {
 export default function TemplateManager({ projectId, templates, onRefresh }: TemplateManagerProps) {
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState<Template | null>(null);
-  const [form, setForm] = useState({ name: '', area: 0, loadDensity: 0, repeatCount: 1 });
+  const [form, setForm] = useState({ name: '', area: 0, loadDensity: 0 });
 
   const resetForm = () => {
-    setForm({ name: '', area: 0, loadDensity: 0, repeatCount: 1 });
+    setForm({ name: '', area: 0, loadDensity: 0 });
     setShowForm(false);
     setEditing(null);
   };
@@ -52,7 +51,7 @@ export default function TemplateManager({ projectId, templates, onRefresh }: Tem
 
   const startEdit = (t: Template) => {
     setEditing(t);
-    setForm({ name: t.name, area: t.area, loadDensity: t.loadDensity, repeatCount: t.repeatCount });
+    setForm({ name: t.name, area: t.area, loadDensity: t.loadDensity });
     setShowForm(true);
   };
 
@@ -107,16 +106,6 @@ export default function TemplateManager({ projectId, templates, onRefresh }: Tem
                 required
               />
             </div>
-            <div>
-              <label className={labelClass}>Repeat Count</label>
-              <input
-                value={form.repeatCount}
-                onChange={(e) => setForm({ ...form, repeatCount: parseInt(e.target.value) || 1 })}
-                type="number"
-                min="1"
-                className={inputClass}
-              />
-            </div>
           </div>
           <div className="flex justify-end gap-2">
             <button type="button" onClick={resetForm} className="px-3 py-1.5 text-xs text-gray-400 hover:text-white">
@@ -139,13 +128,12 @@ export default function TemplateManager({ projectId, templates, onRefresh }: Tem
               <th className="px-3 py-2 text-gray-400 uppercase tracking-wider font-semibold">Load (VA)</th>
               <th className="px-3 py-2 text-gray-400 uppercase tracking-wider font-semibold">Breaker</th>
               <th className="px-3 py-2 text-gray-400 uppercase tracking-wider font-semibold">Cable</th>
-              <th className="px-3 py-2 text-gray-400 uppercase tracking-wider font-semibold">Qty</th>
               <th className="px-3 py-2 text-gray-400 uppercase tracking-wider font-semibold text-right">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-800">
             {templates.length === 0 ? (
-              <tr><td colSpan={8} className="px-3 py-6 text-center text-gray-600">No templates yet</td></tr>
+              <tr><td colSpan={7} className="px-3 py-6 text-center text-gray-600">No templates yet</td></tr>
             ) : (
               templates.map((t) => (
                 <tr key={t.id} className="hover:bg-gray-800/40">
@@ -155,7 +143,6 @@ export default function TemplateManager({ projectId, templates, onRefresh }: Tem
                   <td className="px-3 py-2 text-gray-400">{t.connectedLoad.toLocaleString()}</td>
                   <td className="px-3 py-2 text-orange-400 font-mono">{t.breakerSize}</td>
                   <td className="px-3 py-2 text-orange-400 font-mono">{t.cableSize}</td>
-                  <td className="px-3 py-2 text-gray-400">{t.repeatCount}</td>
                   <td className="px-3 py-2 text-right">
                     <button onClick={() => startEdit(t)} className="p-1 text-gray-500 hover:text-orange-400">
                       <Pencil className="w-3 h-3" />

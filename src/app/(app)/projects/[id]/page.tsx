@@ -130,7 +130,6 @@ export default function ProjectDetailPage() {
   // Template CRUD
   const [showNewTemplate, setShowNewTemplate] = useState(false);
   const [templateName, setTemplateName] = useState('');
-  const [templateRepeatCount, setTemplateRepeatCount] = useState('1');
   const [templateRooms, setTemplateRooms] = useState<RoomData[]>([]);
 
   const handleNewTemplate = async (e: React.FormEvent) => {
@@ -142,13 +141,11 @@ export default function ProjectDetailPage() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         name: templateName,
-        repeatCount: templateRepeatCount,
         projectId,
         rooms: templateRooms.map(({ id, ...rest }) => rest),
       }),
     });
     setTemplateName('');
-    setTemplateRepeatCount('1');
     setTemplateRooms([]);
     setShowNewTemplate(false);
     loadProject();
@@ -463,18 +460,6 @@ export default function ProjectDetailPage() {
             <form onSubmit={handleNewTemplate} className="rounded-xl border border-gray-800 bg-gray-900/60 p-4 space-y-4">
               <div className="flex items-center justify-between">
                 <h4 className="text-sm font-semibold text-gray-300">New Apartment Template</h4>
-                <div className="flex items-center gap-4">
-                  <div>
-                    <label className="block text-[10px] text-gray-500 mb-1">Repeat Count</label>
-                    <input
-                      type="number"
-                      value={templateRepeatCount}
-                      onChange={(e) => setTemplateRepeatCount(e.target.value)}
-                      className="dense-input w-20 rounded text-xs"
-                      min="1"
-                    />
-                  </div>
-                </div>
               </div>
 
               <div>
@@ -594,9 +579,6 @@ export default function ProjectDetailPage() {
                               </span>
                               <span className="text-xs text-orange-400 font-mono">
                                 {(totalLoad / 1000).toFixed(2)} kW
-                              </span>
-                              <span className="text-xs text-gray-500">
-                                ×{tpl.repeatCount}
                               </span>
                             </div>
                           </div>

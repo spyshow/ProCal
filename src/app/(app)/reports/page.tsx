@@ -180,7 +180,6 @@ export default function ReportsPage() {
                   <th className="border p-2 text-right">Area (m²)</th>
                   <th className="border p-2 text-center">Rooms</th>
                   <th className="border p-2 text-right">Connected (kW)</th>
-                  <th className="border p-2 text-center">Qty</th>
                 </tr>
               </thead>
               <tbody>
@@ -193,7 +192,6 @@ export default function ReportsPage() {
                       <td className="border p-2 text-right font-mono">{totalArea.toFixed(1)}</td>
                       <td className="border p-2 text-center font-mono">{t.rooms?.length || 0}</td>
                       <td className="border p-2 text-right font-mono">{(totalLoad / 1000).toFixed(2)}</td>
-                      <td className="border p-2 text-center">{t.repeatCount}</td>
                     </tr>
                   );
                 })}

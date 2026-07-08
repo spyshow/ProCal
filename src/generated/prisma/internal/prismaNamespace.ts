@@ -1254,7 +1254,6 @@ export type BuildingScalarFieldEnum = (typeof BuildingScalarFieldEnum)[keyof typ
 export const ApartmentTemplateScalarFieldEnum = {
   id: 'id',
   name: 'name',
-  repeatCount: 'repeatCount',
   projectId: 'projectId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'

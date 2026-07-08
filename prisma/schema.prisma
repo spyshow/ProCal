@@ -70,7 +70,6 @@ model Building {
 model ApartmentTemplate {
   id          String          @id @default(uuid())
   name        String
-  repeatCount Int             @default(1)
   projectId   String
   project     Project         @relation(fields: [projectId], references: [id], onDelete: Cascade)
   rooms       ApartmentRoom[]

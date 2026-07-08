@@ -71,7 +71,6 @@ export async function PUT(
     }
 
     const name = data.name ?? template.name;
-    const repeatCount = data.repeatCount !== undefined ? parseInt(data.repeatCount) : template.repeatCount;
     const rooms = data.rooms;
 
     if (!rooms || !Array.isArray(rooms) || rooms.length === 0) {
@@ -114,7 +113,6 @@ export async function PUT(
       where: { id },
       data: {
         name,
-        repeatCount,
         rooms: {
           create: roomsWithLoad,
         },

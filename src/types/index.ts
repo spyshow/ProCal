@@ -12,7 +12,6 @@ export interface ApartmentRoom {
 export interface ApartmentTemplate {
   id: string;
   name: string;
-  repeatCount: number;
   rooms: ApartmentRoom[];
   createdAt: string;
   updatedAt: string;

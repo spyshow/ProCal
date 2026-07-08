@@ -353,7 +353,7 @@ export default function PanelDesignerPage() {
                 <th className="text-left">#</th>
                 <th className="text-left">Feeder</th>
                 <th className="text-center">Type</th>
-                <th className="text-right">Current (A)</th>
+                <th className="text-right">Per-Phase Current (A)</th>
                 <th className="text-right">Breaker (A)</th>
                 <th className="text-center">Breaker Model</th>
                 <th className="text-center">Cable (mm²)</th>

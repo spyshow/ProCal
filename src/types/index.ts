@@ -12,6 +12,7 @@ export interface ApartmentRoom {
 export interface ApartmentTemplate {
   id: string;
   name: string;
+  phases: number;
   rooms: ApartmentRoom[];
   createdAt: string;
   updatedAt: string;
@@ -36,6 +37,7 @@ export interface FloorItem {
 export interface FloorDesign {
   id: string;
   floorNumber: number;
+  hasFloorSubPanels: boolean;
   items: FloorItem[];
 }
 
@@ -45,6 +47,17 @@ export interface Building {
   floors: number;
   serviceFloors: number;
   apartmentsPerFloor: number;
+  elevators: number;
+  waterPumps: number;
+  firePump: boolean;
+  splitAc: number;
+  centralAc: number;
+  supplyVoltage: string;
+  earthingSystem: string;
+  lightningProtection: boolean;
+  mechanicalLoads?: string | null;
+  generator?: number | null;
+  transformer?: number | null;
   floorDesigns: FloorDesign[];
 }
 

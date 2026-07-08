@@ -20,7 +20,7 @@ export async function POST(request: Request) {
     }
 
     const data = await request.json();
-    const { projectId, name, rooms } = data;
+    const { projectId, name, rooms, phases } = data;
 
     if (!projectId || !name || !rooms || !Array.isArray(rooms) || rooms.length === 0) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
@@ -88,6 +88,7 @@ export async function POST(request: Request) {
     const template = await db.apartmentTemplate.create({
       data: {
         name,
+        phases: Number(phases) || 1,
         projectId,
         rooms: {
           create: roomsWithLoad,

@@ -86,11 +86,17 @@ export default function ReportsPage() {
   }
 
   // Aggregate all items across floors
-  const allItems: (FloorItem & { floor: number; building: string })[] = [];
+  const allItems: (FloorItem & { floor: number; building: string; phases?: number; hasFloorSubPanels?: boolean })[] = [];
   for (const b of project.buildings) {
     for (const fd of b.floorDesigns) {
       for (const item of fd.items) {
-        allItems.push({ ...item, floor: fd.floorNumber, building: b.name });
+        allItems.push({
+          ...item,
+          floor: fd.floorNumber,
+          building: b.name,
+          phases: item.apartmentTemplate?.phases,
+          hasFloorSubPanels: (fd as any).hasFloorSubPanels,
+        });
       }
     }
   }
@@ -177,6 +183,7 @@ export default function ReportsPage() {
               <thead>
                 <tr className="bg-gray-100">
                   <th className="border p-2 text-left">Template</th>
+                  <th className="border p-2 text-center">Phase</th>
                   <th className="border p-2 text-right">Area (m²)</th>
                   <th className="border p-2 text-center">Rooms</th>
                   <th className="border p-2 text-right">Connected (kW)</th>
@@ -189,6 +196,7 @@ export default function ReportsPage() {
                   return (
                     <tr key={t.id} className="hover:bg-gray-50">
                       <td className="border p-2 font-semibold">{t.name}</td>
+                      <td className="border p-2 text-center font-mono">{t.phases === 3 ? '3Φ' : '1Φ'}</td>
                       <td className="border p-2 text-right font-mono">{totalArea.toFixed(1)}</td>
                       <td className="border p-2 text-center font-mono">{t.rooms?.length || 0}</td>
                       <td className="border p-2 text-right font-mono">{(totalLoad / 1000).toFixed(2)}</td>
@@ -247,6 +255,53 @@ export default function ReportsPage() {
           </div>
         );
       case 'mdb':
+        // Group items by building+floor for sub-panel logic
+        const floorGroups: Record<string, { building: string; floor: number; hasSubPanel: boolean; items: typeof allItems }> = {};
+        for (const item of allItems) {
+          const key = `${item.building}-F${item.floor}`;
+          if (!floorGroups[key]) {
+            floorGroups[key] = { building: item.building, floor: item.floor, hasSubPanel: !!item.hasFloorSubPanels, items: [] };
+          }
+          floorGroups[key].items.push(item);
+        }
+
+        let mdbIndex = 0;
+        const mdbRows: { idx: number; building: string; floor: number; feeder: string; type: string; demand: number; current: number; breaker: string; cable: string; isSubPanel?: boolean }[] = [];
+        for (const fg of Object.values(floorGroups).sort((a, b) => b.floor - a.floor)) {
+          if (fg.hasSubPanel && fg.items.length > 0) {
+            // Sub-panel feeder row: sum of all apartment demands on this floor
+            const floorDemand = fg.items.reduce((s, i) => s + i.calculatedMaxDemand, 0);
+            const floorCurrent = fg.items.reduce((s, i) => s + i.calculatedCurrent, 0);
+            mdbIndex++;
+            mdbRows.push({
+              idx: mdbIndex,
+              building: fg.building,
+              floor: fg.floor,
+              feeder: `Floor ${fg.floor} Sub-Panel`,
+              type: 'SUB_PANEL',
+              demand: floorDemand,
+              current: floorCurrent,
+              breaker: `${Math.ceil(floorCurrent)}A`,
+              cable: fg.items[0]?.cableSize || '',
+              isSubPanel: true,
+            });
+          }
+          for (const item of fg.items) {
+            mdbIndex++;
+            mdbRows.push({
+              idx: mdbIndex,
+              building: item.building,
+              floor: item.floor,
+              feeder: item.name,
+              type: item.type,
+              demand: item.calculatedMaxDemand,
+              current: item.calculatedCurrent,
+              breaker: item.breakerSize,
+              cable: item.cableSize,
+            });
+          }
+        }
+
         return (
           <div className="space-y-4">
             <h2 className="text-lg font-bold border-b pb-2">MDB Feeder Schedule</h2>
@@ -259,23 +314,23 @@ export default function ReportsPage() {
                   <th className="border p-2 text-left">Feeder</th>
                   <th className="border p-2 text-center">Type</th>
                   <th className="border p-2 text-right">Demand (kW)</th>
-                  <th className="border p-2 text-right">Current (A)</th>
+                  <th className="border p-2 text-right">Per-Phase Current (A)</th>
                   <th className="border p-2 text-center">Breaker</th>
                   <th className="border p-2 text-center">Cable</th>
                 </tr>
               </thead>
               <tbody>
-                {allItems.map((item, i) => (
-                  <tr key={i} className="hover:bg-gray-50">
-                    <td className="border p-2 font-mono text-gray-500">{i + 1}</td>
-                    <td className="border p-2">{item.building}</td>
-                    <td className="border p-2 text-center font-mono">F{item.floor}</td>
-                    <td className="border p-2 font-semibold">{item.name}</td>
-                    <td className="border p-2 text-center text-xs">{item.type.replace('_', ' ')}</td>
-                    <td className="border p-2 text-right font-mono">{item.calculatedMaxDemand.toFixed(2)}</td>
-                    <td className="border p-2 text-right font-mono text-orange-600">{item.calculatedCurrent.toFixed(1)}</td>
-                    <td className="border p-2 text-center font-mono text-blue-600">{item.breakerSize}</td>
-                    <td className="border p-2 text-center font-mono text-green-600">{item.cableSize}</td>
+                {mdbRows.map((row) => (
+                  <tr key={row.idx} className={row.isSubPanel ? 'bg-orange-50 font-semibold' : 'hover:bg-gray-50'}>
+                    <td className="border p-2 font-mono text-gray-500">{row.idx}</td>
+                    <td className="border p-2">{row.building}</td>
+                    <td className="border p-2 text-center font-mono">F{row.floor}</td>
+                    <td className="border p-2 font-semibold">{row.feeder}</td>
+                    <td className="border p-2 text-center text-xs">{row.type.replace('_', ' ')}</td>
+                    <td className="border p-2 text-right font-mono">{row.demand.toFixed(2)}</td>
+                    <td className="border p-2 text-right font-mono text-orange-600">{row.current.toFixed(1)}</td>
+                    <td className="border p-2 text-center font-mono text-blue-600">{row.breaker}</td>
+                    <td className="border p-2 text-center font-mono text-green-600">{row.cable}</td>
                   </tr>
                 ))}
               </tbody>
@@ -291,7 +346,7 @@ export default function ReportsPage() {
                 <tr className="bg-gray-100">
                   <th className="border p-2 text-left">Circuit</th>
                   <th className="border p-2 text-center">Phase</th>
-                  <th className="border p-2 text-right">Current (A)</th>
+                  <th className="border p-2 text-right">Per-Phase Current (A)</th>
                   <th className="border p-2 text-center">Breaker (A)</th>
                   <th className="border p-2 text-center">Cable (mm²)</th>
                   <th className="border p-2 text-center">Method</th>
@@ -302,7 +357,7 @@ export default function ReportsPage() {
                 {allItems.map((item, i) => (
                   <tr key={i} className="hover:bg-gray-50">
                     <td className="border p-2 font-semibold">{item.name}</td>
-                    <td className="border p-2 text-center font-mono">{item.type === 'APARTMENT' ? '1Φ' : '3Φ'}</td>
+                    <td className="border p-2 text-center font-mono">{item.phases === 3 ? '3Φ' : item.type === 'APARTMENT' ? '1Φ' : '3Φ'}</td>
                     <td className="border p-2 text-right font-mono">{item.calculatedCurrent.toFixed(1)}</td>
                     <td className="border p-2 text-center font-mono text-blue-600">{item.breakerSize}</td>
                     <td className="border p-2 text-center font-mono text-green-600">{item.cableSize}</td>
@@ -322,7 +377,7 @@ export default function ReportsPage() {
               <thead>
                 <tr className="bg-gray-100">
                   <th className="border p-2 text-left">Circuit</th>
-                  <th className="border p-2 text-right">Current (A)</th>
+                  <th className="border p-2 text-right">Per-Phase Current (A)</th>
                   <th className="border p-2 text-center">Cable (mm²)</th>
                   <th className="border p-2 text-right">Est. Length (m)</th>
                   <th className="border p-2 text-right">VDrop (%)</th>

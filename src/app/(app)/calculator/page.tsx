@@ -15,6 +15,7 @@ import {
   ChevronRight,
   Calculator,
   Copy,
+  RefreshCw,
 } from 'lucide-react';
 import type { FloorItem, FloorDesign, Building, Project } from '@/types';
 
@@ -82,6 +83,11 @@ function CalculatorContent() {
 
   const handleDeleteItem = async (itemId: string) => {
     await fetch(`/api/floor-items/${itemId}`, { method: 'DELETE' });
+    loadProject();
+  };
+
+  const handleRecalculate = async (floorDesignId: string) => {
+    await fetch(`/api/floors/${floorDesignId}/recalculate`, { method: 'POST' });
     loadProject();
   };
 
@@ -169,6 +175,18 @@ function CalculatorContent() {
             {project.name} — {project.voltage}V, PF {project.powerFactor}
           </p>
         </div>
+        {bldg.floorDesigns.some(fd => fd.items.some(i => i.type === 'APARTMENT')) && (
+          <button
+            onClick={async () => {
+              await fetch(`/api/buildings/${bldg.id}/recalculate`, { method: 'POST' });
+              loadProject();
+            }}
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold"
+          >
+            <RefreshCw size={14} />
+            Recalculate All Floors
+          </button>
+        )}
       </div>
 
       {/* Building Selector */}
@@ -243,9 +261,11 @@ function CalculatorContent() {
                         <tr>
                           <th className="text-left">Type</th>
                           <th className="text-left">Name</th>
+                          <th className="text-center">Phase</th>
                           <th className="text-right">Load (kW)</th>
                           <th className="text-right">Demand (kW)</th>
-                          <th className="text-right">Current (A)</th>
+                          <th className="text-right">Per-Phase (kW)</th>
+                          <th className="text-right">Per-Phase Current (A)</th>
                           <th className="text-center">Breaker</th>
                           <th className="text-center">Cable</th>
                           <th className="text-center">VDrop</th>
@@ -255,6 +275,16 @@ function CalculatorContent() {
                       <tbody>
                         {fd.items.map((item) => {
                           const Icon = item.type === 'APARTMENT' ? Home : Wrench;
+                          // Recalculate current from template's current phases (not stale stored value)
+                          const isThreePhase = item.type === 'APARTMENT' && item.apartmentTemplate?.phases === 3;
+                          const displayCurrent = item.type === 'APARTMENT'
+                            ? (isThreePhase
+                                ? item.calculatedMaxDemand / (Math.sqrt(3) * 0.4)
+                                : item.calculatedMaxDemand / 0.23)
+                            : item.calculatedCurrent;
+                          const displayPerPhaseLoad = isThreePhase
+                            ? item.calculatedMaxDemand / 3
+                            : item.calculatedMaxDemand;
                           return (
                             <tr key={item.id} className="hover:bg-gray-800/30">
                               <td>
@@ -265,9 +295,13 @@ function CalculatorContent() {
                                 )}
                               </td>
                               <td className="text-gray-200 text-sm">{item.name}</td>
+                              <td className="text-center font-mono text-xs text-gray-400">
+                                {item.type === 'APARTMENT' ? (isThreePhase ? '3Φ' : '1Φ') : '3Φ'}
+                              </td>
                               <td className="text-right font-mono text-sm">{item.calculatedConnectedLoad.toFixed(2)}</td>
                               <td className="text-right font-mono text-sm text-orange-400">{item.calculatedMaxDemand.toFixed(2)}</td>
-                              <td className="text-right font-mono text-sm">{item.calculatedCurrent.toFixed(1)}</td>
+                              <td className="text-right font-mono text-sm text-blue-400">{displayPerPhaseLoad.toFixed(2)}</td>
+                              <td className="text-right font-mono text-sm">{displayCurrent.toFixed(1)}</td>
                               <td className="text-center font-mono text-sm text-blue-400">{item.breakerSize}</td>
                               <td className="text-center font-mono text-sm text-green-400">{item.cableSize}</td>
                               <td className="text-center font-mono text-xs text-gray-500">
@@ -327,7 +361,7 @@ function CalculatorContent() {
                                   const totalLoad = t.rooms?.reduce((sum, r) => sum + r.connectedLoad, 0) || 0;
                                   return (
                                     <option key={t.id} value={t.id}>
-                                      {t.name} — {totalArea.toFixed(0)}m² ({(totalLoad / 1000).toFixed(1)}kW)
+                                      {t.name} — {t.phases === 3 ? '3Φ' : '1Φ'} — {totalArea.toFixed(0)}m² ({(totalLoad / 1000).toFixed(1)}kW)
                                     </option>
                                   );
                                 })}
@@ -454,6 +488,15 @@ function CalculatorContent() {
                         <Plus size={12} />
                         Add Item
                       </button>
+                      {fd.items.some(i => i.type === 'APARTMENT') && (
+                        <button
+                          onClick={() => handleRecalculate(fd.id)}
+                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gray-800 hover:bg-gray-700 text-xs text-gray-400 hover:text-blue-400 transition-colors"
+                        >
+                          <RefreshCw size={12} />
+                          Recalculate
+                        </button>
+                      )}
                       {fd.items.length > 0 && bldg.floorDesigns.length > 1 && (
                         <button
                           onClick={() => {

@@ -71,6 +71,7 @@ export async function PUT(
     }
 
     const name = data.name ?? template.name;
+    const phases = data.phases !== undefined ? Number(data.phases) : template.phases;
     const rooms = data.rooms;
 
     if (!rooms || !Array.isArray(rooms) || rooms.length === 0) {
@@ -113,6 +114,7 @@ export async function PUT(
       where: { id },
       data: {
         name,
+        phases,
         rooms: {
           create: roomsWithLoad,
         },

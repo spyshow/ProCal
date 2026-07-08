@@ -57,10 +57,17 @@ export async function POST(
 
       calculatedConnectedLoad = totalConnectedLoadVA / 1000; // Convert to kW
       calculatedMaxDemand = calculatedConnectedLoad * 0.4; // Demand factor 0.4
-      calculatedCurrent = calculatedMaxDemand / 0.23; // 230V single phase
+
+      // Phase-aware current calculation
+      const isThreePhase = template.phases === 3;
+      if (isThreePhase) {
+        calculatedCurrent = calculatedMaxDemand / (Math.sqrt(3) * 0.4); // 400V 3-phase
+      } else {
+        calculatedCurrent = calculatedMaxDemand / 0.23; // 230V single phase
+      }
 
       // Size breaker and cable based on calculated current
-      const sizing = sizeCableAndBreaker(calculatedCurrent, false, {
+      const sizing = sizeCableAndBreaker(calculatedCurrent, isThreePhase, {
         material: "copper",
         insulation: "XLPE",
         ambientTemp: 30,

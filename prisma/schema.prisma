@@ -70,6 +70,7 @@ model Building {
 model ApartmentTemplate {
   id          String          @id @default(uuid())
   name        String
+  phases      Int             @default(1) // 1 or 3
   projectId   String
   project     Project         @relation(fields: [projectId], references: [id], onDelete: Cascade)
   rooms       ApartmentRoom[]
@@ -110,11 +111,12 @@ model LoadLibraryItem {
 }
 
 model FloorDesign {
-  id          String      @id @default(uuid())
-  floorNumber Int
-  buildingId  String
-  building    Building    @relation(fields: [buildingId], references: [id], onDelete: Cascade)
-  items       FloorItem[]
+  id                  String      @id @default(uuid())
+  floorNumber         Int
+  hasFloorSubPanels   Boolean     @default(false)
+  buildingId          String
+  building            Building    @relation(fields: [buildingId], references: [id], onDelete: Cascade)
+  items               FloorItem[]
 }
 
 model FloorItem {

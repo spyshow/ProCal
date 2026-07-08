@@ -20,6 +20,7 @@ import type { RoomData } from '@/components/RoomInput';
 interface FloorDesign {
   id: string;
   floorNumber: number;
+  hasFloorSubPanels: boolean;
   items: any[];
 }
 
@@ -130,6 +131,7 @@ export default function ProjectDetailPage() {
   // Template CRUD
   const [showNewTemplate, setShowNewTemplate] = useState(false);
   const [templateName, setTemplateName] = useState('');
+  const [templatePhases, setTemplatePhases] = useState('1');
   const [templateRooms, setTemplateRooms] = useState<RoomData[]>([]);
 
   const handleNewTemplate = async (e: React.FormEvent) => {
@@ -141,11 +143,13 @@ export default function ProjectDetailPage() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         name: templateName,
+        phases: Number(templatePhases),
         projectId,
         rooms: templateRooms.map(({ id, ...rest }) => rest),
       }),
     });
     setTemplateName('');
+    setTemplatePhases('1');
     setTemplateRooms([]);
     setShowNewTemplate(false);
     loadProject();
@@ -160,13 +164,13 @@ export default function ProjectDetailPage() {
   // Template Edit
   const [editingTemplateId, setEditingTemplateId] = useState<string | null>(null);
   const [editTemplateName, setEditTemplateName] = useState('');
-  const [editTemplateRepeatCount, setEditTemplateRepeatCount] = useState('1');
+  const [editTemplatePhases, setEditTemplatePhases] = useState('1');
   const [editTemplateRooms, setEditTemplateRooms] = useState<RoomData[]>([]);
 
   const startEditTemplate = (tpl: any) => {
     setEditingTemplateId(tpl.id);
     setEditTemplateName(tpl.name);
-    setEditTemplateRepeatCount(String(tpl.repeatCount));
+    setEditTemplatePhases(String(tpl.phases || 1));
     setEditTemplateRooms(
       (tpl.rooms || []).map((r: any) => ({
         id: r.id || Math.random().toString(36).substring(2, 9),
@@ -189,7 +193,7 @@ export default function ProjectDetailPage() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         name: editTemplateName,
-        repeatCount: editTemplateRepeatCount,
+        phases: Number(editTemplatePhases),
         rooms: editTemplateRooms.map(({ id, ...rest }) => rest),
       }),
     });
@@ -420,16 +424,54 @@ export default function ProjectDetailPage() {
                             .map((fd) => (
                               <div
                                 key={fd.id}
-                                className="flex items-center gap-3 p-2.5 rounded-lg border border-gray-800 bg-gray-800/30 hover:border-gray-700 cursor-pointer"
-                                onClick={() => router.push(`/calculator?floor=${fd.id}`)}
+                                className="flex items-center gap-3 p-2.5 rounded-lg border border-gray-800 bg-gray-800/30 hover:border-gray-700"
                               >
-                                <span className="text-xs font-mono text-orange-400 w-16">F{fd.floorNumber}</span>
-                                <span className="text-xs text-gray-400 flex-1">
+                                <span
+                                  className="text-xs font-mono text-orange-400 w-16 cursor-pointer"
+                                  onClick={() => router.push(`/calculator?floor=${fd.id}`)}
+                                >
+                                  F{fd.floorNumber}
+                                </span>
+                                <span
+                                  className="text-xs text-gray-400 flex-1 cursor-pointer"
+                                  onClick={() => router.push(`/calculator?floor=${fd.id}`)}
+                                >
                                   {fd.items.length} item{fd.items.length !== 1 ? 's' : ''}
                                 </span>
                                 <span className="text-[10px] text-gray-600">
-                                  {fd.items.reduce((s: number, i: any) => s + (i.calculatedMaxDemand || 0), 0).toFixed(1)} kW demand
+                                  {fd.items.reduce((s: number, i: any) => s + (i.calculatedMaxDemand || 0), 0).toFixed(1)} kW
                                 </span>
+                                <button
+                                  onClick={async (e) => {
+                                    e.stopPropagation();
+                                    const newValue = !fd.hasFloorSubPanels;
+                                    await fetch(`/api/floors/${fd.id}`, {
+                                      method: 'PUT',
+                                      headers: { 'Content-Type': 'application/json' },
+                                      body: JSON.stringify({ hasFloorSubPanels: newValue }),
+                                    });
+                                    loadProject();
+                                  }}
+                                  className={`flex items-center gap-1.5 text-[10px] px-2 py-0.5 rounded font-medium transition-colors ${
+                                    fd.hasFloorSubPanels
+                                      ? 'bg-orange-600/20 text-orange-400 border border-orange-600/40'
+                                      : 'bg-gray-800 text-gray-500 border border-gray-700 hover:border-gray-600'
+                                  }`}
+                                  title={fd.hasFloorSubPanels ? 'Sub-panel enabled — click to disable' : 'Click to enable sub-panel'}
+                                >
+                                  <span className={`w-3 h-3 rounded-sm border flex items-center justify-center ${
+                                    fd.hasFloorSubPanels
+                                      ? 'bg-orange-600 border-orange-500'
+                                      : 'border-gray-600'
+                                  }`}>
+                                    {fd.hasFloorSubPanels && (
+                                      <svg width="8" height="8" viewBox="0 0 8 8" fill="none">
+                                        <path d="M1.5 4L3.5 6L6.5 2" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                                      </svg>
+                                    )}
+                                  </span>
+                                  Sub-Panel
+                                </button>
                               </div>
                             ))}
                         </div>
@@ -462,15 +504,28 @@ export default function ProjectDetailPage() {
                 <h4 className="text-sm font-semibold text-gray-300">New Apartment Template</h4>
               </div>
 
-              <div>
-                <label className="block text-xs text-gray-400 mb-1">Template Name *</label>
-                <input
-                  value={templateName}
-                  onChange={(e) => setTemplateName(e.target.value)}
-                  required
-                  className="dense-input w-full rounded"
-                  placeholder="e.g., Type A – 2BR"
-                />
+              <div className="flex gap-3">
+                <div className="flex-1">
+                  <label className="block text-xs text-gray-400 mb-1">Template Name *</label>
+                  <input
+                    value={templateName}
+                    onChange={(e) => setTemplateName(e.target.value)}
+                    required
+                    className="dense-input w-full rounded"
+                    placeholder="e.g., Type A – 2BR"
+                  />
+                </div>
+                <div className="w-32">
+                  <label className="block text-xs text-gray-400 mb-1">Phase</label>
+                  <select
+                    value={templatePhases}
+                    onChange={(e) => setTemplatePhases(e.target.value)}
+                    className="dense-input w-full rounded"
+                  >
+                    <option value="1">1Φ Single</option>
+                    <option value="3">3Φ Three</option>
+                  </select>
+                </div>
               </div>
 
               <RoomList
@@ -492,7 +547,7 @@ export default function ProjectDetailPage() {
                   onClick={() => {
                     setShowNewTemplate(false);
                     setTemplateName('');
-                    setTemplateRepeatCount('1');
+                    setTemplatePhases('1');
                     setTemplateRooms([]);
                   }}
                   className="px-4 py-2 rounded-lg bg-gray-800 text-gray-300 text-sm"
@@ -523,28 +578,29 @@ export default function ProjectDetailPage() {
                       <form onSubmit={handleUpdateTemplate} className="space-y-4">
                         <div className="flex items-center justify-between">
                           <h4 className="text-sm font-semibold text-gray-300">Edit Template</h4>
-                          <div className="flex items-center gap-4">
-                            <div>
-                              <label className="block text-[10px] text-gray-500 mb-1">Repeat Count</label>
-                              <input
-                                type="number"
-                                value={editTemplateRepeatCount}
-                                onChange={(e) => setEditTemplateRepeatCount(e.target.value)}
-                                className="dense-input w-20 rounded text-xs"
-                                min="1"
-                              />
-                            </div>
-                          </div>
                         </div>
-                        <div>
-                          <label className="block text-xs text-gray-400 mb-1">Template Name *</label>
-                          <input
-                            value={editTemplateName}
-                            onChange={(e) => setEditTemplateName(e.target.value)}
-                            required
-                            className="dense-input w-full rounded"
-                            placeholder="e.g., Type A – 2BR"
-                          />
+                        <div className="flex gap-3">
+                          <div className="flex-1">
+                            <label className="block text-xs text-gray-400 mb-1">Template Name *</label>
+                            <input
+                              value={editTemplateName}
+                              onChange={(e) => setEditTemplateName(e.target.value)}
+                              required
+                              className="dense-input w-full rounded"
+                              placeholder="e.g., Type A – 2BR"
+                            />
+                          </div>
+                          <div className="w-32">
+                            <label className="block text-xs text-gray-400 mb-1">Phase</label>
+                            <select
+                              value={editTemplatePhases}
+                              onChange={(e) => setEditTemplatePhases(e.target.value)}
+                              className="dense-input w-full rounded"
+                            >
+                              <option value="1">1Φ Single</option>
+                              <option value="3">3Φ Three</option>
+                            </select>
+                          </div>
                         </div>
                         <RoomList
                           rooms={editTemplateRooms}

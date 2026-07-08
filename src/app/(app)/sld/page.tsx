@@ -180,6 +180,88 @@ export default function SLDPage() {
     window.print();
   };
 
+  // Post-process SVG: extend vertical cables for ladder-step layout
+  useEffect(() => {
+    if (!svgContainerRef.current || !dsl) return;
+    const svg = svgContainerRef.current.querySelector('svg');
+    if (!svg) return;
+
+    // Wait for SVG to fully render
+    const timer = setTimeout(() => {
+      const lines = svg.querySelectorAll('line');
+      const paths = svg.querySelectorAll('path');
+
+      // Find horizontal bus lines (long lines) to identify tiers
+      const busLines: { x1: number; y1: number; x2: number; y2: number }[] = [];
+      lines.forEach((line) => {
+        const x1 = parseFloat(line.getAttribute('x1') || '0');
+        const y1 = parseFloat(line.getAttribute('y1') || '0');
+        const x2 = parseFloat(line.getAttribute('x2') || '0');
+        const y2 = parseFloat(line.getAttribute('y2') || '0');
+        // Horizontal lines that are long (buses)
+        if (y1 === y2 && Math.abs(x2 - x1) > 200) {
+          busLines.push({ x1, y1, x2, y2 });
+        }
+      });
+
+      if (busLines.length < 2) return;
+
+      // Sort buses by Y position (top to bottom)
+      busLines.sort((a, b) => a.y1 - b.y1);
+
+      // Extend vertical lines (cables) between bus tiers
+      const EXTRA = 80; // extra pixels per cable step
+
+      // Find all vertical lines (cables between buses and MCBs)
+      lines.forEach((line) => {
+        const x1 = parseFloat(line.getAttribute('x1') || '0');
+        const y1 = parseFloat(line.getAttribute('y1') || '0');
+        const x2 = parseFloat(line.getAttribute('x2') || '0');
+        const y2 = parseFloat(line.getAttribute('y2') || '0');
+
+        // Vertical line (same X, different Y)
+        if (x1 === x2 && y1 !== y2) {
+          const topY = Math.min(y1, y2);
+          const botY = Math.max(y1, y2);
+
+          // Check if this line connects a bus to something below
+          const isOnBus = busLines.some(b => Math.abs(b.y1 - topY) < 5 || Math.abs(b.y1 - botY) < 5);
+
+          if (isOnBus && botY - topY < 100) {
+            // Short cable — extend it downward
+            line.setAttribute('y2', String(botY + EXTRA));
+          }
+        }
+      });
+
+      // Also extend paths (diagonal/curved cables)
+      paths.forEach((path) => {
+        const d = path.getAttribute('d') || '';
+        // Simple vertical path: M x,y L x,y2
+        const match = d.match(/^M\s*([\d.]+)\s+([\d.]+)\s+L\s*([\d.]+)\s+([\d.]+)$/);
+        if (match) {
+          const [, x1, y1, x2, y2] = match.map(Number);
+          if (x1 === x2 && Math.abs(y2 - y1) < 100) {
+            const topY = Math.min(y1, y2);
+            const botY = Math.max(y1, y2);
+            const isOnBus = busLines.some(b => Math.abs(b.y1 - topY) < 5);
+            if (isOnBus) {
+              path.setAttribute('d', `M ${x1} ${y1} L ${x2} ${botY + EXTRA}`);
+            }
+          }
+        }
+      });
+
+      // Resize SVG viewBox to accommodate extended cables
+      const bbox = svg.getBBox();
+      svg.setAttribute('viewBox', `0 0 ${bbox.width} ${bbox.height + EXTRA * 2}`);
+      svg.style.height = 'auto';
+
+    }, 100);
+
+    return () => clearTimeout(timer);
+  }, [dsl]);
+
   if (loading) return <div className="flex items-center justify-center h-full"><p className="text-gray-500 text-sm">Loading…</p></div>;
   if (!project) return <div className="flex items-center justify-center h-full"><p className="text-gray-400 text-sm">Select a project first.</p></div>;
 

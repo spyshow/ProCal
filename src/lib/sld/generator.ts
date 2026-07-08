@@ -96,10 +96,13 @@ export interface SLDPage {
   dsl: string;
 }
 
-export function generateSLDPages(project: SLDProject, floorsPerPage: number = 5): SLDPage[] {
+/**
+ * Generate individual floor diagrams — each page is ONE floor rendered
+ * as a vertical diagram, not spread horizontally on the MDB bus.
+ */
+export function generateSLDPages(project: SLDProject): SLDPage[] {
   const pages: SLDPage[] = [];
 
-  // Collect all floor designs across buildings
   const allFloors: { building: string; fd: typeof project.buildings[0]['floorDesigns'][0] }[] = [];
   for (const bldg of project.buildings) {
     for (const fd of bldg.floorDesigns) {
@@ -111,70 +114,68 @@ export function generateSLDPages(project: SLDProject, floorsPerPage: number = 5)
 
   if (allFloors.length === 0) return pages;
 
-  // Split into pages
-  const totalPages = Math.ceil(allFloors.length / floorsPerPage);
+  const txKva = project.transformerSize || 1000;
 
-  for (let pageIdx = 0; pageIdx < totalPages; pageIdx++) {
-    const start = pageIdx * floorsPerPage;
-    const end = Math.min(start + floorsPerPage, allFloors.length);
-    const pageFloors = allFloors.slice(start, end);
+  for (let i = 0; i < allFloors.length; i++) {
+    const { fd } = allFloors[i];
+    const floorCurrent = fd.items.reduce((s, item) => s + item.calculatedCurrent, 0);
+    const lines: string[] = [];
 
-    const floorRange = pageFloors.map(f => f.fd.floorNumber).join(', ');
-    const pageLines: string[] = [];
-    let mdbBreakerIdx = 0;
+    lines.push(`sld "${project.name} — F${fd.floorNumber} (${i + 1}/${allFloors.length})"`);
+    lines.push('');
 
-    pageLines.push(`sld "${project.name} — SLD (Page ${pageIdx + 1}/${totalPages})"`);
-    pageLines.push('');
+    // MDB bus (shown as a short bus at the top)
+    lines.push(`mdb = bus [label: "MDB Bus", voltage: "${project.voltage}V"]`);
+    lines.push('');
 
-    // Common: Utility + Transformer + MDB Bus
-    pageLines.push(`grid = utility [label: "${project.voltage}V Utility", voltage: "${project.voltage}V"]`);
-    pageLines.push('');
-    const txKva = project.transformerSize || 1000;
-    pageLines.push(`xfmr = transformer_dy [label: "Main Transformer", rating: "${txKva} kVA", voltage: "${project.voltage}V"]`);
-    pageLines.push('');
-    pageLines.push(`mdb_bus = bus [label: "MDB Bus", voltage: "${project.voltage}V"]`);
-    pageLines.push('');
-    pageLines.push('grid -> xfmr');
-    pageLines.push('xfmr -> mdb_bus');
-    pageLines.push('');
+    if (fd.hasFloorSubPanels) {
+      // Sub-panel floor: MDB → Floor Breaker → Sub-Panel Bus → MCBs
+      lines.push(`f${fd.floorNumber}_bkr = breaker [label: "F${fd.floorNumber}", rating: "${Math.ceil(floorCurrent)}A"]`);
+      lines.push(`mdb -> f${fd.floorNumber}_bkr`);
+      lines.push('');
 
-    // Only floors for this page
-    for (const { fd } of pageFloors) {
-      const floorBusId = `floor_bus_${fd.floorNumber}`;
-      const floorBreakerId = `floor_bkr_${fd.floorNumber}`;
-      const floorCurrent = fd.items.reduce((s, i) => s + i.calculatedCurrent, 0);
+      lines.push(`f${fd.floorNumber}_bus = distribution_board [label: "F${fd.floorNumber} Sub-Panel", voltage: "${project.voltage}V"]`);
+      lines.push(`f${fd.floorNumber}_bkr -> f${fd.floorNumber}_bus`);
+      lines.push('');
 
-      if (fd.hasFloorSubPanels) {
-        pageLines.push(`${floorBusId} = distribution_board [label: "F${fd.floorNumber} Sub-Panel", voltage: "${project.voltage}V"]`);
-        pageLines.push(`${floorBreakerId} = breaker [label: "F${fd.floorNumber} Main", rating: "${Math.ceil(floorCurrent)}A"]`);
-      } else {
-        pageLines.push(`${floorBusId} = bus [label: "F${fd.floorNumber}", voltage: "${project.voltage}V"]`);
-        pageLines.push(`${floorBreakerId} = breaker [label: "F${fd.floorNumber}", rating: "${Math.ceil(floorCurrent)}A"]`);
-      }
-
-      pageLines.push(`mdb_bus -> ${floorBreakerId} [label: "Floor ${fd.floorNumber}"]`);
-      pageLines.push(`${floorBreakerId} -> ${floorBusId}`);
-      pageLines.push('');
-
+      // MCBs under the sub-panel
       fd.items.forEach((item, idx) => {
         const letter = String.fromCharCode(97 + idx);
         const loadTag = `F${fd.floorNumber}-${letter.toUpperCase()}`;
         const cableTag = `Wf${fd.floorNumber}${letter}`;
-        const bkrId = `bkr_${fd.floorNumber}_${mdbBreakerIdx++}`;
-        const loadId = `load_${fd.floorNumber}_${letter}`;
 
-        pageLines.push(`${bkrId} = mcb [label: "${item.breakerSize}", rating: "${item.breakerSize}"]`);
-        pageLines.push(`${loadId} = load [label: "${loadTag}"]`);
-        pageLines.push(`${floorBusId} -> ${bkrId} [cable: "${cableTag}", label: "${item.cableSize}"]`);
-        pageLines.push(`${bkrId} -> ${loadId}`);
+        lines.push(`${fd.floorNumber}_mcb_${letter} = mcb [label: "${item.breakerSize}", rating: "${item.breakerSize}"]`);
+        lines.push(`${fd.floorNumber}_load_${letter} = load [label: "${loadTag}"]`);
+        lines.push(`f${fd.floorNumber}_bus -> ${fd.floorNumber}_mcb_${letter} [cable: "${cableTag}", label: "${item.cableSize}"]`);
+        lines.push(`${fd.floorNumber}_mcb_${letter} -> ${fd.floorNumber}_load_${letter}`);
       });
-      pageLines.push('');
+    } else {
+      // Direct floor: MDB → Floor Breaker → Floor Bus → MCBs
+      lines.push(`f${fd.floorNumber}_bkr = breaker [label: "F${fd.floorNumber}", rating: "${Math.ceil(floorCurrent)}A"]`);
+      lines.push(`mdb -> f${fd.floorNumber}_bkr`);
+      lines.push('');
+
+      lines.push(`f${fd.floorNumber}_bus = bus [label: "F${fd.floorNumber}", voltage: "${project.voltage}V"]`);
+      lines.push(`f${fd.floorNumber}_bkr -> f${fd.floorNumber}_bus`);
+      lines.push('');
+
+      // MCBs under the floor bus
+      fd.items.forEach((item, idx) => {
+        const letter = String.fromCharCode(97 + idx);
+        const loadTag = `F${fd.floorNumber}-${letter.toUpperCase()}`;
+        const cableTag = `Wf${fd.floorNumber}${letter}`;
+
+        lines.push(`${fd.floorNumber}_mcb_${letter} = mcb [label: "${item.breakerSize}", rating: "${item.breakerSize}"]`);
+        lines.push(`${fd.floorNumber}_load_${letter} = load [label: "${loadTag}"]`);
+        lines.push(`f${fd.floorNumber}_bus -> ${fd.floorNumber}_mcb_${letter} [cable: "${cableTag}", label: "${item.cableSize}"]`);
+        lines.push(`${fd.floorNumber}_mcb_${letter} -> ${fd.floorNumber}_load_${letter}`);
+      });
     }
 
     pages.push({
-      title: `Page ${pageIdx + 1}/${totalPages}`,
-      floors: `Floors: ${floorRange}`,
-      dsl: pageLines.join('\n'),
+      title: `F${fd.floorNumber}`,
+      floors: `Floor ${fd.floorNumber} — ${fd.items.length} circuits`,
+      dsl: lines.join('\n'),
     });
   }
 

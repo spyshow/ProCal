@@ -60,7 +60,7 @@ export default function SLDPage() {
 
   useEffect(() => {
     if (!project) return;
-    const generatedPages = generateSLDPages(project, 4); // 4 floors per page
+    const generatedPages = generateSLDPages(project);
     setPages(generatedPages);
     setActivePage(0);
 

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { generateSLD } from './generator';
+import { generateSLD, generateSLDPages } from './generator';
 
 describe('SLD Generator', () => {
   const mockProject = {
@@ -44,23 +44,25 @@ describe('SLD Generator', () => {
     expect(dsl).toContain('1000 kVA');
   });
 
-  it('generates floor buses for each floor', () => {
-    const dsl = generateSLD(mockProject as any);
-    expect(dsl).toContain('floor_bus_1');
-    expect(dsl).toContain('floor_bus_2');
+  it('generates one page per floor', () => {
+    const pages = generateSLDPages(mockProject as any);
+    expect(pages.length).toBe(2); // 2 floors with items
   });
 
-  it('generates floor breakers connecting MDB to floor buses', () => {
-    const dsl = generateSLD(mockProject as any);
-    expect(dsl).toContain('floor_bkr_1');
-    expect(dsl).toContain('floor_bkr_2');
+  it('each page has its own DSL with floor-specific nodes', () => {
+    const pages = generateSLDPages(mockProject as any);
+    expect(pages[0].title).toBe('F1');
+    expect(pages[0].dsl).toContain('f1_bus');
+    expect(pages[0].dsl).toContain('F1-A');
+    expect(pages[0].dsl).toContain('F1-B');
   });
 
-  it('MCBs connect to floor bus, not MDB bus directly', () => {
-    const dsl = generateSLD(mockProject as any);
-    // MCBs should connect to floor_bus, not mdb_bus
-    expect(dsl).toContain('floor_bus_1 -> bkr_');
-    expect(dsl).not.toContain('mdb_bus -> bkr_');
+  it('each page is a standalone diagram with MDB bus', () => {
+    const pages = generateSLDPages(mockProject as any);
+    for (const page of pages) {
+      expect(page.dsl).toContain('sld');
+      expect(page.dsl).toContain('mdb = bus');
+    }
   });
 
   it('generates load nodes with F-floor-letter naming', () => {

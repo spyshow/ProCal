@@ -156,4 +156,11 @@ body {
   h2, h3 {
     page-break-after: avoid;
   }
+
+  /* SLD diagram fills page when printing */
+  .bg-white.rounded-xl svg {
+    width: 100% !important;
+    height: auto !important;
+    transform: none !important;
+  }
 }

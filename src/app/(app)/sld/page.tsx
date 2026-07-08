@@ -5,7 +5,7 @@ import { useProject } from '@/context/ProjectContext';
 import { SchematexDiagram } from 'schematex/react';
 import { generateSLD } from '@/lib/sld/generator';
 import { recalculateCable } from '@/lib/sld/cable-editor';
-import { GitBranch, ZoomIn, ZoomOut, RotateCcw, RefreshCw } from 'lucide-react';
+import { GitBranch, ZoomIn, ZoomOut, RotateCcw, RefreshCw, Download, FileImage } from 'lucide-react';
 import type { Project } from '@/types';
 
 interface CableEntry {
@@ -111,13 +111,51 @@ export default function SLDPage() {
     }));
   };
 
+  const exportPNG = async () => {
+    if (!svgContainerRef.current) return;
+    const svg = svgContainerRef.current.querySelector('svg');
+    if (!svg) return;
+
+    const svgData = new XMLSerializer().serializeToString(svg);
+    const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+    const url = URL.createObjectURL(svgBlob);
+
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = img.width * 2; // 2x for retina
+      canvas.height = img.height * 2;
+      const ctx = canvas.getContext('2d')!;
+      ctx.scale(2, 2);
+      ctx.fillStyle = 'white';
+      ctx.fillRect(0, 0, img.width, img.height);
+      ctx.drawImage(img, 0, 0);
+
+      canvas.toBlob((blob) => {
+        if (!blob) return;
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `${project?.name || 'sld'}-diagram.png`;
+        a.click();
+        URL.revokeObjectURL(a.href);
+      }, 'image/png');
+
+      URL.revokeObjectURL(url);
+    };
+    img.src = url;
+  };
+
+  const exportPDF = () => {
+    window.print();
+  };
+
   if (loading) return <div className="flex items-center justify-center h-full"><p className="text-gray-500 text-sm">Loading…</p></div>;
   if (!project) return <div className="flex items-center justify-center h-full"><p className="text-gray-400 text-sm">Select a project first.</p></div>;
 
   return (
     <div className="p-6 space-y-5 max-w-7xl mx-auto">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between print:hidden">
         <div>
           <h1 className="text-2xl font-bold text-white flex items-center gap-2">
             <GitBranch size={22} className="text-orange-500" />
@@ -126,6 +164,11 @@ export default function SLDPage() {
           <p className="text-sm text-gray-400 mt-1">{project.name}</p>
         </div>
         <div className="flex items-center gap-2">
+          <button onClick={exportPNG} title="Export as PNG"
+            className="p-2 rounded-lg bg-gray-800 text-gray-400 hover:text-green-400"><FileImage size={14} /></button>
+          <button onClick={exportPDF} title="Export as PDF"
+            className="p-2 rounded-lg bg-gray-800 text-gray-400 hover:text-blue-400"><Download size={14} /></button>
+          <div className="w-px h-5 bg-gray-700" />
           <button onClick={() => setZoom(z => Math.max(50, z - 10))} className="p-2 rounded-lg bg-gray-800 text-gray-400 hover:text-white"><ZoomOut size={14} /></button>
           <span className="text-xs text-gray-500 font-mono w-12 text-center">{zoom}%</span>
           <button onClick={() => setZoom(z => Math.min(200, z + 10))} className="p-2 rounded-lg bg-gray-800 text-gray-400 hover:text-white"><ZoomIn size={14} /></button>
@@ -135,7 +178,7 @@ export default function SLDPage() {
 
       {/* Building Selector */}
       {project.buildings.length > 1 && (
-        <div className="flex gap-2">
+        <div className="flex gap-2 print:hidden">
           {project.buildings.map((b) => (
             <button key={b.id} onClick={() => setSelectedBuilding(b.id)}
               className={`px-3 py-1.5 rounded-lg text-sm font-medium ${selectedBuilding === b.id ? 'bg-orange-600 text-white' : 'bg-gray-800 text-gray-400'}`}>
@@ -151,7 +194,7 @@ export default function SLDPage() {
       </div>
 
       {/* Cable Schedule */}
-      <div className="rounded-xl border border-gray-800 bg-gray-900/40 p-4 space-y-3">
+      <div className="rounded-xl border border-gray-800 bg-gray-900/40 p-4 space-y-3 print:hidden">
         <div className="flex items-center justify-between">
           <h2 className="text-sm font-bold text-gray-300">Cable Schedule — Edit Lengths &amp; Recalculate</h2>
           <button onClick={recalculateAll}
@@ -219,7 +262,7 @@ export default function SLDPage() {
       </div>
 
       {/* DSL Source */}
-      <details className="text-xs text-gray-500">
+      <details className="text-xs text-gray-500 print:hidden">
         <summary className="cursor-pointer hover:text-gray-300">View Generated DSL</summary>
         <pre className="mt-2 p-4 bg-gray-900 rounded-lg overflow-auto font-mono text-[10px]">{dsl}</pre>
       </details>

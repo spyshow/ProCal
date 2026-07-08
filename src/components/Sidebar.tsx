@@ -43,6 +43,7 @@ const NAV_ITEMS: NavItem[] = [
   { label: "Panel Designer", href: "/panel",        icon: Cpu             },
   { label: "Riser Diagram",  href: "/riser",        icon: GitBranch       },
   { label: "Coordination",   href: "/coordination", icon: Shield          },
+  { label: "SLD Designer",   href: "/sld",          icon: GitBranch       },
   { label: "Reports",        href: "/reports",      icon: FileText        },
   { label: "Settings",       href: "/settings",     icon: Settings        },
 ];

@@ -239,45 +239,45 @@ export default function SLDPage() {
     svg.style.height = 'auto';
   };
 
-  // Reposition labels to the right side of their nearest cable
+  // Reposition labels: cable names and amp ratings go to the RIGHT of their MCB,
+  // load names already there. All labels aligned on the right side.
   const repositionLabels = (svg: SVGSVGElement) => {
     const texts = svg.querySelectorAll('text');
     if (texts.length === 0) return;
 
-    // Collect all line elements (vertical cables + diagonal MCBs + horizontal bus segments)
-    const allLines = svg.querySelectorAll('line');
-    const lineElements: { el: SVGLineElement; cx: number; cy: number; isVertical: boolean; isDiagonal: boolean }[] = [];
-    allLines.forEach((line) => {
+    // Find MCB symbols (diagonal lines — the breaker switches)
+    const mcbSymbols: { cx: number; cy: number; topY: number; botY: number; leftX: number; rightX: number }[] = [];
+    svg.querySelectorAll('line').forEach((line) => {
       const x1 = parseFloat(line.getAttribute('x1') || '0');
       const y1 = parseFloat(line.getAttribute('y1') || '0');
       const x2 = parseFloat(line.getAttribute('x2') || '0');
       const y2 = parseFloat(line.getAttribute('y2') || '0');
-      const cx = (x1 + x2) / 2;
-      const cy = (y1 + y2) / 2;
-      const isVert = x1 === x2 && Math.abs(y2 - y1) > 10;
-      const isDiag = x1 !== x2 && y1 !== y2 && Math.abs(y2 - y1) > 5 && Math.abs(x2 - x1) > 5;
-      if (isVert || isDiag) {
-        lineElements.push({ el: line, cx, cy, isVertical: isVert, isDiagonal: isDiag });
+      // MCB = diagonal line (both X and Y differ)
+      if (x1 !== x2 && y1 !== y2 && Math.abs(y2 - y1) > 5 && Math.abs(x2 - x1) > 5) {
+        mcbSymbols.push({
+          cx: (x1 + x2) / 2,
+          cy: (y1 + y2) / 2,
+          topY: Math.min(y1, y2),
+          botY: Math.max(y1, y2),
+          leftX: Math.min(x1, x2),
+          rightX: Math.max(x1, x2),
+        });
       }
     });
 
-    // Also collect paths
-    svg.querySelectorAll('path').forEach((path) => {
-      const d = path.getAttribute('d') || '';
-      const m = d.match(/M\s*([\d.]+)\s+([\d.]+)\s+L\s*([\d.]+)\s+([\d.]+)/);
-      if (m) {
-        const [, x1, y1, x2, y2] = m.map(Number);
-        const cx = (x1 + x2) / 2;
-        const cy = (y1 + y2) / 2;
-        const isVert = x1 === x2 && Math.abs(y2 - y1) > 10;
-        const isDiag = x1 !== x2 && y1 !== y2;
-        if (isVert || isDiag) {
-          lineElements.push({ el: path as any, cx, cy, isVertical: isVert, isDiagonal: isDiag });
-        }
+    if (mcbSymbols.length === 0) return;
+
+    // Also find vertical cables for reference
+    const verticalCables: { x: number; topY: number; botY: number }[] = [];
+    svg.querySelectorAll('line').forEach((line) => {
+      const x1 = parseFloat(line.getAttribute('x1') || '0');
+      const y1 = parseFloat(line.getAttribute('y1') || '0');
+      const x2 = parseFloat(line.getAttribute('x2') || '0');
+      const y2 = parseFloat(line.getAttribute('y2') || '0');
+      if (x1 === x2 && Math.abs(y2 - y1) > 10) {
+        verticalCables.push({ x: x1, topY: Math.min(y1, y2), botY: Math.max(y1, y2) });
       }
     });
-
-    if (lineElements.length === 0) return;
 
     texts.forEach((text) => {
       const bbox = text.getBBox();
@@ -290,27 +290,54 @@ export default function SLDPage() {
           content.includes('Utility') || content.includes('400V') ||
           content.includes('Sub-Panel') || content === 'DB') return;
 
-      // Find nearest line element (vertical cable or diagonal MCB)
-      let best: typeof lineElements[0] | null = null;
-      let bestDist = Infinity;
-      for (const le of lineElements) {
-        const dx = Math.abs(tx - le.cx);
-        const dy = Math.abs(ty - le.cy);
+      // Find the nearest MCB to this text
+      let nearestMCB: typeof mcbSymbols[0] | null = null;
+      let minDist = Infinity;
+      for (const mcb of mcbSymbols) {
+        const dx = Math.abs(tx - mcb.cx);
+        const dy = Math.abs(ty - mcb.cy);
         const dist = Math.sqrt(dx * dx + dy * dy);
-        if (dist < 80 && dist < bestDist) {
-          bestDist = dist;
-          best = le;
+        if (dist < 100 && dist < minDist) {
+          minDist = dist;
+          nearestMCB = mcb;
         }
       }
 
-      if (best) {
-        if (best.isVertical) {
-          // Vertical cable: put text to the RIGHT of the cable line
-          text.setAttribute('x', String(best.cx + 15));
+      if (nearestMCB) {
+        // Determine if text is ABOVE or BELOW the MCB
+        const isAbove = ty < nearestMCB.topY;
+        const isBelow = ty > nearestMCB.botY;
+
+        if (isAbove) {
+          // Cable name or amp rating above MCB — move to RIGHT of MCB, below it
+          // Place at MCB right edge + offset, vertically at MCB center
+          text.setAttribute('x', String(nearestMCB.rightX + 12));
+          text.setAttribute('y', String(nearestMCB.cy + 5));
           text.setAttribute('text-anchor', 'start');
-        } else if (best.isDiagonal) {
-          // Diagonal MCB: put text to the RIGHT of the MCB center
-          text.setAttribute('x', String(best.cx + 20));
+        } else if (isBelow) {
+          // Load name below MCB — already good, just ensure right-aligned
+          text.setAttribute('x', String(nearestMCB.rightX + 12));
+          text.setAttribute('text-anchor', 'start');
+        } else {
+          // Text is on/near the MCB — shift right
+          text.setAttribute('x', String(nearestMCB.rightX + 12));
+          text.setAttribute('text-anchor', 'start');
+        }
+      } else {
+        // No MCB found — try nearest vertical cable
+        let bestCable: typeof verticalCables[0] | null = null;
+        let bestDist = Infinity;
+        for (const c of verticalCables) {
+          const dx = Math.abs(tx - c.x);
+          const dy = Math.abs(ty - ((c.topY + c.botY) / 2));
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < 80 && dist < bestDist) {
+            bestDist = dist;
+            bestCable = c;
+          }
+        }
+        if (bestCable) {
+          text.setAttribute('x', String(bestCable.x + 15));
           text.setAttribute('text-anchor', 'start');
         }
       }

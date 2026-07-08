@@ -5,8 +5,21 @@ import { useProject } from '@/context/ProjectContext';
 import { SchematexDiagram } from 'schematex/react';
 import { generateSLD } from '@/lib/sld/generator';
 import { recalculateCable } from '@/lib/sld/cable-editor';
-import { GitBranch, ZoomIn, ZoomOut, RotateCcw } from 'lucide-react';
+import { GitBranch, ZoomIn, ZoomOut, RotateCcw, RefreshCw } from 'lucide-react';
 import type { Project } from '@/types';
+
+interface CableEntry {
+  id: string;
+  name: string;
+  floor: number;
+  length: number;
+  cableSize: number;
+  current: number;
+  isThreePhase: boolean;
+  newCableSize: number | null;
+  newVD: number | null;
+  changed: boolean;
+}
 
 export default function SLDPage() {
   const { selectedProjectId } = useProject();
@@ -14,22 +27,8 @@ export default function SLDPage() {
   const [loading, setLoading] = useState(true);
   const [dsl, setDsl] = useState('');
   const [selectedBuilding, setSelectedBuilding] = useState<string | null>(null);
-  const [editingCable, setEditingCable] = useState<{
-    floorNumber: number;
-    itemName: string;
-    currentLength: number;
-    currentCableSize: number;
-    current: number;
-    isThreePhase: boolean;
-  } | null>(null);
-  const [newLength, setNewLength] = useState('');
   const [zoom, setZoom] = useState(100);
-  const [recalcResult, setRecalcResult] = useState<{
-    cableSize: number;
-    breakerSize: number;
-    voltageDropPercent: number;
-    changed: boolean;
-  } | null>(null);
+  const [cables, setCables] = useState<CableEntry[]>([]);
 
   const loadProject = useCallback(async () => {
     if (!selectedProjectId) { setLoading(false); return; }
@@ -49,29 +48,56 @@ export default function SLDPage() {
     if (!project) return;
     const generated = generateSLD(project);
     setDsl(generated);
+
+    // Build cable schedule from project data
+    const cableList: CableEntry[] = [];
+    for (const bldg of project.buildings) {
+      for (const fd of bldg.floorDesigns) {
+        for (const item of fd.items) {
+          const cableSizeNum = parseFloat(item.cableSize) || 4;
+          cableList.push({
+            id: item.id || `${fd.floorNumber}-${item.name}`,
+            name: item.name,
+            floor: fd.floorNumber,
+            length: (item as any).cableLength || 30,
+            cableSize: cableSizeNum,
+            current: item.calculatedCurrent,
+            isThreePhase: item.type !== 'APARTMENT' || (item as any).apartmentTemplate?.phases === 3,
+            newCableSize: null,
+            newVD: null,
+            changed: false,
+          });
+        }
+      }
+    }
+    setCables(cableList);
   }, [project]);
 
-  const handleCableRecalculate = async () => {
-    if (!editingCable || !newLength) return;
-    const length = parseFloat(newLength);
-    if (isNaN(length) || length <= 0) return;
+  const updateCableLength = (id: string, length: number) => {
+    setCables(prev => prev.map(c => c.id === id ? { ...c, length, newCableSize: null, newVD: null, changed: false } : c));
+  };
 
+  const recalculateAll = () => {
     const savedLimits = localStorage.getItem('procal-vd-limits');
     const limits = savedLimits ? JSON.parse(savedLimits) : { lighting: 3, power: 5 };
 
-    const result = recalculateCable({
-      current: editingCable.current,
-      isThreePhase: editingCable.isThreePhase,
-      lengthMeters: length,
-      existingCableSize: editingCable.currentCableSize,
-      powerFactor: project?.powerFactor || 0.85,
-      systemVoltage: project?.voltage === 400 ? 400 : 230,
-      maxVoltageDropPercent: limits.power,
-    });
-
-    setRecalcResult(result);
-    // Note: Full database persistence requires a new API endpoint
-    // For now, the recalculation is shown in the modal
+    setCables(prev => prev.map(c => {
+      const result = recalculateCable({
+        current: c.current,
+        isThreePhase: c.isThreePhase,
+        lengthMeters: c.length,
+        existingCableSize: c.cableSize,
+        powerFactor: project?.powerFactor || 0.85,
+        systemVoltage: project?.voltage === 400 ? 400 : 230,
+        maxVoltageDropPercent: limits.power,
+      });
+      return {
+        ...c,
+        newCableSize: result.cableSize,
+        newVD: result.voltageDropPercent,
+        changed: result.changed,
+      };
+    }));
   };
 
   if (loading) return <div className="flex items-center justify-center h-full"><p className="text-gray-500 text-sm">Loading…</p></div>;
@@ -79,6 +105,7 @@ export default function SLDPage() {
 
   return (
     <div className="p-6 space-y-5 max-w-7xl mx-auto">
+      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-white flex items-center gap-2">
@@ -95,6 +122,7 @@ export default function SLDPage() {
         </div>
       </div>
 
+      {/* Building Selector */}
       {project.buildings.length > 1 && (
         <div className="flex gap-2">
           {project.buildings.map((b) => (
@@ -106,49 +134,80 @@ export default function SLDPage() {
         </div>
       )}
 
+      {/* SLD Diagram */}
       <div className="bg-white rounded-xl p-6 overflow-auto" style={{ transform: `scale(${zoom / 100})`, transformOrigin: 'top left' }}>
         {dsl && <SchematexDiagram dsl={dsl} />}
       </div>
 
-      {editingCable && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-gray-900 rounded-xl p-6 w-96 space-y-4 border border-gray-700">
-            <h3 className="text-lg font-bold text-white">Edit Cable Length</h3>
-            <p className="text-sm text-gray-400">
-              {editingCable.itemName} — Floor {editingCable.floorNumber}
-            </p>
-            <div>
-              <label className="block text-xs text-gray-500 mb-1">Length (meters)</label>
-              <input type="number" value={newLength} onChange={(e) => { setNewLength(e.target.value); setRecalcResult(null); }}
-                className="dense-input w-full rounded" placeholder="e.g., 50" />
-            </div>
-            <div className="text-xs text-gray-500">
-              Current: {editingCable.currentCableSize} mm², {editingCable.current.toFixed(1)}A
-            </div>
-
-            {recalcResult && (
-              <div className={`p-3 rounded-lg text-sm ${recalcResult.changed ? 'bg-yellow-900/30 border border-yellow-600/40' : 'bg-green-900/30 border border-green-600/40'}`}>
-                <p className="font-semibold text-white">{recalcResult.changed ? '⚠️ Cable Upsized' : '✅ Within Limits'}</p>
-                <p className="text-gray-300">New cable: {recalcResult.cableSize} mm²</p>
-                <p className="text-gray-300">VD: {recalcResult.voltageDropPercent.toFixed(2)}%</p>
-                <p className="text-gray-300">Breaker: {recalcResult.breakerSize}A</p>
-              </div>
-            )}
-
-            <div className="flex gap-2">
-              <button onClick={handleCableRecalculate}
-                className="px-4 py-2 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-sm font-semibold">
-                Recalculate
-              </button>
-              <button onClick={() => { setEditingCable(null); setNewLength(''); setRecalcResult(null); }}
-                className="px-4 py-2 rounded-lg bg-gray-700 text-gray-300 text-sm">
-                Close
-              </button>
-            </div>
-          </div>
+      {/* Cable Schedule */}
+      <div className="rounded-xl border border-gray-800 bg-gray-900/40 p-4 space-y-3">
+        <div className="flex items-center justify-between">
+          <h2 className="text-sm font-bold text-gray-300">Cable Schedule — Edit Lengths &amp; Recalculate</h2>
+          <button onClick={recalculateAll}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold">
+            <RefreshCw size={12} />
+            Recalculate All
+          </button>
         </div>
-      )}
 
+        <div className="overflow-x-auto">
+          <table className="w-full engineering-table text-xs">
+            <thead>
+              <tr>
+                <th className="text-left">Circuit</th>
+                <th className="text-center">Floor</th>
+                <th className="text-right">Current (A)</th>
+                <th className="text-center">Cable (mm²)</th>
+                <th className="text-right" style={{ width: '100px' }}>Length (m)</th>
+                <th className="text-center">New Cable</th>
+                <th className="text-center">VD (%)</th>
+                <th className="text-center">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {cables.map((c) => (
+                <tr key={c.id} className="hover:bg-gray-800/30">
+                  <td className="text-gray-200 font-medium">{c.name}</td>
+                  <td className="text-center font-mono text-orange-400">F{c.floor}</td>
+                  <td className="text-right font-mono">{c.current.toFixed(1)}</td>
+                  <td className="text-center font-mono text-green-400">{c.cableSize} mm²</td>
+                  <td className="text-right">
+                    <input
+                      type="number"
+                      value={c.length}
+                      onChange={(e) => updateCableLength(c.id, parseFloat(e.target.value) || 30)}
+                      className="dense-input w-20 rounded text-right text-xs"
+                      min="1"
+                    />
+                  </td>
+                  <td className={`text-center font-mono ${c.changed ? 'text-yellow-400 font-bold' : 'text-gray-500'}`}>
+                    {c.newCableSize !== null ? `${c.newCableSize} mm²` : '—'}
+                  </td>
+                  <td className={`text-center font-mono ${c.newVD !== null && c.newVD > 5 ? 'text-red-400' : c.newVD !== null && c.newVD > 3 ? 'text-yellow-400' : 'text-gray-500'}`}>
+                    {c.newVD !== null ? `${c.newVD.toFixed(2)}%` : '—'}
+                  </td>
+                  <td className="text-center">
+                    {c.changed ? (
+                      <span className="text-yellow-400 font-semibold">⚠ UP</span>
+                    ) : c.newVD !== null ? (
+                      <span className="text-green-400">✓</span>
+                    ) : (
+                      <span className="text-gray-600">—</span>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <p className="text-[10px] text-gray-600">
+          Edit cable lengths (meters) and click "Recalculate All" to check voltage drop compliance.
+          IEC 60364-5-52 limits: 3% lighting, 5% power. ⚠ UP = cable upsized to meet VD limit.
+        </p>
+      </div>
+
+      {/* DSL Source */}
       <details className="text-xs text-gray-500">
         <summary className="cursor-pointer hover:text-gray-300">View Generated DSL</summary>
         <pre className="mt-2 p-4 bg-gray-900 rounded-lg overflow-auto font-mono text-[10px]">{dsl}</pre>

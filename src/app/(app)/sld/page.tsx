@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { useProject } from '@/context/ProjectContext';
 import { SchematexDiagram } from 'schematex/react';
-import { generateSLD } from '@/lib/sld/generator';
+import { generateSLD, generateSLDPages, type SLDPage as SLDPageType } from '@/lib/sld/generator';
 import { recalculateCable } from '@/lib/sld/cable-editor';
 import { GitBranch, ZoomIn, ZoomOut, RotateCcw, RefreshCw, Download, FileImage } from 'lucide-react';
 import type { Project } from '@/types';
@@ -30,6 +30,8 @@ export default function SLDPage() {
   const [selectedBuilding, setSelectedBuilding] = useState<string | null>(null);
   const [zoom, setZoom] = useState(100);
   const [cables, setCables] = useState<CableEntry[]>([]);
+  const [pages, setPages] = useState<SLDPageType[]>([]);
+  const [activePage, setActivePage] = useState(0);
   const svgContainerRef = useRef<HTMLDivElement>(null);
 
   // Apply zoom to the SVG element directly, not the container
@@ -40,7 +42,7 @@ export default function SLDPage() {
       svg.style.transform = `scale(${zoom / 100})`;
       svg.style.transformOrigin = 'top left';
     }
-  }, [zoom, dsl]);
+  }, [zoom, pages, activePage]);
 
   const loadProject = useCallback(async () => {
     if (!selectedProjectId) { setLoading(false); return; }
@@ -58,8 +60,9 @@ export default function SLDPage() {
 
   useEffect(() => {
     if (!project) return;
-    const generated = generateSLD(project);
-    setDsl(generated);
+    const generatedPages = generateSLDPages(project, 4); // 4 floors per page
+    setPages(generatedPages);
+    setActivePage(0);
 
     // Build cable schedule from project data
     const cableList: CableEntry[] = [];
@@ -166,7 +169,9 @@ export default function SLDPage() {
         if (!blob) return;
         const a = document.createElement('a');
         a.href = URL.createObjectURL(blob);
-        a.download = `${project?.name || 'sld'}-diagram.png`;
+        a.download = pages.length > 1
+          ? `${project?.name || 'sld'}-page${activePage + 1}.png`
+          : `${project?.name || 'sld'}-diagram.png`;
         a.click();
         URL.revokeObjectURL(a.href);
       }, 'image/png');
@@ -260,7 +265,7 @@ export default function SLDPage() {
     }, 100);
 
     return () => clearTimeout(timer);
-  }, [dsl]);
+  }, [pages, activePage]);
 
   if (loading) return <div className="flex items-center justify-center h-full"><p className="text-gray-500 text-sm">Loading…</p></div>;
   if (!project) return <div className="flex items-center justify-center h-full"><p className="text-gray-400 text-sm">Select a project first.</p></div>;
@@ -301,9 +306,34 @@ export default function SLDPage() {
         </div>
       )}
 
+      {/* Page Navigation */}
+      {pages.length > 1 && (
+        <div className="flex items-center justify-center gap-3 print:hidden">
+          <button onClick={() => setActivePage(p => Math.max(0, p - 1))} disabled={activePage === 0}
+            className="px-3 py-1.5 rounded-lg bg-gray-800 text-gray-400 hover:text-white disabled:opacity-30 text-sm">
+            ← Previous
+          </button>
+          <div className="flex gap-1">
+            {pages.map((_, i) => (
+              <button key={i} onClick={() => setActivePage(i)}
+                className={`w-8 h-8 rounded text-xs font-medium ${i === activePage ? 'bg-orange-600 text-white' : 'bg-gray-800 text-gray-500 hover:text-white'}`}>
+                {i + 1}
+              </button>
+            ))}
+          </div>
+          <button onClick={() => setActivePage(p => Math.min(pages.length - 1, p + 1))} disabled={activePage === pages.length - 1}
+            className="px-3 py-1.5 rounded-lg bg-gray-800 text-gray-400 hover:text-white disabled:opacity-30 text-sm">
+            Next →
+          </button>
+          <span className="text-xs text-gray-500 ml-2">
+            {pages[activePage]?.floors}
+          </span>
+        </div>
+      )}
+
       {/* SLD Diagram */}
       <div ref={svgContainerRef} className="bg-white rounded-xl p-6 overflow-auto">
-        {dsl && <SchematexDiagram dsl={dsl} />}
+        {pages[activePage] && <SchematexDiagram dsl={pages[activePage].dsl} />}
       </div>
 
       {/* Cable Schedule */}
@@ -379,7 +409,7 @@ export default function SLDPage() {
       {/* DSL Source */}
       <details className="text-xs text-gray-500 print:hidden">
         <summary className="cursor-pointer hover:text-gray-300">View Generated DSL</summary>
-        <pre className="mt-2 p-4 bg-gray-900 rounded-lg overflow-auto font-mono text-[10px]">{dsl}</pre>
+        <pre className="mt-2 p-4 bg-gray-900 rounded-lg overflow-auto font-mono text-[10px]">{pages[activePage]?.dsl || ''}</pre>
       </details>
     </div>
   );

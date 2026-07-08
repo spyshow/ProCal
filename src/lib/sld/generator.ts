@@ -89,3 +89,94 @@ export function generateSLD(project: SLDProject): string {
 
   return lines.join('\n');
 }
+
+export interface SLDPage {
+  title: string;
+  floors: string;
+  dsl: string;
+}
+
+export function generateSLDPages(project: SLDProject, floorsPerPage: number = 5): SLDPage[] {
+  const pages: SLDPage[] = [];
+
+  // Collect all floor designs across buildings
+  const allFloors: { building: string; fd: typeof project.buildings[0]['floorDesigns'][0] }[] = [];
+  for (const bldg of project.buildings) {
+    for (const fd of bldg.floorDesigns) {
+      if (fd.items.length > 0) {
+        allFloors.push({ building: bldg.name, fd });
+      }
+    }
+  }
+
+  if (allFloors.length === 0) return pages;
+
+  // Split into pages
+  const totalPages = Math.ceil(allFloors.length / floorsPerPage);
+
+  for (let pageIdx = 0; pageIdx < totalPages; pageIdx++) {
+    const start = pageIdx * floorsPerPage;
+    const end = Math.min(start + floorsPerPage, allFloors.length);
+    const pageFloors = allFloors.slice(start, end);
+
+    const floorRange = pageFloors.map(f => f.fd.floorNumber).join(', ');
+    const pageLines: string[] = [];
+    let mdbBreakerIdx = 0;
+
+    pageLines.push(`sld "${project.name} — SLD (Page ${pageIdx + 1}/${totalPages})"`);
+    pageLines.push('');
+
+    // Common: Utility + Transformer + MDB Bus
+    pageLines.push(`grid = utility [label: "${project.voltage}V Utility", voltage: "${project.voltage}V"]`);
+    pageLines.push('');
+    const txKva = project.transformerSize || 1000;
+    pageLines.push(`xfmr = transformer_dy [label: "Main Transformer", rating: "${txKva} kVA", voltage: "${project.voltage}V"]`);
+    pageLines.push('');
+    pageLines.push(`mdb_bus = bus [label: "MDB Bus", voltage: "${project.voltage}V"]`);
+    pageLines.push('');
+    pageLines.push('grid -> xfmr');
+    pageLines.push('xfmr -> mdb_bus');
+    pageLines.push('');
+
+    // Only floors for this page
+    for (const { fd } of pageFloors) {
+      const floorBusId = `floor_bus_${fd.floorNumber}`;
+      const floorBreakerId = `floor_bkr_${fd.floorNumber}`;
+      const floorCurrent = fd.items.reduce((s, i) => s + i.calculatedCurrent, 0);
+
+      if (fd.hasFloorSubPanels) {
+        pageLines.push(`${floorBusId} = distribution_board [label: "F${fd.floorNumber} Sub-Panel", voltage: "${project.voltage}V"]`);
+        pageLines.push(`${floorBreakerId} = breaker [label: "F${fd.floorNumber} Main", rating: "${Math.ceil(floorCurrent)}A"]`);
+      } else {
+        pageLines.push(`${floorBusId} = bus [label: "F${fd.floorNumber}", voltage: "${project.voltage}V"]`);
+        pageLines.push(`${floorBreakerId} = breaker [label: "F${fd.floorNumber}", rating: "${Math.ceil(floorCurrent)}A"]`);
+      }
+
+      pageLines.push(`mdb_bus -> ${floorBreakerId} [label: "Floor ${fd.floorNumber}"]`);
+      pageLines.push(`${floorBreakerId} -> ${floorBusId}`);
+      pageLines.push('');
+
+      fd.items.forEach((item, idx) => {
+        const letter = String.fromCharCode(97 + idx);
+        const loadTag = `F${fd.floorNumber}-${letter.toUpperCase()}`;
+        const cableTag = `Wf${fd.floorNumber}${letter}`;
+        const bkrId = `bkr_${fd.floorNumber}_${mdbBreakerIdx++}`;
+        const loadId = `load_${fd.floorNumber}_${letter}`;
+
+        pageLines.push(`${bkrId} = mcb [label: "${item.breakerSize}", rating: "${item.breakerSize}"]`);
+        pageLines.push(`${loadId} = load [label: "${loadTag}"]`);
+        pageLines.push(`${floorBusId} -> ${bkrId} [cable: "${cableTag}", label: "${item.cableSize}"]`);
+        pageLines.push(`${bkrId} -> ${loadId}`);
+      });
+      pageLines.push('');
+    }
+
+    pages.push({
+      title: `Page ${pageIdx + 1}/${totalPages}`,
+      floors: `Floors: ${floorRange}`,
+      dsl: pageLines.join('\n'),
+    });
+  }
+
+  return pages;
+}

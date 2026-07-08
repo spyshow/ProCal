@@ -51,7 +51,7 @@ export default function SLDPage() {
     setDsl(generated);
   }, [project]);
 
-  const handleCableRecalculate = () => {
+  const handleCableRecalculate = async () => {
     if (!editingCable || !newLength) return;
     const length = parseFloat(newLength);
     if (isNaN(length) || length <= 0) return;
@@ -70,6 +70,8 @@ export default function SLDPage() {
     });
 
     setRecalcResult(result);
+    // Note: Full database persistence requires a new API endpoint
+    // For now, the recalculation is shown in the modal
   };
 
   if (loading) return <div className="flex items-center justify-center h-full"><p className="text-gray-500 text-sm">Loading…</p></div>;

@@ -136,6 +136,7 @@ model FloorItem {
   calculatedCurrent       Float              @default(0)
   breakerSize             String?
   cableSize               String?
+  cableLength             Float?  // meters — configurable per circuit
   voltageDrop             Float?
 }
 

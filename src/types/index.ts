@@ -27,6 +27,7 @@ export interface FloorItem {
   calculatedCurrent: number;
   breakerSize: string;
   cableSize: string;
+  cableLength?: number | null;
   voltageDrop: number | null;
   apartmentTemplateId?: string | null;
   apartmentTemplate?: ApartmentTemplate | null;

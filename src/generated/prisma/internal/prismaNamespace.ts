@@ -1321,6 +1321,7 @@ export const FloorItemScalarFieldEnum = {
   calculatedCurrent: 'calculatedCurrent',
   breakerSize: 'breakerSize',
   cableSize: 'cableSize',
+  cableLength: 'cableLength',
   voltageDrop: 'voltageDrop'
 } as const
 

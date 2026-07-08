@@ -14,6 +14,12 @@ export default function SettingsPage() {
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [activeTab, setActiveTab] = useState<SettingsTab>('engineering');
 
+  // Voltage drop limits
+  const [vdLimits, setVdLimits] = useState(() => {
+    const saved = localStorage.getItem('procal-vd-limits');
+    return saved ? JSON.parse(saved) : { lighting: 3, power: 5 };
+  });
+
   // Company settings
   const [company, setCompany] = useState({ companyName: "", logoUrl: "" });
   const [uploading, setUploading] = useState(false);
@@ -337,6 +343,46 @@ export default function SettingsPage() {
                     </div>
                   ))}
                 </div>
+              </div>
+
+              {/* Voltage Drop Limits */}
+              <div className="rounded-xl border border-gray-800 bg-gray-900/40 p-4 space-y-3">
+                <h3 className="text-sm font-semibold text-gray-300 border-b border-gray-800 pb-1">
+                  Voltage Drop Limits (IEC 60364-5-52)
+                </h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-[10px] text-gray-500 mb-1">Lighting Circuits (%)</label>
+                    <input
+                      type="number"
+                      step="0.5"
+                      value={vdLimits.lighting}
+                      onChange={(e) => {
+                        const next = { ...vdLimits, lighting: parseFloat(e.target.value) || 3 };
+                        setVdLimits(next);
+                        localStorage.setItem('procal-vd-limits', JSON.stringify(next));
+                      }}
+                      className="dense-input w-full rounded"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] text-gray-500 mb-1">Power Circuits (%)</label>
+                    <input
+                      type="number"
+                      step="0.5"
+                      value={vdLimits.power}
+                      onChange={(e) => {
+                        const next = { ...vdLimits, power: parseFloat(e.target.value) || 5 };
+                        setVdLimits(next);
+                        localStorage.setItem('procal-vd-limits', JSON.stringify(next));
+                      }}
+                      className="dense-input w-full rounded"
+                    />
+                  </div>
+                </div>
+                <p className="text-[10px] text-gray-600">
+                  IEC 60364-5-52 standard: 3% for lighting, 5% for power loads. Total from source to load.
+                </p>
               </div>
             </>
           )}

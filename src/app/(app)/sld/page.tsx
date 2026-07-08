@@ -185,141 +185,140 @@ export default function SLDPage() {
     window.print();
   };
 
-  // Post-process SVG: extend vertical cables for ladder-step layout
-  useEffect(() => {
-    if (!svgContainerRef.current || !dsl) return;
-    const svg = svgContainerRef.current.querySelector('svg');
-    if (!svg) return;
+  // Extend vertical cables for ladder-step spacing
+  const extendCables = (svg: SVGSVGElement) => {
+    const allLines = svg.querySelectorAll('line');
+    const allPaths = svg.querySelectorAll('path');
+    const EXTRA = 80;
 
-    // Wait for SVG to fully render
-    const timer = setTimeout(() => {
-      const lines = svg.querySelectorAll('line');
-      const paths = svg.querySelectorAll('path');
+    // Find horizontal bus lines
+    const busLines: number[] = [];
+    allLines.forEach((line) => {
+      const y1 = parseFloat(line.getAttribute('y1') || '0');
+      const y2 = parseFloat(line.getAttribute('y2') || '0');
+      const x1 = parseFloat(line.getAttribute('x1') || '0');
+      const x2 = parseFloat(line.getAttribute('x2') || '0');
+      if (y1 === y2 && Math.abs(x2 - x1) > 200) {
+        busLines.push(y1);
+      }
+    });
 
-      // Find horizontal bus lines (long lines) to identify tiers
-      const busLines: { x1: number; y1: number; x2: number; y2: number }[] = [];
-      lines.forEach((line) => {
-        const x1 = parseFloat(line.getAttribute('x1') || '0');
-        const y1 = parseFloat(line.getAttribute('y1') || '0');
-        const x2 = parseFloat(line.getAttribute('x2') || '0');
-        const y2 = parseFloat(line.getAttribute('y2') || '0');
-        // Horizontal lines that are long (buses)
-        if (y1 === y2 && Math.abs(x2 - x1) > 200) {
-          busLines.push({ x1, y1, x2, y2 });
+    // Extend short vertical lines
+    allLines.forEach((line) => {
+      const x1 = parseFloat(line.getAttribute('x1') || '0');
+      const y1 = parseFloat(line.getAttribute('y1') || '0');
+      const x2 = parseFloat(line.getAttribute('x2') || '0');
+      const y2 = parseFloat(line.getAttribute('y2') || '0');
+      if (x1 === x2 && y1 !== y2) {
+        const topY = Math.min(y1, y2);
+        const botY = Math.max(y1, y2);
+        if (busLines.some(b => Math.abs(b - topY) < 5) && botY - topY < 100) {
+          line.setAttribute('y2', String(botY + EXTRA));
         }
-      });
+      }
+    });
 
-      if (busLines.length < 2) return;
-
-      // Sort buses by Y position (top to bottom)
-      busLines.sort((a, b) => a.y1 - b.y1);
-
-      // Extend vertical lines (cables) between bus tiers
-      const EXTRA = 80; // extra pixels per cable step
-
-      // Find all vertical lines (cables between buses and MCBs)
-      lines.forEach((line) => {
-        const x1 = parseFloat(line.getAttribute('x1') || '0');
-        const y1 = parseFloat(line.getAttribute('y1') || '0');
-        const x2 = parseFloat(line.getAttribute('x2') || '0');
-        const y2 = parseFloat(line.getAttribute('y2') || '0');
-
-        // Vertical line (same X, different Y)
-        if (x1 === x2 && y1 !== y2) {
+    // Extend short vertical paths
+    allPaths.forEach((path) => {
+      const d = path.getAttribute('d') || '';
+      const match = d.match(/^M\s*([\d.]+)\s+([\d.]+)\s+L\s*([\d.]+)\s+([\d.]+)$/);
+      if (match) {
+        const [, x1, y1, x2, y2] = match.map(Number);
+        if (x1 === x2 && Math.abs(y2 - y1) < 100) {
           const topY = Math.min(y1, y2);
-          const botY = Math.max(y1, y2);
-
-          // Check if this line connects a bus to something below
-          const isOnBus = busLines.some(b => Math.abs(b.y1 - topY) < 5 || Math.abs(b.y1 - botY) < 5);
-
-          if (isOnBus && botY - topY < 100) {
-            // Short cable — extend it downward
-            line.setAttribute('y2', String(botY + EXTRA));
+          if (busLines.some(b => Math.abs(b - topY) < 5)) {
+            path.setAttribute('d', `M ${x1} ${y1} L ${x2} ${Math.max(y1, y2) + EXTRA}`);
           }
         }
-      });
+      }
+    });
 
-      // Also extend paths (diagonal/curved cables)
-      paths.forEach((path) => {
-        const d = path.getAttribute('d') || '';
-        // Simple vertical path: M x,y L x,y2
-        const match = d.match(/^M\s*([\d.]+)\s+([\d.]+)\s+L\s*([\d.]+)\s+([\d.]+)$/);
-        if (match) {
-          const [, x1, y1, x2, y2] = match.map(Number);
-          if (x1 === x2 && Math.abs(y2 - y1) < 100) {
-            const topY = Math.min(y1, y2);
-            const botY = Math.max(y1, y2);
-            const isOnBus = busLines.some(b => Math.abs(b.y1 - topY) < 5);
-            if (isOnBus) {
-              path.setAttribute('d', `M ${x1} ${y1} L ${x2} ${botY + EXTRA}`);
-            }
-          }
-        }
-      });
+    // Resize viewBox
+    const bbox = svg.getBBox();
+    svg.setAttribute('viewBox', `0 0 ${bbox.width} ${bbox.height + EXTRA * 2}`);
+    svg.style.height = 'auto';
+  };
 
-      // Resize SVG viewBox to accommodate extended cables
-      const bbox = svg.getBBox();
-      svg.setAttribute('viewBox', `0 0 ${bbox.width} ${bbox.height + EXTRA * 2}`);
-      svg.style.height = 'auto';
+  // Reposition labels to the right side of their nearest cable
+  const repositionLabels = (svg: SVGSVGElement) => {
+    const texts = svg.querySelectorAll('text');
+    if (texts.length === 0) return;
 
-      // Reposition labels: move all text to the RIGHT side of their nearest cable
-      const texts = svg.querySelectorAll('text');
-      const verticalCables: { x: number; topY: number; botY: number }[] = [];
-
-      // Collect vertical cable lines
-      lines.forEach((line) => {
-        const x1 = parseFloat(line.getAttribute('x1') || '0');
-        const y1 = parseFloat(line.getAttribute('y1') || '0');
-        const x2 = parseFloat(line.getAttribute('x2') || '0');
-        const y2 = parseFloat(line.getAttribute('y2') || '0');
+    // Collect all vertical cable lines
+    const allLines = svg.querySelectorAll('line');
+    const verticalCables: { x: number; topY: number; botY: number }[] = [];
+    allLines.forEach((line) => {
+      const x1 = parseFloat(line.getAttribute('x1') || '0');
+      const y1 = parseFloat(line.getAttribute('y1') || '0');
+      const x2 = parseFloat(line.getAttribute('x2') || '0');
+      const y2 = parseFloat(line.getAttribute('y2') || '0');
+      if (x1 === x2 && Math.abs(y2 - y1) > 10) {
+        verticalCables.push({ x: x1, topY: Math.min(y1, y2), botY: Math.max(y1, y2) });
+      }
+    });
+    // Also from paths
+    svg.querySelectorAll('path').forEach((path) => {
+      const d = path.getAttribute('d') || '';
+      const m = d.match(/M\s*([\d.]+)\s+([\d.]+)\s+L\s*([\d.]+)\s+([\d.]+)/);
+      if (m) {
+        const [, x1, y1, x2, y2] = m.map(Number);
         if (x1 === x2 && Math.abs(y2 - y1) > 10) {
           verticalCables.push({ x: x1, topY: Math.min(y1, y2), botY: Math.max(y1, y2) });
         }
-      });
+      }
+    });
 
-      texts.forEach((text) => {
-        const tx = parseFloat(text.getAttribute('x') || '0');
-        const ty = parseFloat(text.getAttribute('y') || '0');
-        const content = text.textContent?.trim() || '';
+    if (verticalCables.length === 0) return;
 
-        // Find the nearest vertical cable to this text
-        let nearestCable: typeof verticalCables[0] | null = null;
-        let minDist = Infinity;
-        for (const cable of verticalCables) {
-          const xDist = Math.abs(tx - cable.x);
-          const yInCable = ty >= cable.topY - 20 && ty <= cable.botY + 20;
-          if (xDist < 50 && yInCable && xDist < minDist) {
-            minDist = xDist;
-            nearestCable = cable;
-          }
+    texts.forEach((text) => {
+      const bbox = text.getBBox();
+      const tx = bbox.x + bbox.width / 2;
+      const ty = bbox.y + bbox.height / 2;
+      const content = text.textContent?.trim() || '';
+
+      // Skip headers
+      if (content.includes('Single Line') || content.includes('MDB Bus') || content.includes('Utility')) return;
+
+      // Find nearest vertical cable
+      let best: typeof verticalCables[0] | null = null;
+      let bestDist = Infinity;
+      for (const c of verticalCables) {
+        const dx = Math.abs(tx - c.x);
+        const yOk = ty >= c.topY - 30 && ty <= c.botY + 30;
+        if (dx < 80 && yOk && dx < bestDist) {
+          bestDist = dx;
+          best = c;
         }
+      }
 
-        if (nearestCable) {
-          // Move text to the RIGHT of the cable
-          const offsetX = 12; // pixels to the right of the cable
-          text.setAttribute('x', String(nearestCable.x + offsetX));
-          text.style.textAnchor = 'start';
-        } else {
-          // For texts not near a cable (like load names below MCBs),
-          // find the nearest vertical line above and shift right
-          let nearestLine: typeof verticalCables[0] | null = null;
-          let bestDist = Infinity;
-          for (const cable of verticalCables) {
-            const xDist = Math.abs(tx - cable.x);
-            if (xDist < 80 && ty >= cable.topY - 30 && xDist < bestDist) {
-              bestDist = xDist;
-              nearestLine = cable;
-            }
-          }
-          if (nearestLine) {
-            text.setAttribute('x', String(nearestLine.x + 12));
-            text.style.textAnchor = 'start';
-          }
-        }
-      });
+      if (best) {
+        text.setAttribute('x', String(best.x + 15));
+        text.setAttribute('text-anchor', 'start');
+      }
+    });
+  };
 
-    }, 100);
+  // Post-process SVG after render
+  useEffect(() => {
+    if (!pages[activePage]) return;
 
+    const processSVG = () => {
+      if (!svgContainerRef.current) return;
+      const svg = svgContainerRef.current.querySelector('svg');
+      if (!svg) return;
+
+      const texts = svg.querySelectorAll('text');
+      if (texts.length === 0) {
+        // SVG not ready yet — retry
+        setTimeout(processSVG, 500);
+        return;
+      }
+
+      extendCables(svg);
+      repositionLabels(svg);
+    };
+
+    const timer = setTimeout(processSVG, 200);
     return () => clearTimeout(timer);
   }, [pages, activePage]);
 

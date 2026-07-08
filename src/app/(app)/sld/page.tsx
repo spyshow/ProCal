@@ -262,6 +262,62 @@ export default function SLDPage() {
       svg.setAttribute('viewBox', `0 0 ${bbox.width} ${bbox.height + EXTRA * 2}`);
       svg.style.height = 'auto';
 
+      // Reposition labels: move all text to the RIGHT side of their nearest cable
+      const texts = svg.querySelectorAll('text');
+      const verticalCables: { x: number; topY: number; botY: number }[] = [];
+
+      // Collect vertical cable lines
+      lines.forEach((line) => {
+        const x1 = parseFloat(line.getAttribute('x1') || '0');
+        const y1 = parseFloat(line.getAttribute('y1') || '0');
+        const x2 = parseFloat(line.getAttribute('x2') || '0');
+        const y2 = parseFloat(line.getAttribute('y2') || '0');
+        if (x1 === x2 && Math.abs(y2 - y1) > 10) {
+          verticalCables.push({ x: x1, topY: Math.min(y1, y2), botY: Math.max(y1, y2) });
+        }
+      });
+
+      texts.forEach((text) => {
+        const tx = parseFloat(text.getAttribute('x') || '0');
+        const ty = parseFloat(text.getAttribute('y') || '0');
+        const content = text.textContent?.trim() || '';
+
+        // Find the nearest vertical cable to this text
+        let nearestCable: typeof verticalCables[0] | null = null;
+        let minDist = Infinity;
+        for (const cable of verticalCables) {
+          const xDist = Math.abs(tx - cable.x);
+          const yInCable = ty >= cable.topY - 20 && ty <= cable.botY + 20;
+          if (xDist < 50 && yInCable && xDist < minDist) {
+            minDist = xDist;
+            nearestCable = cable;
+          }
+        }
+
+        if (nearestCable) {
+          // Move text to the RIGHT of the cable
+          const offsetX = 12; // pixels to the right of the cable
+          text.setAttribute('x', String(nearestCable.x + offsetX));
+          text.style.textAnchor = 'start';
+        } else {
+          // For texts not near a cable (like load names below MCBs),
+          // find the nearest vertical line above and shift right
+          let nearestLine: typeof verticalCables[0] | null = null;
+          let bestDist = Infinity;
+          for (const cable of verticalCables) {
+            const xDist = Math.abs(tx - cable.x);
+            if (xDist < 80 && ty >= cable.topY - 30 && xDist < bestDist) {
+              bestDist = xDist;
+              nearestLine = cable;
+            }
+          }
+          if (nearestLine) {
+            text.setAttribute('x', String(nearestLine.x + 12));
+            text.style.textAnchor = 'start';
+          }
+        }
+      });
+
     }, 100);
 
     return () => clearTimeout(timer);

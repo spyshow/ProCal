@@ -39,3 +39,17 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+/prisma/dev.db
+/prisma/dev.db-journal
+
+/data/
+/public/uploads/
+/scratch/
+/.mimocode/
+/tasks/
+task.md
+implementation_plan.md
+agent.json
+vitest.config.ts
+nul

@@ -1,0 +1,167 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model User {
+  id           String    @id @default(uuid())
+  username     String    @unique
+  passwordHash String
+  name         String
+  createdAt    DateTime  @default(now())
+  projects     Project[]
+}
+
+model Project {
+  id                    String              @id @default(uuid())
+  name                  String
+  client                String
+  consultant            String
+  contractor            String
+  location              String
+  engineer              String
+  date                  String
+  voltage               Float               @default(400) // V (Line-to-Line)
+  frequency             Float               @default(50) // Hz
+  powerFactor           Float               @default(0.85)
+  maxDemandFactor       Float               @default(0.8)
+  transformerSize       Float? // Sized in kVA
+  notes                 String?
+  preferredManufacturer String              @default("MIXED") // "ABB" | "SCHNEIDER" | "MIXED"
+  country               String              @default("Syria")
+  logoUrl               String?
+  userId                String
+  user                  User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  buildings             Building[]
+  apartmentTemplates    ApartmentTemplate[]
+  loadLibraryItems      LoadLibraryItem[]
+  createdAt             DateTime            @default(now())
+  updatedAt             DateTime            @updatedAt
+}
+
+model Building {
+  id                  String        @id @default(uuid())
+  name                String
+  floors              Int
+  serviceFloors       Int
+  apartmentsPerFloor  Int
+  elevators           Int           @default(0)
+  waterPumps          Int           @default(0)
+  firePump            Boolean       @default(false)
+  mechanicalLoads     String? // JSON string of mechanical loads: [{name, power, pf, qty, isEssential}]
+  splitAc             Int           @default(0)
+  centralAc           Float         @default(0) // kW
+  generator           Float? // Sized generator kVA
+  transformer         Float? // Sized transformer kVA
+  supplyVoltage       String        @default("400V 3-Phase")
+  earthingSystem      String        @default("TN-S")
+  lightningProtection Boolean       @default(false)
+  projectId           String
+  project             Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  floorDesigns        FloorDesign[]
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+}
+
+model ApartmentTemplate {
+  id          String          @id @default(uuid())
+  name        String
+  repeatCount Int             @default(1)
+  projectId   String
+  project     Project         @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  rooms       ApartmentRoom[]
+  floorItems  FloorItem[]
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+}
+
+model ApartmentRoom {
+  id            String            @id @default(uuid())
+  type          String // KITCHEN, BEDROOM, LIVING_ROOM, DINING_ROOM, BATHROOM, HALL, OTHER
+  name          String // Display name e.g., "Master Bedroom"
+  area          Float // m²
+  hasAc         Boolean           @default(false)
+  acBtu         Int? // Auto-calculated from area if hasAc
+  loadDensity   Float // VA/m² - loaded from country defaults, overridable
+  connectedLoad Float // Calculated: area × loadDensity + AC watts
+  templateId    String
+  template      ApartmentTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
+}
+
+model LoadLibraryItem {
+  id              String      @id @default(uuid())
+  name            String
+  category        String // "Lighting", "Socket", "AC", "Pump", "Elevator", etc.
+  power           Float // in kW
+  voltage         Float       @default(230) // V
+  phase           Int         @default(1) // 1 or 3
+  powerFactor     Float       @default(0.85)
+  demandFactor    Float       @default(1.0)
+  quantity        Int         @default(1)
+  runningCurrent  Float       @default(0) // calculated/stored
+  startingCurrent Float?
+  notes           String?
+  projectId       String
+  project         Project     @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  floorItems      FloorItem[]
+}
+
+model FloorDesign {
+  id          String      @id @default(uuid())
+  floorNumber Int
+  buildingId  String
+  building    Building    @relation(fields: [buildingId], references: [id], onDelete: Cascade)
+  items       FloorItem[]
+}
+
+model FloorItem {
+  id                      String             @id @default(uuid())
+  type                    String // "APARTMENT" | "SERVICE_PANEL" | "PUMP_PANEL" | "ELEVATOR_PANEL"
+  name                    String // display name e.g., "Apartment 1" or "Service Board"
+  apartmentTemplateId     String?
+  apartmentTemplate       ApartmentTemplate? @relation(fields: [apartmentTemplateId], references: [id], onDelete: SetNull)
+  loadLibraryItemId       String?
+  loadLibraryItem         LoadLibraryItem?   @relation(fields: [loadLibraryItemId], references: [id], onDelete: SetNull)
+  floorDesignId           String
+  floorDesign             FloorDesign        @relation(fields: [floorDesignId], references: [id], onDelete: Cascade)
+  calculatedConnectedLoad Float              @default(0)
+  calculatedMaxDemand     Float              @default(0)
+  calculatedCurrent       Float              @default(0)
+  breakerSize             String?
+  cableSize               String?
+  voltageDrop             Float?
+}
+
+model EquipmentCatalog {
+  id               String  @id @default(uuid())
+  category         String // "ACB" | "MCCB" | "MCB" | "RCCB" | "RCBO" | "SPD" | "CONTACTOR" | "OVERLOAD" | "METER" | "CT"
+  manufacturer     String // "ABB" | "SCHNEIDER"
+  series           String // e.g. "Emax 2", "Tmax XT4", "Acti9 iC60"
+  model            String // e.g. "E2.2B 1600"
+  ratedCurrent     Float // nominal current rating (In) in A
+  poles            Int     @default(3)
+  breakingCapacity Float // Icu in kA
+  tripUnit         String? // e.g. "Ekip Dip LSI", "MicroLogic 2.2"
+  settingsJson     String? // JSON string: adjustable protection settings ranges
+  datasheetUrl     String?
+}
+
+model BreakerSettings {
+  id           String   @id @default(uuid())
+  breakerId    String   @unique // The unique tag of the feeder in the design (e.g. "proj1-mdb-main")
+  model        String
+  manufacturer String
+  frameSize    String
+  ir           Float // L pickup setting
+  tr           Float // L delay setting
+  isd          Float? // S pickup setting
+  tsd          Float? // S delay setting
+  i2t          Boolean? // S I2t state (on/off)
+  ii           Float? // I pickup setting
+  ig           Float? // G pickup setting
+  tg           Float? // G delay setting
+}

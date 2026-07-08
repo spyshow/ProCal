@@ -244,31 +244,40 @@ export default function SLDPage() {
     const texts = svg.querySelectorAll('text');
     if (texts.length === 0) return;
 
-    // Collect all vertical cable lines
+    // Collect all line elements (vertical cables + diagonal MCBs + horizontal bus segments)
     const allLines = svg.querySelectorAll('line');
-    const verticalCables: { x: number; topY: number; botY: number }[] = [];
+    const lineElements: { el: SVGLineElement; cx: number; cy: number; isVertical: boolean; isDiagonal: boolean }[] = [];
     allLines.forEach((line) => {
       const x1 = parseFloat(line.getAttribute('x1') || '0');
       const y1 = parseFloat(line.getAttribute('y1') || '0');
       const x2 = parseFloat(line.getAttribute('x2') || '0');
       const y2 = parseFloat(line.getAttribute('y2') || '0');
-      if (x1 === x2 && Math.abs(y2 - y1) > 10) {
-        verticalCables.push({ x: x1, topY: Math.min(y1, y2), botY: Math.max(y1, y2) });
+      const cx = (x1 + x2) / 2;
+      const cy = (y1 + y2) / 2;
+      const isVert = x1 === x2 && Math.abs(y2 - y1) > 10;
+      const isDiag = x1 !== x2 && y1 !== y2 && Math.abs(y2 - y1) > 5 && Math.abs(x2 - x1) > 5;
+      if (isVert || isDiag) {
+        lineElements.push({ el: line, cx, cy, isVertical: isVert, isDiagonal: isDiag });
       }
     });
-    // Also from paths
+
+    // Also collect paths
     svg.querySelectorAll('path').forEach((path) => {
       const d = path.getAttribute('d') || '';
       const m = d.match(/M\s*([\d.]+)\s+([\d.]+)\s+L\s*([\d.]+)\s+([\d.]+)/);
       if (m) {
         const [, x1, y1, x2, y2] = m.map(Number);
-        if (x1 === x2 && Math.abs(y2 - y1) > 10) {
-          verticalCables.push({ x: x1, topY: Math.min(y1, y2), botY: Math.max(y1, y2) });
+        const cx = (x1 + x2) / 2;
+        const cy = (y1 + y2) / 2;
+        const isVert = x1 === x2 && Math.abs(y2 - y1) > 10;
+        const isDiag = x1 !== x2 && y1 !== y2;
+        if (isVert || isDiag) {
+          lineElements.push({ el: path as any, cx, cy, isVertical: isVert, isDiagonal: isDiag });
         }
       }
     });
 
-    if (verticalCables.length === 0) return;
+    if (lineElements.length === 0) return;
 
     texts.forEach((text) => {
       const bbox = text.getBBox();
@@ -276,24 +285,34 @@ export default function SLDPage() {
       const ty = bbox.y + bbox.height / 2;
       const content = text.textContent?.trim() || '';
 
-      // Skip headers
-      if (content.includes('Single Line') || content.includes('MDB Bus') || content.includes('Utility')) return;
+      // Skip headers and bus labels
+      if (content.includes('Single Line') || content.includes('MDB Bus') ||
+          content.includes('Utility') || content.includes('400V') ||
+          content.includes('Sub-Panel') || content === 'DB') return;
 
-      // Find nearest vertical cable
-      let best: typeof verticalCables[0] | null = null;
+      // Find nearest line element (vertical cable or diagonal MCB)
+      let best: typeof lineElements[0] | null = null;
       let bestDist = Infinity;
-      for (const c of verticalCables) {
-        const dx = Math.abs(tx - c.x);
-        const yOk = ty >= c.topY - 30 && ty <= c.botY + 30;
-        if (dx < 80 && yOk && dx < bestDist) {
-          bestDist = dx;
-          best = c;
+      for (const le of lineElements) {
+        const dx = Math.abs(tx - le.cx);
+        const dy = Math.abs(ty - le.cy);
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < 80 && dist < bestDist) {
+          bestDist = dist;
+          best = le;
         }
       }
 
       if (best) {
-        text.setAttribute('x', String(best.x + 15));
-        text.setAttribute('text-anchor', 'start');
+        if (best.isVertical) {
+          // Vertical cable: put text to the RIGHT of the cable line
+          text.setAttribute('x', String(best.cx + 15));
+          text.setAttribute('text-anchor', 'start');
+        } else if (best.isDiagonal) {
+          // Diagonal MCB: put text to the RIGHT of the MCB center
+          text.setAttribute('x', String(best.cx + 20));
+          text.setAttribute('text-anchor', 'start');
+        }
       }
     });
   };

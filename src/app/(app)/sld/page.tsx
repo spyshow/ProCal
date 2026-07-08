@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { useProject } from '@/context/ProjectContext';
 import { SchematexDiagram } from 'schematex/react';
 import { generateSLD } from '@/lib/sld/generator';
@@ -29,6 +29,17 @@ export default function SLDPage() {
   const [selectedBuilding, setSelectedBuilding] = useState<string | null>(null);
   const [zoom, setZoom] = useState(100);
   const [cables, setCables] = useState<CableEntry[]>([]);
+  const svgContainerRef = useRef<HTMLDivElement>(null);
+
+  // Apply zoom to the SVG element directly, not the container
+  useEffect(() => {
+    if (!svgContainerRef.current) return;
+    const svg = svgContainerRef.current.querySelector('svg');
+    if (svg) {
+      svg.style.transform = `scale(${zoom / 100})`;
+      svg.style.transformOrigin = 'top left';
+    }
+  }, [zoom, dsl]);
 
   const loadProject = useCallback(async () => {
     if (!selectedProjectId) { setLoading(false); return; }
@@ -135,7 +146,7 @@ export default function SLDPage() {
       )}
 
       {/* SLD Diagram */}
-      <div className="bg-white rounded-xl p-6 overflow-auto" style={{ transform: `scale(${zoom / 100})`, transformOrigin: 'top left' }}>
+      <div ref={svgContainerRef} className="bg-white rounded-xl p-6 overflow-auto">
         {dsl && <SchematexDiagram dsl={dsl} />}
       </div>
 

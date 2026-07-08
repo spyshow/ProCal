@@ -143,11 +143,13 @@ export function generateSLDPages(project: SLDProject): SLDPage[] {
         const letter = String.fromCharCode(97 + idx);
         const loadTag = `F${fd.floorNumber}-${letter.toUpperCase()}`;
         const cableTag = `Wf${fd.floorNumber}${letter}`;
+        const mcbId = `fm${fd.floorNumber}_${letter}`;
+        const loadId = `fl${fd.floorNumber}_${letter}`;
 
-        lines.push(`${fd.floorNumber}_mcb_${letter} = mcb [label: "${item.breakerSize}", rating: "${item.breakerSize}"]`);
-        lines.push(`${fd.floorNumber}_load_${letter} = load [label: "${loadTag}"]`);
-        lines.push(`f${fd.floorNumber}_bus -> ${fd.floorNumber}_mcb_${letter} [cable: "${cableTag}", label: "${item.cableSize}"]`);
-        lines.push(`${fd.floorNumber}_mcb_${letter} -> ${fd.floorNumber}_load_${letter}`);
+        lines.push(`${mcbId} = mcb [label: "${item.breakerSize}", rating: "${item.breakerSize}"]`);
+        lines.push(`${loadId} = load [label: "${loadTag}"]`);
+        lines.push(`f${fd.floorNumber}_bus -> ${mcbId} [cable: "${cableTag}", label: "${item.cableSize}"]`);
+        lines.push(`${mcbId} -> ${loadId}`);
       });
     } else {
       // Direct floor: MDB → Floor Breaker → Floor Bus → MCBs
@@ -164,11 +166,13 @@ export function generateSLDPages(project: SLDProject): SLDPage[] {
         const letter = String.fromCharCode(97 + idx);
         const loadTag = `F${fd.floorNumber}-${letter.toUpperCase()}`;
         const cableTag = `Wf${fd.floorNumber}${letter}`;
+        const mcbId = `fm${fd.floorNumber}_${letter}`;
+        const loadId = `fl${fd.floorNumber}_${letter}`;
 
-        lines.push(`${fd.floorNumber}_mcb_${letter} = mcb [label: "${item.breakerSize}", rating: "${item.breakerSize}"]`);
-        lines.push(`${fd.floorNumber}_load_${letter} = load [label: "${loadTag}"]`);
-        lines.push(`f${fd.floorNumber}_bus -> ${fd.floorNumber}_mcb_${letter} [cable: "${cableTag}", label: "${item.cableSize}"]`);
-        lines.push(`${fd.floorNumber}_mcb_${letter} -> ${fd.floorNumber}_load_${letter}`);
+        lines.push(`${mcbId} = mcb [label: "${item.breakerSize}", rating: "${item.breakerSize}"]`);
+        lines.push(`${loadId} = load [label: "${loadTag}"]`);
+        lines.push(`f${fd.floorNumber}_bus -> ${mcbId} [cable: "${cableTag}", label: "${item.cableSize}"]`);
+        lines.push(`${mcbId} -> ${loadId}`);
       });
     }
 

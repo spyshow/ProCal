@@ -161,6 +161,15 @@ body {
   .bg-white.rounded-xl svg {
     width: 100% !important;
     height: auto !important;
+    max-width: none !important;
     transform: none !important;
+  }
+
+  .bg-white.rounded-xl {
+    overflow: visible !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: none !important;
+    border-radius: 0 !important;
   }
 }

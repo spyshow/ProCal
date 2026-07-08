@@ -116,20 +116,46 @@ export default function SLDPage() {
     const svg = svgContainerRef.current.querySelector('svg');
     if (!svg) return;
 
-    const svgData = new XMLSerializer().serializeToString(svg);
+    // Get full SVG dimensions from viewBox or getBBox
+    const viewBox = svg.getAttribute('viewBox');
+    let fullWidth: number;
+    let fullHeight: number;
+
+    if (viewBox) {
+      const parts = viewBox.split(/[\s,]+/).map(Number);
+      fullWidth = parts[2] || svg.clientWidth;
+      fullHeight = parts[3] || svg.clientHeight;
+    } else {
+      const bbox = svg.getBBox();
+      fullWidth = bbox.width || svg.clientWidth;
+      fullHeight = bbox.height || svg.clientHeight;
+    }
+
+    // Ensure minimum dimensions
+    fullWidth = Math.max(fullWidth, 800);
+    fullHeight = Math.max(fullHeight, 600);
+
+    // Clone SVG and set explicit dimensions
+    const clonedSvg = svg.cloneNode(true) as SVGSVGElement;
+    clonedSvg.setAttribute('width', String(fullWidth));
+    clonedSvg.setAttribute('height', String(fullHeight));
+    clonedSvg.style.transform = 'none';
+
+    const svgData = new XMLSerializer().serializeToString(clonedSvg);
     const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
     const url = URL.createObjectURL(svgBlob);
 
     const img = new Image();
     img.onload = () => {
+      const scale = 2; // 2x for retina
       const canvas = document.createElement('canvas');
-      canvas.width = img.width * 2; // 2x for retina
-      canvas.height = img.height * 2;
+      canvas.width = fullWidth * scale;
+      canvas.height = fullHeight * scale;
       const ctx = canvas.getContext('2d')!;
-      ctx.scale(2, 2);
+      ctx.scale(scale, scale);
       ctx.fillStyle = 'white';
-      ctx.fillRect(0, 0, img.width, img.height);
-      ctx.drawImage(img, 0, 0);
+      ctx.fillRect(0, 0, fullWidth, fullHeight);
+      ctx.drawImage(img, 0, 0, fullWidth, fullHeight);
 
       canvas.toBlob((blob) => {
         if (!blob) return;

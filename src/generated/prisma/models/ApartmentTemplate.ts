@@ -20,13 +20,24 @@ export type ApartmentTemplateModel = runtime.Types.Result.DefaultSelection<Prism
 
 export type AggregateApartmentTemplate = {
   _count: ApartmentTemplateCountAggregateOutputType | null
+  _avg: ApartmentTemplateAvgAggregateOutputType | null
+  _sum: ApartmentTemplateSumAggregateOutputType | null
   _min: ApartmentTemplateMinAggregateOutputType | null
   _max: ApartmentTemplateMaxAggregateOutputType | null
+}
+
+export type ApartmentTemplateAvgAggregateOutputType = {
+  phases: number | null
+}
+
+export type ApartmentTemplateSumAggregateOutputType = {
+  phases: number | null
 }
 
 export type ApartmentTemplateMinAggregateOutputType = {
   id: string | null
   name: string | null
+  phases: number | null
   projectId: string | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -35,6 +46,7 @@ export type ApartmentTemplateMinAggregateOutputType = {
 export type ApartmentTemplateMaxAggregateOutputType = {
   id: string | null
   name: string | null
+  phases: number | null
   projectId: string | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -43,6 +55,7 @@ export type ApartmentTemplateMaxAggregateOutputType = {
 export type ApartmentTemplateCountAggregateOutputType = {
   id: number
   name: number
+  phases: number
   projectId: number
   createdAt: number
   updatedAt: number
@@ -50,9 +63,18 @@ export type ApartmentTemplateCountAggregateOutputType = {
 }
 
 
+export type ApartmentTemplateAvgAggregateInputType = {
+  phases?: true
+}
+
+export type ApartmentTemplateSumAggregateInputType = {
+  phases?: true
+}
+
 export type ApartmentTemplateMinAggregateInputType = {
   id?: true
   name?: true
+  phases?: true
   projectId?: true
   createdAt?: true
   updatedAt?: true
@@ -61,6 +83,7 @@ export type ApartmentTemplateMinAggregateInputType = {
 export type ApartmentTemplateMaxAggregateInputType = {
   id?: true
   name?: true
+  phases?: true
   projectId?: true
   createdAt?: true
   updatedAt?: true
@@ -69,6 +92,7 @@ export type ApartmentTemplateMaxAggregateInputType = {
 export type ApartmentTemplateCountAggregateInputType = {
   id?: true
   name?: true
+  phases?: true
   projectId?: true
   createdAt?: true
   updatedAt?: true
@@ -113,6 +137,18 @@ export type ApartmentTemplateAggregateArgs<ExtArgs extends runtime.Types.Extensi
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
+   * Select which fields to average
+  **/
+  _avg?: ApartmentTemplateAvgAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
+   * Select which fields to sum
+  **/
+  _sum?: ApartmentTemplateSumAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
    * Select which fields to find the minimum value
   **/
   _min?: ApartmentTemplateMinAggregateInputType
@@ -143,6 +179,8 @@ export type ApartmentTemplateGroupByArgs<ExtArgs extends runtime.Types.Extension
   take?: number
   skip?: number
   _count?: ApartmentTemplateCountAggregateInputType | true
+  _avg?: ApartmentTemplateAvgAggregateInputType
+  _sum?: ApartmentTemplateSumAggregateInputType
   _min?: ApartmentTemplateMinAggregateInputType
   _max?: ApartmentTemplateMaxAggregateInputType
 }
@@ -150,10 +188,13 @@ export type ApartmentTemplateGroupByArgs<ExtArgs extends runtime.Types.Extension
 export type ApartmentTemplateGroupByOutputType = {
   id: string
   name: string
+  phases: number
   projectId: string
   createdAt: Date
   updatedAt: Date
   _count: ApartmentTemplateCountAggregateOutputType | null
+  _avg: ApartmentTemplateAvgAggregateOutputType | null
+  _sum: ApartmentTemplateSumAggregateOutputType | null
   _min: ApartmentTemplateMinAggregateOutputType | null
   _max: ApartmentTemplateMaxAggregateOutputType | null
 }
@@ -179,6 +220,7 @@ export type ApartmentTemplateWhereInput = {
   NOT?: Prisma.ApartmentTemplateWhereInput | Prisma.ApartmentTemplateWhereInput[]
   id?: Prisma.StringFilter<"ApartmentTemplate"> | string
   name?: Prisma.StringFilter<"ApartmentTemplate"> | string
+  phases?: Prisma.IntFilter<"ApartmentTemplate"> | number
   projectId?: Prisma.StringFilter<"ApartmentTemplate"> | string
   createdAt?: Prisma.DateTimeFilter<"ApartmentTemplate"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ApartmentTemplate"> | Date | string
@@ -190,6 +232,7 @@ export type ApartmentTemplateWhereInput = {
 export type ApartmentTemplateOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  phases?: Prisma.SortOrder
   projectId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -204,6 +247,7 @@ export type ApartmentTemplateWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.ApartmentTemplateWhereInput[]
   NOT?: Prisma.ApartmentTemplateWhereInput | Prisma.ApartmentTemplateWhereInput[]
   name?: Prisma.StringFilter<"ApartmentTemplate"> | string
+  phases?: Prisma.IntFilter<"ApartmentTemplate"> | number
   projectId?: Prisma.StringFilter<"ApartmentTemplate"> | string
   createdAt?: Prisma.DateTimeFilter<"ApartmentTemplate"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ApartmentTemplate"> | Date | string
@@ -215,12 +259,15 @@ export type ApartmentTemplateWhereUniqueInput = Prisma.AtLeast<{
 export type ApartmentTemplateOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  phases?: Prisma.SortOrder
   projectId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.ApartmentTemplateCountOrderByAggregateInput
+  _avg?: Prisma.ApartmentTemplateAvgOrderByAggregateInput
   _max?: Prisma.ApartmentTemplateMaxOrderByAggregateInput
   _min?: Prisma.ApartmentTemplateMinOrderByAggregateInput
+  _sum?: Prisma.ApartmentTemplateSumOrderByAggregateInput
 }
 
 export type ApartmentTemplateScalarWhereWithAggregatesInput = {
@@ -229,6 +276,7 @@ export type ApartmentTemplateScalarWhereWithAggregatesInput = {
   NOT?: Prisma.ApartmentTemplateScalarWhereWithAggregatesInput | Prisma.ApartmentTemplateScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"ApartmentTemplate"> | string
   name?: Prisma.StringWithAggregatesFilter<"ApartmentTemplate"> | string
+  phases?: Prisma.IntWithAggregatesFilter<"ApartmentTemplate"> | number
   projectId?: Prisma.StringWithAggregatesFilter<"ApartmentTemplate"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"ApartmentTemplate"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"ApartmentTemplate"> | Date | string
@@ -237,6 +285,7 @@ export type ApartmentTemplateScalarWhereWithAggregatesInput = {
 export type ApartmentTemplateCreateInput = {
   id?: string
   name: string
+  phases?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   project: Prisma.ProjectCreateNestedOneWithoutApartmentTemplatesInput
@@ -247,6 +296,7 @@ export type ApartmentTemplateCreateInput = {
 export type ApartmentTemplateUncheckedCreateInput = {
   id?: string
   name: string
+  phases?: number
   projectId: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -257,6 +307,7 @@ export type ApartmentTemplateUncheckedCreateInput = {
 export type ApartmentTemplateUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  phases?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   project?: Prisma.ProjectUpdateOneRequiredWithoutApartmentTemplatesNestedInput
@@ -267,6 +318,7 @@ export type ApartmentTemplateUpdateInput = {
 export type ApartmentTemplateUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  phases?: Prisma.IntFieldUpdateOperationsInput | number
   projectId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -277,6 +329,7 @@ export type ApartmentTemplateUncheckedUpdateInput = {
 export type ApartmentTemplateCreateManyInput = {
   id?: string
   name: string
+  phases?: number
   projectId: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -285,6 +338,7 @@ export type ApartmentTemplateCreateManyInput = {
 export type ApartmentTemplateUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  phases?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -292,6 +346,7 @@ export type ApartmentTemplateUpdateManyMutationInput = {
 export type ApartmentTemplateUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  phases?: Prisma.IntFieldUpdateOperationsInput | number
   projectId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -310,14 +365,20 @@ export type ApartmentTemplateOrderByRelationAggregateInput = {
 export type ApartmentTemplateCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  phases?: Prisma.SortOrder
   projectId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
+export type ApartmentTemplateAvgOrderByAggregateInput = {
+  phases?: Prisma.SortOrder
+}
+
 export type ApartmentTemplateMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  phases?: Prisma.SortOrder
   projectId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -326,9 +387,14 @@ export type ApartmentTemplateMaxOrderByAggregateInput = {
 export type ApartmentTemplateMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  phases?: Prisma.SortOrder
   projectId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type ApartmentTemplateSumOrderByAggregateInput = {
+  phases?: Prisma.SortOrder
 }
 
 export type ApartmentTemplateScalarRelationFilter = {
@@ -416,6 +482,7 @@ export type ApartmentTemplateUpdateOneWithoutFloorItemsNestedInput = {
 export type ApartmentTemplateCreateWithoutProjectInput = {
   id?: string
   name: string
+  phases?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   rooms?: Prisma.ApartmentRoomCreateNestedManyWithoutTemplateInput
@@ -425,6 +492,7 @@ export type ApartmentTemplateCreateWithoutProjectInput = {
 export type ApartmentTemplateUncheckedCreateWithoutProjectInput = {
   id?: string
   name: string
+  phases?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   rooms?: Prisma.ApartmentRoomUncheckedCreateNestedManyWithoutTemplateInput
@@ -462,6 +530,7 @@ export type ApartmentTemplateScalarWhereInput = {
   NOT?: Prisma.ApartmentTemplateScalarWhereInput | Prisma.ApartmentTemplateScalarWhereInput[]
   id?: Prisma.StringFilter<"ApartmentTemplate"> | string
   name?: Prisma.StringFilter<"ApartmentTemplate"> | string
+  phases?: Prisma.IntFilter<"ApartmentTemplate"> | number
   projectId?: Prisma.StringFilter<"ApartmentTemplate"> | string
   createdAt?: Prisma.DateTimeFilter<"ApartmentTemplate"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ApartmentTemplate"> | Date | string
@@ -470,6 +539,7 @@ export type ApartmentTemplateScalarWhereInput = {
 export type ApartmentTemplateCreateWithoutRoomsInput = {
   id?: string
   name: string
+  phases?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   project: Prisma.ProjectCreateNestedOneWithoutApartmentTemplatesInput
@@ -479,6 +549,7 @@ export type ApartmentTemplateCreateWithoutRoomsInput = {
 export type ApartmentTemplateUncheckedCreateWithoutRoomsInput = {
   id?: string
   name: string
+  phases?: number
   projectId: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -504,6 +575,7 @@ export type ApartmentTemplateUpdateToOneWithWhereWithoutRoomsInput = {
 export type ApartmentTemplateUpdateWithoutRoomsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  phases?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   project?: Prisma.ProjectUpdateOneRequiredWithoutApartmentTemplatesNestedInput
@@ -513,6 +585,7 @@ export type ApartmentTemplateUpdateWithoutRoomsInput = {
 export type ApartmentTemplateUncheckedUpdateWithoutRoomsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  phases?: Prisma.IntFieldUpdateOperationsInput | number
   projectId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -522,6 +595,7 @@ export type ApartmentTemplateUncheckedUpdateWithoutRoomsInput = {
 export type ApartmentTemplateCreateWithoutFloorItemsInput = {
   id?: string
   name: string
+  phases?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   project: Prisma.ProjectCreateNestedOneWithoutApartmentTemplatesInput
@@ -531,6 +605,7 @@ export type ApartmentTemplateCreateWithoutFloorItemsInput = {
 export type ApartmentTemplateUncheckedCreateWithoutFloorItemsInput = {
   id?: string
   name: string
+  phases?: number
   projectId: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -556,6 +631,7 @@ export type ApartmentTemplateUpdateToOneWithWhereWithoutFloorItemsInput = {
 export type ApartmentTemplateUpdateWithoutFloorItemsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  phases?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   project?: Prisma.ProjectUpdateOneRequiredWithoutApartmentTemplatesNestedInput
@@ -565,6 +641,7 @@ export type ApartmentTemplateUpdateWithoutFloorItemsInput = {
 export type ApartmentTemplateUncheckedUpdateWithoutFloorItemsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  phases?: Prisma.IntFieldUpdateOperationsInput | number
   projectId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -574,6 +651,7 @@ export type ApartmentTemplateUncheckedUpdateWithoutFloorItemsInput = {
 export type ApartmentTemplateCreateManyProjectInput = {
   id?: string
   name: string
+  phases?: number
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -581,6 +659,7 @@ export type ApartmentTemplateCreateManyProjectInput = {
 export type ApartmentTemplateUpdateWithoutProjectInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  phases?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   rooms?: Prisma.ApartmentRoomUpdateManyWithoutTemplateNestedInput
@@ -590,6 +669,7 @@ export type ApartmentTemplateUpdateWithoutProjectInput = {
 export type ApartmentTemplateUncheckedUpdateWithoutProjectInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  phases?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   rooms?: Prisma.ApartmentRoomUncheckedUpdateManyWithoutTemplateNestedInput
@@ -599,6 +679,7 @@ export type ApartmentTemplateUncheckedUpdateWithoutProjectInput = {
 export type ApartmentTemplateUncheckedUpdateManyWithoutProjectInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  phases?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -646,6 +727,7 @@ export type ApartmentTemplateCountOutputTypeCountFloorItemsArgs<ExtArgs extends 
 export type ApartmentTemplateSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   name?: boolean
+  phases?: boolean
   projectId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -658,6 +740,7 @@ export type ApartmentTemplateSelect<ExtArgs extends runtime.Types.Extensions.Int
 export type ApartmentTemplateSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   name?: boolean
+  phases?: boolean
   projectId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -667,6 +750,7 @@ export type ApartmentTemplateSelectCreateManyAndReturn<ExtArgs extends runtime.T
 export type ApartmentTemplateSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   name?: boolean
+  phases?: boolean
   projectId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -676,12 +760,13 @@ export type ApartmentTemplateSelectUpdateManyAndReturn<ExtArgs extends runtime.T
 export type ApartmentTemplateSelectScalar = {
   id?: boolean
   name?: boolean
+  phases?: boolean
   projectId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type ApartmentTemplateOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "projectId" | "createdAt" | "updatedAt", ExtArgs["result"]["apartmentTemplate"]>
+export type ApartmentTemplateOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "phases" | "projectId" | "createdAt" | "updatedAt", ExtArgs["result"]["apartmentTemplate"]>
 export type ApartmentTemplateInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   project?: boolean | Prisma.ProjectDefaultArgs<ExtArgs>
   rooms?: boolean | Prisma.ApartmentTemplate$roomsArgs<ExtArgs>
@@ -705,6 +790,7 @@ export type $ApartmentTemplatePayload<ExtArgs extends runtime.Types.Extensions.I
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     name: string
+    phases: number
     projectId: string
     createdAt: Date
     updatedAt: Date
@@ -1136,6 +1222,7 @@ export interface Prisma__ApartmentTemplateClient<T, Null = never, ExtArgs extend
 export interface ApartmentTemplateFieldRefs {
   readonly id: Prisma.FieldRef<"ApartmentTemplate", 'String'>
   readonly name: Prisma.FieldRef<"ApartmentTemplate", 'String'>
+  readonly phases: Prisma.FieldRef<"ApartmentTemplate", 'Int'>
   readonly projectId: Prisma.FieldRef<"ApartmentTemplate", 'String'>
   readonly createdAt: Prisma.FieldRef<"ApartmentTemplate", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"ApartmentTemplate", 'DateTime'>

@@ -87,6 +87,8 @@ export async function PUT(
         preferredManufacturer: data.preferredManufacturer ?? existingProject.preferredManufacturer,
         logoUrl: data.logoUrl !== undefined ? data.logoUrl : existingProject.logoUrl,
         notes: data.notes ?? existingProject.notes,
+        maxVoltageDropLighting: data.maxVoltageDropLighting ? parseFloat(data.maxVoltageDropLighting) : existingProject.maxVoltageDropLighting,
+        maxVoltageDropPower: data.maxVoltageDropPower ? parseFloat(data.maxVoltageDropPower) : existingProject.maxVoltageDropPower,
         transformerSize: data.transformerSize ? parseFloat(data.transformerSize) : existingProject.transformerSize,
       },
     });

@@ -37,18 +37,21 @@ export type FloorDesignSumAggregateOutputType = {
 export type FloorDesignMinAggregateOutputType = {
   id: string | null
   floorNumber: number | null
+  hasFloorSubPanels: boolean | null
   buildingId: string | null
 }
 
 export type FloorDesignMaxAggregateOutputType = {
   id: string | null
   floorNumber: number | null
+  hasFloorSubPanels: boolean | null
   buildingId: string | null
 }
 
 export type FloorDesignCountAggregateOutputType = {
   id: number
   floorNumber: number
+  hasFloorSubPanels: number
   buildingId: number
   _all: number
 }
@@ -65,18 +68,21 @@ export type FloorDesignSumAggregateInputType = {
 export type FloorDesignMinAggregateInputType = {
   id?: true
   floorNumber?: true
+  hasFloorSubPanels?: true
   buildingId?: true
 }
 
 export type FloorDesignMaxAggregateInputType = {
   id?: true
   floorNumber?: true
+  hasFloorSubPanels?: true
   buildingId?: true
 }
 
 export type FloorDesignCountAggregateInputType = {
   id?: true
   floorNumber?: true
+  hasFloorSubPanels?: true
   buildingId?: true
   _all?: true
 }
@@ -170,6 +176,7 @@ export type FloorDesignGroupByArgs<ExtArgs extends runtime.Types.Extensions.Inte
 export type FloorDesignGroupByOutputType = {
   id: string
   floorNumber: number
+  hasFloorSubPanels: boolean
   buildingId: string
   _count: FloorDesignCountAggregateOutputType | null
   _avg: FloorDesignAvgAggregateOutputType | null
@@ -199,6 +206,7 @@ export type FloorDesignWhereInput = {
   NOT?: Prisma.FloorDesignWhereInput | Prisma.FloorDesignWhereInput[]
   id?: Prisma.StringFilter<"FloorDesign"> | string
   floorNumber?: Prisma.IntFilter<"FloorDesign"> | number
+  hasFloorSubPanels?: Prisma.BoolFilter<"FloorDesign"> | boolean
   buildingId?: Prisma.StringFilter<"FloorDesign"> | string
   building?: Prisma.XOR<Prisma.BuildingScalarRelationFilter, Prisma.BuildingWhereInput>
   items?: Prisma.FloorItemListRelationFilter
@@ -207,6 +215,7 @@ export type FloorDesignWhereInput = {
 export type FloorDesignOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   floorNumber?: Prisma.SortOrder
+  hasFloorSubPanels?: Prisma.SortOrder
   buildingId?: Prisma.SortOrder
   building?: Prisma.BuildingOrderByWithRelationInput
   items?: Prisma.FloorItemOrderByRelationAggregateInput
@@ -218,6 +227,7 @@ export type FloorDesignWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.FloorDesignWhereInput[]
   NOT?: Prisma.FloorDesignWhereInput | Prisma.FloorDesignWhereInput[]
   floorNumber?: Prisma.IntFilter<"FloorDesign"> | number
+  hasFloorSubPanels?: Prisma.BoolFilter<"FloorDesign"> | boolean
   buildingId?: Prisma.StringFilter<"FloorDesign"> | string
   building?: Prisma.XOR<Prisma.BuildingScalarRelationFilter, Prisma.BuildingWhereInput>
   items?: Prisma.FloorItemListRelationFilter
@@ -226,6 +236,7 @@ export type FloorDesignWhereUniqueInput = Prisma.AtLeast<{
 export type FloorDesignOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   floorNumber?: Prisma.SortOrder
+  hasFloorSubPanels?: Prisma.SortOrder
   buildingId?: Prisma.SortOrder
   _count?: Prisma.FloorDesignCountOrderByAggregateInput
   _avg?: Prisma.FloorDesignAvgOrderByAggregateInput
@@ -240,12 +251,14 @@ export type FloorDesignScalarWhereWithAggregatesInput = {
   NOT?: Prisma.FloorDesignScalarWhereWithAggregatesInput | Prisma.FloorDesignScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"FloorDesign"> | string
   floorNumber?: Prisma.IntWithAggregatesFilter<"FloorDesign"> | number
+  hasFloorSubPanels?: Prisma.BoolWithAggregatesFilter<"FloorDesign"> | boolean
   buildingId?: Prisma.StringWithAggregatesFilter<"FloorDesign"> | string
 }
 
 export type FloorDesignCreateInput = {
   id?: string
   floorNumber: number
+  hasFloorSubPanels?: boolean
   building: Prisma.BuildingCreateNestedOneWithoutFloorDesignsInput
   items?: Prisma.FloorItemCreateNestedManyWithoutFloorDesignInput
 }
@@ -253,6 +266,7 @@ export type FloorDesignCreateInput = {
 export type FloorDesignUncheckedCreateInput = {
   id?: string
   floorNumber: number
+  hasFloorSubPanels?: boolean
   buildingId: string
   items?: Prisma.FloorItemUncheckedCreateNestedManyWithoutFloorDesignInput
 }
@@ -260,6 +274,7 @@ export type FloorDesignUncheckedCreateInput = {
 export type FloorDesignUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   floorNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  hasFloorSubPanels?: Prisma.BoolFieldUpdateOperationsInput | boolean
   building?: Prisma.BuildingUpdateOneRequiredWithoutFloorDesignsNestedInput
   items?: Prisma.FloorItemUpdateManyWithoutFloorDesignNestedInput
 }
@@ -267,6 +282,7 @@ export type FloorDesignUpdateInput = {
 export type FloorDesignUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   floorNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  hasFloorSubPanels?: Prisma.BoolFieldUpdateOperationsInput | boolean
   buildingId?: Prisma.StringFieldUpdateOperationsInput | string
   items?: Prisma.FloorItemUncheckedUpdateManyWithoutFloorDesignNestedInput
 }
@@ -274,17 +290,20 @@ export type FloorDesignUncheckedUpdateInput = {
 export type FloorDesignCreateManyInput = {
   id?: string
   floorNumber: number
+  hasFloorSubPanels?: boolean
   buildingId: string
 }
 
 export type FloorDesignUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   floorNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  hasFloorSubPanels?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 export type FloorDesignUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   floorNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  hasFloorSubPanels?: Prisma.BoolFieldUpdateOperationsInput | boolean
   buildingId?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
@@ -301,6 +320,7 @@ export type FloorDesignOrderByRelationAggregateInput = {
 export type FloorDesignCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   floorNumber?: Prisma.SortOrder
+  hasFloorSubPanels?: Prisma.SortOrder
   buildingId?: Prisma.SortOrder
 }
 
@@ -311,12 +331,14 @@ export type FloorDesignAvgOrderByAggregateInput = {
 export type FloorDesignMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   floorNumber?: Prisma.SortOrder
+  hasFloorSubPanels?: Prisma.SortOrder
   buildingId?: Prisma.SortOrder
 }
 
 export type FloorDesignMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   floorNumber?: Prisma.SortOrder
+  hasFloorSubPanels?: Prisma.SortOrder
   buildingId?: Prisma.SortOrder
 }
 
@@ -388,12 +410,14 @@ export type FloorDesignUpdateOneRequiredWithoutItemsNestedInput = {
 export type FloorDesignCreateWithoutBuildingInput = {
   id?: string
   floorNumber: number
+  hasFloorSubPanels?: boolean
   items?: Prisma.FloorItemCreateNestedManyWithoutFloorDesignInput
 }
 
 export type FloorDesignUncheckedCreateWithoutBuildingInput = {
   id?: string
   floorNumber: number
+  hasFloorSubPanels?: boolean
   items?: Prisma.FloorItemUncheckedCreateNestedManyWithoutFloorDesignInput
 }
 
@@ -428,18 +452,21 @@ export type FloorDesignScalarWhereInput = {
   NOT?: Prisma.FloorDesignScalarWhereInput | Prisma.FloorDesignScalarWhereInput[]
   id?: Prisma.StringFilter<"FloorDesign"> | string
   floorNumber?: Prisma.IntFilter<"FloorDesign"> | number
+  hasFloorSubPanels?: Prisma.BoolFilter<"FloorDesign"> | boolean
   buildingId?: Prisma.StringFilter<"FloorDesign"> | string
 }
 
 export type FloorDesignCreateWithoutItemsInput = {
   id?: string
   floorNumber: number
+  hasFloorSubPanels?: boolean
   building: Prisma.BuildingCreateNestedOneWithoutFloorDesignsInput
 }
 
 export type FloorDesignUncheckedCreateWithoutItemsInput = {
   id?: string
   floorNumber: number
+  hasFloorSubPanels?: boolean
   buildingId: string
 }
 
@@ -462,35 +489,41 @@ export type FloorDesignUpdateToOneWithWhereWithoutItemsInput = {
 export type FloorDesignUpdateWithoutItemsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   floorNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  hasFloorSubPanels?: Prisma.BoolFieldUpdateOperationsInput | boolean
   building?: Prisma.BuildingUpdateOneRequiredWithoutFloorDesignsNestedInput
 }
 
 export type FloorDesignUncheckedUpdateWithoutItemsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   floorNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  hasFloorSubPanels?: Prisma.BoolFieldUpdateOperationsInput | boolean
   buildingId?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type FloorDesignCreateManyBuildingInput = {
   id?: string
   floorNumber: number
+  hasFloorSubPanels?: boolean
 }
 
 export type FloorDesignUpdateWithoutBuildingInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   floorNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  hasFloorSubPanels?: Prisma.BoolFieldUpdateOperationsInput | boolean
   items?: Prisma.FloorItemUpdateManyWithoutFloorDesignNestedInput
 }
 
 export type FloorDesignUncheckedUpdateWithoutBuildingInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   floorNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  hasFloorSubPanels?: Prisma.BoolFieldUpdateOperationsInput | boolean
   items?: Prisma.FloorItemUncheckedUpdateManyWithoutFloorDesignNestedInput
 }
 
 export type FloorDesignUncheckedUpdateManyWithoutBuildingInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   floorNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  hasFloorSubPanels?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 
@@ -527,6 +560,7 @@ export type FloorDesignCountOutputTypeCountItemsArgs<ExtArgs extends runtime.Typ
 export type FloorDesignSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   floorNumber?: boolean
+  hasFloorSubPanels?: boolean
   buildingId?: boolean
   building?: boolean | Prisma.BuildingDefaultArgs<ExtArgs>
   items?: boolean | Prisma.FloorDesign$itemsArgs<ExtArgs>
@@ -536,6 +570,7 @@ export type FloorDesignSelect<ExtArgs extends runtime.Types.Extensions.InternalA
 export type FloorDesignSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   floorNumber?: boolean
+  hasFloorSubPanels?: boolean
   buildingId?: boolean
   building?: boolean | Prisma.BuildingDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["floorDesign"]>
@@ -543,6 +578,7 @@ export type FloorDesignSelectCreateManyAndReturn<ExtArgs extends runtime.Types.E
 export type FloorDesignSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   floorNumber?: boolean
+  hasFloorSubPanels?: boolean
   buildingId?: boolean
   building?: boolean | Prisma.BuildingDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["floorDesign"]>
@@ -550,10 +586,11 @@ export type FloorDesignSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.E
 export type FloorDesignSelectScalar = {
   id?: boolean
   floorNumber?: boolean
+  hasFloorSubPanels?: boolean
   buildingId?: boolean
 }
 
-export type FloorDesignOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "floorNumber" | "buildingId", ExtArgs["result"]["floorDesign"]>
+export type FloorDesignOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "floorNumber" | "hasFloorSubPanels" | "buildingId", ExtArgs["result"]["floorDesign"]>
 export type FloorDesignInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   building?: boolean | Prisma.BuildingDefaultArgs<ExtArgs>
   items?: boolean | Prisma.FloorDesign$itemsArgs<ExtArgs>
@@ -575,6 +612,7 @@ export type $FloorDesignPayload<ExtArgs extends runtime.Types.Extensions.Interna
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     floorNumber: number
+    hasFloorSubPanels: boolean
     buildingId: string
   }, ExtArgs["result"]["floorDesign"]>
   composites: {}
@@ -1003,6 +1041,7 @@ export interface Prisma__FloorDesignClient<T, Null = never, ExtArgs extends runt
 export interface FloorDesignFieldRefs {
   readonly id: Prisma.FieldRef<"FloorDesign", 'String'>
   readonly floorNumber: Prisma.FieldRef<"FloorDesign", 'Int'>
+  readonly hasFloorSubPanels: Prisma.FieldRef<"FloorDesign", 'Boolean'>
   readonly buildingId: Prisma.FieldRef<"FloorDesign", 'String'>
 }
     

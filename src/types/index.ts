@@ -76,6 +76,8 @@ export interface Project {
   country: string;
   preferredManufacturer: string;
   logoUrl?: string | null;
+  maxVoltageDropLighting: number;
+  maxVoltageDropPower: number;
   buildings: Building[];
   apartmentTemplates: ApartmentTemplate[];
   loadLibraryItems: LoadLibraryItem[];

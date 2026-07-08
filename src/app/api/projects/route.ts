@@ -48,6 +48,8 @@ export async function POST(request: Request) {
       maxDemandFactor,
       notes,
       preferredManufacturer,
+      maxVoltageDropLighting,
+      maxVoltageDropPower,
     } = data;
 
     if (!name) {
@@ -69,6 +71,8 @@ export async function POST(request: Request) {
         maxDemandFactor: parseFloat(maxDemandFactor) || 0.8,
         notes: notes || "",
         preferredManufacturer: preferredManufacturer || "MIXED",
+        maxVoltageDropLighting: parseFloat(maxVoltageDropLighting) || 3,
+        maxVoltageDropPower: parseFloat(maxVoltageDropPower) || 5,
         userId: user.id,
       },
     });

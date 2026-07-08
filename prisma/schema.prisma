@@ -34,6 +34,8 @@ model Project {
   preferredManufacturer String              @default("MIXED") // "ABB" | "SCHNEIDER" | "MIXED"
   country               String              @default("Syria")
   logoUrl               String?
+  maxVoltageDropLighting Float              @default(3) // % — IEC 60364-5-52 for lighting
+  maxVoltageDropPower    Float              @default(5) // % — IEC 60364-5-52 for power
   userId                String
   user                  User                @relation(fields: [userId], references: [id], onDelete: Cascade)
   buildings             Building[]

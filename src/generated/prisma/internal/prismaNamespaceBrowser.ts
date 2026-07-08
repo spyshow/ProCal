@@ -105,6 +105,8 @@ export const ProjectScalarFieldEnum = {
   preferredManufacturer: 'preferredManufacturer',
   country: 'country',
   logoUrl: 'logoUrl',
+  maxVoltageDropLighting: 'maxVoltageDropLighting',
+  maxVoltageDropPower: 'maxVoltageDropPower',
   userId: 'userId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -141,6 +143,7 @@ export type BuildingScalarFieldEnum = (typeof BuildingScalarFieldEnum)[keyof typ
 export const ApartmentTemplateScalarFieldEnum = {
   id: 'id',
   name: 'name',
+  phases: 'phases',
   projectId: 'projectId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -186,6 +189,7 @@ export type LoadLibraryItemScalarFieldEnum = (typeof LoadLibraryItemScalarFieldE
 export const FloorDesignScalarFieldEnum = {
   id: 'id',
   floorNumber: 'floorNumber',
+  hasFloorSubPanels: 'hasFloorSubPanels',
   buildingId: 'buildingId'
 } as const
 

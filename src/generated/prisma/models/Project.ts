@@ -32,6 +32,8 @@ export type ProjectAvgAggregateOutputType = {
   powerFactor: number | null
   maxDemandFactor: number | null
   transformerSize: number | null
+  maxVoltageDropLighting: number | null
+  maxVoltageDropPower: number | null
 }
 
 export type ProjectSumAggregateOutputType = {
@@ -40,6 +42,8 @@ export type ProjectSumAggregateOutputType = {
   powerFactor: number | null
   maxDemandFactor: number | null
   transformerSize: number | null
+  maxVoltageDropLighting: number | null
+  maxVoltageDropPower: number | null
 }
 
 export type ProjectMinAggregateOutputType = {
@@ -60,6 +64,8 @@ export type ProjectMinAggregateOutputType = {
   preferredManufacturer: string | null
   country: string | null
   logoUrl: string | null
+  maxVoltageDropLighting: number | null
+  maxVoltageDropPower: number | null
   userId: string | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -83,6 +89,8 @@ export type ProjectMaxAggregateOutputType = {
   preferredManufacturer: string | null
   country: string | null
   logoUrl: string | null
+  maxVoltageDropLighting: number | null
+  maxVoltageDropPower: number | null
   userId: string | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -106,6 +114,8 @@ export type ProjectCountAggregateOutputType = {
   preferredManufacturer: number
   country: number
   logoUrl: number
+  maxVoltageDropLighting: number
+  maxVoltageDropPower: number
   userId: number
   createdAt: number
   updatedAt: number
@@ -119,6 +129,8 @@ export type ProjectAvgAggregateInputType = {
   powerFactor?: true
   maxDemandFactor?: true
   transformerSize?: true
+  maxVoltageDropLighting?: true
+  maxVoltageDropPower?: true
 }
 
 export type ProjectSumAggregateInputType = {
@@ -127,6 +139,8 @@ export type ProjectSumAggregateInputType = {
   powerFactor?: true
   maxDemandFactor?: true
   transformerSize?: true
+  maxVoltageDropLighting?: true
+  maxVoltageDropPower?: true
 }
 
 export type ProjectMinAggregateInputType = {
@@ -147,6 +161,8 @@ export type ProjectMinAggregateInputType = {
   preferredManufacturer?: true
   country?: true
   logoUrl?: true
+  maxVoltageDropLighting?: true
+  maxVoltageDropPower?: true
   userId?: true
   createdAt?: true
   updatedAt?: true
@@ -170,6 +186,8 @@ export type ProjectMaxAggregateInputType = {
   preferredManufacturer?: true
   country?: true
   logoUrl?: true
+  maxVoltageDropLighting?: true
+  maxVoltageDropPower?: true
   userId?: true
   createdAt?: true
   updatedAt?: true
@@ -193,6 +211,8 @@ export type ProjectCountAggregateInputType = {
   preferredManufacturer?: true
   country?: true
   logoUrl?: true
+  maxVoltageDropLighting?: true
+  maxVoltageDropPower?: true
   userId?: true
   createdAt?: true
   updatedAt?: true
@@ -303,6 +323,8 @@ export type ProjectGroupByOutputType = {
   preferredManufacturer: string
   country: string
   logoUrl: string | null
+  maxVoltageDropLighting: number
+  maxVoltageDropPower: number
   userId: string
   createdAt: Date
   updatedAt: Date
@@ -349,6 +371,8 @@ export type ProjectWhereInput = {
   preferredManufacturer?: Prisma.StringFilter<"Project"> | string
   country?: Prisma.StringFilter<"Project"> | string
   logoUrl?: Prisma.StringNullableFilter<"Project"> | string | null
+  maxVoltageDropLighting?: Prisma.FloatFilter<"Project"> | number
+  maxVoltageDropPower?: Prisma.FloatFilter<"Project"> | number
   userId?: Prisma.StringFilter<"Project"> | string
   createdAt?: Prisma.DateTimeFilter<"Project"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Project"> | Date | string
@@ -376,6 +400,8 @@ export type ProjectOrderByWithRelationInput = {
   preferredManufacturer?: Prisma.SortOrder
   country?: Prisma.SortOrder
   logoUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  maxVoltageDropLighting?: Prisma.SortOrder
+  maxVoltageDropPower?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -406,6 +432,8 @@ export type ProjectWhereUniqueInput = Prisma.AtLeast<{
   preferredManufacturer?: Prisma.StringFilter<"Project"> | string
   country?: Prisma.StringFilter<"Project"> | string
   logoUrl?: Prisma.StringNullableFilter<"Project"> | string | null
+  maxVoltageDropLighting?: Prisma.FloatFilter<"Project"> | number
+  maxVoltageDropPower?: Prisma.FloatFilter<"Project"> | number
   userId?: Prisma.StringFilter<"Project"> | string
   createdAt?: Prisma.DateTimeFilter<"Project"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Project"> | Date | string
@@ -433,6 +461,8 @@ export type ProjectOrderByWithAggregationInput = {
   preferredManufacturer?: Prisma.SortOrder
   country?: Prisma.SortOrder
   logoUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  maxVoltageDropLighting?: Prisma.SortOrder
+  maxVoltageDropPower?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -464,6 +494,8 @@ export type ProjectScalarWhereWithAggregatesInput = {
   preferredManufacturer?: Prisma.StringWithAggregatesFilter<"Project"> | string
   country?: Prisma.StringWithAggregatesFilter<"Project"> | string
   logoUrl?: Prisma.StringNullableWithAggregatesFilter<"Project"> | string | null
+  maxVoltageDropLighting?: Prisma.FloatWithAggregatesFilter<"Project"> | number
+  maxVoltageDropPower?: Prisma.FloatWithAggregatesFilter<"Project"> | number
   userId?: Prisma.StringWithAggregatesFilter<"Project"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Project"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Project"> | Date | string
@@ -487,6 +519,8 @@ export type ProjectCreateInput = {
   preferredManufacturer?: string
   country?: string
   logoUrl?: string | null
+  maxVoltageDropLighting?: number
+  maxVoltageDropPower?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutProjectsInput
@@ -513,6 +547,8 @@ export type ProjectUncheckedCreateInput = {
   preferredManufacturer?: string
   country?: string
   logoUrl?: string | null
+  maxVoltageDropLighting?: number
+  maxVoltageDropPower?: number
   userId: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -539,6 +575,8 @@ export type ProjectUpdateInput = {
   preferredManufacturer?: Prisma.StringFieldUpdateOperationsInput | string
   country?: Prisma.StringFieldUpdateOperationsInput | string
   logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  maxVoltageDropLighting?: Prisma.FloatFieldUpdateOperationsInput | number
+  maxVoltageDropPower?: Prisma.FloatFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutProjectsNestedInput
@@ -565,6 +603,8 @@ export type ProjectUncheckedUpdateInput = {
   preferredManufacturer?: Prisma.StringFieldUpdateOperationsInput | string
   country?: Prisma.StringFieldUpdateOperationsInput | string
   logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  maxVoltageDropLighting?: Prisma.FloatFieldUpdateOperationsInput | number
+  maxVoltageDropPower?: Prisma.FloatFieldUpdateOperationsInput | number
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -591,6 +631,8 @@ export type ProjectCreateManyInput = {
   preferredManufacturer?: string
   country?: string
   logoUrl?: string | null
+  maxVoltageDropLighting?: number
+  maxVoltageDropPower?: number
   userId: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -614,6 +656,8 @@ export type ProjectUpdateManyMutationInput = {
   preferredManufacturer?: Prisma.StringFieldUpdateOperationsInput | string
   country?: Prisma.StringFieldUpdateOperationsInput | string
   logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  maxVoltageDropLighting?: Prisma.FloatFieldUpdateOperationsInput | number
+  maxVoltageDropPower?: Prisma.FloatFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -636,6 +680,8 @@ export type ProjectUncheckedUpdateManyInput = {
   preferredManufacturer?: Prisma.StringFieldUpdateOperationsInput | string
   country?: Prisma.StringFieldUpdateOperationsInput | string
   logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  maxVoltageDropLighting?: Prisma.FloatFieldUpdateOperationsInput | number
+  maxVoltageDropPower?: Prisma.FloatFieldUpdateOperationsInput | number
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -669,6 +715,8 @@ export type ProjectCountOrderByAggregateInput = {
   preferredManufacturer?: Prisma.SortOrder
   country?: Prisma.SortOrder
   logoUrl?: Prisma.SortOrder
+  maxVoltageDropLighting?: Prisma.SortOrder
+  maxVoltageDropPower?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -680,6 +728,8 @@ export type ProjectAvgOrderByAggregateInput = {
   powerFactor?: Prisma.SortOrder
   maxDemandFactor?: Prisma.SortOrder
   transformerSize?: Prisma.SortOrder
+  maxVoltageDropLighting?: Prisma.SortOrder
+  maxVoltageDropPower?: Prisma.SortOrder
 }
 
 export type ProjectMaxOrderByAggregateInput = {
@@ -700,6 +750,8 @@ export type ProjectMaxOrderByAggregateInput = {
   preferredManufacturer?: Prisma.SortOrder
   country?: Prisma.SortOrder
   logoUrl?: Prisma.SortOrder
+  maxVoltageDropLighting?: Prisma.SortOrder
+  maxVoltageDropPower?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -723,6 +775,8 @@ export type ProjectMinOrderByAggregateInput = {
   preferredManufacturer?: Prisma.SortOrder
   country?: Prisma.SortOrder
   logoUrl?: Prisma.SortOrder
+  maxVoltageDropLighting?: Prisma.SortOrder
+  maxVoltageDropPower?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -734,6 +788,8 @@ export type ProjectSumOrderByAggregateInput = {
   powerFactor?: Prisma.SortOrder
   maxDemandFactor?: Prisma.SortOrder
   transformerSize?: Prisma.SortOrder
+  maxVoltageDropLighting?: Prisma.SortOrder
+  maxVoltageDropPower?: Prisma.SortOrder
 }
 
 export type ProjectScalarRelationFilter = {
@@ -863,6 +919,8 @@ export type ProjectCreateWithoutUserInput = {
   preferredManufacturer?: string
   country?: string
   logoUrl?: string | null
+  maxVoltageDropLighting?: number
+  maxVoltageDropPower?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   buildings?: Prisma.BuildingCreateNestedManyWithoutProjectInput
@@ -888,6 +946,8 @@ export type ProjectUncheckedCreateWithoutUserInput = {
   preferredManufacturer?: string
   country?: string
   logoUrl?: string | null
+  maxVoltageDropLighting?: number
+  maxVoltageDropPower?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   buildings?: Prisma.BuildingUncheckedCreateNestedManyWithoutProjectInput
@@ -941,6 +1001,8 @@ export type ProjectScalarWhereInput = {
   preferredManufacturer?: Prisma.StringFilter<"Project"> | string
   country?: Prisma.StringFilter<"Project"> | string
   logoUrl?: Prisma.StringNullableFilter<"Project"> | string | null
+  maxVoltageDropLighting?: Prisma.FloatFilter<"Project"> | number
+  maxVoltageDropPower?: Prisma.FloatFilter<"Project"> | number
   userId?: Prisma.StringFilter<"Project"> | string
   createdAt?: Prisma.DateTimeFilter<"Project"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Project"> | Date | string
@@ -964,6 +1026,8 @@ export type ProjectCreateWithoutBuildingsInput = {
   preferredManufacturer?: string
   country?: string
   logoUrl?: string | null
+  maxVoltageDropLighting?: number
+  maxVoltageDropPower?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutProjectsInput
@@ -989,6 +1053,8 @@ export type ProjectUncheckedCreateWithoutBuildingsInput = {
   preferredManufacturer?: string
   country?: string
   logoUrl?: string | null
+  maxVoltageDropLighting?: number
+  maxVoltageDropPower?: number
   userId: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1030,6 +1096,8 @@ export type ProjectUpdateWithoutBuildingsInput = {
   preferredManufacturer?: Prisma.StringFieldUpdateOperationsInput | string
   country?: Prisma.StringFieldUpdateOperationsInput | string
   logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  maxVoltageDropLighting?: Prisma.FloatFieldUpdateOperationsInput | number
+  maxVoltageDropPower?: Prisma.FloatFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutProjectsNestedInput
@@ -1055,6 +1123,8 @@ export type ProjectUncheckedUpdateWithoutBuildingsInput = {
   preferredManufacturer?: Prisma.StringFieldUpdateOperationsInput | string
   country?: Prisma.StringFieldUpdateOperationsInput | string
   logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  maxVoltageDropLighting?: Prisma.FloatFieldUpdateOperationsInput | number
+  maxVoltageDropPower?: Prisma.FloatFieldUpdateOperationsInput | number
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1080,6 +1150,8 @@ export type ProjectCreateWithoutApartmentTemplatesInput = {
   preferredManufacturer?: string
   country?: string
   logoUrl?: string | null
+  maxVoltageDropLighting?: number
+  maxVoltageDropPower?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutProjectsInput
@@ -1105,6 +1177,8 @@ export type ProjectUncheckedCreateWithoutApartmentTemplatesInput = {
   preferredManufacturer?: string
   country?: string
   logoUrl?: string | null
+  maxVoltageDropLighting?: number
+  maxVoltageDropPower?: number
   userId: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1146,6 +1220,8 @@ export type ProjectUpdateWithoutApartmentTemplatesInput = {
   preferredManufacturer?: Prisma.StringFieldUpdateOperationsInput | string
   country?: Prisma.StringFieldUpdateOperationsInput | string
   logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  maxVoltageDropLighting?: Prisma.FloatFieldUpdateOperationsInput | number
+  maxVoltageDropPower?: Prisma.FloatFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutProjectsNestedInput
@@ -1171,6 +1247,8 @@ export type ProjectUncheckedUpdateWithoutApartmentTemplatesInput = {
   preferredManufacturer?: Prisma.StringFieldUpdateOperationsInput | string
   country?: Prisma.StringFieldUpdateOperationsInput | string
   logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  maxVoltageDropLighting?: Prisma.FloatFieldUpdateOperationsInput | number
+  maxVoltageDropPower?: Prisma.FloatFieldUpdateOperationsInput | number
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1196,6 +1274,8 @@ export type ProjectCreateWithoutLoadLibraryItemsInput = {
   preferredManufacturer?: string
   country?: string
   logoUrl?: string | null
+  maxVoltageDropLighting?: number
+  maxVoltageDropPower?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutProjectsInput
@@ -1221,6 +1301,8 @@ export type ProjectUncheckedCreateWithoutLoadLibraryItemsInput = {
   preferredManufacturer?: string
   country?: string
   logoUrl?: string | null
+  maxVoltageDropLighting?: number
+  maxVoltageDropPower?: number
   userId: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1262,6 +1344,8 @@ export type ProjectUpdateWithoutLoadLibraryItemsInput = {
   preferredManufacturer?: Prisma.StringFieldUpdateOperationsInput | string
   country?: Prisma.StringFieldUpdateOperationsInput | string
   logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  maxVoltageDropLighting?: Prisma.FloatFieldUpdateOperationsInput | number
+  maxVoltageDropPower?: Prisma.FloatFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutProjectsNestedInput
@@ -1287,6 +1371,8 @@ export type ProjectUncheckedUpdateWithoutLoadLibraryItemsInput = {
   preferredManufacturer?: Prisma.StringFieldUpdateOperationsInput | string
   country?: Prisma.StringFieldUpdateOperationsInput | string
   logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  maxVoltageDropLighting?: Prisma.FloatFieldUpdateOperationsInput | number
+  maxVoltageDropPower?: Prisma.FloatFieldUpdateOperationsInput | number
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1312,6 +1398,8 @@ export type ProjectCreateManyUserInput = {
   preferredManufacturer?: string
   country?: string
   logoUrl?: string | null
+  maxVoltageDropLighting?: number
+  maxVoltageDropPower?: number
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -1334,6 +1422,8 @@ export type ProjectUpdateWithoutUserInput = {
   preferredManufacturer?: Prisma.StringFieldUpdateOperationsInput | string
   country?: Prisma.StringFieldUpdateOperationsInput | string
   logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  maxVoltageDropLighting?: Prisma.FloatFieldUpdateOperationsInput | number
+  maxVoltageDropPower?: Prisma.FloatFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   buildings?: Prisma.BuildingUpdateManyWithoutProjectNestedInput
@@ -1359,6 +1449,8 @@ export type ProjectUncheckedUpdateWithoutUserInput = {
   preferredManufacturer?: Prisma.StringFieldUpdateOperationsInput | string
   country?: Prisma.StringFieldUpdateOperationsInput | string
   logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  maxVoltageDropLighting?: Prisma.FloatFieldUpdateOperationsInput | number
+  maxVoltageDropPower?: Prisma.FloatFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   buildings?: Prisma.BuildingUncheckedUpdateManyWithoutProjectNestedInput
@@ -1384,6 +1476,8 @@ export type ProjectUncheckedUpdateManyWithoutUserInput = {
   preferredManufacturer?: Prisma.StringFieldUpdateOperationsInput | string
   country?: Prisma.StringFieldUpdateOperationsInput | string
   logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  maxVoltageDropLighting?: Prisma.FloatFieldUpdateOperationsInput | number
+  maxVoltageDropPower?: Prisma.FloatFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1455,6 +1549,8 @@ export type ProjectSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   preferredManufacturer?: boolean
   country?: boolean
   logoUrl?: boolean
+  maxVoltageDropLighting?: boolean
+  maxVoltageDropPower?: boolean
   userId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -1483,6 +1579,8 @@ export type ProjectSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   preferredManufacturer?: boolean
   country?: boolean
   logoUrl?: boolean
+  maxVoltageDropLighting?: boolean
+  maxVoltageDropPower?: boolean
   userId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -1507,6 +1605,8 @@ export type ProjectSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   preferredManufacturer?: boolean
   country?: boolean
   logoUrl?: boolean
+  maxVoltageDropLighting?: boolean
+  maxVoltageDropPower?: boolean
   userId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -1531,12 +1631,14 @@ export type ProjectSelectScalar = {
   preferredManufacturer?: boolean
   country?: boolean
   logoUrl?: boolean
+  maxVoltageDropLighting?: boolean
+  maxVoltageDropPower?: boolean
   userId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type ProjectOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "client" | "consultant" | "contractor" | "location" | "engineer" | "date" | "voltage" | "frequency" | "powerFactor" | "maxDemandFactor" | "transformerSize" | "notes" | "preferredManufacturer" | "country" | "logoUrl" | "userId" | "createdAt" | "updatedAt", ExtArgs["result"]["project"]>
+export type ProjectOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "client" | "consultant" | "contractor" | "location" | "engineer" | "date" | "voltage" | "frequency" | "powerFactor" | "maxDemandFactor" | "transformerSize" | "notes" | "preferredManufacturer" | "country" | "logoUrl" | "maxVoltageDropLighting" | "maxVoltageDropPower" | "userId" | "createdAt" | "updatedAt", ExtArgs["result"]["project"]>
 export type ProjectInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   buildings?: boolean | Prisma.Project$buildingsArgs<ExtArgs>
@@ -1577,6 +1679,8 @@ export type $ProjectPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     preferredManufacturer: string
     country: string
     logoUrl: string | null
+    maxVoltageDropLighting: number
+    maxVoltageDropPower: number
     userId: string
     createdAt: Date
     updatedAt: Date
@@ -2024,6 +2128,8 @@ export interface ProjectFieldRefs {
   readonly preferredManufacturer: Prisma.FieldRef<"Project", 'String'>
   readonly country: Prisma.FieldRef<"Project", 'String'>
   readonly logoUrl: Prisma.FieldRef<"Project", 'String'>
+  readonly maxVoltageDropLighting: Prisma.FieldRef<"Project", 'Float'>
+  readonly maxVoltageDropPower: Prisma.FieldRef<"Project", 'Float'>
   readonly userId: Prisma.FieldRef<"Project", 'String'>
   readonly createdAt: Prisma.FieldRef<"Project", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Project", 'DateTime'>

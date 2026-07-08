@@ -11,6 +11,7 @@ import type { Project } from '@/types';
 interface CableEntry {
   id: string;
   name: string;
+  cableName: string;
   floor: number;
   length: number;
   cableSize: number;
@@ -64,11 +65,15 @@ export default function SLDPage() {
     const cableList: CableEntry[] = [];
     for (const bldg of project.buildings) {
       for (const fd of bldg.floorDesigns) {
-        for (const item of fd.items) {
+        fd.items.forEach((item, idx) => {
+          const letter = String.fromCharCode(97 + idx);
+          const loadTag = `F${fd.floorNumber}-${letter.toUpperCase()}`;
+          const cableTag = `Wf${fd.floorNumber}${letter}`;
           const cableSizeNum = parseFloat(item.cableSize) || 4;
           cableList.push({
             id: item.id || `${fd.floorNumber}-${item.name}`,
-            name: item.name,
+            name: loadTag,
+            cableName: cableTag,
             floor: fd.floorNumber,
             length: (item as any).cableLength || 30,
             cableSize: cableSizeNum,
@@ -78,7 +83,7 @@ export default function SLDPage() {
             newVD: null,
             changed: false,
           });
-        }
+        });
       }
     }
     setCables(cableList);
@@ -234,10 +239,11 @@ export default function SLDPage() {
           <table className="w-full engineering-table text-xs">
             <thead>
               <tr>
-                <th className="text-left">Circuit</th>
+                <th className="text-left">Load</th>
+                <th className="text-left">Cable</th>
                 <th className="text-center">Floor</th>
                 <th className="text-right">Current (A)</th>
-                <th className="text-center">Cable (mm²)</th>
+                <th className="text-center">Size (mm²)</th>
                 <th className="text-right" style={{ width: '100px' }}>Length (m)</th>
                 <th className="text-center">New Cable</th>
                 <th className="text-center">VD (%)</th>
@@ -247,7 +253,8 @@ export default function SLDPage() {
             <tbody>
               {cables.map((c) => (
                 <tr key={c.id} className="hover:bg-gray-800/30">
-                  <td className="text-gray-200 font-medium">{c.name}</td>
+                  <td className="text-gray-200 font-mono font-semibold">{c.name}</td>
+                  <td className="text-gray-400 font-mono text-xs">{c.cableName}</td>
                   <td className="text-center font-mono text-orange-400">F{c.floor}</td>
                   <td className="text-right font-mono">{c.current.toFixed(1)}</td>
                   <td className="text-center font-mono text-green-400">{c.cableSize} mm²</td>

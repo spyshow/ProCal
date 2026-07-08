@@ -61,19 +61,34 @@ export function generateSLD(project: SLDProject): string {
         lines.push(`${spBreakerId} -> ${spBusId}`);
         lines.push('');
 
-        for (const item of fd.items) {
+        // Generate letter suffix for each item: a, b, c, ...
+        fd.items.forEach((item, idx) => {
+          const letter = String.fromCharCode(97 + idx); // a, b, c, ...
+          const loadTag = `F${fd.floorNumber}-${letter.toUpperCase()}`;
+          const cableTag = `Wf${fd.floorNumber}${letter}`;
           const bkrId = `bkr_${fd.floorNumber}_${mdbBreakerIdx++}`;
-          lines.push(`${bkrId} = mcb [label: "${item.name}", rating: "${item.breakerSize}"]`);
-          lines.push(`${spBusId} -> ${bkrId} [cable: "${item.cableSize}"]`);
-        }
+          const loadId = `load_${fd.floorNumber}_${letter}`;
+
+          lines.push(`${bkrId} = mcb [label: "${item.breakerSize}", rating: "${item.breakerSize}"]`);
+          lines.push(`${loadId} = load [label: "${loadTag}"]`);
+          lines.push(`${spBusId} -> ${bkrId} [cable: "${cableTag}", label: "${item.cableSize}"]`);
+          lines.push(`${bkrId} -> ${loadId}`);
+        });
         lines.push('');
       } else if (fd.items.length > 0) {
         // Direct floor
-        for (const item of fd.items) {
+        fd.items.forEach((item, idx) => {
+          const letter = String.fromCharCode(97 + idx);
+          const loadTag = `F${fd.floorNumber}-${letter.toUpperCase()}`;
+          const cableTag = `Wf${fd.floorNumber}${letter}`;
           const bkrId = `bkr_${fd.floorNumber}_${mdbBreakerIdx++}`;
-          lines.push(`${bkrId} = mcb [label: "${item.name}", rating: "${item.breakerSize}"]`);
-          lines.push(`mdb_bus -> ${bkrId} [cable: "${item.cableSize}"]`);
-        }
+          const loadId = `load_${fd.floorNumber}_${letter}`;
+
+          lines.push(`${bkrId} = mcb [label: "${item.breakerSize}", rating: "${item.breakerSize}"]`);
+          lines.push(`${loadId} = load [label: "${loadTag}"]`);
+          lines.push(`mdb_bus -> ${bkrId} [cable: "${cableTag}", label: "${item.cableSize}"]`);
+          lines.push(`${bkrId} -> ${loadId}`);
+        });
         lines.push('');
       }
     }

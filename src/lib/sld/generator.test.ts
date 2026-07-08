@@ -49,10 +49,22 @@ describe('SLD Generator', () => {
     expect(dsl).toContain('distribution_board');
   });
 
-  it('generates breaker nodes for each apartment', () => {
+  it('generates load nodes with F-floor-letter naming', () => {
     const dsl = generateSLD(mockProject as any);
-    expect(dsl).toContain('Apt 1');
-    expect(dsl).toContain('Apt 2');
-    expect(dsl).toContain('Apt 3');
+    expect(dsl).toContain('F1-A');
+    expect(dsl).toContain('F1-B');
+    expect(dsl).toContain('F2-A');
+  });
+
+  it('generates cable names with W prefix', () => {
+    const dsl = generateSLD(mockProject as any);
+    expect(dsl).toContain('Wf1a');
+    expect(dsl).toContain('Wf1b');
+    expect(dsl).toContain('Wf2a');
+  });
+
+  it('generates load nodes connected to breakers', () => {
+    const dsl = generateSLD(mockProject as any);
+    expect(dsl).toContain('= load');
   });
 });

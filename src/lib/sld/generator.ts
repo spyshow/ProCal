@@ -49,48 +49,41 @@ export function generateSLD(project: SLDProject): string {
 
   for (const bldg of project.buildings) {
     for (const fd of bldg.floorDesigns) {
-      if (fd.hasFloorSubPanels && fd.items.length > 0) {
-        // Sub-panel floor
-        const spBusId = `sp_bus_${fd.floorNumber}`;
-        const spBreakerId = `sp_bkr_${fd.floorNumber}`;
-        const floorCurrent = fd.items.reduce((s, i) => s + i.calculatedCurrent, 0);
+      if (fd.items.length === 0) continue;
 
-        lines.push(`${spBusId} = distribution_board [label: "F${fd.floorNumber} Sub-Panel", voltage: "${project.voltage}V"]`);
-        lines.push(`${spBreakerId} = breaker [label: "F${fd.floorNumber} Main", rating: "${Math.ceil(floorCurrent)}A"]`);
-        lines.push(`mdb_bus -> ${spBreakerId} [label: "Floor ${fd.floorNumber}"]`);
-        lines.push(`${spBreakerId} -> ${spBusId}`);
-        lines.push('');
+      // Every floor gets its own bus — this groups MCBs vertically per floor
+      const floorBusId = `floor_bus_${fd.floorNumber}`;
+      const floorBreakerId = `floor_bkr_${fd.floorNumber}`;
+      const floorCurrent = fd.items.reduce((s, i) => s + i.calculatedCurrent, 0);
 
-        // Generate letter suffix for each item: a, b, c, ...
-        fd.items.forEach((item, idx) => {
-          const letter = String.fromCharCode(97 + idx); // a, b, c, ...
-          const loadTag = `F${fd.floorNumber}-${letter.toUpperCase()}`;
-          const cableTag = `Wf${fd.floorNumber}${letter}`;
-          const bkrId = `bkr_${fd.floorNumber}_${mdbBreakerIdx++}`;
-          const loadId = `load_${fd.floorNumber}_${letter}`;
-
-          lines.push(`${bkrId} = mcb [label: "${item.breakerSize}", rating: "${item.breakerSize}"]`);
-          lines.push(`${loadId} = load [label: "${loadTag}"]`);
-          lines.push(`${spBusId} -> ${bkrId} [cable: "${cableTag}", label: "${item.cableSize}"]`);
-          lines.push(`${bkrId} -> ${loadId}`);
-        });
-        lines.push('');
-      } else if (fd.items.length > 0) {
-        // Direct floor
-        fd.items.forEach((item, idx) => {
-          const letter = String.fromCharCode(97 + idx);
-          const loadTag = `F${fd.floorNumber}-${letter.toUpperCase()}`;
-          const cableTag = `Wf${fd.floorNumber}${letter}`;
-          const bkrId = `bkr_${fd.floorNumber}_${mdbBreakerIdx++}`;
-          const loadId = `load_${fd.floorNumber}_${letter}`;
-
-          lines.push(`${bkrId} = mcb [label: "${item.breakerSize}", rating: "${item.breakerSize}"]`);
-          lines.push(`${loadId} = load [label: "${loadTag}"]`);
-          lines.push(`mdb_bus -> ${bkrId} [cable: "${cableTag}", label: "${item.cableSize}"]`);
-          lines.push(`${bkrId} -> ${loadId}`);
-        });
-        lines.push('');
+      if (fd.hasFloorSubPanels) {
+        // Sub-panel floor: MDB → floor breaker → floor bus (distribution_board)
+        lines.push(`${floorBusId} = distribution_board [label: "F${fd.floorNumber} Sub-Panel", voltage: "${project.voltage}V"]`);
+        lines.push(`${floorBreakerId} = breaker [label: "F${fd.floorNumber} Main", rating: "${Math.ceil(floorCurrent)}A"]`);
+      } else {
+        // Direct floor: MDB → floor breaker → floor bus
+        lines.push(`${floorBusId} = bus [label: "F${fd.floorNumber}", voltage: "${project.voltage}V"]`);
+        lines.push(`${floorBreakerId} = breaker [label: "F${fd.floorNumber}", rating: "${Math.ceil(floorCurrent)}A"]`);
       }
+
+      lines.push(`mdb_bus -> ${floorBreakerId} [label: "Floor ${fd.floorNumber}"]`);
+      lines.push(`${floorBreakerId} -> ${floorBusId}`);
+      lines.push('');
+
+      // MCBs connect to floor bus (not MDB bus)
+      fd.items.forEach((item, idx) => {
+        const letter = String.fromCharCode(97 + idx);
+        const loadTag = `F${fd.floorNumber}-${letter.toUpperCase()}`;
+        const cableTag = `Wf${fd.floorNumber}${letter}`;
+        const bkrId = `bkr_${fd.floorNumber}_${mdbBreakerIdx++}`;
+        const loadId = `load_${fd.floorNumber}_${letter}`;
+
+        lines.push(`${bkrId} = mcb [label: "${item.breakerSize}", rating: "${item.breakerSize}"]`);
+        lines.push(`${loadId} = load [label: "${loadTag}"]`);
+        lines.push(`${floorBusId} -> ${bkrId} [cable: "${cableTag}", label: "${item.cableSize}"]`);
+        lines.push(`${bkrId} -> ${loadId}`);
+      });
+      lines.push('');
     }
   }
 

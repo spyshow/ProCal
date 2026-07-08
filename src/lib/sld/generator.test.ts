@@ -44,9 +44,23 @@ describe('SLD Generator', () => {
     expect(dsl).toContain('1000 kVA');
   });
 
-  it('generates sub-panel nodes for floors with sub-panels', () => {
+  it('generates floor buses for each floor', () => {
     const dsl = generateSLD(mockProject as any);
-    expect(dsl).toContain('distribution_board');
+    expect(dsl).toContain('floor_bus_1');
+    expect(dsl).toContain('floor_bus_2');
+  });
+
+  it('generates floor breakers connecting MDB to floor buses', () => {
+    const dsl = generateSLD(mockProject as any);
+    expect(dsl).toContain('floor_bkr_1');
+    expect(dsl).toContain('floor_bkr_2');
+  });
+
+  it('MCBs connect to floor bus, not MDB bus directly', () => {
+    const dsl = generateSLD(mockProject as any);
+    // MCBs should connect to floor_bus, not mdb_bus
+    expect(dsl).toContain('floor_bus_1 -> bkr_');
+    expect(dsl).not.toContain('mdb_bus -> bkr_');
   });
 
   it('generates load nodes with F-floor-letter naming', () => {

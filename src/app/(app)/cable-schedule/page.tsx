@@ -34,9 +34,11 @@ export default function CableSchedulePage() {
   const [cables, setCables] = useState<CableEntry[]>([]);
   const [selectedBuilding, setSelectedBuilding] = useState<string | null>(null);
   const [showSettings, setShowSettings] = useState(false);
-  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [saving, setSaving] = useState(false);
   const pendingNavigation = useRef<string | null>(null);
+
+  // Derive unsaved changes from cables state
+  const hasUnsavedChanges = cables.some(c => c.changed);
 
   // Warn before leaving with unsaved changes
   useEffect(() => {
@@ -50,23 +52,23 @@ export default function CableSchedulePage() {
     return () => window.removeEventListener('beforeunload', handleBeforeUnload);
   }, [hasUnsavedChanges]);
 
-  // Intercept Next.js navigation
+  // Intercept sidebar/navigation clicks
   useEffect(() => {
     if (!hasUnsavedChanges) return;
 
-    const handleAnchorClick = (e: MouseEvent) => {
-      const target = (e.target as HTMLElement).closest('a');
+    const handleClick = (e: MouseEvent) => {
+      const target = (e.target as HTMLElement).closest('a[href]');
       if (!target) return;
       const href = target.getAttribute('href');
       if (href && href !== pathname && !href.startsWith('#')) {
         e.preventDefault();
+        e.stopPropagation();
         pendingNavigation.current = href;
-        // The alert will be handled by the unsaved dialog
       }
     };
 
-    document.addEventListener('click', handleAnchorClick, true);
-    return () => document.removeEventListener('click', handleAnchorClick, true);
+    document.addEventListener('click', handleClick, true);
+    return () => document.removeEventListener('click', handleClick, true);
   }, [hasUnsavedChanges, pathname]);
 
   const loadProject = useCallback(async () => {
@@ -247,8 +249,6 @@ export default function CableSchedulePage() {
         }
         return c;
       }));
-
-      setHasUnsavedChanges(false);
     } catch (err) {
       console.error('Failed to apply changes:', err);
     } finally {
@@ -257,7 +257,6 @@ export default function CableSchedulePage() {
   };
 
   const handleDiscard = () => {
-    setHasUnsavedChanges(false);
     if (pendingNavigation.current) {
       router.push(pendingNavigation.current);
       pendingNavigation.current = null;

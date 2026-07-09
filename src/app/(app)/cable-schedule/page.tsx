@@ -283,19 +283,20 @@ export default function CableSchedulePage() {
     }
   };
 
-  const applyDefaults = () => {
+  const applyDefaults = async () => {
     const savedLimits = localStorage.getItem('procal-vd-limits');
     const limits = savedLimits ? JSON.parse(savedLimits) : { lighting: 3, power: 5 };
 
-    // Save all cables to database and update local state
-    cables.forEach(c => {
+    // Save all cables to database first
+    await Promise.all(cables.map(c =>
       fetch(`/api/floor-items/${c.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ installMethod: defaultMethod, cableInsulation: defaultInsulation }),
-      }).catch(err => console.error('Failed to save:', err));
-    });
+      })
+    ));
 
+    // Then update local state
     setCables(prev => prev.map(c => {
       const result = recalculateCable({
         current: c.current,

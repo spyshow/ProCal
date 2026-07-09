@@ -56,6 +56,8 @@ export type FloorItemMinAggregateOutputType = {
   cableSize: string | null
   cableLength: number | null
   voltageDrop: number | null
+  installMethod: string | null
+  cableInsulation: string | null
 }
 
 export type FloorItemMaxAggregateOutputType = {
@@ -72,6 +74,8 @@ export type FloorItemMaxAggregateOutputType = {
   cableSize: string | null
   cableLength: number | null
   voltageDrop: number | null
+  installMethod: string | null
+  cableInsulation: string | null
 }
 
 export type FloorItemCountAggregateOutputType = {
@@ -88,6 +92,8 @@ export type FloorItemCountAggregateOutputType = {
   cableSize: number
   cableLength: number
   voltageDrop: number
+  installMethod: number
+  cableInsulation: number
   _all: number
 }
 
@@ -122,6 +128,8 @@ export type FloorItemMinAggregateInputType = {
   cableSize?: true
   cableLength?: true
   voltageDrop?: true
+  installMethod?: true
+  cableInsulation?: true
 }
 
 export type FloorItemMaxAggregateInputType = {
@@ -138,6 +146,8 @@ export type FloorItemMaxAggregateInputType = {
   cableSize?: true
   cableLength?: true
   voltageDrop?: true
+  installMethod?: true
+  cableInsulation?: true
 }
 
 export type FloorItemCountAggregateInputType = {
@@ -154,6 +164,8 @@ export type FloorItemCountAggregateInputType = {
   cableSize?: true
   cableLength?: true
   voltageDrop?: true
+  installMethod?: true
+  cableInsulation?: true
   _all?: true
 }
 
@@ -257,6 +269,8 @@ export type FloorItemGroupByOutputType = {
   cableSize: string | null
   cableLength: number | null
   voltageDrop: number | null
+  installMethod: string | null
+  cableInsulation: string | null
   _count: FloorItemCountAggregateOutputType | null
   _avg: FloorItemAvgAggregateOutputType | null
   _sum: FloorItemSumAggregateOutputType | null
@@ -296,6 +310,8 @@ export type FloorItemWhereInput = {
   cableSize?: Prisma.StringNullableFilter<"FloorItem"> | string | null
   cableLength?: Prisma.FloatNullableFilter<"FloorItem"> | number | null
   voltageDrop?: Prisma.FloatNullableFilter<"FloorItem"> | number | null
+  installMethod?: Prisma.StringNullableFilter<"FloorItem"> | string | null
+  cableInsulation?: Prisma.StringNullableFilter<"FloorItem"> | string | null
   apartmentTemplate?: Prisma.XOR<Prisma.ApartmentTemplateNullableScalarRelationFilter, Prisma.ApartmentTemplateWhereInput> | null
   loadLibraryItem?: Prisma.XOR<Prisma.LoadLibraryItemNullableScalarRelationFilter, Prisma.LoadLibraryItemWhereInput> | null
   floorDesign?: Prisma.XOR<Prisma.FloorDesignScalarRelationFilter, Prisma.FloorDesignWhereInput>
@@ -315,6 +331,8 @@ export type FloorItemOrderByWithRelationInput = {
   cableSize?: Prisma.SortOrderInput | Prisma.SortOrder
   cableLength?: Prisma.SortOrderInput | Prisma.SortOrder
   voltageDrop?: Prisma.SortOrderInput | Prisma.SortOrder
+  installMethod?: Prisma.SortOrderInput | Prisma.SortOrder
+  cableInsulation?: Prisma.SortOrderInput | Prisma.SortOrder
   apartmentTemplate?: Prisma.ApartmentTemplateOrderByWithRelationInput
   loadLibraryItem?: Prisma.LoadLibraryItemOrderByWithRelationInput
   floorDesign?: Prisma.FloorDesignOrderByWithRelationInput
@@ -337,6 +355,8 @@ export type FloorItemWhereUniqueInput = Prisma.AtLeast<{
   cableSize?: Prisma.StringNullableFilter<"FloorItem"> | string | null
   cableLength?: Prisma.FloatNullableFilter<"FloorItem"> | number | null
   voltageDrop?: Prisma.FloatNullableFilter<"FloorItem"> | number | null
+  installMethod?: Prisma.StringNullableFilter<"FloorItem"> | string | null
+  cableInsulation?: Prisma.StringNullableFilter<"FloorItem"> | string | null
   apartmentTemplate?: Prisma.XOR<Prisma.ApartmentTemplateNullableScalarRelationFilter, Prisma.ApartmentTemplateWhereInput> | null
   loadLibraryItem?: Prisma.XOR<Prisma.LoadLibraryItemNullableScalarRelationFilter, Prisma.LoadLibraryItemWhereInput> | null
   floorDesign?: Prisma.XOR<Prisma.FloorDesignScalarRelationFilter, Prisma.FloorDesignWhereInput>
@@ -356,6 +376,8 @@ export type FloorItemOrderByWithAggregationInput = {
   cableSize?: Prisma.SortOrderInput | Prisma.SortOrder
   cableLength?: Prisma.SortOrderInput | Prisma.SortOrder
   voltageDrop?: Prisma.SortOrderInput | Prisma.SortOrder
+  installMethod?: Prisma.SortOrderInput | Prisma.SortOrder
+  cableInsulation?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.FloorItemCountOrderByAggregateInput
   _avg?: Prisma.FloorItemAvgOrderByAggregateInput
   _max?: Prisma.FloorItemMaxOrderByAggregateInput
@@ -380,6 +402,8 @@ export type FloorItemScalarWhereWithAggregatesInput = {
   cableSize?: Prisma.StringNullableWithAggregatesFilter<"FloorItem"> | string | null
   cableLength?: Prisma.FloatNullableWithAggregatesFilter<"FloorItem"> | number | null
   voltageDrop?: Prisma.FloatNullableWithAggregatesFilter<"FloorItem"> | number | null
+  installMethod?: Prisma.StringNullableWithAggregatesFilter<"FloorItem"> | string | null
+  cableInsulation?: Prisma.StringNullableWithAggregatesFilter<"FloorItem"> | string | null
 }
 
 export type FloorItemCreateInput = {
@@ -393,6 +417,8 @@ export type FloorItemCreateInput = {
   cableSize?: string | null
   cableLength?: number | null
   voltageDrop?: number | null
+  installMethod?: string | null
+  cableInsulation?: string | null
   apartmentTemplate?: Prisma.ApartmentTemplateCreateNestedOneWithoutFloorItemsInput
   loadLibraryItem?: Prisma.LoadLibraryItemCreateNestedOneWithoutFloorItemsInput
   floorDesign: Prisma.FloorDesignCreateNestedOneWithoutItemsInput
@@ -412,6 +438,8 @@ export type FloorItemUncheckedCreateInput = {
   cableSize?: string | null
   cableLength?: number | null
   voltageDrop?: number | null
+  installMethod?: string | null
+  cableInsulation?: string | null
 }
 
 export type FloorItemUpdateInput = {
@@ -425,6 +453,8 @@ export type FloorItemUpdateInput = {
   cableSize?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cableLength?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   voltageDrop?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  installMethod?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cableInsulation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   apartmentTemplate?: Prisma.ApartmentTemplateUpdateOneWithoutFloorItemsNestedInput
   loadLibraryItem?: Prisma.LoadLibraryItemUpdateOneWithoutFloorItemsNestedInput
   floorDesign?: Prisma.FloorDesignUpdateOneRequiredWithoutItemsNestedInput
@@ -444,6 +474,8 @@ export type FloorItemUncheckedUpdateInput = {
   cableSize?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cableLength?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   voltageDrop?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  installMethod?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cableInsulation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type FloorItemCreateManyInput = {
@@ -460,6 +492,8 @@ export type FloorItemCreateManyInput = {
   cableSize?: string | null
   cableLength?: number | null
   voltageDrop?: number | null
+  installMethod?: string | null
+  cableInsulation?: string | null
 }
 
 export type FloorItemUpdateManyMutationInput = {
@@ -473,6 +507,8 @@ export type FloorItemUpdateManyMutationInput = {
   cableSize?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cableLength?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   voltageDrop?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  installMethod?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cableInsulation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type FloorItemUncheckedUpdateManyInput = {
@@ -489,6 +525,8 @@ export type FloorItemUncheckedUpdateManyInput = {
   cableSize?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cableLength?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   voltageDrop?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  installMethod?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cableInsulation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type FloorItemListRelationFilter = {
@@ -515,6 +553,8 @@ export type FloorItemCountOrderByAggregateInput = {
   cableSize?: Prisma.SortOrder
   cableLength?: Prisma.SortOrder
   voltageDrop?: Prisma.SortOrder
+  installMethod?: Prisma.SortOrder
+  cableInsulation?: Prisma.SortOrder
 }
 
 export type FloorItemAvgOrderByAggregateInput = {
@@ -539,6 +579,8 @@ export type FloorItemMaxOrderByAggregateInput = {
   cableSize?: Prisma.SortOrder
   cableLength?: Prisma.SortOrder
   voltageDrop?: Prisma.SortOrder
+  installMethod?: Prisma.SortOrder
+  cableInsulation?: Prisma.SortOrder
 }
 
 export type FloorItemMinOrderByAggregateInput = {
@@ -555,6 +597,8 @@ export type FloorItemMinOrderByAggregateInput = {
   cableSize?: Prisma.SortOrder
   cableLength?: Prisma.SortOrder
   voltageDrop?: Prisma.SortOrder
+  installMethod?: Prisma.SortOrder
+  cableInsulation?: Prisma.SortOrder
 }
 
 export type FloorItemSumOrderByAggregateInput = {
@@ -702,6 +746,8 @@ export type FloorItemCreateWithoutApartmentTemplateInput = {
   cableSize?: string | null
   cableLength?: number | null
   voltageDrop?: number | null
+  installMethod?: string | null
+  cableInsulation?: string | null
   loadLibraryItem?: Prisma.LoadLibraryItemCreateNestedOneWithoutFloorItemsInput
   floorDesign: Prisma.FloorDesignCreateNestedOneWithoutItemsInput
 }
@@ -719,6 +765,8 @@ export type FloorItemUncheckedCreateWithoutApartmentTemplateInput = {
   cableSize?: string | null
   cableLength?: number | null
   voltageDrop?: number | null
+  installMethod?: string | null
+  cableInsulation?: string | null
 }
 
 export type FloorItemCreateOrConnectWithoutApartmentTemplateInput = {
@@ -763,6 +811,8 @@ export type FloorItemScalarWhereInput = {
   cableSize?: Prisma.StringNullableFilter<"FloorItem"> | string | null
   cableLength?: Prisma.FloatNullableFilter<"FloorItem"> | number | null
   voltageDrop?: Prisma.FloatNullableFilter<"FloorItem"> | number | null
+  installMethod?: Prisma.StringNullableFilter<"FloorItem"> | string | null
+  cableInsulation?: Prisma.StringNullableFilter<"FloorItem"> | string | null
 }
 
 export type FloorItemCreateWithoutLoadLibraryItemInput = {
@@ -776,6 +826,8 @@ export type FloorItemCreateWithoutLoadLibraryItemInput = {
   cableSize?: string | null
   cableLength?: number | null
   voltageDrop?: number | null
+  installMethod?: string | null
+  cableInsulation?: string | null
   apartmentTemplate?: Prisma.ApartmentTemplateCreateNestedOneWithoutFloorItemsInput
   floorDesign: Prisma.FloorDesignCreateNestedOneWithoutItemsInput
 }
@@ -793,6 +845,8 @@ export type FloorItemUncheckedCreateWithoutLoadLibraryItemInput = {
   cableSize?: string | null
   cableLength?: number | null
   voltageDrop?: number | null
+  installMethod?: string | null
+  cableInsulation?: string | null
 }
 
 export type FloorItemCreateOrConnectWithoutLoadLibraryItemInput = {
@@ -831,6 +885,8 @@ export type FloorItemCreateWithoutFloorDesignInput = {
   cableSize?: string | null
   cableLength?: number | null
   voltageDrop?: number | null
+  installMethod?: string | null
+  cableInsulation?: string | null
   apartmentTemplate?: Prisma.ApartmentTemplateCreateNestedOneWithoutFloorItemsInput
   loadLibraryItem?: Prisma.LoadLibraryItemCreateNestedOneWithoutFloorItemsInput
 }
@@ -848,6 +904,8 @@ export type FloorItemUncheckedCreateWithoutFloorDesignInput = {
   cableSize?: string | null
   cableLength?: number | null
   voltageDrop?: number | null
+  installMethod?: string | null
+  cableInsulation?: string | null
 }
 
 export type FloorItemCreateOrConnectWithoutFloorDesignInput = {
@@ -888,6 +946,8 @@ export type FloorItemCreateManyApartmentTemplateInput = {
   cableSize?: string | null
   cableLength?: number | null
   voltageDrop?: number | null
+  installMethod?: string | null
+  cableInsulation?: string | null
 }
 
 export type FloorItemUpdateWithoutApartmentTemplateInput = {
@@ -901,6 +961,8 @@ export type FloorItemUpdateWithoutApartmentTemplateInput = {
   cableSize?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cableLength?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   voltageDrop?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  installMethod?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cableInsulation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   loadLibraryItem?: Prisma.LoadLibraryItemUpdateOneWithoutFloorItemsNestedInput
   floorDesign?: Prisma.FloorDesignUpdateOneRequiredWithoutItemsNestedInput
 }
@@ -918,6 +980,8 @@ export type FloorItemUncheckedUpdateWithoutApartmentTemplateInput = {
   cableSize?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cableLength?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   voltageDrop?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  installMethod?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cableInsulation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type FloorItemUncheckedUpdateManyWithoutApartmentTemplateInput = {
@@ -933,6 +997,8 @@ export type FloorItemUncheckedUpdateManyWithoutApartmentTemplateInput = {
   cableSize?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cableLength?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   voltageDrop?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  installMethod?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cableInsulation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type FloorItemCreateManyLoadLibraryItemInput = {
@@ -948,6 +1014,8 @@ export type FloorItemCreateManyLoadLibraryItemInput = {
   cableSize?: string | null
   cableLength?: number | null
   voltageDrop?: number | null
+  installMethod?: string | null
+  cableInsulation?: string | null
 }
 
 export type FloorItemUpdateWithoutLoadLibraryItemInput = {
@@ -961,6 +1029,8 @@ export type FloorItemUpdateWithoutLoadLibraryItemInput = {
   cableSize?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cableLength?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   voltageDrop?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  installMethod?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cableInsulation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   apartmentTemplate?: Prisma.ApartmentTemplateUpdateOneWithoutFloorItemsNestedInput
   floorDesign?: Prisma.FloorDesignUpdateOneRequiredWithoutItemsNestedInput
 }
@@ -978,6 +1048,8 @@ export type FloorItemUncheckedUpdateWithoutLoadLibraryItemInput = {
   cableSize?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cableLength?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   voltageDrop?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  installMethod?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cableInsulation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type FloorItemUncheckedUpdateManyWithoutLoadLibraryItemInput = {
@@ -993,6 +1065,8 @@ export type FloorItemUncheckedUpdateManyWithoutLoadLibraryItemInput = {
   cableSize?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cableLength?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   voltageDrop?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  installMethod?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cableInsulation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type FloorItemCreateManyFloorDesignInput = {
@@ -1008,6 +1082,8 @@ export type FloorItemCreateManyFloorDesignInput = {
   cableSize?: string | null
   cableLength?: number | null
   voltageDrop?: number | null
+  installMethod?: string | null
+  cableInsulation?: string | null
 }
 
 export type FloorItemUpdateWithoutFloorDesignInput = {
@@ -1021,6 +1097,8 @@ export type FloorItemUpdateWithoutFloorDesignInput = {
   cableSize?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cableLength?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   voltageDrop?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  installMethod?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cableInsulation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   apartmentTemplate?: Prisma.ApartmentTemplateUpdateOneWithoutFloorItemsNestedInput
   loadLibraryItem?: Prisma.LoadLibraryItemUpdateOneWithoutFloorItemsNestedInput
 }
@@ -1038,6 +1116,8 @@ export type FloorItemUncheckedUpdateWithoutFloorDesignInput = {
   cableSize?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cableLength?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   voltageDrop?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  installMethod?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cableInsulation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type FloorItemUncheckedUpdateManyWithoutFloorDesignInput = {
@@ -1053,6 +1133,8 @@ export type FloorItemUncheckedUpdateManyWithoutFloorDesignInput = {
   cableSize?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cableLength?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   voltageDrop?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  installMethod?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cableInsulation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 
@@ -1071,6 +1153,8 @@ export type FloorItemSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   cableSize?: boolean
   cableLength?: boolean
   voltageDrop?: boolean
+  installMethod?: boolean
+  cableInsulation?: boolean
   apartmentTemplate?: boolean | Prisma.FloorItem$apartmentTemplateArgs<ExtArgs>
   loadLibraryItem?: boolean | Prisma.FloorItem$loadLibraryItemArgs<ExtArgs>
   floorDesign?: boolean | Prisma.FloorDesignDefaultArgs<ExtArgs>
@@ -1090,6 +1174,8 @@ export type FloorItemSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ext
   cableSize?: boolean
   cableLength?: boolean
   voltageDrop?: boolean
+  installMethod?: boolean
+  cableInsulation?: boolean
   apartmentTemplate?: boolean | Prisma.FloorItem$apartmentTemplateArgs<ExtArgs>
   loadLibraryItem?: boolean | Prisma.FloorItem$loadLibraryItemArgs<ExtArgs>
   floorDesign?: boolean | Prisma.FloorDesignDefaultArgs<ExtArgs>
@@ -1109,6 +1195,8 @@ export type FloorItemSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ext
   cableSize?: boolean
   cableLength?: boolean
   voltageDrop?: boolean
+  installMethod?: boolean
+  cableInsulation?: boolean
   apartmentTemplate?: boolean | Prisma.FloorItem$apartmentTemplateArgs<ExtArgs>
   loadLibraryItem?: boolean | Prisma.FloorItem$loadLibraryItemArgs<ExtArgs>
   floorDesign?: boolean | Prisma.FloorDesignDefaultArgs<ExtArgs>
@@ -1128,9 +1216,11 @@ export type FloorItemSelectScalar = {
   cableSize?: boolean
   cableLength?: boolean
   voltageDrop?: boolean
+  installMethod?: boolean
+  cableInsulation?: boolean
 }
 
-export type FloorItemOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "type" | "name" | "apartmentTemplateId" | "loadLibraryItemId" | "floorDesignId" | "calculatedConnectedLoad" | "calculatedMaxDemand" | "calculatedCurrent" | "breakerSize" | "cableSize" | "cableLength" | "voltageDrop", ExtArgs["result"]["floorItem"]>
+export type FloorItemOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "type" | "name" | "apartmentTemplateId" | "loadLibraryItemId" | "floorDesignId" | "calculatedConnectedLoad" | "calculatedMaxDemand" | "calculatedCurrent" | "breakerSize" | "cableSize" | "cableLength" | "voltageDrop" | "installMethod" | "cableInsulation", ExtArgs["result"]["floorItem"]>
 export type FloorItemInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   apartmentTemplate?: boolean | Prisma.FloorItem$apartmentTemplateArgs<ExtArgs>
   loadLibraryItem?: boolean | Prisma.FloorItem$loadLibraryItemArgs<ExtArgs>
@@ -1168,6 +1258,8 @@ export type $FloorItemPayload<ExtArgs extends runtime.Types.Extensions.InternalA
     cableSize: string | null
     cableLength: number | null
     voltageDrop: number | null
+    installMethod: string | null
+    cableInsulation: string | null
   }, ExtArgs["result"]["floorItem"]>
   composites: {}
 }
@@ -1607,6 +1699,8 @@ export interface FloorItemFieldRefs {
   readonly cableSize: Prisma.FieldRef<"FloorItem", 'String'>
   readonly cableLength: Prisma.FieldRef<"FloorItem", 'Float'>
   readonly voltageDrop: Prisma.FieldRef<"FloorItem", 'Float'>
+  readonly installMethod: Prisma.FieldRef<"FloorItem", 'String'>
+  readonly cableInsulation: Prisma.FieldRef<"FloorItem", 'String'>
 }
     
 

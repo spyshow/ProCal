@@ -1322,7 +1322,9 @@ export const FloorItemScalarFieldEnum = {
   breakerSize: 'breakerSize',
   cableSize: 'cableSize',
   cableLength: 'cableLength',
-  voltageDrop: 'voltageDrop'
+  voltageDrop: 'voltageDrop',
+  installMethod: 'installMethod',
+  cableInsulation: 'cableInsulation'
 } as const
 
 export type FloorItemScalarFieldEnum = (typeof FloorItemScalarFieldEnum)[keyof typeof FloorItemScalarFieldEnum]

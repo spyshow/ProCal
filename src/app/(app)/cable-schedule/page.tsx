@@ -175,11 +175,12 @@ export default function CableSchedulePage() {
       if (field === 'length') payload.cableLength = value;
       if (field === 'method') payload.installMethod = value;
       if (field === 'insulation') payload.cableInsulation = value;
+      console.log('Saving to DB:', id, payload);
       fetch(`/api/floor-items/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
-      }).catch(err => console.error('Failed to save:', err));
+      }).then(res => res.json()).then(data => console.log('Saved:', data)).catch(err => console.error('Failed to save:', err));
 
       return {
         ...updated,

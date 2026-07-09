@@ -1,10 +1,11 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { useProject } from '@/context/ProjectContext';
+import { usePathname, useRouter } from 'next/navigation';
 import { recalculateCable } from '@/lib/sld/cable-editor';
 import MethodSelector from '@/components/MethodSelector';
-import { Cable, RefreshCw, AlertTriangle, Check, Settings } from 'lucide-react';
+import { Cable, RefreshCw, AlertTriangle, Check, Settings, Save } from 'lucide-react';
 import type { Project } from '@/types';
 
 interface CableEntry {
@@ -26,11 +27,47 @@ interface CableEntry {
 
 export default function CableSchedulePage() {
   const { selectedProjectId } = useProject();
+  const pathname = usePathname();
+  const router = useRouter();
   const [project, setProject] = useState<Project | null>(null);
   const [loading, setLoading] = useState(true);
   const [cables, setCables] = useState<CableEntry[]>([]);
   const [selectedBuilding, setSelectedBuilding] = useState<string | null>(null);
   const [showSettings, setShowSettings] = useState(false);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const pendingNavigation = useRef<string | null>(null);
+
+  // Warn before leaving with unsaved changes
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (hasUnsavedChanges) {
+        e.preventDefault();
+        e.returnValue = '';
+      }
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [hasUnsavedChanges]);
+
+  // Intercept Next.js navigation
+  useEffect(() => {
+    if (!hasUnsavedChanges) return;
+
+    const handleAnchorClick = (e: MouseEvent) => {
+      const target = (e.target as HTMLElement).closest('a');
+      if (!target) return;
+      const href = target.getAttribute('href');
+      if (href && href !== pathname && !href.startsWith('#')) {
+        e.preventDefault();
+        pendingNavigation.current = href;
+        // The alert will be handled by the unsaved dialog
+      }
+    };
+
+    document.addEventListener('click', handleAnchorClick, true);
+    return () => document.removeEventListener('click', handleAnchorClick, true);
+  }, [hasUnsavedChanges, pathname]);
 
   const loadProject = useCallback(async () => {
     if (!selectedProjectId) { setLoading(false); return; }
@@ -170,6 +207,60 @@ export default function CableSchedulePage() {
     }));
   };
 
+  const applyChanges = async () => {
+    setSaving(true);
+    const changedCables = cables.filter(c => c.changed && c.newCableSize !== null);
+
+    try {
+      await Promise.all(changedCables.map(c =>
+        fetch(`/api/floor-items/${c.id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ cableSize: `${c.newCableSize}` }),
+        })
+      ));
+
+      // Update local state to reflect applied changes
+      setCables(prev => prev.map(c => {
+        if (c.changed && c.newCableSize !== null) {
+          return {
+            ...c,
+            cableSize: c.newCableSize,
+            newCableSize: null,
+            newVD: null,
+            changed: false,
+          };
+        }
+        return c;
+      }));
+
+      setHasUnsavedChanges(false);
+    } catch (err) {
+      console.error('Failed to apply changes:', err);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDiscard = () => {
+    setHasUnsavedChanges(false);
+    if (pendingNavigation.current) {
+      router.push(pendingNavigation.current);
+      pendingNavigation.current = null;
+    }
+  };
+
+  const handleSaveAndNavigate = async () => {
+    await applyChanges();
+    if (pendingNavigation.current) {
+      router.push(pendingNavigation.current);
+      pendingNavigation.current = null;
+    }
+  };
+
+  // Check if there are cables that need upsize
+  const cablesNeedingUpsize = cables.filter(c => c.changed);
+
   if (loading) return <div className="flex items-center justify-center h-full"><p className="text-gray-500 text-sm">Loading…</p></div>;
   if (!project) return <div className="flex items-center justify-center h-full"><p className="text-gray-400 text-sm">Select a project first.</p></div>;
 
@@ -184,6 +275,31 @@ export default function CableSchedulePage() {
 
   return (
     <div className="p-6 space-y-5 max-w-7xl mx-auto">
+      {/* Unsaved Changes Banner */}
+      {cablesNeedingUpsize.length > 0 && (
+        <div className="rounded-xl border border-yellow-500/30 bg-yellow-500/10 p-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <AlertTriangle size={20} className="text-yellow-400" />
+            <div>
+              <p className="text-sm font-semibold text-yellow-300">
+                {cablesNeedingUpsize.length} cable{cablesNeedingUpsize.length > 1 ? 's' : ''} need{cablesNeedingUpsize.length === 1 ? 's' : ''} upsize
+              </p>
+              <p className="text-xs text-yellow-400/70">
+                Click "Apply" to save the new cable sizes to the database
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={applyChanges}
+            disabled={saving}
+            className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-yellow-500 hover:bg-yellow-400 text-gray-900 text-sm font-semibold disabled:opacity-50"
+          >
+            <Save size={14} />
+            {saving ? 'Saving…' : 'Apply'}
+          </button>
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -359,6 +475,41 @@ export default function CableSchedulePage() {
         <p><span className="text-blue-400">Insulation:</span> XLPE rated 90°C, PVC rated 70°C. XLPE allows higher ampacity.</p>
         <p>IEC 60364-5-52 limits: 3% lighting, 5% power. <span className="text-yellow-400">UP</span> = cable upsized to meet VD limit.</p>
       </div>
+
+      {/* Unsaved Changes Dialog */}
+      {hasUnsavedChanges && (
+        <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/60 backdrop-blur-sm">
+          <div className="bg-gray-900 border border-gray-700 rounded-xl shadow-2xl p-6 w-96 space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-yellow-500/20 flex items-center justify-center">
+                <AlertTriangle size={20} className="text-yellow-400" />
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-white">Unsaved Changes</h3>
+                <p className="text-sm text-gray-400">You have cable upsizes that haven't been applied.</p>
+              </div>
+            </div>
+            <p className="text-sm text-gray-300">
+              Do you want to save the new cable sizes before leaving?
+            </p>
+            <div className="flex gap-2 justify-end">
+              <button
+                onClick={handleDiscard}
+                className="px-4 py-2 rounded-lg bg-gray-700 hover:bg-gray-600 text-white text-sm font-medium"
+              >
+                Discard
+              </button>
+              <button
+                onClick={handleSaveAndNavigate}
+                disabled={saving}
+                className="px-4 py-2 rounded-lg bg-yellow-500 hover:bg-yellow-400 text-gray-900 text-sm font-semibold disabled:opacity-50"
+              >
+                {saving ? 'Saving…' : 'Save & Leave'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -35,6 +35,7 @@ export default function PanelDesignerPage() {
   const [loading, setLoading] = useState(true);
   const [selectedBuilding, setSelectedBuilding] = useState<string | null>(null);
   const [panelType, setPanelType] = useState<'MDB' | 'SMDB'>('MDB');
+  const [selectedFloor, setSelectedFloor] = useState<number | null>(null);
   const [equipment, setEquipment] = useState<EquipmentItem[]>([]);
 
   const loadProject = useCallback(async () => {
@@ -171,6 +172,37 @@ export default function PanelDesignerPage() {
   addBuildingLoad('Split AC Panel', 'SPLIT_AC', 5, bldg.splitAc);
   addBuildingLoad('Central AC', 'CENTRAL_AC', 50, bldg.centralAc);
 
+  // SMDB feeders - only for floors with sub-panels
+  const smdbFloors = bldg.floorDesigns.filter(fd => fd.hasFloorSubPanels);
+  const activeSmdbFloor = selectedFloor || (smdbFloors.length > 0 ? smdbFloors[0].floorNumber : null);
+
+  const smdbFeeders: PanelFeeder[] = [];
+  if (activeSmdbFloor) {
+    const fd = bldg.floorDesigns.find(f => f.floorNumber === activeSmdbFloor);
+    if (fd) {
+      for (const item of fd.items) {
+        const sizing = sizeCableAndBreaker(item.calculatedCurrent, item.type === 'APARTMENT', {
+          material: 'copper',
+          insulation: 'XLPE',
+          ambientTemp: 30,
+          groupingCount: 2,
+        });
+        const mccb = findBreaker(sizing.breakerSize, 'MCCB');
+        smdbFeeders.push({
+          name: item.name,
+          type: item.type,
+          current: item.calculatedCurrent,
+          breakerSize: sizing.breakerSize,
+          cableSize: sizing.cableSize,
+          breakerModel: mccb ? `${mccb.manufacturer} ${mccb.series} ${mccb.model}` : `MCCB ${sizing.breakerSize}`,
+        });
+      }
+    }
+  }
+
+  // Use appropriate feeders based on panel type
+  const activeFeeders = panelType === 'MDB' ? mdbFeeders : smdbFeeders;
+
   // MDB Main calculations
   const totalDemand = mdbFeeders.reduce((s, f) => s + f.current * (project.voltage === 400 ? Math.sqrt(3) * 0.4 * project.powerFactor : 0.23 * project.powerFactor), 0);
   const totalDemandKva = totalDemand / 1000;
@@ -239,6 +271,23 @@ export default function PanelDesignerPage() {
         </div>
       )}
 
+      {/* Floor Selector for SMDB */}
+      {panelType === 'SMDB' && smdbFloors.length > 0 && (
+        <div className="flex gap-2">
+          {smdbFloors.map(fd => (
+            <button
+              key={fd.floorNumber}
+              onClick={() => setSelectedFloor(fd.floorNumber)}
+              className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                activeSmdbFloor === fd.floorNumber ? 'bg-orange-600 text-white' : 'bg-gray-800 text-gray-400'
+              }`}
+            >
+              Floor {fd.floorNumber}
+            </button>
+          ))}
+        </div>
+      )}
+
       {/* Main Incomer */}
       <div className="rounded-xl border border-gray-800 bg-gray-900/60 p-5">
         <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4 flex items-center gap-2">
@@ -282,13 +331,13 @@ export default function PanelDesignerPage() {
       <div className="rounded-xl border border-gray-800 bg-gray-900/60 p-5">
         <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4 flex items-center gap-2">
           <Cpu size={14} className="text-orange-500" />
-          Panel Layout — {mdbFeeders.length} Outgoing Feeders
+          Panel Layout — {activeFeeders.length} Outgoing Feeders
         </h2>
 
         {/* SVG Panel Outline */}
         <div className="bg-gray-950 rounded-lg border border-gray-800 p-4 overflow-x-auto">
           <svg
-            viewBox={`0 0 800 ${Math.max(600, mdbFeeders.length * 36 + 200)}`}
+            viewBox={`0 0 800 ${Math.max(600, activeFeeders.length * 36 + 200)}`}
             className="w-full"
             xmlns="http://www.w3.org/2000/svg"
           >
@@ -297,7 +346,7 @@ export default function PanelDesignerPage() {
               x="40"
               y="20"
               width="720"
-              height={mdbFeeders.length * 36 + 160}
+              height={activeFeeders.length * 36 + 160}
               fill="none"
               stroke="#374151"
               strokeWidth="2"
@@ -346,7 +395,7 @@ export default function PanelDesignerPage() {
             <text x="670" y="121" textAnchor="middle" fill="#4b5563" fontSize="8">Expansion</text>
 
             {/* Feeders */}
-            {mdbFeeders.map((feeder, i) => {
+            {activeFeeders.map((feeder, i) => {
               const y = 150 + i * 36;
               const isApartment = feeder.type === 'APARTMENT';
               const color = isApartment ? '#f97316' : feeder.type.includes('PUMP') ? '#22c55e' : feeder.type.includes('ELEVATOR') ? '#3b82f6' : '#a855f7';
@@ -386,12 +435,12 @@ export default function PanelDesignerPage() {
             {/* Bottom label */}
             <text
               x="400"
-              y={mdbFeeders.length * 36 + 175}
+              y={activeFeeders.length * 36 + 175}
               textAnchor="middle"
               fill="#4b5563"
               fontSize="10"
             >
-              {panelType} Panel — {mdbFeeders.length} feeders — Total {totalDemandKva.toFixed(1)} kVA — Transformer sized at {transformerSize} kVA
+              {panelType} Panel — {activeFeeders.length} feeders — Total {totalDemandKva.toFixed(1)} kVA — Transformer sized at {transformerSize} kVA
             </text>
           </svg>
         </div>
@@ -417,7 +466,7 @@ export default function PanelDesignerPage() {
               </tr>
             </thead>
             <tbody>
-              {mdbFeeders.map((f, i) => (
+              {activeFeeders.map((f, i) => (
                 <tr key={i} className="hover:bg-gray-800/30">
                   <td className="font-mono text-gray-500">{i + 1}</td>
                   <td className="text-gray-200">{f.name}</td>
@@ -434,7 +483,7 @@ export default function PanelDesignerPage() {
                 <td className="text-white">TOTAL</td>
                 <td></td>
                 <td className="text-right font-mono text-orange-400">
-                  {mdbFeeders.reduce((s, f) => s + f.current, 0).toFixed(1)}
+                  {activeFeeders.reduce((s, f) => s + f.current, 0).toFixed(1)}
                 </td>
                 <td className="text-right font-mono text-white">{mainSizing.breakerSize}</td>
                 <td className="text-center text-xs font-mono text-white">{mainBreakerModel}</td>

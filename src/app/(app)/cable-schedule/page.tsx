@@ -35,6 +35,14 @@ export default function CableSchedulePage() {
   const [selectedBuilding, setSelectedBuilding] = useState<string | null>(null);
   const [showSettings, setShowSettings] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [defaultMethod, setDefaultMethod] = useState<string>(() => {
+    if (typeof window !== 'undefined') return localStorage.getItem('procal-default-method') || 'C';
+    return 'C';
+  });
+  const [defaultInsulation, setDefaultInsulation] = useState<'PVC' | 'XLPE'>(() => {
+    if (typeof window !== 'undefined') return (localStorage.getItem('procal-default-insulation') as 'PVC' | 'XLPE') || 'XLPE';
+    return 'XLPE';
+  });
   const [showNavDialog, setShowNavDialog] = useState(false);
   const pendingNavigation = useRef<string | null>(null);
 
@@ -275,6 +283,43 @@ export default function CableSchedulePage() {
     }
   };
 
+  const applyDefaults = () => {
+    const savedLimits = localStorage.getItem('procal-vd-limits');
+    const limits = savedLimits ? JSON.parse(savedLimits) : { lighting: 3, power: 5 };
+
+    // Save all cables to database and update local state
+    cables.forEach(c => {
+      fetch(`/api/floor-items/${c.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ installMethod: defaultMethod, cableInsulation: defaultInsulation }),
+      }).catch(err => console.error('Failed to save:', err));
+    });
+
+    setCables(prev => prev.map(c => {
+      const result = recalculateCable({
+        current: c.current,
+        isThreePhase: c.isThreePhase,
+        lengthMeters: c.length,
+        existingCableSize: c.cableSize,
+        powerFactor: project?.powerFactor || 0.85,
+        systemVoltage: project?.voltage === 400 ? 400 : 230,
+        maxVoltageDropPercent: limits.power,
+        method: defaultMethod,
+        insulation: defaultInsulation,
+      });
+      return {
+        ...c,
+        method: defaultMethod,
+        insulation: defaultInsulation,
+        newCableSize: result.cableSize,
+        newVD: result.voltageDropPercent,
+        changed: result.changed,
+        ampacity: result.ampacity,
+      };
+    }));
+  };
+
   // Check if there are cables that need upsize
   const cablesNeedingUpsize = cables.filter(c => c.changed);
 
@@ -347,18 +392,36 @@ export default function CableSchedulePage() {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-xs text-gray-500 mb-1">Default Installation Method</label>
-              <MethodSelector value="C" onChange={() => {}} />
-              <p className="text-[10px] text-gray-600 mt-1">Applied to new cables</p>
+              <MethodSelector
+                value={defaultMethod}
+                onChange={(m) => {
+                  setDefaultMethod(m);
+                  localStorage.setItem('procal-default-method', m);
+                }}
+              />
             </div>
             <div>
               <label className="block text-xs text-gray-500 mb-1">Default Insulation</label>
-              <select className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white">
+              <select
+                value={defaultInsulation}
+                onChange={(e) => {
+                  const v = e.target.value as 'PVC' | 'XLPE';
+                  setDefaultInsulation(v);
+                  localStorage.setItem('procal-default-insulation', v);
+                }}
+                className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white"
+              >
                 <option value="XLPE">XLPE (90°C)</option>
                 <option value="PVC">PVC (70°C)</option>
               </select>
-              <p className="text-[10px] text-gray-600 mt-1">Applied to new cables</p>
             </div>
           </div>
+          <button
+            onClick={() => applyDefaults()}
+            className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-sm font-semibold"
+          >
+            Apply to All Cables
+          </button>
         </div>
       )}
 

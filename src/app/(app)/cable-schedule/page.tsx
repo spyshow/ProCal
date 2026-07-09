@@ -209,6 +209,8 @@ export default function CableSchedulePage() {
 
   const applyChanges = async () => {
     setSaving(true);
+    const savedLimits = localStorage.getItem('procal-vd-limits');
+    const limits = savedLimits ? JSON.parse(savedLimits) : { lighting: 3, power: 5 };
     const changedCables = cables.filter(c => c.changed && c.newCableSize !== null);
 
     try {
@@ -220,15 +222,27 @@ export default function CableSchedulePage() {
         })
       ));
 
-      // Update local state to reflect applied changes
+      // Update local state: apply new cable size and recalculate VD with it
       setCables(prev => prev.map(c => {
         if (c.changed && c.newCableSize !== null) {
+          const result = recalculateCable({
+            current: c.current,
+            isThreePhase: c.isThreePhase,
+            lengthMeters: c.length,
+            existingCableSize: c.newCableSize,
+            powerFactor: project?.powerFactor || 0.85,
+            systemVoltage: project?.voltage === 400 ? 400 : 230,
+            maxVoltageDropPercent: limits.power,
+            method: c.method,
+            insulation: c.insulation,
+          });
           return {
             ...c,
             cableSize: c.newCableSize,
-            newCableSize: null,
-            newVD: null,
-            changed: false,
+            newCableSize: result.cableSize,
+            newVD: result.voltageDropPercent,
+            changed: result.changed,
+            ampacity: result.ampacity,
           };
         }
         return c;

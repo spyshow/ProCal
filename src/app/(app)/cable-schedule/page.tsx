@@ -35,6 +35,7 @@ export default function CableSchedulePage() {
   const [selectedBuilding, setSelectedBuilding] = useState<string | null>(null);
   const [showSettings, setShowSettings] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [showNavDialog, setShowNavDialog] = useState(false);
   const pendingNavigation = useRef<string | null>(null);
 
   // Derive unsaved changes from cables state
@@ -64,6 +65,7 @@ export default function CableSchedulePage() {
         e.preventDefault();
         e.stopPropagation();
         pendingNavigation.current = href;
+        setShowNavDialog(true);
       }
     };
 
@@ -257,6 +259,7 @@ export default function CableSchedulePage() {
   };
 
   const handleDiscard = () => {
+    setShowNavDialog(false);
     if (pendingNavigation.current) {
       router.push(pendingNavigation.current);
       pendingNavigation.current = null;
@@ -265,6 +268,7 @@ export default function CableSchedulePage() {
 
   const handleSaveAndNavigate = async () => {
     await applyChanges();
+    setShowNavDialog(false);
     if (pendingNavigation.current) {
       router.push(pendingNavigation.current);
       pendingNavigation.current = null;
@@ -490,7 +494,7 @@ export default function CableSchedulePage() {
       </div>
 
       {/* Unsaved Changes Dialog */}
-      {hasUnsavedChanges && (
+      {showNavDialog && (
         <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/60 backdrop-blur-sm">
           <div className="bg-gray-900 border border-gray-700 rounded-xl shadow-2xl p-6 w-96 space-y-4">
             <div className="flex items-center gap-3">

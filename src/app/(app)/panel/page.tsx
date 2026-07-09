@@ -87,12 +87,13 @@ export default function PanelDesignerPage() {
 
   const bldg = project.buildings.find((b) => b.id === selectedBuilding) || project.buildings[0];
 
-  // Aggregate all floor items into MDB feeders
-  const allFeeders: PanelFeeder[] = [];
+  // MDB Feeders: sub-panels for floors with hasFloorSubPanels, direct apartment feeders otherwise
+  const mdbFeeders: PanelFeeder[] = [];
   for (const fd of bldg.floorDesigns) {
-    for (const item of fd.items) {
-      const current = item.calculatedCurrent;
-      const sizing = sizeCableAndBreaker(current, item.type !== 'APARTMENT', {
+    if (fd.hasFloorSubPanels) {
+      // Floor has sub-panels → single SMDB feeder for the entire floor
+      const floorTotalCurrent = fd.items.reduce((sum, item) => sum + item.calculatedCurrent, 0);
+      const sizing = sizeCableAndBreaker(floorTotalCurrent, true, {
         material: 'copper',
         insulation: 'XLPE',
         ambientTemp: 30,
@@ -103,19 +104,75 @@ export default function PanelDesignerPage() {
         ? `${mccb.manufacturer} ${mccb.series} ${mccb.model}`
         : `MCCB ${sizing.breakerSize}`;
 
-      allFeeders.push({
-        name: `F${fd.floorNumber} – ${item.name}`,
-        type: item.type,
-        current: current,
+      mdbFeeders.push({
+        name: `F${fd.floorNumber} – SMDB`,
+        type: 'SMDB',
+        current: floorTotalCurrent,
         breakerSize: sizing.breakerSize,
         cableSize: sizing.cableSize,
         breakerModel: model,
       });
+    } else {
+      // No sub-panels → individual apartment feeders
+      for (const item of fd.items) {
+        const current = item.calculatedCurrent;
+        const sizing = sizeCableAndBreaker(current, item.type !== 'APARTMENT', {
+          material: 'copper',
+          insulation: 'XLPE',
+          ambientTemp: 30,
+          groupingCount: 2,
+        });
+        const mccb = findBreaker(sizing.breakerSize, 'MCCB');
+        const model = mccb
+          ? `${mccb.manufacturer} ${mccb.series} ${mccb.model}`
+          : `MCCB ${sizing.breakerSize}`;
+
+        mdbFeeders.push({
+          name: `F${fd.floorNumber} – ${item.name}`,
+          type: item.type,
+          current: current,
+          breakerSize: sizing.breakerSize,
+          cableSize: sizing.cableSize,
+          breakerModel: model,
+        });
+      }
     }
   }
 
+  // Add other building loads (elevators, water pumps, fire pump, split AC, central AC)
+  const addBuildingLoad = (name: string, type: string, kw: number, count: number) => {
+    if (count <= 0 || kw <= 0) return;
+    const totalKw = kw * count;
+    const current = totalKw / (Math.sqrt(3) * 0.4 * project.powerFactor);
+    const sizing = sizeCableAndBreaker(current, true, {
+      material: 'copper',
+      insulation: 'XLPE',
+      ambientTemp: 30,
+      groupingCount: 1,
+    });
+    const mccb = findBreaker(sizing.breakerSize, 'MCCB');
+    const model = mccb
+      ? `${mccb.manufacturer} ${mccb.series} ${mccb.model}`
+      : `MCCB ${sizing.breakerSize}`;
+
+    mdbFeeders.push({
+      name,
+      type,
+      current,
+      breakerSize: sizing.breakerSize,
+      cableSize: sizing.cableSize,
+      breakerModel: model,
+    });
+  };
+
+  addBuildingLoad('Elevator(s)', 'ELEVATOR', 22, bldg.elevators);
+  addBuildingLoad('Water Pump(s)', 'WATER_PUMP', 7.5, bldg.waterPumps);
+  if (bldg.firePump) addBuildingLoad('Fire Pump', 'FIRE_PUMP', 15, 1);
+  addBuildingLoad('Split AC Panel', 'SPLIT_AC', 5, bldg.splitAc);
+  addBuildingLoad('Central AC', 'CENTRAL_AC', 50, bldg.centralAc);
+
   // MDB Main calculations
-  const totalDemand = allFeeders.reduce((s, f) => s + f.current * (project.voltage === 400 ? Math.sqrt(3) * 0.4 * project.powerFactor : 0.23 * project.powerFactor), 0);
+  const totalDemand = mdbFeeders.reduce((s, f) => s + f.current * (project.voltage === 400 ? Math.sqrt(3) * 0.4 * project.powerFactor : 0.23 * project.powerFactor), 0);
   const totalDemandKva = totalDemand / 1000;
   const mainBreakerCurrent = calculateThreePhaseCurrent(totalDemandKva * 1000, project.voltage);
   const mainSizing = sizeCableAndBreaker(mainBreakerCurrent, true, {
@@ -225,13 +282,13 @@ export default function PanelDesignerPage() {
       <div className="rounded-xl border border-gray-800 bg-gray-900/60 p-5">
         <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4 flex items-center gap-2">
           <Cpu size={14} className="text-orange-500" />
-          Panel Layout — {allFeeders.length} Outgoing Feeders
+          Panel Layout — {mdbFeeders.length} Outgoing Feeders
         </h2>
 
         {/* SVG Panel Outline */}
         <div className="bg-gray-950 rounded-lg border border-gray-800 p-4 overflow-x-auto">
           <svg
-            viewBox={`0 0 800 ${Math.max(600, allFeeders.length * 36 + 200)}`}
+            viewBox={`0 0 800 ${Math.max(600, mdbFeeders.length * 36 + 200)}`}
             className="w-full"
             xmlns="http://www.w3.org/2000/svg"
           >
@@ -240,7 +297,7 @@ export default function PanelDesignerPage() {
               x="40"
               y="20"
               width="720"
-              height={allFeeders.length * 36 + 160}
+              height={mdbFeeders.length * 36 + 160}
               fill="none"
               stroke="#374151"
               strokeWidth="2"
@@ -289,7 +346,7 @@ export default function PanelDesignerPage() {
             <text x="670" y="121" textAnchor="middle" fill="#4b5563" fontSize="8">Expansion</text>
 
             {/* Feeders */}
-            {allFeeders.map((feeder, i) => {
+            {mdbFeeders.map((feeder, i) => {
               const y = 150 + i * 36;
               const isApartment = feeder.type === 'APARTMENT';
               const color = isApartment ? '#f97316' : feeder.type.includes('PUMP') ? '#22c55e' : feeder.type.includes('ELEVATOR') ? '#3b82f6' : '#a855f7';
@@ -329,12 +386,12 @@ export default function PanelDesignerPage() {
             {/* Bottom label */}
             <text
               x="400"
-              y={allFeeders.length * 36 + 175}
+              y={mdbFeeders.length * 36 + 175}
               textAnchor="middle"
               fill="#4b5563"
               fontSize="10"
             >
-              {panelType} Panel — {allFeeders.length} feeders — Total {totalDemandKva.toFixed(1)} kVA — Transformer sized at {transformerSize} kVA
+              {panelType} Panel — {mdbFeeders.length} feeders — Total {totalDemandKva.toFixed(1)} kVA — Transformer sized at {transformerSize} kVA
             </text>
           </svg>
         </div>
@@ -360,7 +417,7 @@ export default function PanelDesignerPage() {
               </tr>
             </thead>
             <tbody>
-              {allFeeders.map((f, i) => (
+              {mdbFeeders.map((f, i) => (
                 <tr key={i} className="hover:bg-gray-800/30">
                   <td className="font-mono text-gray-500">{i + 1}</td>
                   <td className="text-gray-200">{f.name}</td>
@@ -377,7 +434,7 @@ export default function PanelDesignerPage() {
                 <td className="text-white">TOTAL</td>
                 <td></td>
                 <td className="text-right font-mono text-orange-400">
-                  {allFeeders.reduce((s, f) => s + f.current, 0).toFixed(1)}
+                  {mdbFeeders.reduce((s, f) => s + f.current, 0).toFixed(1)}
                 </td>
                 <td className="text-right font-mono text-white">{mainSizing.breakerSize}</td>
                 <td className="text-center text-xs font-mono text-white">{mainBreakerModel}</td>

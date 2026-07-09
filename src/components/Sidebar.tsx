@@ -8,6 +8,7 @@ import {
   LayoutDashboard,
   FolderOpen,
   Zap,
+  Cable,
   Cpu,
   GitBranch,
   Shield,
@@ -37,15 +38,16 @@ interface NavItem {
 // Constants
 // ---------------------------------------------------------------------------
 const NAV_ITEMS: NavItem[] = [
-  { label: "Dashboard",      href: "/dashboard",    icon: LayoutDashboard },
-  { label: "Projects",       href: "/projects",     icon: FolderOpen      },
-  { label: "Load Calculator",href: "/calculator",   icon: Zap             },
-  { label: "Panel Designer", href: "/panel",        icon: Cpu             },
-  { label: "Riser Diagram",  href: "/riser",        icon: GitBranch       },
-  { label: "Coordination",   href: "/coordination", icon: Shield          },
-  { label: "SLD Designer",   href: "/sld",          icon: GitBranch       },
-  { label: "Reports",        href: "/reports",      icon: FileText        },
-  { label: "Settings",       href: "/settings",     icon: Settings        },
+  { label: "Dashboard",        href: "/dashboard",      icon: LayoutDashboard },
+  { label: "Projects",         href: "/projects",       icon: FolderOpen      },
+  { label: "Load Calculator",  href: "/calculator",     icon: Zap             },
+  { label: "Cable Schedule",   href: "/cable-schedule", icon: Cable           },
+  { label: "Panel Designer",   href: "/panel",          icon: Cpu             },
+  { label: "Riser Diagram",    href: "/riser",          icon: GitBranch       },
+  { label: "Coordination",     href: "/coordination",   icon: Shield          },
+  { label: "SLD Designer",     href: "/sld",            icon: GitBranch       },
+  { label: "Reports",          href: "/reports",        icon: FileText        },
+  { label: "Settings",         href: "/settings",       icon: Settings        },
 ];
 
 type Manufacturer = "ABB" | "SCHNEIDER" | "MIXED";

@@ -2,6 +2,45 @@ import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getSessionUser } from "@/lib/auth";
 
+export async function PATCH(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const user = await getSessionUser();
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { id } = await params;
+    const body = await request.json();
+
+    const item = await db.floorItem.findUnique({
+      where: { id },
+      include: { floorDesign: { include: { building: { include: { project: true } } } } },
+    });
+
+    if (!item || item.floorDesign.building.project.userId !== user.id) {
+      return NextResponse.json({ error: "Floor item not found" }, { status: 404 });
+    }
+
+    const updateData: any = {};
+    if (body.cableLength !== undefined) updateData.cableLength = body.cableLength;
+    if (body.installMethod !== undefined) updateData.installMethod = body.installMethod;
+    if (body.cableInsulation !== undefined) updateData.cableInsulation = body.cableInsulation;
+
+    const updated = await db.floorItem.update({
+      where: { id },
+      data: updateData,
+    });
+
+    return NextResponse.json(updated);
+  } catch (error) {
+    console.error("PATCH Floor Item Error:", error);
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+  }
+}
+
 export async function DELETE(
   request: Request,
   { params }: { params: Promise<{ id: string }> }

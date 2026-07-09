@@ -107,7 +107,7 @@ export default function ReportsPage() {
   for (const item of allItems) {
     const cableKey = item.cableSize;
     if (!cableBOM[cableKey]) cableBOM[cableKey] = { size: item.cableSize, length: 0, count: 0 };
-    cableBOM[cableKey].length += 30;
+    cableBOM[cableKey].length += (item as any).cableLength || (10 + (item.floor - 1) * 5);
     cableBOM[cableKey].count += 1;
     const breakerKey = item.breakerSize;
     if (!breakerBOM[breakerKey]) breakerBOM[breakerKey] = { rating: item.breakerSize, count: 0 };
@@ -361,8 +361,8 @@ export default function ReportsPage() {
                     <td className="border p-2 text-right font-mono">{item.calculatedCurrent.toFixed(1)}</td>
                     <td className="border p-2 text-center font-mono text-blue-600">{item.breakerSize}</td>
                     <td className="border p-2 text-center font-mono text-green-600">{item.cableSize}</td>
-                    <td className="border p-2 text-center text-xs text-gray-500">In Conduit</td>
-                    <td className="border p-2 text-center text-xs text-gray-500">XLPE</td>
+                    <td className="border p-2 text-center text-xs text-gray-500">{(item as any).installMethod || 'C'}</td>
+                    <td className="border p-2 text-center text-xs text-gray-500">{(item as any).cableInsulation || 'XLPE'}</td>
                   </tr>
                 ))}
               </tbody>
@@ -393,7 +393,7 @@ export default function ReportsPage() {
                       <td className="border p-2 font-semibold">{item.name}</td>
                       <td className="border p-2 text-right font-mono">{item.calculatedCurrent.toFixed(1)}</td>
                       <td className="border p-2 text-center font-mono">{item.cableSize}</td>
-                      <td className="border p-2 text-right font-mono">30</td>
+                      <td className="border p-2 text-right font-mono">{(item as any).cableLength || (10 + (item.floor - 1) * 5)}</td>
                       <td className="border p-2 text-right font-mono">{vd.toFixed(2)}%</td>
                       <td className={`border p-2 text-center font-semibold ${status === 'OK' ? 'text-green-600' : status === 'WARNING' ? 'text-yellow-600' : 'text-red-600'}`}>{status}</td>
                     </tr>

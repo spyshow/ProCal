@@ -138,6 +138,8 @@ model FloorItem {
   cableSize               String?
   cableLength             Float?  // meters — configurable per circuit
   voltageDrop             Float?
+  installMethod           String? @default("C") // IEC 60364-5-52: B1, B2, C, E, F, G
+  cableInsulation         String? @default("XLPE") // "PVC" or "XLPE"
 }
 
 model EquipmentCatalog {

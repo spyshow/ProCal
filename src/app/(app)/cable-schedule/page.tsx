@@ -35,6 +35,7 @@ export default function CableSchedulePage() {
   const [selectedBuilding, setSelectedBuilding] = useState<string | null>(null);
   const [showSettings, setShowSettings] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [applyingDefaults, setApplyingDefaults] = useState(false);
   const [defaultMethod, setDefaultMethod] = useState<string>(() => {
     if (typeof window !== 'undefined') return localStorage.getItem('procal-default-method') || 'C';
     return 'C';
@@ -284,41 +285,46 @@ export default function CableSchedulePage() {
   };
 
   const applyDefaults = async () => {
+    setApplyingDefaults(true);
     const savedLimits = localStorage.getItem('procal-vd-limits');
     const limits = savedLimits ? JSON.parse(savedLimits) : { lighting: 3, power: 5 };
 
-    // Save all cables to database first
-    await Promise.all(cables.map(c =>
-      fetch(`/api/floor-items/${c.id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ installMethod: defaultMethod, cableInsulation: defaultInsulation }),
-      })
-    ));
+    try {
+      // Save all cables to database first
+      await Promise.all(cables.map(c =>
+        fetch(`/api/floor-items/${c.id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ installMethod: defaultMethod, cableInsulation: defaultInsulation }),
+        })
+      ));
 
-    // Then update local state
-    setCables(prev => prev.map(c => {
-      const result = recalculateCable({
-        current: c.current,
-        isThreePhase: c.isThreePhase,
-        lengthMeters: c.length,
-        existingCableSize: c.cableSize,
-        powerFactor: project?.powerFactor || 0.85,
-        systemVoltage: project?.voltage === 400 ? 400 : 230,
-        maxVoltageDropPercent: limits.power,
-        method: defaultMethod,
-        insulation: defaultInsulation,
-      });
-      return {
-        ...c,
-        method: defaultMethod,
-        insulation: defaultInsulation,
-        newCableSize: result.cableSize,
-        newVD: result.voltageDropPercent,
-        changed: result.changed,
-        ampacity: result.ampacity,
-      };
-    }));
+      // Then update local state
+      setCables(prev => prev.map(c => {
+        const result = recalculateCable({
+          current: c.current,
+          isThreePhase: c.isThreePhase,
+          lengthMeters: c.length,
+          existingCableSize: c.cableSize,
+          powerFactor: project?.powerFactor || 0.85,
+          systemVoltage: project?.voltage === 400 ? 400 : 230,
+          maxVoltageDropPercent: limits.power,
+          method: defaultMethod,
+          insulation: defaultInsulation,
+        });
+        return {
+          ...c,
+          method: defaultMethod,
+          insulation: defaultInsulation,
+          newCableSize: result.cableSize,
+          newVD: result.voltageDropPercent,
+          changed: result.changed,
+          ampacity: result.ampacity,
+        };
+      }));
+    } finally {
+      setApplyingDefaults(false);
+    }
   };
 
   // Check if there are cables that need upsize
@@ -419,9 +425,20 @@ export default function CableSchedulePage() {
           </div>
           <button
             onClick={() => applyDefaults()}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-sm font-semibold"
+            disabled={applyingDefaults}
+            className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-sm font-semibold disabled:opacity-50"
           >
-            Apply to All Cables
+            {applyingDefaults ? (
+              <>
+                <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                </svg>
+                Saving…
+              </>
+            ) : (
+              'Apply to All Cables'
+            )}
           </button>
         </div>
       )}

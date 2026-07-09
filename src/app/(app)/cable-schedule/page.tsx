@@ -383,7 +383,7 @@ export default function CableSchedulePage() {
           <button onClick={() => setShowSettings(!showSettings)}
             className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-semibold ${showSettings ? 'bg-orange-600 text-white' : 'bg-gray-800 text-gray-400 hover:text-white'}`}>
             <Settings size={14} />
-            Settings
+            Default Settings
           </button>
           <button onClick={recalculateAll}
             className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold">
@@ -396,7 +396,7 @@ export default function CableSchedulePage() {
       {/* Settings Panel */}
       {showSettings && (
         <div className="rounded-xl border border-orange-500/30 bg-gray-900/60 p-4 space-y-4">
-          <h3 className="text-sm font-bold text-orange-400">Cable Schedule Settings</h3>
+          <h3 className="text-sm font-bold text-orange-400">Default Settings</h3>
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-xs text-gray-500 mb-1">Default Installation Method</label>

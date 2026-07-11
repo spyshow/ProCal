@@ -32,7 +32,16 @@ export interface FloorItem {
   apartmentTemplateId?: string | null;
   apartmentTemplate?: ApartmentTemplate | null;
   loadLibraryItemId?: string | null;
-  loadLibraryItem?: { name: string; category: string; power: number } | null;
+  loadLibraryItem?: {
+    name: string;
+    category: string;
+    power: number; // kW
+    voltage: number;
+    phase: number; // 1 or 3
+    powerFactor: number;
+    demandFactor: number;
+    quantity: number;
+  } | null;
 }
 
 export interface FloorDesign {

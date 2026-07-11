@@ -64,3 +64,4 @@ nul
 .worktrees/
 .security-key
 logs/security/
+.gstack/

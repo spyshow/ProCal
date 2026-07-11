@@ -88,7 +88,7 @@ export default function BreakerSchedulePage() {
 
     for (const f of mdbFeeders) {
       breakers.push({
-        id: `${bldg.id}-${f.name}`,
+        id: `${bldg.id}-mdb-${breakers.length}`,
         name: f.name,
         type: f.type,
         floor: feederFloor(f.name),
@@ -97,16 +97,17 @@ export default function BreakerSchedulePage() {
         current: f.current,
         breakerSize: f.breakerSize,
         cableSize: f.cableSize,
-        isThreePhase: f.type !== 'APARTMENT' || false,
+        isThreePhase: f.type !== 'APARTMENT',
       });
     }
 
     // SMDB per-floor apartment feeders (only for sub-panel floors).
+    // The helper already prefixes the floor into f.name (e.g. "F1 – Apt A").
     for (const floorNumber of smdbFloorNumbers) {
       for (const f of smdbFeeders(floorNumber)) {
         breakers.push({
-          id: `${bldg.id}-F${floorNumber}-${f.name}`,
-          name: `F${floorNumber} — ${f.name}`,
+          id: `${bldg.id}-smdb-${breakers.length}`,
+          name: f.name,
           type: f.type,
           floor: floorNumber,
           buildingId: bldg.id,

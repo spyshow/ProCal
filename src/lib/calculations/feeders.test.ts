@@ -106,8 +106,8 @@ describe('computeFeeders', () => {
     });
     const { mdbFeeders } = computeFeeders(bldg, baseProject, findBreaker);
     expect(mdbFeeders).toHaveLength(2);
-    expect(mdbFeeders[0].name).toBe('Apt A');
-    expect(mdbFeeders[1].name).toBe('Apt B');
+    expect(mdbFeeders[0].name).toBe('F1 – Apt A');
+    expect(mdbFeeders[1].name).toBe('F1 – Apt B');
   });
 
   it('adds an elevator building-load feeder', () => {
@@ -148,7 +148,7 @@ describe('computeFeeders', () => {
     const { smdbFeeders } = computeFeeders(bldg, baseProject, findBreaker);
     const f = smdbFeeders(3);
     expect(f).toHaveLength(2);
-    expect(f[0].name).toBe('Apt A');
+    expect(f[0].name).toBe('F3 – Apt A');
   });
 
   it('smdbFloorNumbers returns only floors with hasFloorSubPanels, in order', () => {

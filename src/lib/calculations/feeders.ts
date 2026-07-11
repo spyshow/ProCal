@@ -56,9 +56,12 @@ export type FindBreaker = (
 /**
  * Build a PanelFeeder from a per-item current, deriving three-phase via the
  * shared rule and looking up an MCCB model through the injected finder.
+ * The feeder name carries the floor prefix (e.g. "F0 – Apt A") so it is
+ * unique within a building and the floor can be read back from the name.
  */
 function feederFromItem(
   item: FloorItem,
+  floorNumber: number,
   findBreaker: FindBreaker
 ): PanelFeeder {
   const isThreePhase = isThreePhaseForItem(item);
@@ -70,7 +73,7 @@ function feederFromItem(
   });
   const mccb = findBreaker(sizing.breakerSize, "MCCB");
   return {
-    name: item.name,
+    name: `F${floorNumber} – ${item.name}`,
     type: item.type,
     current: item.calculatedCurrent,
     breakerSize: sizing.breakerSize,
@@ -168,7 +171,7 @@ export function computeFeeders(
     } else {
       // No sub-panel → individual apartment / load feeders.
       for (const item of fd.items) {
-        mdbFeeders.push(feederFromItem(item, findBreaker));
+        mdbFeeders.push(feederFromItem(item, fd.floorNumber, findBreaker));
       }
     }
   }
@@ -193,7 +196,7 @@ export function computeFeeders(
       (f) => f.floorNumber === floorNumber
     );
     if (!fd) return [];
-    return fd.items.map((item) => feederFromItem(item, findBreaker));
+    return fd.items.map((item) => feederFromItem(item, floorNumber, findBreaker));
   };
 
   return { mdbFeeders, smdbFeeders, smdbFloorNumbers };

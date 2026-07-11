@@ -30,14 +30,10 @@ export async function PATCH(
     if (body.installMethod !== undefined) updateData.installMethod = body.installMethod;
     if (body.cableInsulation !== undefined) updateData.cableInsulation = body.cableInsulation;
 
-    console.log('PATCH floor-item:', id, 'data:', updateData);
-
     const updated = await db.floorItem.update({
       where: { id },
       data: updateData,
     });
-
-    console.log('Updated:', updated.id, 'installMethod:', updated.installMethod, 'cableInsulation:', updated.cableInsulation);
 
     return NextResponse.json(updated);
   } catch (error) {

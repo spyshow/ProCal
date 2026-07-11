@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback, useRef } from 'react';
 import { useProject } from '@/context/ProjectContext';
 import { usePathname, useRouter } from 'next/navigation';
 import { recalculateCable } from '@/lib/sld/cable-editor';
+import { isThreePhaseForItem } from '@/lib/calculations/feeders';
 import MethodSelector from '@/components/MethodSelector';
 import { Cable, RefreshCw, AlertTriangle, Check, Settings, Save } from 'lucide-react';
 import type { Project } from '@/types';
@@ -111,7 +112,7 @@ export default function CableSchedulePage() {
           const loadTag = `F${fd.floorNumber}-${letter.toUpperCase()}`;
           const cableTag = `Wf${fd.floorNumber}${letter}`;
           const cableSizeNum = parseFloat(item.cableSize) || 4;
-          const isThreePhase = item.type !== 'APARTMENT' || (item as any).apartmentTemplate?.phases === 3;
+          const isThreePhase = isThreePhaseForItem(item);
           const length = (item as any).cableLength || 10 + (fd.floorNumber - 1) * 5;
           const method = (item as any).installMethod || 'C';
           const insulation = (item as any).cableInsulation || 'XLPE';
@@ -175,12 +176,11 @@ export default function CableSchedulePage() {
       if (field === 'length') payload.cableLength = value;
       if (field === 'method') payload.installMethod = value;
       if (field === 'insulation') payload.cableInsulation = value;
-      console.log('Saving to DB:', id, payload);
       fetch(`/api/floor-items/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
-      }).then(res => res.json()).then(data => console.log('Saved:', data)).catch(err => console.error('Failed to save:', err));
+      }).catch(err => console.error('Failed to save:', err));
 
       return {
         ...updated,

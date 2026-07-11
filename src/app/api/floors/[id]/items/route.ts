@@ -30,6 +30,10 @@ export async function POST(
       return NextResponse.json({ error: "Floor not found" }, { status: 404 });
     }
 
+    const project = floorDesign.building.project;
+    const voltageKv = project.voltage / 1000; // 400V → 0.4 kV
+    const powerFactor = project.powerFactor;
+
     let calculatedConnectedLoad = 0;
     let calculatedMaxDemand = 0;
     let calculatedCurrent = 0;
@@ -61,9 +65,9 @@ export async function POST(
       // Phase-aware current calculation
       const isThreePhase = template.phases === 3;
       if (isThreePhase) {
-        calculatedCurrent = calculatedMaxDemand / (Math.sqrt(3) * 0.4); // 400V 3-phase
+        calculatedCurrent = calculatedMaxDemand / (Math.sqrt(3) * voltageKv); // 3-phase
       } else {
-        calculatedCurrent = calculatedMaxDemand / 0.23; // 230V single phase
+        calculatedCurrent = calculatedMaxDemand / voltageKv; // single-phase (230V → 0.23 kV)
       }
 
       // Size breaker and cable based on calculated current
@@ -127,7 +131,7 @@ export async function POST(
       calculatedConnectedLoad = kw;
       calculatedMaxDemand = kw * df;
 
-      calculatedCurrent = calculatedMaxDemand / (Math.sqrt(3) * 0.4 * 0.85);
+      calculatedCurrent = calculatedMaxDemand / (Math.sqrt(3) * voltageKv * powerFactor);
       calculatedCurrent = parseFloat(calculatedCurrent.toFixed(2));
 
       const sizing = sizeCableAndBreaker(calculatedCurrent, isThreePhase, {

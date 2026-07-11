@@ -12,22 +12,10 @@ import {
   Settings,
 } from 'lucide-react';
 import { calculateThreePhaseCurrent, sizeTransformer } from '@/lib/calculations/loads';
-import { sizeCableAndBreaker, STANDARD_BREAKERS } from '@/lib/calculations/cables';
+import { sizeCableAndBreaker } from '@/lib/calculations/cables';
 import { CABLE_CATALOG } from '@/lib/calculations/cablesData';
-import type { FloorItem, Building, Project, PanelFeeder } from '@/types';
-
-interface EquipmentItem {
-  id: string;
-  category: string;
-  manufacturer: string;
-  series: string;
-  model: string;
-  ratedCurrent: number;
-  poles: number;
-  breakingCapacity: number;
-  tripUnit: string | null;
-  settingsJson: string | null;
-}
+import { computeFeeders, type EquipmentItem } from '@/lib/calculations/feeders';
+import type { Project } from '@/types';
 
 export default function PanelDesignerPage() {
   const { selectedProjectId, preferredManufacturer } = useProject();
@@ -88,123 +76,20 @@ export default function PanelDesignerPage() {
 
   const bldg = project.buildings.find((b) => b.id === selectedBuilding) || project.buildings[0];
 
-  // MDB Feeders: sub-panels for floors with hasFloorSubPanels, direct apartment feeders otherwise
-  const mdbFeeders: PanelFeeder[] = [];
-  for (const fd of bldg.floorDesigns) {
-    if (fd.hasFloorSubPanels) {
-      // Floor has sub-panels → single SMDB feeder for the entire floor
-      const floorTotalCurrent = fd.items.reduce((sum, item) => sum + item.calculatedCurrent, 0);
-      const sizing = sizeCableAndBreaker(floorTotalCurrent, true, {
-        material: 'copper',
-        insulation: 'XLPE',
-        ambientTemp: 30,
-        groupingCount: 2,
-      });
-      const mccb = findBreaker(sizing.breakerSize, 'MCCB');
-      const model = mccb
-        ? `${mccb.manufacturer} ${mccb.series} ${mccb.model}`
-        : `MCCB ${sizing.breakerSize}`;
+  // Outgoing feeders (MDB + SMDB) via the shared helper. Three-phase is derived
+  // per item type through isThreePhaseForItem (matches the API routes), so the
+  // panel, breaker-schedule, and cable-schedule all agree. Main-incomer and
+  // transformer sizing stay page-local — the breaker schedule has no incomer.
+  const { mdbFeeders, smdbFeeders, smdbFloorNumbers } = computeFeeders(bldg, project, findBreaker);
 
-      mdbFeeders.push({
-        name: `F${fd.floorNumber} – SMDB`,
-        type: 'SMDB',
-        current: floorTotalCurrent,
-        breakerSize: sizing.breakerSize,
-        cableSize: sizing.cableSize,
-        breakerModel: model,
-      });
-    } else {
-      // No sub-panels → individual apartment feeders
-      for (const item of fd.items) {
-        const current = item.calculatedCurrent;
-        const sizing = sizeCableAndBreaker(current, item.type !== 'APARTMENT', {
-          material: 'copper',
-          insulation: 'XLPE',
-          ambientTemp: 30,
-          groupingCount: 2,
-        });
-        const mccb = findBreaker(sizing.breakerSize, 'MCCB');
-        const model = mccb
-          ? `${mccb.manufacturer} ${mccb.series} ${mccb.model}`
-          : `MCCB ${sizing.breakerSize}`;
-
-        mdbFeeders.push({
-          name: `F${fd.floorNumber} – ${item.name}`,
-          type: item.type,
-          current: current,
-          breakerSize: sizing.breakerSize,
-          cableSize: sizing.cableSize,
-          breakerModel: model,
-        });
-      }
-    }
-  }
-
-  // Add other building loads (elevators, water pumps, fire pump, split AC, central AC)
-  const addBuildingLoad = (name: string, type: string, kw: number, count: number) => {
-    if (count <= 0 || kw <= 0) return;
-    const totalKw = kw * count;
-    const current = totalKw / (Math.sqrt(3) * 0.4 * project.powerFactor);
-    const sizing = sizeCableAndBreaker(current, true, {
-      material: 'copper',
-      insulation: 'XLPE',
-      ambientTemp: 30,
-      groupingCount: 1,
-    });
-    const mccb = findBreaker(sizing.breakerSize, 'MCCB');
-    const model = mccb
-      ? `${mccb.manufacturer} ${mccb.series} ${mccb.model}`
-      : `MCCB ${sizing.breakerSize}`;
-
-    mdbFeeders.push({
-      name,
-      type,
-      current,
-      breakerSize: sizing.breakerSize,
-      cableSize: sizing.cableSize,
-      breakerModel: model,
-    });
-  };
-
-  addBuildingLoad('Elevator(s)', 'ELEVATOR', 22, bldg.elevators);
-  addBuildingLoad('Water Pump(s)', 'WATER_PUMP', 7.5, bldg.waterPumps);
-  if (bldg.firePump) addBuildingLoad('Fire Pump', 'FIRE_PUMP', 15, 1);
-  addBuildingLoad('Split AC Panel', 'SPLIT_AC', 5, bldg.splitAc);
-  addBuildingLoad('Central AC', 'CENTRAL_AC', 50, bldg.centralAc);
-
-  // SMDB feeders - only for floors with sub-panels
-  const smdbFloors = bldg.floorDesigns.filter(fd => fd.hasFloorSubPanels);
-  const activeSmdbFloor = selectedFloor || (smdbFloors.length > 0 ? smdbFloors[0].floorNumber : null);
-
-  const smdbFeeders: PanelFeeder[] = [];
-  if (activeSmdbFloor) {
-    const fd = bldg.floorDesigns.find(f => f.floorNumber === activeSmdbFloor);
-    if (fd) {
-      for (const item of fd.items) {
-        const sizing = sizeCableAndBreaker(item.calculatedCurrent, item.type === 'APARTMENT', {
-          material: 'copper',
-          insulation: 'XLPE',
-          ambientTemp: 30,
-          groupingCount: 2,
-        });
-        const mccb = findBreaker(sizing.breakerSize, 'MCCB');
-        smdbFeeders.push({
-          name: item.name,
-          type: item.type,
-          current: item.calculatedCurrent,
-          breakerSize: sizing.breakerSize,
-          cableSize: sizing.cableSize,
-          breakerModel: mccb ? `${mccb.manufacturer} ${mccb.series} ${mccb.model}` : `MCCB ${sizing.breakerSize}`,
-        });
-      }
-    }
-  }
+  const activeSmdbFloor = selectedFloor || (smdbFloorNumbers.length > 0 ? smdbFloorNumbers[0] : null);
+  const smdbFeedersForActive = activeSmdbFloor ? smdbFeeders(activeSmdbFloor) : [];
 
   // Use appropriate feeders based on panel type
-  const activeFeeders = panelType === 'MDB' ? mdbFeeders : smdbFeeders;
+  const activeFeeders = panelType === 'MDB' ? mdbFeeders : smdbFeedersForActive;
 
   // MDB Main calculations
-  const totalDemand = mdbFeeders.reduce((s, f) => s + f.current * (project.voltage === 400 ? Math.sqrt(3) * 0.4 * project.powerFactor : 0.23 * project.powerFactor), 0);
+  const totalDemand = mdbFeeders.reduce((s, f) => s + f.current * (project.voltage === 400 ? Math.sqrt(3) * (project.voltage / 1000) * project.powerFactor : 0.23 * project.powerFactor), 0);
   const totalDemandKva = totalDemand / 1000;
   const mainBreakerCurrent = calculateThreePhaseCurrent(totalDemandKva * 1000, project.voltage);
   const mainSizing = sizeCableAndBreaker(mainBreakerCurrent, true, {
@@ -272,17 +157,17 @@ export default function PanelDesignerPage() {
       )}
 
       {/* Floor Selector for SMDB */}
-      {panelType === 'SMDB' && smdbFloors.length > 0 && (
+      {panelType === 'SMDB' && smdbFloorNumbers.length > 0 && (
         <div className="flex gap-2">
-          {smdbFloors.map(fd => (
+          {smdbFloorNumbers.map(floorNumber => (
             <button
-              key={fd.floorNumber}
-              onClick={() => setSelectedFloor(fd.floorNumber)}
+              key={floorNumber}
+              onClick={() => setSelectedFloor(floorNumber)}
               className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-                activeSmdbFloor === fd.floorNumber ? 'bg-orange-600 text-white' : 'bg-gray-800 text-gray-400'
+                activeSmdbFloor === floorNumber ? 'bg-orange-600 text-white' : 'bg-gray-800 text-gray-400'
               }`}
             >
-              Floor {fd.floorNumber}
+              Floor {floorNumber}
             </button>
           ))}
         </div>
@@ -355,7 +240,7 @@ export default function PanelDesignerPage() {
 
             {/* Panel Title */}
             <text x="400" y="50" textAnchor="middle" fill="#9ca3af" fontSize="14" fontWeight="600">
-              {panelType} — {bldg.name} — {preferredManufacturer}
+              {panelType} — {bldg.name}{panelType === 'SMDB' && activeSmdbFloor ? ` — Floor ${activeSmdbFloor}` : ''} — {preferredManufacturer}
             </text>
 
             {/* Busbar */}

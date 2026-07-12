@@ -15,10 +15,15 @@ export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState<SettingsTab>('engineering');
 
   // Voltage drop limits
-  const [vdLimits, setVdLimits] = useState(() => {
-    const saved = localStorage.getItem('procal-vd-limits');
-    return saved ? JSON.parse(saved) : { lighting: 3, power: 5 };
-  });
+  const [vdLimits, setVdLimits] = useState({ lighting: 3, power: 5 });
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('procal-vd-limits');
+      if (saved) setVdLimits(JSON.parse(saved));
+    } catch {
+      // ignore malformed localStorage value
+    }
+  }, []);
 
   // Company settings
   const [company, setCompany] = useState({ companyName: "", logoUrl: "" });

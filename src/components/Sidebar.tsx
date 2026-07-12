@@ -49,6 +49,7 @@ const NAV_ITEMS: NavItem[] = [
   { label: "Coordination",     href: "/coordination",   icon: Shield          },
   { label: "SLD Designer",     href: "/sld",            icon: GitBranch       },
   { label: "Reports",          href: "/reports",        icon: FileText        },
+  { label: "Admin",            href: "/admin",          icon: Shield          },
   { label: "Settings",         href: "/settings",       icon: Settings        },
 ];
 

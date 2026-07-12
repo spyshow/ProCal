@@ -1,6 +1,7 @@
 import { PrismaClient } from "../src/generated/prisma/client";
 import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
 import bcrypt from "bcryptjs";
+import { upsertBreakerFamilies, getFamilyKey } from "../src/lib/breaker-families";
 
 const adapter = new PrismaBetterSqlite3({
   url: "file:./dev.db",
@@ -174,48 +175,21 @@ async function main() {
     { category: "METER", manufacturer: "Schneider", series: "PowerLogic", model: "PM5560", ratedCurrent: 5, poles: 3, breakingCapacity: 0, tripUnit: "Class 0.2S" },
   ];
 
-  // Group catalog data by product family, stripping frame-size suffixes like
-  // "ComPacT NSX160" -> "ComPacT NSX" so one family covers all frame sizes.
-  function normalizeFamilyName(series: string): string {
-    return series.replace(/(?<=[A-Z]{2,})\d+$/, "").trim();
-  }
-
-  const familyMap = new Map<string, { manufacturer: string; category: string; name: string }>();
-  for (const item of catalogData) {
-    const name = normalizeFamilyName(item.series);
-    const key = `${item.manufacturer}|${item.category}|${name}`;
-    if (!familyMap.has(key)) {
-      familyMap.set(key, { manufacturer: item.manufacturer, category: item.category, name });
-    }
-  }
-
-  const familyRows = await Promise.all(
-    Array.from(familyMap.values()).map((family) =>
-      db.breakerFamily.upsert({
-        where: {
-          manufacturer_category_name: {
-            manufacturer: family.manufacturer,
-            category: family.category,
-            name: family.name,
-          },
-        },
-        update: {},
-        create: family,
-      })
-    )
-  );
-
-  const familyIdByKey = new Map(familyRows.map((f) => [`${f.manufacturer}|${f.category}|${f.name}`, f.id]));
+  const familyKeys = catalogData.map((item) => ({
+    manufacturer: item.manufacturer,
+    category: item.category,
+    series: item.series,
+  }));
+  const familyIdByKey = await upsertBreakerFamilies(db, familyKeys);
 
   for (const item of catalogData) {
-    const name = normalizeFamilyName(item.series);
-    const familyId = familyIdByKey.get(`${item.manufacturer}|${item.category}|${name}`);
+    const familyId = familyIdByKey.get(getFamilyKey(item.manufacturer, item.category, item.series));
     await db.equipmentCatalog.create({
       data: { ...item, familyId },
     });
   }
 
-  console.log(`Seeded ${familyRows.length} breaker families.`);
+  console.log(`Seeded ${familyIdByKey.size} breaker families.`);
   console.log(`Seeded ${catalogData.length} equipment items.`);
   console.log("Seeding completed successfully.");
 }

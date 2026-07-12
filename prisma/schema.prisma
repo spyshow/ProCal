@@ -163,6 +163,7 @@ model EquipmentCatalog {
   familyId         String?
   family           BreakerFamily? @relation(fields: [familyId], references: [id], onDelete: SetNull)
 
+  @@unique([manufacturer, category, series, model, ratedCurrent, poles], name: "catalogUniqueKey")
   @@index([familyId])
 }
 

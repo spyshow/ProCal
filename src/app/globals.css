@@ -79,12 +79,32 @@ body {
   border-color: #f97316;
 }
 
+/* ---------------------------------------------------------------------------
+   Print styles - Professional PDF report output
+   --------------------------------------------------------------------------- */
+
 @page {
   size: A4;
   margin: 15mm;
+
+  /* Running footer with page number (supported by Paged.js and modern browsers) */
+  @bottom-center {
+    content: counter(page) " / " counter(pages);
+    font-size: 9pt;
+    color: #6b7280;
+  }
 }
 
-/* Print overrides */
+/* Cover page is the first printed sheet - no header/footer and full bleed area */
+@page :first {
+  margin: 0;
+
+  @bottom-center {
+    content: none;
+  }
+}
+
+/* Hide tab panels during normal screen usage */
 .tab-hidden {
   position: absolute;
   width: 1px;
@@ -97,64 +117,148 @@ body {
   border: 0;
 }
 
+/* Print-only layout helpers */
+.page-break-before {
+  break-before: page;
+  page-break-before: always;
+}
+
+.page-break-after {
+  break-after: page;
+  page-break-after: always;
+}
+
+.avoid-break {
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
 @media print {
-  body {
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  html, body {
     background: white !important;
     color: black !important;
     overflow: visible !important;
     height: auto !important;
   }
 
-  /* Reset ALL height and overflow constraints */
+  /* Remove screen height constraints so content can flow across pages */
   html, body, div, main, section, article {
     height: auto !important;
     max-height: none !important;
     overflow: visible !important;
   }
 
-  /* Hide sidebar and navigation */
-  nav, aside, [class*="sidebar"], .print\:hidden, header {
+  /* Use the full printable width - drop the sidebar offset applied to <main> */
+  main {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+  }
+
+  /* Hide sidebar, navigation, chrome and screen-only report content */
+  nav, aside, [class*="sidebar"], .print\:hidden, header:not(.report-header), .screen-only-report {
     display: none !important;
   }
 
-  /* Hide all buttons */
-  button {
+  /* Hide interactive controls */
+  button, [role="button"], input[type="button"] {
     display: none !important;
   }
 
-  /* Hide screen-only content */
-  .screen-only-report {
-    display: none !important;
-  }
-
-  /* Show print div */
+  /* Show the full print report and let it flow across pages */
   #print-all-tabs {
     display: block !important;
+    position: static !important;
+    width: 100% !important;
+    max-width: none !important;
     height: auto !important;
     max-height: none !important;
     overflow: visible !important;
+    margin: 0 !important;
+    padding: 0 !important;
   }
 
-  #print-all-tabs, #print-all-tabs * {
+  #print-all-tabs,
+  #print-all-tabs * {
     background: white !important;
     color: black !important;
   }
 
-  /* Table page breaks */
+  /* Make sure the printable report header is visible despite the global header rule */
+  #print-all-tabs header.report-header,
+  header.report-header {
+    display: block !important;
+  }
+
+  /* Cover page sizing and isolation */
+  .cover-page {
+    width: 210mm !important;
+    min-height: 297mm !important;
+    max-height: none !important;
+    box-sizing: border-box !important;
+    margin: 0 !important;
+    padding: 15mm !important;
+    page-break-after: auto !important;
+    break-after: auto !important;
+    overflow: visible !important;
+  }
+
+  /* Each schedule section begins on a fresh page and can span multiple sheets */
+  .report-section,
+  #print-all-tabs > div:not(:first-child) {
+    break-before: page;
+    page-break-before: always;
+  }
+
+  /* Avoid orphaned section headings */
+  h1, h2, h3 {
+    break-after: avoid;
+    page-break-after: avoid;
+  }
+
+  /* Keep tables together when possible but let rows break across pages cleanly */
   table {
+    width: 100% !important;
+    border-collapse: collapse !important;
     page-break-inside: auto;
+    break-inside: auto;
+  }
+
+  thead {
+    display: table-header-group !important;
   }
 
   tr {
     page-break-inside: avoid;
+    break-inside: avoid;
   }
 
-  thead {
-    display: table-header-group;
+  th, td {
+    padding: 6px 8px !important;
+    font-size: 9pt !important;
+    border: 1px solid #d1d5db !important;
   }
 
-  h2, h3 {
-    page-break-after: avoid;
+  th {
+    background-color: #e5e7eb !important;
+    color: #111827 !important;
+    font-weight: 700 !important;
+  }
+
+  td {
+    background-color: white !important;
+  }
+
+  /* Keep images within the page */
+  img {
+    max-width: 100% !important;
+    height: auto !important;
   }
 
   /* SLD diagram fills page when printing */

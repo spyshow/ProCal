@@ -1,6 +1,6 @@
 'use client';
 
-/* eslint-disable react-hooks/immutability, @next/next/no-img-element */
+/* eslint-disable react-hooks/immutability, react-hooks/set-state-in-effect, @next/next/no-img-element */
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -18,10 +18,7 @@ export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState<SettingsTab>('engineering');
 
   // Voltage drop limits
-  const [vdLimits, setVdLimits] = useState(() => {
-    const saved = localStorage.getItem('procal-vd-limits');
-    return saved ? JSON.parse(saved) : { lighting: 3, power: 5 };
-  });
+  const [vdLimits, setVdLimits] = useState({ lighting: 3, power: 5 });
 
   // Company settings
   const [company, setCompany] = useState({ companyName: "", logoUrl: "" });
@@ -30,6 +27,17 @@ export default function SettingsPage() {
   useEffect(() => {
     loadSettings();
     loadCompany();
+  }, []);
+
+  useEffect(() => {
+    const saved = localStorage.getItem('procal-vd-limits');
+    if (saved) {
+      try {
+        setVdLimits(JSON.parse(saved));
+      } catch {
+        // ignore malformed saved data
+      }
+    }
   }, []);
 
   const loadSettings = async () => {
@@ -307,7 +315,7 @@ export default function SettingsPage() {
                         <label className="block text-[10px] text-gray-500 mb-1">Max Area (m²)</label>
                         <input
                           type="number"
-                          value={rule.maxArea === Infinity ? '' : rule.maxArea}
+                          value={rule.maxArea === Infinity || rule.maxArea == null ? '' : rule.maxArea}
                           onChange={(e) => {
                             const val = e.target.value === '' ? Infinity : parseFloat(e.target.value);
                             updateAcRule(index, 'maxArea', val);

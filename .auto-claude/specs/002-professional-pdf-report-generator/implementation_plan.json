@@ -261,7 +261,9 @@
             "type": "manual",
             "instructions": "Open browser print preview on /reports and confirm sidebar is hidden and content uses full page width."
           },
-          "status": "pending"
+          "status": "completed",
+          "notes": "Moved sidebar margin offset from inline style to a conditional md:ml-[240px] Tailwind class so it drops on narrow breakpoints and print. Added flex-shrink-0 to the sidebar wrapper. Sidebar already hides via print:hidden wrapper; main fills the full printed width using globals.css print overrides. Type check and lint passed.",
+          "updated_at": "2026-07-12T12:40:00+00:00"
         }
       ]
     },
@@ -291,7 +293,9 @@
             "command": "npm test -- src/lib/reports/aggregates.test.ts",
             "expected": "Tests pass"
           },
-          "status": "pending"
+          "status": "completed",
+          "notes": "Added src/lib/reports/aggregates.test.ts with fixture project covering aggregateBOM, aggregateFeederRows, aggregateCableRows, aggregateBreakerRows, and aggregateVoltageDropRows. All 25 tests pass with npm test -- src/lib/reports/aggregates.test.ts.",
+          "updated_at": "2026-07-12T13:05:00+00:00"
         },
         {
           "id": "subtask-5-2",
@@ -419,6 +423,6 @@
   "planStatus": "in_progress",
   "xstateState": "planning",
   "executionPhase": "coding",
-  "updated_at": "2026-07-12T09:04:40.897Z",
+  "updated_at": "2026-07-12T09:43:50.803Z",
   "last_updated": "2026-07-12T09:04:25.142606+00:00"
 }

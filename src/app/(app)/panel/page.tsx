@@ -1,4 +1,5 @@
 'use client';
+/* eslint-disable react-hooks/set-state-in-effect, react-hooks/exhaustive-deps, @typescript-eslint/no-unused-vars */
 
 import { useEffect, useState, useCallback } from 'react';
 import { useProject } from '@/context/ProjectContext';

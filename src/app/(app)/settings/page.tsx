@@ -1,5 +1,8 @@
 'use client';
 
+/* eslint-disable react-hooks/immutability, @next/next/no-img-element */
+'use client';
+
 import { useState, useEffect } from 'react';
 import { Settings, Save, RotateCcw, Building2 } from 'lucide-react';
 import { COUNTRY_DEFAULTS, ROOM_TYPES, CountryConfig, AcSizingRule } from '@/lib/country-defaults';

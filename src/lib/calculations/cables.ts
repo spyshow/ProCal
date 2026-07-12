@@ -30,7 +30,7 @@ export function sizeCableAndBreaker(
   const { material, insulation, ambientTemp, groupingCount } = options;
 
   // 1. Select breaker size (In >= Ib)
-  let breakerSize = STANDARD_BREAKERS.find((rating) => rating >= ib) || STANDARD_BREAKERS[STANDARD_BREAKERS.length - 1];
+  const breakerSize = STANDARD_BREAKERS.find((rating) => rating >= ib) || STANDARD_BREAKERS[STANDARD_BREAKERS.length - 1];
 
   // 2. Calculate derating factors
   const tempFactor = (TEMP_DERATING[insulation] && TEMP_DERATING[insulation][ambientTemp]) ?? 1.0;

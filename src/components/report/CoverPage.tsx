@@ -96,6 +96,7 @@ export default function CoverPage({
           </div>
         </div>
         {displayLogo && (
+          // eslint-disable-next-line @next/next/no-img-element
           <img
             src={displayLogo}
             alt={`${displayCompany} logo`}

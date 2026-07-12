@@ -29,6 +29,8 @@ export interface FloorItem {
   cableSize: string;
   cableLength?: number | null;
   voltageDrop: number | null;
+  installMethod?: string | null;
+  cableInsulation?: string | null;
   apartmentTemplateId?: string | null;
   apartmentTemplate?: ApartmentTemplate | null;
   loadLibraryItemId?: string | null;

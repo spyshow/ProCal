@@ -137,6 +137,7 @@ export default function ReportHeader({
 
         {/* Logo */}
         {displayLogo && (
+          // eslint-disable-next-line @next/next/no-img-element
           <img
             src={displayLogo}
             alt={`${displayCompany} logo`}

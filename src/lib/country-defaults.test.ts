@@ -5,8 +5,6 @@ import {
   calculateAcWatts,
   calculateRoomLoad,
   getCountryDefaults,
-  CountryConfig,
-  AcSizingRule,
 } from './country-defaults';
 
 describe('ROOM_TYPES', () => {

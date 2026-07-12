@@ -115,7 +115,7 @@ export async function POST(
       // Manual kW entry (fallback)
       let kw = parseFloat(customKw) || 0;
       let df = 1.0;
-      let isThreePhase = true;
+      const isThreePhase = true;
 
       if (type === "SERVICE_PANEL") {
         kw = kw || 15;

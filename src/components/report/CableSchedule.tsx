@@ -1,7 +1,7 @@
 'use client';
 
 import { isThreePhaseForItem } from '@/lib/calculations/feeders';
-import type { FloorItem, Project } from '@/types';
+import type { Project } from '@/types';
 
 export interface CableScheduleProps {
   project: Project;
@@ -40,8 +40,8 @@ export default function CableSchedule({ project, buildingId }: CableScheduleProp
           current: item.calculatedCurrent,
           breaker: item.breakerSize,
           cable: item.cableSize,
-          method: (item as any).installMethod || 'C',
-          insulation: (item as any).cableInsulation || 'XLPE',
+          method: item.installMethod || 'C',
+          insulation: item.cableInsulation || 'XLPE',
         });
       }
     }

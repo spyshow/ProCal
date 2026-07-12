@@ -1,9 +1,8 @@
-import { sizeCableAndBreaker, calculateVoltageDrop } from "@/lib/calculations/cables";
+import { calculateVoltageDrop } from "@/lib/calculations/cables";
 import { computeFeeders, type EquipmentItem, type FindBreaker } from "@/lib/calculations/feeders";
 import type { FloorItem, Project } from "@/types";
 import type {
   BOMResult,
-  BOMRow,
   BreakerRow,
   CableRow,
   FeederRow,
@@ -11,7 +10,6 @@ import type {
 } from "./types";
 
 export type {
-  BOMRow,
   BOMResult,
   FeederRow,
   CableRow,
@@ -162,8 +160,8 @@ export function aggregateCableRows(project: Project): CableRow[] {
           current: item.calculatedCurrent,
           breakerAmps: parseBreakerAmps(item.breakerSize),
           cableMm2: parseFloat(item.cableSize) || 4,
-          method: (item as any).installMethod || 'C',
-          insulation: ((item as any).cableInsulation as 'PVC' | 'XLPE') || 'XLPE',
+          method: (item.installMethod as string | undefined) || 'C',
+          insulation: (item.cableInsulation as 'PVC' | 'XLPE' | undefined) || 'XLPE',
         });
       });
     }

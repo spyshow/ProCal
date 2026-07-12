@@ -77,7 +77,7 @@ export async function POST(request: Request) {
     const maxDemandKva = (totalConnectedLoad * demandFactor) / 1000;
     const ib = maxDemandKva / 0.23; // 230V single phase current
 
-    const sizing = sizeCableAndBreaker(ib, false, {
+    sizeCableAndBreaker(ib, false, {
       material: "copper",
       insulation: "XLPE",
       ambientTemp: 30,

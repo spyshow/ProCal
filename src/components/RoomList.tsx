@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from 'react';
 import { Plus } from 'lucide-react';
 import { RoomInput, RoomData } from './RoomInput';
 import { ROOM_TYPES, COUNTRY_DEFAULTS } from '@/lib/country-defaults';

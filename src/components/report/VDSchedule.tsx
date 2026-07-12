@@ -1,6 +1,6 @@
 'use client';
 
-import type { FloorItem, Project } from '@/types';
+import type { Project } from '@/types';
 
 export interface VDScheduleProps {
   project: Project;

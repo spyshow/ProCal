@@ -43,8 +43,6 @@ export function RoomInput({ room, acRules, onChange, onRemove, canRemove }: Room
     onChange(room.id, { hasAc, connectedLoad });
   };
 
-  const acWatts = room.hasAc ? calculateRoomLoad(room.area, 0, true, acRules) : 0;
-
   return (
     <div className="grid grid-cols-12 gap-2 items-end p-3 rounded-lg border border-gray-800 bg-gray-900/40">
       {/* Room Type */}

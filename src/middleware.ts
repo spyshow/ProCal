@@ -22,7 +22,7 @@ export async function middleware(request: NextRequest) {
   try {
     await jwtVerify(token, JWT_SECRET);
     return NextResponse.next();
-  } catch (error) {
+  } catch {
     const response = NextResponse.redirect(new URL("/login", request.url));
     response.cookies.delete("session_token");
     return response;

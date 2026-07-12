@@ -24,7 +24,7 @@ export async function PATCH(
       return NextResponse.json({ error: "Floor item not found" }, { status: 404 });
     }
 
-    const updateData: any = {};
+    const updateData: Record<string, string | number | null | undefined> = {};
     if (body.cableLength !== undefined) updateData.cableLength = body.cableLength;
     if (body.cableSize !== undefined) updateData.cableSize = body.cableSize;
     if (body.installMethod !== undefined) updateData.installMethod = body.installMethod;

@@ -32,7 +32,7 @@ describe('SLD Generator', () => {
   };
 
   it('generates valid Schematex DSL', () => {
-    const dsl = generateSLD(mockProject as any);
+    const dsl = generateSLD(mockProject as Parameters<typeof generateSLD>[0]);
     expect(dsl).toContain('sld');
     expect(dsl).toContain('transformer');
     expect(dsl).toContain('bus');
@@ -40,17 +40,17 @@ describe('SLD Generator', () => {
   });
 
   it('includes transformer with project voltage', () => {
-    const dsl = generateSLD(mockProject as any);
+    const dsl = generateSLD(mockProject as Parameters<typeof generateSLD>[0]);
     expect(dsl).toContain('1000 kVA');
   });
 
   it('generates one page per floor', () => {
-    const pages = generateSLDPages(mockProject as any);
+    const pages = generateSLDPages(mockProject as Parameters<typeof generateSLDPages>[0]);
     expect(pages.length).toBe(2); // 2 floors with items
   });
 
   it('each page has its own DSL with floor-specific nodes', () => {
-    const pages = generateSLDPages(mockProject as any);
+    const pages = generateSLDPages(mockProject as Parameters<typeof generateSLDPages>[0]);
     expect(pages[0].title).toBe('F1');
     expect(pages[0].dsl).toContain('f1_bus');
     expect(pages[0].dsl).toContain('F1-A');
@@ -58,7 +58,7 @@ describe('SLD Generator', () => {
   });
 
   it('each page is a standalone diagram with MDB bus', () => {
-    const pages = generateSLDPages(mockProject as any);
+    const pages = generateSLDPages(mockProject as Parameters<typeof generateSLDPages>[0]);
     for (const page of pages) {
       expect(page.dsl).toContain('sld');
       expect(page.dsl).toContain('mdb = bus');
@@ -66,21 +66,21 @@ describe('SLD Generator', () => {
   });
 
   it('generates load nodes with F-floor-letter naming', () => {
-    const dsl = generateSLD(mockProject as any);
+    const dsl = generateSLD(mockProject as Parameters<typeof generateSLD>[0]);
     expect(dsl).toContain('F1-A');
     expect(dsl).toContain('F1-B');
     expect(dsl).toContain('F2-A');
   });
 
   it('generates cable names with W prefix', () => {
-    const dsl = generateSLD(mockProject as any);
+    const dsl = generateSLD(mockProject as Parameters<typeof generateSLD>[0]);
     expect(dsl).toContain('Wf1a');
     expect(dsl).toContain('Wf1b');
     expect(dsl).toContain('Wf2a');
   });
 
   it('generates load nodes connected to breakers', () => {
-    const dsl = generateSLD(mockProject as any);
+    const dsl = generateSLD(mockProject as Parameters<typeof generateSLD>[0]);
     expect(dsl).toContain('= load');
   });
 });

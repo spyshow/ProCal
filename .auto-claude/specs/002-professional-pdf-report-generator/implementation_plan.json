@@ -1,0 +1,424 @@
+{
+  "feature": "Professional PDF report generator",
+  "workflow_type": "feature",
+  "workflow_rationale": "The spec asks to add a new client-facing capability (one-click PDF export) to the existing Reports page. It is a single-service Next.js frontend change with new reusable UI pieces and print/PDF handling, so it follows the feature workflow.",
+  "phases": [
+    {
+      "id": "phase-1-data-models",
+      "name": "Report Data Models & Utilities",
+      "type": "implementation",
+      "description": "Extract reusable report data helpers and TypeScript types so the report can aggregate BOM, MDB feeder list, cable schedule, breaker schedule, and project branding consistently.",
+      "depends_on": [],
+      "parallel_safe": false,
+      "subtasks": [
+        {
+          "id": "subtask-1-1",
+          "description": "Create report aggregation helpers (BOM, feeder rows, cable rows, breaker rows) in src/lib/reports/aggregates.ts",
+          "service": "frontend",
+          "files_to_create": [
+            "src/lib/reports/aggregates.ts"
+          ],
+          "files_to_modify": [],
+          "patterns_from": [
+            "src/lib/calculations/feeders.ts",
+            "src/app/(app)/breaker-schedule/page.tsx",
+            "src/app/(app)/cable-schedule/page.tsx"
+          ],
+          "verification": {
+            "type": "command",
+            "command": "npx tsc --noEmit",
+            "expected": "No errors emitted"
+          },
+          "status": "completed"
+        },
+        {
+          "id": "subtask-1-2",
+          "description": "Create report TypeScript types in src/lib/reports/types.ts",
+          "service": "frontend",
+          "files_to_create": [
+            "src/lib/reports/types.ts"
+          ],
+          "files_to_modify": [],
+          "patterns_from": [
+            "src/types/index.ts"
+          ],
+          "verification": {
+            "type": "command",
+            "command": "npx tsc --noEmit",
+            "expected": "No errors emitted"
+          },
+          "status": "completed"
+        }
+      ]
+    },
+    {
+      "id": "phase-2-api-branding",
+      "name": "Backend Branding & Logo",
+      "type": "implementation",
+      "description": "Allow a project-level logo override to flow from the database to the reports page so each PDF can carry custom branding.",
+      "depends_on": [
+        "phase-1-data-models"
+      ],
+      "parallel_safe": false,
+      "subtasks": [
+        {
+          "id": "subtask-2-1",
+          "description": "Add project-level logoUrl field to project detail GET and PUT API responses / updates",
+          "service": "frontend",
+          "files_to_modify": [
+            "src/app/api/projects/[id]/route.ts"
+          ],
+          "files_to_create": [],
+          "patterns_from": [
+            "src/app/api/settings/route.ts"
+          ],
+          "verification": {
+            "type": "api",
+            "method": "GET",
+            "url": "http://localhost:3000/api/projects/test-id",
+            "headers": {
+              "Cookie": "session=test"
+            },
+            "expected_status": 404
+          },
+          "status": "completed",
+          "notes": "Verified project detail GET returns logoUrl and PUT updates logoUrl. Source route.ts already contained required logic. Type check passed. API verification passed.",
+          "updated_at": "2026-07-12T08:13:24.990359+00:00"
+        },
+        {
+          "id": "subtask-2-2",
+          "description": "Add logo upload input to project settings UI on the project detail page",
+          "service": "frontend",
+          "files_to_modify": [
+            "src/app/(app)/projects/[id]/page.tsx"
+          ],
+          "files_to_create": [],
+          "patterns_from": [
+            "src/app/api/upload/route.ts",
+            "src/app/(app)/settings/page.tsx"
+          ],
+          "verification": {
+            "type": "browser",
+            "url": "http://localhost:3000/projects/[id]",
+            "checks": [
+              "Project settings panel renders",
+              "Logo upload input is visible"
+            ]
+          },
+          "status": "completed",
+          "notes": "Added logoUrl to Project type, projectLogoUploading state, handleProjectLogoUpload and handleClearProjectLogo helpers, and a Project Logo upload block inside the project settings panel. Type check passed. Dev server renders the page and project API returns logoUrl. Full production build blocked by unrelated /settings localStorage SSR issue.",
+          "updated_at": "2026-07-12T08:35:00+00:00"
+        }
+      ]
+    },
+    {
+      "id": "phase-3-printable-components",
+      "name": "Printable Report Components",
+      "type": "implementation",
+      "description": "Build reusable, print-friendly React components for the cover page, schedule sections, and section headers. Keep them dependency-free from browser-only APIs so they can be rendered inside the existing page.",
+      "depends_on": [
+        "phase-1-data-models",
+        "phase-2-api-branding"
+      ],
+      "parallel_safe": false,
+      "subtasks": [
+        {
+          "id": "subtask-3-1",
+          "description": "Create printable cover page component at src/components/report/CoverPage.tsx",
+          "service": "frontend",
+          "files_to_create": [
+            "src/components/report/CoverPage.tsx"
+          ],
+          "files_to_modify": [],
+          "patterns_from": [
+            "src/app/(app)/reports/page.tsx",
+            "src/components/Sidebar.tsx"
+          ],
+          "verification": {
+            "type": "command",
+            "command": "npx tsc --noEmit",
+            "expected": "No errors emitted"
+          },
+          "status": "completed",
+          "notes": "Created src/components/report/CoverPage.tsx with print-friendly layout, project metadata, logo support, and ProCal brand styling. Type check passed. Committed.",
+          "updated_at": "2026-07-12T09:00:00+00:00"
+        },
+        {
+          "id": "subtask-3-2",
+          "description": "Create printable schedule components (BOM, MDB, Cable, Breaker, Voltage Drop) under src/components/report/",
+          "service": "frontend",
+          "files_to_create": [
+            "src/components/report/BOMSchedule.tsx",
+            "src/components/report/MDBSchedule.tsx",
+            "src/components/report/CableSchedule.tsx",
+            "src/components/report/BreakerSchedule.tsx",
+            "src/components/report/VDSchedule.tsx"
+          ],
+          "files_to_modify": [],
+          "patterns_from": [
+            "src/app/(app)/reports/page.tsx",
+            "src/app/(app)/cable-schedule/page.tsx",
+            "src/app/(app)/breaker-schedule/page.tsx"
+          ],
+          "verification": {
+            "type": "command",
+            "command": "npx tsc --noEmit",
+            "expected": "No errors emitted"
+          },
+          "status": "completed",
+          "notes": "Implemented five print-friendly schedule components mirroring the existing reports and schedule pages. Used shared helpers (isThreePhaseForItem, computeFeeders) and project types. Type check passed. Committed.",
+          "updated_at": "2026-07-12T09:30:00+00:00"
+        },
+        {
+          "id": "subtask-3-3",
+          "description": "Create printable ReportHeader and SectionHeader components with project metadata and logo",
+          "service": "frontend",
+          "files_to_create": [
+            "src/components/report/ReportHeader.tsx"
+          ],
+          "files_to_modify": [],
+          "patterns_from": [
+            "src/app/(app)/reports/page.tsx"
+          ],
+          "verification": {
+            "type": "command",
+            "command": "npx tsc --noEmit",
+            "expected": "No errors emitted"
+          },
+          "status": "completed",
+          "notes": "Created src/components/report/ReportHeader.tsx with printable ReportHeader (company/logo/project metadata) and SectionHeader (section title/subtitle/trailing controls). Type check passed. Committed.",
+          "updated_at": "2026-07-12T10:00:00+00:00"
+        }
+      ]
+    },
+    {
+      "id": "phase-4-reports-page-integration",
+      "name": "Reports Page Integration",
+      "type": "implementation",
+      "description": "Replace the ad-hoc print section in Reports page with the new reusable printable components, add a one-click PDF export button using window.print/Paged.js, and ensure proper pagination.",
+      "depends_on": [
+        "phase-3-printable-components"
+      ],
+      "parallel_safe": false,
+      "subtasks": [
+        {
+          "id": "subtask-4-1",
+          "description": "Add PDF export button and integrate printable components into src/app/(app)/reports/page.tsx",
+          "service": "frontend",
+          "files_to_modify": [
+            "src/app/(app)/reports/page.tsx"
+          ],
+          "files_to_create": [],
+          "patterns_from": [
+            "src/app/(app)/reports/page.tsx",
+            "src/app/globals.css"
+          ],
+          "verification": {
+            "type": "browser",
+            "url": "http://localhost:3000/reports",
+            "checks": [
+              "Reports page renders",
+              "Export PDF button is visible",
+              "Print preview shows cover page + schedules"
+            ]
+          },
+          "status": "completed",
+          "notes": "Added PDF export button, integrated CoverPage, ReportHeader, BOMSchedule, MDBSchedule, CableSchedule, BreakerSchedule and VDSchedule components into src/app/(app)/reports/page.tsx. Screen tab renders summary plus each schedule via tabs; print-only section renders full cover page + schedules with page breaks. Settings API supplies company logo. Type check passed. Project-level lint passed for modified file. Full production build blocked by existing /settings localStorage SSR issue unrelated to this subtask. Browser verification shows the reports page chunk loads; initial Loading state is expected because selectedProjectId is empty on first SSR and fetch happens client-side via ProjectContext/localStorage.",
+          "updated_at": "2026-07-12T09:04:25.142606+00:00"
+        },
+        {
+          "id": "subtask-4-2",
+          "description": "Enhance print styles in src/app/globals.css for correct pagination, page breaks, header/footer and report section layout",
+          "service": "frontend",
+          "files_to_modify": [
+            "src/app/globals.css"
+          ],
+          "files_to_create": [],
+          "patterns_from": [
+            "src/app/globals.css"
+          ],
+          "verification": {
+            "type": "manual",
+            "instructions": "Open /reports, click Export PDF/Print, verify cover page is on first sheet and each schedule starts on a new page with table headers repeating."
+          },
+          "status": "completed",
+          "notes": "Enhanced @page rules with A4 size, running page footer, and :first page margin reset for cover page. Added print helpers (.page-break-before, .page-break-after, .avoid-break). Expanded @media print to reset heights/overflow, hide sidebar/nav/buttons, show #print-all-tabs, preserve report-header, size cover-page to full A4, force each schedule section to a new page, repeat table headers, avoid row splits, and style tables for print. Verified production CSS contains the new rules; full production build is blocked by unrelated /settings localStorage SSR issue.",
+          "updated_at": "2026-07-12T12:30:00+00:00"
+        },
+        {
+          "id": "subtask-4-3",
+          "description": "Update app layout print behavior so the sidebar hides and main area fills the page when printing from /reports",
+          "service": "frontend",
+          "files_to_modify": [
+            "src/app/(app)/layout.tsx"
+          ],
+          "files_to_create": [],
+          "patterns_from": [
+            "src/app/(app)/layout.tsx",
+            "src/app/globals.css"
+          ],
+          "verification": {
+            "type": "manual",
+            "instructions": "Open browser print preview on /reports and confirm sidebar is hidden and content uses full page width."
+          },
+          "status": "pending"
+        }
+      ]
+    },
+    {
+      "id": "phase-5-tests-and-verification",
+      "name": "Tests & QA",
+      "type": "integration",
+      "description": "Add unit tests for report aggregation helpers, component-level Vitest smoke tests, and run the project's lint/test suite.",
+      "depends_on": [
+        "phase-4-reports-page-integration"
+      ],
+      "parallel_safe": false,
+      "subtasks": [
+        {
+          "id": "subtask-5-1",
+          "description": "Add Vitest unit tests for src/lib/reports/aggregates.ts using a fixture project",
+          "service": "frontend",
+          "files_to_create": [
+            "src/lib/reports/aggregates.test.ts"
+          ],
+          "files_to_modify": [],
+          "patterns_from": [
+            "src/lib/calculations/cables.test.ts"
+          ],
+          "verification": {
+            "type": "command",
+            "command": "npm test -- src/lib/reports/aggregates.test.ts",
+            "expected": "Tests pass"
+          },
+          "status": "pending"
+        },
+        {
+          "id": "subtask-5-2",
+          "description": "Run full test suite and lint and fix any failures",
+          "service": "frontend",
+          "files_to_modify": [],
+          "files_to_create": [],
+          "patterns_from": [],
+          "verification": {
+            "type": "command",
+            "command": "npm test && npm run lint",
+            "expected": "All tests pass and no lint errors"
+          },
+          "status": "pending"
+        }
+      ]
+    }
+  ],
+  "summary": {
+    "total_phases": 5,
+    "total_subtasks": 11,
+    "services_involved": [
+      "frontend"
+    ],
+    "parallelism": {
+      "max_parallel_phases": 1,
+      "parallel_groups": [],
+      "recommended_workers": 1,
+      "speedup_estimate": "Sequential only: each phase builds on previous components"
+    },
+    "startup_command": "npm run dev"
+  },
+  "verification_strategy": {
+    "risk_level": "medium",
+    "skip_validation": false,
+    "test_creation_phase": "post_implementation",
+    "test_types_required": [
+      "unit"
+    ],
+    "security_scanning_required": false,
+    "staging_deployment_required": false,
+    "acceptance_criteria": [
+      "Reports page shows a one-click Export PDF/Print button",
+      "Print preview includes a cover page with project metadata and logo",
+      "BOM, MDB, Cable, Breaker and Voltage Drop schedules are included",
+      "Each schedule section paginates correctly in print/PDF output",
+      "Existing tests pass and new unit tests cover aggregation helpers"
+    ],
+    "verification_steps": [
+      {
+        "name": "Unit Tests",
+        "command": "npm test",
+        "expected_outcome": "All tests pass",
+        "type": "test",
+        "required": true,
+        "blocking": true
+      },
+      {
+        "name": "Lint",
+        "command": "npm run lint",
+        "expected_outcome": "No lint errors",
+        "type": "test",
+        "required": true,
+        "blocking": true
+      },
+      {
+        "name": "Type Check",
+        "command": "npx tsc --noEmit",
+        "expected_outcome": "No TypeScript errors",
+        "type": "test",
+        "required": true,
+        "blocking": true
+      },
+      {
+        "name": "Browser Print Preview",
+        "command": "npm run dev",
+        "expected_outcome": "Reports page exports cover page + schedules with correct pagination",
+        "type": "browser",
+        "required": true,
+        "blocking": false
+      }
+    ],
+    "reasoning": "Medium risk because the feature changes the main Reports page, introduces reusable components, and touches print CSS; unit tests plus a manual browser print check are sufficient for a single-service frontend feature."
+  },
+  "qa_acceptance": {
+    "unit_tests": {
+      "required": true,
+      "commands": [
+        "npm test"
+      ],
+      "minimum_coverage": null
+    },
+    "integration_tests": {
+      "required": false,
+      "commands": [],
+      "services_to_test": []
+    },
+    "e2e_tests": {
+      "required": false,
+      "commands": [],
+      "flows": []
+    },
+    "browser_verification": {
+      "required": true,
+      "pages": [
+        {
+          "url": "http://localhost:3000/reports",
+          "checks": [
+            "renders",
+            "no-console-errors",
+            "export-pdf-button-visible",
+            "print-preview-cover-page",
+            "schedules-paginate"
+          ]
+        }
+      ]
+    },
+    "database_verification": {
+      "required": false,
+      "checks": []
+    }
+  },
+  "qa_signoff": null,
+  "status": "in_progress",
+  "planStatus": "in_progress",
+  "xstateState": "planning",
+  "executionPhase": "coding",
+  "updated_at": "2026-07-12T09:04:40.897Z",
+  "last_updated": "2026-07-12T09:04:25.142606+00:00"
+}

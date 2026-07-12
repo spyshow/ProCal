@@ -38,6 +38,9 @@ interface Building {
   supplyVoltage: string;
   earthingSystem: string;
   lightningProtection: boolean;
+  generator: number | null;
+  transformer: number | null;
+  mechanicalLoads: string | null;
   floorDesigns: FloorDesign[];
 }
 
@@ -73,6 +76,24 @@ export default function ProjectDetailPage() {
   const [showNewBuilding, setShowNewBuilding] = useState(false);
   const [editingProject, setEditingProject] = useState(false);
   const [projectForm, setProjectForm] = useState<Record<string, string>>({});
+  const [editingBuilding, setEditingBuilding] = useState<Building | null>(null);
+  const [buildingForm, setBuildingForm] = useState({
+    name: '',
+    floors: 10,
+    serviceFloors: 0,
+    apartmentsPerFloor: 4,
+    elevators: 2,
+    waterPumps: 2,
+    firePump: false,
+    splitAc: 0,
+    centralAc: 0,
+    supplyVoltage: '400V 3-Phase',
+    earthingSystem: 'TN-S',
+    lightningProtection: false,
+    generator: '',
+    transformer: '',
+    mechanicalLoads: '',
+  });
 
   const loadProject = useCallback(async () => {
     try {
@@ -108,6 +129,47 @@ export default function ProjectDetailPage() {
   const handleDeleteBuilding = async (buildingId: string) => {
     if (!confirm('Delete this building and all its floor designs?')) return;
     await fetch(`/api/buildings/${buildingId}`, { method: 'DELETE' });
+    loadProject();
+    refreshProject();
+  };
+
+  const startEditBuilding = (b: Building) => {
+    setEditingBuilding(b);
+    setBuildingForm({
+      name: b.name,
+      floors: b.floors,
+      serviceFloors: b.serviceFloors,
+      apartmentsPerFloor: b.apartmentsPerFloor,
+      elevators: b.elevators,
+      waterPumps: b.waterPumps,
+      firePump: b.firePump,
+      splitAc: b.splitAc,
+      centralAc: b.centralAc,
+      supplyVoltage: b.supplyVoltage,
+      earthingSystem: b.earthingSystem,
+      lightningProtection: b.lightningProtection,
+      generator: b.generator != null ? String(b.generator) : '',
+      transformer: b.transformer != null ? String(b.transformer) : '',
+      mechanicalLoads: b.mechanicalLoads || '',
+    });
+  };
+
+  const handleUpdateBuilding = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingBuilding) return;
+
+    const res = await fetch(`/api/buildings/${editingBuilding.id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(buildingForm),
+    });
+
+    if (!res.ok) {
+      alert('Failed to update building');
+      return;
+    }
+
+    setEditingBuilding(null);
     loadProject();
     refreshProject();
   };
@@ -404,12 +466,22 @@ export default function ProjectDetailPage() {
                         {bldg.floors} floors · {bldg.serviceFloors} service · {totalApts} apartments · {bldg.elevators} elevators · {bldg.waterPumps} pumps
                       </p>
                     </div>
-                    <button
-                      onClick={(e) => { e.stopPropagation(); handleDeleteBuilding(bldg.id); }}
-                      className="p-1.5 rounded-lg text-gray-600 hover:text-red-400 hover:bg-red-500/10"
-                    >
-                      <Trash2 size={14} />
-                    </button>
+                    <div className="flex items-center gap-1">
+                      <button
+                        onClick={(e) => { e.stopPropagation(); startEditBuilding(bldg); }}
+                        className="p-1.5 rounded-lg text-gray-600 hover:text-orange-400 hover:bg-orange-500/10"
+                        title="Edit building"
+                      >
+                        <Pencil size={14} />
+                      </button>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); handleDeleteBuilding(bldg.id); }}
+                        className="p-1.5 rounded-lg text-gray-600 hover:text-red-400 hover:bg-red-500/10"
+                        title="Delete building"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
                   </div>
 
                   {expanded && (
@@ -482,6 +554,181 @@ export default function ProjectDetailPage() {
               );
             })
           )}
+        </div>
+      )}
+
+      {/* Edit Building Modal */}
+      {editingBuilding && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+          <div className="w-full max-w-3xl max-h-[90vh] overflow-y-auto rounded-xl border border-gray-700 bg-gray-900 p-6 space-y-4 shadow-2xl">
+            <div className="flex items-center gap-3">
+              <Building2 size={20} className="text-orange-500" />
+              <h2 className="text-lg font-semibold text-white">Edit Building</h2>
+            </div>
+
+            <form onSubmit={handleUpdateBuilding} className="space-y-4">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <div>
+                  <label className="block text-xs text-gray-400 mb-1">Name *</label>
+                  <input
+                    value={buildingForm.name}
+                    onChange={(e) => setBuildingForm({ ...buildingForm, name: e.target.value })}
+                    required
+                    className="dense-input w-full rounded"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs text-gray-400 mb-1">Floors *</label>
+                  <input
+                    type="number"
+                    value={buildingForm.floors}
+                    onChange={(e) => setBuildingForm({ ...buildingForm, floors: Number(e.target.value) })}
+                    required
+                    className="dense-input w-full rounded"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs text-gray-400 mb-1">Service Floors</label>
+                  <input
+                    type="number"
+                    value={buildingForm.serviceFloors}
+                    onChange={(e) => setBuildingForm({ ...buildingForm, serviceFloors: Number(e.target.value) })}
+                    className="dense-input w-full rounded"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs text-gray-400 mb-1">Apartments/Floor</label>
+                  <input
+                    type="number"
+                    value={buildingForm.apartmentsPerFloor}
+                    onChange={(e) => setBuildingForm({ ...buildingForm, apartmentsPerFloor: Number(e.target.value) })}
+                    className="dense-input w-full rounded"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs text-gray-400 mb-1">Elevators</label>
+                  <input
+                    type="number"
+                    value={buildingForm.elevators}
+                    onChange={(e) => setBuildingForm({ ...buildingForm, elevators: Number(e.target.value) })}
+                    className="dense-input w-full rounded"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs text-gray-400 mb-1">Water Pumps</label>
+                  <input
+                    type="number"
+                    value={buildingForm.waterPumps}
+                    onChange={(e) => setBuildingForm({ ...buildingForm, waterPumps: Number(e.target.value) })}
+                    className="dense-input w-full rounded"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs text-gray-400 mb-1">Split AC Units</label>
+                  <input
+                    type="number"
+                    value={buildingForm.splitAc}
+                    onChange={(e) => setBuildingForm({ ...buildingForm, splitAc: Number(e.target.value) })}
+                    className="dense-input w-full rounded"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs text-gray-400 mb-1">Central AC (kW)</label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    value={buildingForm.centralAc}
+                    onChange={(e) => setBuildingForm({ ...buildingForm, centralAc: Number(e.target.value) })}
+                    className="dense-input w-full rounded"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs text-gray-400 mb-1">Supply Voltage</label>
+                  <select
+                    value={buildingForm.supplyVoltage}
+                    onChange={(e) => setBuildingForm({ ...buildingForm, supplyVoltage: e.target.value })}
+                    className="dense-input w-full rounded"
+                  >
+                    <option value="400V 3-Phase">400V 3-Phase</option>
+                    <option value="230V 1-Phase">230V 1-Phase</option>
+                    <option value="415V 3-Phase">415V 3-Phase</option>
+                    <option value="380V 3-Phase">380V 3-Phase</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs text-gray-400 mb-1">Earthing System</label>
+                  <select
+                    value={buildingForm.earthingSystem}
+                    onChange={(e) => setBuildingForm({ ...buildingForm, earthingSystem: e.target.value })}
+                    className="dense-input w-full rounded"
+                  >
+                    <option value="TN-S">TN-S</option>
+                    <option value="TN-C-S">TN-C-S</option>
+                    <option value="TT">TT</option>
+                    <option value="IT">IT</option>
+                    <option value="TNC">TNC</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs text-gray-400 mb-1">Generator (kVA)</label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    value={buildingForm.generator}
+                    onChange={(e) => setBuildingForm({ ...buildingForm, generator: e.target.value })}
+                    className="dense-input w-full rounded"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs text-gray-400 mb-1">Transformer (kVA)</label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    value={buildingForm.transformer}
+                    onChange={(e) => setBuildingForm({ ...buildingForm, transformer: e.target.value })}
+                    className="dense-input w-full rounded"
+                  />
+                </div>
+              </div>
+
+              <div className="flex items-center gap-4">
+                <label className="flex items-center gap-2 text-xs text-gray-400">
+                  <input
+                    type="checkbox"
+                    checked={buildingForm.firePump}
+                    onChange={(e) => setBuildingForm({ ...buildingForm, firePump: e.target.checked })}
+                    className="accent-orange-500"
+                  />
+                  Fire Pump
+                </label>
+                <label className="flex items-center gap-2 text-xs text-gray-400">
+                  <input
+                    type="checkbox"
+                    checked={buildingForm.lightningProtection}
+                    onChange={(e) => setBuildingForm({ ...buildingForm, lightningProtection: e.target.checked })}
+                    className="accent-orange-500"
+                  />
+                  Lightning Protection
+                </label>
+              </div>
+
+              <div className="flex gap-2 pt-2">
+                <button
+                  type="submit"
+                  className="px-4 py-2 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-sm font-semibold"
+                >
+                  Save Building
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setEditingBuilding(null)}
+                  className="px-4 py-2 rounded-lg bg-gray-800 text-gray-300 text-sm"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       )}
 

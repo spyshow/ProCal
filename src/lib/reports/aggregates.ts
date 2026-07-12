@@ -1,88 +1,27 @@
 import { sizeCableAndBreaker, calculateVoltageDrop } from "@/lib/calculations/cables";
 import { computeFeeders, type EquipmentItem, type FindBreaker } from "@/lib/calculations/feeders";
-import type { Building, FloorItem, FloorDesign, Project } from "@/types";
+import type { FloorItem, Project } from "@/types";
+import type {
+  BOMResult,
+  BOMRow,
+  BreakerRow,
+  CableRow,
+  FeederRow,
+  VoltageDropRow,
+} from "./types";
 
-/**
- * A single BOM line for cable or breaker procurement.
- */
-export interface BOMRow {
-  size: number;
-  rating: number;
-  count: number;
-  totalLength: number;
-}
+export type {
+  BOMRow,
+  BOMResult,
+  FeederRow,
+  CableRow,
+  BreakerRow,
+  VoltageDropRow,
+  ReportData,
+  ReportOptions,
+  ReportSection,
+} from "./types";
 
-/**
- * Per-row Brand of Materials cables and breakers.
- */
-export interface BOMResult {
-  cables: BOMRow[];
-  breakers: BOMRow[];
-}
-
-/**
- * Feeder row ready for the printable MDB schedule.
- */
-export interface FeederRow {
-  index: number;
-  buildingName: string;
-  buildingId: string;
-  floor: number;
-  feeder: string;
-  type: string;
-  demandKw: number;
-  current: number;
-  breakerAmps: number;
-  cableMm2: number;
-  breakerModel: string;
-  isThreePhase: boolean;
-  isSubPanel: boolean;
-}
-
-/**
- * Cable row ready for the printable cable schedule.
- */
-export interface CableRow {
-  circuit: string;
-  buildingName: string;
-  floor: number;
-  phase: number;
-  current: number;
-  breakerAmps: number;
-  cableMm2: number;
-  method: string;
-  insulation: 'PVC' | 'XLPE';
-}
-
-/**
- * Breaker row ready for the printable breaker schedule.
- */
-export interface BreakerRow {
-  feeder: string;
-  buildingName: string;
-  buildingId: string;
-  floor: number;
-  type: string;
-  current: number;
-  breakerAmps: number;
-  cableMm2: number;
-  breakerModel: string;
-  isThreePhase: boolean;
-}
-
-/**
- * Voltage-drop row ready for the printable voltage-drop schedule.
- */
-export interface VoltageDropRow {
-  circuit: string;
-  buildingName: string;
-  floor: number;
-  current: number;
-  cableMm2: number;
-  lengthMeters: number;
-  voltageDropPercent: number;
-  status: 'OK' | 'WARNING' | 'FAIL';
-}
 
 /**
  * Aggregate BOM rows across every building in the project.

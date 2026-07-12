@@ -52,14 +52,6 @@ const NAV_ITEMS: NavItem[] = [
   { label: "Settings",         href: "/settings",       icon: Settings        },
 ];
 
-type Manufacturer = "ABB" | "SCHNEIDER" | "MIXED";
-
-const MFG_OPTIONS: { value: Manufacturer; label: string }[] = [
-  { value: "ABB",       label: "ABB"  },
-  { value: "SCHNEIDER", label: "SCH"  },
-  { value: "MIXED",     label: "MIX"  },
-];
-
 // ---------------------------------------------------------------------------
 // Sub-components
 // ---------------------------------------------------------------------------
@@ -271,41 +263,6 @@ function ProjectSelector() {
 }
 
 // ---------------------------------------------------------------------------
-// ManufacturerToggle
-// ---------------------------------------------------------------------------
-function ManufacturerToggle() {
-  const { preferredManufacturer, setManufacturer } = useProject();
-
-  return (
-    <div className="px-3">
-      <p className="text-[10px] font-semibold uppercase tracking-widest text-gray-500 mb-2 px-1">
-        Manufacturer
-      </p>
-      <div className="flex rounded-lg overflow-hidden border border-gray-700 bg-gray-800">
-        {MFG_OPTIONS.map(({ value, label }) => {
-          const active = preferredManufacturer === value;
-          return (
-            <button
-              key={value}
-              onClick={() => setManufacturer(value)}
-              title={value}
-              className={[
-                "flex-1 py-2 text-xs font-semibold transition-colors duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500",
-                active
-                  ? "bg-orange-600 text-white"
-                  : "text-gray-400 hover:text-white hover:bg-gray-700",
-              ].join(" ")}
-            >
-              {label}
-            </button>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
-
-// ---------------------------------------------------------------------------
 // Main Sidebar
 // ---------------------------------------------------------------------------
 export default function Sidebar() {
@@ -386,13 +343,7 @@ export default function Sidebar() {
       </nav>
 
       {/* ── Bottom Section ───────────────────────────────────────────────── */}
-      <div className="border-t border-gray-800/80 pt-4 pb-4 space-y-4">
-        {/* Manufacturer Toggle */}
-        <ManufacturerToggle />
-
-        {/* Divider */}
-        <div className="mx-3 border-t border-gray-800" />
-
+      <div className="border-t border-gray-800/80 pt-4 pb-4">
         {/* User info + logout */}
         <div className="px-3 flex items-center gap-3">
           {/* Avatar placeholder */}

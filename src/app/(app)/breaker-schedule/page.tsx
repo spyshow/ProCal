@@ -6,6 +6,14 @@ import { CircuitBoard, Filter } from 'lucide-react';
 import { computeFeeders, type EquipmentItem } from '@/lib/calculations/feeders';
 import type { Project } from '@/types';
 
+type Manufacturer = 'ABB' | 'SCHNEIDER' | 'MIXED';
+
+const MFG_OPTIONS: { value: Manufacturer; label: string }[] = [
+  { value: 'MIXED', label: 'Mixed' },
+  { value: 'ABB', label: 'ABB' },
+  { value: 'SCHNEIDER', label: 'Schneider' },
+];
+
 interface BreakerEntry {
   id: string;
   name: string;
@@ -16,6 +24,7 @@ interface BreakerEntry {
   current: number;
   breakerSize: number;
   cableSize: number;
+  breakerModel: string;
   isThreePhase: boolean;
 }
 
@@ -25,6 +34,9 @@ export default function BreakerSchedulePage() {
   const [loading, setLoading] = useState(true);
   const [equipment, setEquipment] = useState<EquipmentItem[]>([]);
   const [selectedBuilding, setSelectedBuilding] = useState<string>('all');
+  const [manufacturer, setManufacturer] = useState<Manufacturer>(
+    (preferredManufacturer as Manufacturer) || 'MIXED'
+  );
 
   const loadProject = useCallback(async () => {
     if (!selectedProjectId) { setLoading(false); return; }
@@ -40,8 +52,8 @@ export default function BreakerSchedulePage() {
   const loadEquipment = useCallback(async () => {
     try {
       const params = new URLSearchParams();
-      if (preferredManufacturer !== 'MIXED') {
-        params.set('manufacturer', preferredManufacturer);
+      if (manufacturer !== 'MIXED') {
+        params.set('manufacturer', manufacturer);
       }
       params.set('category', 'MCCB');
       const res = await fetch(`/api/equipment?${params.toString()}`);
@@ -50,6 +62,10 @@ export default function BreakerSchedulePage() {
         setEquipment(data);
       }
     } catch (err) { console.error(err); }
+  }, [manufacturer]);
+
+  useEffect(() => {
+    setManufacturer((preferredManufacturer as Manufacturer) || 'MIXED');
   }, [preferredManufacturer]);
 
   useEffect(() => { loadProject(); }, [loadProject]);
@@ -97,6 +113,7 @@ export default function BreakerSchedulePage() {
         current: f.current,
         breakerSize: f.breakerSize,
         cableSize: f.cableSize,
+        breakerModel: f.breakerModel,
         isThreePhase: f.type !== 'APARTMENT',
       });
     }
@@ -115,6 +132,7 @@ export default function BreakerSchedulePage() {
           current: f.current,
           breakerSize: f.breakerSize,
           cableSize: f.cableSize,
+          breakerModel: f.breakerModel,
           isThreePhase: f.type !== 'APARTMENT',
         });
       }
@@ -140,7 +158,24 @@ export default function BreakerSchedulePage() {
             <CircuitBoard size={22} className="text-orange-500" />
             Breaker Schedule
           </h1>
-          <p className="text-sm text-gray-400 mt-1">{project.name} — {preferredManufacturer} series</p>
+          <p className="text-sm text-gray-400 mt-1">{project.name} — {manufacturer === 'MIXED' ? 'Mixed' : manufacturer} series</p>
+        </div>
+
+        {/* Manufacturer Selector */}
+        <div className="flex items-center gap-2 bg-gray-800 border border-gray-700 rounded-lg p-1">
+          {MFG_OPTIONS.map(({ value, label }) => (
+            <button
+              key={value}
+              onClick={() => setManufacturer(value)}
+              className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-colors ${
+                manufacturer === value
+                  ? 'bg-orange-600 text-white'
+                  : 'text-gray-400 hover:text-white hover:bg-gray-700'
+              }`}
+            >
+              {label}
+            </button>
+          ))}
         </div>
       </div>
 
@@ -182,6 +217,7 @@ export default function BreakerSchedulePage() {
                 <th className="text-center">Floor</th>
                 <th className="text-right">Current (A)</th>
                 <th className="text-center">Breaker (A)</th>
+                <th className="text-left">Breaker Model</th>
                 <th className="text-center">Cable (mm²)</th>
                 <th className="text-center">Phase</th>
               </tr>
@@ -194,6 +230,7 @@ export default function BreakerSchedulePage() {
                   <td className="text-center font-mono text-orange-400">F{b.floor}</td>
                   <td className="text-right font-mono">{b.current.toFixed(1)}</td>
                   <td className="text-center font-mono text-blue-400">{b.breakerSize}</td>
+                  <td className="text-xs text-gray-300">{b.breakerModel}</td>
                   <td className="text-center font-mono text-green-400">{b.cableSize}</td>
                   <td className="text-center font-mono">{b.isThreePhase ? '3Φ' : '1Φ'}</td>
                 </tr>
@@ -211,7 +248,7 @@ export default function BreakerSchedulePage() {
 
       {/* Summary */}
       <div className="text-[10px] text-gray-600">
-        <p>Total breakers: {filteredBreakers.length} | {preferredManufacturer} series</p>
+        <p>Total breakers: {filteredBreakers.length} | {manufacturer === 'MIXED' ? 'Mixed' : `${manufacturer} series`}</p>
       </div>
     </div>
   );

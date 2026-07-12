@@ -17,16 +17,11 @@ export async function GET(request: Request) {
 
     const where: {
       category?: string;
-      manufacturer?: string;
       ratedCurrent?: { gte?: number; lte?: number };
     } = {};
 
     if (category) {
       where.category = category.toUpperCase();
-    }
-
-    if (manufacturer) {
-      where.manufacturer = manufacturer.toUpperCase();
     }
 
     if (minCurrent || maxCurrent) {
@@ -39,7 +34,7 @@ export async function GET(request: Request) {
       }
     }
 
-    const equipment = await db.equipmentCatalog.findMany({
+    let equipment = await db.equipmentCatalog.findMany({
       where,
       orderBy: [
         { manufacturer: "asc" },
@@ -47,6 +42,13 @@ export async function GET(request: Request) {
         { ratedCurrent: "asc" },
       ],
     });
+
+    if (manufacturer) {
+      const mfg = manufacturer.toUpperCase();
+      equipment = equipment.filter(
+        (e) => e.manufacturer.toUpperCase() === mfg
+      );
+    }
 
     return NextResponse.json(equipment);
   } catch (error) {

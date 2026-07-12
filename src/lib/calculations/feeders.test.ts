@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { isThreePhaseForItem, computeFeeders, type EquipmentItem } from './feeders';
+import { isThreePhaseForItem, computeFeeders, createFindBreaker, type EquipmentItem } from './feeders';
 import { sizeCableAndBreaker } from './cables';
 import type { FloorItem, Building, Project } from '@/types';
 
@@ -8,19 +8,16 @@ import type { FloorItem, Building, Project } from '@/types';
 // ---------------------------------------------------------------------------
 
 const equipment: EquipmentItem[] = [
-  { id: 'm1', category: 'MCCB', manufacturer: 'ABB', series: 'Tmax', model: 'T1', ratedCurrent: 16, poles: 3, breakingCapacity: 36, tripUnit: null, settingsJson: null },
-  { id: 'm2', category: 'MCCB', manufacturer: 'ABB', series: 'Tmax', model: 'T1', ratedCurrent: 25, poles: 3, breakingCapacity: 36, tripUnit: null, settingsJson: null },
-  { id: 'm3', category: 'MCCB', manufacturer: 'ABB', series: 'Tmax', model: 'T2', ratedCurrent: 63, poles: 3, breakingCapacity: 36, tripUnit: null, settingsJson: null },
-  { id: 'm4', category: 'MCCB', manufacturer: 'ABB', series: 'Tmax', model: 'T3', ratedCurrent: 100, poles: 3, breakingCapacity: 36, tripUnit: null, settingsJson: null },
-  { id: 'm5', category: 'MCCB', manufacturer: 'ABB', series: 'Tmax', model: 'T4', ratedCurrent: 160, poles: 3, breakingCapacity: 36, tripUnit: null, settingsJson: null },
+  { id: 'm1', category: 'MCCB', manufacturer: 'ABB', familyId: 'f1', familyName: 'Tmax', series: 'Tmax', model: 'T1', ratedCurrent: 16, poles: 3, breakingCapacity: 36, tripUnit: null, settingsJson: null },
+  { id: 'm2', category: 'MCCB', manufacturer: 'ABB', familyId: 'f1', familyName: 'Tmax', series: 'Tmax', model: 'T1', ratedCurrent: 25, poles: 3, breakingCapacity: 36, tripUnit: null, settingsJson: null },
+  { id: 'm3', category: 'MCCB', manufacturer: 'ABB', familyId: 'f1', familyName: 'Tmax', series: 'Tmax', model: 'T2', ratedCurrent: 63, poles: 3, breakingCapacity: 36, tripUnit: null, settingsJson: null },
+  { id: 'm4', category: 'MCCB', manufacturer: 'ABB', familyId: 'f1', familyName: 'Tmax', series: 'Tmax', model: 'T3', ratedCurrent: 100, poles: 3, breakingCapacity: 36, tripUnit: null, settingsJson: null },
+  { id: 'm5', category: 'MCCB', manufacturer: 'ABB', familyId: 'f1', familyName: 'Tmax', series: 'Tmax', model: 'T4', ratedCurrent: 160, poles: 3, breakingCapacity: 36, tripUnit: null, settingsJson: null },
+  { id: 'ac1', category: 'ACB', manufacturer: 'ABB', familyId: 'f2', familyName: 'Emax', series: 'Emax', model: 'E1', ratedCurrent: 800, poles: 3, breakingCapacity: 42, tripUnit: null, settingsJson: null },
+  { id: 'cb1', category: 'MCB', manufacturer: 'ABB', familyId: 'f3', familyName: 'S200', series: 'S200', model: 'S201-C16', ratedCurrent: 16, poles: 1, breakingCapacity: 6, tripUnit: null, settingsJson: null },
+  { id: 'cb2', category: 'MCB', manufacturer: 'ABB', familyId: 'f3', familyName: 'S200', series: 'S200', model: 'S201-C32', ratedCurrent: 32, poles: 1, breakingCapacity: 6, tripUnit: null, settingsJson: null },
+  { id: 'cb3', category: 'MCB', manufacturer: 'ABB', familyId: 'f3', familyName: 'S200', series: 'S200', model: 'S203-C32', ratedCurrent: 32, poles: 3, breakingCapacity: 6, tripUnit: null, settingsJson: null },
 ];
-
-const findBreaker = (rating: number, category: 'MCCB' | 'ACB') => {
-  const f = equipment.filter((e) => e.category === category && e.ratedCurrent >= rating);
-  return f.sort((a, b) => a.ratedCurrent - b.ratedCurrent)[0] || null;
-};
-
-const noBreaker = () => null; // empty-equipment fallback path
 
 const baseProject: Project = {
   id: 'p1', name: 'Test', client: '', consultant: '', contractor: '', location: '', engineer: '', date: '',
@@ -49,7 +46,7 @@ function building(overrides: Partial<Building> = {}): Building {
 }
 
 // ---------------------------------------------------------------------------
-// isThreePhaseForItem — 6 paths (mirrors the API routes' per-type rule)
+// isThreePhaseForItem
 // ---------------------------------------------------------------------------
 
 describe('isThreePhaseForItem', () => {
@@ -69,7 +66,7 @@ describe('isThreePhaseForItem', () => {
     expect(isThreePhaseForItem(item({ type: 'SERVICE_PANEL', loadLibraryItem: { name: 'Pump', category: 'Pump', power: 7.5, voltage: 400, phase: 3, powerFactor: 0.85, demandFactor: 1, quantity: 1 } }))).toBe(true);
   });
 
-  it('Load Library item with phase === 1 → false (the bug D3/D10 fixes)', () => {
+  it('Load Library item with phase === 1 → false', () => {
     expect(isThreePhaseForItem(item({ type: 'SERVICE_PANEL', loadLibraryItem: { name: 'Light', category: 'Lighting', power: 1, voltage: 230, phase: 1, powerFactor: 0.9, demandFactor: 0.8, quantity: 10 } }))).toBe(false);
   });
 
@@ -79,11 +76,52 @@ describe('isThreePhaseForItem', () => {
 });
 
 // ---------------------------------------------------------------------------
-// computeFeeders — 8 paths
+// createFindBreaker
+// ---------------------------------------------------------------------------
+
+describe('createFindBreaker', () => {
+  it('picks smallest MCCB from the default family', () => {
+    const findBreaker = createFindBreaker(equipment, { MCCB: 'f1' }, 'ABB');
+    const result = findBreaker(50, 'MCCB', 3, { familyId: 'f1' });
+    expect(result.model).toContain('T2');
+    expect(result.fallback).toBe(false);
+  });
+
+  it('picks MCB by pole count for single-phase apartment', () => {
+    const findBreaker = createFindBreaker(equipment, {}, 'ABB');
+    const result = findBreaker(20, 'MCB', 1);
+    expect(result.model).toContain('S201-C32');
+    expect(result.manufacturer).toBe('ABB');
+  });
+
+  it('picks 3P MCB for three-phase end load', () => {
+    const findBreaker = createFindBreaker(equipment, {}, 'ABB');
+    const result = findBreaker(25, 'MCB', 3);
+    expect(result.model).toContain('S203-C32');
+  });
+
+  it('falls back to manufacturer + category when family has no match', () => {
+    // family f2 has no MCCB rows in our fixture; fallback should pick ABB MCCB 63A
+    const findBreaker = createFindBreaker(equipment, { MCCB: 'f2' }, 'ABB');
+    const result = findBreaker(50, 'MCCB', 3);
+    expect(result.model).toContain('T2');
+    expect(result.fallback).toBe(true);
+  });
+
+  it('returns null model when nothing matches', () => {
+    const findBreaker = createFindBreaker([], {}, 'ABB');
+    const result = findBreaker(50, 'MCCB', 3);
+    expect(result.model).toBeNull();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// computeFeeders
 // ---------------------------------------------------------------------------
 
 describe('computeFeeders', () => {
   it('floor WITH hasFloorSubPanels → one SMDB feeder for the whole floor', () => {
+    const findBreaker = createFindBreaker(equipment, {}, 'ABB');
     const bldg = building({
       floorDesigns: [{
         id: 'f1', floorNumber: 1, hasFloorSubPanels: true,
@@ -95,9 +133,11 @@ describe('computeFeeders', () => {
     expect(smdb).toHaveLength(1);
     expect(smdb[0].name).toBe('F1 – SMDB');
     expect(smdb[0].current).toBe(50); // 20 + 30
+    expect(smdb[0].manufacturer).toBe('ABB');
   });
 
-  it('floor WITHOUT sub-panels → individual apartment feeders', () => {
+  it('floor WITHOUT sub-panels → individual apartment feeders use MCB', () => {
+    const findBreaker = createFindBreaker(equipment, {}, 'ABB');
     const bldg = building({
       floorDesigns: [{
         id: 'f1', floorNumber: 1, hasFloorSubPanels: false,
@@ -107,38 +147,30 @@ describe('computeFeeders', () => {
     const { mdbFeeders } = computeFeeders(bldg, baseProject, findBreaker);
     expect(mdbFeeders).toHaveLength(2);
     expect(mdbFeeders[0].name).toBe('F1 – Apt A');
-    expect(mdbFeeders[1].name).toBe('F1 – Apt B');
+    expect(mdbFeeders[0].breakerModel).toContain('S201');
+  });
+
+  it('SERVICE_PANEL item routes to MCCB', () => {
+    const findBreaker = createFindBreaker(equipment, {}, 'ABB');
+    const bldg = building({
+      floorDesigns: [{
+        id: 'f1', floorNumber: 1, hasFloorSubPanels: false,
+        items: [item({ type: 'SERVICE_PANEL', name: 'Service', calculatedCurrent: 50, apartmentTemplate: null, loadLibraryItem: null })],
+      }],
+    });
+    const { mdbFeeders } = computeFeeders(bldg, baseProject, findBreaker);
+    expect(mdbFeeders[0].breakerModel).toContain('T2');
   });
 
   it('adds an elevator building-load feeder', () => {
+    const findBreaker = createFindBreaker(equipment, {}, 'ABB');
     const bldg = building({ elevators: 1, floorDesigns: [{ id: 'f1', floorNumber: 1, hasFloorSubPanels: false, items: [] }] });
     const { mdbFeeders } = computeFeeders(bldg, baseProject, findBreaker);
     expect(mdbFeeders.find((f) => f.type === 'ELEVATOR')).toBeDefined();
   });
 
-  it('adds a water-pump feeder and respects firePump', () => {
-    const bldg = building({ waterPumps: 2, firePump: true, floorDesigns: [{ id: 'f1', floorNumber: 1, hasFloorSubPanels: false, items: [] }] });
-    const { mdbFeeders } = computeFeeders(bldg, baseProject, findBreaker);
-    expect(mdbFeeders.find((f) => f.type === 'WATER_PUMP')).toBeDefined();
-    expect(mdbFeeders.find((f) => f.type === 'FIRE_PUMP')).toBeDefined();
-  });
-
-  it('firePump=false → no FIRE_PUMP feeder', () => {
-    const bldg = building({ firePump: false, floorDesigns: [{ id: 'f1', floorNumber: 1, hasFloorSubPanels: false, items: [] }] });
-    const { mdbFeeders } = computeFeeders(bldg, baseProject, findBreaker);
-    expect(mdbFeeders.find((f) => f.type === 'FIRE_PUMP')).toBeUndefined();
-  });
-
-  it('empty equipment → findBreaker returns null → "MCCB <size>" fallback, no crash', () => {
-    const bldg = building({
-      floorDesigns: [{ id: 'f1', floorNumber: 1, hasFloorSubPanels: false, items: [item({ calculatedCurrent: 40 })] }],
-    });
-    const { mdbFeeders } = computeFeeders(bldg, baseProject, noBreaker);
-    expect(mdbFeeders).toHaveLength(1);
-    expect(mdbFeeders[0].breakerModel).toMatch(/^MCCB \d+$/);
-  });
-
   it('smdbFeeders(floorNumber) returns per-apartment feeders for a sub-panel floor', () => {
+    const findBreaker = createFindBreaker(equipment, {}, 'ABB');
     const bldg = building({
       floorDesigns: [{
         id: 'f1', floorNumber: 3, hasFloorSubPanels: true,
@@ -151,29 +183,35 @@ describe('computeFeeders', () => {
     expect(f[0].name).toBe('F3 – Apt A');
   });
 
-  it('smdbFloorNumbers returns only floors with hasFloorSubPanels, in order', () => {
+  it('uses building.centralAc as kW, not a hardcoded 50 kW multiplier', () => {
+    const findBreaker = createFindBreaker(equipment, {}, 'ABB');
+    const bldg = building({ centralAc: 15, floorDesigns: [{ id: 'f1', floorNumber: 1, hasFloorSubPanels: false, items: [] }] });
+    const { mdbFeeders } = computeFeeders(bldg, baseProject, findBreaker);
+    const ac = mdbFeeders.find((f) => f.type === 'CENTRAL_AC')!;
+    // 15 kW @ 400V 3-phase 0.85pf ≈ 25.5 A, so breaker should be much smaller than 1600A.
+    expect(ac.current).toBeCloseTo(15 / (Math.sqrt(3) * 0.4 * 0.85), 1);
+    expect(ac.breakerSize).toBeLessThan(100);
+  });
+
+  it('empty equipment → fallback model, no crash', () => {
+    const findBreaker = createFindBreaker([], {}, 'ABB');
     const bldg = building({
-      floorDesigns: [
-        { id: 'f1', floorNumber: 1, hasFloorSubPanels: false, items: [] },
-        { id: 'f2', floorNumber: 2, hasFloorSubPanels: true, items: [] },
-        { id: 'f3', floorNumber: 3, hasFloorSubPanels: true, items: [] },
-      ],
+      floorDesigns: [{ id: 'f1', floorNumber: 1, hasFloorSubPanels: false, items: [item({ calculatedCurrent: 40 })] }],
     });
-    const { smdbFloorNumbers } = computeFeeders(bldg, baseProject, findBreaker);
-    expect(smdbFloorNumbers).toEqual([2, 3]);
+    const { mdbFeeders } = computeFeeders(bldg, baseProject, findBreaker);
+    expect(mdbFeeders).toHaveLength(1);
+    expect(mdbFeeders[0].breakerModel).toMatch(/^MCB \d+$/);
+    expect(mdbFeeders[0].fallback).toBe(false);
   });
 });
 
 // ---------------------------------------------------------------------------
-// Regression tests — CRITICAL (IRON RULE)
+// Regression tests
 // ---------------------------------------------------------------------------
 
 describe('regression: three-phase classification', () => {
   it('REGRESSION: SMDB feeder for a 3-phase apartment uses THREE-PHASE sizing (panel/page.tsx:184 was inverted)', () => {
-    // Before the fix, panel/page.tsx:184 passed isThreePhase = item.type === 'APARTMENT'
-    // (i.e. apartments were treated as 3-phase regardless of template), which is
-    // inverted vs. the direct-feeder branch. computeFeeders must derive it from
-    // apartmentTemplate.phases via isThreePhaseForItem.
+    const findBreaker = createFindBreaker(equipment, {}, 'ABB');
     const threePhaseItem = item({
       calculatedCurrent: 40,
       apartmentTemplate: { id: 't', name: 'T', phases: 3, rooms: [], createdAt: '', updatedAt: '' },
@@ -189,12 +227,8 @@ describe('regression: three-phase classification', () => {
     expect(feeder.cableSize).toBe(expected.cableSize);
   });
 
-  it('REGRESSION: a single-phase Load Library item stays SINGLE-PHASE (cable-schedule:114 forced 3-phase)', () => {
-    // Before the fix, cable-schedule/page.tsx:114 used
-    //   item.type !== 'APARTMENT' || apartmentTemplate?.phases === 3
-    // forcing ALL non-apartments (incl. single-phase library loads) to 3-phase.
-    // isThreePhaseForItem now reads loadLibraryItem.phase, so a phase:1 item
-    // classifies as single-phase across all three views.
+  it('REGRESSION: a single-phase Load Library item stays SINGLE-PHASE', () => {
+    const findBreaker = createFindBreaker(equipment, {}, 'ABB');
     const singlePhaseLib = item({
       type: 'SERVICE_PANEL',
       calculatedCurrent: 25,

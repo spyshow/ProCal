@@ -32,6 +32,12 @@ model Project {
   transformerSize       Float? // Sized in kVA
   notes                 String?
   preferredManufacturer String              @default("MIXED") // "ABB" | "SCHNEIDER" | "MIXED"
+  defaultAcbFamilyId    String?
+  defaultAcbFamily      BreakerFamily?      @relation("DefaultAcbFamily", fields: [defaultAcbFamilyId], references: [id], onDelete: SetNull)
+  defaultMccbFamilyId   String?
+  defaultMccbFamily     BreakerFamily?      @relation("DefaultMccbFamily", fields: [defaultMccbFamilyId], references: [id], onDelete: SetNull)
+  defaultMcbFamilyId    String?
+  defaultMcbFamily      BreakerFamily?      @relation("DefaultMcbFamily", fields: [defaultMcbFamilyId], references: [id], onDelete: SetNull)
   country               String              @default("Syria")
   logoUrl               String?
   maxVoltageDropLighting Float              @default(3) // % — IEC 60364-5-52 for lighting
@@ -154,6 +160,25 @@ model EquipmentCatalog {
   tripUnit         String? // e.g. "Ekip Dip LSI", "MicroLogic 2.2"
   settingsJson     String? // JSON string: adjustable protection settings ranges
   datasheetUrl     String?
+  familyId         String?
+  family           BreakerFamily? @relation(fields: [familyId], references: [id], onDelete: SetNull)
+
+  @@index([familyId])
+}
+
+model BreakerFamily {
+  id           String            @id @default(uuid())
+  manufacturer String // e.g. "ABB" | "Schneider"
+  category     String // "ACB" | "MCCB" | "MCB"
+  name         String // e.g. "ComPacT NSX", "Acti9 iC60"
+  catalogItems EquipmentCatalog[]
+  defaultAcb   Project[]         @relation("DefaultAcbFamily")
+  defaultMccb  Project[]         @relation("DefaultMccbFamily")
+  defaultMcb   Project[]         @relation("DefaultMcbFamily")
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+
+  @@unique([manufacturer, category, name])
 }
 
 model BreakerSettings {

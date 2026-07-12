@@ -393,6 +393,7 @@ export const ModelName = {
   FloorDesign: 'FloorDesign',
   FloorItem: 'FloorItem',
   EquipmentCatalog: 'EquipmentCatalog',
+  BreakerFamily: 'BreakerFamily',
   BreakerSettings: 'BreakerSettings'
 } as const
 
@@ -409,7 +410,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "project" | "building" | "apartmentTemplate" | "apartmentRoom" | "loadLibraryItem" | "floorDesign" | "floorItem" | "equipmentCatalog" | "breakerSettings"
+    modelProps: "user" | "project" | "building" | "apartmentTemplate" | "apartmentRoom" | "loadLibraryItem" | "floorDesign" | "floorItem" | "equipmentCatalog" | "breakerFamily" | "breakerSettings"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1079,6 +1080,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    BreakerFamily: {
+      payload: Prisma.$BreakerFamilyPayload<ExtArgs>
+      fields: Prisma.BreakerFamilyFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.BreakerFamilyFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BreakerFamilyPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.BreakerFamilyFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BreakerFamilyPayload>
+        }
+        findFirst: {
+          args: Prisma.BreakerFamilyFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BreakerFamilyPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.BreakerFamilyFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BreakerFamilyPayload>
+        }
+        findMany: {
+          args: Prisma.BreakerFamilyFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BreakerFamilyPayload>[]
+        }
+        create: {
+          args: Prisma.BreakerFamilyCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BreakerFamilyPayload>
+        }
+        createMany: {
+          args: Prisma.BreakerFamilyCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.BreakerFamilyCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BreakerFamilyPayload>[]
+        }
+        delete: {
+          args: Prisma.BreakerFamilyDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BreakerFamilyPayload>
+        }
+        update: {
+          args: Prisma.BreakerFamilyUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BreakerFamilyPayload>
+        }
+        deleteMany: {
+          args: Prisma.BreakerFamilyDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.BreakerFamilyUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.BreakerFamilyUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BreakerFamilyPayload>[]
+        }
+        upsert: {
+          args: Prisma.BreakerFamilyUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BreakerFamilyPayload>
+        }
+        aggregate: {
+          args: Prisma.BreakerFamilyAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateBreakerFamily>
+        }
+        groupBy: {
+          args: Prisma.BreakerFamilyGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BreakerFamilyGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.BreakerFamilyCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BreakerFamilyCountAggregateOutputType> | number
+        }
+      }
+    }
     BreakerSettings: {
       payload: Prisma.$BreakerSettingsPayload<ExtArgs>
       fields: Prisma.BreakerSettingsFieldRefs
@@ -1216,6 +1291,9 @@ export const ProjectScalarFieldEnum = {
   transformerSize: 'transformerSize',
   notes: 'notes',
   preferredManufacturer: 'preferredManufacturer',
+  defaultAcbFamilyId: 'defaultAcbFamilyId',
+  defaultMccbFamilyId: 'defaultMccbFamilyId',
+  defaultMcbFamilyId: 'defaultMcbFamilyId',
   country: 'country',
   logoUrl: 'logoUrl',
   maxVoltageDropLighting: 'maxVoltageDropLighting',
@@ -1341,10 +1419,23 @@ export const EquipmentCatalogScalarFieldEnum = {
   breakingCapacity: 'breakingCapacity',
   tripUnit: 'tripUnit',
   settingsJson: 'settingsJson',
-  datasheetUrl: 'datasheetUrl'
+  datasheetUrl: 'datasheetUrl',
+  familyId: 'familyId'
 } as const
 
 export type EquipmentCatalogScalarFieldEnum = (typeof EquipmentCatalogScalarFieldEnum)[keyof typeof EquipmentCatalogScalarFieldEnum]
+
+
+export const BreakerFamilyScalarFieldEnum = {
+  id: 'id',
+  manufacturer: 'manufacturer',
+  category: 'category',
+  name: 'name',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type BreakerFamilyScalarFieldEnum = (typeof BreakerFamilyScalarFieldEnum)[keyof typeof BreakerFamilyScalarFieldEnum]
 
 
 export const BreakerSettingsScalarFieldEnum = {
@@ -1541,6 +1632,7 @@ export type GlobalOmitConfig = {
   floorDesign?: Prisma.FloorDesignOmit
   floorItem?: Prisma.FloorItemOmit
   equipmentCatalog?: Prisma.EquipmentCatalogOmit
+  breakerFamily?: Prisma.BreakerFamilyOmit
   breakerSettings?: Prisma.BreakerSettingsOmit
 }
 

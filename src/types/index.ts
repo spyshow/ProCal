@@ -85,6 +85,9 @@ export interface Project {
   powerFactor: number;
   country: string;
   preferredManufacturer: string;
+  defaultAcbFamilyId?: string | null;
+  defaultMccbFamilyId?: string | null;
+  defaultMcbFamilyId?: string | null;
   logoUrl?: string | null;
   maxVoltageDropLighting: number;
   maxVoltageDropPower: number;
@@ -115,6 +118,10 @@ export interface PanelFeeder {
   breakerSize: number;
   cableSize: number;
   breakerModel: string;
+  manufacturer: string | null;
+  familyName: string | null;
+  fallback: boolean;
+  isThreePhase: boolean;
 }
 
 export type ReportTab = 'bom' | 'mdb' | 'cable' | 'vd' | 'summary';

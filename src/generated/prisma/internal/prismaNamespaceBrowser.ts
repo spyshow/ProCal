@@ -60,6 +60,7 @@ export const ModelName = {
   FloorDesign: 'FloorDesign',
   FloorItem: 'FloorItem',
   EquipmentCatalog: 'EquipmentCatalog',
+  BreakerFamily: 'BreakerFamily',
   BreakerSettings: 'BreakerSettings'
 } as const
 
@@ -103,6 +104,9 @@ export const ProjectScalarFieldEnum = {
   transformerSize: 'transformerSize',
   notes: 'notes',
   preferredManufacturer: 'preferredManufacturer',
+  defaultAcbFamilyId: 'defaultAcbFamilyId',
+  defaultMccbFamilyId: 'defaultMccbFamilyId',
+  defaultMcbFamilyId: 'defaultMcbFamilyId',
   country: 'country',
   logoUrl: 'logoUrl',
   maxVoltageDropLighting: 'maxVoltageDropLighting',
@@ -228,10 +232,23 @@ export const EquipmentCatalogScalarFieldEnum = {
   breakingCapacity: 'breakingCapacity',
   tripUnit: 'tripUnit',
   settingsJson: 'settingsJson',
-  datasheetUrl: 'datasheetUrl'
+  datasheetUrl: 'datasheetUrl',
+  familyId: 'familyId'
 } as const
 
 export type EquipmentCatalogScalarFieldEnum = (typeof EquipmentCatalogScalarFieldEnum)[keyof typeof EquipmentCatalogScalarFieldEnum]
+
+
+export const BreakerFamilyScalarFieldEnum = {
+  id: 'id',
+  manufacturer: 'manufacturer',
+  category: 'category',
+  name: 'name',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type BreakerFamilyScalarFieldEnum = (typeof BreakerFamilyScalarFieldEnum)[keyof typeof BreakerFamilyScalarFieldEnum]
 
 
 export const BreakerSettingsScalarFieldEnum = {

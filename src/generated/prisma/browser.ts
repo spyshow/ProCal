@@ -63,6 +63,11 @@ export type FloorItem = Prisma.FloorItemModel
  */
 export type EquipmentCatalog = Prisma.EquipmentCatalogModel
 /**
+ * Model BreakerFamily
+ * 
+ */
+export type BreakerFamily = Prisma.BreakerFamilyModel
+/**
  * Model BreakerSettings
  * 
  */

@@ -14,6 +14,7 @@ interface CableEntry {
   id: string;
   name: string;
   cableName: string;
+  building: string;
   floor: number;
   length: number;
   cableSize: number;
@@ -95,7 +96,7 @@ export default function CableSchedulePage() {
         if (!selectedBuilding && data.buildings.length > 0) setSelectedBuilding(data.buildings[0].id);
       }
     } catch (err) { console.error(err); } finally { setLoading(false); }
-  }, [selectedProjectId, selectedBuilding]);
+  }, [selectedProjectId]);
 
   useEffect(() => { loadProject(); }, [loadProject]);
 
@@ -108,6 +109,7 @@ export default function CableSchedulePage() {
     // Build cable schedule from project data with pre-calculated VD
     const cableList: CableEntry[] = [];
     for (const bldg of project.buildings) {
+      if (selectedBuilding && bldg.id !== selectedBuilding) continue;
       for (const fd of bldg.floorDesigns) {
         fd.items.forEach((item, idx) => {
           const letter = String.fromCharCode(97 + idx);
@@ -135,6 +137,7 @@ export default function CableSchedulePage() {
             id: item.id || `${fd.floorNumber}-${item.name}`,
             name: loadTag,
             cableName: cableTag,
+            building: bldg.name,
             floor: fd.floorNumber,
             length,
             cableSize: cableSizeNum,
@@ -184,6 +187,7 @@ export default function CableSchedulePage() {
           id: bl.id,
           name: loadTag,
           cableName: cableTag,
+          building: bldg.name,
           floor: 0, // building-level loads group separately
           length,
           cableSize: cableSizeNum,
@@ -200,7 +204,7 @@ export default function CableSchedulePage() {
       });
     }
     setCables(cableList);
-  }, [project]);
+  }, [project, selectedBuilding]);
 
   const updateCableField = (id: string, field: string, value: any) => {
     const savedLimits = localStorage.getItem('procal-vd-limits');
@@ -388,14 +392,19 @@ export default function CableSchedulePage() {
   if (loading) return <div className="flex items-center justify-center h-full"><p className="text-gray-500 text-sm">Loading…</p></div>;
   if (!project) return <div className="flex items-center justify-center h-full"><p className="text-gray-400 text-sm">Select a project first.</p></div>;
 
-  // Group cables by floor
+  // Group cables by floor name or "Building Loads"
   const cablesByFloor = cables.reduce((acc, cable) => {
-    if (!acc[cable.floor]) acc[cable.floor] = [];
-    acc[cable.floor].push(cable);
+    const key = cable.floor === 0 ? 'Building Loads' : `Floor ${cable.floor}`;
+    if (!acc[key]) acc[key] = [];
+    acc[key].push(cable);
     return acc;
-  }, {} as Record<number, CableEntry[]>);
+  }, {} as Record<string, CableEntry[]>);
 
-  const floors = Object.keys(cablesByFloor).map(Number).sort((a, b) => a - b);
+  const floorKeys = Object.keys(cablesByFloor).sort((a, b) => {
+    if (a === 'Building Loads') return -1;
+    if (b === 'Building Loads') return 1;
+    return parseInt(a.replace('Floor ', '')) - parseInt(b.replace('Floor ', ''));
+  });
 
   return (
     <div className="p-6 space-y-5 max-w-7xl mx-auto">
@@ -501,6 +510,10 @@ export default function CableSchedulePage() {
       {/* Building Selector */}
       {project.buildings.length > 1 && (
         <div className="flex gap-2">
+          <button onClick={() => setSelectedBuilding(null)}
+            className={`px-3 py-1.5 rounded-lg text-sm font-medium ${selectedBuilding === null ? 'bg-orange-600 text-white' : 'bg-gray-800 text-gray-400'}`}>
+            All Buildings
+          </button>
           {project.buildings.map((b) => (
             <button key={b.id} onClick={() => setSelectedBuilding(b.id)}
               className={`px-3 py-1.5 rounded-lg text-sm font-medium ${selectedBuilding === b.id ? 'bg-orange-600 text-white' : 'bg-gray-800 text-gray-400'}`}>
@@ -534,13 +547,13 @@ export default function CableSchedulePage() {
 
       {/* Cable Schedule Table - Grouped by Floor */}
       <div className="space-y-4">
-        {floors.map(floor => (
-          <div key={floor} className="rounded-xl border border-gray-800 bg-gray-900/40 p-4 space-y-3">
+        {floorKeys.map(key => {
+          const groupCables = cablesByFloor[key];
+          return (
+          <div key={key} className="rounded-xl border border-gray-800 bg-gray-900/40 p-4 space-y-3">
             <div className="flex items-center gap-2 mb-2">
-              <span className="text-sm font-bold text-orange-400">
-                {floor === 0 ? 'Building Loads' : `Floor ${floor}`}
-              </span>
-              <span className="text-xs text-gray-500">({cablesByFloor[floor].length} circuits)</span>
+              <span className="text-sm font-bold text-orange-400">{key}</span>
+              <span className="text-xs text-gray-500">({groupCables.length} circuits)</span>
             </div>
 
             <div className="relative">
@@ -548,6 +561,7 @@ export default function CableSchedulePage() {
               <table className="w-full engineering-table text-xs">
                 <thead>
                   <tr>
+                    {!selectedBuilding && <th className="text-left">Building</th>}
                     <th className="text-left">Load</th>
                     <th className="text-left">Cable</th>
                     <th className="text-right">Current (A)</th>
@@ -562,8 +576,9 @@ export default function CableSchedulePage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {cablesByFloor[floor].map((c) => (
+                  {groupCables.map((c) => (
                     <tr key={c.id} className="hover:bg-gray-800/30">
+                      {!selectedBuilding && <td className="text-gray-400 font-mono text-xs">{c.building}</td>}
                       <td className="text-gray-200 font-mono font-semibold">{c.name}</td>
                       <td className="text-gray-400 font-mono text-xs">{c.cableName}</td>
                       <td className="text-right font-mono">{c.current.toFixed(1)}</td>
@@ -620,7 +635,8 @@ export default function CableSchedulePage() {
               </div>
             </div>
           </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* Legend */}

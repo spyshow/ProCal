@@ -8,6 +8,7 @@ export interface BreakerScheduleProps {
   project: Project;
   buildingId?: string;
   manufacturer?: string;
+  showHeader?: boolean;
 }
 
 interface BreakerRow {
@@ -33,6 +34,7 @@ export default function BreakerSchedule({
   project,
   buildingId,
   manufacturer,
+  showHeader = true,
 }: BreakerScheduleProps) {
   const [equipment, setEquipment] = useState<EquipmentItem[]>([]);
 
@@ -134,6 +136,12 @@ export default function BreakerSchedule({
 
   return (
     <div className="space-y-4">
+      {showHeader && (
+        <div className="flex items-center justify-between text-xs text-gray-500 mb-1">
+          <span className="font-semibold">{project.name}</span>
+          <span>{project.date || new Date().toLocaleDateString()}</span>
+        </div>
+      )}
       <h2 className="text-lg font-bold border-b pb-2">Breaker Schedule</h2>
 
       {Object.entries(grouped).map(([type, items]) => (
@@ -142,14 +150,14 @@ export default function BreakerSchedule({
           <table className="w-full text-sm border-collapse">
             <thead>
               <tr className="bg-gray-100">
-                <th className="border p-2 text-left w-[20%]">Feeder</th>
-                <th className="border p-2 text-left w-[12%]">Building</th>
-                <th className="border p-2 text-center w-[7%]">Floor</th>
-                <th className="border p-2 text-right w-[10%]">Current (A)</th>
-                <th className="border p-2 text-center w-[10%]">Breaker (A)</th>
-                <th className="border p-2 text-left w-[22%]">Breaker Model</th>
-                <th className="border p-2 text-center w-[10%]">Cable</th>
-                <th className="border p-2 text-center w-[9%]">Phase</th>
+                <th className="border p-2 text-left">Feeder</th>
+                <th className="border p-2 text-left">Building</th>
+                <th className="border p-2 text-center">Floor</th>
+                <th className="border p-2 text-right">Current (A)</th>
+                <th className="border p-2 text-center">Breaker (A)</th>
+                <th className="border p-2 text-left">Breaker Model</th>
+                <th className="border p-2 text-center">Cable</th>
+                <th className="border p-2 text-center">Phase</th>
               </tr>
             </thead>
             <tbody>

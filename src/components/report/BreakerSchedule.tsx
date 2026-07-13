@@ -142,14 +142,14 @@ export default function BreakerSchedule({
           <table className="w-full text-sm border-collapse">
             <thead>
               <tr className="bg-gray-100">
-                <th className="border p-2 text-left">Feeder</th>
-                <th className="border p-2 text-left">Building</th>
-                <th className="border p-2 text-center">Floor</th>
-                <th className="border p-2 text-right">Current (A)</th>
-                <th className="border p-2 text-center">Breaker (A)</th>
-                <th className="border p-2 text-left">Breaker Model</th>
-                <th className="border p-2 text-center">Cable (mm²)</th>
-                <th className="border p-2 text-center">Phase</th>
+                <th className="border p-2 text-left w-[20%]">Feeder</th>
+                <th className="border p-2 text-left w-[12%]">Building</th>
+                <th className="border p-2 text-center w-[7%]">Floor</th>
+                <th className="border p-2 text-right w-[10%]">Current (A)</th>
+                <th className="border p-2 text-center w-[10%]">Breaker (A)</th>
+                <th className="border p-2 text-left w-[22%]">Breaker Model</th>
+                <th className="border p-2 text-center w-[10%]">Cable</th>
+                <th className="border p-2 text-center w-[9%]">Phase</th>
               </tr>
             </thead>
             <tbody>

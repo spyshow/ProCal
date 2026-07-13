@@ -103,18 +103,19 @@ export default function MDBSchedule({ project, buildingId }: MDBScheduleProps) {
   return (
     <div className="space-y-4">
       <h2 className="text-lg font-bold border-b pb-2">MDB Feeder Schedule</h2>
+      <div className="overflow-x-auto">
       <table className="w-full text-sm border-collapse">
         <thead>
           <tr className="bg-gray-100">
-            <th className="border p-2 text-left">#</th>
-            <th className="border p-2 text-left">Building</th>
-            <th className="border p-2 text-left">Floor</th>
-            <th className="border p-2 text-left">Feeder</th>
-            <th className="border p-2 text-center">Type</th>
-            <th className="border p-2 text-right">Demand (kW)</th>
-            <th className="border p-2 text-right">Per-Phase Current (A)</th>
-            <th className="border p-2 text-center">Breaker</th>
-            <th className="border p-2 text-center">Cable</th>
+            <th className="border p-2 text-left w-[5%]">#</th>
+            <th className="border p-2 text-left w-[13%]">Building</th>
+            <th className="border p-2 text-center w-[7%]">Floor</th>
+            <th className="border p-2 text-left w-[18%]">Feeder</th>
+            <th className="border p-2 text-center w-[11%]">Type</th>
+            <th className="border p-2 text-right w-[10%]">Demand (kW)</th>
+            <th className="border p-2 text-right w-[12%]">Current (A)</th>
+            <th className="border p-2 text-center w-[10%]">Breaker</th>
+            <th className="border p-2 text-center w-[14%]">Cable</th>
           </tr>
         </thead>
         <tbody>
@@ -138,6 +139,7 @@ export default function MDBSchedule({ project, buildingId }: MDBScheduleProps) {
           ))}
         </tbody>
       </table>
+      </div>
     </div>
   );
 }

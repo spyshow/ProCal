@@ -310,6 +310,7 @@ export type LoadLibraryItemWhereInput = {
   projectId?: Prisma.StringFilter<"LoadLibraryItem"> | string
   project?: Prisma.XOR<Prisma.ProjectScalarRelationFilter, Prisma.ProjectWhereInput>
   floorItems?: Prisma.FloorItemListRelationFilter
+  buildingLoads?: Prisma.BuildingLoadListRelationFilter
 }
 
 export type LoadLibraryItemOrderByWithRelationInput = {
@@ -328,6 +329,7 @@ export type LoadLibraryItemOrderByWithRelationInput = {
   projectId?: Prisma.SortOrder
   project?: Prisma.ProjectOrderByWithRelationInput
   floorItems?: Prisma.FloorItemOrderByRelationAggregateInput
+  buildingLoads?: Prisma.BuildingLoadOrderByRelationAggregateInput
 }
 
 export type LoadLibraryItemWhereUniqueInput = Prisma.AtLeast<{
@@ -349,6 +351,7 @@ export type LoadLibraryItemWhereUniqueInput = Prisma.AtLeast<{
   projectId?: Prisma.StringFilter<"LoadLibraryItem"> | string
   project?: Prisma.XOR<Prisma.ProjectScalarRelationFilter, Prisma.ProjectWhereInput>
   floorItems?: Prisma.FloorItemListRelationFilter
+  buildingLoads?: Prisma.BuildingLoadListRelationFilter
 }, "id">
 
 export type LoadLibraryItemOrderByWithAggregationInput = {
@@ -406,6 +409,7 @@ export type LoadLibraryItemCreateInput = {
   notes?: string | null
   project: Prisma.ProjectCreateNestedOneWithoutLoadLibraryItemsInput
   floorItems?: Prisma.FloorItemCreateNestedManyWithoutLoadLibraryItemInput
+  buildingLoads?: Prisma.BuildingLoadCreateNestedManyWithoutLoadLibraryItemInput
 }
 
 export type LoadLibraryItemUncheckedCreateInput = {
@@ -423,6 +427,7 @@ export type LoadLibraryItemUncheckedCreateInput = {
   notes?: string | null
   projectId: string
   floorItems?: Prisma.FloorItemUncheckedCreateNestedManyWithoutLoadLibraryItemInput
+  buildingLoads?: Prisma.BuildingLoadUncheckedCreateNestedManyWithoutLoadLibraryItemInput
 }
 
 export type LoadLibraryItemUpdateInput = {
@@ -440,6 +445,7 @@ export type LoadLibraryItemUpdateInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   project?: Prisma.ProjectUpdateOneRequiredWithoutLoadLibraryItemsNestedInput
   floorItems?: Prisma.FloorItemUpdateManyWithoutLoadLibraryItemNestedInput
+  buildingLoads?: Prisma.BuildingLoadUpdateManyWithoutLoadLibraryItemNestedInput
 }
 
 export type LoadLibraryItemUncheckedUpdateInput = {
@@ -457,6 +463,7 @@ export type LoadLibraryItemUncheckedUpdateInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   projectId?: Prisma.StringFieldUpdateOperationsInput | string
   floorItems?: Prisma.FloorItemUncheckedUpdateManyWithoutLoadLibraryItemNestedInput
+  buildingLoads?: Prisma.BuildingLoadUncheckedUpdateManyWithoutLoadLibraryItemNestedInput
 }
 
 export type LoadLibraryItemCreateManyInput = {
@@ -514,6 +521,11 @@ export type LoadLibraryItemListRelationFilter = {
 
 export type LoadLibraryItemOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
+}
+
+export type LoadLibraryItemNullableScalarRelationFilter = {
+  is?: Prisma.LoadLibraryItemWhereInput | null
+  isNot?: Prisma.LoadLibraryItemWhereInput | null
 }
 
 export type LoadLibraryItemCountOrderByAggregateInput = {
@@ -586,11 +598,6 @@ export type LoadLibraryItemSumOrderByAggregateInput = {
   startingCurrent?: Prisma.SortOrder
 }
 
-export type LoadLibraryItemNullableScalarRelationFilter = {
-  is?: Prisma.LoadLibraryItemWhereInput | null
-  isNot?: Prisma.LoadLibraryItemWhereInput | null
-}
-
 export type LoadLibraryItemCreateNestedManyWithoutProjectInput = {
   create?: Prisma.XOR<Prisma.LoadLibraryItemCreateWithoutProjectInput, Prisma.LoadLibraryItemUncheckedCreateWithoutProjectInput> | Prisma.LoadLibraryItemCreateWithoutProjectInput[] | Prisma.LoadLibraryItemUncheckedCreateWithoutProjectInput[]
   connectOrCreate?: Prisma.LoadLibraryItemCreateOrConnectWithoutProjectInput | Prisma.LoadLibraryItemCreateOrConnectWithoutProjectInput[]
@@ -633,6 +640,22 @@ export type LoadLibraryItemUncheckedUpdateManyWithoutProjectNestedInput = {
   deleteMany?: Prisma.LoadLibraryItemScalarWhereInput | Prisma.LoadLibraryItemScalarWhereInput[]
 }
 
+export type LoadLibraryItemCreateNestedOneWithoutBuildingLoadsInput = {
+  create?: Prisma.XOR<Prisma.LoadLibraryItemCreateWithoutBuildingLoadsInput, Prisma.LoadLibraryItemUncheckedCreateWithoutBuildingLoadsInput>
+  connectOrCreate?: Prisma.LoadLibraryItemCreateOrConnectWithoutBuildingLoadsInput
+  connect?: Prisma.LoadLibraryItemWhereUniqueInput
+}
+
+export type LoadLibraryItemUpdateOneWithoutBuildingLoadsNestedInput = {
+  create?: Prisma.XOR<Prisma.LoadLibraryItemCreateWithoutBuildingLoadsInput, Prisma.LoadLibraryItemUncheckedCreateWithoutBuildingLoadsInput>
+  connectOrCreate?: Prisma.LoadLibraryItemCreateOrConnectWithoutBuildingLoadsInput
+  upsert?: Prisma.LoadLibraryItemUpsertWithoutBuildingLoadsInput
+  disconnect?: Prisma.LoadLibraryItemWhereInput | boolean
+  delete?: Prisma.LoadLibraryItemWhereInput | boolean
+  connect?: Prisma.LoadLibraryItemWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.LoadLibraryItemUpdateToOneWithWhereWithoutBuildingLoadsInput, Prisma.LoadLibraryItemUpdateWithoutBuildingLoadsInput>, Prisma.LoadLibraryItemUncheckedUpdateWithoutBuildingLoadsInput>
+}
+
 export type LoadLibraryItemCreateNestedOneWithoutFloorItemsInput = {
   create?: Prisma.XOR<Prisma.LoadLibraryItemCreateWithoutFloorItemsInput, Prisma.LoadLibraryItemUncheckedCreateWithoutFloorItemsInput>
   connectOrCreate?: Prisma.LoadLibraryItemCreateOrConnectWithoutFloorItemsInput
@@ -663,6 +686,7 @@ export type LoadLibraryItemCreateWithoutProjectInput = {
   startingCurrent?: number | null
   notes?: string | null
   floorItems?: Prisma.FloorItemCreateNestedManyWithoutLoadLibraryItemInput
+  buildingLoads?: Prisma.BuildingLoadCreateNestedManyWithoutLoadLibraryItemInput
 }
 
 export type LoadLibraryItemUncheckedCreateWithoutProjectInput = {
@@ -679,6 +703,7 @@ export type LoadLibraryItemUncheckedCreateWithoutProjectInput = {
   startingCurrent?: number | null
   notes?: string | null
   floorItems?: Prisma.FloorItemUncheckedCreateNestedManyWithoutLoadLibraryItemInput
+  buildingLoads?: Prisma.BuildingLoadUncheckedCreateNestedManyWithoutLoadLibraryItemInput
 }
 
 export type LoadLibraryItemCreateOrConnectWithoutProjectInput = {
@@ -725,6 +750,90 @@ export type LoadLibraryItemScalarWhereInput = {
   projectId?: Prisma.StringFilter<"LoadLibraryItem"> | string
 }
 
+export type LoadLibraryItemCreateWithoutBuildingLoadsInput = {
+  id?: string
+  name: string
+  category: string
+  power: number
+  voltage?: number
+  phase?: number
+  powerFactor?: number
+  demandFactor?: number
+  quantity?: number
+  runningCurrent?: number
+  startingCurrent?: number | null
+  notes?: string | null
+  project: Prisma.ProjectCreateNestedOneWithoutLoadLibraryItemsInput
+  floorItems?: Prisma.FloorItemCreateNestedManyWithoutLoadLibraryItemInput
+}
+
+export type LoadLibraryItemUncheckedCreateWithoutBuildingLoadsInput = {
+  id?: string
+  name: string
+  category: string
+  power: number
+  voltage?: number
+  phase?: number
+  powerFactor?: number
+  demandFactor?: number
+  quantity?: number
+  runningCurrent?: number
+  startingCurrent?: number | null
+  notes?: string | null
+  projectId: string
+  floorItems?: Prisma.FloorItemUncheckedCreateNestedManyWithoutLoadLibraryItemInput
+}
+
+export type LoadLibraryItemCreateOrConnectWithoutBuildingLoadsInput = {
+  where: Prisma.LoadLibraryItemWhereUniqueInput
+  create: Prisma.XOR<Prisma.LoadLibraryItemCreateWithoutBuildingLoadsInput, Prisma.LoadLibraryItemUncheckedCreateWithoutBuildingLoadsInput>
+}
+
+export type LoadLibraryItemUpsertWithoutBuildingLoadsInput = {
+  update: Prisma.XOR<Prisma.LoadLibraryItemUpdateWithoutBuildingLoadsInput, Prisma.LoadLibraryItemUncheckedUpdateWithoutBuildingLoadsInput>
+  create: Prisma.XOR<Prisma.LoadLibraryItemCreateWithoutBuildingLoadsInput, Prisma.LoadLibraryItemUncheckedCreateWithoutBuildingLoadsInput>
+  where?: Prisma.LoadLibraryItemWhereInput
+}
+
+export type LoadLibraryItemUpdateToOneWithWhereWithoutBuildingLoadsInput = {
+  where?: Prisma.LoadLibraryItemWhereInput
+  data: Prisma.XOR<Prisma.LoadLibraryItemUpdateWithoutBuildingLoadsInput, Prisma.LoadLibraryItemUncheckedUpdateWithoutBuildingLoadsInput>
+}
+
+export type LoadLibraryItemUpdateWithoutBuildingLoadsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  category?: Prisma.StringFieldUpdateOperationsInput | string
+  power?: Prisma.FloatFieldUpdateOperationsInput | number
+  voltage?: Prisma.FloatFieldUpdateOperationsInput | number
+  phase?: Prisma.IntFieldUpdateOperationsInput | number
+  powerFactor?: Prisma.FloatFieldUpdateOperationsInput | number
+  demandFactor?: Prisma.FloatFieldUpdateOperationsInput | number
+  quantity?: Prisma.IntFieldUpdateOperationsInput | number
+  runningCurrent?: Prisma.FloatFieldUpdateOperationsInput | number
+  startingCurrent?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  project?: Prisma.ProjectUpdateOneRequiredWithoutLoadLibraryItemsNestedInput
+  floorItems?: Prisma.FloorItemUpdateManyWithoutLoadLibraryItemNestedInput
+}
+
+export type LoadLibraryItemUncheckedUpdateWithoutBuildingLoadsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  category?: Prisma.StringFieldUpdateOperationsInput | string
+  power?: Prisma.FloatFieldUpdateOperationsInput | number
+  voltage?: Prisma.FloatFieldUpdateOperationsInput | number
+  phase?: Prisma.IntFieldUpdateOperationsInput | number
+  powerFactor?: Prisma.FloatFieldUpdateOperationsInput | number
+  demandFactor?: Prisma.FloatFieldUpdateOperationsInput | number
+  quantity?: Prisma.IntFieldUpdateOperationsInput | number
+  runningCurrent?: Prisma.FloatFieldUpdateOperationsInput | number
+  startingCurrent?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  projectId?: Prisma.StringFieldUpdateOperationsInput | string
+  floorItems?: Prisma.FloorItemUncheckedUpdateManyWithoutLoadLibraryItemNestedInput
+}
+
 export type LoadLibraryItemCreateWithoutFloorItemsInput = {
   id?: string
   name: string
@@ -739,6 +848,7 @@ export type LoadLibraryItemCreateWithoutFloorItemsInput = {
   startingCurrent?: number | null
   notes?: string | null
   project: Prisma.ProjectCreateNestedOneWithoutLoadLibraryItemsInput
+  buildingLoads?: Prisma.BuildingLoadCreateNestedManyWithoutLoadLibraryItemInput
 }
 
 export type LoadLibraryItemUncheckedCreateWithoutFloorItemsInput = {
@@ -755,6 +865,7 @@ export type LoadLibraryItemUncheckedCreateWithoutFloorItemsInput = {
   startingCurrent?: number | null
   notes?: string | null
   projectId: string
+  buildingLoads?: Prisma.BuildingLoadUncheckedCreateNestedManyWithoutLoadLibraryItemInput
 }
 
 export type LoadLibraryItemCreateOrConnectWithoutFloorItemsInput = {
@@ -787,6 +898,7 @@ export type LoadLibraryItemUpdateWithoutFloorItemsInput = {
   startingCurrent?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   project?: Prisma.ProjectUpdateOneRequiredWithoutLoadLibraryItemsNestedInput
+  buildingLoads?: Prisma.BuildingLoadUpdateManyWithoutLoadLibraryItemNestedInput
 }
 
 export type LoadLibraryItemUncheckedUpdateWithoutFloorItemsInput = {
@@ -803,6 +915,7 @@ export type LoadLibraryItemUncheckedUpdateWithoutFloorItemsInput = {
   startingCurrent?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   projectId?: Prisma.StringFieldUpdateOperationsInput | string
+  buildingLoads?: Prisma.BuildingLoadUncheckedUpdateManyWithoutLoadLibraryItemNestedInput
 }
 
 export type LoadLibraryItemCreateManyProjectInput = {
@@ -834,6 +947,7 @@ export type LoadLibraryItemUpdateWithoutProjectInput = {
   startingCurrent?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   floorItems?: Prisma.FloorItemUpdateManyWithoutLoadLibraryItemNestedInput
+  buildingLoads?: Prisma.BuildingLoadUpdateManyWithoutLoadLibraryItemNestedInput
 }
 
 export type LoadLibraryItemUncheckedUpdateWithoutProjectInput = {
@@ -850,6 +964,7 @@ export type LoadLibraryItemUncheckedUpdateWithoutProjectInput = {
   startingCurrent?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   floorItems?: Prisma.FloorItemUncheckedUpdateManyWithoutLoadLibraryItemNestedInput
+  buildingLoads?: Prisma.BuildingLoadUncheckedUpdateManyWithoutLoadLibraryItemNestedInput
 }
 
 export type LoadLibraryItemUncheckedUpdateManyWithoutProjectInput = {
@@ -874,10 +989,12 @@ export type LoadLibraryItemUncheckedUpdateManyWithoutProjectInput = {
 
 export type LoadLibraryItemCountOutputType = {
   floorItems: number
+  buildingLoads: number
 }
 
 export type LoadLibraryItemCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   floorItems?: boolean | LoadLibraryItemCountOutputTypeCountFloorItemsArgs
+  buildingLoads?: boolean | LoadLibraryItemCountOutputTypeCountBuildingLoadsArgs
 }
 
 /**
@@ -897,6 +1014,13 @@ export type LoadLibraryItemCountOutputTypeCountFloorItemsArgs<ExtArgs extends ru
   where?: Prisma.FloorItemWhereInput
 }
 
+/**
+ * LoadLibraryItemCountOutputType without action
+ */
+export type LoadLibraryItemCountOutputTypeCountBuildingLoadsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.BuildingLoadWhereInput
+}
+
 
 export type LoadLibraryItemSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -914,6 +1038,7 @@ export type LoadLibraryItemSelect<ExtArgs extends runtime.Types.Extensions.Inter
   projectId?: boolean
   project?: boolean | Prisma.ProjectDefaultArgs<ExtArgs>
   floorItems?: boolean | Prisma.LoadLibraryItem$floorItemsArgs<ExtArgs>
+  buildingLoads?: boolean | Prisma.LoadLibraryItem$buildingLoadsArgs<ExtArgs>
   _count?: boolean | Prisma.LoadLibraryItemCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["loadLibraryItem"]>
 
@@ -971,6 +1096,7 @@ export type LoadLibraryItemOmit<ExtArgs extends runtime.Types.Extensions.Interna
 export type LoadLibraryItemInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   project?: boolean | Prisma.ProjectDefaultArgs<ExtArgs>
   floorItems?: boolean | Prisma.LoadLibraryItem$floorItemsArgs<ExtArgs>
+  buildingLoads?: boolean | Prisma.LoadLibraryItem$buildingLoadsArgs<ExtArgs>
   _count?: boolean | Prisma.LoadLibraryItemCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type LoadLibraryItemIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -985,6 +1111,7 @@ export type $LoadLibraryItemPayload<ExtArgs extends runtime.Types.Extensions.Int
   objects: {
     project: Prisma.$ProjectPayload<ExtArgs>
     floorItems: Prisma.$FloorItemPayload<ExtArgs>[]
+    buildingLoads: Prisma.$BuildingLoadPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1396,6 +1523,7 @@ export interface Prisma__LoadLibraryItemClient<T, Null = never, ExtArgs extends 
   readonly [Symbol.toStringTag]: "PrismaPromise"
   project<T extends Prisma.ProjectDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProjectDefaultArgs<ExtArgs>>): Prisma.Prisma__ProjectClient<runtime.Types.Result.GetResult<Prisma.$ProjectPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   floorItems<T extends Prisma.LoadLibraryItem$floorItemsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LoadLibraryItem$floorItemsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FloorItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  buildingLoads<T extends Prisma.LoadLibraryItem$buildingLoadsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LoadLibraryItem$buildingLoadsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BuildingLoadPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1858,6 +1986,30 @@ export type LoadLibraryItem$floorItemsArgs<ExtArgs extends runtime.Types.Extensi
   take?: number
   skip?: number
   distinct?: Prisma.FloorItemScalarFieldEnum | Prisma.FloorItemScalarFieldEnum[]
+}
+
+/**
+ * LoadLibraryItem.buildingLoads
+ */
+export type LoadLibraryItem$buildingLoadsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the BuildingLoad
+   */
+  select?: Prisma.BuildingLoadSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the BuildingLoad
+   */
+  omit?: Prisma.BuildingLoadOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.BuildingLoadInclude<ExtArgs> | null
+  where?: Prisma.BuildingLoadWhereInput
+  orderBy?: Prisma.BuildingLoadOrderByWithRelationInput | Prisma.BuildingLoadOrderByWithRelationInput[]
+  cursor?: Prisma.BuildingLoadWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.BuildingLoadScalarFieldEnum | Prisma.BuildingLoadScalarFieldEnum[]
 }
 
 /**

@@ -25,17 +25,28 @@ interface FloorDesign {
   items: any[];
 }
 
+interface BuildingLoad {
+  id: string;
+  buildingId: string;
+  loadLibraryItemId: string | null;
+  loadLibraryItem: {
+    id: string;
+    name: string;
+    category: string;
+    power: number;
+    phase: number;
+    voltage: number;
+    powerFactor: number;
+  } | null;
+  quantity: number;
+}
+
 interface Building {
   id: string;
   name: string;
   floors: number;
   serviceFloors: number;
   apartmentsPerFloor: number;
-  elevators: number;
-  waterPumps: number;
-  firePump: boolean;
-  splitAc: number;
-  centralAc: number;
   supplyVoltage: string;
   earthingSystem: string;
   lightningProtection: boolean;
@@ -43,6 +54,7 @@ interface Building {
   transformer: number | null;
   mechanicalLoads: string | null;
   floorDesigns: FloorDesign[];
+  buildingLoads: BuildingLoad[];
 }
 
 interface Project {
@@ -85,11 +97,6 @@ export default function ProjectDetailPage() {
     floors: 10,
     serviceFloors: 0,
     apartmentsPerFloor: 4,
-    elevators: 2,
-    waterPumps: 2,
-    firePump: false,
-    splitAc: 0,
-    centralAc: 0,
     supplyVoltage: '400V 3-Phase',
     earthingSystem: 'TN-S',
     lightningProtection: false,
@@ -144,11 +151,6 @@ export default function ProjectDetailPage() {
       floors: b.floors,
       serviceFloors: b.serviceFloors,
       apartmentsPerFloor: b.apartmentsPerFloor,
-      elevators: b.elevators,
-      waterPumps: b.waterPumps,
-      firePump: b.firePump,
-      splitAc: b.splitAc,
-      centralAc: b.centralAc,
       supplyVoltage: b.supplyVoltage,
       earthingSystem: b.earthingSystem,
       lightningProtection: b.lightningProtection,
@@ -192,6 +194,35 @@ export default function ProjectDetailPage() {
     setShowNewBuilding(false);
     loadProject();
     refreshProject();
+  };
+
+  // Building Loads (attach load-library items to a building)
+  const [showAddBuildingLoad, setShowAddBuildingLoad] = useState<string | null>(null);
+  const [buildingLoadForm, setBuildingLoadForm] = useState({ loadLibraryItemId: '', quantity: 1 });
+
+  const handleAddBuildingLoad = async (buildingId: string) => {
+    if (!buildingLoadForm.loadLibraryItemId) {
+      alert('Select a load from the library first');
+      return;
+    }
+    const res = await fetch(`/api/buildings/${buildingId}/loads`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(buildingLoadForm),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      alert(err.error || 'Failed to attach building load');
+      return;
+    }
+    setBuildingLoadForm({ loadLibraryItemId: '', quantity: 1 });
+    setShowAddBuildingLoad(null);
+    loadProject();
+  };
+
+  const handleDeleteBuildingLoad = async (loadId: string) => {
+    await fetch(`/api/building-loads/${loadId}`, { method: 'DELETE' });
+    loadProject();
   };
 
   // Template CRUD
@@ -469,27 +500,7 @@ export default function ProjectDetailPage() {
                   <label className="block text-xs text-gray-400 mb-1">Apartments/Floor</label>
                   <input name="apartmentsPerFloor" type="number" defaultValue="4" className="dense-input w-full rounded" />
                 </div>
-                <div>
-                  <label className="block text-xs text-gray-400 mb-1">Elevators</label>
-                  <input name="elevators" type="number" defaultValue="2" className="dense-input w-full rounded" />
-                </div>
-                <div>
-                  <label className="block text-xs text-gray-400 mb-1">Water Pumps</label>
-                  <input name="waterPumps" type="number" defaultValue="2" className="dense-input w-full rounded" />
-                </div>
-                <div>
-                  <label className="block text-xs text-gray-400 mb-1">Split AC Units</label>
-                  <input name="splitAc" type="number" defaultValue="0" className="dense-input w-full rounded" />
-                </div>
-                <div>
-                  <label className="block text-xs text-gray-400 mb-1">Central AC (kW)</label>
-                  <input name="centralAc" type="number" step="0.1" defaultValue="0" className="dense-input w-full rounded" />
-                </div>
                 <div className="flex items-end gap-4">
-                  <label className="flex items-center gap-2 text-xs text-gray-400">
-                    <input name="firePump" type="checkbox" className="accent-orange-500" />
-                    Fire Pump
-                  </label>
                   <label className="flex items-center gap-2 text-xs text-gray-400">
                     <input name="lightningProtection" type="checkbox" className="accent-orange-500" />
                     Lightning
@@ -526,7 +537,7 @@ export default function ProjectDetailPage() {
                     <div className="flex-1">
                       <p className="text-sm font-semibold text-gray-200">{bldg.name}</p>
                       <p className="text-xs text-gray-500">
-                        {bldg.floors} floors · {bldg.serviceFloors} service · {totalApts} apartments · {bldg.elevators} elevators · {bldg.waterPumps} pumps
+                        {bldg.floors} floors · {bldg.serviceFloors} service · {totalApts} apartments · {bldg.buildingLoads?.length || 0} building loads
                       </p>
                     </div>
                     <div className="flex items-center gap-1">
@@ -611,6 +622,101 @@ export default function ProjectDetailPage() {
                             ))}
                         </div>
                       )}
+
+                      {/* Building Loads — attach load-library items (elevator, pumps, AC, fire pump) */}
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Building Loads</h4>
+                          <button
+                            onClick={() => {
+                              setBuildingLoadForm({ loadLibraryItemId: '', quantity: 1 });
+                              setShowAddBuildingLoad(showAddBuildingLoad === bldg.id ? null : bldg.id);
+                            }}
+                            className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-gray-800 hover:bg-gray-700 text-xs text-gray-400 hover:text-orange-400"
+                          >
+                            <Plus size={12} />
+                            Add Building Load
+                          </button>
+                        </div>
+
+                        {(bldg.buildingLoads?.length || 0) === 0 ? (
+                          <p className="text-xs text-gray-600">
+                            No building loads. Add elevator, pumps, AC, and fire pump from the load library.
+                          </p>
+                        ) : (
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                            {bldg.buildingLoads.map((bl) => (
+                              <div
+                                key={bl.id}
+                                className="flex items-center gap-3 p-2.5 rounded-lg border border-gray-800 bg-gray-800/30"
+                              >
+                                <Zap size={14} className="text-orange-500 flex-shrink-0" />
+                                <div className="flex-1 min-w-0">
+                                  <p className="text-xs text-gray-200 truncate">
+                                    {bl.loadLibraryItem?.name ?? '(deleted)'}
+                                  </p>
+                                  <p className="text-[10px] text-gray-500">
+                                    {bl.loadLibraryItem?.category ?? '—'} · {bl.quantity} × {(bl.loadLibraryItem?.power ?? 0).toFixed(1)} kW
+                                  </p>
+                                </div>
+                                <button
+                                  onClick={() => handleDeleteBuildingLoad(bl.id)}
+                                  className="p-1 rounded text-gray-600 hover:text-red-400"
+                                  title="Remove building load"
+                                >
+                                  <Trash2 size={12} />
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+
+                        {showAddBuildingLoad === bldg.id && (
+                          <div className="rounded-lg border border-gray-700 bg-gray-800/50 p-3 space-y-2">
+                            <div className="flex gap-2 items-end">
+                              <div className="flex-1">
+                                <label className="block text-[10px] text-gray-500 mb-1">From Library</label>
+                                <select
+                                  value={buildingLoadForm.loadLibraryItemId}
+                                  onChange={(e) => setBuildingLoadForm({ ...buildingLoadForm, loadLibraryItemId: e.target.value })}
+                                  className="dense-input w-full rounded"
+                                >
+                                  <option value="">Select load…</option>
+                                  <optgroup label="From Library">
+                                    {(project?.loadLibraryItems || []).map((l: any) => (
+                                      <option key={l.id} value={l.id}>
+                                        {l.name} — {l.power}kW ({l.category})
+                                      </option>
+                                    ))}
+                                  </optgroup>
+                                </select>
+                              </div>
+                              <div>
+                                <label className="block text-[10px] text-gray-500 mb-1">Qty</label>
+                                <input
+                                  type="number"
+                                  min="1"
+                                  value={buildingLoadForm.quantity}
+                                  onChange={(e) => setBuildingLoadForm({ ...buildingLoadForm, quantity: parseInt(e.target.value) || 1 })}
+                                  className="dense-input w-16 rounded"
+                                />
+                              </div>
+                              <button
+                                onClick={() => handleAddBuildingLoad(bldg.id)}
+                                className="px-3 py-1.5 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-xs font-semibold"
+                              >
+                                Add
+                              </button>
+                              <button
+                                onClick={() => setShowAddBuildingLoad(null)}
+                                className="px-3 py-1.5 rounded-lg bg-gray-700 text-gray-300 text-xs"
+                              >
+                                Cancel
+                              </button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   )}
                 </div>
@@ -669,43 +775,6 @@ export default function ProjectDetailPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs text-gray-400 mb-1">Elevators</label>
-                  <input
-                    type="number"
-                    value={buildingForm.elevators}
-                    onChange={(e) => setBuildingForm({ ...buildingForm, elevators: Number(e.target.value) })}
-                    className="dense-input w-full rounded"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs text-gray-400 mb-1">Water Pumps</label>
-                  <input
-                    type="number"
-                    value={buildingForm.waterPumps}
-                    onChange={(e) => setBuildingForm({ ...buildingForm, waterPumps: Number(e.target.value) })}
-                    className="dense-input w-full rounded"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs text-gray-400 mb-1">Split AC Units</label>
-                  <input
-                    type="number"
-                    value={buildingForm.splitAc}
-                    onChange={(e) => setBuildingForm({ ...buildingForm, splitAc: Number(e.target.value) })}
-                    className="dense-input w-full rounded"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs text-gray-400 mb-1">Central AC (kW)</label>
-                  <input
-                    type="number"
-                    step="0.1"
-                    value={buildingForm.centralAc}
-                    onChange={(e) => setBuildingForm({ ...buildingForm, centralAc: Number(e.target.value) })}
-                    className="dense-input w-full rounded"
-                  />
-                </div>
-                <div>
                   <label className="block text-xs text-gray-400 mb-1">Supply Voltage</label>
                   <select
                     value={buildingForm.supplyVoltage}
@@ -755,15 +824,6 @@ export default function ProjectDetailPage() {
               </div>
 
               <div className="flex items-center gap-4">
-                <label className="flex items-center gap-2 text-xs text-gray-400">
-                  <input
-                    type="checkbox"
-                    checked={buildingForm.firePump}
-                    onChange={(e) => setBuildingForm({ ...buildingForm, firePump: e.target.checked })}
-                    className="accent-orange-500"
-                  />
-                  Fire Pump
-                </label>
                 <label className="flex items-center gap-2 text-xs text-gray-400">
                   <input
                     type="checkbox"

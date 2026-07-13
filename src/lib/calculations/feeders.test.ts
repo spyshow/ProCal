@@ -38,9 +38,9 @@ function item(overrides: Partial<FloorItem> = {}): FloorItem {
 function building(overrides: Partial<Building> = {}): Building {
   return {
     id: 'b1', name: 'Tower A', floors: 2, serviceFloors: 0, apartmentsPerFloor: 2,
-    elevators: 0, waterPumps: 0, firePump: false, splitAc: 0, centralAc: 0,
     supplyVoltage: '400', earthingSystem: 'TN-S', lightningProtection: false,
     floorDesigns: [],
+    buildingLoads: [],
     ...overrides,
   };
 }
@@ -164,9 +164,15 @@ describe('computeFeeders', () => {
 
   it('adds an elevator building-load feeder', () => {
     const findBreaker = createFindBreaker(equipment, {}, 'ABB');
-    const bldg = building({ elevators: 1, floorDesigns: [{ id: 'f1', floorNumber: 1, hasFloorSubPanels: false, items: [] }] });
+    const bldg = building({
+      buildingLoads: [{
+        id: 'bl1', buildingId: 'b1', loadLibraryItemId: 'l1', quantity: 1,
+        loadLibraryItem: { id: 'l1', name: 'Elevator', category: 'Elevator', power: 22, voltage: 400, phase: 3, powerFactor: 0.85, demandFactor: 1, quantity: 1, runningCurrent: 0, startingCurrent: null, notes: null },
+      }],
+      floorDesigns: [{ id: 'f1', floorNumber: 1, hasFloorSubPanels: false, items: [] }],
+    });
     const { mdbFeeders } = computeFeeders(bldg, baseProject, findBreaker);
-    expect(mdbFeeders.find((f) => f.type === 'ELEVATOR')).toBeDefined();
+    expect(mdbFeeders.find((f) => f.type === 'Elevator')).toBeDefined();
   });
 
   it('smdbFeeders(floorNumber) returns per-apartment feeders for a sub-panel floor', () => {
@@ -183,11 +189,17 @@ describe('computeFeeders', () => {
     expect(f[0].name).toBe('F3 – Apt A');
   });
 
-  it('uses building.centralAc as kW, not a hardcoded 50 kW multiplier', () => {
+  it('uses building load library item power as kW', () => {
     const findBreaker = createFindBreaker(equipment, {}, 'ABB');
-    const bldg = building({ centralAc: 15, floorDesigns: [{ id: 'f1', floorNumber: 1, hasFloorSubPanels: false, items: [] }] });
+    const bldg = building({
+      buildingLoads: [{
+        id: 'bl1', buildingId: 'b1', loadLibraryItemId: 'l1', quantity: 1,
+        loadLibraryItem: { id: 'l1', name: 'Central AC', category: 'AC', power: 15, voltage: 400, phase: 3, powerFactor: 0.85, demandFactor: 1, quantity: 1, runningCurrent: 0, startingCurrent: null, notes: null },
+      }],
+      floorDesigns: [{ id: 'f1', floorNumber: 1, hasFloorSubPanels: false, items: [] }],
+    });
     const { mdbFeeders } = computeFeeders(bldg, baseProject, findBreaker);
-    const ac = mdbFeeders.find((f) => f.type === 'CENTRAL_AC')!;
+    const ac = mdbFeeders.find((f) => f.type === 'AC')!;
     // 15 kW @ 400V 3-phase 0.85pf ≈ 25.5 A, so breaker should be much smaller than 1600A.
     expect(ac.current).toBeCloseTo(15 / (Math.sqrt(3) * 0.4 * 0.85), 1);
     expect(ac.breakerSize).toBeLessThan(100);

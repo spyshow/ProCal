@@ -79,9 +79,9 @@ function item(overrides: Partial<FloorItem> = {}): FloorItem {
 function building(overrides: Partial<Building> = {}): Building {
   return {
     id: 'b1', name: 'Tower A', floors: 2, serviceFloors: 0, apartmentsPerFloor: 2,
-    elevators: 0, waterPumps: 0, firePump: false, splitAc: 0, centralAc: 0,
     supplyVoltage: '400', earthingSystem: 'TN-S', lightningProtection: false,
     floorDesigns: [],
+    buildingLoads: [],
     ...overrides,
   };
 }
@@ -388,13 +388,16 @@ describe('aggregateBreakerRows', () => {
 
   it('includes building-load feeders (water pump, elevator, etc.)', () => {
     const bldg = building({
-      waterPumps: 1,
+      buildingLoads: [{
+        id: 'bl1', buildingId: 'b1', loadLibraryItemId: 'l1', quantity: 1,
+        loadLibraryItem: { id: 'l1', name: 'Water Pump', category: 'Pump', power: 7.5, voltage: 400, phase: 3, powerFactor: 0.85, demandFactor: 1, quantity: 1, runningCurrent: 0, startingCurrent: null, notes: null },
+      }],
       floorDesigns: [{ id: 'f1', floorNumber: 1, hasFloorSubPanels: false, items: [] }],
     });
 
     const rows = aggregateBreakerRows(projectWithBuildings([bldg]), findBreaker);
 
-    expect(rows.find((r) => r.type === 'WATER_PUMP')).toBeDefined();
+    expect(rows.find((r) => r.type === 'Pump')).toBeDefined();
   });
 
   it('uses fallback breaker model when no equipment is found', () => {

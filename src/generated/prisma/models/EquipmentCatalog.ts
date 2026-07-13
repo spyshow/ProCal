@@ -301,6 +301,7 @@ export type EquipmentCatalogOrderByWithRelationInput = {
 
 export type EquipmentCatalogWhereUniqueInput = Prisma.AtLeast<{
   id?: string
+  catalogUniqueKey?: Prisma.EquipmentCatalogCatalogUniqueKeyCompoundUniqueInput
   AND?: Prisma.EquipmentCatalogWhereInput | Prisma.EquipmentCatalogWhereInput[]
   OR?: Prisma.EquipmentCatalogWhereInput[]
   NOT?: Prisma.EquipmentCatalogWhereInput | Prisma.EquipmentCatalogWhereInput[]
@@ -316,7 +317,7 @@ export type EquipmentCatalogWhereUniqueInput = Prisma.AtLeast<{
   datasheetUrl?: Prisma.StringNullableFilter<"EquipmentCatalog"> | string | null
   familyId?: Prisma.StringNullableFilter<"EquipmentCatalog"> | string | null
   family?: Prisma.XOR<Prisma.BreakerFamilyNullableScalarRelationFilter, Prisma.BreakerFamilyWhereInput> | null
-}, "id">
+}, "id" | "catalogUniqueKey">
 
 export type EquipmentCatalogOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -458,6 +459,15 @@ export type EquipmentCatalogUncheckedUpdateManyInput = {
   settingsJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   datasheetUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   familyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+}
+
+export type EquipmentCatalogCatalogUniqueKeyCompoundUniqueInput = {
+  manufacturer: string
+  category: string
+  series: string
+  model: string
+  ratedCurrent: number
+  poles: number
 }
 
 export type EquipmentCatalogCountOrderByAggregateInput = {

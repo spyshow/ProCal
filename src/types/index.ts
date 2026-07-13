@@ -53,17 +53,24 @@ export interface FloorDesign {
   items: FloorItem[];
 }
 
+export interface BuildingLoad {
+  id: string;
+  buildingId: string;
+  loadLibraryItemId: string | null;
+  loadLibraryItem: LoadLibraryItem | null;
+  quantity: number;
+  cableSize?: string | null;
+  cableLength?: number | null;
+  installMethod?: string | null;
+  cableInsulation?: string | null;
+}
+
 export interface Building {
   id: string;
   name: string;
   floors: number;
   serviceFloors: number;
   apartmentsPerFloor: number;
-  elevators: number;
-  waterPumps: number;
-  firePump: boolean;
-  splitAc: number;
-  centralAc: number;
   supplyVoltage: string;
   earthingSystem: string;
   lightningProtection: boolean;
@@ -71,6 +78,7 @@ export interface Building {
   generator?: number | null;
   transformer?: number | null;
   floorDesigns: FloorDesign[];
+  buildingLoads: BuildingLoad[];
 }
 
 export interface Project {

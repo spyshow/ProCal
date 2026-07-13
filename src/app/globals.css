@@ -225,6 +225,7 @@ body {
   /* Keep tables together when possible but let rows break across pages cleanly */
   table {
     width: 100% !important;
+    table-layout: fixed !important;
     border-collapse: collapse !important;
     page-break-inside: auto;
     break-inside: auto;
@@ -240,9 +241,13 @@ body {
   }
 
   th, td {
-    padding: 6px 8px !important;
-    font-size: 9pt !important;
+    padding: 4px 6px !important;
+    font-size: 8pt !important;
     border: 1px solid #d1d5db !important;
+    overflow-wrap: break-word !important;
+    word-wrap: break-word !important;
+    word-break: break-word !important;
+    white-space: normal !important;
   }
 
   th {
@@ -253,6 +258,17 @@ body {
 
   td {
     background-color: white !important;
+  }
+
+  /* Scale wide tables to fit the printable area */
+  .report-section table,
+  #print-all-tabs table {
+    max-width: 100% !important;
+  }
+
+  /* Remove scroll wrappers in print — tables should fit natively */
+  #print-all-tabs .overflow-x-auto {
+    overflow: visible !important;
   }
 
   /* Keep images within the page */

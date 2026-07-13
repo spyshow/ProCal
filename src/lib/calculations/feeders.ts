@@ -1,5 +1,5 @@
 import { sizeCableAndBreaker } from "./cables";
-import type { Building, FloorItem, PanelFeeder, Project } from "@/types";
+import type { Building, BuildingLoad, FloorItem, PanelFeeder, Project } from "@/types";
 
 /**
  * Equipment catalog entry — a breaker/MCCB/ACB model from /api/equipment.
@@ -265,32 +265,30 @@ function feederFromItem(
 
 /**
  * Building-load feeder (elevator, water pump, fire pump, split AC, central AC).
- * These are 3-phase mechanical loads sized per the building's voltage.
+ * These are mechanical loads sized from the attached LoadLibraryItem's power × quantity.
+ * `current` and `isThreePhase` are computed by the caller from the library item so a
+ * 1-phase library item stays 1-phase; routing is MCCB (building service loads).
  */
 function feederFromBuildingLoad(
   name: string,
   type: string,
-  kw: number,
-  count: number,
-  project: Project,
+  current: number,
+  isThreePhase: boolean,
   findBreaker: FindBreaker
 ): PanelFeeder | null {
-  if (count <= 0 || kw <= 0) return null;
-  const totalKw = kw * count;
-  // kVA → current via the project's actual voltage (not a hardcoded 0.4 kV).
-  const current =
-    totalKw / (Math.sqrt(3) * (project.voltage / 1000) * project.powerFactor);
-  const sizing = sizeCableAndBreaker(current, true, {
+  if (current <= 0) return null;
+  const sizing = sizeCableAndBreaker(current, isThreePhase, {
     material: "copper",
     insulation: "XLPE",
     ambientTemp: 30,
     groupingCount: 1,
   });
-  const match = findBreaker(sizing.breakerSize, "MCCB", 3);
+  const poles: 1 | 3 = isThreePhase ? 3 : 1;
+  const match = findBreaker(sizing.breakerSize, "MCCB", poles);
   const actualBreakerSize = Math.max(sizing.breakerSize, match.ratedCurrent ?? 0);
   const finalSizing =
     actualBreakerSize > sizing.breakerSize
-      ? sizeCableAndBreaker(actualBreakerSize, true, {
+      ? sizeCableAndBreaker(actualBreakerSize, isThreePhase, {
           material: "copper",
           insulation: "XLPE",
           ambientTemp: 30,
@@ -309,7 +307,7 @@ function feederFromBuildingLoad(
     manufacturer: match.manufacturer,
     familyName: match.familyName,
     fallback: match.fallback,
-    isThreePhase: true,
+    isThreePhase,
   };
 }
 
@@ -391,16 +389,26 @@ export function computeFeeders(
     }
   }
 
-  // Other building mechanical loads (3-phase, sized per project voltage).
-  const pushLoad = (name: string, type: string, kw: number, count: number) => {
-    const f = feederFromBuildingLoad(name, type, kw, count, project, findBreaker);
+  // Building mechanical loads (elevator, pumps, AC, fire pump) attached from the
+  // load library. Each BuildingLoad references a LoadLibraryItem; current is derived
+  // from the library item's power × quantity and its own voltage/phase/powerFactor.
+  for (const bl of building.buildingLoads ?? []) {
+    const lib = bl.loadLibraryItem;
+    if (!lib || lib.power <= 0 || bl.quantity <= 0) continue;
+    const totalKw = lib.power * bl.quantity;
+    const isThreePhase = lib.phase === 3;
+    const current = isThreePhase
+      ? totalKw / (Math.sqrt(3) * (lib.voltage / 1000) * lib.powerFactor)
+      : totalKw / ((lib.voltage / 1000) * lib.powerFactor);
+    const f = feederFromBuildingLoad(
+      lib.name,
+      lib.category,
+      current,
+      isThreePhase,
+      findBreaker
+    );
     if (f) mdbFeeders.push(f);
-  };
-  pushLoad("Elevator(s)", "ELEVATOR", 22, building.elevators);
-  pushLoad("Water Pump(s)", "WATER_PUMP", 7.5, building.waterPumps);
-  if (building.firePump) pushLoad("Fire Pump", "FIRE_PUMP", 15, 1);
-  pushLoad("Split AC Panel", "SPLIT_AC", 5, building.splitAc);
-  pushLoad("Central AC", "CENTRAL_AC", building.centralAc, 1);
+  }
 
   const smdbFloorNumbers = building.floorDesigns
     .filter((fd) => fd.hasFloorSubPanels)

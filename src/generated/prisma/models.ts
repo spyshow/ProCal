@@ -11,6 +11,7 @@
 export type * from './models/User'
 export type * from './models/Project'
 export type * from './models/Building'
+export type * from './models/BuildingLoad'
 export type * from './models/ApartmentTemplate'
 export type * from './models/ApartmentRoom'
 export type * from './models/LoadLibraryItem'

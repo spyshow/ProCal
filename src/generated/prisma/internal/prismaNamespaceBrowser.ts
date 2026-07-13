@@ -54,6 +54,7 @@ export const ModelName = {
   User: 'User',
   Project: 'Project',
   Building: 'Building',
+  BuildingLoad: 'BuildingLoad',
   ApartmentTemplate: 'ApartmentTemplate',
   ApartmentRoom: 'ApartmentRoom',
   LoadLibraryItem: 'LoadLibraryItem',
@@ -125,12 +126,7 @@ export const BuildingScalarFieldEnum = {
   floors: 'floors',
   serviceFloors: 'serviceFloors',
   apartmentsPerFloor: 'apartmentsPerFloor',
-  elevators: 'elevators',
-  waterPumps: 'waterPumps',
-  firePump: 'firePump',
   mechanicalLoads: 'mechanicalLoads',
-  splitAc: 'splitAc',
-  centralAc: 'centralAc',
   generator: 'generator',
   transformer: 'transformer',
   supplyVoltage: 'supplyVoltage',
@@ -142,6 +138,22 @@ export const BuildingScalarFieldEnum = {
 } as const
 
 export type BuildingScalarFieldEnum = (typeof BuildingScalarFieldEnum)[keyof typeof BuildingScalarFieldEnum]
+
+
+export const BuildingLoadScalarFieldEnum = {
+  id: 'id',
+  buildingId: 'buildingId',
+  loadLibraryItemId: 'loadLibraryItemId',
+  quantity: 'quantity',
+  cableSize: 'cableSize',
+  cableLength: 'cableLength',
+  installMethod: 'installMethod',
+  cableInsulation: 'cableInsulation',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type BuildingLoadScalarFieldEnum = (typeof BuildingLoadScalarFieldEnum)[keyof typeof BuildingLoadScalarFieldEnum]
 
 
 export const ApartmentTemplateScalarFieldEnum = {

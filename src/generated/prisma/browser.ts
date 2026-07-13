@@ -33,6 +33,11 @@ export type Project = Prisma.ProjectModel
  */
 export type Building = Prisma.BuildingModel
 /**
+ * Model BuildingLoad
+ * 
+ */
+export type BuildingLoad = Prisma.BuildingLoadModel
+/**
  * Model ApartmentTemplate
  * 
  */

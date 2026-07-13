@@ -50,15 +50,16 @@ export default function VDSchedule({ project, buildingId }: VDScheduleProps) {
   return (
     <div className="space-y-4">
       <h2 className="text-lg font-bold border-b pb-2">Voltage Drop Schedule</h2>
+      <div className="overflow-x-auto">
       <table className="w-full text-sm border-collapse">
         <thead>
           <tr className="bg-gray-100">
-            <th className="border p-2 text-left">Circuit</th>
-            <th className="border p-2 text-right">Per-Phase Current (A)</th>
-            <th className="border p-2 text-center">Cable (mm²)</th>
-            <th className="border p-2 text-right">Est. Length (m)</th>
-            <th className="border p-2 text-right">VDrop (%)</th>
-            <th className="border p-2 text-center">Status</th>
+            <th className="border p-2 text-left w-[20%]">Circuit</th>
+            <th className="border p-2 text-right w-[16%]">Current (A)</th>
+            <th className="border p-2 text-center w-[14%]">Cable (mm²)</th>
+            <th className="border p-2 text-right w-[16%]">Length (m)</th>
+            <th className="border p-2 text-right w-[14%]">VDrop (%)</th>
+            <th className="border p-2 text-center w-[20%]">Status</th>
           </tr>
         </thead>
         <tbody>
@@ -84,6 +85,7 @@ export default function VDSchedule({ project, buildingId }: VDScheduleProps) {
           ))}
         </tbody>
       </table>
+      </div>
       <p className="text-xs text-gray-500 mt-2">
         IEC 60364-5-52 limits: 3% for lighting, 5% for power loads.
       </p>

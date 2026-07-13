@@ -50,16 +50,17 @@ export default function CableSchedule({ project, buildingId }: CableScheduleProp
   return (
     <div className="space-y-4">
       <h2 className="text-lg font-bold border-b pb-2">Cable Sizing Schedule</h2>
+      <div className="overflow-x-auto">
       <table className="w-full text-sm border-collapse">
         <thead>
           <tr className="bg-gray-100">
-            <th className="border p-2 text-left">Circuit</th>
-            <th className="border p-2 text-center">Phase</th>
-            <th className="border p-2 text-right">Per-Phase Current (A)</th>
-            <th className="border p-2 text-center">Breaker (A)</th>
-            <th className="border p-2 text-center">Cable (mm²)</th>
-            <th className="border p-2 text-center">Method</th>
-            <th className="border p-2 text-center">Insulation</th>
+            <th className="border p-2 text-left w-[18%]">Circuit</th>
+            <th className="border p-2 text-center w-[8%]">Phase</th>
+            <th className="border p-2 text-right w-[16%]">Current (A)</th>
+            <th className="border p-2 text-center w-[12%]">Breaker (A)</th>
+            <th className="border p-2 text-center w-[14%]">Cable (mm²)</th>
+            <th className="border p-2 text-center w-[16%]">Method</th>
+            <th className="border p-2 text-center w-[16%]">Insulation</th>
           </tr>
         </thead>
         <tbody>
@@ -76,6 +77,7 @@ export default function CableSchedule({ project, buildingId }: CableScheduleProp
           ))}
         </tbody>
       </table>
+      </div>
     </div>
   );
 }

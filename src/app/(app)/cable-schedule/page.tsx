@@ -25,6 +25,7 @@ interface CableEntry {
   method: string;
   insulation: 'PVC' | 'XLPE';
   ampacity: number;
+  kind: 'floor' | 'building';
 }
 
 export default function CableSchedulePage() {
@@ -145,9 +146,58 @@ export default function CableSchedulePage() {
             method,
             insulation,
             ampacity: result.ampacity,
+            kind: 'floor',
           });
         });
       }
+
+      // Building loads (elevator, pumps, AC, fire pump) — attached from the load library.
+      (bldg.buildingLoads || []).forEach((bl, idx) => {
+        const lib = bl.loadLibraryItem;
+        if (!lib) return; // orphaned (library item deleted) — skip
+        const letter = String.fromCharCode(97 + idx);
+        const loadTag = `BL-${letter.toUpperCase()} ${lib.name}`;
+        const cableTag = `Wbl${letter}`;
+        const cableSizeNum = parseFloat(bl.cableSize || '') || 4;
+        const isThreePhase = lib.phase === 3;
+        const totalKw = lib.power * bl.quantity;
+        const current = isThreePhase
+          ? totalKw / (Math.sqrt(3) * (lib.voltage / 1000) * lib.powerFactor)
+          : totalKw / ((lib.voltage / 1000) * lib.powerFactor);
+        const length = bl.cableLength || 10;
+        const method = bl.installMethod || 'C';
+        const insulation = (bl.cableInsulation as 'PVC' | 'XLPE') || 'XLPE';
+
+        const result = recalculateCable({
+          current,
+          isThreePhase,
+          lengthMeters: length,
+          existingCableSize: cableSizeNum,
+          powerFactor: project.powerFactor || 0.85,
+          systemVoltage: project.voltage === 400 ? 400 : 230,
+          maxVoltageDropPercent: limits.power,
+          method,
+          insulation,
+        });
+
+        cableList.push({
+          id: bl.id,
+          name: loadTag,
+          cableName: cableTag,
+          floor: 0, // building-level loads group separately
+          length,
+          cableSize: cableSizeNum,
+          current,
+          isThreePhase,
+          newCableSize: result.cableSize,
+          newVD: result.voltageDropPercent,
+          changed: result.changed,
+          method,
+          insulation,
+          ampacity: result.ampacity,
+          kind: 'building',
+        });
+      });
     }
     setCables(cableList);
   }, [project]);
@@ -177,7 +227,10 @@ export default function CableSchedulePage() {
       if (field === 'length') payload.cableLength = value;
       if (field === 'method') payload.installMethod = value;
       if (field === 'insulation') payload.cableInsulation = value;
-      fetch(`/api/floor-items/${id}`, {
+      const patchUrl = c.kind === 'building'
+        ? `/api/building-loads/${id}`
+        : `/api/floor-items/${id}`;
+      fetch(patchUrl, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
@@ -230,7 +283,7 @@ export default function CableSchedulePage() {
 
     try {
       await Promise.all(changedCables.map(c =>
-        fetch(`/api/floor-items/${c.id}`, {
+        fetch(c.kind === 'building' ? `/api/building-loads/${c.id}` : `/api/floor-items/${c.id}`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ cableSize: `${c.newCableSize}` }),
@@ -294,7 +347,7 @@ export default function CableSchedulePage() {
     try {
       // Save all cables to database first
       await Promise.all(cables.map(c =>
-        fetch(`/api/floor-items/${c.id}`, {
+        fetch(c.kind === 'building' ? `/api/building-loads/${c.id}` : `/api/floor-items/${c.id}`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ installMethod: defaultMethod, cableInsulation: defaultInsulation }),
@@ -484,7 +537,9 @@ export default function CableSchedulePage() {
         {floors.map(floor => (
           <div key={floor} className="rounded-xl border border-gray-800 bg-gray-900/40 p-4 space-y-3">
             <div className="flex items-center gap-2 mb-2">
-              <span className="text-sm font-bold text-orange-400">Floor {floor}</span>
+              <span className="text-sm font-bold text-orange-400">
+                {floor === 0 ? 'Building Loads' : `Floor ${floor}`}
+              </span>
               <span className="text-xs text-gray-500">({cablesByFloor[floor].length} circuits)</span>
             </div>
 

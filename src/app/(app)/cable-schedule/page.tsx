@@ -1,4 +1,5 @@
 'use client';
+/* eslint-disable react-hooks/set-state-in-effect, @typescript-eslint/no-explicit-any */
 
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { useProject } from '@/context/ProjectContext';
@@ -355,7 +356,7 @@ export default function CableSchedulePage() {
                 {cablesNeedingUpsize.length} cable{cablesNeedingUpsize.length > 1 ? 's' : ''} need{cablesNeedingUpsize.length === 1 ? 's' : ''} upsize
               </p>
               <p className="text-xs text-yellow-400/70">
-                Click "Apply" to save the new cable sizes to the database
+                Click &quot;Apply&quot; to save the new cable sizes to the database
               </p>
             </div>
           </div>
@@ -569,7 +570,7 @@ export default function CableSchedulePage() {
 
       {/* Legend */}
       <div className="text-[10px] text-gray-600 space-y-1">
-        <p>Edit cable lengths, method, and insulation — values save automatically. Click "Recalculate All" to refresh.</p>
+        <p>Edit cable lengths, method, and insulation — values save automatically. Click &quot;Recalculate All&quot; to refresh.</p>
         <p><span className="text-blue-400">Method:</span> B1/B2 = in conduit, C = clipped directly, E = spaced, F = on tray, G = on ladder</p>
         <p><span className="text-blue-400">Insulation:</span> XLPE rated 90°C, PVC rated 70°C. XLPE allows higher ampacity.</p>
         <p>IEC 60364-5-52 limits: 3% lighting, 5% power. <span className="text-yellow-400">UP</span> = cable upsized to meet VD limit.</p>
@@ -585,7 +586,7 @@ export default function CableSchedulePage() {
               </div>
               <div>
                 <h3 className="text-lg font-bold text-white">Unsaved Changes</h3>
-                <p className="text-sm text-gray-400">You have cable upsizes that haven't been applied.</p>
+                <p className="text-sm text-gray-400">You have cable upsizes that haven&apos;t been applied.</p>
               </div>
             </div>
             <p className="text-sm text-gray-300">

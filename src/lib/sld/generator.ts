@@ -114,8 +114,6 @@ export function generateSLDPages(project: SLDProject): SLDPage[] {
 
   if (allFloors.length === 0) return pages;
 
-  const txKva = project.transformerSize || 1000;
-
   for (let i = 0; i < allFloors.length; i++) {
     const { fd } = allFloors[i];
     const floorCurrent = fd.items.reduce((s, item) => s + item.calculatedCurrent, 0);

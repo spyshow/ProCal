@@ -18,7 +18,7 @@ export async function verifyJWT(token: string) {
   try {
     const { payload } = await jwtVerify(token, JWT_SECRET);
     return payload as { userId: string; username: string };
-  } catch (e) {
+  } catch {
     return null;
   }
 }
@@ -40,7 +40,7 @@ export async function getSessionUser() {
       select: { id: true, username: true, name: true },
     });
     return user;
-  } catch (error) {
+  } catch {
     return null;
   }
 }

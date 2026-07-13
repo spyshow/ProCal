@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeAll, afterAll } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { calculateRoomLoad } from '@/lib/country-defaults';
 import { COUNTRY_DEFAULTS } from '@/lib/country-defaults';
 

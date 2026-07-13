@@ -5,7 +5,7 @@ import { readFile, writeFile, mkdir } from "fs/promises";
 import path from "path";
 
 // In-memory storage for country settings
-let globalSettings: Record<string, CountryConfig> = { ...COUNTRY_DEFAULTS };
+const globalSettings: Record<string, CountryConfig> = { ...COUNTRY_DEFAULTS };
 
 // File-based storage for company settings (persists across restarts)
 const CONFIG_DIR = path.join(process.cwd(), "data");

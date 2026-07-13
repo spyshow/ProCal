@@ -30,10 +30,6 @@ export type BuildingAvgAggregateOutputType = {
   floors: number | null
   serviceFloors: number | null
   apartmentsPerFloor: number | null
-  elevators: number | null
-  waterPumps: number | null
-  splitAc: number | null
-  centralAc: number | null
   generator: number | null
   transformer: number | null
 }
@@ -42,10 +38,6 @@ export type BuildingSumAggregateOutputType = {
   floors: number | null
   serviceFloors: number | null
   apartmentsPerFloor: number | null
-  elevators: number | null
-  waterPumps: number | null
-  splitAc: number | null
-  centralAc: number | null
   generator: number | null
   transformer: number | null
 }
@@ -56,12 +48,7 @@ export type BuildingMinAggregateOutputType = {
   floors: number | null
   serviceFloors: number | null
   apartmentsPerFloor: number | null
-  elevators: number | null
-  waterPumps: number | null
-  firePump: boolean | null
   mechanicalLoads: string | null
-  splitAc: number | null
-  centralAc: number | null
   generator: number | null
   transformer: number | null
   supplyVoltage: string | null
@@ -78,12 +65,7 @@ export type BuildingMaxAggregateOutputType = {
   floors: number | null
   serviceFloors: number | null
   apartmentsPerFloor: number | null
-  elevators: number | null
-  waterPumps: number | null
-  firePump: boolean | null
   mechanicalLoads: string | null
-  splitAc: number | null
-  centralAc: number | null
   generator: number | null
   transformer: number | null
   supplyVoltage: string | null
@@ -100,12 +82,7 @@ export type BuildingCountAggregateOutputType = {
   floors: number
   serviceFloors: number
   apartmentsPerFloor: number
-  elevators: number
-  waterPumps: number
-  firePump: number
   mechanicalLoads: number
-  splitAc: number
-  centralAc: number
   generator: number
   transformer: number
   supplyVoltage: number
@@ -122,10 +99,6 @@ export type BuildingAvgAggregateInputType = {
   floors?: true
   serviceFloors?: true
   apartmentsPerFloor?: true
-  elevators?: true
-  waterPumps?: true
-  splitAc?: true
-  centralAc?: true
   generator?: true
   transformer?: true
 }
@@ -134,10 +107,6 @@ export type BuildingSumAggregateInputType = {
   floors?: true
   serviceFloors?: true
   apartmentsPerFloor?: true
-  elevators?: true
-  waterPumps?: true
-  splitAc?: true
-  centralAc?: true
   generator?: true
   transformer?: true
 }
@@ -148,12 +117,7 @@ export type BuildingMinAggregateInputType = {
   floors?: true
   serviceFloors?: true
   apartmentsPerFloor?: true
-  elevators?: true
-  waterPumps?: true
-  firePump?: true
   mechanicalLoads?: true
-  splitAc?: true
-  centralAc?: true
   generator?: true
   transformer?: true
   supplyVoltage?: true
@@ -170,12 +134,7 @@ export type BuildingMaxAggregateInputType = {
   floors?: true
   serviceFloors?: true
   apartmentsPerFloor?: true
-  elevators?: true
-  waterPumps?: true
-  firePump?: true
   mechanicalLoads?: true
-  splitAc?: true
-  centralAc?: true
   generator?: true
   transformer?: true
   supplyVoltage?: true
@@ -192,12 +151,7 @@ export type BuildingCountAggregateInputType = {
   floors?: true
   serviceFloors?: true
   apartmentsPerFloor?: true
-  elevators?: true
-  waterPumps?: true
-  firePump?: true
   mechanicalLoads?: true
-  splitAc?: true
-  centralAc?: true
   generator?: true
   transformer?: true
   supplyVoltage?: true
@@ -301,12 +255,7 @@ export type BuildingGroupByOutputType = {
   floors: number
   serviceFloors: number
   apartmentsPerFloor: number
-  elevators: number
-  waterPumps: number
-  firePump: boolean
   mechanicalLoads: string | null
-  splitAc: number
-  centralAc: number
   generator: number | null
   transformer: number | null
   supplyVoltage: string
@@ -346,12 +295,7 @@ export type BuildingWhereInput = {
   floors?: Prisma.IntFilter<"Building"> | number
   serviceFloors?: Prisma.IntFilter<"Building"> | number
   apartmentsPerFloor?: Prisma.IntFilter<"Building"> | number
-  elevators?: Prisma.IntFilter<"Building"> | number
-  waterPumps?: Prisma.IntFilter<"Building"> | number
-  firePump?: Prisma.BoolFilter<"Building"> | boolean
   mechanicalLoads?: Prisma.StringNullableFilter<"Building"> | string | null
-  splitAc?: Prisma.IntFilter<"Building"> | number
-  centralAc?: Prisma.FloatFilter<"Building"> | number
   generator?: Prisma.FloatNullableFilter<"Building"> | number | null
   transformer?: Prisma.FloatNullableFilter<"Building"> | number | null
   supplyVoltage?: Prisma.StringFilter<"Building"> | string
@@ -362,6 +306,7 @@ export type BuildingWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"Building"> | Date | string
   project?: Prisma.XOR<Prisma.ProjectScalarRelationFilter, Prisma.ProjectWhereInput>
   floorDesigns?: Prisma.FloorDesignListRelationFilter
+  buildingLoads?: Prisma.BuildingLoadListRelationFilter
 }
 
 export type BuildingOrderByWithRelationInput = {
@@ -370,12 +315,7 @@ export type BuildingOrderByWithRelationInput = {
   floors?: Prisma.SortOrder
   serviceFloors?: Prisma.SortOrder
   apartmentsPerFloor?: Prisma.SortOrder
-  elevators?: Prisma.SortOrder
-  waterPumps?: Prisma.SortOrder
-  firePump?: Prisma.SortOrder
   mechanicalLoads?: Prisma.SortOrderInput | Prisma.SortOrder
-  splitAc?: Prisma.SortOrder
-  centralAc?: Prisma.SortOrder
   generator?: Prisma.SortOrderInput | Prisma.SortOrder
   transformer?: Prisma.SortOrderInput | Prisma.SortOrder
   supplyVoltage?: Prisma.SortOrder
@@ -386,6 +326,7 @@ export type BuildingOrderByWithRelationInput = {
   updatedAt?: Prisma.SortOrder
   project?: Prisma.ProjectOrderByWithRelationInput
   floorDesigns?: Prisma.FloorDesignOrderByRelationAggregateInput
+  buildingLoads?: Prisma.BuildingLoadOrderByRelationAggregateInput
 }
 
 export type BuildingWhereUniqueInput = Prisma.AtLeast<{
@@ -397,12 +338,7 @@ export type BuildingWhereUniqueInput = Prisma.AtLeast<{
   floors?: Prisma.IntFilter<"Building"> | number
   serviceFloors?: Prisma.IntFilter<"Building"> | number
   apartmentsPerFloor?: Prisma.IntFilter<"Building"> | number
-  elevators?: Prisma.IntFilter<"Building"> | number
-  waterPumps?: Prisma.IntFilter<"Building"> | number
-  firePump?: Prisma.BoolFilter<"Building"> | boolean
   mechanicalLoads?: Prisma.StringNullableFilter<"Building"> | string | null
-  splitAc?: Prisma.IntFilter<"Building"> | number
-  centralAc?: Prisma.FloatFilter<"Building"> | number
   generator?: Prisma.FloatNullableFilter<"Building"> | number | null
   transformer?: Prisma.FloatNullableFilter<"Building"> | number | null
   supplyVoltage?: Prisma.StringFilter<"Building"> | string
@@ -413,6 +349,7 @@ export type BuildingWhereUniqueInput = Prisma.AtLeast<{
   updatedAt?: Prisma.DateTimeFilter<"Building"> | Date | string
   project?: Prisma.XOR<Prisma.ProjectScalarRelationFilter, Prisma.ProjectWhereInput>
   floorDesigns?: Prisma.FloorDesignListRelationFilter
+  buildingLoads?: Prisma.BuildingLoadListRelationFilter
 }, "id">
 
 export type BuildingOrderByWithAggregationInput = {
@@ -421,12 +358,7 @@ export type BuildingOrderByWithAggregationInput = {
   floors?: Prisma.SortOrder
   serviceFloors?: Prisma.SortOrder
   apartmentsPerFloor?: Prisma.SortOrder
-  elevators?: Prisma.SortOrder
-  waterPumps?: Prisma.SortOrder
-  firePump?: Prisma.SortOrder
   mechanicalLoads?: Prisma.SortOrderInput | Prisma.SortOrder
-  splitAc?: Prisma.SortOrder
-  centralAc?: Prisma.SortOrder
   generator?: Prisma.SortOrderInput | Prisma.SortOrder
   transformer?: Prisma.SortOrderInput | Prisma.SortOrder
   supplyVoltage?: Prisma.SortOrder
@@ -451,12 +383,7 @@ export type BuildingScalarWhereWithAggregatesInput = {
   floors?: Prisma.IntWithAggregatesFilter<"Building"> | number
   serviceFloors?: Prisma.IntWithAggregatesFilter<"Building"> | number
   apartmentsPerFloor?: Prisma.IntWithAggregatesFilter<"Building"> | number
-  elevators?: Prisma.IntWithAggregatesFilter<"Building"> | number
-  waterPumps?: Prisma.IntWithAggregatesFilter<"Building"> | number
-  firePump?: Prisma.BoolWithAggregatesFilter<"Building"> | boolean
   mechanicalLoads?: Prisma.StringNullableWithAggregatesFilter<"Building"> | string | null
-  splitAc?: Prisma.IntWithAggregatesFilter<"Building"> | number
-  centralAc?: Prisma.FloatWithAggregatesFilter<"Building"> | number
   generator?: Prisma.FloatNullableWithAggregatesFilter<"Building"> | number | null
   transformer?: Prisma.FloatNullableWithAggregatesFilter<"Building"> | number | null
   supplyVoltage?: Prisma.StringWithAggregatesFilter<"Building"> | string
@@ -473,12 +400,7 @@ export type BuildingCreateInput = {
   floors: number
   serviceFloors: number
   apartmentsPerFloor: number
-  elevators?: number
-  waterPumps?: number
-  firePump?: boolean
   mechanicalLoads?: string | null
-  splitAc?: number
-  centralAc?: number
   generator?: number | null
   transformer?: number | null
   supplyVoltage?: string
@@ -488,6 +410,7 @@ export type BuildingCreateInput = {
   updatedAt?: Date | string
   project: Prisma.ProjectCreateNestedOneWithoutBuildingsInput
   floorDesigns?: Prisma.FloorDesignCreateNestedManyWithoutBuildingInput
+  buildingLoads?: Prisma.BuildingLoadCreateNestedManyWithoutBuildingInput
 }
 
 export type BuildingUncheckedCreateInput = {
@@ -496,12 +419,7 @@ export type BuildingUncheckedCreateInput = {
   floors: number
   serviceFloors: number
   apartmentsPerFloor: number
-  elevators?: number
-  waterPumps?: number
-  firePump?: boolean
   mechanicalLoads?: string | null
-  splitAc?: number
-  centralAc?: number
   generator?: number | null
   transformer?: number | null
   supplyVoltage?: string
@@ -511,6 +429,7 @@ export type BuildingUncheckedCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   floorDesigns?: Prisma.FloorDesignUncheckedCreateNestedManyWithoutBuildingInput
+  buildingLoads?: Prisma.BuildingLoadUncheckedCreateNestedManyWithoutBuildingInput
 }
 
 export type BuildingUpdateInput = {
@@ -519,12 +438,7 @@ export type BuildingUpdateInput = {
   floors?: Prisma.IntFieldUpdateOperationsInput | number
   serviceFloors?: Prisma.IntFieldUpdateOperationsInput | number
   apartmentsPerFloor?: Prisma.IntFieldUpdateOperationsInput | number
-  elevators?: Prisma.IntFieldUpdateOperationsInput | number
-  waterPumps?: Prisma.IntFieldUpdateOperationsInput | number
-  firePump?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mechanicalLoads?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  splitAc?: Prisma.IntFieldUpdateOperationsInput | number
-  centralAc?: Prisma.FloatFieldUpdateOperationsInput | number
   generator?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   transformer?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   supplyVoltage?: Prisma.StringFieldUpdateOperationsInput | string
@@ -534,6 +448,7 @@ export type BuildingUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   project?: Prisma.ProjectUpdateOneRequiredWithoutBuildingsNestedInput
   floorDesigns?: Prisma.FloorDesignUpdateManyWithoutBuildingNestedInput
+  buildingLoads?: Prisma.BuildingLoadUpdateManyWithoutBuildingNestedInput
 }
 
 export type BuildingUncheckedUpdateInput = {
@@ -542,12 +457,7 @@ export type BuildingUncheckedUpdateInput = {
   floors?: Prisma.IntFieldUpdateOperationsInput | number
   serviceFloors?: Prisma.IntFieldUpdateOperationsInput | number
   apartmentsPerFloor?: Prisma.IntFieldUpdateOperationsInput | number
-  elevators?: Prisma.IntFieldUpdateOperationsInput | number
-  waterPumps?: Prisma.IntFieldUpdateOperationsInput | number
-  firePump?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mechanicalLoads?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  splitAc?: Prisma.IntFieldUpdateOperationsInput | number
-  centralAc?: Prisma.FloatFieldUpdateOperationsInput | number
   generator?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   transformer?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   supplyVoltage?: Prisma.StringFieldUpdateOperationsInput | string
@@ -557,6 +467,7 @@ export type BuildingUncheckedUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   floorDesigns?: Prisma.FloorDesignUncheckedUpdateManyWithoutBuildingNestedInput
+  buildingLoads?: Prisma.BuildingLoadUncheckedUpdateManyWithoutBuildingNestedInput
 }
 
 export type BuildingCreateManyInput = {
@@ -565,12 +476,7 @@ export type BuildingCreateManyInput = {
   floors: number
   serviceFloors: number
   apartmentsPerFloor: number
-  elevators?: number
-  waterPumps?: number
-  firePump?: boolean
   mechanicalLoads?: string | null
-  splitAc?: number
-  centralAc?: number
   generator?: number | null
   transformer?: number | null
   supplyVoltage?: string
@@ -587,12 +493,7 @@ export type BuildingUpdateManyMutationInput = {
   floors?: Prisma.IntFieldUpdateOperationsInput | number
   serviceFloors?: Prisma.IntFieldUpdateOperationsInput | number
   apartmentsPerFloor?: Prisma.IntFieldUpdateOperationsInput | number
-  elevators?: Prisma.IntFieldUpdateOperationsInput | number
-  waterPumps?: Prisma.IntFieldUpdateOperationsInput | number
-  firePump?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mechanicalLoads?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  splitAc?: Prisma.IntFieldUpdateOperationsInput | number
-  centralAc?: Prisma.FloatFieldUpdateOperationsInput | number
   generator?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   transformer?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   supplyVoltage?: Prisma.StringFieldUpdateOperationsInput | string
@@ -608,12 +509,7 @@ export type BuildingUncheckedUpdateManyInput = {
   floors?: Prisma.IntFieldUpdateOperationsInput | number
   serviceFloors?: Prisma.IntFieldUpdateOperationsInput | number
   apartmentsPerFloor?: Prisma.IntFieldUpdateOperationsInput | number
-  elevators?: Prisma.IntFieldUpdateOperationsInput | number
-  waterPumps?: Prisma.IntFieldUpdateOperationsInput | number
-  firePump?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mechanicalLoads?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  splitAc?: Prisma.IntFieldUpdateOperationsInput | number
-  centralAc?: Prisma.FloatFieldUpdateOperationsInput | number
   generator?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   transformer?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   supplyVoltage?: Prisma.StringFieldUpdateOperationsInput | string
@@ -640,12 +536,7 @@ export type BuildingCountOrderByAggregateInput = {
   floors?: Prisma.SortOrder
   serviceFloors?: Prisma.SortOrder
   apartmentsPerFloor?: Prisma.SortOrder
-  elevators?: Prisma.SortOrder
-  waterPumps?: Prisma.SortOrder
-  firePump?: Prisma.SortOrder
   mechanicalLoads?: Prisma.SortOrder
-  splitAc?: Prisma.SortOrder
-  centralAc?: Prisma.SortOrder
   generator?: Prisma.SortOrder
   transformer?: Prisma.SortOrder
   supplyVoltage?: Prisma.SortOrder
@@ -660,10 +551,6 @@ export type BuildingAvgOrderByAggregateInput = {
   floors?: Prisma.SortOrder
   serviceFloors?: Prisma.SortOrder
   apartmentsPerFloor?: Prisma.SortOrder
-  elevators?: Prisma.SortOrder
-  waterPumps?: Prisma.SortOrder
-  splitAc?: Prisma.SortOrder
-  centralAc?: Prisma.SortOrder
   generator?: Prisma.SortOrder
   transformer?: Prisma.SortOrder
 }
@@ -674,12 +561,7 @@ export type BuildingMaxOrderByAggregateInput = {
   floors?: Prisma.SortOrder
   serviceFloors?: Prisma.SortOrder
   apartmentsPerFloor?: Prisma.SortOrder
-  elevators?: Prisma.SortOrder
-  waterPumps?: Prisma.SortOrder
-  firePump?: Prisma.SortOrder
   mechanicalLoads?: Prisma.SortOrder
-  splitAc?: Prisma.SortOrder
-  centralAc?: Prisma.SortOrder
   generator?: Prisma.SortOrder
   transformer?: Prisma.SortOrder
   supplyVoltage?: Prisma.SortOrder
@@ -696,12 +578,7 @@ export type BuildingMinOrderByAggregateInput = {
   floors?: Prisma.SortOrder
   serviceFloors?: Prisma.SortOrder
   apartmentsPerFloor?: Prisma.SortOrder
-  elevators?: Prisma.SortOrder
-  waterPumps?: Prisma.SortOrder
-  firePump?: Prisma.SortOrder
   mechanicalLoads?: Prisma.SortOrder
-  splitAc?: Prisma.SortOrder
-  centralAc?: Prisma.SortOrder
   generator?: Prisma.SortOrder
   transformer?: Prisma.SortOrder
   supplyVoltage?: Prisma.SortOrder
@@ -716,10 +593,6 @@ export type BuildingSumOrderByAggregateInput = {
   floors?: Prisma.SortOrder
   serviceFloors?: Prisma.SortOrder
   apartmentsPerFloor?: Prisma.SortOrder
-  elevators?: Prisma.SortOrder
-  waterPumps?: Prisma.SortOrder
-  splitAc?: Prisma.SortOrder
-  centralAc?: Prisma.SortOrder
   generator?: Prisma.SortOrder
   transformer?: Prisma.SortOrder
 }
@@ -783,6 +656,20 @@ export type BoolFieldUpdateOperationsInput = {
   set?: boolean
 }
 
+export type BuildingCreateNestedOneWithoutBuildingLoadsInput = {
+  create?: Prisma.XOR<Prisma.BuildingCreateWithoutBuildingLoadsInput, Prisma.BuildingUncheckedCreateWithoutBuildingLoadsInput>
+  connectOrCreate?: Prisma.BuildingCreateOrConnectWithoutBuildingLoadsInput
+  connect?: Prisma.BuildingWhereUniqueInput
+}
+
+export type BuildingUpdateOneRequiredWithoutBuildingLoadsNestedInput = {
+  create?: Prisma.XOR<Prisma.BuildingCreateWithoutBuildingLoadsInput, Prisma.BuildingUncheckedCreateWithoutBuildingLoadsInput>
+  connectOrCreate?: Prisma.BuildingCreateOrConnectWithoutBuildingLoadsInput
+  upsert?: Prisma.BuildingUpsertWithoutBuildingLoadsInput
+  connect?: Prisma.BuildingWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.BuildingUpdateToOneWithWhereWithoutBuildingLoadsInput, Prisma.BuildingUpdateWithoutBuildingLoadsInput>, Prisma.BuildingUncheckedUpdateWithoutBuildingLoadsInput>
+}
+
 export type BuildingCreateNestedOneWithoutFloorDesignsInput = {
   create?: Prisma.XOR<Prisma.BuildingCreateWithoutFloorDesignsInput, Prisma.BuildingUncheckedCreateWithoutFloorDesignsInput>
   connectOrCreate?: Prisma.BuildingCreateOrConnectWithoutFloorDesignsInput
@@ -803,12 +690,7 @@ export type BuildingCreateWithoutProjectInput = {
   floors: number
   serviceFloors: number
   apartmentsPerFloor: number
-  elevators?: number
-  waterPumps?: number
-  firePump?: boolean
   mechanicalLoads?: string | null
-  splitAc?: number
-  centralAc?: number
   generator?: number | null
   transformer?: number | null
   supplyVoltage?: string
@@ -817,6 +699,7 @@ export type BuildingCreateWithoutProjectInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   floorDesigns?: Prisma.FloorDesignCreateNestedManyWithoutBuildingInput
+  buildingLoads?: Prisma.BuildingLoadCreateNestedManyWithoutBuildingInput
 }
 
 export type BuildingUncheckedCreateWithoutProjectInput = {
@@ -825,12 +708,7 @@ export type BuildingUncheckedCreateWithoutProjectInput = {
   floors: number
   serviceFloors: number
   apartmentsPerFloor: number
-  elevators?: number
-  waterPumps?: number
-  firePump?: boolean
   mechanicalLoads?: string | null
-  splitAc?: number
-  centralAc?: number
   generator?: number | null
   transformer?: number | null
   supplyVoltage?: string
@@ -839,6 +717,7 @@ export type BuildingUncheckedCreateWithoutProjectInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   floorDesigns?: Prisma.FloorDesignUncheckedCreateNestedManyWithoutBuildingInput
+  buildingLoads?: Prisma.BuildingLoadUncheckedCreateNestedManyWithoutBuildingInput
 }
 
 export type BuildingCreateOrConnectWithoutProjectInput = {
@@ -875,12 +754,7 @@ export type BuildingScalarWhereInput = {
   floors?: Prisma.IntFilter<"Building"> | number
   serviceFloors?: Prisma.IntFilter<"Building"> | number
   apartmentsPerFloor?: Prisma.IntFilter<"Building"> | number
-  elevators?: Prisma.IntFilter<"Building"> | number
-  waterPumps?: Prisma.IntFilter<"Building"> | number
-  firePump?: Prisma.BoolFilter<"Building"> | boolean
   mechanicalLoads?: Prisma.StringNullableFilter<"Building"> | string | null
-  splitAc?: Prisma.IntFilter<"Building"> | number
-  centralAc?: Prisma.FloatFilter<"Building"> | number
   generator?: Prisma.FloatNullableFilter<"Building"> | number | null
   transformer?: Prisma.FloatNullableFilter<"Building"> | number | null
   supplyVoltage?: Prisma.StringFilter<"Building"> | string
@@ -891,18 +765,13 @@ export type BuildingScalarWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"Building"> | Date | string
 }
 
-export type BuildingCreateWithoutFloorDesignsInput = {
+export type BuildingCreateWithoutBuildingLoadsInput = {
   id?: string
   name: string
   floors: number
   serviceFloors: number
   apartmentsPerFloor: number
-  elevators?: number
-  waterPumps?: number
-  firePump?: boolean
   mechanicalLoads?: string | null
-  splitAc?: number
-  centralAc?: number
   generator?: number | null
   transformer?: number | null
   supplyVoltage?: string
@@ -911,20 +780,16 @@ export type BuildingCreateWithoutFloorDesignsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   project: Prisma.ProjectCreateNestedOneWithoutBuildingsInput
+  floorDesigns?: Prisma.FloorDesignCreateNestedManyWithoutBuildingInput
 }
 
-export type BuildingUncheckedCreateWithoutFloorDesignsInput = {
+export type BuildingUncheckedCreateWithoutBuildingLoadsInput = {
   id?: string
   name: string
   floors: number
   serviceFloors: number
   apartmentsPerFloor: number
-  elevators?: number
-  waterPumps?: number
-  firePump?: boolean
   mechanicalLoads?: string | null
-  splitAc?: number
-  centralAc?: number
   generator?: number | null
   transformer?: number | null
   supplyVoltage?: string
@@ -933,6 +798,95 @@ export type BuildingUncheckedCreateWithoutFloorDesignsInput = {
   projectId: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  floorDesigns?: Prisma.FloorDesignUncheckedCreateNestedManyWithoutBuildingInput
+}
+
+export type BuildingCreateOrConnectWithoutBuildingLoadsInput = {
+  where: Prisma.BuildingWhereUniqueInput
+  create: Prisma.XOR<Prisma.BuildingCreateWithoutBuildingLoadsInput, Prisma.BuildingUncheckedCreateWithoutBuildingLoadsInput>
+}
+
+export type BuildingUpsertWithoutBuildingLoadsInput = {
+  update: Prisma.XOR<Prisma.BuildingUpdateWithoutBuildingLoadsInput, Prisma.BuildingUncheckedUpdateWithoutBuildingLoadsInput>
+  create: Prisma.XOR<Prisma.BuildingCreateWithoutBuildingLoadsInput, Prisma.BuildingUncheckedCreateWithoutBuildingLoadsInput>
+  where?: Prisma.BuildingWhereInput
+}
+
+export type BuildingUpdateToOneWithWhereWithoutBuildingLoadsInput = {
+  where?: Prisma.BuildingWhereInput
+  data: Prisma.XOR<Prisma.BuildingUpdateWithoutBuildingLoadsInput, Prisma.BuildingUncheckedUpdateWithoutBuildingLoadsInput>
+}
+
+export type BuildingUpdateWithoutBuildingLoadsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  floors?: Prisma.IntFieldUpdateOperationsInput | number
+  serviceFloors?: Prisma.IntFieldUpdateOperationsInput | number
+  apartmentsPerFloor?: Prisma.IntFieldUpdateOperationsInput | number
+  mechanicalLoads?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  generator?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  transformer?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  supplyVoltage?: Prisma.StringFieldUpdateOperationsInput | string
+  earthingSystem?: Prisma.StringFieldUpdateOperationsInput | string
+  lightningProtection?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  project?: Prisma.ProjectUpdateOneRequiredWithoutBuildingsNestedInput
+  floorDesigns?: Prisma.FloorDesignUpdateManyWithoutBuildingNestedInput
+}
+
+export type BuildingUncheckedUpdateWithoutBuildingLoadsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  floors?: Prisma.IntFieldUpdateOperationsInput | number
+  serviceFloors?: Prisma.IntFieldUpdateOperationsInput | number
+  apartmentsPerFloor?: Prisma.IntFieldUpdateOperationsInput | number
+  mechanicalLoads?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  generator?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  transformer?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  supplyVoltage?: Prisma.StringFieldUpdateOperationsInput | string
+  earthingSystem?: Prisma.StringFieldUpdateOperationsInput | string
+  lightningProtection?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  projectId?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  floorDesigns?: Prisma.FloorDesignUncheckedUpdateManyWithoutBuildingNestedInput
+}
+
+export type BuildingCreateWithoutFloorDesignsInput = {
+  id?: string
+  name: string
+  floors: number
+  serviceFloors: number
+  apartmentsPerFloor: number
+  mechanicalLoads?: string | null
+  generator?: number | null
+  transformer?: number | null
+  supplyVoltage?: string
+  earthingSystem?: string
+  lightningProtection?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  project: Prisma.ProjectCreateNestedOneWithoutBuildingsInput
+  buildingLoads?: Prisma.BuildingLoadCreateNestedManyWithoutBuildingInput
+}
+
+export type BuildingUncheckedCreateWithoutFloorDesignsInput = {
+  id?: string
+  name: string
+  floors: number
+  serviceFloors: number
+  apartmentsPerFloor: number
+  mechanicalLoads?: string | null
+  generator?: number | null
+  transformer?: number | null
+  supplyVoltage?: string
+  earthingSystem?: string
+  lightningProtection?: boolean
+  projectId: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  buildingLoads?: Prisma.BuildingLoadUncheckedCreateNestedManyWithoutBuildingInput
 }
 
 export type BuildingCreateOrConnectWithoutFloorDesignsInput = {
@@ -957,12 +911,7 @@ export type BuildingUpdateWithoutFloorDesignsInput = {
   floors?: Prisma.IntFieldUpdateOperationsInput | number
   serviceFloors?: Prisma.IntFieldUpdateOperationsInput | number
   apartmentsPerFloor?: Prisma.IntFieldUpdateOperationsInput | number
-  elevators?: Prisma.IntFieldUpdateOperationsInput | number
-  waterPumps?: Prisma.IntFieldUpdateOperationsInput | number
-  firePump?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mechanicalLoads?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  splitAc?: Prisma.IntFieldUpdateOperationsInput | number
-  centralAc?: Prisma.FloatFieldUpdateOperationsInput | number
   generator?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   transformer?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   supplyVoltage?: Prisma.StringFieldUpdateOperationsInput | string
@@ -971,6 +920,7 @@ export type BuildingUpdateWithoutFloorDesignsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   project?: Prisma.ProjectUpdateOneRequiredWithoutBuildingsNestedInput
+  buildingLoads?: Prisma.BuildingLoadUpdateManyWithoutBuildingNestedInput
 }
 
 export type BuildingUncheckedUpdateWithoutFloorDesignsInput = {
@@ -979,12 +929,7 @@ export type BuildingUncheckedUpdateWithoutFloorDesignsInput = {
   floors?: Prisma.IntFieldUpdateOperationsInput | number
   serviceFloors?: Prisma.IntFieldUpdateOperationsInput | number
   apartmentsPerFloor?: Prisma.IntFieldUpdateOperationsInput | number
-  elevators?: Prisma.IntFieldUpdateOperationsInput | number
-  waterPumps?: Prisma.IntFieldUpdateOperationsInput | number
-  firePump?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mechanicalLoads?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  splitAc?: Prisma.IntFieldUpdateOperationsInput | number
-  centralAc?: Prisma.FloatFieldUpdateOperationsInput | number
   generator?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   transformer?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   supplyVoltage?: Prisma.StringFieldUpdateOperationsInput | string
@@ -993,6 +938,7 @@ export type BuildingUncheckedUpdateWithoutFloorDesignsInput = {
   projectId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  buildingLoads?: Prisma.BuildingLoadUncheckedUpdateManyWithoutBuildingNestedInput
 }
 
 export type BuildingCreateManyProjectInput = {
@@ -1001,12 +947,7 @@ export type BuildingCreateManyProjectInput = {
   floors: number
   serviceFloors: number
   apartmentsPerFloor: number
-  elevators?: number
-  waterPumps?: number
-  firePump?: boolean
   mechanicalLoads?: string | null
-  splitAc?: number
-  centralAc?: number
   generator?: number | null
   transformer?: number | null
   supplyVoltage?: string
@@ -1022,12 +963,7 @@ export type BuildingUpdateWithoutProjectInput = {
   floors?: Prisma.IntFieldUpdateOperationsInput | number
   serviceFloors?: Prisma.IntFieldUpdateOperationsInput | number
   apartmentsPerFloor?: Prisma.IntFieldUpdateOperationsInput | number
-  elevators?: Prisma.IntFieldUpdateOperationsInput | number
-  waterPumps?: Prisma.IntFieldUpdateOperationsInput | number
-  firePump?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mechanicalLoads?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  splitAc?: Prisma.IntFieldUpdateOperationsInput | number
-  centralAc?: Prisma.FloatFieldUpdateOperationsInput | number
   generator?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   transformer?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   supplyVoltage?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1036,6 +972,7 @@ export type BuildingUpdateWithoutProjectInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   floorDesigns?: Prisma.FloorDesignUpdateManyWithoutBuildingNestedInput
+  buildingLoads?: Prisma.BuildingLoadUpdateManyWithoutBuildingNestedInput
 }
 
 export type BuildingUncheckedUpdateWithoutProjectInput = {
@@ -1044,12 +981,7 @@ export type BuildingUncheckedUpdateWithoutProjectInput = {
   floors?: Prisma.IntFieldUpdateOperationsInput | number
   serviceFloors?: Prisma.IntFieldUpdateOperationsInput | number
   apartmentsPerFloor?: Prisma.IntFieldUpdateOperationsInput | number
-  elevators?: Prisma.IntFieldUpdateOperationsInput | number
-  waterPumps?: Prisma.IntFieldUpdateOperationsInput | number
-  firePump?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mechanicalLoads?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  splitAc?: Prisma.IntFieldUpdateOperationsInput | number
-  centralAc?: Prisma.FloatFieldUpdateOperationsInput | number
   generator?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   transformer?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   supplyVoltage?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1058,6 +990,7 @@ export type BuildingUncheckedUpdateWithoutProjectInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   floorDesigns?: Prisma.FloorDesignUncheckedUpdateManyWithoutBuildingNestedInput
+  buildingLoads?: Prisma.BuildingLoadUncheckedUpdateManyWithoutBuildingNestedInput
 }
 
 export type BuildingUncheckedUpdateManyWithoutProjectInput = {
@@ -1066,12 +999,7 @@ export type BuildingUncheckedUpdateManyWithoutProjectInput = {
   floors?: Prisma.IntFieldUpdateOperationsInput | number
   serviceFloors?: Prisma.IntFieldUpdateOperationsInput | number
   apartmentsPerFloor?: Prisma.IntFieldUpdateOperationsInput | number
-  elevators?: Prisma.IntFieldUpdateOperationsInput | number
-  waterPumps?: Prisma.IntFieldUpdateOperationsInput | number
-  firePump?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mechanicalLoads?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  splitAc?: Prisma.IntFieldUpdateOperationsInput | number
-  centralAc?: Prisma.FloatFieldUpdateOperationsInput | number
   generator?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   transformer?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   supplyVoltage?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1088,10 +1016,12 @@ export type BuildingUncheckedUpdateManyWithoutProjectInput = {
 
 export type BuildingCountOutputType = {
   floorDesigns: number
+  buildingLoads: number
 }
 
 export type BuildingCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   floorDesigns?: boolean | BuildingCountOutputTypeCountFloorDesignsArgs
+  buildingLoads?: boolean | BuildingCountOutputTypeCountBuildingLoadsArgs
 }
 
 /**
@@ -1111,6 +1041,13 @@ export type BuildingCountOutputTypeCountFloorDesignsArgs<ExtArgs extends runtime
   where?: Prisma.FloorDesignWhereInput
 }
 
+/**
+ * BuildingCountOutputType without action
+ */
+export type BuildingCountOutputTypeCountBuildingLoadsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.BuildingLoadWhereInput
+}
+
 
 export type BuildingSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1118,12 +1055,7 @@ export type BuildingSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   floors?: boolean
   serviceFloors?: boolean
   apartmentsPerFloor?: boolean
-  elevators?: boolean
-  waterPumps?: boolean
-  firePump?: boolean
   mechanicalLoads?: boolean
-  splitAc?: boolean
-  centralAc?: boolean
   generator?: boolean
   transformer?: boolean
   supplyVoltage?: boolean
@@ -1134,6 +1066,7 @@ export type BuildingSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   updatedAt?: boolean
   project?: boolean | Prisma.ProjectDefaultArgs<ExtArgs>
   floorDesigns?: boolean | Prisma.Building$floorDesignsArgs<ExtArgs>
+  buildingLoads?: boolean | Prisma.Building$buildingLoadsArgs<ExtArgs>
   _count?: boolean | Prisma.BuildingCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["building"]>
 
@@ -1143,12 +1076,7 @@ export type BuildingSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   floors?: boolean
   serviceFloors?: boolean
   apartmentsPerFloor?: boolean
-  elevators?: boolean
-  waterPumps?: boolean
-  firePump?: boolean
   mechanicalLoads?: boolean
-  splitAc?: boolean
-  centralAc?: boolean
   generator?: boolean
   transformer?: boolean
   supplyVoltage?: boolean
@@ -1166,12 +1094,7 @@ export type BuildingSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   floors?: boolean
   serviceFloors?: boolean
   apartmentsPerFloor?: boolean
-  elevators?: boolean
-  waterPumps?: boolean
-  firePump?: boolean
   mechanicalLoads?: boolean
-  splitAc?: boolean
-  centralAc?: boolean
   generator?: boolean
   transformer?: boolean
   supplyVoltage?: boolean
@@ -1189,12 +1112,7 @@ export type BuildingSelectScalar = {
   floors?: boolean
   serviceFloors?: boolean
   apartmentsPerFloor?: boolean
-  elevators?: boolean
-  waterPumps?: boolean
-  firePump?: boolean
   mechanicalLoads?: boolean
-  splitAc?: boolean
-  centralAc?: boolean
   generator?: boolean
   transformer?: boolean
   supplyVoltage?: boolean
@@ -1205,10 +1123,11 @@ export type BuildingSelectScalar = {
   updatedAt?: boolean
 }
 
-export type BuildingOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "floors" | "serviceFloors" | "apartmentsPerFloor" | "elevators" | "waterPumps" | "firePump" | "mechanicalLoads" | "splitAc" | "centralAc" | "generator" | "transformer" | "supplyVoltage" | "earthingSystem" | "lightningProtection" | "projectId" | "createdAt" | "updatedAt", ExtArgs["result"]["building"]>
+export type BuildingOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "floors" | "serviceFloors" | "apartmentsPerFloor" | "mechanicalLoads" | "generator" | "transformer" | "supplyVoltage" | "earthingSystem" | "lightningProtection" | "projectId" | "createdAt" | "updatedAt", ExtArgs["result"]["building"]>
 export type BuildingInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   project?: boolean | Prisma.ProjectDefaultArgs<ExtArgs>
   floorDesigns?: boolean | Prisma.Building$floorDesignsArgs<ExtArgs>
+  buildingLoads?: boolean | Prisma.Building$buildingLoadsArgs<ExtArgs>
   _count?: boolean | Prisma.BuildingCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type BuildingIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1223,6 +1142,7 @@ export type $BuildingPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
   objects: {
     project: Prisma.$ProjectPayload<ExtArgs>
     floorDesigns: Prisma.$FloorDesignPayload<ExtArgs>[]
+    buildingLoads: Prisma.$BuildingLoadPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1230,12 +1150,7 @@ export type $BuildingPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     floors: number
     serviceFloors: number
     apartmentsPerFloor: number
-    elevators: number
-    waterPumps: number
-    firePump: boolean
     mechanicalLoads: string | null
-    splitAc: number
-    centralAc: number
     generator: number | null
     transformer: number | null
     supplyVoltage: string
@@ -1640,6 +1555,7 @@ export interface Prisma__BuildingClient<T, Null = never, ExtArgs extends runtime
   readonly [Symbol.toStringTag]: "PrismaPromise"
   project<T extends Prisma.ProjectDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProjectDefaultArgs<ExtArgs>>): Prisma.Prisma__ProjectClient<runtime.Types.Result.GetResult<Prisma.$ProjectPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   floorDesigns<T extends Prisma.Building$floorDesignsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Building$floorDesignsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FloorDesignPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  buildingLoads<T extends Prisma.Building$buildingLoadsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Building$buildingLoadsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BuildingLoadPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1674,12 +1590,7 @@ export interface BuildingFieldRefs {
   readonly floors: Prisma.FieldRef<"Building", 'Int'>
   readonly serviceFloors: Prisma.FieldRef<"Building", 'Int'>
   readonly apartmentsPerFloor: Prisma.FieldRef<"Building", 'Int'>
-  readonly elevators: Prisma.FieldRef<"Building", 'Int'>
-  readonly waterPumps: Prisma.FieldRef<"Building", 'Int'>
-  readonly firePump: Prisma.FieldRef<"Building", 'Boolean'>
   readonly mechanicalLoads: Prisma.FieldRef<"Building", 'String'>
-  readonly splitAc: Prisma.FieldRef<"Building", 'Int'>
-  readonly centralAc: Prisma.FieldRef<"Building", 'Float'>
   readonly generator: Prisma.FieldRef<"Building", 'Float'>
   readonly transformer: Prisma.FieldRef<"Building", 'Float'>
   readonly supplyVoltage: Prisma.FieldRef<"Building", 'String'>
@@ -2108,6 +2019,30 @@ export type Building$floorDesignsArgs<ExtArgs extends runtime.Types.Extensions.I
   take?: number
   skip?: number
   distinct?: Prisma.FloorDesignScalarFieldEnum | Prisma.FloorDesignScalarFieldEnum[]
+}
+
+/**
+ * Building.buildingLoads
+ */
+export type Building$buildingLoadsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the BuildingLoad
+   */
+  select?: Prisma.BuildingLoadSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the BuildingLoad
+   */
+  omit?: Prisma.BuildingLoadOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.BuildingLoadInclude<ExtArgs> | null
+  where?: Prisma.BuildingLoadWhereInput
+  orderBy?: Prisma.BuildingLoadOrderByWithRelationInput | Prisma.BuildingLoadOrderByWithRelationInput[]
+  cursor?: Prisma.BuildingLoadWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.BuildingLoadScalarFieldEnum | Prisma.BuildingLoadScalarFieldEnum[]
 }
 
 /**

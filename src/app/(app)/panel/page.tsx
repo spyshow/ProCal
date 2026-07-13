@@ -288,7 +288,7 @@ export default function PanelDesignerPage() {
             {activeFeeders.map((feeder, i) => {
               const y = 150 + i * 36;
               const isApartment = feeder.type === 'APARTMENT';
-              const color = isApartment ? '#f97316' : feeder.type.includes('PUMP') ? '#22c55e' : feeder.type.includes('ELEVATOR') ? '#3b82f6' : '#a855f7';
+              const color = isApartment ? '#f97316' : /pump/i.test(feeder.type) ? '#22c55e' : /elevator/i.test(feeder.type) ? '#3b82f6' : '#a855f7';
 
               return (
                 <g key={feeder.name + i}>

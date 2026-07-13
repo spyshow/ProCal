@@ -57,12 +57,7 @@ model Building {
   floors              Int
   serviceFloors       Int
   apartmentsPerFloor  Int
-  elevators           Int           @default(0)
-  waterPumps          Int           @default(0)
-  firePump            Boolean       @default(false)
   mechanicalLoads     String? // JSON string of mechanical loads: [{name, power, pf, qty, isEssential}]
-  splitAc             Int           @default(0)
-  centralAc           Float         @default(0) // kW
   generator           Float? // Sized generator kVA
   transformer         Float? // Sized transformer kVA
   supplyVoltage       String        @default("400V 3-Phase")
@@ -71,8 +66,24 @@ model Building {
   projectId           String
   project             Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
   floorDesigns        FloorDesign[]
+  buildingLoads       BuildingLoad[]
   createdAt           DateTime      @default(now())
   updatedAt           DateTime      @updatedAt
+}
+
+model BuildingLoad {
+  id                String           @id @default(uuid())
+  buildingId        String
+  building          Building         @relation(fields: [buildingId], references: [id], onDelete: Cascade)
+  loadLibraryItemId String?
+  loadLibraryItem   LoadLibraryItem? @relation(fields: [loadLibraryItemId], references: [id], onDelete: SetNull)
+  quantity          Int              @default(1)
+  cableSize         String?
+  cableLength       Float?
+  installMethod     String?
+  cableInsulation   String?
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
 }
 
 model ApartmentTemplate {
@@ -116,6 +127,7 @@ model LoadLibraryItem {
   projectId       String
   project         Project     @relation(fields: [projectId], references: [id], onDelete: Cascade)
   floorItems      FloorItem[]
+  buildingLoads   BuildingLoad[]
 }
 
 model FloorDesign {

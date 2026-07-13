@@ -37,6 +37,7 @@ function CalculatorContent() {
   const [loading, setLoading] = useState(true);
   const [selectedBuilding, setSelectedBuilding] = useState<string | null>(null);
   const [expandedFloor, setExpandedFloor] = useState<string | null>(focusFloorId || null);
+  const [expandedBuildingLoads, setExpandedBuildingLoads] = useState(true);
   const [showAddItem, setShowAddItem] = useState<string | null>(null);
   const [addForm, setAddForm] = useState({
     type: 'APARTMENT',
@@ -72,11 +73,16 @@ function CalculatorContent() {
   }, [loadProject]);
 
   const handleAddItem = async (floorDesignId: string) => {
-    await fetch(`/api/floors/${floorDesignId}/items`, {
+    const res = await fetch(`/api/floors/${floorDesignId}/items`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(addForm),
     });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      alert(err.error || 'Failed to add item');
+      return; // keep the form open so the user can fix and retry
+    }
     setAddForm({ type: 'APARTMENT', name: '', apartmentTemplateId: '', loadLibraryItemId: '', customKw: '15' });
     setShowAddItem(null);
     loadProject();
@@ -150,7 +156,7 @@ function CalculatorContent() {
   }
 
   const bldg = project.buildings.find((b) => b.id === selectedBuilding) || project.buildings[0];
-  const sortedFloors = [...bldg.floorDesigns].sort((a, b) => b.floorNumber - a.floorNumber);
+  const sortedFloors = [...bldg.floorDesigns].sort((a, b) => a.floorNumber - b.floorNumber);
 
   // Summary totals
   const totalConnectedLoad = sortedFloors.reduce(
@@ -223,6 +229,52 @@ function CalculatorContent() {
           </div>
         ))}
       </div>
+
+      {/* Building Loads (foldable, read-only) — attached on the Buildings page */}
+      {bldg.buildingLoads && bldg.buildingLoads.length > 0 && (
+        <div className="rounded-xl border border-gray-800 bg-gray-900/40 min-w-0">
+          <div
+            className="flex items-center gap-3 p-3 cursor-pointer hover:bg-gray-800/30 transition-colors"
+            onClick={() => setExpandedBuildingLoads((v) => !v)}
+          >
+            {expandedBuildingLoads ? (
+              <ChevronDown size={14} className="text-gray-500" />
+            ) : (
+              <ChevronRight size={14} className="text-gray-500" />
+            )}
+            <Wrench size={14} className="text-orange-500" />
+            <span className="text-sm text-gray-300 font-medium">Building Loads</span>
+            <span className="text-xs text-gray-500">
+              {bldg.buildingLoads.length} item{bldg.buildingLoads.length !== 1 ? 's' : ''}
+            </span>
+            <div className="flex-1" />
+            <span className="text-xs font-mono text-gray-500">
+              {bldg.buildingLoads
+                .reduce((s, bl) => s + (bl.loadLibraryItem?.power ?? 0) * bl.quantity, 0)
+                .toFixed(1)}{' '}
+              kW
+            </span>
+          </div>
+          {expandedBuildingLoads && (
+            <div className="border-t border-gray-800 p-3 space-y-1 bg-gray-950/30">
+              {bldg.buildingLoads.map((bl) => (
+                <div key={bl.id} className="flex justify-between text-xs text-gray-400">
+                  <span>
+                    {bl.loadLibraryItem?.name ?? '(deleted)'}
+                    {bl.loadLibraryItem?.category ? ` — ${bl.loadLibraryItem.category}` : ''}
+                  </span>
+                  <span className="font-mono">
+                    {bl.quantity} × {(bl.loadLibraryItem?.power ?? 0).toFixed(1)} kW
+                  </span>
+                </div>
+              ))}
+              <p className="text-[10px] text-gray-600 pt-1">
+                Attach building loads from the Buildings page.
+              </p>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Floor List */}
       <div className="space-y-2">

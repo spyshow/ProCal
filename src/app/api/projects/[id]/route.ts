@@ -29,6 +29,11 @@ export async function GET(
                 },
               },
             },
+            buildingLoads: {
+              include: {
+                loadLibraryItem: true,
+              },
+            },
           },
         },
         apartmentTemplates: {

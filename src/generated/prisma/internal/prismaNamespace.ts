@@ -387,6 +387,7 @@ export const ModelName = {
   User: 'User',
   Project: 'Project',
   Building: 'Building',
+  BuildingLoad: 'BuildingLoad',
   ApartmentTemplate: 'ApartmentTemplate',
   ApartmentRoom: 'ApartmentRoom',
   LoadLibraryItem: 'LoadLibraryItem',
@@ -410,7 +411,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "project" | "building" | "apartmentTemplate" | "apartmentRoom" | "loadLibraryItem" | "floorDesign" | "floorItem" | "equipmentCatalog" | "breakerFamily" | "breakerSettings"
+    modelProps: "user" | "project" | "building" | "buildingLoad" | "apartmentTemplate" | "apartmentRoom" | "loadLibraryItem" | "floorDesign" | "floorItem" | "equipmentCatalog" | "breakerFamily" | "breakerSettings"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -633,6 +634,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.BuildingCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.BuildingCountAggregateOutputType> | number
+        }
+      }
+    }
+    BuildingLoad: {
+      payload: Prisma.$BuildingLoadPayload<ExtArgs>
+      fields: Prisma.BuildingLoadFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.BuildingLoadFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BuildingLoadPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.BuildingLoadFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BuildingLoadPayload>
+        }
+        findFirst: {
+          args: Prisma.BuildingLoadFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BuildingLoadPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.BuildingLoadFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BuildingLoadPayload>
+        }
+        findMany: {
+          args: Prisma.BuildingLoadFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BuildingLoadPayload>[]
+        }
+        create: {
+          args: Prisma.BuildingLoadCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BuildingLoadPayload>
+        }
+        createMany: {
+          args: Prisma.BuildingLoadCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.BuildingLoadCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BuildingLoadPayload>[]
+        }
+        delete: {
+          args: Prisma.BuildingLoadDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BuildingLoadPayload>
+        }
+        update: {
+          args: Prisma.BuildingLoadUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BuildingLoadPayload>
+        }
+        deleteMany: {
+          args: Prisma.BuildingLoadDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.BuildingLoadUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.BuildingLoadUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BuildingLoadPayload>[]
+        }
+        upsert: {
+          args: Prisma.BuildingLoadUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BuildingLoadPayload>
+        }
+        aggregate: {
+          args: Prisma.BuildingLoadAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateBuildingLoad>
+        }
+        groupBy: {
+          args: Prisma.BuildingLoadGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BuildingLoadGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.BuildingLoadCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BuildingLoadCountAggregateOutputType> | number
         }
       }
     }
@@ -1312,12 +1387,7 @@ export const BuildingScalarFieldEnum = {
   floors: 'floors',
   serviceFloors: 'serviceFloors',
   apartmentsPerFloor: 'apartmentsPerFloor',
-  elevators: 'elevators',
-  waterPumps: 'waterPumps',
-  firePump: 'firePump',
   mechanicalLoads: 'mechanicalLoads',
-  splitAc: 'splitAc',
-  centralAc: 'centralAc',
   generator: 'generator',
   transformer: 'transformer',
   supplyVoltage: 'supplyVoltage',
@@ -1329,6 +1399,22 @@ export const BuildingScalarFieldEnum = {
 } as const
 
 export type BuildingScalarFieldEnum = (typeof BuildingScalarFieldEnum)[keyof typeof BuildingScalarFieldEnum]
+
+
+export const BuildingLoadScalarFieldEnum = {
+  id: 'id',
+  buildingId: 'buildingId',
+  loadLibraryItemId: 'loadLibraryItemId',
+  quantity: 'quantity',
+  cableSize: 'cableSize',
+  cableLength: 'cableLength',
+  installMethod: 'installMethod',
+  cableInsulation: 'cableInsulation',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type BuildingLoadScalarFieldEnum = (typeof BuildingLoadScalarFieldEnum)[keyof typeof BuildingLoadScalarFieldEnum]
 
 
 export const ApartmentTemplateScalarFieldEnum = {
@@ -1626,6 +1712,7 @@ export type GlobalOmitConfig = {
   user?: Prisma.UserOmit
   project?: Prisma.ProjectOmit
   building?: Prisma.BuildingOmit
+  buildingLoad?: Prisma.BuildingLoadOmit
   apartmentTemplate?: Prisma.ApartmentTemplateOmit
   apartmentRoom?: Prisma.ApartmentRoomOmit
   loadLibraryItem?: Prisma.LoadLibraryItemOmit

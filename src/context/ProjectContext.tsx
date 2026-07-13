@@ -8,8 +8,10 @@ interface ProjectContextType {
   selectedProjectId: string | null;
   selectedProject: Project | null;
   preferredManufacturer: "ABB" | "SCHNEIDER" | "MIXED";
+  hasCompletedOnboarding: boolean;
   selectProject: (id: string | null) => void;
   setManufacturer: (mfg: "ABB" | "SCHNEIDER" | "MIXED") => void;
+  completeOnboarding: () => void;
   refreshProject: () => Promise<void>;
   loading: boolean;
 }
@@ -20,15 +22,18 @@ export function ProjectProvider({ children }: { children: React.ReactNode }) {
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [preferredManufacturer, setPreferredManufacturer] = useState<"ABB" | "SCHNEIDER" | "MIXED">("MIXED");
+  const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState<boolean>(false);
   const [loading, setLoading] = useState(false);
 
   // Load initial selection from localStorage
   useEffect(() => {
     const savedProjId = localStorage.getItem("selected_project_id");
     const savedMfg = localStorage.getItem("preferred_manufacturer") as "ABB" | "SCHNEIDER" | "MIXED";
-    
+    const savedOnboarding = localStorage.getItem("has_completed_onboarding");
+
     if (savedProjId) setSelectedProjectId(savedProjId);
     if (savedMfg) setPreferredManufacturer(savedMfg);
+    if (savedOnboarding === "true") setHasCompletedOnboarding(true);
   }, []);
 
   const fetchProjectDetails = useCallback(async (projectId: string) => {
@@ -83,6 +88,11 @@ export function ProjectProvider({ children }: { children: React.ReactNode }) {
     }
   }, [selectedProjectId]);
 
+  const completeOnboarding = useCallback(() => {
+    setHasCompletedOnboarding(true);
+    localStorage.setItem("has_completed_onboarding", "true");
+  }, []);
+
   const refreshProject = useCallback(async () => {
     if (selectedProjectId) {
       await fetchProjectDetails(selectedProjectId);
@@ -95,8 +105,10 @@ export function ProjectProvider({ children }: { children: React.ReactNode }) {
         selectedProjectId,
         selectedProject,
         preferredManufacturer,
+        hasCompletedOnboarding,
         selectProject,
         setManufacturer,
+        completeOnboarding,
         refreshProject,
         loading,
       }}

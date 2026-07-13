@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { computeFeeders, type EquipmentItem } from '@/lib/calculations/feeders';
+import { computeFeeders, type EquipmentItem, type FindBreaker, type FoundBreaker } from '@/lib/calculations/feeders';
 import type { Project } from '@/types';
 
 export interface BreakerScheduleProps {
@@ -42,7 +42,6 @@ export default function BreakerSchedule({
     if (manufacturer && manufacturer !== 'MIXED') {
       params.set('manufacturer', manufacturer);
     }
-    params.set('category', 'MCCB');
 
     fetch(`/api/equipment?${params.toString()}`)
       .then((res) => (res.ok ? res.json() : []))
@@ -58,11 +57,29 @@ export default function BreakerSchedule({
     };
   }, [manufacturer]);
 
-  const findBreaker = (currentRating: number, category: 'MCCB' | 'ACB'): EquipmentItem | null => {
+  const findBreaker: FindBreaker = (currentRating, category, poles, _options) => {
+    const matchesPoles = (e: EquipmentItem) =>
+      poles === 1 ? e.poles <= 2 : e.poles === 3;
     const filtered = equipment.filter(
-      (e) => e.category === category && e.ratedCurrent >= currentRating
+      (e) => e.category === category && matchesPoles(e) && e.ratedCurrent >= currentRating
     );
-    return filtered.sort((a, b) => a.ratedCurrent - b.ratedCurrent)[0] || null;
+    const match = filtered.sort((a, b) => a.ratedCurrent - b.ratedCurrent)[0];
+    if (match) {
+      return {
+        model: `${match.manufacturer} ${match.series} ${match.model}`,
+        manufacturer: match.manufacturer,
+        familyName: match.familyName,
+        ratedCurrent: match.ratedCurrent,
+        fallback: false,
+      };
+    }
+    return {
+      model: null,
+      manufacturer: null,
+      familyName: null,
+      ratedCurrent: null,
+      fallback: true,
+    };
   };
 
   const breakers: BreakerRow[] = [];

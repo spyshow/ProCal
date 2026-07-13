@@ -90,6 +90,9 @@ export async function PUT(
         maxVoltageDropLighting: data.maxVoltageDropLighting ? parseFloat(data.maxVoltageDropLighting) : existingProject.maxVoltageDropLighting,
         maxVoltageDropPower: data.maxVoltageDropPower ? parseFloat(data.maxVoltageDropPower) : existingProject.maxVoltageDropPower,
         transformerSize: data.transformerSize ? parseFloat(data.transformerSize) : existingProject.transformerSize,
+        defaultAcbFamilyId: data.defaultAcbFamilyId !== undefined ? data.defaultAcbFamilyId : existingProject.defaultAcbFamilyId,
+        defaultMccbFamilyId: data.defaultMccbFamilyId !== undefined ? data.defaultMccbFamilyId : existingProject.defaultMccbFamilyId,
+        defaultMcbFamilyId: data.defaultMcbFamilyId !== undefined ? data.defaultMcbFamilyId : existingProject.defaultMcbFamilyId,
       },
     });
 

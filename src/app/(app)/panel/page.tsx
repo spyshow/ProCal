@@ -15,7 +15,7 @@ import {
 import { calculateThreePhaseCurrent, sizeTransformer } from '@/lib/calculations/loads';
 import { sizeCableAndBreaker } from '@/lib/calculations/cables';
 import { CABLE_CATALOG } from '@/lib/calculations/cablesData';
-import { computeFeeders, type EquipmentItem } from '@/lib/calculations/feeders';
+import { computeFeeders, createFindBreaker, type EquipmentItem, type DefaultFamilies } from '@/lib/calculations/feeders';
 import type { Project } from '@/types';
 
 export default function PanelDesignerPage() {
@@ -41,29 +41,27 @@ export default function PanelDesignerPage() {
 
   const loadEquipment = useCallback(async () => {
     try {
-      const params = new URLSearchParams();
-      if (preferredManufacturer !== 'MIXED') {
-        params.set('manufacturer', preferredManufacturer);
-      }
-      params.set('category', 'MCCB');
-      const res = await fetch(`/api/equipment?${params.toString()}`);
+      // Load all manufacturers' ACB/MCCB/MCB rows. The family selection overrides
+      // preferredManufacturer, and fallback should stay within the chosen
+      // family's manufacturer rather than being silently filtered out here.
+      const res = await fetch(`/api/equipment?category=ACB,MCCB,MCB`);
       if (res.ok) {
         const data = await res.json();
         setEquipment(data);
       }
     } catch (err) { console.error(err); }
-  }, [preferredManufacturer]);
+  }, []);
 
   useEffect(() => { loadProject(); }, [loadProject]);
   useEffect(() => { loadEquipment(); }, [loadEquipment]);
 
-  const findBreaker = (currentRating: number, category: 'MCCB' | 'ACB'): EquipmentItem | null => {
-    const filtered = equipment.filter(e =>
-      e.category === category &&
-      e.ratedCurrent >= currentRating
-    );
-    return filtered.sort((a, b) => a.ratedCurrent - b.ratedCurrent)[0] || null;
+  const defaultFamilies: DefaultFamilies = {
+    ACB: project?.defaultAcbFamilyId ?? undefined,
+    MCCB: project?.defaultMccbFamilyId ?? undefined,
+    MCB: project?.defaultMcbFamilyId ?? undefined,
   };
+
+  const findBreaker = createFindBreaker(equipment, defaultFamilies, preferredManufacturer);
 
   if (loading) return <div className="flex items-center justify-center h-full"><p className="text-gray-500 text-sm">Loading…</p></div>;
   if (!project || project.buildings.length === 0) {
@@ -90,8 +88,16 @@ export default function PanelDesignerPage() {
   const activeFeeders = panelType === 'MDB' ? mdbFeeders : smdbFeedersForActive;
 
   // MDB Main calculations
-  const totalDemand = mdbFeeders.reduce((s, f) => s + f.current * (project.voltage === 400 ? Math.sqrt(3) * (project.voltage / 1000) * project.powerFactor : 0.23 * project.powerFactor), 0);
-  const totalDemandKva = totalDemand / 1000;
+  // Total demand in kVA: sum of feeder apparent power (kW / powerFactor).
+  const totalDemandKva = mdbFeeders.reduce((s, f) => {
+    // kVA = kW / pf; kW = current(A) * voltage(kV) * factor
+    // For 3-phase: factor = sqrt(3), line voltage in kV.
+    const voltageKv = project.voltage / 1000;
+    const kw = project.voltage === 230
+      ? f.current * voltageKv * project.powerFactor
+      : f.current * Math.sqrt(3) * voltageKv * project.powerFactor;
+    return s + kw / project.powerFactor;
+  }, 0);
   const mainBreakerCurrent = calculateThreePhaseCurrent(totalDemandKva * 1000, project.voltage);
   const mainSizing = sizeCableAndBreaker(mainBreakerCurrent, true, {
     material: 'copper',
@@ -101,10 +107,8 @@ export default function PanelDesignerPage() {
   });
   const transformerSize = sizeTransformer(totalDemandKva);
 
-  const acb = findBreaker(mainSizing.breakerSize, 'ACB');
-  const mainBreakerModel = acb
-    ? `${acb.manufacturer} ${acb.series} ${acb.model}`
-    : `ACB ${mainSizing.breakerSize}`;
+  const mainMatch = findBreaker(mainSizing.breakerSize, 'ACB', 3);
+  const mainBreakerModel = mainMatch.model ?? `ACB ${mainSizing.breakerSize}`;
 
   const mainCable = CABLE_CATALOG.find((c) => c.size >= mainSizing.cableSize) || CABLE_CATALOG[CABLE_CATALOG.length - 1];
 

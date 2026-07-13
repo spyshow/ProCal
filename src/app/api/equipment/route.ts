@@ -16,12 +16,16 @@ export async function GET(request: Request) {
     const maxCurrent = searchParams.get("maxCurrent");
 
     const where: {
-      category?: string;
+      category?: { in: string[] } | string;
       ratedCurrent?: { gte?: number; lte?: number };
     } = {};
 
     if (category) {
-      where.category = category.toUpperCase();
+      const categories = category
+        .split(",")
+        .map((c) => c.trim().toUpperCase())
+        .filter(Boolean);
+      where.category = categories.length === 1 ? categories[0] : { in: categories };
     }
 
     if (minCurrent || maxCurrent) {
@@ -36,6 +40,7 @@ export async function GET(request: Request) {
 
     let equipment = await db.equipmentCatalog.findMany({
       where,
+      include: { family: true },
       orderBy: [
         { manufacturer: "asc" },
         { category: "asc" },
@@ -50,7 +55,13 @@ export async function GET(request: Request) {
       );
     }
 
-    return NextResponse.json(equipment);
+    return NextResponse.json(
+      equipment.map((e) => ({
+        ...e,
+        familyId: e.family?.id ?? null,
+        familyName: e.family?.name ?? null,
+      }))
+    );
   } catch (error) {
     console.error("GET Equipment Error:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });

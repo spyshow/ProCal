@@ -50,6 +50,7 @@ export type EquipmentCatalogMinAggregateOutputType = {
   tripUnit: string | null
   settingsJson: string | null
   datasheetUrl: string | null
+  familyId: string | null
 }
 
 export type EquipmentCatalogMaxAggregateOutputType = {
@@ -64,6 +65,7 @@ export type EquipmentCatalogMaxAggregateOutputType = {
   tripUnit: string | null
   settingsJson: string | null
   datasheetUrl: string | null
+  familyId: string | null
 }
 
 export type EquipmentCatalogCountAggregateOutputType = {
@@ -78,6 +80,7 @@ export type EquipmentCatalogCountAggregateOutputType = {
   tripUnit: number
   settingsJson: number
   datasheetUrl: number
+  familyId: number
   _all: number
 }
 
@@ -106,6 +109,7 @@ export type EquipmentCatalogMinAggregateInputType = {
   tripUnit?: true
   settingsJson?: true
   datasheetUrl?: true
+  familyId?: true
 }
 
 export type EquipmentCatalogMaxAggregateInputType = {
@@ -120,6 +124,7 @@ export type EquipmentCatalogMaxAggregateInputType = {
   tripUnit?: true
   settingsJson?: true
   datasheetUrl?: true
+  familyId?: true
 }
 
 export type EquipmentCatalogCountAggregateInputType = {
@@ -134,6 +139,7 @@ export type EquipmentCatalogCountAggregateInputType = {
   tripUnit?: true
   settingsJson?: true
   datasheetUrl?: true
+  familyId?: true
   _all?: true
 }
 
@@ -235,6 +241,7 @@ export type EquipmentCatalogGroupByOutputType = {
   tripUnit: string | null
   settingsJson: string | null
   datasheetUrl: string | null
+  familyId: string | null
   _count: EquipmentCatalogCountAggregateOutputType | null
   _avg: EquipmentCatalogAvgAggregateOutputType | null
   _sum: EquipmentCatalogSumAggregateOutputType | null
@@ -272,6 +279,8 @@ export type EquipmentCatalogWhereInput = {
   tripUnit?: Prisma.StringNullableFilter<"EquipmentCatalog"> | string | null
   settingsJson?: Prisma.StringNullableFilter<"EquipmentCatalog"> | string | null
   datasheetUrl?: Prisma.StringNullableFilter<"EquipmentCatalog"> | string | null
+  familyId?: Prisma.StringNullableFilter<"EquipmentCatalog"> | string | null
+  family?: Prisma.XOR<Prisma.BreakerFamilyNullableScalarRelationFilter, Prisma.BreakerFamilyWhereInput> | null
 }
 
 export type EquipmentCatalogOrderByWithRelationInput = {
@@ -286,6 +295,8 @@ export type EquipmentCatalogOrderByWithRelationInput = {
   tripUnit?: Prisma.SortOrderInput | Prisma.SortOrder
   settingsJson?: Prisma.SortOrderInput | Prisma.SortOrder
   datasheetUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  familyId?: Prisma.SortOrderInput | Prisma.SortOrder
+  family?: Prisma.BreakerFamilyOrderByWithRelationInput
 }
 
 export type EquipmentCatalogWhereUniqueInput = Prisma.AtLeast<{
@@ -303,6 +314,8 @@ export type EquipmentCatalogWhereUniqueInput = Prisma.AtLeast<{
   tripUnit?: Prisma.StringNullableFilter<"EquipmentCatalog"> | string | null
   settingsJson?: Prisma.StringNullableFilter<"EquipmentCatalog"> | string | null
   datasheetUrl?: Prisma.StringNullableFilter<"EquipmentCatalog"> | string | null
+  familyId?: Prisma.StringNullableFilter<"EquipmentCatalog"> | string | null
+  family?: Prisma.XOR<Prisma.BreakerFamilyNullableScalarRelationFilter, Prisma.BreakerFamilyWhereInput> | null
 }, "id">
 
 export type EquipmentCatalogOrderByWithAggregationInput = {
@@ -317,6 +330,7 @@ export type EquipmentCatalogOrderByWithAggregationInput = {
   tripUnit?: Prisma.SortOrderInput | Prisma.SortOrder
   settingsJson?: Prisma.SortOrderInput | Prisma.SortOrder
   datasheetUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  familyId?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.EquipmentCatalogCountOrderByAggregateInput
   _avg?: Prisma.EquipmentCatalogAvgOrderByAggregateInput
   _max?: Prisma.EquipmentCatalogMaxOrderByAggregateInput
@@ -339,6 +353,7 @@ export type EquipmentCatalogScalarWhereWithAggregatesInput = {
   tripUnit?: Prisma.StringNullableWithAggregatesFilter<"EquipmentCatalog"> | string | null
   settingsJson?: Prisma.StringNullableWithAggregatesFilter<"EquipmentCatalog"> | string | null
   datasheetUrl?: Prisma.StringNullableWithAggregatesFilter<"EquipmentCatalog"> | string | null
+  familyId?: Prisma.StringNullableWithAggregatesFilter<"EquipmentCatalog"> | string | null
 }
 
 export type EquipmentCatalogCreateInput = {
@@ -353,6 +368,7 @@ export type EquipmentCatalogCreateInput = {
   tripUnit?: string | null
   settingsJson?: string | null
   datasheetUrl?: string | null
+  family?: Prisma.BreakerFamilyCreateNestedOneWithoutCatalogItemsInput
 }
 
 export type EquipmentCatalogUncheckedCreateInput = {
@@ -367,6 +383,7 @@ export type EquipmentCatalogUncheckedCreateInput = {
   tripUnit?: string | null
   settingsJson?: string | null
   datasheetUrl?: string | null
+  familyId?: string | null
 }
 
 export type EquipmentCatalogUpdateInput = {
@@ -381,6 +398,7 @@ export type EquipmentCatalogUpdateInput = {
   tripUnit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settingsJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   datasheetUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  family?: Prisma.BreakerFamilyUpdateOneWithoutCatalogItemsNestedInput
 }
 
 export type EquipmentCatalogUncheckedUpdateInput = {
@@ -395,6 +413,7 @@ export type EquipmentCatalogUncheckedUpdateInput = {
   tripUnit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settingsJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   datasheetUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  familyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type EquipmentCatalogCreateManyInput = {
@@ -409,6 +428,7 @@ export type EquipmentCatalogCreateManyInput = {
   tripUnit?: string | null
   settingsJson?: string | null
   datasheetUrl?: string | null
+  familyId?: string | null
 }
 
 export type EquipmentCatalogUpdateManyMutationInput = {
@@ -437,6 +457,7 @@ export type EquipmentCatalogUncheckedUpdateManyInput = {
   tripUnit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settingsJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   datasheetUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  familyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type EquipmentCatalogCountOrderByAggregateInput = {
@@ -451,6 +472,7 @@ export type EquipmentCatalogCountOrderByAggregateInput = {
   tripUnit?: Prisma.SortOrder
   settingsJson?: Prisma.SortOrder
   datasheetUrl?: Prisma.SortOrder
+  familyId?: Prisma.SortOrder
 }
 
 export type EquipmentCatalogAvgOrderByAggregateInput = {
@@ -471,6 +493,7 @@ export type EquipmentCatalogMaxOrderByAggregateInput = {
   tripUnit?: Prisma.SortOrder
   settingsJson?: Prisma.SortOrder
   datasheetUrl?: Prisma.SortOrder
+  familyId?: Prisma.SortOrder
 }
 
 export type EquipmentCatalogMinOrderByAggregateInput = {
@@ -485,12 +508,192 @@ export type EquipmentCatalogMinOrderByAggregateInput = {
   tripUnit?: Prisma.SortOrder
   settingsJson?: Prisma.SortOrder
   datasheetUrl?: Prisma.SortOrder
+  familyId?: Prisma.SortOrder
 }
 
 export type EquipmentCatalogSumOrderByAggregateInput = {
   ratedCurrent?: Prisma.SortOrder
   poles?: Prisma.SortOrder
   breakingCapacity?: Prisma.SortOrder
+}
+
+export type EquipmentCatalogListRelationFilter = {
+  every?: Prisma.EquipmentCatalogWhereInput
+  some?: Prisma.EquipmentCatalogWhereInput
+  none?: Prisma.EquipmentCatalogWhereInput
+}
+
+export type EquipmentCatalogOrderByRelationAggregateInput = {
+  _count?: Prisma.SortOrder
+}
+
+export type EquipmentCatalogCreateNestedManyWithoutFamilyInput = {
+  create?: Prisma.XOR<Prisma.EquipmentCatalogCreateWithoutFamilyInput, Prisma.EquipmentCatalogUncheckedCreateWithoutFamilyInput> | Prisma.EquipmentCatalogCreateWithoutFamilyInput[] | Prisma.EquipmentCatalogUncheckedCreateWithoutFamilyInput[]
+  connectOrCreate?: Prisma.EquipmentCatalogCreateOrConnectWithoutFamilyInput | Prisma.EquipmentCatalogCreateOrConnectWithoutFamilyInput[]
+  createMany?: Prisma.EquipmentCatalogCreateManyFamilyInputEnvelope
+  connect?: Prisma.EquipmentCatalogWhereUniqueInput | Prisma.EquipmentCatalogWhereUniqueInput[]
+}
+
+export type EquipmentCatalogUncheckedCreateNestedManyWithoutFamilyInput = {
+  create?: Prisma.XOR<Prisma.EquipmentCatalogCreateWithoutFamilyInput, Prisma.EquipmentCatalogUncheckedCreateWithoutFamilyInput> | Prisma.EquipmentCatalogCreateWithoutFamilyInput[] | Prisma.EquipmentCatalogUncheckedCreateWithoutFamilyInput[]
+  connectOrCreate?: Prisma.EquipmentCatalogCreateOrConnectWithoutFamilyInput | Prisma.EquipmentCatalogCreateOrConnectWithoutFamilyInput[]
+  createMany?: Prisma.EquipmentCatalogCreateManyFamilyInputEnvelope
+  connect?: Prisma.EquipmentCatalogWhereUniqueInput | Prisma.EquipmentCatalogWhereUniqueInput[]
+}
+
+export type EquipmentCatalogUpdateManyWithoutFamilyNestedInput = {
+  create?: Prisma.XOR<Prisma.EquipmentCatalogCreateWithoutFamilyInput, Prisma.EquipmentCatalogUncheckedCreateWithoutFamilyInput> | Prisma.EquipmentCatalogCreateWithoutFamilyInput[] | Prisma.EquipmentCatalogUncheckedCreateWithoutFamilyInput[]
+  connectOrCreate?: Prisma.EquipmentCatalogCreateOrConnectWithoutFamilyInput | Prisma.EquipmentCatalogCreateOrConnectWithoutFamilyInput[]
+  upsert?: Prisma.EquipmentCatalogUpsertWithWhereUniqueWithoutFamilyInput | Prisma.EquipmentCatalogUpsertWithWhereUniqueWithoutFamilyInput[]
+  createMany?: Prisma.EquipmentCatalogCreateManyFamilyInputEnvelope
+  set?: Prisma.EquipmentCatalogWhereUniqueInput | Prisma.EquipmentCatalogWhereUniqueInput[]
+  disconnect?: Prisma.EquipmentCatalogWhereUniqueInput | Prisma.EquipmentCatalogWhereUniqueInput[]
+  delete?: Prisma.EquipmentCatalogWhereUniqueInput | Prisma.EquipmentCatalogWhereUniqueInput[]
+  connect?: Prisma.EquipmentCatalogWhereUniqueInput | Prisma.EquipmentCatalogWhereUniqueInput[]
+  update?: Prisma.EquipmentCatalogUpdateWithWhereUniqueWithoutFamilyInput | Prisma.EquipmentCatalogUpdateWithWhereUniqueWithoutFamilyInput[]
+  updateMany?: Prisma.EquipmentCatalogUpdateManyWithWhereWithoutFamilyInput | Prisma.EquipmentCatalogUpdateManyWithWhereWithoutFamilyInput[]
+  deleteMany?: Prisma.EquipmentCatalogScalarWhereInput | Prisma.EquipmentCatalogScalarWhereInput[]
+}
+
+export type EquipmentCatalogUncheckedUpdateManyWithoutFamilyNestedInput = {
+  create?: Prisma.XOR<Prisma.EquipmentCatalogCreateWithoutFamilyInput, Prisma.EquipmentCatalogUncheckedCreateWithoutFamilyInput> | Prisma.EquipmentCatalogCreateWithoutFamilyInput[] | Prisma.EquipmentCatalogUncheckedCreateWithoutFamilyInput[]
+  connectOrCreate?: Prisma.EquipmentCatalogCreateOrConnectWithoutFamilyInput | Prisma.EquipmentCatalogCreateOrConnectWithoutFamilyInput[]
+  upsert?: Prisma.EquipmentCatalogUpsertWithWhereUniqueWithoutFamilyInput | Prisma.EquipmentCatalogUpsertWithWhereUniqueWithoutFamilyInput[]
+  createMany?: Prisma.EquipmentCatalogCreateManyFamilyInputEnvelope
+  set?: Prisma.EquipmentCatalogWhereUniqueInput | Prisma.EquipmentCatalogWhereUniqueInput[]
+  disconnect?: Prisma.EquipmentCatalogWhereUniqueInput | Prisma.EquipmentCatalogWhereUniqueInput[]
+  delete?: Prisma.EquipmentCatalogWhereUniqueInput | Prisma.EquipmentCatalogWhereUniqueInput[]
+  connect?: Prisma.EquipmentCatalogWhereUniqueInput | Prisma.EquipmentCatalogWhereUniqueInput[]
+  update?: Prisma.EquipmentCatalogUpdateWithWhereUniqueWithoutFamilyInput | Prisma.EquipmentCatalogUpdateWithWhereUniqueWithoutFamilyInput[]
+  updateMany?: Prisma.EquipmentCatalogUpdateManyWithWhereWithoutFamilyInput | Prisma.EquipmentCatalogUpdateManyWithWhereWithoutFamilyInput[]
+  deleteMany?: Prisma.EquipmentCatalogScalarWhereInput | Prisma.EquipmentCatalogScalarWhereInput[]
+}
+
+export type EquipmentCatalogCreateWithoutFamilyInput = {
+  id?: string
+  category: string
+  manufacturer: string
+  series: string
+  model: string
+  ratedCurrent: number
+  poles?: number
+  breakingCapacity: number
+  tripUnit?: string | null
+  settingsJson?: string | null
+  datasheetUrl?: string | null
+}
+
+export type EquipmentCatalogUncheckedCreateWithoutFamilyInput = {
+  id?: string
+  category: string
+  manufacturer: string
+  series: string
+  model: string
+  ratedCurrent: number
+  poles?: number
+  breakingCapacity: number
+  tripUnit?: string | null
+  settingsJson?: string | null
+  datasheetUrl?: string | null
+}
+
+export type EquipmentCatalogCreateOrConnectWithoutFamilyInput = {
+  where: Prisma.EquipmentCatalogWhereUniqueInput
+  create: Prisma.XOR<Prisma.EquipmentCatalogCreateWithoutFamilyInput, Prisma.EquipmentCatalogUncheckedCreateWithoutFamilyInput>
+}
+
+export type EquipmentCatalogCreateManyFamilyInputEnvelope = {
+  data: Prisma.EquipmentCatalogCreateManyFamilyInput | Prisma.EquipmentCatalogCreateManyFamilyInput[]
+}
+
+export type EquipmentCatalogUpsertWithWhereUniqueWithoutFamilyInput = {
+  where: Prisma.EquipmentCatalogWhereUniqueInput
+  update: Prisma.XOR<Prisma.EquipmentCatalogUpdateWithoutFamilyInput, Prisma.EquipmentCatalogUncheckedUpdateWithoutFamilyInput>
+  create: Prisma.XOR<Prisma.EquipmentCatalogCreateWithoutFamilyInput, Prisma.EquipmentCatalogUncheckedCreateWithoutFamilyInput>
+}
+
+export type EquipmentCatalogUpdateWithWhereUniqueWithoutFamilyInput = {
+  where: Prisma.EquipmentCatalogWhereUniqueInput
+  data: Prisma.XOR<Prisma.EquipmentCatalogUpdateWithoutFamilyInput, Prisma.EquipmentCatalogUncheckedUpdateWithoutFamilyInput>
+}
+
+export type EquipmentCatalogUpdateManyWithWhereWithoutFamilyInput = {
+  where: Prisma.EquipmentCatalogScalarWhereInput
+  data: Prisma.XOR<Prisma.EquipmentCatalogUpdateManyMutationInput, Prisma.EquipmentCatalogUncheckedUpdateManyWithoutFamilyInput>
+}
+
+export type EquipmentCatalogScalarWhereInput = {
+  AND?: Prisma.EquipmentCatalogScalarWhereInput | Prisma.EquipmentCatalogScalarWhereInput[]
+  OR?: Prisma.EquipmentCatalogScalarWhereInput[]
+  NOT?: Prisma.EquipmentCatalogScalarWhereInput | Prisma.EquipmentCatalogScalarWhereInput[]
+  id?: Prisma.StringFilter<"EquipmentCatalog"> | string
+  category?: Prisma.StringFilter<"EquipmentCatalog"> | string
+  manufacturer?: Prisma.StringFilter<"EquipmentCatalog"> | string
+  series?: Prisma.StringFilter<"EquipmentCatalog"> | string
+  model?: Prisma.StringFilter<"EquipmentCatalog"> | string
+  ratedCurrent?: Prisma.FloatFilter<"EquipmentCatalog"> | number
+  poles?: Prisma.IntFilter<"EquipmentCatalog"> | number
+  breakingCapacity?: Prisma.FloatFilter<"EquipmentCatalog"> | number
+  tripUnit?: Prisma.StringNullableFilter<"EquipmentCatalog"> | string | null
+  settingsJson?: Prisma.StringNullableFilter<"EquipmentCatalog"> | string | null
+  datasheetUrl?: Prisma.StringNullableFilter<"EquipmentCatalog"> | string | null
+  familyId?: Prisma.StringNullableFilter<"EquipmentCatalog"> | string | null
+}
+
+export type EquipmentCatalogCreateManyFamilyInput = {
+  id?: string
+  category: string
+  manufacturer: string
+  series: string
+  model: string
+  ratedCurrent: number
+  poles?: number
+  breakingCapacity: number
+  tripUnit?: string | null
+  settingsJson?: string | null
+  datasheetUrl?: string | null
+}
+
+export type EquipmentCatalogUpdateWithoutFamilyInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  category?: Prisma.StringFieldUpdateOperationsInput | string
+  manufacturer?: Prisma.StringFieldUpdateOperationsInput | string
+  series?: Prisma.StringFieldUpdateOperationsInput | string
+  model?: Prisma.StringFieldUpdateOperationsInput | string
+  ratedCurrent?: Prisma.FloatFieldUpdateOperationsInput | number
+  poles?: Prisma.IntFieldUpdateOperationsInput | number
+  breakingCapacity?: Prisma.FloatFieldUpdateOperationsInput | number
+  tripUnit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  settingsJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  datasheetUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+}
+
+export type EquipmentCatalogUncheckedUpdateWithoutFamilyInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  category?: Prisma.StringFieldUpdateOperationsInput | string
+  manufacturer?: Prisma.StringFieldUpdateOperationsInput | string
+  series?: Prisma.StringFieldUpdateOperationsInput | string
+  model?: Prisma.StringFieldUpdateOperationsInput | string
+  ratedCurrent?: Prisma.FloatFieldUpdateOperationsInput | number
+  poles?: Prisma.IntFieldUpdateOperationsInput | number
+  breakingCapacity?: Prisma.FloatFieldUpdateOperationsInput | number
+  tripUnit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  settingsJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  datasheetUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+}
+
+export type EquipmentCatalogUncheckedUpdateManyWithoutFamilyInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  category?: Prisma.StringFieldUpdateOperationsInput | string
+  manufacturer?: Prisma.StringFieldUpdateOperationsInput | string
+  series?: Prisma.StringFieldUpdateOperationsInput | string
+  model?: Prisma.StringFieldUpdateOperationsInput | string
+  ratedCurrent?: Prisma.FloatFieldUpdateOperationsInput | number
+  poles?: Prisma.IntFieldUpdateOperationsInput | number
+  breakingCapacity?: Prisma.FloatFieldUpdateOperationsInput | number
+  tripUnit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  settingsJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  datasheetUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 
@@ -507,6 +710,8 @@ export type EquipmentCatalogSelect<ExtArgs extends runtime.Types.Extensions.Inte
   tripUnit?: boolean
   settingsJson?: boolean
   datasheetUrl?: boolean
+  familyId?: boolean
+  family?: boolean | Prisma.EquipmentCatalog$familyArgs<ExtArgs>
 }, ExtArgs["result"]["equipmentCatalog"]>
 
 export type EquipmentCatalogSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -521,6 +726,8 @@ export type EquipmentCatalogSelectCreateManyAndReturn<ExtArgs extends runtime.Ty
   tripUnit?: boolean
   settingsJson?: boolean
   datasheetUrl?: boolean
+  familyId?: boolean
+  family?: boolean | Prisma.EquipmentCatalog$familyArgs<ExtArgs>
 }, ExtArgs["result"]["equipmentCatalog"]>
 
 export type EquipmentCatalogSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -535,6 +742,8 @@ export type EquipmentCatalogSelectUpdateManyAndReturn<ExtArgs extends runtime.Ty
   tripUnit?: boolean
   settingsJson?: boolean
   datasheetUrl?: boolean
+  familyId?: boolean
+  family?: boolean | Prisma.EquipmentCatalog$familyArgs<ExtArgs>
 }, ExtArgs["result"]["equipmentCatalog"]>
 
 export type EquipmentCatalogSelectScalar = {
@@ -549,13 +758,25 @@ export type EquipmentCatalogSelectScalar = {
   tripUnit?: boolean
   settingsJson?: boolean
   datasheetUrl?: boolean
+  familyId?: boolean
 }
 
-export type EquipmentCatalogOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "category" | "manufacturer" | "series" | "model" | "ratedCurrent" | "poles" | "breakingCapacity" | "tripUnit" | "settingsJson" | "datasheetUrl", ExtArgs["result"]["equipmentCatalog"]>
+export type EquipmentCatalogOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "category" | "manufacturer" | "series" | "model" | "ratedCurrent" | "poles" | "breakingCapacity" | "tripUnit" | "settingsJson" | "datasheetUrl" | "familyId", ExtArgs["result"]["equipmentCatalog"]>
+export type EquipmentCatalogInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  family?: boolean | Prisma.EquipmentCatalog$familyArgs<ExtArgs>
+}
+export type EquipmentCatalogIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  family?: boolean | Prisma.EquipmentCatalog$familyArgs<ExtArgs>
+}
+export type EquipmentCatalogIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  family?: boolean | Prisma.EquipmentCatalog$familyArgs<ExtArgs>
+}
 
 export type $EquipmentCatalogPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "EquipmentCatalog"
-  objects: {}
+  objects: {
+    family: Prisma.$BreakerFamilyPayload<ExtArgs> | null
+  }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     category: string
@@ -568,6 +789,7 @@ export type $EquipmentCatalogPayload<ExtArgs extends runtime.Types.Extensions.In
     tripUnit: string | null
     settingsJson: string | null
     datasheetUrl: string | null
+    familyId: string | null
   }, ExtArgs["result"]["equipmentCatalog"]>
   composites: {}
 }
@@ -962,6 +1184,7 @@ readonly fields: EquipmentCatalogFieldRefs;
  */
 export interface Prisma__EquipmentCatalogClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  family<T extends Prisma.EquipmentCatalog$familyArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.EquipmentCatalog$familyArgs<ExtArgs>>): Prisma.Prisma__BreakerFamilyClient<runtime.Types.Result.GetResult<Prisma.$BreakerFamilyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1002,6 +1225,7 @@ export interface EquipmentCatalogFieldRefs {
   readonly tripUnit: Prisma.FieldRef<"EquipmentCatalog", 'String'>
   readonly settingsJson: Prisma.FieldRef<"EquipmentCatalog", 'String'>
   readonly datasheetUrl: Prisma.FieldRef<"EquipmentCatalog", 'String'>
+  readonly familyId: Prisma.FieldRef<"EquipmentCatalog", 'String'>
 }
     
 
@@ -1018,6 +1242,10 @@ export type EquipmentCatalogFindUniqueArgs<ExtArgs extends runtime.Types.Extensi
    * Omit specific fields from the EquipmentCatalog
    */
   omit?: Prisma.EquipmentCatalogOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.EquipmentCatalogInclude<ExtArgs> | null
   /**
    * Filter, which EquipmentCatalog to fetch.
    */
@@ -1037,6 +1265,10 @@ export type EquipmentCatalogFindUniqueOrThrowArgs<ExtArgs extends runtime.Types.
    */
   omit?: Prisma.EquipmentCatalogOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.EquipmentCatalogInclude<ExtArgs> | null
+  /**
    * Filter, which EquipmentCatalog to fetch.
    */
   where: Prisma.EquipmentCatalogWhereUniqueInput
@@ -1054,6 +1286,10 @@ export type EquipmentCatalogFindFirstArgs<ExtArgs extends runtime.Types.Extensio
    * Omit specific fields from the EquipmentCatalog
    */
   omit?: Prisma.EquipmentCatalogOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.EquipmentCatalogInclude<ExtArgs> | null
   /**
    * Filter, which EquipmentCatalog to fetch.
    */
@@ -1103,6 +1339,10 @@ export type EquipmentCatalogFindFirstOrThrowArgs<ExtArgs extends runtime.Types.E
    */
   omit?: Prisma.EquipmentCatalogOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.EquipmentCatalogInclude<ExtArgs> | null
+  /**
    * Filter, which EquipmentCatalog to fetch.
    */
   where?: Prisma.EquipmentCatalogWhereInput
@@ -1150,6 +1390,10 @@ export type EquipmentCatalogFindManyArgs<ExtArgs extends runtime.Types.Extension
    * Omit specific fields from the EquipmentCatalog
    */
   omit?: Prisma.EquipmentCatalogOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.EquipmentCatalogInclude<ExtArgs> | null
   /**
    * Filter, which EquipmentCatalogs to fetch.
    */
@@ -1199,6 +1443,10 @@ export type EquipmentCatalogCreateArgs<ExtArgs extends runtime.Types.Extensions.
    */
   omit?: Prisma.EquipmentCatalogOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.EquipmentCatalogInclude<ExtArgs> | null
+  /**
    * The data needed to create a EquipmentCatalog.
    */
   data: Prisma.XOR<Prisma.EquipmentCatalogCreateInput, Prisma.EquipmentCatalogUncheckedCreateInput>
@@ -1230,6 +1478,10 @@ export type EquipmentCatalogCreateManyAndReturnArgs<ExtArgs extends runtime.Type
    * The data used to create many EquipmentCatalogs.
    */
   data: Prisma.EquipmentCatalogCreateManyInput | Prisma.EquipmentCatalogCreateManyInput[]
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.EquipmentCatalogIncludeCreateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -1244,6 +1496,10 @@ export type EquipmentCatalogUpdateArgs<ExtArgs extends runtime.Types.Extensions.
    * Omit specific fields from the EquipmentCatalog
    */
   omit?: Prisma.EquipmentCatalogOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.EquipmentCatalogInclude<ExtArgs> | null
   /**
    * The data needed to update a EquipmentCatalog.
    */
@@ -1296,6 +1552,10 @@ export type EquipmentCatalogUpdateManyAndReturnArgs<ExtArgs extends runtime.Type
    * Limit how many EquipmentCatalogs to update.
    */
   limit?: number
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.EquipmentCatalogIncludeUpdateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -1310,6 +1570,10 @@ export type EquipmentCatalogUpsertArgs<ExtArgs extends runtime.Types.Extensions.
    * Omit specific fields from the EquipmentCatalog
    */
   omit?: Prisma.EquipmentCatalogOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.EquipmentCatalogInclude<ExtArgs> | null
   /**
    * The filter to search for the EquipmentCatalog to update in case it exists.
    */
@@ -1337,6 +1601,10 @@ export type EquipmentCatalogDeleteArgs<ExtArgs extends runtime.Types.Extensions.
    */
   omit?: Prisma.EquipmentCatalogOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.EquipmentCatalogInclude<ExtArgs> | null
+  /**
    * Filter which EquipmentCatalog to delete.
    */
   where: Prisma.EquipmentCatalogWhereUniqueInput
@@ -1357,6 +1625,25 @@ export type EquipmentCatalogDeleteManyArgs<ExtArgs extends runtime.Types.Extensi
 }
 
 /**
+ * EquipmentCatalog.family
+ */
+export type EquipmentCatalog$familyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the BreakerFamily
+   */
+  select?: Prisma.BreakerFamilySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the BreakerFamily
+   */
+  omit?: Prisma.BreakerFamilyOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.BreakerFamilyInclude<ExtArgs> | null
+  where?: Prisma.BreakerFamilyWhereInput
+}
+
+/**
  * EquipmentCatalog without action
  */
 export type EquipmentCatalogDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1368,4 +1655,8 @@ export type EquipmentCatalogDefaultArgs<ExtArgs extends runtime.Types.Extensions
    * Omit specific fields from the EquipmentCatalog
    */
   omit?: Prisma.EquipmentCatalogOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.EquipmentCatalogInclude<ExtArgs> | null
 }

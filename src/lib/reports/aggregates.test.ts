@@ -14,41 +14,51 @@ import type { Building, FloorItem, Project } from '@/types';
 // ---------------------------------------------------------------------------
 
 const equipment: EquipmentItem[] = [
-  { id: 'm1', category: 'MCCB', manufacturer: 'ABB', series: 'Tmax', model: 'T1', ratedCurrent: 16, poles: 3, breakingCapacity: 36, tripUnit: null, settingsJson: null },
-  { id: 'm2', category: 'MCCB', manufacturer: 'ABB', series: 'Tmax', model: 'T1', ratedCurrent: 25, poles: 3, breakingCapacity: 36, tripUnit: null, settingsJson: null },
-  { id: 'm3', category: 'MCCB', manufacturer: 'ABB', series: 'Tmax', model: 'T2', ratedCurrent: 63, poles: 3, breakingCapacity: 36, tripUnit: null, settingsJson: null },
-  { id: 'm4', category: 'MCCB', manufacturer: 'ABB', series: 'Tmax', model: 'T3', ratedCurrent: 100, poles: 3, breakingCapacity: 36, tripUnit: null, settingsJson: null },
-  { id: 'm5', category: 'MCCB', manufacturer: 'ABB', series: 'Tmax', model: 'T4', ratedCurrent: 160, poles: 3, breakingCapacity: 36, tripUnit: null, settingsJson: null },
-  { id: 'm6', category: 'MCCB', manufacturer: 'ABB', series: 'Tmax', model: 'T5', ratedCurrent: 250, poles: 3, breakingCapacity: 36, tripUnit: null, settingsJson: null },
-  { id: 'm7', category: 'MCCB', manufacturer: 'ABB', series: 'Tmax', model: 'T6', ratedCurrent: 630, poles: 3, breakingCapacity: 36, tripUnit: null, settingsJson: null },
+  { id: 'm1', category: 'MCCB', manufacturer: 'ABB', series: 'Tmax', model: 'T1', ratedCurrent: 16, poles: 3, breakingCapacity: 36, tripUnit: null, settingsJson: null, familyId: null, familyName: null },
+  { id: 'm2', category: 'MCCB', manufacturer: 'ABB', series: 'Tmax', model: 'T1', ratedCurrent: 25, poles: 3, breakingCapacity: 36, tripUnit: null, settingsJson: null, familyId: null, familyName: null },
+  { id: 'm3', category: 'MCCB', manufacturer: 'ABB', series: 'Tmax', model: 'T2', ratedCurrent: 63, poles: 3, breakingCapacity: 36, tripUnit: null, settingsJson: null, familyId: null, familyName: null },
+  { id: 'm4', category: 'MCCB', manufacturer: 'ABB', series: 'Tmax', model: 'T3', ratedCurrent: 100, poles: 3, breakingCapacity: 36, tripUnit: null, settingsJson: null, familyId: null, familyName: null },
+  { id: 'm5', category: 'MCCB', manufacturer: 'ABB', series: 'Tmax', model: 'T4', ratedCurrent: 160, poles: 3, breakingCapacity: 36, tripUnit: null, settingsJson: null, familyId: null, familyName: null },
+  { id: 'm6', category: 'MCCB', manufacturer: 'ABB', series: 'Tmax', model: 'T5', ratedCurrent: 250, poles: 3, breakingCapacity: 36, tripUnit: null, settingsJson: null, familyId: null, familyName: null },
+  { id: 'm7', category: 'MCCB', manufacturer: 'ABB', series: 'Tmax', model: 'T6', ratedCurrent: 630, poles: 3, breakingCapacity: 36, tripUnit: null, settingsJson: null, familyId: null, familyName: null },
   // MCBs for per-apartment feeders.
-  { id: 'mc1', category: 'MCB', manufacturer: 'ABB', series: 'S200', model: 'S201', ratedCurrent: 16, poles: 1, breakingCapacity: 10, tripUnit: null, settingsJson: null },
-  { id: 'mc2', category: 'MCB', manufacturer: 'ABB', series: 'S200', model: 'S202', ratedCurrent: 20, poles: 1, breakingCapacity: 10, tripUnit: null, settingsJson: null },
-  { id: 'mc3', category: 'MCB', manufacturer: 'ABB', series: 'S200', model: 'S203', ratedCurrent: 25, poles: 1, breakingCapacity: 10, tripUnit: null, settingsJson: null },
-  { id: 'mc4', category: 'MCB', manufacturer: 'ABB', series: 'S200', model: 'S204', ratedCurrent: 32, poles: 1, breakingCapacity: 10, tripUnit: null, settingsJson: null },
-  { id: 'mc5', category: 'MCB', manufacturer: 'ABB', series: 'S200', model: 'S205', ratedCurrent: 40, poles: 1, breakingCapacity: 10, tripUnit: null, settingsJson: null },
-  { id: 'mc6', category: 'MCB', manufacturer: 'ABB', series: 'S200', model: 'S206', ratedCurrent: 63, poles: 1, breakingCapacity: 10, tripUnit: null, settingsJson: null },
+  { id: 'mc1', category: 'MCB', manufacturer: 'ABB', series: 'S200', model: 'S201', ratedCurrent: 16, poles: 1, breakingCapacity: 10, tripUnit: null, settingsJson: null, familyId: null, familyName: null },
+  { id: 'mc2', category: 'MCB', manufacturer: 'ABB', series: 'S200', model: 'S202', ratedCurrent: 20, poles: 1, breakingCapacity: 10, tripUnit: null, settingsJson: null, familyId: null, familyName: null },
+  { id: 'mc3', category: 'MCB', manufacturer: 'ABB', series: 'S200', model: 'S203', ratedCurrent: 25, poles: 1, breakingCapacity: 10, tripUnit: null, settingsJson: null, familyId: null, familyName: null },
+  { id: 'mc4', category: 'MCB', manufacturer: 'ABB', series: 'S200', model: 'S204', ratedCurrent: 32, poles: 1, breakingCapacity: 10, tripUnit: null, settingsJson: null, familyId: null, familyName: null },
+  { id: 'mc5', category: 'MCB', manufacturer: 'ABB', series: 'S200', model: 'S205', ratedCurrent: 40, poles: 1, breakingCapacity: 10, tripUnit: null, settingsJson: null, familyId: null, familyName: null },
+  { id: 'mc6', category: 'MCB', manufacturer: 'ABB', series: 'S200', model: 'S206', ratedCurrent: 63, poles: 1, breakingCapacity: 10, tripUnit: null, settingsJson: null, familyId: null, familyName: null },
 ];
 
-import type { FindBreaker } from '@/lib/calculations/feeders';
+import type { FindBreaker, FoundBreaker } from '@/lib/calculations/feeders';
 
 const findBreaker: FindBreaker = (currentRating, category) => {
   const match = equipment.find((e) => e.category === category && e.ratedCurrent >= currentRating);
-  return match ?? {
-    id: 'fallback',
-    category,
-    manufacturer: 'Generic',
-    series: 'MCCB',
-    model: `${currentRating}A`,
-    ratedCurrent: currentRating,
-    poles: 3,
-    breakingCapacity: 36,
-    tripUnit: null,
-    settingsJson: null,
+  if (match) {
+    return {
+      model: `${match.manufacturer} ${match.series} ${match.model}`,
+      manufacturer: match.manufacturer,
+      familyName: match.familyName,
+      ratedCurrent: match.ratedCurrent,
+      fallback: false,
+    };
+  }
+  return {
+    model: null,
+    manufacturer: null,
+    familyName: null,
+    ratedCurrent: null,
+    fallback: true,
   };
 };
 
-const noBreaker: FindBreaker = () => null;
+const noBreaker: FindBreaker = () => ({
+  model: null,
+  manufacturer: null,
+  familyName: null,
+  ratedCurrent: null,
+  fallback: true,
+});
 
 const baseProject: Project = {
   id: 'p1', name: 'Test', client: '', consultant: '', contractor: '', location: '', engineer: '', date: '',

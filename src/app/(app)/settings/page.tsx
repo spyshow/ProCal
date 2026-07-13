@@ -20,6 +20,7 @@ export default function SettingsPage() {
   // Voltage drop limits
   const [vdLimits, setVdLimits] = useState({ lighting: 3, power: 5 });
 
+
   // Company settings
   const [company, setCompany] = useState({ companyName: "", logoUrl: "" });
   const [uploading, setUploading] = useState(false);

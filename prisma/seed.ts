@@ -1,6 +1,7 @@
 import { PrismaClient } from "../src/generated/prisma/client";
 import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
 import bcrypt from "bcryptjs";
+import { upsertBreakerFamilies, getFamilyKey } from "../src/lib/breaker-families";
 
 const adapter = new PrismaBetterSqlite3({
   url: "file:./dev.db",
@@ -132,6 +133,10 @@ async function main() {
     { category: "MCB", manufacturer: "ABB", series: "S200", model: "S201-C16 (1P)", ratedCurrent: 16, poles: 1, breakingCapacity: 6, tripUnit: "C-Curve" },
     { category: "MCB", manufacturer: "ABB", series: "S200", model: "S201-C20 (1P)", ratedCurrent: 20, poles: 1, breakingCapacity: 6, tripUnit: "C-Curve" },
     { category: "MCB", manufacturer: "ABB", series: "S200", model: "S201-C32 (1P)", ratedCurrent: 32, poles: 1, breakingCapacity: 6, tripUnit: "C-Curve" },
+    { category: "MCB", manufacturer: "ABB", series: "S200", model: "S203-C10 (3P)", ratedCurrent: 10, poles: 3, breakingCapacity: 6, tripUnit: "C-Curve" },
+    { category: "MCB", manufacturer: "ABB", series: "S200", model: "S203-C16 (3P)", ratedCurrent: 16, poles: 3, breakingCapacity: 6, tripUnit: "C-Curve" },
+    { category: "MCB", manufacturer: "ABB", series: "S200", model: "S203-C20 (3P)", ratedCurrent: 20, poles: 3, breakingCapacity: 6, tripUnit: "C-Curve" },
+    { category: "MCB", manufacturer: "ABB", series: "S200", model: "S203-C25 (3P)", ratedCurrent: 25, poles: 3, breakingCapacity: 6, tripUnit: "C-Curve" },
     { category: "MCB", manufacturer: "ABB", series: "S200", model: "S203-C32 (3P)", ratedCurrent: 32, poles: 3, breakingCapacity: 6, tripUnit: "C-Curve" },
     { category: "MCB", manufacturer: "ABB", series: "S200", model: "S203-C40 (3P)", ratedCurrent: 40, poles: 3, breakingCapacity: 6, tripUnit: "C-Curve" },
     { category: "MCB", manufacturer: "ABB", series: "S200", model: "S203-C63 (3P)", ratedCurrent: 63, poles: 3, breakingCapacity: 6, tripUnit: "C-Curve" },
@@ -141,6 +146,10 @@ async function main() {
     { category: "MCB", manufacturer: "Schneider", series: "Acti9 iC60", model: "iC60N 1P 16A C", ratedCurrent: 16, poles: 1, breakingCapacity: 10, tripUnit: "C-Curve" },
     { category: "MCB", manufacturer: "Schneider", series: "Acti9 iC60", model: "iC60N 1P 20A C", ratedCurrent: 20, poles: 1, breakingCapacity: 10, tripUnit: "C-Curve" },
     { category: "MCB", manufacturer: "Schneider", series: "Acti9 iC60", model: "iC60N 1P 32A C", ratedCurrent: 32, poles: 1, breakingCapacity: 10, tripUnit: "C-Curve" },
+    { category: "MCB", manufacturer: "Schneider", series: "Acti9 iC60", model: "iC60N 3P 10A C", ratedCurrent: 10, poles: 3, breakingCapacity: 10, tripUnit: "C-Curve" },
+    { category: "MCB", manufacturer: "Schneider", series: "Acti9 iC60", model: "iC60N 3P 16A C", ratedCurrent: 16, poles: 3, breakingCapacity: 10, tripUnit: "C-Curve" },
+    { category: "MCB", manufacturer: "Schneider", series: "Acti9 iC60", model: "iC60N 3P 20A C", ratedCurrent: 20, poles: 3, breakingCapacity: 10, tripUnit: "C-Curve" },
+    { category: "MCB", manufacturer: "Schneider", series: "Acti9 iC60", model: "iC60N 3P 25A C", ratedCurrent: 25, poles: 3, breakingCapacity: 10, tripUnit: "C-Curve" },
     { category: "MCB", manufacturer: "Schneider", series: "Acti9 iC60", model: "iC60N 3P 32A C", ratedCurrent: 32, poles: 3, breakingCapacity: 10, tripUnit: "C-Curve" },
     { category: "MCB", manufacturer: "Schneider", series: "Acti9 iC60", model: "iC60N 3P 40A C", ratedCurrent: 40, poles: 3, breakingCapacity: 10, tripUnit: "C-Curve" },
     { category: "MCB", manufacturer: "Schneider", series: "Acti9 iC60", model: "iC60N 3P 63A C", ratedCurrent: 63, poles: 3, breakingCapacity: 10, tripUnit: "C-Curve" },
@@ -166,12 +175,21 @@ async function main() {
     { category: "METER", manufacturer: "Schneider", series: "PowerLogic", model: "PM5560", ratedCurrent: 5, poles: 3, breakingCapacity: 0, tripUnit: "Class 0.2S" },
   ];
 
+  const familyKeys = catalogData.map((item) => ({
+    manufacturer: item.manufacturer,
+    category: item.category,
+    series: item.series,
+  }));
+  const familyIdByKey = await upsertBreakerFamilies(db, familyKeys);
+
   for (const item of catalogData) {
+    const familyId = familyIdByKey.get(getFamilyKey(item.manufacturer, item.category, item.series));
     await db.equipmentCatalog.create({
-      data: item,
+      data: { ...item, familyId },
     });
   }
 
+  console.log(`Seeded ${familyIdByKey.size} breaker families.`);
   console.log(`Seeded ${catalogData.length} equipment items.`);
   console.log("Seeding completed successfully.");
 }

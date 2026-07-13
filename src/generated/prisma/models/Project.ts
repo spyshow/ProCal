@@ -62,6 +62,9 @@ export type ProjectMinAggregateOutputType = {
   transformerSize: number | null
   notes: string | null
   preferredManufacturer: string | null
+  defaultAcbFamilyId: string | null
+  defaultMccbFamilyId: string | null
+  defaultMcbFamilyId: string | null
   country: string | null
   logoUrl: string | null
   maxVoltageDropLighting: number | null
@@ -87,6 +90,9 @@ export type ProjectMaxAggregateOutputType = {
   transformerSize: number | null
   notes: string | null
   preferredManufacturer: string | null
+  defaultAcbFamilyId: string | null
+  defaultMccbFamilyId: string | null
+  defaultMcbFamilyId: string | null
   country: string | null
   logoUrl: string | null
   maxVoltageDropLighting: number | null
@@ -112,6 +118,9 @@ export type ProjectCountAggregateOutputType = {
   transformerSize: number
   notes: number
   preferredManufacturer: number
+  defaultAcbFamilyId: number
+  defaultMccbFamilyId: number
+  defaultMcbFamilyId: number
   country: number
   logoUrl: number
   maxVoltageDropLighting: number
@@ -159,6 +168,9 @@ export type ProjectMinAggregateInputType = {
   transformerSize?: true
   notes?: true
   preferredManufacturer?: true
+  defaultAcbFamilyId?: true
+  defaultMccbFamilyId?: true
+  defaultMcbFamilyId?: true
   country?: true
   logoUrl?: true
   maxVoltageDropLighting?: true
@@ -184,6 +196,9 @@ export type ProjectMaxAggregateInputType = {
   transformerSize?: true
   notes?: true
   preferredManufacturer?: true
+  defaultAcbFamilyId?: true
+  defaultMccbFamilyId?: true
+  defaultMcbFamilyId?: true
   country?: true
   logoUrl?: true
   maxVoltageDropLighting?: true
@@ -209,6 +224,9 @@ export type ProjectCountAggregateInputType = {
   transformerSize?: true
   notes?: true
   preferredManufacturer?: true
+  defaultAcbFamilyId?: true
+  defaultMccbFamilyId?: true
+  defaultMcbFamilyId?: true
   country?: true
   logoUrl?: true
   maxVoltageDropLighting?: true
@@ -321,6 +339,9 @@ export type ProjectGroupByOutputType = {
   transformerSize: number | null
   notes: string | null
   preferredManufacturer: string
+  defaultAcbFamilyId: string | null
+  defaultMccbFamilyId: string | null
+  defaultMcbFamilyId: string | null
   country: string
   logoUrl: string | null
   maxVoltageDropLighting: number
@@ -369,6 +390,9 @@ export type ProjectWhereInput = {
   transformerSize?: Prisma.FloatNullableFilter<"Project"> | number | null
   notes?: Prisma.StringNullableFilter<"Project"> | string | null
   preferredManufacturer?: Prisma.StringFilter<"Project"> | string
+  defaultAcbFamilyId?: Prisma.StringNullableFilter<"Project"> | string | null
+  defaultMccbFamilyId?: Prisma.StringNullableFilter<"Project"> | string | null
+  defaultMcbFamilyId?: Prisma.StringNullableFilter<"Project"> | string | null
   country?: Prisma.StringFilter<"Project"> | string
   logoUrl?: Prisma.StringNullableFilter<"Project"> | string | null
   maxVoltageDropLighting?: Prisma.FloatFilter<"Project"> | number
@@ -376,6 +400,9 @@ export type ProjectWhereInput = {
   userId?: Prisma.StringFilter<"Project"> | string
   createdAt?: Prisma.DateTimeFilter<"Project"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Project"> | Date | string
+  defaultAcbFamily?: Prisma.XOR<Prisma.BreakerFamilyNullableScalarRelationFilter, Prisma.BreakerFamilyWhereInput> | null
+  defaultMccbFamily?: Prisma.XOR<Prisma.BreakerFamilyNullableScalarRelationFilter, Prisma.BreakerFamilyWhereInput> | null
+  defaultMcbFamily?: Prisma.XOR<Prisma.BreakerFamilyNullableScalarRelationFilter, Prisma.BreakerFamilyWhereInput> | null
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   buildings?: Prisma.BuildingListRelationFilter
   apartmentTemplates?: Prisma.ApartmentTemplateListRelationFilter
@@ -398,6 +425,9 @@ export type ProjectOrderByWithRelationInput = {
   transformerSize?: Prisma.SortOrderInput | Prisma.SortOrder
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
   preferredManufacturer?: Prisma.SortOrder
+  defaultAcbFamilyId?: Prisma.SortOrderInput | Prisma.SortOrder
+  defaultMccbFamilyId?: Prisma.SortOrderInput | Prisma.SortOrder
+  defaultMcbFamilyId?: Prisma.SortOrderInput | Prisma.SortOrder
   country?: Prisma.SortOrder
   logoUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   maxVoltageDropLighting?: Prisma.SortOrder
@@ -405,6 +435,9 @@ export type ProjectOrderByWithRelationInput = {
   userId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  defaultAcbFamily?: Prisma.BreakerFamilyOrderByWithRelationInput
+  defaultMccbFamily?: Prisma.BreakerFamilyOrderByWithRelationInput
+  defaultMcbFamily?: Prisma.BreakerFamilyOrderByWithRelationInput
   user?: Prisma.UserOrderByWithRelationInput
   buildings?: Prisma.BuildingOrderByRelationAggregateInput
   apartmentTemplates?: Prisma.ApartmentTemplateOrderByRelationAggregateInput
@@ -430,6 +463,9 @@ export type ProjectWhereUniqueInput = Prisma.AtLeast<{
   transformerSize?: Prisma.FloatNullableFilter<"Project"> | number | null
   notes?: Prisma.StringNullableFilter<"Project"> | string | null
   preferredManufacturer?: Prisma.StringFilter<"Project"> | string
+  defaultAcbFamilyId?: Prisma.StringNullableFilter<"Project"> | string | null
+  defaultMccbFamilyId?: Prisma.StringNullableFilter<"Project"> | string | null
+  defaultMcbFamilyId?: Prisma.StringNullableFilter<"Project"> | string | null
   country?: Prisma.StringFilter<"Project"> | string
   logoUrl?: Prisma.StringNullableFilter<"Project"> | string | null
   maxVoltageDropLighting?: Prisma.FloatFilter<"Project"> | number
@@ -437,6 +473,9 @@ export type ProjectWhereUniqueInput = Prisma.AtLeast<{
   userId?: Prisma.StringFilter<"Project"> | string
   createdAt?: Prisma.DateTimeFilter<"Project"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Project"> | Date | string
+  defaultAcbFamily?: Prisma.XOR<Prisma.BreakerFamilyNullableScalarRelationFilter, Prisma.BreakerFamilyWhereInput> | null
+  defaultMccbFamily?: Prisma.XOR<Prisma.BreakerFamilyNullableScalarRelationFilter, Prisma.BreakerFamilyWhereInput> | null
+  defaultMcbFamily?: Prisma.XOR<Prisma.BreakerFamilyNullableScalarRelationFilter, Prisma.BreakerFamilyWhereInput> | null
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   buildings?: Prisma.BuildingListRelationFilter
   apartmentTemplates?: Prisma.ApartmentTemplateListRelationFilter
@@ -459,6 +498,9 @@ export type ProjectOrderByWithAggregationInput = {
   transformerSize?: Prisma.SortOrderInput | Prisma.SortOrder
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
   preferredManufacturer?: Prisma.SortOrder
+  defaultAcbFamilyId?: Prisma.SortOrderInput | Prisma.SortOrder
+  defaultMccbFamilyId?: Prisma.SortOrderInput | Prisma.SortOrder
+  defaultMcbFamilyId?: Prisma.SortOrderInput | Prisma.SortOrder
   country?: Prisma.SortOrder
   logoUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   maxVoltageDropLighting?: Prisma.SortOrder
@@ -492,6 +534,9 @@ export type ProjectScalarWhereWithAggregatesInput = {
   transformerSize?: Prisma.FloatNullableWithAggregatesFilter<"Project"> | number | null
   notes?: Prisma.StringNullableWithAggregatesFilter<"Project"> | string | null
   preferredManufacturer?: Prisma.StringWithAggregatesFilter<"Project"> | string
+  defaultAcbFamilyId?: Prisma.StringNullableWithAggregatesFilter<"Project"> | string | null
+  defaultMccbFamilyId?: Prisma.StringNullableWithAggregatesFilter<"Project"> | string | null
+  defaultMcbFamilyId?: Prisma.StringNullableWithAggregatesFilter<"Project"> | string | null
   country?: Prisma.StringWithAggregatesFilter<"Project"> | string
   logoUrl?: Prisma.StringNullableWithAggregatesFilter<"Project"> | string | null
   maxVoltageDropLighting?: Prisma.FloatWithAggregatesFilter<"Project"> | number
@@ -523,6 +568,9 @@ export type ProjectCreateInput = {
   maxVoltageDropPower?: number
   createdAt?: Date | string
   updatedAt?: Date | string
+  defaultAcbFamily?: Prisma.BreakerFamilyCreateNestedOneWithoutDefaultAcbInput
+  defaultMccbFamily?: Prisma.BreakerFamilyCreateNestedOneWithoutDefaultMccbInput
+  defaultMcbFamily?: Prisma.BreakerFamilyCreateNestedOneWithoutDefaultMcbInput
   user: Prisma.UserCreateNestedOneWithoutProjectsInput
   buildings?: Prisma.BuildingCreateNestedManyWithoutProjectInput
   apartmentTemplates?: Prisma.ApartmentTemplateCreateNestedManyWithoutProjectInput
@@ -545,6 +593,9 @@ export type ProjectUncheckedCreateInput = {
   transformerSize?: number | null
   notes?: string | null
   preferredManufacturer?: string
+  defaultAcbFamilyId?: string | null
+  defaultMccbFamilyId?: string | null
+  defaultMcbFamilyId?: string | null
   country?: string
   logoUrl?: string | null
   maxVoltageDropLighting?: number
@@ -579,6 +630,9 @@ export type ProjectUpdateInput = {
   maxVoltageDropPower?: Prisma.FloatFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  defaultAcbFamily?: Prisma.BreakerFamilyUpdateOneWithoutDefaultAcbNestedInput
+  defaultMccbFamily?: Prisma.BreakerFamilyUpdateOneWithoutDefaultMccbNestedInput
+  defaultMcbFamily?: Prisma.BreakerFamilyUpdateOneWithoutDefaultMcbNestedInput
   user?: Prisma.UserUpdateOneRequiredWithoutProjectsNestedInput
   buildings?: Prisma.BuildingUpdateManyWithoutProjectNestedInput
   apartmentTemplates?: Prisma.ApartmentTemplateUpdateManyWithoutProjectNestedInput
@@ -601,6 +655,9 @@ export type ProjectUncheckedUpdateInput = {
   transformerSize?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredManufacturer?: Prisma.StringFieldUpdateOperationsInput | string
+  defaultAcbFamilyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  defaultMccbFamilyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  defaultMcbFamilyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   country?: Prisma.StringFieldUpdateOperationsInput | string
   logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   maxVoltageDropLighting?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -629,6 +686,9 @@ export type ProjectCreateManyInput = {
   transformerSize?: number | null
   notes?: string | null
   preferredManufacturer?: string
+  defaultAcbFamilyId?: string | null
+  defaultMccbFamilyId?: string | null
+  defaultMcbFamilyId?: string | null
   country?: string
   logoUrl?: string | null
   maxVoltageDropLighting?: number
@@ -678,6 +738,9 @@ export type ProjectUncheckedUpdateManyInput = {
   transformerSize?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredManufacturer?: Prisma.StringFieldUpdateOperationsInput | string
+  defaultAcbFamilyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  defaultMccbFamilyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  defaultMcbFamilyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   country?: Prisma.StringFieldUpdateOperationsInput | string
   logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   maxVoltageDropLighting?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -713,6 +776,9 @@ export type ProjectCountOrderByAggregateInput = {
   transformerSize?: Prisma.SortOrder
   notes?: Prisma.SortOrder
   preferredManufacturer?: Prisma.SortOrder
+  defaultAcbFamilyId?: Prisma.SortOrder
+  defaultMccbFamilyId?: Prisma.SortOrder
+  defaultMcbFamilyId?: Prisma.SortOrder
   country?: Prisma.SortOrder
   logoUrl?: Prisma.SortOrder
   maxVoltageDropLighting?: Prisma.SortOrder
@@ -748,6 +814,9 @@ export type ProjectMaxOrderByAggregateInput = {
   transformerSize?: Prisma.SortOrder
   notes?: Prisma.SortOrder
   preferredManufacturer?: Prisma.SortOrder
+  defaultAcbFamilyId?: Prisma.SortOrder
+  defaultMccbFamilyId?: Prisma.SortOrder
+  defaultMcbFamilyId?: Prisma.SortOrder
   country?: Prisma.SortOrder
   logoUrl?: Prisma.SortOrder
   maxVoltageDropLighting?: Prisma.SortOrder
@@ -773,6 +842,9 @@ export type ProjectMinOrderByAggregateInput = {
   transformerSize?: Prisma.SortOrder
   notes?: Prisma.SortOrder
   preferredManufacturer?: Prisma.SortOrder
+  defaultAcbFamilyId?: Prisma.SortOrder
+  defaultMccbFamilyId?: Prisma.SortOrder
+  defaultMcbFamilyId?: Prisma.SortOrder
   country?: Prisma.SortOrder
   logoUrl?: Prisma.SortOrder
   maxVoltageDropLighting?: Prisma.SortOrder
@@ -901,6 +973,132 @@ export type ProjectUpdateOneRequiredWithoutLoadLibraryItemsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.ProjectUpdateToOneWithWhereWithoutLoadLibraryItemsInput, Prisma.ProjectUpdateWithoutLoadLibraryItemsInput>, Prisma.ProjectUncheckedUpdateWithoutLoadLibraryItemsInput>
 }
 
+export type ProjectCreateNestedManyWithoutDefaultAcbFamilyInput = {
+  create?: Prisma.XOR<Prisma.ProjectCreateWithoutDefaultAcbFamilyInput, Prisma.ProjectUncheckedCreateWithoutDefaultAcbFamilyInput> | Prisma.ProjectCreateWithoutDefaultAcbFamilyInput[] | Prisma.ProjectUncheckedCreateWithoutDefaultAcbFamilyInput[]
+  connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutDefaultAcbFamilyInput | Prisma.ProjectCreateOrConnectWithoutDefaultAcbFamilyInput[]
+  createMany?: Prisma.ProjectCreateManyDefaultAcbFamilyInputEnvelope
+  connect?: Prisma.ProjectWhereUniqueInput | Prisma.ProjectWhereUniqueInput[]
+}
+
+export type ProjectCreateNestedManyWithoutDefaultMccbFamilyInput = {
+  create?: Prisma.XOR<Prisma.ProjectCreateWithoutDefaultMccbFamilyInput, Prisma.ProjectUncheckedCreateWithoutDefaultMccbFamilyInput> | Prisma.ProjectCreateWithoutDefaultMccbFamilyInput[] | Prisma.ProjectUncheckedCreateWithoutDefaultMccbFamilyInput[]
+  connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutDefaultMccbFamilyInput | Prisma.ProjectCreateOrConnectWithoutDefaultMccbFamilyInput[]
+  createMany?: Prisma.ProjectCreateManyDefaultMccbFamilyInputEnvelope
+  connect?: Prisma.ProjectWhereUniqueInput | Prisma.ProjectWhereUniqueInput[]
+}
+
+export type ProjectCreateNestedManyWithoutDefaultMcbFamilyInput = {
+  create?: Prisma.XOR<Prisma.ProjectCreateWithoutDefaultMcbFamilyInput, Prisma.ProjectUncheckedCreateWithoutDefaultMcbFamilyInput> | Prisma.ProjectCreateWithoutDefaultMcbFamilyInput[] | Prisma.ProjectUncheckedCreateWithoutDefaultMcbFamilyInput[]
+  connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutDefaultMcbFamilyInput | Prisma.ProjectCreateOrConnectWithoutDefaultMcbFamilyInput[]
+  createMany?: Prisma.ProjectCreateManyDefaultMcbFamilyInputEnvelope
+  connect?: Prisma.ProjectWhereUniqueInput | Prisma.ProjectWhereUniqueInput[]
+}
+
+export type ProjectUncheckedCreateNestedManyWithoutDefaultAcbFamilyInput = {
+  create?: Prisma.XOR<Prisma.ProjectCreateWithoutDefaultAcbFamilyInput, Prisma.ProjectUncheckedCreateWithoutDefaultAcbFamilyInput> | Prisma.ProjectCreateWithoutDefaultAcbFamilyInput[] | Prisma.ProjectUncheckedCreateWithoutDefaultAcbFamilyInput[]
+  connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutDefaultAcbFamilyInput | Prisma.ProjectCreateOrConnectWithoutDefaultAcbFamilyInput[]
+  createMany?: Prisma.ProjectCreateManyDefaultAcbFamilyInputEnvelope
+  connect?: Prisma.ProjectWhereUniqueInput | Prisma.ProjectWhereUniqueInput[]
+}
+
+export type ProjectUncheckedCreateNestedManyWithoutDefaultMccbFamilyInput = {
+  create?: Prisma.XOR<Prisma.ProjectCreateWithoutDefaultMccbFamilyInput, Prisma.ProjectUncheckedCreateWithoutDefaultMccbFamilyInput> | Prisma.ProjectCreateWithoutDefaultMccbFamilyInput[] | Prisma.ProjectUncheckedCreateWithoutDefaultMccbFamilyInput[]
+  connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutDefaultMccbFamilyInput | Prisma.ProjectCreateOrConnectWithoutDefaultMccbFamilyInput[]
+  createMany?: Prisma.ProjectCreateManyDefaultMccbFamilyInputEnvelope
+  connect?: Prisma.ProjectWhereUniqueInput | Prisma.ProjectWhereUniqueInput[]
+}
+
+export type ProjectUncheckedCreateNestedManyWithoutDefaultMcbFamilyInput = {
+  create?: Prisma.XOR<Prisma.ProjectCreateWithoutDefaultMcbFamilyInput, Prisma.ProjectUncheckedCreateWithoutDefaultMcbFamilyInput> | Prisma.ProjectCreateWithoutDefaultMcbFamilyInput[] | Prisma.ProjectUncheckedCreateWithoutDefaultMcbFamilyInput[]
+  connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutDefaultMcbFamilyInput | Prisma.ProjectCreateOrConnectWithoutDefaultMcbFamilyInput[]
+  createMany?: Prisma.ProjectCreateManyDefaultMcbFamilyInputEnvelope
+  connect?: Prisma.ProjectWhereUniqueInput | Prisma.ProjectWhereUniqueInput[]
+}
+
+export type ProjectUpdateManyWithoutDefaultAcbFamilyNestedInput = {
+  create?: Prisma.XOR<Prisma.ProjectCreateWithoutDefaultAcbFamilyInput, Prisma.ProjectUncheckedCreateWithoutDefaultAcbFamilyInput> | Prisma.ProjectCreateWithoutDefaultAcbFamilyInput[] | Prisma.ProjectUncheckedCreateWithoutDefaultAcbFamilyInput[]
+  connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutDefaultAcbFamilyInput | Prisma.ProjectCreateOrConnectWithoutDefaultAcbFamilyInput[]
+  upsert?: Prisma.ProjectUpsertWithWhereUniqueWithoutDefaultAcbFamilyInput | Prisma.ProjectUpsertWithWhereUniqueWithoutDefaultAcbFamilyInput[]
+  createMany?: Prisma.ProjectCreateManyDefaultAcbFamilyInputEnvelope
+  set?: Prisma.ProjectWhereUniqueInput | Prisma.ProjectWhereUniqueInput[]
+  disconnect?: Prisma.ProjectWhereUniqueInput | Prisma.ProjectWhereUniqueInput[]
+  delete?: Prisma.ProjectWhereUniqueInput | Prisma.ProjectWhereUniqueInput[]
+  connect?: Prisma.ProjectWhereUniqueInput | Prisma.ProjectWhereUniqueInput[]
+  update?: Prisma.ProjectUpdateWithWhereUniqueWithoutDefaultAcbFamilyInput | Prisma.ProjectUpdateWithWhereUniqueWithoutDefaultAcbFamilyInput[]
+  updateMany?: Prisma.ProjectUpdateManyWithWhereWithoutDefaultAcbFamilyInput | Prisma.ProjectUpdateManyWithWhereWithoutDefaultAcbFamilyInput[]
+  deleteMany?: Prisma.ProjectScalarWhereInput | Prisma.ProjectScalarWhereInput[]
+}
+
+export type ProjectUpdateManyWithoutDefaultMccbFamilyNestedInput = {
+  create?: Prisma.XOR<Prisma.ProjectCreateWithoutDefaultMccbFamilyInput, Prisma.ProjectUncheckedCreateWithoutDefaultMccbFamilyInput> | Prisma.ProjectCreateWithoutDefaultMccbFamilyInput[] | Prisma.ProjectUncheckedCreateWithoutDefaultMccbFamilyInput[]
+  connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutDefaultMccbFamilyInput | Prisma.ProjectCreateOrConnectWithoutDefaultMccbFamilyInput[]
+  upsert?: Prisma.ProjectUpsertWithWhereUniqueWithoutDefaultMccbFamilyInput | Prisma.ProjectUpsertWithWhereUniqueWithoutDefaultMccbFamilyInput[]
+  createMany?: Prisma.ProjectCreateManyDefaultMccbFamilyInputEnvelope
+  set?: Prisma.ProjectWhereUniqueInput | Prisma.ProjectWhereUniqueInput[]
+  disconnect?: Prisma.ProjectWhereUniqueInput | Prisma.ProjectWhereUniqueInput[]
+  delete?: Prisma.ProjectWhereUniqueInput | Prisma.ProjectWhereUniqueInput[]
+  connect?: Prisma.ProjectWhereUniqueInput | Prisma.ProjectWhereUniqueInput[]
+  update?: Prisma.ProjectUpdateWithWhereUniqueWithoutDefaultMccbFamilyInput | Prisma.ProjectUpdateWithWhereUniqueWithoutDefaultMccbFamilyInput[]
+  updateMany?: Prisma.ProjectUpdateManyWithWhereWithoutDefaultMccbFamilyInput | Prisma.ProjectUpdateManyWithWhereWithoutDefaultMccbFamilyInput[]
+  deleteMany?: Prisma.ProjectScalarWhereInput | Prisma.ProjectScalarWhereInput[]
+}
+
+export type ProjectUpdateManyWithoutDefaultMcbFamilyNestedInput = {
+  create?: Prisma.XOR<Prisma.ProjectCreateWithoutDefaultMcbFamilyInput, Prisma.ProjectUncheckedCreateWithoutDefaultMcbFamilyInput> | Prisma.ProjectCreateWithoutDefaultMcbFamilyInput[] | Prisma.ProjectUncheckedCreateWithoutDefaultMcbFamilyInput[]
+  connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutDefaultMcbFamilyInput | Prisma.ProjectCreateOrConnectWithoutDefaultMcbFamilyInput[]
+  upsert?: Prisma.ProjectUpsertWithWhereUniqueWithoutDefaultMcbFamilyInput | Prisma.ProjectUpsertWithWhereUniqueWithoutDefaultMcbFamilyInput[]
+  createMany?: Prisma.ProjectCreateManyDefaultMcbFamilyInputEnvelope
+  set?: Prisma.ProjectWhereUniqueInput | Prisma.ProjectWhereUniqueInput[]
+  disconnect?: Prisma.ProjectWhereUniqueInput | Prisma.ProjectWhereUniqueInput[]
+  delete?: Prisma.ProjectWhereUniqueInput | Prisma.ProjectWhereUniqueInput[]
+  connect?: Prisma.ProjectWhereUniqueInput | Prisma.ProjectWhereUniqueInput[]
+  update?: Prisma.ProjectUpdateWithWhereUniqueWithoutDefaultMcbFamilyInput | Prisma.ProjectUpdateWithWhereUniqueWithoutDefaultMcbFamilyInput[]
+  updateMany?: Prisma.ProjectUpdateManyWithWhereWithoutDefaultMcbFamilyInput | Prisma.ProjectUpdateManyWithWhereWithoutDefaultMcbFamilyInput[]
+  deleteMany?: Prisma.ProjectScalarWhereInput | Prisma.ProjectScalarWhereInput[]
+}
+
+export type ProjectUncheckedUpdateManyWithoutDefaultAcbFamilyNestedInput = {
+  create?: Prisma.XOR<Prisma.ProjectCreateWithoutDefaultAcbFamilyInput, Prisma.ProjectUncheckedCreateWithoutDefaultAcbFamilyInput> | Prisma.ProjectCreateWithoutDefaultAcbFamilyInput[] | Prisma.ProjectUncheckedCreateWithoutDefaultAcbFamilyInput[]
+  connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutDefaultAcbFamilyInput | Prisma.ProjectCreateOrConnectWithoutDefaultAcbFamilyInput[]
+  upsert?: Prisma.ProjectUpsertWithWhereUniqueWithoutDefaultAcbFamilyInput | Prisma.ProjectUpsertWithWhereUniqueWithoutDefaultAcbFamilyInput[]
+  createMany?: Prisma.ProjectCreateManyDefaultAcbFamilyInputEnvelope
+  set?: Prisma.ProjectWhereUniqueInput | Prisma.ProjectWhereUniqueInput[]
+  disconnect?: Prisma.ProjectWhereUniqueInput | Prisma.ProjectWhereUniqueInput[]
+  delete?: Prisma.ProjectWhereUniqueInput | Prisma.ProjectWhereUniqueInput[]
+  connect?: Prisma.ProjectWhereUniqueInput | Prisma.ProjectWhereUniqueInput[]
+  update?: Prisma.ProjectUpdateWithWhereUniqueWithoutDefaultAcbFamilyInput | Prisma.ProjectUpdateWithWhereUniqueWithoutDefaultAcbFamilyInput[]
+  updateMany?: Prisma.ProjectUpdateManyWithWhereWithoutDefaultAcbFamilyInput | Prisma.ProjectUpdateManyWithWhereWithoutDefaultAcbFamilyInput[]
+  deleteMany?: Prisma.ProjectScalarWhereInput | Prisma.ProjectScalarWhereInput[]
+}
+
+export type ProjectUncheckedUpdateManyWithoutDefaultMccbFamilyNestedInput = {
+  create?: Prisma.XOR<Prisma.ProjectCreateWithoutDefaultMccbFamilyInput, Prisma.ProjectUncheckedCreateWithoutDefaultMccbFamilyInput> | Prisma.ProjectCreateWithoutDefaultMccbFamilyInput[] | Prisma.ProjectUncheckedCreateWithoutDefaultMccbFamilyInput[]
+  connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutDefaultMccbFamilyInput | Prisma.ProjectCreateOrConnectWithoutDefaultMccbFamilyInput[]
+  upsert?: Prisma.ProjectUpsertWithWhereUniqueWithoutDefaultMccbFamilyInput | Prisma.ProjectUpsertWithWhereUniqueWithoutDefaultMccbFamilyInput[]
+  createMany?: Prisma.ProjectCreateManyDefaultMccbFamilyInputEnvelope
+  set?: Prisma.ProjectWhereUniqueInput | Prisma.ProjectWhereUniqueInput[]
+  disconnect?: Prisma.ProjectWhereUniqueInput | Prisma.ProjectWhereUniqueInput[]
+  delete?: Prisma.ProjectWhereUniqueInput | Prisma.ProjectWhereUniqueInput[]
+  connect?: Prisma.ProjectWhereUniqueInput | Prisma.ProjectWhereUniqueInput[]
+  update?: Prisma.ProjectUpdateWithWhereUniqueWithoutDefaultMccbFamilyInput | Prisma.ProjectUpdateWithWhereUniqueWithoutDefaultMccbFamilyInput[]
+  updateMany?: Prisma.ProjectUpdateManyWithWhereWithoutDefaultMccbFamilyInput | Prisma.ProjectUpdateManyWithWhereWithoutDefaultMccbFamilyInput[]
+  deleteMany?: Prisma.ProjectScalarWhereInput | Prisma.ProjectScalarWhereInput[]
+}
+
+export type ProjectUncheckedUpdateManyWithoutDefaultMcbFamilyNestedInput = {
+  create?: Prisma.XOR<Prisma.ProjectCreateWithoutDefaultMcbFamilyInput, Prisma.ProjectUncheckedCreateWithoutDefaultMcbFamilyInput> | Prisma.ProjectCreateWithoutDefaultMcbFamilyInput[] | Prisma.ProjectUncheckedCreateWithoutDefaultMcbFamilyInput[]
+  connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutDefaultMcbFamilyInput | Prisma.ProjectCreateOrConnectWithoutDefaultMcbFamilyInput[]
+  upsert?: Prisma.ProjectUpsertWithWhereUniqueWithoutDefaultMcbFamilyInput | Prisma.ProjectUpsertWithWhereUniqueWithoutDefaultMcbFamilyInput[]
+  createMany?: Prisma.ProjectCreateManyDefaultMcbFamilyInputEnvelope
+  set?: Prisma.ProjectWhereUniqueInput | Prisma.ProjectWhereUniqueInput[]
+  disconnect?: Prisma.ProjectWhereUniqueInput | Prisma.ProjectWhereUniqueInput[]
+  delete?: Prisma.ProjectWhereUniqueInput | Prisma.ProjectWhereUniqueInput[]
+  connect?: Prisma.ProjectWhereUniqueInput | Prisma.ProjectWhereUniqueInput[]
+  update?: Prisma.ProjectUpdateWithWhereUniqueWithoutDefaultMcbFamilyInput | Prisma.ProjectUpdateWithWhereUniqueWithoutDefaultMcbFamilyInput[]
+  updateMany?: Prisma.ProjectUpdateManyWithWhereWithoutDefaultMcbFamilyInput | Prisma.ProjectUpdateManyWithWhereWithoutDefaultMcbFamilyInput[]
+  deleteMany?: Prisma.ProjectScalarWhereInput | Prisma.ProjectScalarWhereInput[]
+}
+
 export type ProjectCreateWithoutUserInput = {
   id?: string
   name: string
@@ -923,6 +1121,9 @@ export type ProjectCreateWithoutUserInput = {
   maxVoltageDropPower?: number
   createdAt?: Date | string
   updatedAt?: Date | string
+  defaultAcbFamily?: Prisma.BreakerFamilyCreateNestedOneWithoutDefaultAcbInput
+  defaultMccbFamily?: Prisma.BreakerFamilyCreateNestedOneWithoutDefaultMccbInput
+  defaultMcbFamily?: Prisma.BreakerFamilyCreateNestedOneWithoutDefaultMcbInput
   buildings?: Prisma.BuildingCreateNestedManyWithoutProjectInput
   apartmentTemplates?: Prisma.ApartmentTemplateCreateNestedManyWithoutProjectInput
   loadLibraryItems?: Prisma.LoadLibraryItemCreateNestedManyWithoutProjectInput
@@ -944,6 +1145,9 @@ export type ProjectUncheckedCreateWithoutUserInput = {
   transformerSize?: number | null
   notes?: string | null
   preferredManufacturer?: string
+  defaultAcbFamilyId?: string | null
+  defaultMccbFamilyId?: string | null
+  defaultMcbFamilyId?: string | null
   country?: string
   logoUrl?: string | null
   maxVoltageDropLighting?: number
@@ -999,6 +1203,9 @@ export type ProjectScalarWhereInput = {
   transformerSize?: Prisma.FloatNullableFilter<"Project"> | number | null
   notes?: Prisma.StringNullableFilter<"Project"> | string | null
   preferredManufacturer?: Prisma.StringFilter<"Project"> | string
+  defaultAcbFamilyId?: Prisma.StringNullableFilter<"Project"> | string | null
+  defaultMccbFamilyId?: Prisma.StringNullableFilter<"Project"> | string | null
+  defaultMcbFamilyId?: Prisma.StringNullableFilter<"Project"> | string | null
   country?: Prisma.StringFilter<"Project"> | string
   logoUrl?: Prisma.StringNullableFilter<"Project"> | string | null
   maxVoltageDropLighting?: Prisma.FloatFilter<"Project"> | number
@@ -1030,6 +1237,9 @@ export type ProjectCreateWithoutBuildingsInput = {
   maxVoltageDropPower?: number
   createdAt?: Date | string
   updatedAt?: Date | string
+  defaultAcbFamily?: Prisma.BreakerFamilyCreateNestedOneWithoutDefaultAcbInput
+  defaultMccbFamily?: Prisma.BreakerFamilyCreateNestedOneWithoutDefaultMccbInput
+  defaultMcbFamily?: Prisma.BreakerFamilyCreateNestedOneWithoutDefaultMcbInput
   user: Prisma.UserCreateNestedOneWithoutProjectsInput
   apartmentTemplates?: Prisma.ApartmentTemplateCreateNestedManyWithoutProjectInput
   loadLibraryItems?: Prisma.LoadLibraryItemCreateNestedManyWithoutProjectInput
@@ -1051,6 +1261,9 @@ export type ProjectUncheckedCreateWithoutBuildingsInput = {
   transformerSize?: number | null
   notes?: string | null
   preferredManufacturer?: string
+  defaultAcbFamilyId?: string | null
+  defaultMccbFamilyId?: string | null
+  defaultMcbFamilyId?: string | null
   country?: string
   logoUrl?: string | null
   maxVoltageDropLighting?: number
@@ -1100,6 +1313,9 @@ export type ProjectUpdateWithoutBuildingsInput = {
   maxVoltageDropPower?: Prisma.FloatFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  defaultAcbFamily?: Prisma.BreakerFamilyUpdateOneWithoutDefaultAcbNestedInput
+  defaultMccbFamily?: Prisma.BreakerFamilyUpdateOneWithoutDefaultMccbNestedInput
+  defaultMcbFamily?: Prisma.BreakerFamilyUpdateOneWithoutDefaultMcbNestedInput
   user?: Prisma.UserUpdateOneRequiredWithoutProjectsNestedInput
   apartmentTemplates?: Prisma.ApartmentTemplateUpdateManyWithoutProjectNestedInput
   loadLibraryItems?: Prisma.LoadLibraryItemUpdateManyWithoutProjectNestedInput
@@ -1121,6 +1337,9 @@ export type ProjectUncheckedUpdateWithoutBuildingsInput = {
   transformerSize?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredManufacturer?: Prisma.StringFieldUpdateOperationsInput | string
+  defaultAcbFamilyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  defaultMccbFamilyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  defaultMcbFamilyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   country?: Prisma.StringFieldUpdateOperationsInput | string
   logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   maxVoltageDropLighting?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -1154,6 +1373,9 @@ export type ProjectCreateWithoutApartmentTemplatesInput = {
   maxVoltageDropPower?: number
   createdAt?: Date | string
   updatedAt?: Date | string
+  defaultAcbFamily?: Prisma.BreakerFamilyCreateNestedOneWithoutDefaultAcbInput
+  defaultMccbFamily?: Prisma.BreakerFamilyCreateNestedOneWithoutDefaultMccbInput
+  defaultMcbFamily?: Prisma.BreakerFamilyCreateNestedOneWithoutDefaultMcbInput
   user: Prisma.UserCreateNestedOneWithoutProjectsInput
   buildings?: Prisma.BuildingCreateNestedManyWithoutProjectInput
   loadLibraryItems?: Prisma.LoadLibraryItemCreateNestedManyWithoutProjectInput
@@ -1175,6 +1397,9 @@ export type ProjectUncheckedCreateWithoutApartmentTemplatesInput = {
   transformerSize?: number | null
   notes?: string | null
   preferredManufacturer?: string
+  defaultAcbFamilyId?: string | null
+  defaultMccbFamilyId?: string | null
+  defaultMcbFamilyId?: string | null
   country?: string
   logoUrl?: string | null
   maxVoltageDropLighting?: number
@@ -1224,6 +1449,9 @@ export type ProjectUpdateWithoutApartmentTemplatesInput = {
   maxVoltageDropPower?: Prisma.FloatFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  defaultAcbFamily?: Prisma.BreakerFamilyUpdateOneWithoutDefaultAcbNestedInput
+  defaultMccbFamily?: Prisma.BreakerFamilyUpdateOneWithoutDefaultMccbNestedInput
+  defaultMcbFamily?: Prisma.BreakerFamilyUpdateOneWithoutDefaultMcbNestedInput
   user?: Prisma.UserUpdateOneRequiredWithoutProjectsNestedInput
   buildings?: Prisma.BuildingUpdateManyWithoutProjectNestedInput
   loadLibraryItems?: Prisma.LoadLibraryItemUpdateManyWithoutProjectNestedInput
@@ -1245,6 +1473,9 @@ export type ProjectUncheckedUpdateWithoutApartmentTemplatesInput = {
   transformerSize?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredManufacturer?: Prisma.StringFieldUpdateOperationsInput | string
+  defaultAcbFamilyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  defaultMccbFamilyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  defaultMcbFamilyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   country?: Prisma.StringFieldUpdateOperationsInput | string
   logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   maxVoltageDropLighting?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -1278,6 +1509,9 @@ export type ProjectCreateWithoutLoadLibraryItemsInput = {
   maxVoltageDropPower?: number
   createdAt?: Date | string
   updatedAt?: Date | string
+  defaultAcbFamily?: Prisma.BreakerFamilyCreateNestedOneWithoutDefaultAcbInput
+  defaultMccbFamily?: Prisma.BreakerFamilyCreateNestedOneWithoutDefaultMccbInput
+  defaultMcbFamily?: Prisma.BreakerFamilyCreateNestedOneWithoutDefaultMcbInput
   user: Prisma.UserCreateNestedOneWithoutProjectsInput
   buildings?: Prisma.BuildingCreateNestedManyWithoutProjectInput
   apartmentTemplates?: Prisma.ApartmentTemplateCreateNestedManyWithoutProjectInput
@@ -1299,6 +1533,9 @@ export type ProjectUncheckedCreateWithoutLoadLibraryItemsInput = {
   transformerSize?: number | null
   notes?: string | null
   preferredManufacturer?: string
+  defaultAcbFamilyId?: string | null
+  defaultMccbFamilyId?: string | null
+  defaultMcbFamilyId?: string | null
   country?: string
   logoUrl?: string | null
   maxVoltageDropLighting?: number
@@ -1348,6 +1585,9 @@ export type ProjectUpdateWithoutLoadLibraryItemsInput = {
   maxVoltageDropPower?: Prisma.FloatFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  defaultAcbFamily?: Prisma.BreakerFamilyUpdateOneWithoutDefaultAcbNestedInput
+  defaultMccbFamily?: Prisma.BreakerFamilyUpdateOneWithoutDefaultMccbNestedInput
+  defaultMcbFamily?: Prisma.BreakerFamilyUpdateOneWithoutDefaultMcbNestedInput
   user?: Prisma.UserUpdateOneRequiredWithoutProjectsNestedInput
   buildings?: Prisma.BuildingUpdateManyWithoutProjectNestedInput
   apartmentTemplates?: Prisma.ApartmentTemplateUpdateManyWithoutProjectNestedInput
@@ -1369,6 +1609,9 @@ export type ProjectUncheckedUpdateWithoutLoadLibraryItemsInput = {
   transformerSize?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredManufacturer?: Prisma.StringFieldUpdateOperationsInput | string
+  defaultAcbFamilyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  defaultMccbFamilyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  defaultMcbFamilyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   country?: Prisma.StringFieldUpdateOperationsInput | string
   logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   maxVoltageDropLighting?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -1378,6 +1621,261 @@ export type ProjectUncheckedUpdateWithoutLoadLibraryItemsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   buildings?: Prisma.BuildingUncheckedUpdateManyWithoutProjectNestedInput
   apartmentTemplates?: Prisma.ApartmentTemplateUncheckedUpdateManyWithoutProjectNestedInput
+}
+
+export type ProjectCreateWithoutDefaultAcbFamilyInput = {
+  id?: string
+  name: string
+  client: string
+  consultant: string
+  contractor: string
+  location: string
+  engineer: string
+  date: string
+  voltage?: number
+  frequency?: number
+  powerFactor?: number
+  maxDemandFactor?: number
+  transformerSize?: number | null
+  notes?: string | null
+  preferredManufacturer?: string
+  country?: string
+  logoUrl?: string | null
+  maxVoltageDropLighting?: number
+  maxVoltageDropPower?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  defaultMccbFamily?: Prisma.BreakerFamilyCreateNestedOneWithoutDefaultMccbInput
+  defaultMcbFamily?: Prisma.BreakerFamilyCreateNestedOneWithoutDefaultMcbInput
+  user: Prisma.UserCreateNestedOneWithoutProjectsInput
+  buildings?: Prisma.BuildingCreateNestedManyWithoutProjectInput
+  apartmentTemplates?: Prisma.ApartmentTemplateCreateNestedManyWithoutProjectInput
+  loadLibraryItems?: Prisma.LoadLibraryItemCreateNestedManyWithoutProjectInput
+}
+
+export type ProjectUncheckedCreateWithoutDefaultAcbFamilyInput = {
+  id?: string
+  name: string
+  client: string
+  consultant: string
+  contractor: string
+  location: string
+  engineer: string
+  date: string
+  voltage?: number
+  frequency?: number
+  powerFactor?: number
+  maxDemandFactor?: number
+  transformerSize?: number | null
+  notes?: string | null
+  preferredManufacturer?: string
+  defaultMccbFamilyId?: string | null
+  defaultMcbFamilyId?: string | null
+  country?: string
+  logoUrl?: string | null
+  maxVoltageDropLighting?: number
+  maxVoltageDropPower?: number
+  userId: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  buildings?: Prisma.BuildingUncheckedCreateNestedManyWithoutProjectInput
+  apartmentTemplates?: Prisma.ApartmentTemplateUncheckedCreateNestedManyWithoutProjectInput
+  loadLibraryItems?: Prisma.LoadLibraryItemUncheckedCreateNestedManyWithoutProjectInput
+}
+
+export type ProjectCreateOrConnectWithoutDefaultAcbFamilyInput = {
+  where: Prisma.ProjectWhereUniqueInput
+  create: Prisma.XOR<Prisma.ProjectCreateWithoutDefaultAcbFamilyInput, Prisma.ProjectUncheckedCreateWithoutDefaultAcbFamilyInput>
+}
+
+export type ProjectCreateManyDefaultAcbFamilyInputEnvelope = {
+  data: Prisma.ProjectCreateManyDefaultAcbFamilyInput | Prisma.ProjectCreateManyDefaultAcbFamilyInput[]
+}
+
+export type ProjectCreateWithoutDefaultMccbFamilyInput = {
+  id?: string
+  name: string
+  client: string
+  consultant: string
+  contractor: string
+  location: string
+  engineer: string
+  date: string
+  voltage?: number
+  frequency?: number
+  powerFactor?: number
+  maxDemandFactor?: number
+  transformerSize?: number | null
+  notes?: string | null
+  preferredManufacturer?: string
+  country?: string
+  logoUrl?: string | null
+  maxVoltageDropLighting?: number
+  maxVoltageDropPower?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  defaultAcbFamily?: Prisma.BreakerFamilyCreateNestedOneWithoutDefaultAcbInput
+  defaultMcbFamily?: Prisma.BreakerFamilyCreateNestedOneWithoutDefaultMcbInput
+  user: Prisma.UserCreateNestedOneWithoutProjectsInput
+  buildings?: Prisma.BuildingCreateNestedManyWithoutProjectInput
+  apartmentTemplates?: Prisma.ApartmentTemplateCreateNestedManyWithoutProjectInput
+  loadLibraryItems?: Prisma.LoadLibraryItemCreateNestedManyWithoutProjectInput
+}
+
+export type ProjectUncheckedCreateWithoutDefaultMccbFamilyInput = {
+  id?: string
+  name: string
+  client: string
+  consultant: string
+  contractor: string
+  location: string
+  engineer: string
+  date: string
+  voltage?: number
+  frequency?: number
+  powerFactor?: number
+  maxDemandFactor?: number
+  transformerSize?: number | null
+  notes?: string | null
+  preferredManufacturer?: string
+  defaultAcbFamilyId?: string | null
+  defaultMcbFamilyId?: string | null
+  country?: string
+  logoUrl?: string | null
+  maxVoltageDropLighting?: number
+  maxVoltageDropPower?: number
+  userId: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  buildings?: Prisma.BuildingUncheckedCreateNestedManyWithoutProjectInput
+  apartmentTemplates?: Prisma.ApartmentTemplateUncheckedCreateNestedManyWithoutProjectInput
+  loadLibraryItems?: Prisma.LoadLibraryItemUncheckedCreateNestedManyWithoutProjectInput
+}
+
+export type ProjectCreateOrConnectWithoutDefaultMccbFamilyInput = {
+  where: Prisma.ProjectWhereUniqueInput
+  create: Prisma.XOR<Prisma.ProjectCreateWithoutDefaultMccbFamilyInput, Prisma.ProjectUncheckedCreateWithoutDefaultMccbFamilyInput>
+}
+
+export type ProjectCreateManyDefaultMccbFamilyInputEnvelope = {
+  data: Prisma.ProjectCreateManyDefaultMccbFamilyInput | Prisma.ProjectCreateManyDefaultMccbFamilyInput[]
+}
+
+export type ProjectCreateWithoutDefaultMcbFamilyInput = {
+  id?: string
+  name: string
+  client: string
+  consultant: string
+  contractor: string
+  location: string
+  engineer: string
+  date: string
+  voltage?: number
+  frequency?: number
+  powerFactor?: number
+  maxDemandFactor?: number
+  transformerSize?: number | null
+  notes?: string | null
+  preferredManufacturer?: string
+  country?: string
+  logoUrl?: string | null
+  maxVoltageDropLighting?: number
+  maxVoltageDropPower?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  defaultAcbFamily?: Prisma.BreakerFamilyCreateNestedOneWithoutDefaultAcbInput
+  defaultMccbFamily?: Prisma.BreakerFamilyCreateNestedOneWithoutDefaultMccbInput
+  user: Prisma.UserCreateNestedOneWithoutProjectsInput
+  buildings?: Prisma.BuildingCreateNestedManyWithoutProjectInput
+  apartmentTemplates?: Prisma.ApartmentTemplateCreateNestedManyWithoutProjectInput
+  loadLibraryItems?: Prisma.LoadLibraryItemCreateNestedManyWithoutProjectInput
+}
+
+export type ProjectUncheckedCreateWithoutDefaultMcbFamilyInput = {
+  id?: string
+  name: string
+  client: string
+  consultant: string
+  contractor: string
+  location: string
+  engineer: string
+  date: string
+  voltage?: number
+  frequency?: number
+  powerFactor?: number
+  maxDemandFactor?: number
+  transformerSize?: number | null
+  notes?: string | null
+  preferredManufacturer?: string
+  defaultAcbFamilyId?: string | null
+  defaultMccbFamilyId?: string | null
+  country?: string
+  logoUrl?: string | null
+  maxVoltageDropLighting?: number
+  maxVoltageDropPower?: number
+  userId: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  buildings?: Prisma.BuildingUncheckedCreateNestedManyWithoutProjectInput
+  apartmentTemplates?: Prisma.ApartmentTemplateUncheckedCreateNestedManyWithoutProjectInput
+  loadLibraryItems?: Prisma.LoadLibraryItemUncheckedCreateNestedManyWithoutProjectInput
+}
+
+export type ProjectCreateOrConnectWithoutDefaultMcbFamilyInput = {
+  where: Prisma.ProjectWhereUniqueInput
+  create: Prisma.XOR<Prisma.ProjectCreateWithoutDefaultMcbFamilyInput, Prisma.ProjectUncheckedCreateWithoutDefaultMcbFamilyInput>
+}
+
+export type ProjectCreateManyDefaultMcbFamilyInputEnvelope = {
+  data: Prisma.ProjectCreateManyDefaultMcbFamilyInput | Prisma.ProjectCreateManyDefaultMcbFamilyInput[]
+}
+
+export type ProjectUpsertWithWhereUniqueWithoutDefaultAcbFamilyInput = {
+  where: Prisma.ProjectWhereUniqueInput
+  update: Prisma.XOR<Prisma.ProjectUpdateWithoutDefaultAcbFamilyInput, Prisma.ProjectUncheckedUpdateWithoutDefaultAcbFamilyInput>
+  create: Prisma.XOR<Prisma.ProjectCreateWithoutDefaultAcbFamilyInput, Prisma.ProjectUncheckedCreateWithoutDefaultAcbFamilyInput>
+}
+
+export type ProjectUpdateWithWhereUniqueWithoutDefaultAcbFamilyInput = {
+  where: Prisma.ProjectWhereUniqueInput
+  data: Prisma.XOR<Prisma.ProjectUpdateWithoutDefaultAcbFamilyInput, Prisma.ProjectUncheckedUpdateWithoutDefaultAcbFamilyInput>
+}
+
+export type ProjectUpdateManyWithWhereWithoutDefaultAcbFamilyInput = {
+  where: Prisma.ProjectScalarWhereInput
+  data: Prisma.XOR<Prisma.ProjectUpdateManyMutationInput, Prisma.ProjectUncheckedUpdateManyWithoutDefaultAcbFamilyInput>
+}
+
+export type ProjectUpsertWithWhereUniqueWithoutDefaultMccbFamilyInput = {
+  where: Prisma.ProjectWhereUniqueInput
+  update: Prisma.XOR<Prisma.ProjectUpdateWithoutDefaultMccbFamilyInput, Prisma.ProjectUncheckedUpdateWithoutDefaultMccbFamilyInput>
+  create: Prisma.XOR<Prisma.ProjectCreateWithoutDefaultMccbFamilyInput, Prisma.ProjectUncheckedCreateWithoutDefaultMccbFamilyInput>
+}
+
+export type ProjectUpdateWithWhereUniqueWithoutDefaultMccbFamilyInput = {
+  where: Prisma.ProjectWhereUniqueInput
+  data: Prisma.XOR<Prisma.ProjectUpdateWithoutDefaultMccbFamilyInput, Prisma.ProjectUncheckedUpdateWithoutDefaultMccbFamilyInput>
+}
+
+export type ProjectUpdateManyWithWhereWithoutDefaultMccbFamilyInput = {
+  where: Prisma.ProjectScalarWhereInput
+  data: Prisma.XOR<Prisma.ProjectUpdateManyMutationInput, Prisma.ProjectUncheckedUpdateManyWithoutDefaultMccbFamilyInput>
+}
+
+export type ProjectUpsertWithWhereUniqueWithoutDefaultMcbFamilyInput = {
+  where: Prisma.ProjectWhereUniqueInput
+  update: Prisma.XOR<Prisma.ProjectUpdateWithoutDefaultMcbFamilyInput, Prisma.ProjectUncheckedUpdateWithoutDefaultMcbFamilyInput>
+  create: Prisma.XOR<Prisma.ProjectCreateWithoutDefaultMcbFamilyInput, Prisma.ProjectUncheckedCreateWithoutDefaultMcbFamilyInput>
+}
+
+export type ProjectUpdateWithWhereUniqueWithoutDefaultMcbFamilyInput = {
+  where: Prisma.ProjectWhereUniqueInput
+  data: Prisma.XOR<Prisma.ProjectUpdateWithoutDefaultMcbFamilyInput, Prisma.ProjectUncheckedUpdateWithoutDefaultMcbFamilyInput>
+}
+
+export type ProjectUpdateManyWithWhereWithoutDefaultMcbFamilyInput = {
+  where: Prisma.ProjectScalarWhereInput
+  data: Prisma.XOR<Prisma.ProjectUpdateManyMutationInput, Prisma.ProjectUncheckedUpdateManyWithoutDefaultMcbFamilyInput>
 }
 
 export type ProjectCreateManyUserInput = {
@@ -1396,6 +1894,9 @@ export type ProjectCreateManyUserInput = {
   transformerSize?: number | null
   notes?: string | null
   preferredManufacturer?: string
+  defaultAcbFamilyId?: string | null
+  defaultMccbFamilyId?: string | null
+  defaultMcbFamilyId?: string | null
   country?: string
   logoUrl?: string | null
   maxVoltageDropLighting?: number
@@ -1426,6 +1927,9 @@ export type ProjectUpdateWithoutUserInput = {
   maxVoltageDropPower?: Prisma.FloatFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  defaultAcbFamily?: Prisma.BreakerFamilyUpdateOneWithoutDefaultAcbNestedInput
+  defaultMccbFamily?: Prisma.BreakerFamilyUpdateOneWithoutDefaultMccbNestedInput
+  defaultMcbFamily?: Prisma.BreakerFamilyUpdateOneWithoutDefaultMcbNestedInput
   buildings?: Prisma.BuildingUpdateManyWithoutProjectNestedInput
   apartmentTemplates?: Prisma.ApartmentTemplateUpdateManyWithoutProjectNestedInput
   loadLibraryItems?: Prisma.LoadLibraryItemUpdateManyWithoutProjectNestedInput
@@ -1447,6 +1951,9 @@ export type ProjectUncheckedUpdateWithoutUserInput = {
   transformerSize?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredManufacturer?: Prisma.StringFieldUpdateOperationsInput | string
+  defaultAcbFamilyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  defaultMccbFamilyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  defaultMcbFamilyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   country?: Prisma.StringFieldUpdateOperationsInput | string
   logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   maxVoltageDropLighting?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -1474,10 +1981,355 @@ export type ProjectUncheckedUpdateManyWithoutUserInput = {
   transformerSize?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredManufacturer?: Prisma.StringFieldUpdateOperationsInput | string
+  defaultAcbFamilyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  defaultMccbFamilyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  defaultMcbFamilyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   country?: Prisma.StringFieldUpdateOperationsInput | string
   logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   maxVoltageDropLighting?: Prisma.FloatFieldUpdateOperationsInput | number
   maxVoltageDropPower?: Prisma.FloatFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type ProjectCreateManyDefaultAcbFamilyInput = {
+  id?: string
+  name: string
+  client: string
+  consultant: string
+  contractor: string
+  location: string
+  engineer: string
+  date: string
+  voltage?: number
+  frequency?: number
+  powerFactor?: number
+  maxDemandFactor?: number
+  transformerSize?: number | null
+  notes?: string | null
+  preferredManufacturer?: string
+  defaultMccbFamilyId?: string | null
+  defaultMcbFamilyId?: string | null
+  country?: string
+  logoUrl?: string | null
+  maxVoltageDropLighting?: number
+  maxVoltageDropPower?: number
+  userId: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type ProjectCreateManyDefaultMccbFamilyInput = {
+  id?: string
+  name: string
+  client: string
+  consultant: string
+  contractor: string
+  location: string
+  engineer: string
+  date: string
+  voltage?: number
+  frequency?: number
+  powerFactor?: number
+  maxDemandFactor?: number
+  transformerSize?: number | null
+  notes?: string | null
+  preferredManufacturer?: string
+  defaultAcbFamilyId?: string | null
+  defaultMcbFamilyId?: string | null
+  country?: string
+  logoUrl?: string | null
+  maxVoltageDropLighting?: number
+  maxVoltageDropPower?: number
+  userId: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type ProjectCreateManyDefaultMcbFamilyInput = {
+  id?: string
+  name: string
+  client: string
+  consultant: string
+  contractor: string
+  location: string
+  engineer: string
+  date: string
+  voltage?: number
+  frequency?: number
+  powerFactor?: number
+  maxDemandFactor?: number
+  transformerSize?: number | null
+  notes?: string | null
+  preferredManufacturer?: string
+  defaultAcbFamilyId?: string | null
+  defaultMccbFamilyId?: string | null
+  country?: string
+  logoUrl?: string | null
+  maxVoltageDropLighting?: number
+  maxVoltageDropPower?: number
+  userId: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type ProjectUpdateWithoutDefaultAcbFamilyInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  client?: Prisma.StringFieldUpdateOperationsInput | string
+  consultant?: Prisma.StringFieldUpdateOperationsInput | string
+  contractor?: Prisma.StringFieldUpdateOperationsInput | string
+  location?: Prisma.StringFieldUpdateOperationsInput | string
+  engineer?: Prisma.StringFieldUpdateOperationsInput | string
+  date?: Prisma.StringFieldUpdateOperationsInput | string
+  voltage?: Prisma.FloatFieldUpdateOperationsInput | number
+  frequency?: Prisma.FloatFieldUpdateOperationsInput | number
+  powerFactor?: Prisma.FloatFieldUpdateOperationsInput | number
+  maxDemandFactor?: Prisma.FloatFieldUpdateOperationsInput | number
+  transformerSize?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredManufacturer?: Prisma.StringFieldUpdateOperationsInput | string
+  country?: Prisma.StringFieldUpdateOperationsInput | string
+  logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  maxVoltageDropLighting?: Prisma.FloatFieldUpdateOperationsInput | number
+  maxVoltageDropPower?: Prisma.FloatFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  defaultMccbFamily?: Prisma.BreakerFamilyUpdateOneWithoutDefaultMccbNestedInput
+  defaultMcbFamily?: Prisma.BreakerFamilyUpdateOneWithoutDefaultMcbNestedInput
+  user?: Prisma.UserUpdateOneRequiredWithoutProjectsNestedInput
+  buildings?: Prisma.BuildingUpdateManyWithoutProjectNestedInput
+  apartmentTemplates?: Prisma.ApartmentTemplateUpdateManyWithoutProjectNestedInput
+  loadLibraryItems?: Prisma.LoadLibraryItemUpdateManyWithoutProjectNestedInput
+}
+
+export type ProjectUncheckedUpdateWithoutDefaultAcbFamilyInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  client?: Prisma.StringFieldUpdateOperationsInput | string
+  consultant?: Prisma.StringFieldUpdateOperationsInput | string
+  contractor?: Prisma.StringFieldUpdateOperationsInput | string
+  location?: Prisma.StringFieldUpdateOperationsInput | string
+  engineer?: Prisma.StringFieldUpdateOperationsInput | string
+  date?: Prisma.StringFieldUpdateOperationsInput | string
+  voltage?: Prisma.FloatFieldUpdateOperationsInput | number
+  frequency?: Prisma.FloatFieldUpdateOperationsInput | number
+  powerFactor?: Prisma.FloatFieldUpdateOperationsInput | number
+  maxDemandFactor?: Prisma.FloatFieldUpdateOperationsInput | number
+  transformerSize?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredManufacturer?: Prisma.StringFieldUpdateOperationsInput | string
+  defaultMccbFamilyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  defaultMcbFamilyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  country?: Prisma.StringFieldUpdateOperationsInput | string
+  logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  maxVoltageDropLighting?: Prisma.FloatFieldUpdateOperationsInput | number
+  maxVoltageDropPower?: Prisma.FloatFieldUpdateOperationsInput | number
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  buildings?: Prisma.BuildingUncheckedUpdateManyWithoutProjectNestedInput
+  apartmentTemplates?: Prisma.ApartmentTemplateUncheckedUpdateManyWithoutProjectNestedInput
+  loadLibraryItems?: Prisma.LoadLibraryItemUncheckedUpdateManyWithoutProjectNestedInput
+}
+
+export type ProjectUncheckedUpdateManyWithoutDefaultAcbFamilyInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  client?: Prisma.StringFieldUpdateOperationsInput | string
+  consultant?: Prisma.StringFieldUpdateOperationsInput | string
+  contractor?: Prisma.StringFieldUpdateOperationsInput | string
+  location?: Prisma.StringFieldUpdateOperationsInput | string
+  engineer?: Prisma.StringFieldUpdateOperationsInput | string
+  date?: Prisma.StringFieldUpdateOperationsInput | string
+  voltage?: Prisma.FloatFieldUpdateOperationsInput | number
+  frequency?: Prisma.FloatFieldUpdateOperationsInput | number
+  powerFactor?: Prisma.FloatFieldUpdateOperationsInput | number
+  maxDemandFactor?: Prisma.FloatFieldUpdateOperationsInput | number
+  transformerSize?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredManufacturer?: Prisma.StringFieldUpdateOperationsInput | string
+  defaultMccbFamilyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  defaultMcbFamilyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  country?: Prisma.StringFieldUpdateOperationsInput | string
+  logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  maxVoltageDropLighting?: Prisma.FloatFieldUpdateOperationsInput | number
+  maxVoltageDropPower?: Prisma.FloatFieldUpdateOperationsInput | number
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type ProjectUpdateWithoutDefaultMccbFamilyInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  client?: Prisma.StringFieldUpdateOperationsInput | string
+  consultant?: Prisma.StringFieldUpdateOperationsInput | string
+  contractor?: Prisma.StringFieldUpdateOperationsInput | string
+  location?: Prisma.StringFieldUpdateOperationsInput | string
+  engineer?: Prisma.StringFieldUpdateOperationsInput | string
+  date?: Prisma.StringFieldUpdateOperationsInput | string
+  voltage?: Prisma.FloatFieldUpdateOperationsInput | number
+  frequency?: Prisma.FloatFieldUpdateOperationsInput | number
+  powerFactor?: Prisma.FloatFieldUpdateOperationsInput | number
+  maxDemandFactor?: Prisma.FloatFieldUpdateOperationsInput | number
+  transformerSize?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredManufacturer?: Prisma.StringFieldUpdateOperationsInput | string
+  country?: Prisma.StringFieldUpdateOperationsInput | string
+  logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  maxVoltageDropLighting?: Prisma.FloatFieldUpdateOperationsInput | number
+  maxVoltageDropPower?: Prisma.FloatFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  defaultAcbFamily?: Prisma.BreakerFamilyUpdateOneWithoutDefaultAcbNestedInput
+  defaultMcbFamily?: Prisma.BreakerFamilyUpdateOneWithoutDefaultMcbNestedInput
+  user?: Prisma.UserUpdateOneRequiredWithoutProjectsNestedInput
+  buildings?: Prisma.BuildingUpdateManyWithoutProjectNestedInput
+  apartmentTemplates?: Prisma.ApartmentTemplateUpdateManyWithoutProjectNestedInput
+  loadLibraryItems?: Prisma.LoadLibraryItemUpdateManyWithoutProjectNestedInput
+}
+
+export type ProjectUncheckedUpdateWithoutDefaultMccbFamilyInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  client?: Prisma.StringFieldUpdateOperationsInput | string
+  consultant?: Prisma.StringFieldUpdateOperationsInput | string
+  contractor?: Prisma.StringFieldUpdateOperationsInput | string
+  location?: Prisma.StringFieldUpdateOperationsInput | string
+  engineer?: Prisma.StringFieldUpdateOperationsInput | string
+  date?: Prisma.StringFieldUpdateOperationsInput | string
+  voltage?: Prisma.FloatFieldUpdateOperationsInput | number
+  frequency?: Prisma.FloatFieldUpdateOperationsInput | number
+  powerFactor?: Prisma.FloatFieldUpdateOperationsInput | number
+  maxDemandFactor?: Prisma.FloatFieldUpdateOperationsInput | number
+  transformerSize?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredManufacturer?: Prisma.StringFieldUpdateOperationsInput | string
+  defaultAcbFamilyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  defaultMcbFamilyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  country?: Prisma.StringFieldUpdateOperationsInput | string
+  logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  maxVoltageDropLighting?: Prisma.FloatFieldUpdateOperationsInput | number
+  maxVoltageDropPower?: Prisma.FloatFieldUpdateOperationsInput | number
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  buildings?: Prisma.BuildingUncheckedUpdateManyWithoutProjectNestedInput
+  apartmentTemplates?: Prisma.ApartmentTemplateUncheckedUpdateManyWithoutProjectNestedInput
+  loadLibraryItems?: Prisma.LoadLibraryItemUncheckedUpdateManyWithoutProjectNestedInput
+}
+
+export type ProjectUncheckedUpdateManyWithoutDefaultMccbFamilyInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  client?: Prisma.StringFieldUpdateOperationsInput | string
+  consultant?: Prisma.StringFieldUpdateOperationsInput | string
+  contractor?: Prisma.StringFieldUpdateOperationsInput | string
+  location?: Prisma.StringFieldUpdateOperationsInput | string
+  engineer?: Prisma.StringFieldUpdateOperationsInput | string
+  date?: Prisma.StringFieldUpdateOperationsInput | string
+  voltage?: Prisma.FloatFieldUpdateOperationsInput | number
+  frequency?: Prisma.FloatFieldUpdateOperationsInput | number
+  powerFactor?: Prisma.FloatFieldUpdateOperationsInput | number
+  maxDemandFactor?: Prisma.FloatFieldUpdateOperationsInput | number
+  transformerSize?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredManufacturer?: Prisma.StringFieldUpdateOperationsInput | string
+  defaultAcbFamilyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  defaultMcbFamilyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  country?: Prisma.StringFieldUpdateOperationsInput | string
+  logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  maxVoltageDropLighting?: Prisma.FloatFieldUpdateOperationsInput | number
+  maxVoltageDropPower?: Prisma.FloatFieldUpdateOperationsInput | number
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type ProjectUpdateWithoutDefaultMcbFamilyInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  client?: Prisma.StringFieldUpdateOperationsInput | string
+  consultant?: Prisma.StringFieldUpdateOperationsInput | string
+  contractor?: Prisma.StringFieldUpdateOperationsInput | string
+  location?: Prisma.StringFieldUpdateOperationsInput | string
+  engineer?: Prisma.StringFieldUpdateOperationsInput | string
+  date?: Prisma.StringFieldUpdateOperationsInput | string
+  voltage?: Prisma.FloatFieldUpdateOperationsInput | number
+  frequency?: Prisma.FloatFieldUpdateOperationsInput | number
+  powerFactor?: Prisma.FloatFieldUpdateOperationsInput | number
+  maxDemandFactor?: Prisma.FloatFieldUpdateOperationsInput | number
+  transformerSize?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredManufacturer?: Prisma.StringFieldUpdateOperationsInput | string
+  country?: Prisma.StringFieldUpdateOperationsInput | string
+  logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  maxVoltageDropLighting?: Prisma.FloatFieldUpdateOperationsInput | number
+  maxVoltageDropPower?: Prisma.FloatFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  defaultAcbFamily?: Prisma.BreakerFamilyUpdateOneWithoutDefaultAcbNestedInput
+  defaultMccbFamily?: Prisma.BreakerFamilyUpdateOneWithoutDefaultMccbNestedInput
+  user?: Prisma.UserUpdateOneRequiredWithoutProjectsNestedInput
+  buildings?: Prisma.BuildingUpdateManyWithoutProjectNestedInput
+  apartmentTemplates?: Prisma.ApartmentTemplateUpdateManyWithoutProjectNestedInput
+  loadLibraryItems?: Prisma.LoadLibraryItemUpdateManyWithoutProjectNestedInput
+}
+
+export type ProjectUncheckedUpdateWithoutDefaultMcbFamilyInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  client?: Prisma.StringFieldUpdateOperationsInput | string
+  consultant?: Prisma.StringFieldUpdateOperationsInput | string
+  contractor?: Prisma.StringFieldUpdateOperationsInput | string
+  location?: Prisma.StringFieldUpdateOperationsInput | string
+  engineer?: Prisma.StringFieldUpdateOperationsInput | string
+  date?: Prisma.StringFieldUpdateOperationsInput | string
+  voltage?: Prisma.FloatFieldUpdateOperationsInput | number
+  frequency?: Prisma.FloatFieldUpdateOperationsInput | number
+  powerFactor?: Prisma.FloatFieldUpdateOperationsInput | number
+  maxDemandFactor?: Prisma.FloatFieldUpdateOperationsInput | number
+  transformerSize?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredManufacturer?: Prisma.StringFieldUpdateOperationsInput | string
+  defaultAcbFamilyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  defaultMccbFamilyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  country?: Prisma.StringFieldUpdateOperationsInput | string
+  logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  maxVoltageDropLighting?: Prisma.FloatFieldUpdateOperationsInput | number
+  maxVoltageDropPower?: Prisma.FloatFieldUpdateOperationsInput | number
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  buildings?: Prisma.BuildingUncheckedUpdateManyWithoutProjectNestedInput
+  apartmentTemplates?: Prisma.ApartmentTemplateUncheckedUpdateManyWithoutProjectNestedInput
+  loadLibraryItems?: Prisma.LoadLibraryItemUncheckedUpdateManyWithoutProjectNestedInput
+}
+
+export type ProjectUncheckedUpdateManyWithoutDefaultMcbFamilyInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  client?: Prisma.StringFieldUpdateOperationsInput | string
+  consultant?: Prisma.StringFieldUpdateOperationsInput | string
+  contractor?: Prisma.StringFieldUpdateOperationsInput | string
+  location?: Prisma.StringFieldUpdateOperationsInput | string
+  engineer?: Prisma.StringFieldUpdateOperationsInput | string
+  date?: Prisma.StringFieldUpdateOperationsInput | string
+  voltage?: Prisma.FloatFieldUpdateOperationsInput | number
+  frequency?: Prisma.FloatFieldUpdateOperationsInput | number
+  powerFactor?: Prisma.FloatFieldUpdateOperationsInput | number
+  maxDemandFactor?: Prisma.FloatFieldUpdateOperationsInput | number
+  transformerSize?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredManufacturer?: Prisma.StringFieldUpdateOperationsInput | string
+  defaultAcbFamilyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  defaultMccbFamilyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  country?: Prisma.StringFieldUpdateOperationsInput | string
+  logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  maxVoltageDropLighting?: Prisma.FloatFieldUpdateOperationsInput | number
+  maxVoltageDropPower?: Prisma.FloatFieldUpdateOperationsInput | number
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1547,6 +2399,9 @@ export type ProjectSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   transformerSize?: boolean
   notes?: boolean
   preferredManufacturer?: boolean
+  defaultAcbFamilyId?: boolean
+  defaultMccbFamilyId?: boolean
+  defaultMcbFamilyId?: boolean
   country?: boolean
   logoUrl?: boolean
   maxVoltageDropLighting?: boolean
@@ -1554,6 +2409,9 @@ export type ProjectSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   userId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  defaultAcbFamily?: boolean | Prisma.Project$defaultAcbFamilyArgs<ExtArgs>
+  defaultMccbFamily?: boolean | Prisma.Project$defaultMccbFamilyArgs<ExtArgs>
+  defaultMcbFamily?: boolean | Prisma.Project$defaultMcbFamilyArgs<ExtArgs>
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   buildings?: boolean | Prisma.Project$buildingsArgs<ExtArgs>
   apartmentTemplates?: boolean | Prisma.Project$apartmentTemplatesArgs<ExtArgs>
@@ -1577,6 +2435,9 @@ export type ProjectSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   transformerSize?: boolean
   notes?: boolean
   preferredManufacturer?: boolean
+  defaultAcbFamilyId?: boolean
+  defaultMccbFamilyId?: boolean
+  defaultMcbFamilyId?: boolean
   country?: boolean
   logoUrl?: boolean
   maxVoltageDropLighting?: boolean
@@ -1584,6 +2445,9 @@ export type ProjectSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   userId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  defaultAcbFamily?: boolean | Prisma.Project$defaultAcbFamilyArgs<ExtArgs>
+  defaultMccbFamily?: boolean | Prisma.Project$defaultMccbFamilyArgs<ExtArgs>
+  defaultMcbFamily?: boolean | Prisma.Project$defaultMcbFamilyArgs<ExtArgs>
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["project"]>
 
@@ -1603,6 +2467,9 @@ export type ProjectSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   transformerSize?: boolean
   notes?: boolean
   preferredManufacturer?: boolean
+  defaultAcbFamilyId?: boolean
+  defaultMccbFamilyId?: boolean
+  defaultMcbFamilyId?: boolean
   country?: boolean
   logoUrl?: boolean
   maxVoltageDropLighting?: boolean
@@ -1610,6 +2477,9 @@ export type ProjectSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   userId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  defaultAcbFamily?: boolean | Prisma.Project$defaultAcbFamilyArgs<ExtArgs>
+  defaultMccbFamily?: boolean | Prisma.Project$defaultMccbFamilyArgs<ExtArgs>
+  defaultMcbFamily?: boolean | Prisma.Project$defaultMcbFamilyArgs<ExtArgs>
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["project"]>
 
@@ -1629,6 +2499,9 @@ export type ProjectSelectScalar = {
   transformerSize?: boolean
   notes?: boolean
   preferredManufacturer?: boolean
+  defaultAcbFamilyId?: boolean
+  defaultMccbFamilyId?: boolean
+  defaultMcbFamilyId?: boolean
   country?: boolean
   logoUrl?: boolean
   maxVoltageDropLighting?: boolean
@@ -1638,8 +2511,11 @@ export type ProjectSelectScalar = {
   updatedAt?: boolean
 }
 
-export type ProjectOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "client" | "consultant" | "contractor" | "location" | "engineer" | "date" | "voltage" | "frequency" | "powerFactor" | "maxDemandFactor" | "transformerSize" | "notes" | "preferredManufacturer" | "country" | "logoUrl" | "maxVoltageDropLighting" | "maxVoltageDropPower" | "userId" | "createdAt" | "updatedAt", ExtArgs["result"]["project"]>
+export type ProjectOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "client" | "consultant" | "contractor" | "location" | "engineer" | "date" | "voltage" | "frequency" | "powerFactor" | "maxDemandFactor" | "transformerSize" | "notes" | "preferredManufacturer" | "defaultAcbFamilyId" | "defaultMccbFamilyId" | "defaultMcbFamilyId" | "country" | "logoUrl" | "maxVoltageDropLighting" | "maxVoltageDropPower" | "userId" | "createdAt" | "updatedAt", ExtArgs["result"]["project"]>
 export type ProjectInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  defaultAcbFamily?: boolean | Prisma.Project$defaultAcbFamilyArgs<ExtArgs>
+  defaultMccbFamily?: boolean | Prisma.Project$defaultMccbFamilyArgs<ExtArgs>
+  defaultMcbFamily?: boolean | Prisma.Project$defaultMcbFamilyArgs<ExtArgs>
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   buildings?: boolean | Prisma.Project$buildingsArgs<ExtArgs>
   apartmentTemplates?: boolean | Prisma.Project$apartmentTemplatesArgs<ExtArgs>
@@ -1647,15 +2523,24 @@ export type ProjectInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs
   _count?: boolean | Prisma.ProjectCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type ProjectIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  defaultAcbFamily?: boolean | Prisma.Project$defaultAcbFamilyArgs<ExtArgs>
+  defaultMccbFamily?: boolean | Prisma.Project$defaultMccbFamilyArgs<ExtArgs>
+  defaultMcbFamily?: boolean | Prisma.Project$defaultMcbFamilyArgs<ExtArgs>
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }
 export type ProjectIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  defaultAcbFamily?: boolean | Prisma.Project$defaultAcbFamilyArgs<ExtArgs>
+  defaultMccbFamily?: boolean | Prisma.Project$defaultMccbFamilyArgs<ExtArgs>
+  defaultMcbFamily?: boolean | Prisma.Project$defaultMcbFamilyArgs<ExtArgs>
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }
 
 export type $ProjectPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Project"
   objects: {
+    defaultAcbFamily: Prisma.$BreakerFamilyPayload<ExtArgs> | null
+    defaultMccbFamily: Prisma.$BreakerFamilyPayload<ExtArgs> | null
+    defaultMcbFamily: Prisma.$BreakerFamilyPayload<ExtArgs> | null
     user: Prisma.$UserPayload<ExtArgs>
     buildings: Prisma.$BuildingPayload<ExtArgs>[]
     apartmentTemplates: Prisma.$ApartmentTemplatePayload<ExtArgs>[]
@@ -1677,6 +2562,9 @@ export type $ProjectPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     transformerSize: number | null
     notes: string | null
     preferredManufacturer: string
+    defaultAcbFamilyId: string | null
+    defaultMccbFamilyId: string | null
+    defaultMcbFamilyId: string | null
     country: string
     logoUrl: string | null
     maxVoltageDropLighting: number
@@ -2078,6 +2966,9 @@ readonly fields: ProjectFieldRefs;
  */
 export interface Prisma__ProjectClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  defaultAcbFamily<T extends Prisma.Project$defaultAcbFamilyArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$defaultAcbFamilyArgs<ExtArgs>>): Prisma.Prisma__BreakerFamilyClient<runtime.Types.Result.GetResult<Prisma.$BreakerFamilyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  defaultMccbFamily<T extends Prisma.Project$defaultMccbFamilyArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$defaultMccbFamilyArgs<ExtArgs>>): Prisma.Prisma__BreakerFamilyClient<runtime.Types.Result.GetResult<Prisma.$BreakerFamilyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  defaultMcbFamily<T extends Prisma.Project$defaultMcbFamilyArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$defaultMcbFamilyArgs<ExtArgs>>): Prisma.Prisma__BreakerFamilyClient<runtime.Types.Result.GetResult<Prisma.$BreakerFamilyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   user<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   buildings<T extends Prisma.Project$buildingsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$buildingsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BuildingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   apartmentTemplates<T extends Prisma.Project$apartmentTemplatesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$apartmentTemplatesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ApartmentTemplatePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -2126,6 +3017,9 @@ export interface ProjectFieldRefs {
   readonly transformerSize: Prisma.FieldRef<"Project", 'Float'>
   readonly notes: Prisma.FieldRef<"Project", 'String'>
   readonly preferredManufacturer: Prisma.FieldRef<"Project", 'String'>
+  readonly defaultAcbFamilyId: Prisma.FieldRef<"Project", 'String'>
+  readonly defaultMccbFamilyId: Prisma.FieldRef<"Project", 'String'>
+  readonly defaultMcbFamilyId: Prisma.FieldRef<"Project", 'String'>
   readonly country: Prisma.FieldRef<"Project", 'String'>
   readonly logoUrl: Prisma.FieldRef<"Project", 'String'>
   readonly maxVoltageDropLighting: Prisma.FieldRef<"Project", 'Float'>
@@ -2529,6 +3423,63 @@ export type ProjectDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Inter
    * Limit how many Projects to delete.
    */
   limit?: number
+}
+
+/**
+ * Project.defaultAcbFamily
+ */
+export type Project$defaultAcbFamilyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the BreakerFamily
+   */
+  select?: Prisma.BreakerFamilySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the BreakerFamily
+   */
+  omit?: Prisma.BreakerFamilyOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.BreakerFamilyInclude<ExtArgs> | null
+  where?: Prisma.BreakerFamilyWhereInput
+}
+
+/**
+ * Project.defaultMccbFamily
+ */
+export type Project$defaultMccbFamilyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the BreakerFamily
+   */
+  select?: Prisma.BreakerFamilySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the BreakerFamily
+   */
+  omit?: Prisma.BreakerFamilyOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.BreakerFamilyInclude<ExtArgs> | null
+  where?: Prisma.BreakerFamilyWhereInput
+}
+
+/**
+ * Project.defaultMcbFamily
+ */
+export type Project$defaultMcbFamilyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the BreakerFamily
+   */
+  select?: Prisma.BreakerFamilySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the BreakerFamily
+   */
+  omit?: Prisma.BreakerFamilyOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.BreakerFamilyInclude<ExtArgs> | null
+  where?: Prisma.BreakerFamilyWhereInput
 }
 
 /**

@@ -173,7 +173,9 @@
               "No layout regressions"
             ]
           },
-          "status": "pending"
+          "status": "completed",
+          "notes": "Added InfoTooltip to voltage, frequency, power factor, max demand factor, and voltage drop limits (lighting/power) fields in the Project Settings panel. Added placeholder text and helper text for key calculation inputs. Extended the local Project interface and projectForm initialization to include maxVoltageDropLighting and maxVoltageDropPower.",
+          "updated_at": "2026-07-14T09:35:00+00:00"
         },
         {
           "id": "subtask-3-3",

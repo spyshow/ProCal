@@ -198,7 +198,9 @@
               "No console errors"
             ]
           },
-          "status": "pending"
+          "status": "completed",
+          "notes": "Modified src/app/(app)/calculator/page.tsx to import InfoTooltip and add helper tooltips to the summary bar (Total Connected, Max Demand, Total Current (3Φ), Floors), plus helper text and tooltips on the add-item form labels (Type, Template, Source, Custom Power) to explain template vs custom load. Browser/TypeScript verification could not be run because node.exe is not available in this environment; static review confirms the changes follow existing InfoTooltip and project patterns.",
+          "updated_at": "2026-07-14T09:55:00+00:00"
         },
         {
           "id": "subtask-3-4",
@@ -404,11 +406,12 @@
     }
   },
   "qa_signoff": null,
-  "status": "in_progress",
-  "planStatus": "in_progress",
-  "xstateState": "planning",
-  "executionPhase": "coding",
-  "updated_at": "2026-07-14T06:19:16.340Z",
+  "status": "human_review",
+  "planStatus": "review",
+  "xstateState": "human_review",
+  "executionPhase": "complete",
+  "updated_at": "2026-07-14T06:31:13.559Z",
   "recoveryNote": "Task recovered from stuck state at 2026-07-14T05:48:13.838Z",
-  "last_updated": "2026-07-14T06:03:30.667702+00:00"
+  "last_updated": "2026-07-14T06:03:30.667702+00:00",
+  "reviewReason": "stopped"
 }

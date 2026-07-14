@@ -52,3 +52,15 @@ Session 2 (Contributor) — subtask-3-1:
 - Committed plan update.
 
 === END SESSION 2 ===
+
+Session 3 (Contributor) — subtask-3-3:
+- Modified src/app/(app)/calculator/page.tsx:
+  - Imported InfoTooltip component.
+  - Added InfoTooltip to summary bar labels (Total Connected, Max Demand, Total Current (3Φ), Floors) with IEC context helpers.
+  - Added helper text at the top of the add-item form explaining template vs custom load.
+  - Added InfoTooltip to add-item form labels: Type, Template, Source, and Custom Power (kW).
+- Verification: TypeScript, lint, and browser checks could not be run because node.exe is missing from this environment. Static review confirms imports, JSX, and prop usage match the existing InfoTooltip and project patterns.
+- Updated implementation_plan.json: subtask-3-3 status set to completed.
+- Committed change and plan update.
+
+=== END SESSION 3 ===

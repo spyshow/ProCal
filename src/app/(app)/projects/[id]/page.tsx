@@ -16,6 +16,7 @@ import {
   Home,
 } from 'lucide-react';
 import { RoomList } from '@/components/RoomList';
+import InfoTooltip from '@/components/InfoTooltip';
 import type { RoomData } from '@/components/RoomInput';
 
 interface FloorDesign {
@@ -69,6 +70,8 @@ interface Project {
   frequency: number;
   powerFactor: number;
   maxDemandFactor: number;
+  maxVoltageDropLighting: number;
+  maxVoltageDropPower: number;
   preferredManufacturer: string;
   country: string;
   logoUrl: string | null;
@@ -324,6 +327,8 @@ export default function ProjectDetailPage() {
       frequency: String(project.frequency),
       powerFactor: String(project.powerFactor),
       maxDemandFactor: String(project.maxDemandFactor),
+      maxVoltageDropLighting: String(project.maxVoltageDropLighting),
+      maxVoltageDropPower: String(project.maxVoltageDropPower),
       logoUrl: project.logoUrl || '',
     });
     setEditingProject(true);
@@ -376,24 +381,46 @@ export default function ProjectDetailPage() {
           <h3 className="text-sm font-semibold text-orange-400">Project Settings</h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {[
-              ['name', 'Project Name'],
-              ['client', 'Client'],
-              ['consultant', 'Consultant'],
-              ['contractor', 'Contractor'],
-              ['location', 'Location'],
-              ['engineer', 'Engineer'],
-              ['voltage', 'Voltage (V)'],
-              ['frequency', 'Frequency (Hz)'],
-              ['powerFactor', 'Power Factor'],
-              ['maxDemandFactor', 'Max Demand Factor'],
-            ].map(([key, label]) => (
-              <div key={key}>
+              ['name', 'Project Name', '', 'Project name used across reports and schedules.'],
+              ['client', 'Client', '', 'Client or owner name shown on the project cover sheet.'],
+              ['consultant', 'Consultant', '', 'Electrical consultant or designer name.'],
+              ['contractor', 'Contractor', '', 'Main contractor name for project records.'],
+              ['location', 'Location', '', 'Project site location.'],
+              ['engineer', 'Engineer', '', 'Responsible engineer for stamping.'],
+              ['voltage',
+               <span key="voltage" className="inline-flex items-center gap-1.5">Voltage (V) <InfoTooltip label="System Voltage" helper="Nominal line-to-line or line-to-neutral system voltage used for current, cable, and breaker sizing." /></span>,
+               'e.g. 230 or 400',
+               ''],
+              ['frequency',
+               <span key="frequency" className="inline-flex items-center gap-1.5">Frequency (Hz) <InfoTooltip label="System Frequency" helper="Nominal grid frequency. 50 Hz is standard in IEC regions; must match impedance and cable tables." /></span>,
+               'e.g. 50',
+               ''],
+              ['powerFactor',
+               <span key="powerFactor" className="inline-flex items-center gap-1.5">Power Factor <InfoTooltip label="Power Factor" helper="Average load power factor (cos φ). Used to convert active power (kW) into apparent power (kVA) and calculate running current." /></span>,
+               'e.g. 0.85',
+               ''],
+              ['maxDemandFactor',
+               <span key="maxDemandFactor" className="inline-flex items-center gap-1.5">Max Demand Factor <InfoTooltip label="Max Demand Factor" helper="Diversity factor applied to the total connected load to estimate realistic maximum demand. IEC 61400 / local utility tables provide typical values." /></span>,
+               'e.g. 0.7',
+               ''],
+              ['maxVoltageDropLighting',
+               <span key="maxVoltageDropLighting" className="inline-flex items-center gap-1.5">VD Limit — Lighting (%) <InfoTooltip label="Lighting Voltage Drop Limit" helper="IEC 60364-5-52 recommends ≤ 3% voltage drop for lighting circuits. Used in cable sizing and schedules." /></span>,
+               '3',
+               ''],
+              ['maxVoltageDropPower',
+               <span key="maxVoltageDropPower" className="inline-flex items-center gap-1.5">VD Limit — Power (%) <InfoTooltip label="Power Voltage Drop Limit" helper="IEC 60364-5-52 recommends ≤ 5% voltage drop for power circuits (sockets, HVAC, motors)." /></span>,
+               '5',
+               ''],
+            ].map(([key, label, placeholder, helper]) => (
+              <div key={key as string}>
                 <label className="block text-xs text-gray-400 mb-1">{label}</label>
                 <input
-                  value={projectForm[key] || ''}
-                  onChange={(e) => setProjectForm({ ...projectForm, [key]: e.target.value })}
+                  value={projectForm[key as string] || ''}
+                  onChange={(e) => setProjectForm({ ...projectForm, [key as string]: e.target.value })}
+                  placeholder={placeholder}
                   className="dense-input w-full rounded"
                 />
+                {helper && <p className="text-[10px] text-gray-600 mt-1 leading-snug">{helper}</p>}
               </div>
             ))}
           </div>

@@ -453,15 +453,15 @@ export function computeFeeders(
 
     if (fd.hasFloorSubPanels) {
       // Floor has a sub-panel → one SMDB feeder for the whole floor.
-      // Riser is 3-phase (it’s off the MDB bus), but if every item is 1-phase
-      // we mark isThreePhase false ONLY so callers of PanelFeeder can see at a
-      // glance the floor is internally single-phase; the riser itself MUST be
-      // 3-pole because the MDB is 3-phase. (eng-review §note: riser phase-count
-      // flip is display-only; sizing always uses the max-loaded-phase current.)
+      // The riser is ALWAYS 3-phase/3-pole off the MDB bus, even when every
+      // downstream item is 1-phase. The gear exists; current on unloaded phases
+      // is zero, but the cable is still a 3-phase 4-wire set. Sizing therefore
+      // uses the 3-phase cable table (conservative for the physical cable) and
+      // the max-loaded phase current as the design current. (eng-review §note)
       const floorCurrent = floorBalance.maxPhaseCurrent;
-      const floorIsThreePhase = fd.items.some((i) => isThreePhaseForItem(i));
-      const riserPoles: 1 | 3 = 3; // SMDB riser is always 3-pole off a 3-phase MDB bus
-      const sizing = sizeCableAndBreaker(floorCurrent, floorIsThreePhase, {
+      const riserIsThreePhase = true;
+      const riserPoles: 1 | 3 = 3;
+      const sizing = sizeCableAndBreaker(floorCurrent, riserIsThreePhase, {
         material: "copper",
         insulation: "XLPE",
         ambientTemp: 30,
@@ -471,7 +471,7 @@ export function computeFeeders(
       const actualBreakerSize = Math.max(sizing.breakerSize, match.ratedCurrent ?? 0);
       const finalSizing =
         actualBreakerSize > sizing.breakerSize
-          ? sizeCableAndBreaker(actualBreakerSize, floorIsThreePhase, {
+          ? sizeCableAndBreaker(actualBreakerSize, riserIsThreePhase, {
               material: "copper",
               insulation: "XLPE",
               ambientTemp: 30,
@@ -490,7 +490,7 @@ export function computeFeeders(
         manufacturer: match.manufacturer,
         familyName: match.familyName,
         fallback: match.fallback,
-        isThreePhase: floorIsThreePhase, // display/metadata only; riser uses 3 poles
+        isThreePhase: riserIsThreePhase, // physical riser is always 3-phase off the MDB bus
         // Per-phase balance fields for the MDB schedule columns (T6).
         phaseCurrent: floorBalance.phaseCurrent,
         phaseKw: floorBalance.phaseKw,

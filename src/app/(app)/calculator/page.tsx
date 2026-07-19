@@ -19,6 +19,7 @@ import {
   RefreshCw,
 } from 'lucide-react';
 import type { FloorItem, FloorDesign, Building, Project } from '@/types';
+import { phaseBalance } from '@/lib/calculations/phaseBalance';
 
 export default function CalculatorPage() {
   return (
@@ -90,6 +91,20 @@ function CalculatorContent() {
 
   const handleDeleteItem = async (itemId: string) => {
     await fetch(`/api/floor-items/${itemId}`, { method: 'DELETE' });
+    loadProject();
+  };
+
+  const handleUpdateAssignedPhase = async (itemId: string, assignedPhase: number | null) => {
+    await fetch(`/api/floor-items/${itemId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ assignedPhase }),
+    });
+    loadProject();
+  };
+
+  const handleRebalanceFloor = async (floorDesignId: string) => {
+    await fetch(`/api/floors/${floorDesignId}/rebalance`, { method: 'POST' });
     loadProject();
   };
 
@@ -282,6 +297,7 @@ function CalculatorContent() {
           const expanded = expandedFloor === fd.id;
           const floorDemand = fd.items.reduce((s, i) => s + i.calculatedMaxDemand, 0);
           const floorCurrent = fd.items.reduce((s, i) => s + i.calculatedCurrent, 0);
+          const floorBalance = phaseBalance(fd.items, project);
 
           return (
             <div key={fd.id} className="rounded-xl border border-gray-800 bg-gray-900/40 min-w-0">
@@ -304,6 +320,15 @@ function CalculatorContent() {
                 <span className="text-xs font-mono text-gray-500">
                   {floorDemand.toFixed(1)} kW / {floorCurrent.toFixed(1)} A
                 </span>
+                <span className="text-[10px] font-mono text-gray-400 hidden sm:inline">
+                  L1 {floorBalance.phaseCurrent[0].toFixed(0)}A · L2 {floorBalance.phaseCurrent[1].toFixed(0)}A · L3 {floorBalance.phaseCurrent[2].toFixed(0)}A
+                  {floorBalance.neutralCurrent > 0.1 && (
+                    <span className="text-yellow-500 ml-1">N {floorBalance.neutralCurrent.toFixed(0)}A</span>
+                  )}
+                  {floorBalance.imbalanced && (
+                    <span className="text-red-500 ml-1">Unbal {floorBalance.unbalancePct.toFixed(1)}%</span>
+                  )}
+                </span>
               </div>
 
               {expanded && (
@@ -315,10 +340,10 @@ function CalculatorContent() {
                           <th className="text-left">Type</th>
                           <th className="text-left">Name</th>
                           <th className="text-center">Phase</th>
+                          <th className="text-center">Assigned</th>
                           <th className="text-right">Load (kW)</th>
                           <th className="text-right">Demand (kW)</th>
-                          <th className="text-right">Per-Phase (kW)</th>
-                          <th className="text-right">Per-Phase Current (A)</th>
+                          <th className="text-right">Current (A)</th>
                           <th className="text-center">Breaker</th>
                           <th className="text-center">Cable</th>
                           <th className="text-center">VDrop</th>
@@ -330,14 +355,10 @@ function CalculatorContent() {
                           const Icon = item.type === 'APARTMENT' ? Home : Wrench;
                           // Recalculate current from template's current phases (not stale stored value)
                           const isThreePhase = item.type === 'APARTMENT' && item.apartmentTemplate?.phases === 3;
-                          const displayCurrent = item.type === 'APARTMENT'
-                            ? (isThreePhase
-                                ? item.calculatedMaxDemand / (Math.sqrt(3) * 0.4)
-                                : item.calculatedMaxDemand / 0.23)
-                            : item.calculatedCurrent;
-                          const displayPerPhaseLoad = isThreePhase
-                            ? item.calculatedMaxDemand / 3
-                            : item.calculatedMaxDemand;
+                          const itemPhaseCount = isThreePhase ? 3 : (item.loadLibraryItem?.phase ?? 3) === 3 ? 3 : 1;
+                          const resolvedPhase = itemPhaseCount === 1
+                            ? (item.assignedPhase ?? floorBalance.assignments.find((a) => a.id === item.id)?.assignedPhase ?? null)
+                            : null;
                           return (
                             <tr key={item.id} className="hover:bg-gray-800/30">
                               <td>
@@ -349,12 +370,27 @@ function CalculatorContent() {
                               </td>
                               <td className="text-gray-200 text-sm">{item.name}</td>
                               <td className="text-center font-mono text-xs text-gray-400">
-                                {item.type === 'APARTMENT' ? (isThreePhase ? '3Φ' : '1Φ') : '3Φ'}
+                                {itemPhaseCount === 3 ? '3Φ' : '1Φ'}
+                              </td>
+                              <td className="text-center">
+                                {itemPhaseCount === 3 ? (
+                                  <span className="text-[10px] text-gray-600">—</span>
+                                ) : (
+                                  <select
+                                    value={resolvedPhase ?? ''}
+                                    onChange={(e) => handleUpdateAssignedPhase(item.id, e.target.value === '' ? null : Number(e.target.value))}
+                                    className="dense-input text-xs py-0.5 px-1 rounded bg-gray-800/50 border-gray-700"
+                                  >
+                                    <option value="">Auto</option>
+                                    <option value="1">L1</option>
+                                    <option value="2">L2</option>
+                                    <option value="3">L3</option>
+                                  </select>
+                                )}
                               </td>
                               <td className="text-right font-mono text-sm">{item.calculatedConnectedLoad.toFixed(2)}</td>
                               <td className="text-right font-mono text-sm text-orange-400">{item.calculatedMaxDemand.toFixed(2)}</td>
-                              <td className="text-right font-mono text-sm text-blue-400">{displayPerPhaseLoad.toFixed(2)}</td>
-                              <td className="text-right font-mono text-sm">{displayCurrent.toFixed(1)}</td>
+                              <td className="text-right font-mono text-sm">{item.calculatedCurrent.toFixed(1)}</td>
                               <td className="text-center font-mono text-sm text-blue-400">{item.breakerSize}</td>
                               <td className="text-center font-mono text-sm text-green-400">{item.cableSize}</td>
                               <td className="text-center font-mono text-xs text-gray-500">
@@ -548,6 +584,15 @@ function CalculatorContent() {
                         >
                           <RefreshCw size={12} />
                           Recalculate
+                        </button>
+                      )}
+                      {fd.items.length > 0 && (
+                        <button
+                          onClick={() => handleRebalanceFloor(fd.id)}
+                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gray-800 hover:bg-gray-700 text-xs text-gray-400 hover:text-orange-400 transition-colors"
+                        >
+                          <ArrowUpDown size={12} />
+                          Re-balance
                         </button>
                       )}
                       {fd.items.length > 0 && bldg.floorDesigns.length > 1 && (

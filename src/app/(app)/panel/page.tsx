@@ -88,14 +88,15 @@ export default function PanelDesignerPage() {
   const activeFeeders = panelType === 'MDB' ? mdbFeeders : smdbFeedersForActive;
 
   // MDB Main calculations
-  // Total demand in kVA: sum of feeder apparent power (kW / powerFactor).
+  // Total demand in kVA: sum of feeder real power (kW) divided by PF.
+  // Prefer per-phase kW when available (PR1); fall back to legacy current formula.
   const totalDemandKva = mdbFeeders.reduce((s, f) => {
-    // kVA = kW / pf; kW = current(A) * voltage(kV) * factor
-    // For 3-phase: factor = sqrt(3), line voltage in kV.
     const voltageKv = project.voltage / 1000;
-    const kw = project.voltage === 230
-      ? f.current * voltageKv * project.powerFactor
-      : f.current * Math.sqrt(3) * voltageKv * project.powerFactor;
+    const kw = f.phaseKw
+      ? f.phaseKw[0] + f.phaseKw[1] + f.phaseKw[2]
+      : project.voltage === 230
+        ? f.current * voltageKv * project.powerFactor
+        : f.current * Math.sqrt(3) * voltageKv * project.powerFactor;
     return s + kw / project.powerFactor;
   }, 0);
   const mainBreakerCurrent = calculateThreePhaseCurrent(totalDemandKva * 1000, project.voltage);
@@ -349,7 +350,12 @@ export default function PanelDesignerPage() {
                 <th className="text-left">#</th>
                 <th className="text-left">Feeder</th>
                 <th className="text-center">Type</th>
-                <th className="text-right">Per-Phase Current (A)</th>
+                <th className="text-right">L1 (A)</th>
+                <th className="text-right">L2 (A)</th>
+                <th className="text-right">L3 (A)</th>
+                <th className="text-right">Neutral (A)</th>
+                <th className="text-right">Unbal %</th>
+                <th className="text-center">Poles</th>
                 <th className="text-right">Breaker (A)</th>
                 <th className="text-center">Breaker Model</th>
                 <th className="text-center">Cable (mm²)</th>
@@ -359,9 +365,25 @@ export default function PanelDesignerPage() {
               {activeFeeders.map((f, i) => (
                 <tr key={i} className="hover:bg-gray-800/30">
                   <td className="font-mono text-gray-500">{i + 1}</td>
-                  <td className="text-gray-200">{f.name}</td>
+                  <td className="text-gray-200">
+                    {f.name}
+                    {f.internalImbalanceNotModeled && (
+                      <span className="ml-2 inline-flex items-center text-[10px] text-yellow-500" title="3-phase apartment treated as balanced; per-room imbalance not modeled">
+                        <AlertTriangle size={10} className="mr-0.5" />
+                        int. imbalance
+                      </span>
+                    )}
+                  </td>
                   <td className="text-center text-xs text-gray-400">{f.type.replace('_', ' ')}</td>
-                  <td className="text-right font-mono text-orange-400">{f.current.toFixed(1)}</td>
+                  <td className="text-right font-mono text-orange-400">{(f.phaseCurrent?.[0] ?? f.current).toFixed(1)}</td>
+                  <td className="text-right font-mono text-orange-400">{(f.phaseCurrent?.[1] ?? f.current).toFixed(1)}</td>
+                  <td className="text-right font-mono text-orange-400">{(f.phaseCurrent?.[2] ?? f.current).toFixed(1)}</td>
+                  <td className="text-right font-mono text-yellow-400">{(f.neutralCurrent ?? 0).toFixed(1)}</td>
+                  <td className="text-right font-mono text-gray-400">
+                    {(f.unbalancePct ?? 0).toFixed(1)}%
+                    {f.imbalanced && <span className="ml-1 text-red-500" title={`Current unbalance exceeds ${f.unbalancePct?.toFixed(1)}% / ${project.calculationStandard ?? 'IEC'} 10% limit`}>!</span>}
+                  </td>
+                  <td className="text-center text-xs text-gray-400 font-mono">{f.isThreePhase ? '3P' : '1P'}{f.assignedPhase ? `-L${f.assignedPhase}` : ''}</td>
                   <td className="text-right font-mono text-blue-400">{f.breakerSize}</td>
                   <td className="text-center text-xs text-gray-400 font-mono">{f.breakerModel}</td>
                   <td className="text-center font-mono text-green-400">{f.cableSize}</td>
@@ -373,8 +395,28 @@ export default function PanelDesignerPage() {
                 <td className="text-white">TOTAL</td>
                 <td></td>
                 <td className="text-right font-mono text-orange-400">
-                  {activeFeeders.reduce((s, f) => s + f.current, 0).toFixed(1)}
+                  {activeFeeders.reduce((s, f) => s + (f.phaseCurrent?.[0] ?? f.current), 0).toFixed(1)}
                 </td>
+                <td className="text-right font-mono text-orange-400">
+                  {activeFeeders.reduce((s, f) => s + (f.phaseCurrent?.[1] ?? f.current), 0).toFixed(1)}
+                </td>
+                <td className="text-right font-mono text-orange-400">
+                  {activeFeeders.reduce((s, f) => s + (f.phaseCurrent?.[2] ?? f.current), 0).toFixed(1)}
+                </td>
+                <td className="text-right font-mono text-yellow-400">
+                  {/* Vector sum of neutrals is not additive; leave blank */}
+                  —
+                </td>
+                <td className="text-right font-mono text-gray-400">
+                  {(() => {
+                    const l1 = activeFeeders.reduce((s, f) => s + (f.phaseCurrent?.[0] ?? f.current), 0);
+                    const l2 = activeFeeders.reduce((s, f) => s + (f.phaseCurrent?.[1] ?? f.current), 0);
+                    const l3 = activeFeeders.reduce((s, f) => s + (f.phaseCurrent?.[2] ?? f.current), 0);
+                    const avg = (l1 + l2 + l3) / 3;
+                    return avg > 0 ? (((Math.max(l1, l2, l3) - Math.min(l1, l2, l3)) / avg) * 100).toFixed(1) : '0.0';
+                  })()}%
+                </td>
+                <td></td>
                 <td className="text-right font-mono text-white">{mainSizing.breakerSize}</td>
                 <td className="text-center text-xs font-mono text-white">{mainBreakerModel}</td>
                 <td className="text-center font-mono text-green-400">{mainSizing.cableSize}</td>

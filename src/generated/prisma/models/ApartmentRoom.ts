@@ -509,14 +509,6 @@ export type ApartmentRoomUncheckedUpdateManyWithoutTemplateNestedInput = {
   deleteMany?: Prisma.ApartmentRoomScalarWhereInput | Prisma.ApartmentRoomScalarWhereInput[]
 }
 
-export type NullableIntFieldUpdateOperationsInput = {
-  set?: number | null
-  increment?: number
-  decrement?: number
-  multiply?: number
-  divide?: number
-}
-
 export type ApartmentRoomCreateWithoutTemplateInput = {
   id?: string
   type: string

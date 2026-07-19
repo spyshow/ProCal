@@ -120,7 +120,7 @@ describe('createFindBreaker', () => {
 // ---------------------------------------------------------------------------
 
 describe('computeFeeders', () => {
-  it('floor WITH hasFloorSubPanels → one SMDB feeder for the whole floor', () => {
+  it('floor WITH hasFloorSubPanels → one SMDB feeder sized by max-loaded phase current', () => {
     const findBreaker = createFindBreaker(equipment, {}, 'ABB');
     const bldg = building({
       floorDesigns: [{
@@ -132,7 +132,12 @@ describe('computeFeeders', () => {
     const smdb = mdbFeeders.filter((f) => f.type === 'SMDB');
     expect(smdb).toHaveLength(1);
     expect(smdb[0].name).toBe('F1 – SMDB');
-    expect(smdb[0].current).toBe(50); // 20 + 30
+    // PR1: per-phase balance assigns the 1-phase loads to phases; the riser
+    // is sized by the max-loaded phase, not the flat sum (20+30=50).
+    // With two 1-phase loads greedy-LPT, the largest (30) goes to L1, the
+    // next to L2, so maxPhaseCurrent = 30.
+    expect(smdb[0].current).toBe(30);
+    expect(smdb[0].phaseCurrent).toEqual([30, 20, 0]);
     expect(smdb[0].manufacturer).toBe('ABB');
   });
 

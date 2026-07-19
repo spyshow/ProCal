@@ -94,6 +94,10 @@ export async function PUT(
         notes: data.notes ?? existingProject.notes,
         maxVoltageDropLighting: data.maxVoltageDropLighting ? parseFloat(data.maxVoltageDropLighting) : existingProject.maxVoltageDropLighting,
         maxVoltageDropPower: data.maxVoltageDropPower ? parseFloat(data.maxVoltageDropPower) : existingProject.maxVoltageDropPower,
+        calculationStandard:
+          data.calculationStandard === "NEMA" || data.calculationStandard === "IEC"
+            ? data.calculationStandard
+            : existingProject.calculationStandard ?? "IEC",
         transformerSize: data.transformerSize ? parseFloat(data.transformerSize) : existingProject.transformerSize,
         defaultAcbFamilyId: data.defaultAcbFamilyId !== undefined ? data.defaultAcbFamilyId : existingProject.defaultAcbFamilyId,
         defaultMccbFamilyId: data.defaultMccbFamilyId !== undefined ? data.defaultMccbFamilyId : existingProject.defaultMccbFamilyId,

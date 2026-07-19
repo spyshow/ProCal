@@ -72,6 +72,7 @@ interface Project {
   preferredManufacturer: string;
   country: string;
   logoUrl: string | null;
+  calculationStandard?: string;
   buildings: Building[];
   apartmentTemplates: any[];
   loadLibraryItems: any[];
@@ -324,6 +325,7 @@ export default function ProjectDetailPage() {
       frequency: String(project.frequency),
       powerFactor: String(project.powerFactor),
       maxDemandFactor: String(project.maxDemandFactor),
+      calculationStandard: project.calculationStandard || 'IEC',
       logoUrl: project.logoUrl || '',
     });
     setEditingProject(true);
@@ -386,7 +388,20 @@ export default function ProjectDetailPage() {
               ['frequency', 'Frequency (Hz)'],
               ['powerFactor', 'Power Factor'],
               ['maxDemandFactor', 'Max Demand Factor'],
-            ].map(([key, label]) => (
+              [null, 'Calculation Standard'],
+            ].map(([key, label]) => key === null ? (
+              <div key="calculationStandard">
+                <label className="block text-xs text-gray-400 mb-1">{label}</label>
+                <select
+                  value={projectForm.calculationStandard || 'IEC'}
+                  onChange={(e) => setProjectForm({ ...projectForm, calculationStandard: e.target.value })}
+                  className="dense-input w-full rounded"
+                >
+                  <option value="IEC">IEC / EN 50160</option>
+                  <option value="NEMA">NEMA / IEEE</option>
+                </select>
+              </div>
+            ) : (
               <div key={key}>
                 <label className="block text-xs text-gray-400 mb-1">{label}</label>
                 <input

@@ -38,6 +38,7 @@ export default function ProjectsPage() {
     frequency: '50',
     powerFactor: '0.85',
     maxDemandFactor: '0.8',
+    calculationStandard: 'IEC',
   });
   const [saving, setSaving] = useState(false);
 
@@ -67,7 +68,7 @@ export default function ProjectsPage() {
         const project = await res.json();
         selectProject(project.id);
         setShowNew(false);
-        setForm({ name: '', client: '', consultant: '', contractor: '', location: '', engineer: '', country: 'Syria', voltage: '400', frequency: '50', powerFactor: '0.85', maxDemandFactor: '0.8' });
+        setForm({ name: '', client: '', consultant: '', contractor: '', location: '', engineer: '', country: 'Syria', voltage: '400', frequency: '50', powerFactor: '0.85', maxDemandFactor: '0.8', calculationStandard: 'IEC' });
         loadProjects();
       }
     } catch (err) {
@@ -76,6 +77,11 @@ export default function ProjectsPage() {
       setSaving(false);
     }
   };
+
+  const STANDARDS = [
+    { value: 'IEC', label: 'IEC / EN 50160' },
+    { value: 'NEMA', label: 'NEMA / IEEE' },
+  ];
 
   const handleDelete = async (id: string) => {
     if (!confirm('Delete this project and all its data?')) return;
@@ -173,6 +179,18 @@ export default function ProjectsPage() {
             <div>
               <label className="block text-xs text-gray-400 mb-1">Power Factor</label>
               <input value={form.powerFactor} onChange={(e) => setForm({ ...form, powerFactor: e.target.value })} className="dense-input w-full rounded" />
+            </div>
+            <div>
+              <label className="block text-xs text-gray-400 mb-1">Calculation Standard</label>
+              <select
+                value={form.calculationStandard}
+                onChange={(e) => setForm({ ...form, calculationStandard: e.target.value })}
+                className="dense-input w-full rounded"
+              >
+                {STANDARDS.map((s) => (
+                  <option key={s.value} value={s.value}>{s.label}</option>
+                ))}
+              </select>
             </div>
           </div>
           <div className="flex gap-2">

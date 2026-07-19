@@ -39,6 +39,7 @@ interface BuildingLoad {
     powerFactor: number;
   } | null;
   quantity: number;
+  assignedPhase?: number | null;
 }
 
 interface Building {
@@ -223,6 +224,20 @@ export default function ProjectDetailPage() {
 
   const handleDeleteBuildingLoad = async (loadId: string) => {
     await fetch(`/api/building-loads/${loadId}`, { method: 'DELETE' });
+    loadProject();
+  };
+
+  const handleUpdateBuildingLoadPhase = async (loadId: string, assignedPhase: number | null) => {
+    await fetch(`/api/building-loads/${loadId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ assignedPhase }),
+    });
+    loadProject();
+  };
+
+  const handleRebalanceBuildingLoads = async (buildingId: string) => {
+    await fetch(`/api/buildings/${buildingId}/rebalance`, { method: 'POST' });
     loadProject();
   };
 
@@ -553,6 +568,14 @@ export default function ProjectDetailPage() {
                       <p className="text-sm font-semibold text-gray-200">{bldg.name}</p>
                       <p className="text-xs text-gray-500">
                         {bldg.floors} floors · {bldg.serviceFloors} service · {totalApts} apartments · {bldg.buildingLoads?.length || 0} building loads
+                        {bldg.buildingLoads && bldg.buildingLoads.length > 0 && (
+                          <button
+                            onClick={(e) => { e.stopPropagation(); handleRebalanceBuildingLoads(bldg.id); }}
+                            className="ml-2 text-[10px] px-2 py-0.5 rounded bg-gray-800 hover:bg-gray-700 text-gray-400 hover:text-orange-400 transition-colors"
+                          >
+                            Re-balance
+                          </button>
+                        )}
                       </p>
                     </div>
                     <div className="flex items-center gap-1">
@@ -674,6 +697,18 @@ export default function ProjectDetailPage() {
                                     {bl.loadLibraryItem?.category ?? '—'} · {bl.quantity} × {(bl.loadLibraryItem?.power ?? 0).toFixed(1)} kW
                                   </p>
                                 </div>
+                                {(bl.loadLibraryItem?.phase ?? 3) !== 3 && (
+                                  <select
+                                    value={bl.assignedPhase ?? ''}
+                                    onChange={(e) => handleUpdateBuildingLoadPhase(bl.id, e.target.value === '' ? null : Number(e.target.value))}
+                                    className="dense-input text-xs py-0.5 px-1 rounded bg-gray-800/50 border-gray-700"
+                                  >
+                                    <option value="">Auto</option>
+                                    <option value="1">L1</option>
+                                    <option value="2">L2</option>
+                                    <option value="3">L3</option>
+                                  </select>
+                                )}
                                 <button
                                   onClick={() => handleDeleteBuildingLoad(bl.id)}
                                   className="p-1 rounded text-gray-600 hover:text-red-400"

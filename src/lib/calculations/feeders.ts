@@ -118,18 +118,18 @@ function displacementAngle(pf: number): number {
 }
 
 /**
- * Compute per-phase balance fields for a SINGLE feeder (one FloorItem or one
- * BuildingLoad). For 3-phase loads this is the same board-level aggregate
- * (the load spans all three phases). For 1-phase loads we show only that
- * load's own contribution: current/kW on its assigned phase, zero on the
- * others, and neutral equal to its line current. Keeps the MDB schedule
- * columns honest: summing L1/L2/L3 across feeders gives the total board load,
- * not double-counted whole-board neutrals.
+ * Per-phase fields for ONE feeder, projected from the BOARD-RESOLVED phase.
+ * For 3-phase loads this is the same board-level spread (the load spans all
+ * three phases). For 1-phase loads we honor `resolvedPhase` (the phase this
+ * load was assigned to by the floor/building balance, or its persisted
+ * assignedPhase) so each feeder's L-column matches the board's real
+ * distribution — summing L1/L2/L3 across feeders then equals the board
+ * aggregate. A null resolvedPhase (single-item call site) falls back to L1.
  */
-function phaseBalanceFieldsForSingle(
-  items: [FloorItem] | [BuildingLoad],
+function oneItemPhaseFields(
+  item: FloorItem | BuildingLoad,
   project: Project,
-  kind: "floor" | "building"
+  resolvedPhase: number | null
 ): Pick<
   PanelFeeder,
   | "phaseCurrent"
@@ -140,7 +140,11 @@ function phaseBalanceFieldsForSingle(
   | "neutralOversized"
   | "internalImbalanceNotModeled"
 > {
-  const b = phaseBalance((items as unknown) as FloorItem[] | BuildingLoad[], project);
+  const withPhase =
+    resolvedPhase && resolvedPhase >= 1 && resolvedPhase <= 3
+      ? ({ ...item, assignedPhase: resolvedPhase } as FloorItem | BuildingLoad)
+      : item;
+  const b = phaseBalance([withPhase] as FloorItem[] & BuildingLoad[], project);
   return {
     phaseCurrent: b.phaseCurrent,
     phaseKw: b.phaseKw,
@@ -315,7 +319,8 @@ function feederFromItem(
   item: FloorItem,
   floorNumber: number,
   findBreaker: FindBreaker,
-  project: Project
+  project: Project,
+  resolvedPhase: number | null = null
 ): PanelFeeder {
   const isThreePhase = isThreePhaseForItem(item);
   const sizing = sizeCableAndBreaker(item.calculatedCurrent, isThreePhase, {
@@ -357,7 +362,7 @@ function feederFromItem(
     fallback: match.fallback,
     isThreePhase,
     assignedPhase: item.assignedPhase ?? null,
-    ...phaseBalanceFieldsForSingle([item], project, "floor"),
+    ...oneItemPhaseFields(item, project, resolvedPhase),
   };
 }
 
@@ -374,7 +379,8 @@ function feederFromBuildingLoad(
   isThreePhase: boolean,
   findBreaker: FindBreaker,
   project: Project,
-  load: BuildingLoad
+  load: BuildingLoad,
+  resolvedPhase: number | null = null
 ): PanelFeeder | null {
   if (current <= 0) return null;
   const sizing = sizeCableAndBreaker(current, isThreePhase, {
@@ -409,7 +415,7 @@ function feederFromBuildingLoad(
     fallback: match.fallback,
     isThreePhase,
     assignedPhase: load.assignedPhase ?? null,
-    ...phaseBalanceFieldsForSingle([load], project, "building"),
+    ...oneItemPhaseFields(load, project, resolvedPhase),
   };
 }
 
@@ -502,9 +508,17 @@ export function computeFeeders(
         assignedPhase: null,
       });
     } else {
-      // No sub-panel → individual apartment / load feeders.
+      // No sub-panel → individual apartment / load feeders. Project each from
+      // the floor-resolved phase so per-feeder L-columns sum to the floor
+      // aggregate (not each re-balanced alone onto L1).
+      const phaseById = new Map(
+        floorBalance.assignments.map((a) => [a.id, a.assignedPhase])
+      );
       for (const item of fd.items) {
-        mdbFeeders.push(feederFromItem(item, fd.floorNumber, findBreaker, project));
+        const resolved = item.assignedPhase ?? phaseById.get(item.id) ?? null;
+        mdbFeeders.push(
+          feederFromItem(item, fd.floorNumber, findBreaker, project, resolved)
+        );
       }
     }
   }
@@ -514,6 +528,9 @@ export function computeFeeders(
   // max-loaded phase current (same as floor sub-panels). This makes a 1-phase
   // building load correctly single-pole and phase-load-aware.
   const buildingBalance = phaseBalance(building.buildingLoads ?? [], project);
+  const blPhaseById = new Map(
+    buildingBalance.assignments.map((a) => [a.id, a.assignedPhase])
+  );
   for (const bl of building.buildingLoads ?? []) {
     const lib = bl.loadLibraryItem;
     if (!lib || lib.power <= 0 || bl.quantity <= 0) continue;
@@ -526,6 +543,7 @@ export function computeFeeders(
         ? (lib.power * bl.quantity) /
           (Math.sqrt(3) * (lib.voltage / 1000) * lib.powerFactor)
         : (lib.power * bl.quantity) / ((lib.voltage / 1000) * lib.powerFactor);
+    const resolved = bl.assignedPhase ?? blPhaseById.get(bl.id) ?? null;
     const f = feederFromBuildingLoad(
       lib.name,
       lib.category,
@@ -533,7 +551,8 @@ export function computeFeeders(
       isThreePhase,
       findBreaker,
       project,
-      bl
+      bl,
+      resolved
     );
     if (f) mdbFeeders.push(f);
   }
@@ -547,7 +566,16 @@ export function computeFeeders(
       (f) => f.floorNumber === floorNumber
     );
     if (!fd) return [];
-    return fd.items.map((item) => feederFromItem(item, floorNumber, findBreaker, project));
+    // Resolve each item's phase from the floor balance so the SMDB outgoing
+    // feeders reflect the real board distribution.
+    const balance = phaseBalance(fd.items, project);
+    const phaseById = new Map(
+      balance.assignments.map((a) => [a.id, a.assignedPhase])
+    );
+    return fd.items.map((item) => {
+      const resolved = item.assignedPhase ?? phaseById.get(item.id) ?? null;
+      return feederFromItem(item, floorNumber, findBreaker, project, resolved);
+    });
   };
 
   return { mdbFeeders, smdbFeeders, smdbFloorNumbers };

@@ -17,6 +17,7 @@ import {
   Calculator,
   Copy,
   RefreshCw,
+  AlertTriangle,
 } from 'lucide-react';
 import type { FloorItem, FloorDesign, Building, Project } from '@/types';
 import { phaseBalance } from '@/lib/calculations/phaseBalance';
@@ -173,6 +174,17 @@ function CalculatorContent() {
   const bldg = project.buildings.find((b) => b.id === selectedBuilding) || project.buildings[0];
   const sortedFloors = [...bldg.floorDesigns].sort((a, b) => a.floorNumber - b.floorNumber);
 
+  // Per-building aggregate balance (all floor items + building loads).
+  const allBuildingItems: any[] = [
+    ...bldg.floorDesigns.flatMap((fd) => fd.items),
+    ...(bldg.buildingLoads || []).map((bl: any) => ({
+      ...bl,
+      type: 'BUILDING_LOAD',
+      calculatedCurrent: 0, // computed by phaseBalance from library power×qty
+    })),
+  ];
+  const buildingBalance = phaseBalance(allBuildingItems as any, project);
+
   // Summary totals
   const totalConnectedLoad = sortedFloors.reduce(
     (sum, fd) => sum + fd.items.reduce((s, i) => s + i.calculatedConnectedLoad, 0),
@@ -243,6 +255,41 @@ function CalculatorContent() {
             <p className={`text-lg font-bold font-mono mt-0.5 ${color}`}>{value}</p>
           </div>
         ))}
+      </div>
+
+      {/* Per-Phase Building Summary */}
+      <div className="rounded-xl border border-gray-800 bg-gray-900/40 p-4">
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-sm font-semibold text-gray-300">
+            Per-Phase Balance — {bldg.name}
+          </h3>
+          {buildingBalance.imbalanced && (
+            <span className="text-[11px] font-semibold text-red-400 bg-red-500/10 px-2 py-0.5 rounded">
+              Imbalanced {buildingBalance.unbalancePct.toFixed(1)}% &gt; {buildingBalance.unbalanceLimitPct}%
+            </span>
+          )}
+          {buildingBalance.internalImbalanceNotModeled && (
+            <span className="text-[11px] font-semibold text-yellow-500 bg-yellow-500/10 px-2 py-0.5 rounded inline-flex items-center gap-1">
+              <AlertTriangle size={11} /> 3φ-apt internal imbalance not modeled
+            </span>
+          )}
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-6 gap-3">
+          {[
+            { label: `L1 (${project.calculationStandard || 'IEC'})`, value: `${buildingBalance.phaseCurrent[0].toFixed(1)} A`, sub: `${buildingBalance.phaseKw[0].toFixed(1)} kW`, color: 'text-orange-400' },
+            { label: 'L2', value: `${buildingBalance.phaseCurrent[1].toFixed(1)} A`, sub: `${buildingBalance.phaseKw[1].toFixed(1)} kW`, color: 'text-orange-400' },
+            { label: 'L3', value: `${buildingBalance.phaseCurrent[2].toFixed(1)} A`, sub: `${buildingBalance.phaseKw[2].toFixed(1)} kW`, color: 'text-orange-400' },
+            { label: 'Neutral', value: `${buildingBalance.neutralCurrent.toFixed(1)} A`, sub: buildingBalance.neutralOversized ? 'over 2×max' : 'ok', color: 'text-yellow-400' },
+            { label: 'Unbalance', value: `${buildingBalance.unbalancePct.toFixed(1)}%`, sub: `limit ${buildingBalance.unbalanceLimitPct}%`, color: 'text-gray-300' },
+            { label: 'Total kW', value: `${buildingBalance.totalKw.toFixed(1)} kW`, sub: `max ${buildingBalance.maxPhaseCurrent.toFixed(0)} A`, color: 'text-blue-400' },
+          ].map(({ label, value, sub, color }) => (
+            <div key={label} className="rounded-lg border border-gray-800 bg-gray-950/30 p-3">
+              <p className="text-[10px] text-gray-500 uppercase tracking-wider">{label}</p>
+              <p className={`text-base font-bold font-mono mt-0.5 ${color}`}>{value}</p>
+              <p className="text-[10px] text-gray-600 font-mono mt-0.5">{sub}</p>
+            </div>
+          ))}
+        </div>
       </div>
 
       {/* Building Loads (foldable, read-only) — attached on the Buildings page */}

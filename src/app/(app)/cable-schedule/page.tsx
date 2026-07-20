@@ -20,6 +20,11 @@ interface CableEntry {
   cableSize: number;
   current: number;
   isThreePhase: boolean;
+  assignedPhase: number | null;
+  phaseCurrent: [number, number, number];
+  neutralCurrent: number;
+  unbalancePct: number;
+  imbalanced: boolean;
   newCableSize: number | null;
   newVD: number | null;
   changed: boolean;
@@ -120,6 +125,13 @@ export default function CableSchedulePage() {
           const length = (item as any).cableLength || 10 + (fd.floorNumber - 1) * 5;
           const method = (item as any).installMethod || 'C';
           const insulation = (item as any).cableInsulation || 'XLPE';
+          const assignedPhase = (item as any).assignedPhase ?? null;
+          const phaseCurrent: [number, number, number] = isThreePhase
+            ? [item.calculatedCurrent, item.calculatedCurrent, item.calculatedCurrent]
+            : [0, 0, 0];
+          if (!isThreePhase && assignedPhase >= 1 && assignedPhase <= 3) {
+            phaseCurrent[assignedPhase - 1] = item.calculatedCurrent;
+          }
 
           const result = recalculateCable({
             current: item.calculatedCurrent,
@@ -143,6 +155,11 @@ export default function CableSchedulePage() {
             cableSize: cableSizeNum,
             current: item.calculatedCurrent,
             isThreePhase,
+            assignedPhase,
+            phaseCurrent,
+            neutralCurrent: isThreePhase ? 0 : item.calculatedCurrent,
+            unbalancePct: isThreePhase ? 0 : 100,
+            imbalanced: false,
             newCableSize: result.cableSize,
             newVD: result.voltageDropPercent,
             changed: result.changed,
@@ -170,6 +187,13 @@ export default function CableSchedulePage() {
         const length = bl.cableLength || 10;
         const method = bl.installMethod || 'C';
         const insulation = (bl.cableInsulation as 'PVC' | 'XLPE') || 'XLPE';
+        const assignedPhase = (bl as any).assignedPhase ?? null;
+        const phaseCurrent: [number, number, number] = isThreePhase
+          ? [current, current, current]
+          : [0, 0, 0];
+        if (!isThreePhase && assignedPhase >= 1 && assignedPhase <= 3) {
+          phaseCurrent[assignedPhase - 1] = current;
+        }
 
         const result = recalculateCable({
           current,
@@ -188,11 +212,16 @@ export default function CableSchedulePage() {
           name: loadTag,
           cableName: cableTag,
           building: bldg.name,
-          floor: 0, // building-level loads group separately
+          floor: 0,
           length,
           cableSize: cableSizeNum,
           current,
           isThreePhase,
+          assignedPhase,
+          phaseCurrent,
+          neutralCurrent: isThreePhase ? 0 : current,
+          unbalancePct: isThreePhase ? 0 : 100,
+          imbalanced: false,
           newCableSize: result.cableSize,
           newVD: result.voltageDropPercent,
           changed: result.changed,
@@ -564,6 +593,10 @@ export default function CableSchedulePage() {
                     {!selectedBuilding && <th className="text-left">Building</th>}
                     <th className="text-left">Load</th>
                     <th className="text-left">Cable</th>
+                    <th className="text-right">L1 (A)</th>
+                    <th className="text-right">L2 (A)</th>
+                    <th className="text-right">L3 (A)</th>
+                    <th className="text-right">N (A)</th>
                     <th className="text-right">Current (A)</th>
                     <th className="text-center">Size (mm²)</th>
                     <th className="text-center">Method</th>
@@ -581,6 +614,10 @@ export default function CableSchedulePage() {
                       {!selectedBuilding && <td className="text-gray-400 font-mono text-xs">{c.building}</td>}
                       <td className="text-gray-200 font-mono font-semibold">{c.name}</td>
                       <td className="text-gray-400 font-mono text-xs">{c.cableName}</td>
+                      <td className="text-right font-mono text-orange-400">{c.phaseCurrent[0].toFixed(1)}</td>
+                      <td className="text-right font-mono text-orange-400">{c.phaseCurrent[1].toFixed(1)}</td>
+                      <td className="text-right font-mono text-orange-400">{c.phaseCurrent[2].toFixed(1)}</td>
+                      <td className="text-right font-mono text-yellow-400">{c.neutralCurrent.toFixed(1)}</td>
                       <td className="text-right font-mono">{c.current.toFixed(1)}</td>
                       <td className="text-center font-mono text-green-400">{c.cableSize} mm²</td>
                       <td className="text-center">

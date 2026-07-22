@@ -258,13 +258,9 @@ function compute(loads: PhaseLoad[], project: Project): PhaseBalance {
     toAutoAssign.push(load);
   }
 
-  // Greedy LPT for the rest: sort largest-current-first (LPT), assign each to
-  // the least-loaded phase. Stable input order (sortKey) before the LPT sort
-  // keeps equal-current tie-breaks reproducible. (eng-review §D5/D7/D12)
-  toAutoAssign.sort((a, b) =>
-    a.sortKey < b.sortKey ? -1 : a.sortKey > b.sortKey ? 1 : 0
-  );
-  toAutoAssign.sort((a, b) => b.current - a.current); // LPT, stable on ties
+  // Simple round-robin: loop through loads in order, assign each to the
+  // least-loaded phase. This creates better per-floor balance than LPT
+  // because loads are distributed evenly across phases as they come in.
   for (const load of toAutoAssign) {
     const phase = leastLoadedPhase(phaseCurrent);
     placeOnePhase(load, phase, phaseCurrent, phaseKw, (ox, oy) => {

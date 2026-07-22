@@ -286,7 +286,7 @@ describe('phaseBalance', () => {
   // 8. null assignedPhase → greedy auto-assign on-read (stable order)
   // ==========================================================================
 
-  it('auto-assigns null 1-phase loads greedily to the least-loaded phase', () => {
+  it('auto-assigns null 1-phase loads to least-loaded phase in order', () => {
     const project = projectFixture();
     const small = item('small', 10, 2.3, 'APARTMENT'); // all null
     const medium = item('medium', 20, 4.6, 'APARTMENT');
@@ -294,11 +294,12 @@ describe('phaseBalance', () => {
 
     const b = phaseBalance([small, medium, large], project);
 
-    // LPT: 30 (large)→L1, 20 (medium)→L2, 10 (small)→L3
-    expect(b.assignments.find((a) => a.id === 'large')?.assignedPhase).toBe(1);
+    // Simple round-robin: small→L1, medium→L2, large→L3
+    // Each goes to the least-loaded phase at that moment
+    expect(b.assignments.find((a) => a.id === 'small')?.assignedPhase).toBe(1);
     expect(b.assignments.find((a) => a.id === 'medium')?.assignedPhase).toBe(2);
-    expect(b.assignments.find((a) => a.id === 'small')?.assignedPhase).toBe(3);
-    expect(b.maxPhaseCurrent).toBeCloseTo(30, 6); // all balanced to the largest
+    expect(b.assignments.find((a) => a.id === 'large')?.assignedPhase).toBe(3);
+    expect(b.maxPhaseCurrent).toBeCloseTo(30, 6); // balanced to the largest
   });
 
   // ==========================================================================

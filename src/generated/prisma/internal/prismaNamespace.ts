@@ -1469,6 +1469,8 @@ export const FloorDesignScalarFieldEnum = {
   id: 'id',
   floorNumber: 'floorNumber',
   hasFloorSubPanels: 'hasFloorSubPanels',
+  riserCableLength: 'riserCableLength',
+  riserCableSize: 'riserCableSize',
   buildingId: 'buildingId'
 } as const
 

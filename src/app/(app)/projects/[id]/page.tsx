@@ -39,6 +39,7 @@ interface BuildingLoad {
     powerFactor: number;
   } | null;
   quantity: number;
+  assignedPhase?: number | null;
 }
 
 interface Building {
@@ -72,6 +73,7 @@ interface Project {
   preferredManufacturer: string;
   country: string;
   logoUrl: string | null;
+  calculationStandard?: string;
   buildings: Building[];
   apartmentTemplates: any[];
   loadLibraryItems: any[];
@@ -225,6 +227,20 @@ export default function ProjectDetailPage() {
     loadProject();
   };
 
+  const handleUpdateBuildingLoadPhase = async (loadId: string, assignedPhase: number | null) => {
+    await fetch(`/api/building-loads/${loadId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ assignedPhase }),
+    });
+    loadProject();
+  };
+
+  const handleRebalanceBuildingLoads = async (buildingId: string) => {
+    await fetch(`/api/buildings/${buildingId}/rebalance`, { method: 'POST' });
+    loadProject();
+  };
+
   // Template CRUD
   const [showNewTemplate, setShowNewTemplate] = useState(false);
   const [templateName, setTemplateName] = useState('');
@@ -324,6 +340,7 @@ export default function ProjectDetailPage() {
       frequency: String(project.frequency),
       powerFactor: String(project.powerFactor),
       maxDemandFactor: String(project.maxDemandFactor),
+      calculationStandard: project.calculationStandard || 'IEC',
       logoUrl: project.logoUrl || '',
     });
     setEditingProject(true);
@@ -386,7 +403,20 @@ export default function ProjectDetailPage() {
               ['frequency', 'Frequency (Hz)'],
               ['powerFactor', 'Power Factor'],
               ['maxDemandFactor', 'Max Demand Factor'],
-            ].map(([key, label]) => (
+              [null, 'Calculation Standard'],
+            ].map(([key, label]) => key === null ? (
+              <div key="calculationStandard">
+                <label className="block text-xs text-gray-400 mb-1">{label}</label>
+                <select
+                  value={projectForm.calculationStandard || 'IEC'}
+                  onChange={(e) => setProjectForm({ ...projectForm, calculationStandard: e.target.value })}
+                  className="dense-input w-full rounded"
+                >
+                  <option value="IEC">IEC / EN 50160</option>
+                  <option value="NEMA">NEMA / IEEE</option>
+                </select>
+              </div>
+            ) : (
               <div key={key}>
                 <label className="block text-xs text-gray-400 mb-1">{label}</label>
                 <input
@@ -538,6 +568,14 @@ export default function ProjectDetailPage() {
                       <p className="text-sm font-semibold text-gray-200">{bldg.name}</p>
                       <p className="text-xs text-gray-500">
                         {bldg.floors} floors · {bldg.serviceFloors} service · {totalApts} apartments · {bldg.buildingLoads?.length || 0} building loads
+                        {bldg.buildingLoads && bldg.buildingLoads.length > 0 && (
+                          <button
+                            onClick={(e) => { e.stopPropagation(); handleRebalanceBuildingLoads(bldg.id); }}
+                            className="ml-2 text-[10px] px-2 py-0.5 rounded bg-gray-800 hover:bg-gray-700 text-gray-400 hover:text-orange-400 transition-colors"
+                          >
+                            Re-balance
+                          </button>
+                        )}
                       </p>
                     </div>
                     <div className="flex items-center gap-1">
@@ -659,6 +697,23 @@ export default function ProjectDetailPage() {
                                     {bl.loadLibraryItem?.category ?? '—'} · {bl.quantity} × {(bl.loadLibraryItem?.power ?? 0).toFixed(1)} kW
                                   </p>
                                 </div>
+                                {(bl.loadLibraryItem?.phase ?? 3) !== 3 && (
+                                  <div className="flex items-center gap-0.5">
+                                    <button
+                                      onClick={() => handleUpdateBuildingLoadPhase(bl.id, null)}
+                                      className={`px-1.5 py-0.5 text-[10px] rounded font-mono ${bl.assignedPhase === null ? 'bg-yellow-600 text-white' : 'bg-gray-800 text-gray-500 hover:text-gray-300'}`}
+                                      title="Auto-assign phase"
+                                    >A</button>
+                                    {[1, 2, 3].map((p) => (
+                                      <button
+                                        key={p}
+                                        onClick={() => handleUpdateBuildingLoadPhase(bl.id, p)}
+                                        className={`px-1.5 py-0.5 text-[10px] rounded font-mono ${bl.assignedPhase === p ? 'bg-orange-600 text-white' : 'bg-gray-800 text-gray-500 hover:text-gray-300'}`}
+                                        title={`Assign to L${p}`}
+                                      >L{p}</button>
+                                    ))}
+                                  </div>
+                                )}
                                 <button
                                   onClick={() => handleDeleteBuildingLoad(bl.id)}
                                   className="p-1 rounded text-gray-600 hover:text-red-400"

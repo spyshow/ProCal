@@ -29,11 +29,13 @@ export type AggregateBuildingLoad = {
 export type BuildingLoadAvgAggregateOutputType = {
   quantity: number | null
   cableLength: number | null
+  assignedPhase: number | null
 }
 
 export type BuildingLoadSumAggregateOutputType = {
   quantity: number | null
   cableLength: number | null
+  assignedPhase: number | null
 }
 
 export type BuildingLoadMinAggregateOutputType = {
@@ -45,6 +47,7 @@ export type BuildingLoadMinAggregateOutputType = {
   cableLength: number | null
   installMethod: string | null
   cableInsulation: string | null
+  assignedPhase: number | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -58,6 +61,7 @@ export type BuildingLoadMaxAggregateOutputType = {
   cableLength: number | null
   installMethod: string | null
   cableInsulation: string | null
+  assignedPhase: number | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -71,6 +75,7 @@ export type BuildingLoadCountAggregateOutputType = {
   cableLength: number
   installMethod: number
   cableInsulation: number
+  assignedPhase: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -80,11 +85,13 @@ export type BuildingLoadCountAggregateOutputType = {
 export type BuildingLoadAvgAggregateInputType = {
   quantity?: true
   cableLength?: true
+  assignedPhase?: true
 }
 
 export type BuildingLoadSumAggregateInputType = {
   quantity?: true
   cableLength?: true
+  assignedPhase?: true
 }
 
 export type BuildingLoadMinAggregateInputType = {
@@ -96,6 +103,7 @@ export type BuildingLoadMinAggregateInputType = {
   cableLength?: true
   installMethod?: true
   cableInsulation?: true
+  assignedPhase?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -109,6 +117,7 @@ export type BuildingLoadMaxAggregateInputType = {
   cableLength?: true
   installMethod?: true
   cableInsulation?: true
+  assignedPhase?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -122,6 +131,7 @@ export type BuildingLoadCountAggregateInputType = {
   cableLength?: true
   installMethod?: true
   cableInsulation?: true
+  assignedPhase?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -222,6 +232,7 @@ export type BuildingLoadGroupByOutputType = {
   cableLength: number | null
   installMethod: string | null
   cableInsulation: string | null
+  assignedPhase: number | null
   createdAt: Date
   updatedAt: Date
   _count: BuildingLoadCountAggregateOutputType | null
@@ -258,6 +269,7 @@ export type BuildingLoadWhereInput = {
   cableLength?: Prisma.FloatNullableFilter<"BuildingLoad"> | number | null
   installMethod?: Prisma.StringNullableFilter<"BuildingLoad"> | string | null
   cableInsulation?: Prisma.StringNullableFilter<"BuildingLoad"> | string | null
+  assignedPhase?: Prisma.IntNullableFilter<"BuildingLoad"> | number | null
   createdAt?: Prisma.DateTimeFilter<"BuildingLoad"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"BuildingLoad"> | Date | string
   building?: Prisma.XOR<Prisma.BuildingScalarRelationFilter, Prisma.BuildingWhereInput>
@@ -273,6 +285,7 @@ export type BuildingLoadOrderByWithRelationInput = {
   cableLength?: Prisma.SortOrderInput | Prisma.SortOrder
   installMethod?: Prisma.SortOrderInput | Prisma.SortOrder
   cableInsulation?: Prisma.SortOrderInput | Prisma.SortOrder
+  assignedPhase?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   building?: Prisma.BuildingOrderByWithRelationInput
@@ -291,6 +304,7 @@ export type BuildingLoadWhereUniqueInput = Prisma.AtLeast<{
   cableLength?: Prisma.FloatNullableFilter<"BuildingLoad"> | number | null
   installMethod?: Prisma.StringNullableFilter<"BuildingLoad"> | string | null
   cableInsulation?: Prisma.StringNullableFilter<"BuildingLoad"> | string | null
+  assignedPhase?: Prisma.IntNullableFilter<"BuildingLoad"> | number | null
   createdAt?: Prisma.DateTimeFilter<"BuildingLoad"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"BuildingLoad"> | Date | string
   building?: Prisma.XOR<Prisma.BuildingScalarRelationFilter, Prisma.BuildingWhereInput>
@@ -306,6 +320,7 @@ export type BuildingLoadOrderByWithAggregationInput = {
   cableLength?: Prisma.SortOrderInput | Prisma.SortOrder
   installMethod?: Prisma.SortOrderInput | Prisma.SortOrder
   cableInsulation?: Prisma.SortOrderInput | Prisma.SortOrder
+  assignedPhase?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.BuildingLoadCountOrderByAggregateInput
@@ -327,6 +342,7 @@ export type BuildingLoadScalarWhereWithAggregatesInput = {
   cableLength?: Prisma.FloatNullableWithAggregatesFilter<"BuildingLoad"> | number | null
   installMethod?: Prisma.StringNullableWithAggregatesFilter<"BuildingLoad"> | string | null
   cableInsulation?: Prisma.StringNullableWithAggregatesFilter<"BuildingLoad"> | string | null
+  assignedPhase?: Prisma.IntNullableWithAggregatesFilter<"BuildingLoad"> | number | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"BuildingLoad"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"BuildingLoad"> | Date | string
 }
@@ -338,6 +354,7 @@ export type BuildingLoadCreateInput = {
   cableLength?: number | null
   installMethod?: string | null
   cableInsulation?: string | null
+  assignedPhase?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   building: Prisma.BuildingCreateNestedOneWithoutBuildingLoadsInput
@@ -353,6 +370,7 @@ export type BuildingLoadUncheckedCreateInput = {
   cableLength?: number | null
   installMethod?: string | null
   cableInsulation?: string | null
+  assignedPhase?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -364,6 +382,7 @@ export type BuildingLoadUpdateInput = {
   cableLength?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   installMethod?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cableInsulation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedPhase?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   building?: Prisma.BuildingUpdateOneRequiredWithoutBuildingLoadsNestedInput
@@ -379,6 +398,7 @@ export type BuildingLoadUncheckedUpdateInput = {
   cableLength?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   installMethod?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cableInsulation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedPhase?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -392,6 +412,7 @@ export type BuildingLoadCreateManyInput = {
   cableLength?: number | null
   installMethod?: string | null
   cableInsulation?: string | null
+  assignedPhase?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -403,6 +424,7 @@ export type BuildingLoadUpdateManyMutationInput = {
   cableLength?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   installMethod?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cableInsulation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedPhase?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -416,6 +438,7 @@ export type BuildingLoadUncheckedUpdateManyInput = {
   cableLength?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   installMethod?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cableInsulation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedPhase?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -439,6 +462,7 @@ export type BuildingLoadCountOrderByAggregateInput = {
   cableLength?: Prisma.SortOrder
   installMethod?: Prisma.SortOrder
   cableInsulation?: Prisma.SortOrder
+  assignedPhase?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -446,6 +470,7 @@ export type BuildingLoadCountOrderByAggregateInput = {
 export type BuildingLoadAvgOrderByAggregateInput = {
   quantity?: Prisma.SortOrder
   cableLength?: Prisma.SortOrder
+  assignedPhase?: Prisma.SortOrder
 }
 
 export type BuildingLoadMaxOrderByAggregateInput = {
@@ -457,6 +482,7 @@ export type BuildingLoadMaxOrderByAggregateInput = {
   cableLength?: Prisma.SortOrder
   installMethod?: Prisma.SortOrder
   cableInsulation?: Prisma.SortOrder
+  assignedPhase?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -470,6 +496,7 @@ export type BuildingLoadMinOrderByAggregateInput = {
   cableLength?: Prisma.SortOrder
   installMethod?: Prisma.SortOrder
   cableInsulation?: Prisma.SortOrder
+  assignedPhase?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -477,6 +504,7 @@ export type BuildingLoadMinOrderByAggregateInput = {
 export type BuildingLoadSumOrderByAggregateInput = {
   quantity?: Prisma.SortOrder
   cableLength?: Prisma.SortOrder
+  assignedPhase?: Prisma.SortOrder
 }
 
 export type BuildingLoadCreateNestedManyWithoutBuildingInput = {
@@ -519,6 +547,14 @@ export type BuildingLoadUncheckedUpdateManyWithoutBuildingNestedInput = {
   update?: Prisma.BuildingLoadUpdateWithWhereUniqueWithoutBuildingInput | Prisma.BuildingLoadUpdateWithWhereUniqueWithoutBuildingInput[]
   updateMany?: Prisma.BuildingLoadUpdateManyWithWhereWithoutBuildingInput | Prisma.BuildingLoadUpdateManyWithWhereWithoutBuildingInput[]
   deleteMany?: Prisma.BuildingLoadScalarWhereInput | Prisma.BuildingLoadScalarWhereInput[]
+}
+
+export type NullableIntFieldUpdateOperationsInput = {
+  set?: number | null
+  increment?: number
+  decrement?: number
+  multiply?: number
+  divide?: number
 }
 
 export type BuildingLoadCreateNestedManyWithoutLoadLibraryItemInput = {
@@ -570,6 +606,7 @@ export type BuildingLoadCreateWithoutBuildingInput = {
   cableLength?: number | null
   installMethod?: string | null
   cableInsulation?: string | null
+  assignedPhase?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   loadLibraryItem?: Prisma.LoadLibraryItemCreateNestedOneWithoutBuildingLoadsInput
@@ -583,6 +620,7 @@ export type BuildingLoadUncheckedCreateWithoutBuildingInput = {
   cableLength?: number | null
   installMethod?: string | null
   cableInsulation?: string | null
+  assignedPhase?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -624,6 +662,7 @@ export type BuildingLoadScalarWhereInput = {
   cableLength?: Prisma.FloatNullableFilter<"BuildingLoad"> | number | null
   installMethod?: Prisma.StringNullableFilter<"BuildingLoad"> | string | null
   cableInsulation?: Prisma.StringNullableFilter<"BuildingLoad"> | string | null
+  assignedPhase?: Prisma.IntNullableFilter<"BuildingLoad"> | number | null
   createdAt?: Prisma.DateTimeFilter<"BuildingLoad"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"BuildingLoad"> | Date | string
 }
@@ -635,6 +674,7 @@ export type BuildingLoadCreateWithoutLoadLibraryItemInput = {
   cableLength?: number | null
   installMethod?: string | null
   cableInsulation?: string | null
+  assignedPhase?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   building: Prisma.BuildingCreateNestedOneWithoutBuildingLoadsInput
@@ -648,6 +688,7 @@ export type BuildingLoadUncheckedCreateWithoutLoadLibraryItemInput = {
   cableLength?: number | null
   installMethod?: string | null
   cableInsulation?: string | null
+  assignedPhase?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -685,6 +726,7 @@ export type BuildingLoadCreateManyBuildingInput = {
   cableLength?: number | null
   installMethod?: string | null
   cableInsulation?: string | null
+  assignedPhase?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -696,6 +738,7 @@ export type BuildingLoadUpdateWithoutBuildingInput = {
   cableLength?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   installMethod?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cableInsulation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedPhase?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   loadLibraryItem?: Prisma.LoadLibraryItemUpdateOneWithoutBuildingLoadsNestedInput
@@ -709,6 +752,7 @@ export type BuildingLoadUncheckedUpdateWithoutBuildingInput = {
   cableLength?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   installMethod?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cableInsulation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedPhase?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -721,6 +765,7 @@ export type BuildingLoadUncheckedUpdateManyWithoutBuildingInput = {
   cableLength?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   installMethod?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cableInsulation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedPhase?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -733,6 +778,7 @@ export type BuildingLoadCreateManyLoadLibraryItemInput = {
   cableLength?: number | null
   installMethod?: string | null
   cableInsulation?: string | null
+  assignedPhase?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -744,6 +790,7 @@ export type BuildingLoadUpdateWithoutLoadLibraryItemInput = {
   cableLength?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   installMethod?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cableInsulation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedPhase?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   building?: Prisma.BuildingUpdateOneRequiredWithoutBuildingLoadsNestedInput
@@ -757,6 +804,7 @@ export type BuildingLoadUncheckedUpdateWithoutLoadLibraryItemInput = {
   cableLength?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   installMethod?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cableInsulation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedPhase?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -769,6 +817,7 @@ export type BuildingLoadUncheckedUpdateManyWithoutLoadLibraryItemInput = {
   cableLength?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   installMethod?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cableInsulation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedPhase?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -784,6 +833,7 @@ export type BuildingLoadSelect<ExtArgs extends runtime.Types.Extensions.Internal
   cableLength?: boolean
   installMethod?: boolean
   cableInsulation?: boolean
+  assignedPhase?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   building?: boolean | Prisma.BuildingDefaultArgs<ExtArgs>
@@ -799,6 +849,7 @@ export type BuildingLoadSelectCreateManyAndReturn<ExtArgs extends runtime.Types.
   cableLength?: boolean
   installMethod?: boolean
   cableInsulation?: boolean
+  assignedPhase?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   building?: boolean | Prisma.BuildingDefaultArgs<ExtArgs>
@@ -814,6 +865,7 @@ export type BuildingLoadSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.
   cableLength?: boolean
   installMethod?: boolean
   cableInsulation?: boolean
+  assignedPhase?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   building?: boolean | Prisma.BuildingDefaultArgs<ExtArgs>
@@ -829,11 +881,12 @@ export type BuildingLoadSelectScalar = {
   cableLength?: boolean
   installMethod?: boolean
   cableInsulation?: boolean
+  assignedPhase?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type BuildingLoadOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "buildingId" | "loadLibraryItemId" | "quantity" | "cableSize" | "cableLength" | "installMethod" | "cableInsulation" | "createdAt" | "updatedAt", ExtArgs["result"]["buildingLoad"]>
+export type BuildingLoadOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "buildingId" | "loadLibraryItemId" | "quantity" | "cableSize" | "cableLength" | "installMethod" | "cableInsulation" | "assignedPhase" | "createdAt" | "updatedAt", ExtArgs["result"]["buildingLoad"]>
 export type BuildingLoadInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   building?: boolean | Prisma.BuildingDefaultArgs<ExtArgs>
   loadLibraryItem?: boolean | Prisma.BuildingLoad$loadLibraryItemArgs<ExtArgs>
@@ -862,6 +915,7 @@ export type $BuildingLoadPayload<ExtArgs extends runtime.Types.Extensions.Intern
     cableLength: number | null
     installMethod: string | null
     cableInsulation: string | null
+    assignedPhase: number | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["buildingLoad"]>
@@ -1297,6 +1351,7 @@ export interface BuildingLoadFieldRefs {
   readonly cableLength: Prisma.FieldRef<"BuildingLoad", 'Float'>
   readonly installMethod: Prisma.FieldRef<"BuildingLoad", 'String'>
   readonly cableInsulation: Prisma.FieldRef<"BuildingLoad", 'String'>
+  readonly assignedPhase: Prisma.FieldRef<"BuildingLoad", 'Int'>
   readonly createdAt: Prisma.FieldRef<"BuildingLoad", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"BuildingLoad", 'DateTime'>
 }

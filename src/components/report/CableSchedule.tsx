@@ -6,10 +6,13 @@ import type { Project } from '@/types';
 export interface CableScheduleProps {
   project: Project;
   buildingId?: string;
+  showHeader?: boolean;
 }
 
 interface CableRow {
   id: string;
+  buildingName: string;
+  floor: number;
   circuit: string;
   phaseLabel: string;
   current: number;
@@ -25,7 +28,7 @@ interface CableRow {
  * Lists each circuit with its phase configuration, design current, breaker,
  * selected cable size, installation method and insulation.
  */
-export default function CableSchedule({ project, buildingId }: CableScheduleProps) {
+export default function CableSchedule({ project, buildingId, showHeader = true }: CableScheduleProps) {
   const rows: CableRow[] = [];
 
   for (const b of project.buildings) {
@@ -35,6 +38,8 @@ export default function CableSchedule({ project, buildingId }: CableScheduleProp
         const isThreePhase = isThreePhaseForItem(item);
         rows.push({
           id: item.id || `${b.id}-${fd.floorNumber}-${item.name}`,
+          buildingName: b.name,
+          floor: fd.floorNumber,
           circuit: item.name,
           phaseLabel: isThreePhase ? '3Φ' : '1Φ',
           current: item.calculatedCurrent,
@@ -49,23 +54,32 @@ export default function CableSchedule({ project, buildingId }: CableScheduleProp
 
   return (
     <div className="space-y-4">
+      {showHeader && (
+        <div className="flex items-center justify-between text-xs text-gray-500 mb-1">
+          <span className="font-semibold">{project.name}</span>
+          <span>{project.date || new Date().toLocaleDateString()}</span>
+        </div>
+      )}
       <h2 className="text-lg font-bold border-b pb-2">Cable Sizing Schedule</h2>
-      <div className="overflow-x-auto">
       <table className="w-full text-sm border-collapse">
         <thead>
           <tr className="bg-gray-100">
-            <th className="border p-2 text-left w-[18%]">Circuit</th>
-            <th className="border p-2 text-center w-[8%]">Phase</th>
-            <th className="border p-2 text-right w-[16%]">Current (A)</th>
-            <th className="border p-2 text-center w-[12%]">Breaker (A)</th>
-            <th className="border p-2 text-center w-[14%]">Cable (mm²)</th>
-            <th className="border p-2 text-center w-[16%]">Method</th>
-            <th className="border p-2 text-center w-[16%]">Insulation</th>
+            <th className="border p-2 text-left">Building</th>
+            <th className="border p-2 text-center">Floor</th>
+            <th className="border p-2 text-left">Circuit</th>
+            <th className="border p-2 text-center">Phase</th>
+            <th className="border p-2 text-right">Current (A)</th>
+            <th className="border p-2 text-center">Breaker (A)</th>
+            <th className="border p-2 text-center">Cable (mm²)</th>
+            <th className="border p-2 text-center">Method</th>
+            <th className="border p-2 text-center">Insulation</th>
           </tr>
         </thead>
         <tbody>
           {rows.map((row) => (
             <tr key={row.id} className="hover:bg-gray-50">
+              <td className="border p-2 text-gray-600">{row.buildingName}</td>
+              <td className="border p-2 text-center font-mono text-orange-600">F{row.floor}</td>
               <td className="border p-2 font-semibold">{row.circuit}</td>
               <td className="border p-2 text-center font-mono">{row.phaseLabel}</td>
               <td className="border p-2 text-right font-mono">{row.current.toFixed(1)}</td>
@@ -77,7 +91,6 @@ export default function CableSchedule({ project, buildingId }: CableScheduleProp
           ))}
         </tbody>
       </table>
-      </div>
     </div>
   );
 }

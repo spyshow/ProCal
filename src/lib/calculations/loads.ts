@@ -42,9 +42,18 @@ export const STANDARD_TRANSFORMERS = [100, 160, 250, 400, 630, 800, 1000, 1250, 
 
 /**
  * Sizes the transformer to the next standard rating with an optional safety margin.
+ * When perPhaseKva is provided, uses the max-loaded phase (transformer is limited
+ * by its most-loaded winding under imbalance). Falls back to the lumped total.
  */
-export function sizeTransformer(demandKva: number, safetyMargin: number = 1.2): number {
-  const targetKva = demandKva * safetyMargin;
+export function sizeTransformer(
+  demandKva: number,
+  safetyMargin: number = 1.2,
+  perPhaseKva?: [number, number, number]
+): number {
+  const effectiveDemand = perPhaseKva
+    ? Math.max(perPhaseKva[0], perPhaseKva[1], perPhaseKva[2])
+    : demandKva;
+  const targetKva = effectiveDemand * safetyMargin;
   const match = STANDARD_TRANSFORMERS.find((rating) => rating >= targetKva);
   return match || STANDARD_TRANSFORMERS[STANDARD_TRANSFORMERS.length - 1];
 }

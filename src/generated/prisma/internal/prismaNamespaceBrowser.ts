@@ -110,6 +110,7 @@ export const ProjectScalarFieldEnum = {
   defaultMcbFamilyId: 'defaultMcbFamilyId',
   country: 'country',
   logoUrl: 'logoUrl',
+  calculationStandard: 'calculationStandard',
   maxVoltageDropLighting: 'maxVoltageDropLighting',
   maxVoltageDropPower: 'maxVoltageDropPower',
   userId: 'userId',
@@ -149,6 +150,7 @@ export const BuildingLoadScalarFieldEnum = {
   cableLength: 'cableLength',
   installMethod: 'installMethod',
   cableInsulation: 'cableInsulation',
+  assignedPhase: 'assignedPhase',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -227,7 +229,8 @@ export const FloorItemScalarFieldEnum = {
   cableLength: 'cableLength',
   voltageDrop: 'voltageDrop',
   installMethod: 'installMethod',
-  cableInsulation: 'cableInsulation'
+  cableInsulation: 'cableInsulation',
+  assignedPhase: 'assignedPhase'
 } as const
 
 export type FloorItemScalarFieldEnum = (typeof FloorItemScalarFieldEnum)[keyof typeof FloorItemScalarFieldEnum]

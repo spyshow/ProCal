@@ -67,6 +67,7 @@ export type ProjectMinAggregateOutputType = {
   defaultMcbFamilyId: string | null
   country: string | null
   logoUrl: string | null
+  calculationStandard: string | null
   maxVoltageDropLighting: number | null
   maxVoltageDropPower: number | null
   userId: string | null
@@ -95,6 +96,7 @@ export type ProjectMaxAggregateOutputType = {
   defaultMcbFamilyId: string | null
   country: string | null
   logoUrl: string | null
+  calculationStandard: string | null
   maxVoltageDropLighting: number | null
   maxVoltageDropPower: number | null
   userId: string | null
@@ -123,6 +125,7 @@ export type ProjectCountAggregateOutputType = {
   defaultMcbFamilyId: number
   country: number
   logoUrl: number
+  calculationStandard: number
   maxVoltageDropLighting: number
   maxVoltageDropPower: number
   userId: number
@@ -173,6 +176,7 @@ export type ProjectMinAggregateInputType = {
   defaultMcbFamilyId?: true
   country?: true
   logoUrl?: true
+  calculationStandard?: true
   maxVoltageDropLighting?: true
   maxVoltageDropPower?: true
   userId?: true
@@ -201,6 +205,7 @@ export type ProjectMaxAggregateInputType = {
   defaultMcbFamilyId?: true
   country?: true
   logoUrl?: true
+  calculationStandard?: true
   maxVoltageDropLighting?: true
   maxVoltageDropPower?: true
   userId?: true
@@ -229,6 +234,7 @@ export type ProjectCountAggregateInputType = {
   defaultMcbFamilyId?: true
   country?: true
   logoUrl?: true
+  calculationStandard?: true
   maxVoltageDropLighting?: true
   maxVoltageDropPower?: true
   userId?: true
@@ -344,6 +350,7 @@ export type ProjectGroupByOutputType = {
   defaultMcbFamilyId: string | null
   country: string
   logoUrl: string | null
+  calculationStandard: string
   maxVoltageDropLighting: number
   maxVoltageDropPower: number
   userId: string
@@ -395,6 +402,7 @@ export type ProjectWhereInput = {
   defaultMcbFamilyId?: Prisma.StringNullableFilter<"Project"> | string | null
   country?: Prisma.StringFilter<"Project"> | string
   logoUrl?: Prisma.StringNullableFilter<"Project"> | string | null
+  calculationStandard?: Prisma.StringFilter<"Project"> | string
   maxVoltageDropLighting?: Prisma.FloatFilter<"Project"> | number
   maxVoltageDropPower?: Prisma.FloatFilter<"Project"> | number
   userId?: Prisma.StringFilter<"Project"> | string
@@ -430,6 +438,7 @@ export type ProjectOrderByWithRelationInput = {
   defaultMcbFamilyId?: Prisma.SortOrderInput | Prisma.SortOrder
   country?: Prisma.SortOrder
   logoUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  calculationStandard?: Prisma.SortOrder
   maxVoltageDropLighting?: Prisma.SortOrder
   maxVoltageDropPower?: Prisma.SortOrder
   userId?: Prisma.SortOrder
@@ -468,6 +477,7 @@ export type ProjectWhereUniqueInput = Prisma.AtLeast<{
   defaultMcbFamilyId?: Prisma.StringNullableFilter<"Project"> | string | null
   country?: Prisma.StringFilter<"Project"> | string
   logoUrl?: Prisma.StringNullableFilter<"Project"> | string | null
+  calculationStandard?: Prisma.StringFilter<"Project"> | string
   maxVoltageDropLighting?: Prisma.FloatFilter<"Project"> | number
   maxVoltageDropPower?: Prisma.FloatFilter<"Project"> | number
   userId?: Prisma.StringFilter<"Project"> | string
@@ -503,6 +513,7 @@ export type ProjectOrderByWithAggregationInput = {
   defaultMcbFamilyId?: Prisma.SortOrderInput | Prisma.SortOrder
   country?: Prisma.SortOrder
   logoUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  calculationStandard?: Prisma.SortOrder
   maxVoltageDropLighting?: Prisma.SortOrder
   maxVoltageDropPower?: Prisma.SortOrder
   userId?: Prisma.SortOrder
@@ -539,6 +550,7 @@ export type ProjectScalarWhereWithAggregatesInput = {
   defaultMcbFamilyId?: Prisma.StringNullableWithAggregatesFilter<"Project"> | string | null
   country?: Prisma.StringWithAggregatesFilter<"Project"> | string
   logoUrl?: Prisma.StringNullableWithAggregatesFilter<"Project"> | string | null
+  calculationStandard?: Prisma.StringWithAggregatesFilter<"Project"> | string
   maxVoltageDropLighting?: Prisma.FloatWithAggregatesFilter<"Project"> | number
   maxVoltageDropPower?: Prisma.FloatWithAggregatesFilter<"Project"> | number
   userId?: Prisma.StringWithAggregatesFilter<"Project"> | string
@@ -564,6 +576,7 @@ export type ProjectCreateInput = {
   preferredManufacturer?: string
   country?: string
   logoUrl?: string | null
+  calculationStandard?: string
   maxVoltageDropLighting?: number
   maxVoltageDropPower?: number
   createdAt?: Date | string
@@ -598,6 +611,7 @@ export type ProjectUncheckedCreateInput = {
   defaultMcbFamilyId?: string | null
   country?: string
   logoUrl?: string | null
+  calculationStandard?: string
   maxVoltageDropLighting?: number
   maxVoltageDropPower?: number
   userId: string
@@ -626,6 +640,7 @@ export type ProjectUpdateInput = {
   preferredManufacturer?: Prisma.StringFieldUpdateOperationsInput | string
   country?: Prisma.StringFieldUpdateOperationsInput | string
   logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  calculationStandard?: Prisma.StringFieldUpdateOperationsInput | string
   maxVoltageDropLighting?: Prisma.FloatFieldUpdateOperationsInput | number
   maxVoltageDropPower?: Prisma.FloatFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -660,6 +675,7 @@ export type ProjectUncheckedUpdateInput = {
   defaultMcbFamilyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   country?: Prisma.StringFieldUpdateOperationsInput | string
   logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  calculationStandard?: Prisma.StringFieldUpdateOperationsInput | string
   maxVoltageDropLighting?: Prisma.FloatFieldUpdateOperationsInput | number
   maxVoltageDropPower?: Prisma.FloatFieldUpdateOperationsInput | number
   userId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -691,6 +707,7 @@ export type ProjectCreateManyInput = {
   defaultMcbFamilyId?: string | null
   country?: string
   logoUrl?: string | null
+  calculationStandard?: string
   maxVoltageDropLighting?: number
   maxVoltageDropPower?: number
   userId: string
@@ -716,6 +733,7 @@ export type ProjectUpdateManyMutationInput = {
   preferredManufacturer?: Prisma.StringFieldUpdateOperationsInput | string
   country?: Prisma.StringFieldUpdateOperationsInput | string
   logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  calculationStandard?: Prisma.StringFieldUpdateOperationsInput | string
   maxVoltageDropLighting?: Prisma.FloatFieldUpdateOperationsInput | number
   maxVoltageDropPower?: Prisma.FloatFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -743,6 +761,7 @@ export type ProjectUncheckedUpdateManyInput = {
   defaultMcbFamilyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   country?: Prisma.StringFieldUpdateOperationsInput | string
   logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  calculationStandard?: Prisma.StringFieldUpdateOperationsInput | string
   maxVoltageDropLighting?: Prisma.FloatFieldUpdateOperationsInput | number
   maxVoltageDropPower?: Prisma.FloatFieldUpdateOperationsInput | number
   userId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -781,6 +800,7 @@ export type ProjectCountOrderByAggregateInput = {
   defaultMcbFamilyId?: Prisma.SortOrder
   country?: Prisma.SortOrder
   logoUrl?: Prisma.SortOrder
+  calculationStandard?: Prisma.SortOrder
   maxVoltageDropLighting?: Prisma.SortOrder
   maxVoltageDropPower?: Prisma.SortOrder
   userId?: Prisma.SortOrder
@@ -819,6 +839,7 @@ export type ProjectMaxOrderByAggregateInput = {
   defaultMcbFamilyId?: Prisma.SortOrder
   country?: Prisma.SortOrder
   logoUrl?: Prisma.SortOrder
+  calculationStandard?: Prisma.SortOrder
   maxVoltageDropLighting?: Prisma.SortOrder
   maxVoltageDropPower?: Prisma.SortOrder
   userId?: Prisma.SortOrder
@@ -847,6 +868,7 @@ export type ProjectMinOrderByAggregateInput = {
   defaultMcbFamilyId?: Prisma.SortOrder
   country?: Prisma.SortOrder
   logoUrl?: Prisma.SortOrder
+  calculationStandard?: Prisma.SortOrder
   maxVoltageDropLighting?: Prisma.SortOrder
   maxVoltageDropPower?: Prisma.SortOrder
   userId?: Prisma.SortOrder
@@ -1117,6 +1139,7 @@ export type ProjectCreateWithoutUserInput = {
   preferredManufacturer?: string
   country?: string
   logoUrl?: string | null
+  calculationStandard?: string
   maxVoltageDropLighting?: number
   maxVoltageDropPower?: number
   createdAt?: Date | string
@@ -1150,6 +1173,7 @@ export type ProjectUncheckedCreateWithoutUserInput = {
   defaultMcbFamilyId?: string | null
   country?: string
   logoUrl?: string | null
+  calculationStandard?: string
   maxVoltageDropLighting?: number
   maxVoltageDropPower?: number
   createdAt?: Date | string
@@ -1208,6 +1232,7 @@ export type ProjectScalarWhereInput = {
   defaultMcbFamilyId?: Prisma.StringNullableFilter<"Project"> | string | null
   country?: Prisma.StringFilter<"Project"> | string
   logoUrl?: Prisma.StringNullableFilter<"Project"> | string | null
+  calculationStandard?: Prisma.StringFilter<"Project"> | string
   maxVoltageDropLighting?: Prisma.FloatFilter<"Project"> | number
   maxVoltageDropPower?: Prisma.FloatFilter<"Project"> | number
   userId?: Prisma.StringFilter<"Project"> | string
@@ -1233,6 +1258,7 @@ export type ProjectCreateWithoutBuildingsInput = {
   preferredManufacturer?: string
   country?: string
   logoUrl?: string | null
+  calculationStandard?: string
   maxVoltageDropLighting?: number
   maxVoltageDropPower?: number
   createdAt?: Date | string
@@ -1266,6 +1292,7 @@ export type ProjectUncheckedCreateWithoutBuildingsInput = {
   defaultMcbFamilyId?: string | null
   country?: string
   logoUrl?: string | null
+  calculationStandard?: string
   maxVoltageDropLighting?: number
   maxVoltageDropPower?: number
   userId: string
@@ -1309,6 +1336,7 @@ export type ProjectUpdateWithoutBuildingsInput = {
   preferredManufacturer?: Prisma.StringFieldUpdateOperationsInput | string
   country?: Prisma.StringFieldUpdateOperationsInput | string
   logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  calculationStandard?: Prisma.StringFieldUpdateOperationsInput | string
   maxVoltageDropLighting?: Prisma.FloatFieldUpdateOperationsInput | number
   maxVoltageDropPower?: Prisma.FloatFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1342,6 +1370,7 @@ export type ProjectUncheckedUpdateWithoutBuildingsInput = {
   defaultMcbFamilyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   country?: Prisma.StringFieldUpdateOperationsInput | string
   logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  calculationStandard?: Prisma.StringFieldUpdateOperationsInput | string
   maxVoltageDropLighting?: Prisma.FloatFieldUpdateOperationsInput | number
   maxVoltageDropPower?: Prisma.FloatFieldUpdateOperationsInput | number
   userId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1369,6 +1398,7 @@ export type ProjectCreateWithoutApartmentTemplatesInput = {
   preferredManufacturer?: string
   country?: string
   logoUrl?: string | null
+  calculationStandard?: string
   maxVoltageDropLighting?: number
   maxVoltageDropPower?: number
   createdAt?: Date | string
@@ -1402,6 +1432,7 @@ export type ProjectUncheckedCreateWithoutApartmentTemplatesInput = {
   defaultMcbFamilyId?: string | null
   country?: string
   logoUrl?: string | null
+  calculationStandard?: string
   maxVoltageDropLighting?: number
   maxVoltageDropPower?: number
   userId: string
@@ -1445,6 +1476,7 @@ export type ProjectUpdateWithoutApartmentTemplatesInput = {
   preferredManufacturer?: Prisma.StringFieldUpdateOperationsInput | string
   country?: Prisma.StringFieldUpdateOperationsInput | string
   logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  calculationStandard?: Prisma.StringFieldUpdateOperationsInput | string
   maxVoltageDropLighting?: Prisma.FloatFieldUpdateOperationsInput | number
   maxVoltageDropPower?: Prisma.FloatFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1478,6 +1510,7 @@ export type ProjectUncheckedUpdateWithoutApartmentTemplatesInput = {
   defaultMcbFamilyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   country?: Prisma.StringFieldUpdateOperationsInput | string
   logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  calculationStandard?: Prisma.StringFieldUpdateOperationsInput | string
   maxVoltageDropLighting?: Prisma.FloatFieldUpdateOperationsInput | number
   maxVoltageDropPower?: Prisma.FloatFieldUpdateOperationsInput | number
   userId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1505,6 +1538,7 @@ export type ProjectCreateWithoutLoadLibraryItemsInput = {
   preferredManufacturer?: string
   country?: string
   logoUrl?: string | null
+  calculationStandard?: string
   maxVoltageDropLighting?: number
   maxVoltageDropPower?: number
   createdAt?: Date | string
@@ -1538,6 +1572,7 @@ export type ProjectUncheckedCreateWithoutLoadLibraryItemsInput = {
   defaultMcbFamilyId?: string | null
   country?: string
   logoUrl?: string | null
+  calculationStandard?: string
   maxVoltageDropLighting?: number
   maxVoltageDropPower?: number
   userId: string
@@ -1581,6 +1616,7 @@ export type ProjectUpdateWithoutLoadLibraryItemsInput = {
   preferredManufacturer?: Prisma.StringFieldUpdateOperationsInput | string
   country?: Prisma.StringFieldUpdateOperationsInput | string
   logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  calculationStandard?: Prisma.StringFieldUpdateOperationsInput | string
   maxVoltageDropLighting?: Prisma.FloatFieldUpdateOperationsInput | number
   maxVoltageDropPower?: Prisma.FloatFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1614,6 +1650,7 @@ export type ProjectUncheckedUpdateWithoutLoadLibraryItemsInput = {
   defaultMcbFamilyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   country?: Prisma.StringFieldUpdateOperationsInput | string
   logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  calculationStandard?: Prisma.StringFieldUpdateOperationsInput | string
   maxVoltageDropLighting?: Prisma.FloatFieldUpdateOperationsInput | number
   maxVoltageDropPower?: Prisma.FloatFieldUpdateOperationsInput | number
   userId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1641,6 +1678,7 @@ export type ProjectCreateWithoutDefaultAcbFamilyInput = {
   preferredManufacturer?: string
   country?: string
   logoUrl?: string | null
+  calculationStandard?: string
   maxVoltageDropLighting?: number
   maxVoltageDropPower?: number
   createdAt?: Date | string
@@ -1673,6 +1711,7 @@ export type ProjectUncheckedCreateWithoutDefaultAcbFamilyInput = {
   defaultMcbFamilyId?: string | null
   country?: string
   logoUrl?: string | null
+  calculationStandard?: string
   maxVoltageDropLighting?: number
   maxVoltageDropPower?: number
   userId: string
@@ -1710,6 +1749,7 @@ export type ProjectCreateWithoutDefaultMccbFamilyInput = {
   preferredManufacturer?: string
   country?: string
   logoUrl?: string | null
+  calculationStandard?: string
   maxVoltageDropLighting?: number
   maxVoltageDropPower?: number
   createdAt?: Date | string
@@ -1742,6 +1782,7 @@ export type ProjectUncheckedCreateWithoutDefaultMccbFamilyInput = {
   defaultMcbFamilyId?: string | null
   country?: string
   logoUrl?: string | null
+  calculationStandard?: string
   maxVoltageDropLighting?: number
   maxVoltageDropPower?: number
   userId: string
@@ -1779,6 +1820,7 @@ export type ProjectCreateWithoutDefaultMcbFamilyInput = {
   preferredManufacturer?: string
   country?: string
   logoUrl?: string | null
+  calculationStandard?: string
   maxVoltageDropLighting?: number
   maxVoltageDropPower?: number
   createdAt?: Date | string
@@ -1811,6 +1853,7 @@ export type ProjectUncheckedCreateWithoutDefaultMcbFamilyInput = {
   defaultMccbFamilyId?: string | null
   country?: string
   logoUrl?: string | null
+  calculationStandard?: string
   maxVoltageDropLighting?: number
   maxVoltageDropPower?: number
   userId: string
@@ -1899,6 +1942,7 @@ export type ProjectCreateManyUserInput = {
   defaultMcbFamilyId?: string | null
   country?: string
   logoUrl?: string | null
+  calculationStandard?: string
   maxVoltageDropLighting?: number
   maxVoltageDropPower?: number
   createdAt?: Date | string
@@ -1923,6 +1967,7 @@ export type ProjectUpdateWithoutUserInput = {
   preferredManufacturer?: Prisma.StringFieldUpdateOperationsInput | string
   country?: Prisma.StringFieldUpdateOperationsInput | string
   logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  calculationStandard?: Prisma.StringFieldUpdateOperationsInput | string
   maxVoltageDropLighting?: Prisma.FloatFieldUpdateOperationsInput | number
   maxVoltageDropPower?: Prisma.FloatFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1956,6 +2001,7 @@ export type ProjectUncheckedUpdateWithoutUserInput = {
   defaultMcbFamilyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   country?: Prisma.StringFieldUpdateOperationsInput | string
   logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  calculationStandard?: Prisma.StringFieldUpdateOperationsInput | string
   maxVoltageDropLighting?: Prisma.FloatFieldUpdateOperationsInput | number
   maxVoltageDropPower?: Prisma.FloatFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1986,6 +2032,7 @@ export type ProjectUncheckedUpdateManyWithoutUserInput = {
   defaultMcbFamilyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   country?: Prisma.StringFieldUpdateOperationsInput | string
   logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  calculationStandard?: Prisma.StringFieldUpdateOperationsInput | string
   maxVoltageDropLighting?: Prisma.FloatFieldUpdateOperationsInput | number
   maxVoltageDropPower?: Prisma.FloatFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2012,6 +2059,7 @@ export type ProjectCreateManyDefaultAcbFamilyInput = {
   defaultMcbFamilyId?: string | null
   country?: string
   logoUrl?: string | null
+  calculationStandard?: string
   maxVoltageDropLighting?: number
   maxVoltageDropPower?: number
   userId: string
@@ -2039,6 +2087,7 @@ export type ProjectCreateManyDefaultMccbFamilyInput = {
   defaultMcbFamilyId?: string | null
   country?: string
   logoUrl?: string | null
+  calculationStandard?: string
   maxVoltageDropLighting?: number
   maxVoltageDropPower?: number
   userId: string
@@ -2066,6 +2115,7 @@ export type ProjectCreateManyDefaultMcbFamilyInput = {
   defaultMccbFamilyId?: string | null
   country?: string
   logoUrl?: string | null
+  calculationStandard?: string
   maxVoltageDropLighting?: number
   maxVoltageDropPower?: number
   userId: string
@@ -2091,6 +2141,7 @@ export type ProjectUpdateWithoutDefaultAcbFamilyInput = {
   preferredManufacturer?: Prisma.StringFieldUpdateOperationsInput | string
   country?: Prisma.StringFieldUpdateOperationsInput | string
   logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  calculationStandard?: Prisma.StringFieldUpdateOperationsInput | string
   maxVoltageDropLighting?: Prisma.FloatFieldUpdateOperationsInput | number
   maxVoltageDropPower?: Prisma.FloatFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2123,6 +2174,7 @@ export type ProjectUncheckedUpdateWithoutDefaultAcbFamilyInput = {
   defaultMcbFamilyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   country?: Prisma.StringFieldUpdateOperationsInput | string
   logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  calculationStandard?: Prisma.StringFieldUpdateOperationsInput | string
   maxVoltageDropLighting?: Prisma.FloatFieldUpdateOperationsInput | number
   maxVoltageDropPower?: Prisma.FloatFieldUpdateOperationsInput | number
   userId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2153,6 +2205,7 @@ export type ProjectUncheckedUpdateManyWithoutDefaultAcbFamilyInput = {
   defaultMcbFamilyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   country?: Prisma.StringFieldUpdateOperationsInput | string
   logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  calculationStandard?: Prisma.StringFieldUpdateOperationsInput | string
   maxVoltageDropLighting?: Prisma.FloatFieldUpdateOperationsInput | number
   maxVoltageDropPower?: Prisma.FloatFieldUpdateOperationsInput | number
   userId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2178,6 +2231,7 @@ export type ProjectUpdateWithoutDefaultMccbFamilyInput = {
   preferredManufacturer?: Prisma.StringFieldUpdateOperationsInput | string
   country?: Prisma.StringFieldUpdateOperationsInput | string
   logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  calculationStandard?: Prisma.StringFieldUpdateOperationsInput | string
   maxVoltageDropLighting?: Prisma.FloatFieldUpdateOperationsInput | number
   maxVoltageDropPower?: Prisma.FloatFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2210,6 +2264,7 @@ export type ProjectUncheckedUpdateWithoutDefaultMccbFamilyInput = {
   defaultMcbFamilyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   country?: Prisma.StringFieldUpdateOperationsInput | string
   logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  calculationStandard?: Prisma.StringFieldUpdateOperationsInput | string
   maxVoltageDropLighting?: Prisma.FloatFieldUpdateOperationsInput | number
   maxVoltageDropPower?: Prisma.FloatFieldUpdateOperationsInput | number
   userId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2240,6 +2295,7 @@ export type ProjectUncheckedUpdateManyWithoutDefaultMccbFamilyInput = {
   defaultMcbFamilyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   country?: Prisma.StringFieldUpdateOperationsInput | string
   logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  calculationStandard?: Prisma.StringFieldUpdateOperationsInput | string
   maxVoltageDropLighting?: Prisma.FloatFieldUpdateOperationsInput | number
   maxVoltageDropPower?: Prisma.FloatFieldUpdateOperationsInput | number
   userId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2265,6 +2321,7 @@ export type ProjectUpdateWithoutDefaultMcbFamilyInput = {
   preferredManufacturer?: Prisma.StringFieldUpdateOperationsInput | string
   country?: Prisma.StringFieldUpdateOperationsInput | string
   logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  calculationStandard?: Prisma.StringFieldUpdateOperationsInput | string
   maxVoltageDropLighting?: Prisma.FloatFieldUpdateOperationsInput | number
   maxVoltageDropPower?: Prisma.FloatFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2297,6 +2354,7 @@ export type ProjectUncheckedUpdateWithoutDefaultMcbFamilyInput = {
   defaultMccbFamilyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   country?: Prisma.StringFieldUpdateOperationsInput | string
   logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  calculationStandard?: Prisma.StringFieldUpdateOperationsInput | string
   maxVoltageDropLighting?: Prisma.FloatFieldUpdateOperationsInput | number
   maxVoltageDropPower?: Prisma.FloatFieldUpdateOperationsInput | number
   userId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2327,6 +2385,7 @@ export type ProjectUncheckedUpdateManyWithoutDefaultMcbFamilyInput = {
   defaultMccbFamilyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   country?: Prisma.StringFieldUpdateOperationsInput | string
   logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  calculationStandard?: Prisma.StringFieldUpdateOperationsInput | string
   maxVoltageDropLighting?: Prisma.FloatFieldUpdateOperationsInput | number
   maxVoltageDropPower?: Prisma.FloatFieldUpdateOperationsInput | number
   userId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2404,6 +2463,7 @@ export type ProjectSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   defaultMcbFamilyId?: boolean
   country?: boolean
   logoUrl?: boolean
+  calculationStandard?: boolean
   maxVoltageDropLighting?: boolean
   maxVoltageDropPower?: boolean
   userId?: boolean
@@ -2440,6 +2500,7 @@ export type ProjectSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   defaultMcbFamilyId?: boolean
   country?: boolean
   logoUrl?: boolean
+  calculationStandard?: boolean
   maxVoltageDropLighting?: boolean
   maxVoltageDropPower?: boolean
   userId?: boolean
@@ -2472,6 +2533,7 @@ export type ProjectSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   defaultMcbFamilyId?: boolean
   country?: boolean
   logoUrl?: boolean
+  calculationStandard?: boolean
   maxVoltageDropLighting?: boolean
   maxVoltageDropPower?: boolean
   userId?: boolean
@@ -2504,6 +2566,7 @@ export type ProjectSelectScalar = {
   defaultMcbFamilyId?: boolean
   country?: boolean
   logoUrl?: boolean
+  calculationStandard?: boolean
   maxVoltageDropLighting?: boolean
   maxVoltageDropPower?: boolean
   userId?: boolean
@@ -2511,7 +2574,7 @@ export type ProjectSelectScalar = {
   updatedAt?: boolean
 }
 
-export type ProjectOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "client" | "consultant" | "contractor" | "location" | "engineer" | "date" | "voltage" | "frequency" | "powerFactor" | "maxDemandFactor" | "transformerSize" | "notes" | "preferredManufacturer" | "defaultAcbFamilyId" | "defaultMccbFamilyId" | "defaultMcbFamilyId" | "country" | "logoUrl" | "maxVoltageDropLighting" | "maxVoltageDropPower" | "userId" | "createdAt" | "updatedAt", ExtArgs["result"]["project"]>
+export type ProjectOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "client" | "consultant" | "contractor" | "location" | "engineer" | "date" | "voltage" | "frequency" | "powerFactor" | "maxDemandFactor" | "transformerSize" | "notes" | "preferredManufacturer" | "defaultAcbFamilyId" | "defaultMccbFamilyId" | "defaultMcbFamilyId" | "country" | "logoUrl" | "calculationStandard" | "maxVoltageDropLighting" | "maxVoltageDropPower" | "userId" | "createdAt" | "updatedAt", ExtArgs["result"]["project"]>
 export type ProjectInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   defaultAcbFamily?: boolean | Prisma.Project$defaultAcbFamilyArgs<ExtArgs>
   defaultMccbFamily?: boolean | Prisma.Project$defaultMccbFamilyArgs<ExtArgs>
@@ -2567,6 +2630,7 @@ export type $ProjectPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     defaultMcbFamilyId: string | null
     country: string
     logoUrl: string | null
+    calculationStandard: string
     maxVoltageDropLighting: number
     maxVoltageDropPower: number
     userId: string
@@ -3022,6 +3086,7 @@ export interface ProjectFieldRefs {
   readonly defaultMcbFamilyId: Prisma.FieldRef<"Project", 'String'>
   readonly country: Prisma.FieldRef<"Project", 'String'>
   readonly logoUrl: Prisma.FieldRef<"Project", 'String'>
+  readonly calculationStandard: Prisma.FieldRef<"Project", 'String'>
   readonly maxVoltageDropLighting: Prisma.FieldRef<"Project", 'Float'>
   readonly maxVoltageDropPower: Prisma.FieldRef<"Project", 'Float'>
   readonly userId: Prisma.FieldRef<"Project", 'String'>

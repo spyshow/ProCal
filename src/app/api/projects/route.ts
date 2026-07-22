@@ -50,6 +50,7 @@ export async function POST(request: Request) {
       preferredManufacturer,
       maxVoltageDropLighting,
       maxVoltageDropPower,
+      calculationStandard,
     } = data;
 
     if (!name) {
@@ -73,6 +74,10 @@ export async function POST(request: Request) {
         preferredManufacturer: preferredManufacturer || "MIXED",
         maxVoltageDropLighting: parseFloat(maxVoltageDropLighting) || 3,
         maxVoltageDropPower: parseFloat(maxVoltageDropPower) || 5,
+        calculationStandard:
+          calculationStandard === "NEMA" || calculationStandard === "IEC"
+            ? calculationStandard
+            : "IEC",
         userId: user.id,
       },
     });

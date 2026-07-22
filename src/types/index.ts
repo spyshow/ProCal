@@ -34,16 +34,11 @@ export interface FloorItem {
   apartmentTemplateId?: string | null;
   apartmentTemplate?: ApartmentTemplate | null;
   loadLibraryItemId?: string | null;
-  loadLibraryItem?: {
-    name: string;
-    category: string;
-    power: number; // kW
-    voltage: number;
-    phase: number; // 1 or 3
-    powerFactor: number;
-    demandFactor: number;
-    quantity: number;
-  } | null;
+  loadLibraryItem?: LoadLibraryItem | null;
+  // Per-phase balancing: assigned phase 1=L1, 2=L2, 3=L3 for a single-phase item.
+  // null = unassigned → phaseBalance computes greedy LPT assignment on-read.
+  // Ignored for 3-phase items (they draw from all three). Lockstep with Prisma.
+  assignedPhase?: number | null;
 }
 
 export interface FloorDesign {
@@ -63,6 +58,10 @@ export interface BuildingLoad {
   cableLength?: number | null;
   installMethod?: string | null;
   cableInsulation?: string | null;
+  // Per-phase balancing: assigned phase 1=L1, 2=L2, 3=L3 for a single-phase
+  // building load. null = unassigned → phaseBalance computes greedy LPT on-read.
+  // Ignored for 3-phase loads. Lockstep with Prisma.
+  assignedPhase?: number | null;
 }
 
 export interface Building {
@@ -99,12 +98,31 @@ export interface Project {
   defaultMccbFamilyId?: string | null;
   defaultMcbFamilyId?: string | null;
   logoUrl?: string | null;
+  // Per-phase balancing: calculation standard selects the current-unbalance
+  // limit + label (IEC/EN 50160 vs NEMA). Default IEC. Lockstep with Prisma
+  // (stored as String, narrowed here).
+  calculationStandard?: CalculationStandard;
   maxVoltageDropLighting: number;
   maxVoltageDropPower: number;
   buildings: Building[];
   apartmentTemplates: ApartmentTemplate[];
   loadLibraryItems: LoadLibraryItem[];
 }
+
+/**
+ * Per-phase balancing calculation standard. Selects the current-unbalance
+ * limit + the label shown (NOT the VUF/LVUR definition — ProCal computes a
+ * current-unbalance proxy; see design doc "Engineering Review" §D4).
+ *   IEC → EN 50160 framing (default, roadmap leans Middle-East)
+ *   NEMA → American framing
+ */
+export type CalculationStandard = "IEC" | "NEMA";
+
+/**
+ * Assigned phase for a single-phase load: 1=L1, 2=L2, 3=L3.
+ * null = unassigned → phaseBalance greedy-assigns on-read.
+ */
+export type AssignedPhase = 1 | 2 | 3;
 
 export interface LoadLibraryItem {
   id: string;
@@ -132,6 +150,17 @@ export interface PanelFeeder {
   familyName: string | null;
   fallback: boolean;
   isThreePhase: boolean;
+  // Per-phase balancing fields (T4/T6). For 1-phase items, assignedPhase is the
+  // resolved L1/L2/L3 phase (1/2/3). For SMDB risers, phaseCurrent/phaseKw reflect
+  // the aggregated floor board, and neutralCurrent/unbalancePct track imbalance.
+  assignedPhase?: number | null;
+  phaseCurrent?: [number, number, number];
+  phaseKw?: [number, number, number];
+  neutralCurrent?: number;
+  unbalancePct?: number;
+  imbalanced?: boolean;
+  neutralOversized?: boolean;
+  internalImbalanceNotModeled?: boolean;
 }
 
 export type ReportTab = 'bom' | 'mdb' | 'cable' | 'vd' | 'summary';

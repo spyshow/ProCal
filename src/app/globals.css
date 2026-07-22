@@ -225,8 +225,9 @@ body {
   /* Keep tables together when possible but let rows break across pages cleanly */
   table {
     width: 100% !important;
-    table-layout: fixed !important;
+    table-layout: auto !important;
     border-collapse: collapse !important;
+    max-width: 100% !important;
     page-break-inside: auto;
     break-inside: auto;
   }
@@ -241,11 +242,10 @@ body {
   }
 
   th, td {
-    padding: 4px 6px !important;
-    font-size: 8pt !important;
+    padding: 3px 5px !important;
+    font-size: 7.5pt !important;
     border: 1px solid #d1d5db !important;
     overflow-wrap: break-word !important;
-    word-wrap: break-word !important;
     word-break: break-word !important;
     white-space: normal !important;
   }

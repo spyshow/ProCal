@@ -65,3 +65,4 @@ nul
 .security-key
 logs/security/
 .gstack/
+claude_memory.md

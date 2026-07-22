@@ -5,6 +5,7 @@ import type { FloorItem, Project } from '@/types';
 export interface MDBScheduleProps {
   project: Project;
   buildingId?: string;
+  showHeader?: boolean;
 }
 
 interface MDBRow {
@@ -26,7 +27,7 @@ interface MDBRow {
  * Lists every outgoing MDB feeder. Floors with sub-panels receive a dedicated
  * SMDB feeder row, followed by their individual downstream loads.
  */
-export default function MDBSchedule({ project, buildingId }: MDBScheduleProps) {
+export default function MDBSchedule({ project, buildingId, showHeader = true }: MDBScheduleProps) {
   const allItems: (FloorItem & { floor: number; building: string; hasFloorSubPanels?: boolean })[] = [];
 
   for (const b of project.buildings) {
@@ -102,20 +103,25 @@ export default function MDBSchedule({ project, buildingId }: MDBScheduleProps) {
 
   return (
     <div className="space-y-4">
+      {showHeader && (
+        <div className="flex items-center justify-between text-xs text-gray-500 mb-1">
+          <span className="font-semibold">{project.name}</span>
+          <span>{project.date || new Date().toLocaleDateString()}</span>
+        </div>
+      )}
       <h2 className="text-lg font-bold border-b pb-2">MDB Feeder Schedule</h2>
-      <div className="overflow-x-auto">
       <table className="w-full text-sm border-collapse">
         <thead>
           <tr className="bg-gray-100">
-            <th className="border p-2 text-left w-[5%]">#</th>
-            <th className="border p-2 text-left w-[13%]">Building</th>
-            <th className="border p-2 text-center w-[7%]">Floor</th>
-            <th className="border p-2 text-left w-[18%]">Feeder</th>
-            <th className="border p-2 text-center w-[11%]">Type</th>
-            <th className="border p-2 text-right w-[10%]">Demand (kW)</th>
-            <th className="border p-2 text-right w-[12%]">Current (A)</th>
-            <th className="border p-2 text-center w-[10%]">Breaker</th>
-            <th className="border p-2 text-center w-[14%]">Cable</th>
+            <th className="border p-2 text-left">#</th>
+            <th className="border p-2 text-left">Building</th>
+            <th className="border p-2 text-center">Floor</th>
+            <th className="border p-2 text-left">Feeder</th>
+            <th className="border p-2 text-center">Type</th>
+            <th className="border p-2 text-right">Demand (kW)</th>
+            <th className="border p-2 text-right">Current (A)</th>
+            <th className="border p-2 text-center">Breaker</th>
+            <th className="border p-2 text-center">Cable</th>
           </tr>
         </thead>
         <tbody>
@@ -139,7 +145,6 @@ export default function MDBSchedule({ project, buildingId }: MDBScheduleProps) {
           ))}
         </tbody>
       </table>
-      </div>
     </div>
   );
 }

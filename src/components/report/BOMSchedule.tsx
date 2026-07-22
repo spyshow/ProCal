@@ -5,6 +5,7 @@ import type { FloorItem, Project } from '@/types';
 export interface BOMScheduleProps {
   project: Project;
   buildingId?: string;
+  showHeader?: boolean;
 }
 
 interface BOMItem {
@@ -24,7 +25,7 @@ interface BreakerBOMItem {
  * Aggregates cable and breaker quantities across every floor item in the
  * project (optionally filtered to a single building).
  */
-export default function BOMSchedule({ project, buildingId }: BOMScheduleProps) {
+export default function BOMSchedule({ project, buildingId, showHeader = true }: BOMScheduleProps) {
   const allItems: (FloorItem & { floor: number; building: string })[] = [];
 
   for (const b of project.buildings) {
@@ -64,6 +65,12 @@ export default function BOMSchedule({ project, buildingId }: BOMScheduleProps) {
 
   return (
     <div className="space-y-6">
+      {showHeader && (
+        <div className="flex items-center justify-between text-xs text-gray-500 mb-1">
+          <span className="font-semibold">{project.name}</span>
+          <span>{project.date || new Date().toLocaleDateString()}</span>
+        </div>
+      )}
       <h2 className="text-lg font-bold border-b pb-2">Bill of Materials (BOM)</h2>
 
       <h3 className="font-bold">Cable Schedule</h3>

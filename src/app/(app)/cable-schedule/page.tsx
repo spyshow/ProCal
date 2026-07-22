@@ -6,6 +6,7 @@ import { useProject } from '@/context/ProjectContext';
 import { usePathname, useRouter } from 'next/navigation';
 import { recalculateCable } from '@/lib/sld/cable-editor';
 import { isThreePhaseForItem } from '@/lib/calculations/feeders';
+import { phaseBalance } from '@/lib/calculations/phaseBalance';
 import MethodSelector from '@/components/MethodSelector';
 import { Cable, RefreshCw, AlertTriangle, Check, Settings, Save } from 'lucide-react';
 import type { Project } from '@/types';
@@ -14,11 +15,17 @@ interface CableEntry {
   id: string;
   name: string;
   cableName: string;
+  building: string;
   floor: number;
   length: number;
   cableSize: number;
   current: number;
   isThreePhase: boolean;
+  assignedPhase: number | null;
+  phaseCurrent: [number, number, number];
+  neutralCurrent: number;
+  unbalancePct: number;
+  imbalanced: boolean;
   newCableSize: number | null;
   newVD: number | null;
   changed: boolean;
@@ -95,7 +102,7 @@ export default function CableSchedulePage() {
         if (!selectedBuilding && data.buildings.length > 0) setSelectedBuilding(data.buildings[0].id);
       }
     } catch (err) { console.error(err); } finally { setLoading(false); }
-  }, [selectedProjectId, selectedBuilding]);
+  }, [selectedProjectId]);
 
   useEffect(() => { loadProject(); }, [loadProject]);
 
@@ -108,7 +115,10 @@ export default function CableSchedulePage() {
     // Build cable schedule from project data with pre-calculated VD
     const cableList: CableEntry[] = [];
     for (const bldg of project.buildings) {
+      if (selectedBuilding && bldg.id !== selectedBuilding) continue;
       for (const fd of bldg.floorDesigns) {
+        const balance = phaseBalance(fd.items as any, project as any);
+        const phaseById = new Map(balance.assignments.map((a) => [a.id, a.assignedPhase]));
         fd.items.forEach((item, idx) => {
           const letter = String.fromCharCode(97 + idx);
           const loadTag = `F${fd.floorNumber}-${letter.toUpperCase()}`;
@@ -118,6 +128,14 @@ export default function CableSchedulePage() {
           const length = (item as any).cableLength || 10 + (fd.floorNumber - 1) * 5;
           const method = (item as any).installMethod || 'C';
           const insulation = (item as any).cableInsulation || 'XLPE';
+          const rawPhase = (item as any).assignedPhase ?? null;
+          const resolvedPhase = rawPhase ?? phaseById.get(item.id) ?? 1;
+          const phaseCurrent: [number, number, number] = isThreePhase
+            ? [item.calculatedCurrent, item.calculatedCurrent, item.calculatedCurrent]
+            : [0, 0, 0];
+          if (!isThreePhase && resolvedPhase >= 1 && resolvedPhase <= 3) {
+            phaseCurrent[resolvedPhase - 1] = item.calculatedCurrent;
+          }
 
           const result = recalculateCable({
             current: item.calculatedCurrent,
@@ -135,11 +153,17 @@ export default function CableSchedulePage() {
             id: item.id || `${fd.floorNumber}-${item.name}`,
             name: loadTag,
             cableName: cableTag,
+            building: bldg.name,
             floor: fd.floorNumber,
             length,
             cableSize: cableSizeNum,
             current: item.calculatedCurrent,
             isThreePhase,
+            assignedPhase: resolvedPhase,
+            phaseCurrent,
+            neutralCurrent: isThreePhase ? 0 : item.calculatedCurrent,
+            unbalancePct: isThreePhase ? 0 : 100,
+            imbalanced: false,
             newCableSize: result.cableSize,
             newVD: result.voltageDropPercent,
             changed: result.changed,
@@ -152,6 +176,8 @@ export default function CableSchedulePage() {
       }
 
       // Building loads (elevator, pumps, AC, fire pump) — attached from the load library.
+      const blBalance = phaseBalance((bldg.buildingLoads || []) as any, project as any);
+      const blPhaseById = new Map(blBalance.assignments.map((a) => [a.id, a.assignedPhase]));
       (bldg.buildingLoads || []).forEach((bl, idx) => {
         const lib = bl.loadLibraryItem;
         if (!lib) return; // orphaned (library item deleted) — skip
@@ -167,6 +193,14 @@ export default function CableSchedulePage() {
         const length = bl.cableLength || 10;
         const method = bl.installMethod || 'C';
         const insulation = (bl.cableInsulation as 'PVC' | 'XLPE') || 'XLPE';
+        const rawPhase = (bl as any).assignedPhase ?? null;
+        const resolvedPhase = rawPhase ?? blPhaseById.get(bl.id) ?? 1;
+        const phaseCurrent: [number, number, number] = isThreePhase
+          ? [current, current, current]
+          : [0, 0, 0];
+        if (!isThreePhase && resolvedPhase >= 1 && resolvedPhase <= 3) {
+          phaseCurrent[resolvedPhase - 1] = current;
+        }
 
         const result = recalculateCable({
           current,
@@ -184,11 +218,17 @@ export default function CableSchedulePage() {
           id: bl.id,
           name: loadTag,
           cableName: cableTag,
-          floor: 0, // building-level loads group separately
+          building: bldg.name,
+          floor: 0,
           length,
           cableSize: cableSizeNum,
           current,
           isThreePhase,
+          assignedPhase: resolvedPhase,
+          phaseCurrent,
+          neutralCurrent: isThreePhase ? 0 : current,
+          unbalancePct: isThreePhase ? 0 : 100,
+          imbalanced: false,
           newCableSize: result.cableSize,
           newVD: result.voltageDropPercent,
           changed: result.changed,
@@ -200,7 +240,7 @@ export default function CableSchedulePage() {
       });
     }
     setCables(cableList);
-  }, [project]);
+  }, [project, selectedBuilding]);
 
   const updateCableField = (id: string, field: string, value: any) => {
     const savedLimits = localStorage.getItem('procal-vd-limits');
@@ -388,14 +428,19 @@ export default function CableSchedulePage() {
   if (loading) return <div className="flex items-center justify-center h-full"><p className="text-gray-500 text-sm">Loading…</p></div>;
   if (!project) return <div className="flex items-center justify-center h-full"><p className="text-gray-400 text-sm">Select a project first.</p></div>;
 
-  // Group cables by floor
+  // Group cables by floor name or "Building Loads"
   const cablesByFloor = cables.reduce((acc, cable) => {
-    if (!acc[cable.floor]) acc[cable.floor] = [];
-    acc[cable.floor].push(cable);
+    const key = cable.floor === 0 ? 'Building Loads' : `Floor ${cable.floor}`;
+    if (!acc[key]) acc[key] = [];
+    acc[key].push(cable);
     return acc;
-  }, {} as Record<number, CableEntry[]>);
+  }, {} as Record<string, CableEntry[]>);
 
-  const floors = Object.keys(cablesByFloor).map(Number).sort((a, b) => a - b);
+  const floorKeys = Object.keys(cablesByFloor).sort((a, b) => {
+    if (a === 'Building Loads') return -1;
+    if (b === 'Building Loads') return 1;
+    return parseInt(a.replace('Floor ', '')) - parseInt(b.replace('Floor ', ''));
+  });
 
   return (
     <div className="p-6 space-y-5 max-w-7xl mx-auto">
@@ -501,6 +546,10 @@ export default function CableSchedulePage() {
       {/* Building Selector */}
       {project.buildings.length > 1 && (
         <div className="flex gap-2">
+          <button onClick={() => setSelectedBuilding(null)}
+            className={`px-3 py-1.5 rounded-lg text-sm font-medium ${selectedBuilding === null ? 'bg-orange-600 text-white' : 'bg-gray-800 text-gray-400'}`}>
+            All Buildings
+          </button>
           {project.buildings.map((b) => (
             <button key={b.id} onClick={() => setSelectedBuilding(b.id)}
               className={`px-3 py-1.5 rounded-lg text-sm font-medium ${selectedBuilding === b.id ? 'bg-orange-600 text-white' : 'bg-gray-800 text-gray-400'}`}>
@@ -534,13 +583,13 @@ export default function CableSchedulePage() {
 
       {/* Cable Schedule Table - Grouped by Floor */}
       <div className="space-y-4">
-        {floors.map(floor => (
-          <div key={floor} className="rounded-xl border border-gray-800 bg-gray-900/40 p-4 space-y-3">
+        {floorKeys.map(key => {
+          const groupCables = cablesByFloor[key];
+          return (
+          <div key={key} className="rounded-xl border border-gray-800 bg-gray-900/40 p-4 space-y-3">
             <div className="flex items-center gap-2 mb-2">
-              <span className="text-sm font-bold text-orange-400">
-                {floor === 0 ? 'Building Loads' : `Floor ${floor}`}
-              </span>
-              <span className="text-xs text-gray-500">({cablesByFloor[floor].length} circuits)</span>
+              <span className="text-sm font-bold text-orange-400">{key}</span>
+              <span className="text-xs text-gray-500">({groupCables.length} circuits)</span>
             </div>
 
             <div className="relative">
@@ -548,8 +597,13 @@ export default function CableSchedulePage() {
               <table className="w-full engineering-table text-xs">
                 <thead>
                   <tr>
+                    {!selectedBuilding && <th className="text-left">Building</th>}
                     <th className="text-left">Load</th>
                     <th className="text-left">Cable</th>
+                    <th className="text-right">L1 (A)</th>
+                    <th className="text-right">L2 (A)</th>
+                    <th className="text-right">L3 (A)</th>
+                    <th className="text-right">N (A)</th>
                     <th className="text-right">Current (A)</th>
                     <th className="text-center">Size (mm²)</th>
                     <th className="text-center">Method</th>
@@ -562,10 +616,15 @@ export default function CableSchedulePage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {cablesByFloor[floor].map((c) => (
+                  {groupCables.map((c) => (
                     <tr key={c.id} className="hover:bg-gray-800/30">
+                      {!selectedBuilding && <td className="text-gray-400 font-mono text-xs">{c.building}</td>}
                       <td className="text-gray-200 font-mono font-semibold">{c.name}</td>
                       <td className="text-gray-400 font-mono text-xs">{c.cableName}</td>
+                      <td className="text-right font-mono text-orange-400">{c.phaseCurrent[0].toFixed(1)}</td>
+                      <td className="text-right font-mono text-orange-400">{c.phaseCurrent[1].toFixed(1)}</td>
+                      <td className="text-right font-mono text-orange-400">{c.phaseCurrent[2].toFixed(1)}</td>
+                      <td className="text-right font-mono text-yellow-400">{c.neutralCurrent.toFixed(1)}</td>
                       <td className="text-right font-mono">{c.current.toFixed(1)}</td>
                       <td className="text-center font-mono text-green-400">{c.cableSize} mm²</td>
                       <td className="text-center">
@@ -620,7 +679,8 @@ export default function CableSchedulePage() {
               </div>
             </div>
           </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* Legend */}

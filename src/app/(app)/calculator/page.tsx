@@ -17,8 +17,10 @@ import {
   Calculator,
   Copy,
   RefreshCw,
+  AlertTriangle,
 } from 'lucide-react';
 import type { FloorItem, FloorDesign, Building, Project } from '@/types';
+import { phaseBalance } from '@/lib/calculations/phaseBalance';
 
 export default function CalculatorPage() {
   return (
@@ -93,6 +95,20 @@ function CalculatorContent() {
     loadProject();
   };
 
+  const handleUpdateAssignedPhase = async (itemId: string, assignedPhase: number | null) => {
+    await fetch(`/api/floor-items/${itemId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ assignedPhase }),
+    });
+    loadProject();
+  };
+
+  const handleRebalanceFloor = async (floorDesignId: string) => {
+    await fetch(`/api/floors/${floorDesignId}/rebalance`, { method: 'POST' });
+    loadProject();
+  };
+
   const handleRecalculate = async (floorDesignId: string) => {
     await fetch(`/api/floors/${floorDesignId}/recalculate`, { method: 'POST' });
     loadProject();
@@ -157,6 +173,17 @@ function CalculatorContent() {
 
   const bldg = project.buildings.find((b) => b.id === selectedBuilding) || project.buildings[0];
   const sortedFloors = [...bldg.floorDesigns].sort((a, b) => a.floorNumber - b.floorNumber);
+
+  // Per-building aggregate balance (all floor items + building loads).
+  const allBuildingItems: any[] = [
+    ...bldg.floorDesigns.flatMap((fd) => fd.items),
+    ...(bldg.buildingLoads || []).map((bl: any) => ({
+      ...bl,
+      type: 'BUILDING_LOAD',
+      calculatedCurrent: 0, // computed by phaseBalance from library power×qty
+    })),
+  ];
+  const buildingBalance = phaseBalance(allBuildingItems as any, project);
 
   // Summary totals
   const totalConnectedLoad = sortedFloors.reduce(
@@ -230,6 +257,41 @@ function CalculatorContent() {
         ))}
       </div>
 
+      {/* Per-Phase Building Summary */}
+      <div className="rounded-xl border border-gray-800 bg-gray-900/40 p-4">
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-sm font-semibold text-gray-300">
+            Per-Phase Balance — {bldg.name}
+          </h3>
+          {buildingBalance.imbalanced && (
+            <span className="text-[11px] font-semibold text-red-400 bg-red-500/10 px-2 py-0.5 rounded">
+              Imbalanced {buildingBalance.unbalancePct.toFixed(1)}% &gt; {buildingBalance.unbalanceLimitPct}%
+            </span>
+          )}
+          {buildingBalance.internalImbalanceNotModeled && (
+            <span className="text-[11px] font-semibold text-yellow-500 bg-yellow-500/10 px-2 py-0.5 rounded inline-flex items-center gap-1">
+              <AlertTriangle size={11} /> 3φ-apt internal imbalance not modeled
+            </span>
+          )}
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-6 gap-3">
+          {[
+            { label: `L1 (${project.calculationStandard || 'IEC'})`, value: `${buildingBalance.phaseCurrent[0].toFixed(1)} A`, sub: `${buildingBalance.phaseKw[0].toFixed(1)} kW`, color: 'text-orange-400' },
+            { label: 'L2', value: `${buildingBalance.phaseCurrent[1].toFixed(1)} A`, sub: `${buildingBalance.phaseKw[1].toFixed(1)} kW`, color: 'text-orange-400' },
+            { label: 'L3', value: `${buildingBalance.phaseCurrent[2].toFixed(1)} A`, sub: `${buildingBalance.phaseKw[2].toFixed(1)} kW`, color: 'text-orange-400' },
+            { label: 'Neutral', value: `${buildingBalance.neutralCurrent.toFixed(1)} A`, sub: buildingBalance.neutralOversized ? 'over 2×max' : 'ok', color: 'text-yellow-400' },
+            { label: 'Unbalance', value: `${buildingBalance.unbalancePct.toFixed(1)}%`, sub: `limit ${buildingBalance.unbalanceLimitPct}%`, color: 'text-gray-300' },
+            { label: 'Total kW', value: `${buildingBalance.totalKw.toFixed(1)} kW`, sub: `max ${buildingBalance.maxPhaseCurrent.toFixed(0)} A`, color: 'text-blue-400' },
+          ].map(({ label, value, sub, color }) => (
+            <div key={label} className="rounded-lg border border-gray-800 bg-gray-950/30 p-3">
+              <p className="text-[10px] text-gray-500 uppercase tracking-wider">{label}</p>
+              <p className={`text-base font-bold font-mono mt-0.5 ${color}`}>{value}</p>
+              <p className="text-[10px] text-gray-600 font-mono mt-0.5">{sub}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
       {/* Building Loads (foldable, read-only) — attached on the Buildings page */}
       {bldg.buildingLoads && bldg.buildingLoads.length > 0 && (
         <div className="rounded-xl border border-gray-800 bg-gray-900/40 min-w-0">
@@ -282,6 +344,7 @@ function CalculatorContent() {
           const expanded = expandedFloor === fd.id;
           const floorDemand = fd.items.reduce((s, i) => s + i.calculatedMaxDemand, 0);
           const floorCurrent = fd.items.reduce((s, i) => s + i.calculatedCurrent, 0);
+          const floorBalance = phaseBalance(fd.items, project);
 
           return (
             <div key={fd.id} className="rounded-xl border border-gray-800 bg-gray-900/40 min-w-0">
@@ -304,6 +367,15 @@ function CalculatorContent() {
                 <span className="text-xs font-mono text-gray-500">
                   {floorDemand.toFixed(1)} kW / {floorCurrent.toFixed(1)} A
                 </span>
+                <span className="text-[10px] font-mono text-gray-400 hidden sm:inline">
+                  L1 {floorBalance.phaseCurrent[0].toFixed(0)}A · L2 {floorBalance.phaseCurrent[1].toFixed(0)}A · L3 {floorBalance.phaseCurrent[2].toFixed(0)}A
+                  {floorBalance.neutralCurrent > 0.1 && (
+                    <span className="text-yellow-500 ml-1">N {floorBalance.neutralCurrent.toFixed(0)}A</span>
+                  )}
+                  {floorBalance.imbalanced && (
+                    <span className="text-red-500 ml-1">Unbal {floorBalance.unbalancePct.toFixed(1)}%</span>
+                  )}
+                </span>
               </div>
 
               {expanded && (
@@ -315,10 +387,10 @@ function CalculatorContent() {
                           <th className="text-left">Type</th>
                           <th className="text-left">Name</th>
                           <th className="text-center">Phase</th>
+                          <th className="text-center">Assigned</th>
                           <th className="text-right">Load (kW)</th>
                           <th className="text-right">Demand (kW)</th>
-                          <th className="text-right">Per-Phase (kW)</th>
-                          <th className="text-right">Per-Phase Current (A)</th>
+                          <th className="text-right">Current (A)</th>
                           <th className="text-center">Breaker</th>
                           <th className="text-center">Cable</th>
                           <th className="text-center">VDrop</th>
@@ -330,14 +402,12 @@ function CalculatorContent() {
                           const Icon = item.type === 'APARTMENT' ? Home : Wrench;
                           // Recalculate current from template's current phases (not stale stored value)
                           const isThreePhase = item.type === 'APARTMENT' && item.apartmentTemplate?.phases === 3;
-                          const displayCurrent = item.type === 'APARTMENT'
-                            ? (isThreePhase
-                                ? item.calculatedMaxDemand / (Math.sqrt(3) * 0.4)
-                                : item.calculatedMaxDemand / 0.23)
-                            : item.calculatedCurrent;
-                          const displayPerPhaseLoad = isThreePhase
-                            ? item.calculatedMaxDemand / 3
-                            : item.calculatedMaxDemand;
+                          const itemPhaseCount = item.type === 'APARTMENT'
+                            ? (item.apartmentTemplate?.phases ?? 1)
+                            : (item.loadLibraryItem?.phase ?? (item.type === 'SERVICE_PANEL' || item.type === 'PUMP_PANEL' || item.type === 'ELEVATOR_PANEL' ? 3 : 1));
+                          const resolvedPhase = itemPhaseCount === 1
+                            ? (item.assignedPhase ?? floorBalance.assignments.find((a) => a.id === item.id)?.assignedPhase ?? null)
+                            : null;
                           return (
                             <tr key={item.id} className="hover:bg-gray-800/30">
                               <td>
@@ -349,12 +419,36 @@ function CalculatorContent() {
                               </td>
                               <td className="text-gray-200 text-sm">{item.name}</td>
                               <td className="text-center font-mono text-xs text-gray-400">
-                                {item.type === 'APARTMENT' ? (isThreePhase ? '3Φ' : '1Φ') : '3Φ'}
+                                {itemPhaseCount === 3 ? '3Φ' : '1Φ'}
+                              </td>
+                              <td className="text-center">
+                                {itemPhaseCount === 3 ? (
+                                  <span className="text-[10px] text-gray-600">—</span>
+                                ) : (
+                                  <div className="flex items-center justify-center gap-0.5">
+                                    <button
+                                      onClick={() => handleUpdateAssignedPhase(item.id, null)}
+                                      className={`px-1.5 py-0.5 text-[10px] rounded font-mono ${item.assignedPhase === null ? 'bg-yellow-600 text-white' : 'bg-gray-800 text-gray-500 hover:text-gray-300'}`}
+                                      title="Auto-assign phase"
+                                    >A</button>
+                                    {[1, 2, 3].map((p) => {
+                                      const isAutoSelected = item.assignedPhase === null && resolvedPhase === p;
+                                      const isManualSelected = item.assignedPhase === p;
+                                      return (
+                                        <button
+                                          key={p}
+                                          onClick={() => handleUpdateAssignedPhase(item.id, p)}
+                                          className={`px-1.5 py-0.5 text-[10px] rounded font-mono ${isAutoSelected ? 'bg-yellow-600 text-white' : isManualSelected ? 'bg-orange-600 text-white' : 'bg-gray-800 text-gray-500 hover:text-gray-300'}`}
+                                          title={isAutoSelected ? `Auto-assigned to L${p}` : `Pin to L${p}`}
+                                        >L{p}</button>
+                                      );
+                                    })}
+                                  </div>
+                                )}
                               </td>
                               <td className="text-right font-mono text-sm">{item.calculatedConnectedLoad.toFixed(2)}</td>
                               <td className="text-right font-mono text-sm text-orange-400">{item.calculatedMaxDemand.toFixed(2)}</td>
-                              <td className="text-right font-mono text-sm text-blue-400">{displayPerPhaseLoad.toFixed(2)}</td>
-                              <td className="text-right font-mono text-sm">{displayCurrent.toFixed(1)}</td>
+                              <td className="text-right font-mono text-sm">{item.calculatedCurrent.toFixed(1)}</td>
                               <td className="text-center font-mono text-sm text-blue-400">{item.breakerSize}</td>
                               <td className="text-center font-mono text-sm text-green-400">{item.cableSize}</td>
                               <td className="text-center font-mono text-xs text-gray-500">
@@ -548,6 +642,15 @@ function CalculatorContent() {
                         >
                           <RefreshCw size={12} />
                           Recalculate
+                        </button>
+                      )}
+                      {fd.items.length > 0 && (
+                        <button
+                          onClick={() => handleRebalanceFloor(fd.id)}
+                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gray-800 hover:bg-gray-700 text-xs text-gray-400 hover:text-orange-400 transition-colors"
+                        >
+                          <ArrowUpDown size={12} />
+                          Re-balance
                         </button>
                       )}
                       {fd.items.length > 0 && bldg.floorDesigns.length > 1 && (

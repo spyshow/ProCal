@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState, useRef } from 'react';
+import { useReactToPrint } from 'react-to-print';
 import { useProject } from '@/context/ProjectContext';
 import {
   FileText,
@@ -17,12 +18,6 @@ import CableSchedule from '@/components/report/CableSchedule';
 import BreakerSchedule from '@/components/report/BreakerSchedule';
 import VDSchedule from '@/components/report/VDSchedule';
 import type { Project, ReportTab } from '@/types';
-
-declare global {
-  interface Window {
-    PagedConfig?: { auto: boolean };
-  }
-}
 
 export default function ReportsPage() {
   const { selectedProjectId, preferredManufacturer } = useProject();
@@ -48,7 +43,7 @@ export default function ReportsPage() {
     };
     run();
     return () => { cancelled = true; };
-  }, [selectedBuilding, selectedProjectId]);
+  }, [selectedProjectId]);
 
   useEffect(() => {
     fetch("/api/settings")
@@ -58,33 +53,11 @@ export default function ReportsPage() {
   }, []);
 
   const printRef = useRef<HTMLDivElement>(null);
-  const [isPrinting, setIsPrinting] = useState(false);
 
-  const handlePrint = () => {
-    const printOnly = printRef.current;
-    if (!printOnly) return;
-
-    setIsPrinting(true);
-
-    // Use setTimeout to ensure DOM updates before print
-    setTimeout(() => {
-      window.print();
-
-      // Hide print div after print dialog closes
-      const hidePrint = () => {
-        setIsPrinting(false);
-      };
-
-      // Listen for afterprint event (fires when print dialog closes)
-      window.addEventListener('afterprint', hidePrint, { once: true });
-
-      // Fallback: hide after 2 seconds if afterprint doesn't fire
-      setTimeout(() => {
-        setIsPrinting(false);
-        window.removeEventListener('afterprint', hidePrint);
-      }, 2000);
-    }, 100);
-  };
+  const handlePrint = useReactToPrint({
+    contentRef: printRef,
+    documentTitle: project?.name ? `${project.name} - Report` : 'Report',
+  });
 
   if (loading) return <div className="flex items-center justify-center h-full"><p className="text-gray-500 text-sm">Loading…</p></div>;
   if (!project) {
@@ -257,7 +230,8 @@ export default function ReportsPage() {
       </div>
 
       {/* ========== PRINT-ONLY: FULL REPORT ========== */}
-      <div ref={printRef} id="print-all-tabs" style={{ display: isPrinting ? 'block' : 'none' }}>
+      {/* Always rendered but hidden off-screen; react-to-print clones this into an iframe */}
+      <div ref={printRef} id="print-all-tabs" style={{ position: 'absolute', left: '-9999px', top: 0 }}>
         <CoverPage project={project} companyName={company.companyName} companyLogoUrl={company.logoUrl} />
 
         <div style={{ pageBreakBefore: 'always', breakBefore: 'page' }}>

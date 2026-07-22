@@ -1,4 +1,5 @@
 import { sizeCableAndBreaker } from "./cables";
+import { phaseBalance } from "./phaseBalance";
 import type { Building, BuildingLoad, FloorItem, PanelFeeder, Project } from "@/types";
 
 /**
@@ -55,6 +56,104 @@ export function isThreePhaseForItem(item: FloorItem): boolean {
   }
   // Manual kW entry (SERVICE_PANEL / PUMP_PANEL / ELEVATOR_PANEL): 3-phase.
   return true;
+}
+
+/**
+ * Per-item-type phase count, the BuildingLoad variant. A building load is
+ * always backed by a LoadLibraryItem (elevator, pump, AC, fire pump), so its
+ * phase comes from `loadLibraryItem.phase` (default 3 — building mechanical
+ * loads are 3-phase by convention; a 1-phase library item overrides).
+ */
+export function isThreePhaseForBuildingLoad(load: BuildingLoad): boolean {
+  return (load.loadLibraryItem?.phase ?? 3) === 3;
+}
+
+/**
+ * Per-item power-factor DISPLACEMENT angle (radians) for the vector neutral-
+ * current decomposition. This is the per-item half of the total angle; the
+ * 120° phase offset (L1=0°, L2=−120°, L3=+120°) is applied by the caller
+ * (phaseBalance.ts), NOT here — this helper is a per-item property, parallel
+ * to isThreePhaseForItem.
+ *
+ * PF-source is the single source of truth (eng-review issue 4 / D6), mirroring
+ * isThreePhaseForItem so type→PF-source lives in one place:
+ *   APARTMENT / MANUAL FloorItem → Project.powerFactor (not stored per-item)
+ *   LIBRARY FloorItem             → loadLibraryItem.powerFactor
+ *   BuildingLoad (always library) → loadLibraryItem.powerFactor
+ *
+ * ProCal does not store leading-vs-lagging, so displacement is assumed LAGGING
+ * (positive angle, the motor/resistive default). The total angle fed to the
+ * vector sum = phaseOffset + displacement.
+ *
+ * Returns 0 for PF >= 1 (resistive) or missing PF (treated as resistive).
+ */
+export function pfAngleForItem(
+  item: FloorItem,
+  project: Project
+): number {
+  const pf = pfForFloorItem(item, project);
+  return displacementAngle(pf);
+}
+
+export function pfAngleForBuildingLoad(load: BuildingLoad): number {
+  const pf = load.loadLibraryItem?.powerFactor ?? 1;
+  return displacementAngle(pf);
+}
+
+/** Resolve the power factor for a FloorItem from the correct source. */
+export function pfForFloorItem(item: FloorItem, project: Project): number {
+  // Apartment template + manual kW entry: PF comes from the project (default 0.85),
+  // NOT stored per-item on FloorItem/ApartmentTemplate. See design doc §input contract.
+  if (item.type === "APARTMENT" || !item.loadLibraryItem) {
+    return project.powerFactor ?? 0.85;
+  }
+  // Library item (3-phase or 1-phase): its own declared power factor.
+  return item.loadLibraryItem.powerFactor ?? 1;
+}
+
+/** arccos(PF) displacement angle in radians; clamped to [0, π/2). */
+function displacementAngle(pf: number): number {
+  if (!pf || pf <= 0) return 0;
+  return Math.acos(Math.min(Math.max(pf, -1), 1));
+}
+
+/**
+ * Per-phase fields for ONE feeder, projected from the BOARD-RESOLVED phase.
+ * For 3-phase loads this is the same board-level spread (the load spans all
+ * three phases). For 1-phase loads we honor `resolvedPhase` (the phase this
+ * load was assigned to by the floor/building balance, or its persisted
+ * assignedPhase) so each feeder's L-column matches the board's real
+ * distribution — summing L1/L2/L3 across feeders then equals the board
+ * aggregate. A null resolvedPhase (single-item call site) falls back to L1.
+ */
+function oneItemPhaseFields(
+  item: FloorItem | BuildingLoad,
+  project: Project,
+  resolvedPhase: number | null
+): Pick<
+  PanelFeeder,
+  | "phaseCurrent"
+  | "phaseKw"
+  | "neutralCurrent"
+  | "unbalancePct"
+  | "imbalanced"
+  | "neutralOversized"
+  | "internalImbalanceNotModeled"
+> {
+  const withPhase =
+    resolvedPhase && resolvedPhase >= 1 && resolvedPhase <= 3
+      ? ({ ...item, assignedPhase: resolvedPhase } as FloorItem | BuildingLoad)
+      : item;
+  const b = phaseBalance([withPhase] as FloorItem[] & BuildingLoad[], project);
+  return {
+    phaseCurrent: b.phaseCurrent,
+    phaseKw: b.phaseKw,
+    neutralCurrent: b.neutralCurrent,
+    unbalancePct: b.unbalancePct,
+    imbalanced: b.imbalanced,
+    neutralOversized: b.neutralOversized,
+    internalImbalanceNotModeled: b.internalImbalanceNotModeled,
+  };
 }
 
 /**
@@ -219,7 +318,9 @@ function categoryForFloorItem(item: FloorItem): "MCCB" | "MCB" {
 function feederFromItem(
   item: FloorItem,
   floorNumber: number,
-  findBreaker: FindBreaker
+  findBreaker: FindBreaker,
+  project: Project,
+  resolvedPhase: number | null = null
 ): PanelFeeder {
   const isThreePhase = isThreePhaseForItem(item);
   const sizing = sizeCableAndBreaker(item.calculatedCurrent, isThreePhase, {
@@ -260,6 +361,8 @@ function feederFromItem(
     familyName: match.familyName,
     fallback: match.fallback,
     isThreePhase,
+    assignedPhase: item.assignedPhase ?? null,
+    ...oneItemPhaseFields(item, project, resolvedPhase),
   };
 }
 
@@ -274,7 +377,10 @@ function feederFromBuildingLoad(
   type: string,
   current: number,
   isThreePhase: boolean,
-  findBreaker: FindBreaker
+  findBreaker: FindBreaker,
+  project: Project,
+  load: BuildingLoad,
+  resolvedPhase: number | null = null
 ): PanelFeeder | null {
   if (current <= 0) return null;
   const sizing = sizeCableAndBreaker(current, isThreePhase, {
@@ -308,6 +414,8 @@ function feederFromBuildingLoad(
     familyName: match.familyName,
     fallback: match.fallback,
     isThreePhase,
+    assignedPhase: load.assignedPhase ?? null,
+    ...oneItemPhaseFields(load, project, resolvedPhase),
   };
 }
 
@@ -344,23 +452,32 @@ export function computeFeeders(
   const mdbFeeders: PanelFeeder[] = [];
 
   for (const fd of building.floorDesigns) {
+    // Per-phase balance for this floor. 3-phase loads split equally; 1-phase
+    // loads auto-assign or use the persisted assignedPhase. We use the MAX
+    // loaded phase current (not the lumped sum) to size the riser/breaker.
+    const floorBalance = phaseBalance(fd.items, project);
+
     if (fd.hasFloorSubPanels) {
       // Floor has a sub-panel → one SMDB feeder for the whole floor.
-      const floorTotalCurrent = fd.items.reduce(
-        (sum, item) => sum + item.calculatedCurrent,
-        0
-      );
-      const sizing = sizeCableAndBreaker(floorTotalCurrent, true, {
+      // The riser is ALWAYS 3-phase/3-pole off the MDB bus, even when every
+      // downstream item is 1-phase. The gear exists; current on unloaded phases
+      // is zero, but the cable is still a 3-phase 4-wire set. Sizing therefore
+      // uses the 3-phase cable table (conservative for the physical cable) and
+      // the max-loaded phase current as the design current. (eng-review §note)
+      const floorCurrent = floorBalance.maxPhaseCurrent;
+      const riserIsThreePhase = true;
+      const riserPoles: 1 | 3 = 3;
+      const sizing = sizeCableAndBreaker(floorCurrent, riserIsThreePhase, {
         material: "copper",
         insulation: "XLPE",
         ambientTemp: 30,
         groupingCount: 2,
       });
-      const match = findBreaker(sizing.breakerSize, "MCCB", 3);
+      const match = findBreaker(sizing.breakerSize, "MCCB", riserPoles);
       const actualBreakerSize = Math.max(sizing.breakerSize, match.ratedCurrent ?? 0);
       const finalSizing =
         actualBreakerSize > sizing.breakerSize
-          ? sizeCableAndBreaker(actualBreakerSize, true, {
+          ? sizeCableAndBreaker(actualBreakerSize, riserIsThreePhase, {
               material: "copper",
               insulation: "XLPE",
               ambientTemp: 30,
@@ -370,7 +487,7 @@ export function computeFeeders(
       mdbFeeders.push({
         name: `F${fd.floorNumber} – SMDB`,
         type: "SMDB",
-        current: floorTotalCurrent,
+        current: floorCurrent,
         breakerSize: actualBreakerSize,
         cableSize: finalSizing.cableSize,
         breakerModel:
@@ -379,33 +496,63 @@ export function computeFeeders(
         manufacturer: match.manufacturer,
         familyName: match.familyName,
         fallback: match.fallback,
-        isThreePhase: true,
+        isThreePhase: riserIsThreePhase, // physical riser is always 3-phase off the MDB bus
+        // Per-phase balance fields for the MDB schedule columns (T6).
+        phaseCurrent: floorBalance.phaseCurrent,
+        phaseKw: floorBalance.phaseKw,
+        neutralCurrent: floorBalance.neutralCurrent,
+        unbalancePct: floorBalance.unbalancePct,
+        imbalanced: floorBalance.imbalanced,
+        neutralOversized: floorBalance.neutralOversized,
+        internalImbalanceNotModeled: floorBalance.internalImbalanceNotModeled,
+        assignedPhase: null,
       });
     } else {
-      // No sub-panel → individual apartment / load feeders.
+      // No sub-panel → individual apartment / load feeders. Project each from
+      // the floor-resolved phase so per-feeder L-columns sum to the floor
+      // aggregate (not each re-balanced alone onto L1).
+      const phaseById = new Map(
+        floorBalance.assignments.map((a) => [a.id, a.assignedPhase])
+      );
       for (const item of fd.items) {
-        mdbFeeders.push(feederFromItem(item, fd.floorNumber, findBreaker));
+        const resolved = item.assignedPhase ?? phaseById.get(item.id) ?? null;
+        mdbFeeders.push(
+          feederFromItem(item, fd.floorNumber, findBreaker, project, resolved)
+        );
       }
     }
   }
 
   // Building mechanical loads (elevator, pumps, AC, fire pump) attached from the
-  // load library. Each BuildingLoad references a LoadLibraryItem; current is derived
-  // from the library item's power × quantity and its own voltage/phase/powerFactor.
+  // load library. Compute their per-phase balance and size each feeder off the
+  // max-loaded phase current (same as floor sub-panels). This makes a 1-phase
+  // building load correctly single-pole and phase-load-aware.
+  const buildingBalance = phaseBalance(building.buildingLoads ?? [], project);
+  const blPhaseById = new Map(
+    buildingBalance.assignments.map((a) => [a.id, a.assignedPhase])
+  );
   for (const bl of building.buildingLoads ?? []) {
     const lib = bl.loadLibraryItem;
     if (!lib || lib.power <= 0 || bl.quantity <= 0) continue;
-    const totalKw = lib.power * bl.quantity;
     const isThreePhase = lib.phase === 3;
-    const current = isThreePhase
-      ? totalKw / (Math.sqrt(3) * (lib.voltage / 1000) * lib.powerFactor)
-      : totalKw / ((lib.voltage / 1000) * lib.powerFactor);
+    // The per-phase balance already computed current magnitudes by load; pull
+    // this load's resolved current from the balance's assignment row.
+    const assignment = buildingBalance.assignments.find((a) => a.id === bl.id);
+    const current =
+      assignment?.phaseCount === 3
+        ? (lib.power * bl.quantity) /
+          (Math.sqrt(3) * (lib.voltage / 1000) * lib.powerFactor)
+        : (lib.power * bl.quantity) / ((lib.voltage / 1000) * lib.powerFactor);
+    const resolved = bl.assignedPhase ?? blPhaseById.get(bl.id) ?? null;
     const f = feederFromBuildingLoad(
       lib.name,
       lib.category,
       current,
       isThreePhase,
-      findBreaker
+      findBreaker,
+      project,
+      bl,
+      resolved
     );
     if (f) mdbFeeders.push(f);
   }
@@ -419,7 +566,16 @@ export function computeFeeders(
       (f) => f.floorNumber === floorNumber
     );
     if (!fd) return [];
-    return fd.items.map((item) => feederFromItem(item, floorNumber, findBreaker));
+    // Resolve each item's phase from the floor balance so the SMDB outgoing
+    // feeders reflect the real board distribution.
+    const balance = phaseBalance(fd.items, project);
+    const phaseById = new Map(
+      balance.assignments.map((a) => [a.id, a.assignedPhase])
+    );
+    return fd.items.map((item) => {
+      const resolved = item.assignedPhase ?? phaseById.get(item.id) ?? null;
+      return feederFromItem(item, floorNumber, findBreaker, project, resolved);
+    });
   };
 
   return { mdbFeeders, smdbFeeders, smdbFloorNumbers };

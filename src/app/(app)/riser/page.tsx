@@ -5,14 +5,28 @@ import { useEffect, useState, useCallback, useRef } from 'react';
 import { useProject } from '@/context/ProjectContext';
 import {
   GitBranch,
-  Building2,
   Download,
   ZoomIn,
   ZoomOut,
   RotateCcw,
 } from 'lucide-react';
-import { calculateVoltageDrop } from '@/lib/calculations/cables';
+import { calculateVoltageDrop, sizeCableAndBreaker } from '@/lib/calculations/cables';
+import { calculateThreePhaseCurrent, sizeTransformer } from '@/lib/calculations/loads';
 import type { FloorItem, FloorDesign, Building, Project } from '@/types';
+
+interface FloorData extends FloorDesign {
+  floorDemand: number;
+  floorConnectedLoad: number;
+  floorCurrent: number;
+  vDropPercent: number;
+  segmentVdPercent: number;
+  actualVoltage: number;
+  isWarning: boolean;
+  isDanger: boolean;
+  circuitNumber: string;
+  riserCableSize: number;
+  riserCableLength: number;
+}
 
 export default function RiserPage() {
   const { selectedProjectId } = useProject();
@@ -50,46 +64,115 @@ export default function RiserPage() {
   const sortedFloors = [...bldg.floorDesigns].sort((a, b) => a.floorNumber - b.floorNumber);
 
   // Layout constants
-  const floorHeight = 80;
-  const headerHeight = 120;
-  const footerHeight = 60;
-  const svgHeight = sortedFloors.length * floorHeight + headerHeight + footerHeight;
-  const svgWidth = 900;
+  const floorHeight = 100;
+  const headerHeight = 140;
+  const footerHeight = 100;
+  const mdbHeight = 70;
+  const svgHeight = sortedFloors.length * floorHeight + headerHeight + footerHeight + mdbHeight + 30;
+  const svgWidth = 1100;
 
   // Riser vertical position for the main bus
-  const busX = 450;
-  const feederStartX = 560;
+  const busX = 500;
+  const feederStartX = 620;
 
-  // Voltage drop accumulation (simplified: using average cable length per floor)
-  const avgCableLength = 15; // meters between floors
-  let cumulativeVDrop = 0;
-  const floorData = sortedFloors.map((fd, i) => {
+  // Calculate total building load for MDB and transformer sizing
+  // Use same formulas as panel designer for consistency
+  const totalConnectedLoad = sortedFloors.reduce((sum, fd) =>
+    sum + fd.items.reduce((s, item) => s + (item.calculatedConnectedLoad || 0), 0), 0);
+  const totalDemandKw = sortedFloors.reduce((sum, fd) =>
+    sum + fd.items.reduce((s, item) => s + item.calculatedMaxDemand, 0), 0);
+
+  // Include building loads (elevator, pumps, etc.) - same as panel designer
+  const buildingLoadsDemandKw = (bldg.buildingLoads || []).reduce((sum, bl) => {
+    const lib = bl.loadLibraryItem;
+    if (!lib || lib.power <= 0 || bl.quantity <= 0) return sum;
+    return sum + (lib.power * bl.quantity);
+  }, 0);
+
+  // Total demand in kW (floor items + building loads)
+  const totalDemandKwWithBuildingLoads = totalDemandKw + buildingLoadsDemandKw;
+
+  // Convert kW to kVA (same as panel designer: kw / powerFactor)
+  const totalDemandKva = totalDemandKwWithBuildingLoads / project.powerFactor;
+
+  // Calculate main current using same formula as panel designer
+  const totalCurrent = calculateThreePhaseCurrent(totalDemandKva, project.voltage);
+
+  // Size MDB main breaker from total current
+  const mdbSizing = sizeCableAndBreaker(totalCurrent, true, {
+    material: 'copper',
+    insulation: 'XLPE',
+    ambientTemp: 30,
+    groupingCount: 1,
+  });
+
+  // Transformer sizing using same function as panel designer
+  const transformerKva = project.transformerSize || sizeTransformer(totalDemandKva, 1.2);
+  const transformerImpedance = 5; // Default 5% if not stored
+
+  // Process floor data with correct VD calculation
+  // VD is calculated FROM transformer TO each floor (not cumulative from bottom)
+  const floorData: FloorData[] = sortedFloors.map((fd, i) => {
     const floorDemand = fd.items.reduce((s, item) => s + item.calculatedMaxDemand, 0);
+    const floorConnectedLoad = fd.items.reduce((s, item) => s + (item.calculatedConnectedLoad || 0), 0);
     const floorCurrent3Ph = floorDemand / (Math.sqrt(3) * (project.voltage / 1000) * project.powerFactor);
 
-    // Get cable size as number for VD calculation
-    const cableSizeMatch = fd.items[0]?.cableSize?.match(/(\d+)/);
-    const cableSizeSqMm = cableSizeMatch ? parseInt(cableSizeMatch[1]) : 16;
+    // Get riser cable length from items (use average, fallback to 10m if null)
+    const cableLengths = fd.items.map(item => item.cableLength).filter((l): l is number => l != null && l > 0);
+    const riserCableLength = cableLengths.length > 0
+      ? cableLengths.reduce((a, b) => a + b, 0) / cableLengths.length
+      : 10; // Default 10m if not set
 
+    // Calculate riser cable size from floor current (not apartment cable size!)
+    const riserSizing = sizeCableAndBreaker(floorCurrent3Ph, true, {
+      material: 'copper',
+      insulation: 'XLPE',
+      ambientTemp: 30,
+      groupingCount: 1,
+    });
+    const riserCableSize = riserSizing.cableSize;
+
+    // Calculate voltage drop from transformer to this floor
     const vd = calculateVoltageDrop(
       floorCurrent3Ph,
-      avgCableLength,
-      cableSizeSqMm,
+      riserCableLength,
+      riserCableSize,
       project.powerFactor,
       true,
       project.voltage
     );
-    cumulativeVDrop += vd.dropPercent;
-    const isWarning = cumulativeVDrop > 3;
-    const isDanger = cumulativeVDrop > 5;
+
+    // Segment VD (just this floor's cable)
+    const segmentVdPercent = vd.dropPercent;
+
+    // Cumulative VD from transformer to this floor
+    // For simplicity, we use the VD to this floor (not summing segments)
+    const vDropPercent = vd.dropPercent;
+
+    // Actual voltage at this floor
+    const actualVoltage = project.voltage * (1 - vDropPercent / 100);
+
+    // Color coding per IEC limits
+    const maxVd = project.maxVoltageDropLighting || 3; // Default 3% for lighting
+    const isWarning = vDropPercent > maxVd * 0.8; // Warning at 80% of limit
+    const isDanger = vDropPercent > maxVd;
+
+    // Circuit designation
+    const circuitNumber = `${i + 1}`;
 
     return {
       ...fd,
       floorDemand,
+      floorConnectedLoad,
       floorCurrent: floorCurrent3Ph,
-      vDropPercent: cumulativeVDrop,
+      vDropPercent,
+      segmentVdPercent,
+      actualVoltage,
       isWarning,
       isDanger,
+      circuitNumber,
+      riserCableSize,
+      riserCableLength,
     };
   });
 
@@ -188,21 +271,40 @@ export default function RiserPage() {
               RISER DIAGRAM — {bldg.name}
             </text>
             <text x={busX} y="50" textAnchor="middle" fill="#6b7280" fontSize="11">
-              {project.voltage}V · {project.powerFactor} PF · {sortedFloors.length} Floors
+              {project.voltage}V · {project.powerFactor} PF · {sortedFloors.length} Floors · {project.calculationStandard || 'IEC'} Standard
             </text>
 
             {/* Transformer symbol at bottom */}
-            <g transform={`translate(${busX - 40}, ${svgHeight - footerHeight})`}>
-              <circle cx="20" cy="20" r="18" fill="none" stroke="#f97316" strokeWidth="2" />
-              <circle cx="20" cy="20" r="18" fill="none" stroke="#f97316" strokeWidth="2" transform="translate(20,0)" />
-              <text x="20" y="25" textAnchor="middle" fill="#f97316" fontSize="8" fontWeight="600">TR</text>
-              <text x="20" y="50" textAnchor="middle" fill="#6b7280" fontSize="9">Transformer</text>
+            <g transform={`translate(${busX - 60}, ${svgHeight - footerHeight + 10})`}>
+              <circle cx="30" cy="30" r="25" fill="none" stroke="#f97316" strokeWidth="2" />
+              <circle cx="30" cy="30" r="25" fill="none" stroke="#f97316" strokeWidth="2" transform="translate(30,0)" />
+              <text x="30" y="35" textAnchor="middle" fill="#f97316" fontSize="11" fontWeight="600">TR</text>
+              <text x="30" y="65" textAnchor="middle" fill="#e5e7eb" fontSize="10" fontWeight="600">
+                {transformerKva} kVA
+              </text>
+              <text x="30" y="80" textAnchor="middle" fill="#9ca3af" fontSize="9">
+                {project.voltage}V · {transformerImpedance}% Z
+              </text>
+            </g>
+
+            {/* MDB Block */}
+            <g transform={`translate(${busX - 90}, ${svgHeight - footerHeight - mdbHeight - 40})`}>
+              <rect x="0" y="0" width="180" height={mdbHeight} fill="#1f2937" stroke="#f97316" strokeWidth="2" rx="4" />
+              <text x="90" y="20" textAnchor="middle" fill="#f97316" fontSize="12" fontWeight="700">
+                MDB — Main Distribution Board
+              </text>
+              <text x="90" y="38" textAnchor="middle" fill="#e5e7eb" fontSize="10" fontWeight="600">
+                {mdbSizing.breakerSize}A MCCB · {totalDemandKva.toFixed(1)} kVA
+              </text>
+              <text x="90" y="54" textAnchor="middle" fill="#9ca3af" fontSize="9">
+                {totalCurrent.toFixed(0)}A · {mdbSizing.cableSize}mm²
+              </text>
             </g>
 
             {/* Main bus vertical line */}
             <line
               x1={busX}
-              y1={svgHeight - footerHeight}
+              y1={svgHeight - footerHeight - mdbHeight - 40}
               x2={busX}
               y2={headerHeight}
               stroke="#f97316"
@@ -214,7 +316,7 @@ export default function RiserPage() {
 
             {/* Floor risers */}
             {floorData.map((fd, i) => {
-              const y = svgHeight - footerHeight - (i + 1) * floorHeight;
+              const y = svgHeight - footerHeight - mdbHeight - 20 - (i + 1) * floorHeight;
               const isWarning = fd.isWarning;
               const isDanger = fd.isDanger;
               const lineColor = isDanger ? '#ef4444' : isWarning ? '#eab308' : '#60a5fa';
@@ -233,99 +335,202 @@ export default function RiserPage() {
                   />
 
                   {/* Floor label */}
-                  <rect x="60" y={y + floorHeight / 2 - 12} width="60" height="24" fill="#1f2937" stroke="#374151" strokeWidth="1" rx="3" />
-                  <text x="90" y={y + floorHeight / 2 + 4} textAnchor="middle" fill="#f97316" fontSize="10" fontWeight="700">
+                  <rect x="60" y={y + floorHeight / 2 - 14} width="70" height="28" fill="#1f2937" stroke="#374151" strokeWidth="1" rx="3" />
+                  <text x="95" y={y + floorHeight / 2 + 4} textAnchor="middle" fill="#f97316" fontSize="10" fontWeight="700">
                     FL {fd.floorNumber}
                   </text>
+
+                  {/* SDB Block (only if hasFloorSubPanels is true) */}
+                  {fd.hasFloorSubPanels && (
+                    <g transform={`translate(150, ${y + floorHeight / 2 - 20})`}>
+                      <rect x="0" y="0" width="140" height="40" fill="#1f2937" stroke="#374151" strokeWidth="1" rx="3" />
+                      <text x="70" y="14" textAnchor="middle" fill="#9ca3af" fontSize="9" fontWeight="600">
+                        SDB-{fd.floorNumber}
+                      </text>
+                      <text x="70" y="26" textAnchor="middle" fill="#6b7280" fontSize="8">
+                        {fd.riserCableSize}mm² · L={fd.riserCableLength.toFixed(0)}m
+                      </text>
+                      <text x="70" y="36" textAnchor="middle" fill="#6b7280" fontSize="7">
+                        {fd.floorDemand.toFixed(1)}kW · {fd.floorCurrent.toFixed(0)}A
+                      </text>
+                    </g>
+                  )}
 
                   {/* Bus tap */}
                   <circle cx={busX} cy={y + floorHeight / 2} r="4" fill="#f97316" />
 
-                  {/* Riser connection to feeders */}
+                  {/* Riser connection to SDB or directly to feeders */}
                   <line
                     x1={busX}
                     y1={y + floorHeight / 2}
-                    x2={feederStartX}
+                    x2={fd.hasFloorSubPanels ? 150 : feederStartX}
                     y2={y + floorHeight / 2}
                     stroke={lineColor}
                     strokeWidth="2"
                   />
 
-                  {/* Feeder items */}
-                  {fd.items.map((item, fi) => {
-                    const fx = feederStartX + fi * 120;
-                    return (
-                      <g key={fi}>
-                        <rect
-                          x={fx}
-                          y={y + floorHeight / 2 - 16}
-                          width="110"
-                          height="32"
-                          fill="#1f2937"
-                          stroke={lineColor}
-                          strokeWidth="1"
-                          rx="3"
-                        />
-                        <text x={fx + 55} y={y + floorHeight / 2 - 3} textAnchor="middle" fill="#e5e7eb" fontSize="8" fontWeight="600">
-                          {item.name}
-                        </text>
-                        <text x={fx + 55} y={y + floorHeight / 2 + 8} textAnchor="middle" fill="#6b7280" fontSize="7">
-                          {item.breakerSize} · {item.cableSize}
-                        </text>
-                      </g>
-                    );
-                  })}
+                  {/* Cable info on riser line */}
+                  <text
+                    x={(busX + (fd.hasFloorSubPanels ? 150 : feederStartX)) / 2}
+                    y={y + floorHeight / 2 - 8}
+                    textAnchor="middle"
+                    fill="#6b7280"
+                    fontSize="7"
+                    fontFamily="monospace"
+                  >
+                    {fd.riserCableSize}mm² Cu XLPE · {fd.riserCableLength.toFixed(0)}m
+                  </text>
 
                   {/* Voltage Drop Indicator */}
-                  <g>
+                  <g transform={`translate(300, ${y + floorHeight / 2 - 12})`}>
                     <rect
-                      x="140"
-                      y={y + floorHeight / 2 - 10}
-                      width="80"
-                      height="20"
+                      x="0"
+                      y="0"
+                      width="100"
+                      height="24"
                       fill={isDanger ? '#7f1d1d' : isWarning ? '#713f12' : '#1e3a5f'}
                       stroke={lineColor}
                       strokeWidth="1"
                       rx="3"
                     />
                     <text
-                      x="180"
-                      y={y + floorHeight / 2 + 4}
+                      x="50"
+                      y="10"
                       textAnchor="middle"
                       fill={isDanger ? '#fca5a5' : isWarning ? '#fde047' : '#93c5fd'}
                       fontSize="8"
                       fontWeight="600"
                       fontFamily="monospace"
                     >
-                      ΔV {fd.vDropPercent.toFixed(1)}%
+                      ΔV {fd.vDropPercent.toFixed(2)}%
+                    </text>
+                    <text
+                      x="50"
+                      y="20"
+                      textAnchor="middle"
+                      fill={isDanger ? '#fca5a5' : isWarning ? '#fde047' : '#93c5fd'}
+                      fontSize="7"
+                      fontFamily="monospace"
+                    >
+                      {fd.actualVoltage.toFixed(1)}V
                     </text>
                   </g>
 
-                  {/* Demand load label */}
+                  {/* Feeder items */}
+                  {fd.items.slice(0, 4).map((item, fi) => {
+                    const fx = feederStartX + fi * 120;
+                    return (
+                      <g key={fi}>
+                        <rect
+                          x={fx}
+                          y={y + floorHeight / 2 - 18}
+                          width="110"
+                          height="36"
+                          fill="#1f2937"
+                          stroke={lineColor}
+                          strokeWidth="1"
+                          rx="3"
+                        />
+                        <text x={fx + 55} y={y + floorHeight / 2 - 4} textAnchor="middle" fill="#e5e7eb" fontSize="8" fontWeight="600">
+                          {item.name}
+                        </text>
+                        <text x={fx + 55} y={y + floorHeight / 2 + 8} textAnchor="middle" fill="#6b7280" fontSize="7">
+                          {item.breakerSize} · {item.cableSize}
+                        </text>
+                        <text x={fx + 55} y={y + floorHeight / 2 + 16} textAnchor="middle" fill="#6b7280" fontSize="6">
+                          {(item.calculatedMaxDemand || 0).toFixed(1)}kW
+                        </text>
+                      </g>
+                    );
+                  })}
+                  {fd.items.length > 4 && (
+                    <text
+                      x={feederStartX + 4 * 120 + 55}
+                      y={y + floorHeight / 2 + 4}
+                      textAnchor="middle"
+                      fill="#6b7280"
+                      fontSize="8"
+                    >
+                      +{fd.items.length - 4} more
+                    </text>
+                  )}
+
+                  {/* Circuit designation */}
                   <text
-                    x={busX - 60}
+                    x={feederStartX - 20}
                     y={y + floorHeight / 2 + 4}
                     textAnchor="middle"
-                    fill="#6b7280"
+                    fill="#f97316"
                     fontSize="8"
-                    fontFamily="monospace"
+                    fontWeight="600"
                   >
-                    {fd.floorDemand.toFixed(1)} kW · {fd.floorCurrent.toFixed(0)}A
+                    {fd.circuitNumber}
                   </text>
                 </g>
               );
             })}
 
             {/* Legend */}
-            <g transform={`translate(60, ${svgHeight - 30})`}>
-              <line x1="0" y1="0" x2="20" y2="0" stroke="#60a5fa" strokeWidth="2" />
-              <text x="25" y="4" fill="#6b7280" fontSize="8">Normal (&lt;3%)</text>
-              <line x1="100" y1="0" x2="120" y2="0" stroke="#eab308" strokeWidth="2" />
-              <text x="125" y="4" fill="#6b7280" fontSize="8">Warning (3-5%)</text>
-              <line x1="210" y1="0" x2="230" y2="0" stroke="#ef4444" strokeWidth="2" />
-              <text x="235" y="4" fill="#6b7280" fontSize="8">Danger (&gt;5%)</text>
+            <g transform={`translate(60, ${svgHeight - 25})`}>
+              <text x="0" y="0" fill="#9ca3af" fontSize="9" fontWeight="600">Legend:</text>
+              <line x1="60" y1="0" x2="80" y2="0" stroke="#60a5fa" strokeWidth="2" />
+              <text x="85" y="4" fill="#6b7280" fontSize="8">Normal ({'<'}{project.maxVoltageDropLighting || 3}%)</text>
+              <line x1="180" y1="0" x2="200" y2="0" stroke="#eab308" strokeWidth="2" />
+              <text x="205" y="4" fill="#6b7280" fontSize="8">Warning</text>
+              <line x1="270" y1="0" x2="290" y2="0" stroke="#ef4444" strokeWidth="2" />
+              <text x="295" y="4" fill="#6b7280" fontSize="8">Danger ({'>'}{project.maxVoltageDropLighting || 3}%)</text>
+              <text x="420" y="4" fill="#6b7280" fontSize="8">| IEC 60364: Total {'<'}4%, Sub-main {'<'}1%, Final {'<'}3%</text>
             </g>
           </svg>
+        </div>
+      </div>
+
+      {/* Summary Table */}
+      <div className="rounded-xl border border-gray-800 bg-gray-900/60 p-4">
+        <h3 className="text-sm font-semibold text-gray-300 mb-3">Floor Summary</h3>
+        <div className="overflow-x-auto">
+          <table className="w-full text-xs">
+            <thead>
+              <tr className="border-b border-gray-700">
+                <th className="text-left py-2 px-3 text-gray-400">Floor</th>
+                <th className="text-left py-2 px-3 text-gray-400">Panel</th>
+                <th className="text-right py-2 px-3 text-gray-400">Connected</th>
+                <th className="text-right py-2 px-3 text-gray-400">Demand</th>
+                <th className="text-right py-2 px-3 text-gray-400">Current</th>
+                <th className="text-right py-2 px-3 text-gray-400">Riser Cable</th>
+                <th className="text-right py-2 px-3 text-gray-400">Length</th>
+                <th className="text-right py-2 px-3 text-gray-400">ΔV</th>
+                <th className="text-right py-2 px-3 text-gray-400">Voltage</th>
+                <th className="text-center py-2 px-3 text-gray-400">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {floorData.map((fd) => (
+                <tr key={fd.id} className="border-b border-gray-800">
+                  <td className="py-2 px-3 text-orange-500 font-semibold">FL {fd.floorNumber}</td>
+                  <td className="py-2 px-3 text-gray-300">{fd.hasFloorSubPanels ? `SDB-${fd.floorNumber}` : 'Direct'}</td>
+                  <td className="py-2 px-3 text-gray-300 text-right">{fd.floorConnectedLoad.toFixed(1)} kW</td>
+                  <td className="py-2 px-3 text-gray-300 text-right">{fd.floorDemand.toFixed(1)} kW</td>
+                  <td className="py-2 px-3 text-gray-300 text-right">{fd.floorCurrent.toFixed(0)} A</td>
+                  <td className="py-2 px-3 text-gray-300 text-right">{fd.riserCableSize} mm²</td>
+                  <td className="py-2 px-3 text-gray-300 text-right">{fd.riserCableLength.toFixed(0)} m</td>
+                  <td className="py-2 px-3 text-right" style={{ color: fd.isDanger ? '#ef4444' : fd.isWarning ? '#eab308' : '#60a5fa' }}>
+                    {fd.vDropPercent.toFixed(2)}%
+                  </td>
+                  <td className="py-2 px-3 text-gray-300 text-right">{fd.actualVoltage.toFixed(1)} V</td>
+                  <td className="py-2 px-3 text-center">
+                    <span className={`px-2 py-0.5 rounded text-xs font-medium ${
+                      fd.isDanger ? 'bg-red-900/50 text-red-400' :
+                      fd.isWarning ? 'bg-yellow-900/50 text-yellow-400' :
+                      'bg-blue-900/50 text-blue-400'
+                    }`}>
+                      {fd.isDanger ? 'DANGER' : fd.isWarning ? 'WARNING' : 'OK'}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>

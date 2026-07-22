@@ -117,20 +117,44 @@ export default function RiserPage() {
     const floorConnectedLoad = fd.items.reduce((s, item) => s + (item.calculatedConnectedLoad || 0), 0);
     const floorCurrent3Ph = floorDemand / (Math.sqrt(3) * (project.voltage / 1000) * project.powerFactor);
 
-    // Get riser cable length from items (use average, fallback to 10m if null)
-    const cableLengths = fd.items.map(item => item.cableLength).filter((l): l is number => l != null && l > 0);
-    const riserCableLength = cableLengths.length > 0
-      ? cableLengths.reduce((a, b) => a + b, 0) / cableLengths.length
-      : 10; // Default 10m if not set
+    // Get riser cable length based on floor type
+    // SDB floors: use riserCableLength from FloorDesign (user-entered)
+    // Direct floors: use average of apartment cable lengths
+    let riserCableLength: number;
+    if (fd.hasFloorSubPanels && fd.riserCableLength) {
+      // SDB floor - use the riser cable length from FloorDesign
+      riserCableLength = fd.riserCableLength;
+    } else {
+      // Direct floor - use average of apartment cable lengths
+      const cableLengths = fd.items.map(item => item.cableLength).filter((l): l is number => l != null && l > 0);
+      riserCableLength = cableLengths.length > 0
+        ? cableLengths.reduce((a, b) => a + b, 0) / cableLengths.length
+        : 10; // Default 10m if not set
+    }
 
-    // Calculate riser cable size from floor current (not apartment cable size!)
-    const riserSizing = sizeCableAndBreaker(floorCurrent3Ph, true, {
-      material: 'copper',
-      insulation: 'XLPE',
-      ambientTemp: 30,
-      groupingCount: 1,
-    });
-    const riserCableSize = riserSizing.cableSize;
+    // Calculate riser cable size
+    // SDB floors: use riserCableSize from FloorDesign if available, otherwise calculate
+    // Direct floors: calculate from floor current
+    let riserCableSize: number;
+    if (fd.hasFloorSubPanels && fd.riserCableSize) {
+      // SDB floor - parse the cable size string (e.g., "120 mm²" -> 120)
+      const sizeMatch = fd.riserCableSize.match(/(\d+)/);
+      riserCableSize = sizeMatch ? parseInt(sizeMatch[1]) : sizeCableAndBreaker(floorCurrent3Ph, true, {
+        material: 'copper',
+        insulation: 'XLPE',
+        ambientTemp: 30,
+        groupingCount: 1,
+      }).cableSize;
+    } else {
+      // Direct floor - calculate from floor current
+      const riserSizing = sizeCableAndBreaker(floorCurrent3Ph, true, {
+        material: 'copper',
+        insulation: 'XLPE',
+        ambientTemp: 30,
+        groupingCount: 1,
+      });
+      riserCableSize = riserSizing.cableSize;
+    }
 
     // Calculate voltage drop from transformer to this floor
     const vd = calculateVoltageDrop(

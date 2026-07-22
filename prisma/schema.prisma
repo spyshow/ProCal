@@ -144,6 +144,8 @@ model FloorDesign {
   id                  String      @id @default(uuid())
   floorNumber         Int
   hasFloorSubPanels   Boolean     @default(false)
+  riserCableLength    Float?      // meters — riser cable from MDB to SDB (only for hasFloorSubPanels=true)
+  riserCableSize      String?     // e.g., "120 mm²" — riser cable size (only for hasFloorSubPanels=true)
   buildingId          String
   building            Building    @relation(fields: [buildingId], references: [id], onDelete: Cascade)
   items               FloorItem[]

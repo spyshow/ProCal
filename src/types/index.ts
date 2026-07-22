@@ -45,6 +45,8 @@ export interface FloorDesign {
   id: string;
   floorNumber: number;
   hasFloorSubPanels: boolean;
+  riserCableLength?: number | null; // meters — riser cable from MDB to SDB
+  riserCableSize?: string | null; // e.g., "120 mm²"
   items: FloorItem[];
 }
 

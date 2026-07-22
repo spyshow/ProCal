@@ -32,7 +32,7 @@ interface CableEntry {
   method: string;
   insulation: 'PVC' | 'XLPE';
   ampacity: number;
-  kind: 'floor' | 'building';
+  kind: 'floor' | 'building' | 'sdb';
 }
 
 export default function CableSchedulePage() {
@@ -238,6 +238,51 @@ export default function CableSchedulePage() {
           kind: 'building',
         });
       });
+
+      // SDBs (Sub-Distribution Boards) for floors with hasFloorSubPanels=true
+      for (const fd of bldg.floorDesigns) {
+        if (!fd.hasFloorSubPanels) continue;
+        const floorDemand = fd.items.reduce((s, item) => s + item.calculatedMaxDemand, 0);
+        const floorCurrent = floorDemand / (Math.sqrt(3) * (project.voltage / 1000) * project.powerFactor);
+        const cableSizeNum = parseFloat(fd.riserCableSize || '') || 120;
+        const length = fd.riserCableLength || 10;
+
+        const result = recalculateCable({
+          current: floorCurrent,
+          isThreePhase: true,
+          lengthMeters: length,
+          existingCableSize: cableSizeNum,
+          powerFactor: project.powerFactor || 0.85,
+          systemVoltage: project.voltage === 400 ? 400 : 230,
+          maxVoltageDropPercent: limits.power,
+          method: 'C',
+          insulation: 'XLPE',
+        });
+
+        cableList.push({
+          id: `sdb-${fd.id}`,
+          name: `SDB-${fd.floorNumber}`,
+          cableName: `Wsdb${fd.floorNumber}`,
+          building: bldg.name,
+          floor: fd.floorNumber,
+          length,
+          cableSize: cableSizeNum,
+          current: floorCurrent,
+          isThreePhase: true,
+          assignedPhase: null,
+          phaseCurrent: [floorCurrent, floorCurrent, floorCurrent],
+          neutralCurrent: 0,
+          unbalancePct: 0,
+          imbalanced: false,
+          newCableSize: result.cableSize,
+          newVD: result.voltageDropPercent,
+          changed: result.changed,
+          method: 'C',
+          insulation: 'XLPE',
+          ampacity: result.ampacity,
+          kind: 'sdb',
+        });
+      });
     }
     setCables(cableList);
   }, [project, selectedBuilding]);
@@ -267,9 +312,16 @@ export default function CableSchedulePage() {
       if (field === 'length') payload.cableLength = value;
       if (field === 'method') payload.installMethod = value;
       if (field === 'insulation') payload.cableInsulation = value;
-      const patchUrl = c.kind === 'building'
-        ? `/api/building-loads/${id}`
-        : `/api/floor-items/${id}`;
+      let patchUrl: string;
+      if (c.kind === 'building') {
+        patchUrl = `/api/building-loads/${id}`;
+      } else if (c.kind === 'sdb') {
+        // SDB - save riserCableLength to FloorDesign
+        patchUrl = `/api/floors/${id.replace('sdb-', '')}`;
+        if (field === 'length') payload.riserCableLength = value;
+      } else {
+        patchUrl = `/api/floor-items/${id}`;
+      }
       fetch(patchUrl, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
@@ -428,9 +480,16 @@ export default function CableSchedulePage() {
   if (loading) return <div className="flex items-center justify-center h-full"><p className="text-gray-500 text-sm">Loading…</p></div>;
   if (!project) return <div className="flex items-center justify-center h-full"><p className="text-gray-400 text-sm">Select a project first.</p></div>;
 
-  // Group cables by floor name or "Building Loads"
+  // Group cables by section: Building Loads, SDBs, Floors
   const cablesByFloor = cables.reduce((acc, cable) => {
-    const key = cable.floor === 0 ? 'Building Loads' : `Floor ${cable.floor}`;
+    let key: string;
+    if (cable.kind === 'building') {
+      key = 'Building Loads';
+    } else if (cable.kind === 'sdb') {
+      key = 'SDBs';
+    } else {
+      key = `Floor ${cable.floor}`;
+    }
     if (!acc[key]) acc[key] = [];
     acc[key].push(cable);
     return acc;
@@ -439,6 +498,8 @@ export default function CableSchedulePage() {
   const floorKeys = Object.keys(cablesByFloor).sort((a, b) => {
     if (a === 'Building Loads') return -1;
     if (b === 'Building Loads') return 1;
+    if (a === 'SDBs') return 0;
+    if (b === 'SDBs') return 0;
     return parseInt(a.replace('Floor ', '')) - parseInt(b.replace('Floor ', ''));
   });
 

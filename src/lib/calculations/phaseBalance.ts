@@ -124,13 +124,17 @@ export interface PhaseBalance {
  * @param items    floor items OR building loads on this board (mixed call sites
  *                 pass one kind; pass floorItems or buildingLoads, not both).
  * @param project  the project (PF source for apartments/manual; calculationStandard).
+ * @param buildingPhaseMap  optional map of item ID → phase from building-level
+ *                          balance. When provided, auto-assignment uses these
+ *                          pre-computed phases instead of round-robin.
  */
 export function phaseBalance(
   items: FloorItem[] | BuildingLoad[],
-  project: Project
+  project: Project,
+  buildingPhaseMap?: Map<string, number>
 ): PhaseBalance {
   const loads = normalize(items, project);
-  return compute(loads, project);
+  return compute(loads, project, buildingPhaseMap);
 }
 
 // ---------------------------------------------------------------------------
@@ -221,7 +225,7 @@ function padId(id: string): string {
 // 2. Greedy LPT assignment for 1-phase loads with null assignedPhase
 // ---------------------------------------------------------------------------
 
-function compute(loads: PhaseLoad[], project: Project): PhaseBalance {
+function compute(loads: PhaseLoad[], project: Project, buildingPhaseMap?: Map<string, number>): PhaseBalance {
   const phaseCurrent: [number, number, number] = [0, 0, 0];
   const phaseKw: [number, number, number] = [0, 0, 0];
   // Per-item phasor accumulators for the vector neutral current (eng-review
@@ -258,11 +262,19 @@ function compute(loads: PhaseLoad[], project: Project): PhaseBalance {
     toAutoAssign.push(load);
   }
 
-  // Simple round-robin: loop through loads in order, assign each to the
-  // least-loaded phase. This creates better per-floor balance than LPT
-  // because loads are distributed evenly across phases as they come in.
+  // Auto-assign 1-phase loads: use building-level assignments if provided,
+  // otherwise use simple round-robin (least-loaded phase).
   for (const load of toAutoAssign) {
-    const phase = leastLoadedPhase(phaseCurrent);
+    // Check if we have a pre-computed assignment from building-level balance
+    const buildingPhase = buildingPhaseMap?.get(load.id);
+    let phase: PhaseIdx;
+    if (buildingPhase != null && buildingPhase >= 1 && buildingPhase <= 3) {
+      // Use the building-level assignment
+      phase = (buildingPhase - 1) as PhaseIdx;
+    } else {
+      // Round-robin: assign to least-loaded phase
+      phase = leastLoadedPhase(phaseCurrent);
+    }
     placeOnePhase(load, phase, phaseCurrent, phaseKw, (ox, oy) => {
       neutralX += ox;
       neutralY += oy;

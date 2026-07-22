@@ -175,6 +175,7 @@ function CalculatorContent() {
   const sortedFloors = [...bldg.floorDesigns].sort((a, b) => a.floorNumber - b.floorNumber);
 
   // Per-building aggregate balance (all floor items + building loads).
+  // This computes phase assignments for ALL 1-phase loads across the building.
   const allBuildingItems: any[] = [
     ...bldg.floorDesigns.flatMap((fd) => fd.items),
     ...(bldg.buildingLoads || []).map((bl: any) => ({
@@ -184,6 +185,14 @@ function CalculatorContent() {
     })),
   ];
   const buildingBalance = phaseBalance(allBuildingItems as any, project);
+
+  // Create a map of item ID → assigned phase from building-level balance.
+  // This ensures per-floor balance uses the building-level assignments.
+  const buildingPhaseMap = new Map<string, number>(
+    buildingBalance.assignments
+      .filter((a) => a.phaseCount === 1)
+      .map((a) => [a.id, a.assignedPhase])
+  );
 
   // Summary totals
   const totalConnectedLoad = sortedFloors.reduce(
@@ -344,7 +353,7 @@ function CalculatorContent() {
           const expanded = expandedFloor === fd.id;
           const floorDemand = fd.items.reduce((s, i) => s + i.calculatedMaxDemand, 0);
           const floorCurrent = fd.items.reduce((s, i) => s + i.calculatedCurrent, 0);
-          const floorBalance = phaseBalance(fd.items, project);
+          const floorBalance = phaseBalance(fd.items, project, buildingPhaseMap);
 
           return (
             <div key={fd.id} className="rounded-xl border border-gray-800 bg-gray-900/40 min-w-0">

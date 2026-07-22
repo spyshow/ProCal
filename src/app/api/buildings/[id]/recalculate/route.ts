@@ -9,6 +9,17 @@ export async function POST(
   try {
     const { id: buildingId } = await params;
 
+    const building = await db.building.findUnique({
+      where: { id: buildingId },
+      include: { project: true },
+    });
+    if (!building) {
+      return NextResponse.json({ error: "Building not found" }, { status: 404 });
+    }
+    const project = building.project;
+    const voltageKv = project.voltage / 1000;
+    const powerFactor = project.powerFactor;
+
     const items = await db.floorItem.findMany({
       where: {
         floorDesign: { buildingId },
@@ -32,9 +43,9 @@ export async function POST(
 
       let calculatedCurrent: number;
       if (isThreePhase) {
-        calculatedCurrent = calculatedMaxDemand / (Math.sqrt(3) * 0.4);
+        calculatedCurrent = calculatedMaxDemand / (Math.sqrt(3) * voltageKv * powerFactor);
       } else {
-        calculatedCurrent = calculatedMaxDemand / 0.23;
+        calculatedCurrent = calculatedMaxDemand / (voltageKv * powerFactor);
       }
 
       const sizing = sizeCableAndBreaker(calculatedCurrent, isThreePhase, {

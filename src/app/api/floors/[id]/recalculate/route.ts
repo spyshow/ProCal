@@ -9,6 +9,17 @@ export async function POST(
   try {
     const { id: floorDesignId } = await params;
 
+    const floorDesign = await db.floorDesign.findUnique({
+      where: { id: floorDesignId },
+      include: { building: { include: { project: true } } },
+    });
+    if (!floorDesign) {
+      return NextResponse.json({ error: "Floor not found" }, { status: 404 });
+    }
+    const project = floorDesign.building.project;
+    const voltageKv = project.voltage / 1000;
+    const powerFactor = project.powerFactor;
+
     const items = await db.floorItem.findMany({
       where: { floorDesignId },
       include: { apartmentTemplate: { include: { rooms: true } } },
@@ -29,9 +40,9 @@ export async function POST(
 
       let calculatedCurrent: number;
       if (isThreePhase) {
-        calculatedCurrent = calculatedMaxDemand / (Math.sqrt(3) * 0.4);
+        calculatedCurrent = calculatedMaxDemand / (Math.sqrt(3) * voltageKv * powerFactor);
       } else {
-        calculatedCurrent = calculatedMaxDemand / 0.23;
+        calculatedCurrent = calculatedMaxDemand / (voltageKv * powerFactor);
       }
 
       const sizing = sizeCableAndBreaker(calculatedCurrent, isThreePhase, {

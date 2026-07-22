@@ -90,6 +90,7 @@ export default function PanelDesignerPage() {
   // MDB Main calculations
   // Total demand in kVA: sum of feeder real power (kW) divided by PF.
   // Prefer per-phase kW when available (PR1); fall back to legacy current formula.
+  const perPhaseKva: [number, number, number] = [0, 0, 0];
   const totalDemandKva = mdbFeeders.reduce((s, f) => {
     const voltageKv = project.voltage / 1000;
     const kw = f.phaseKw
@@ -97,21 +98,46 @@ export default function PanelDesignerPage() {
       : project.voltage === 230
         ? f.current * voltageKv * project.powerFactor
         : f.current * Math.sqrt(3) * voltageKv * project.powerFactor;
+    // Accumulate per-phase kVA for transformer sizing (max-winding-limited).
+    if (f.phaseKw) {
+      perPhaseKva[0] += f.phaseKw[0] / project.powerFactor;
+      perPhaseKva[1] += f.phaseKw[1] / project.powerFactor;
+      perPhaseKva[2] += f.phaseKw[2] / project.powerFactor;
+    }
     return s + kw / project.powerFactor;
   }, 0);
-  const mainBreakerCurrent = calculateThreePhaseCurrent(totalDemandKva * 1000, project.voltage);
+  const mainBreakerCurrent = calculateThreePhaseCurrent(totalDemandKva, project.voltage);
   const mainSizing = sizeCableAndBreaker(mainBreakerCurrent, true, {
     material: 'copper',
     insulation: 'XLPE',
     ambientTemp: 30,
     groupingCount: 1,
   });
-  const transformerSize = sizeTransformer(totalDemandKva);
+  const transformerSize = sizeTransformer(totalDemandKva, 1.2, perPhaseKva);
 
-  const mainMatch = findBreaker(mainSizing.breakerSize, 'ACB', 3);
-  const mainBreakerModel = mainMatch.model ?? `ACB ${mainSizing.breakerSize}`;
+  const mainCategory = mainSizing.breakerSize < 630 ? 'MCCB' : 'ACB';
+  const mainMatch = findBreaker(mainSizing.breakerSize, mainCategory, 3);
+  const mainBreakerModel = mainMatch.model ?? `${mainCategory} ${mainSizing.breakerSize}`;
 
   const mainCable = CABLE_CATALOG.find((c) => c.size >= mainSizing.cableSize) || CABLE_CATALOG[CABLE_CATALOG.length - 1];
+  // Number of parallel cables per phase
+  const mainCableAmpacity = mainCable.copperXlpe3Ph;
+  const cablesPerPhase = Math.ceil(mainBreakerCurrent / mainCableAmpacity);
+
+  // Neutral: sum per-phase unbalance across all feeders
+  const maxPhaseCurrent = Math.max(
+    mdbFeeders.reduce((s, f) => s + (f.phaseCurrent?.[0] ?? 0), 0),
+    mdbFeeders.reduce((s, f) => s + (f.phaseCurrent?.[1] ?? 0), 0),
+    mdbFeeders.reduce((s, f) => s + (f.phaseCurrent?.[2] ?? 0), 0),
+  );
+  const neutralCurrent = mdbFeeders.reduce((s, f) => s + (f.neutralCurrent ?? 0), 0);
+  // Reduce N cable if neutral current < 50% of max phase current
+  const canReduceN = maxPhaseCurrent > 0 && neutralCurrent < maxPhaseCurrent * 0.5;
+  const neutralSize = canReduceN
+    ? (CABLE_CATALOG.find((c) => c.copperXlpe3Ph >= neutralCurrent && c.size < mainCable.size) ?? mainCable).size
+    : mainCable.size;
+  const neutralCable = CABLE_CATALOG.find((c) => c.size === neutralSize) ?? mainCable;
+  const neutralCables = Math.ceil(neutralCurrent / (neutralCable.copperXlpe3Ph || 1));
 
   return (
     <div className="p-6 space-y-6 max-w-7xl mx-auto">
@@ -201,8 +227,9 @@ export default function PanelDesignerPage() {
           </div>
           <div className="rounded-lg border border-gray-800 bg-gray-800/30 p-3">
             <p className="text-[10px] text-gray-500 uppercase">Main Cable</p>
-            <p className="text-lg font-bold text-green-400 font-mono">{mainSizing.cableSize} mm²</p>
-            <p className="text-[10px] text-gray-500">{mainSizing.nominalAmpacity}A capacity</p>
+            <p className="text-lg font-bold text-green-400 font-mono">{mainCable.size} mm²</p>
+            <p className="text-[10px] text-gray-500">{cablesPerPhase}×{mainCable.size}mm² per phase</p>
+            <p className="text-[10px] text-gray-500">N: {neutralCables}×{neutralSize}mm²{canReduceN ? ' (reduced)' : ''}</p>
           </div>
           <div className="rounded-lg border border-gray-800 bg-gray-800/30 p-3">
             <p className="text-[10px] text-gray-500 uppercase">Transformer</p>

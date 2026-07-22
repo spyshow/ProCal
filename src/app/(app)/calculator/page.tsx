@@ -402,7 +402,9 @@ function CalculatorContent() {
                           const Icon = item.type === 'APARTMENT' ? Home : Wrench;
                           // Recalculate current from template's current phases (not stale stored value)
                           const isThreePhase = item.type === 'APARTMENT' && item.apartmentTemplate?.phases === 3;
-                          const itemPhaseCount = isThreePhase ? 3 : (item.loadLibraryItem?.phase ?? 3) === 3 ? 3 : 1;
+                          const itemPhaseCount = item.type === 'APARTMENT'
+                            ? (item.apartmentTemplate?.phases ?? 1)
+                            : (item.loadLibraryItem?.phase ?? (item.type === 'SERVICE_PANEL' || item.type === 'PUMP_PANEL' || item.type === 'ELEVATOR_PANEL' ? 3 : 1));
                           const resolvedPhase = itemPhaseCount === 1
                             ? (item.assignedPhase ?? floorBalance.assignments.find((a) => a.id === item.id)?.assignedPhase ?? null)
                             : null;
@@ -423,16 +425,25 @@ function CalculatorContent() {
                                 {itemPhaseCount === 3 ? (
                                   <span className="text-[10px] text-gray-600">—</span>
                                 ) : (
-                                  <select
-                                    value={resolvedPhase ?? ''}
-                                    onChange={(e) => handleUpdateAssignedPhase(item.id, e.target.value === '' ? null : Number(e.target.value))}
-                                    className="dense-input text-xs py-0.5 px-1 rounded bg-gray-800/50 border-gray-700"
-                                  >
-                                    <option value="">Auto</option>
-                                    <option value="1">L1</option>
-                                    <option value="2">L2</option>
-                                    <option value="3">L3</option>
-                                  </select>
+                                  <div className="flex items-center justify-center gap-0.5">
+                                    <button
+                                      onClick={() => handleUpdateAssignedPhase(item.id, null)}
+                                      className={`px-1.5 py-0.5 text-[10px] rounded font-mono ${item.assignedPhase === null ? 'bg-yellow-600 text-white' : 'bg-gray-800 text-gray-500 hover:text-gray-300'}`}
+                                      title="Auto-assign phase"
+                                    >A</button>
+                                    {[1, 2, 3].map((p) => {
+                                      const isAutoSelected = item.assignedPhase === null && resolvedPhase === p;
+                                      const isManualSelected = item.assignedPhase === p;
+                                      return (
+                                        <button
+                                          key={p}
+                                          onClick={() => handleUpdateAssignedPhase(item.id, p)}
+                                          className={`px-1.5 py-0.5 text-[10px] rounded font-mono ${isAutoSelected ? 'bg-yellow-600 text-white' : isManualSelected ? 'bg-orange-600 text-white' : 'bg-gray-800 text-gray-500 hover:text-gray-300'}`}
+                                          title={isAutoSelected ? `Auto-assigned to L${p}` : `Pin to L${p}`}
+                                        >L{p}</button>
+                                      );
+                                    })}
+                                  </div>
                                 )}
                               </td>
                               <td className="text-right font-mono text-sm">{item.calculatedConnectedLoad.toFixed(2)}</td>

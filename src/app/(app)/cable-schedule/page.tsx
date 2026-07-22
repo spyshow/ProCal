@@ -6,6 +6,7 @@ import { useProject } from '@/context/ProjectContext';
 import { usePathname, useRouter } from 'next/navigation';
 import { recalculateCable } from '@/lib/sld/cable-editor';
 import { isThreePhaseForItem } from '@/lib/calculations/feeders';
+import { phaseBalance } from '@/lib/calculations/phaseBalance';
 import MethodSelector from '@/components/MethodSelector';
 import { Cable, RefreshCw, AlertTriangle, Check, Settings, Save } from 'lucide-react';
 import type { Project } from '@/types';
@@ -116,6 +117,8 @@ export default function CableSchedulePage() {
     for (const bldg of project.buildings) {
       if (selectedBuilding && bldg.id !== selectedBuilding) continue;
       for (const fd of bldg.floorDesigns) {
+        const balance = phaseBalance(fd.items as any, project as any);
+        const phaseById = new Map(balance.assignments.map((a) => [a.id, a.assignedPhase]));
         fd.items.forEach((item, idx) => {
           const letter = String.fromCharCode(97 + idx);
           const loadTag = `F${fd.floorNumber}-${letter.toUpperCase()}`;
@@ -125,12 +128,13 @@ export default function CableSchedulePage() {
           const length = (item as any).cableLength || 10 + (fd.floorNumber - 1) * 5;
           const method = (item as any).installMethod || 'C';
           const insulation = (item as any).cableInsulation || 'XLPE';
-          const assignedPhase = (item as any).assignedPhase ?? null;
+          const rawPhase = (item as any).assignedPhase ?? null;
+          const resolvedPhase = rawPhase ?? phaseById.get(item.id) ?? 1;
           const phaseCurrent: [number, number, number] = isThreePhase
             ? [item.calculatedCurrent, item.calculatedCurrent, item.calculatedCurrent]
             : [0, 0, 0];
-          if (!isThreePhase && assignedPhase >= 1 && assignedPhase <= 3) {
-            phaseCurrent[assignedPhase - 1] = item.calculatedCurrent;
+          if (!isThreePhase && resolvedPhase >= 1 && resolvedPhase <= 3) {
+            phaseCurrent[resolvedPhase - 1] = item.calculatedCurrent;
           }
 
           const result = recalculateCable({
@@ -155,7 +159,7 @@ export default function CableSchedulePage() {
             cableSize: cableSizeNum,
             current: item.calculatedCurrent,
             isThreePhase,
-            assignedPhase,
+            assignedPhase: resolvedPhase,
             phaseCurrent,
             neutralCurrent: isThreePhase ? 0 : item.calculatedCurrent,
             unbalancePct: isThreePhase ? 0 : 100,
@@ -172,6 +176,8 @@ export default function CableSchedulePage() {
       }
 
       // Building loads (elevator, pumps, AC, fire pump) — attached from the load library.
+      const blBalance = phaseBalance((bldg.buildingLoads || []) as any, project as any);
+      const blPhaseById = new Map(blBalance.assignments.map((a) => [a.id, a.assignedPhase]));
       (bldg.buildingLoads || []).forEach((bl, idx) => {
         const lib = bl.loadLibraryItem;
         if (!lib) return; // orphaned (library item deleted) — skip
@@ -187,12 +193,13 @@ export default function CableSchedulePage() {
         const length = bl.cableLength || 10;
         const method = bl.installMethod || 'C';
         const insulation = (bl.cableInsulation as 'PVC' | 'XLPE') || 'XLPE';
-        const assignedPhase = (bl as any).assignedPhase ?? null;
+        const rawPhase = (bl as any).assignedPhase ?? null;
+        const resolvedPhase = rawPhase ?? blPhaseById.get(bl.id) ?? 1;
         const phaseCurrent: [number, number, number] = isThreePhase
           ? [current, current, current]
           : [0, 0, 0];
-        if (!isThreePhase && assignedPhase >= 1 && assignedPhase <= 3) {
-          phaseCurrent[assignedPhase - 1] = current;
+        if (!isThreePhase && resolvedPhase >= 1 && resolvedPhase <= 3) {
+          phaseCurrent[resolvedPhase - 1] = current;
         }
 
         const result = recalculateCable({
@@ -217,7 +224,7 @@ export default function CableSchedulePage() {
           cableSize: cableSizeNum,
           current,
           isThreePhase,
-          assignedPhase,
+          assignedPhase: resolvedPhase,
           phaseCurrent,
           neutralCurrent: isThreePhase ? 0 : current,
           unbalancePct: isThreePhase ? 0 : 100,

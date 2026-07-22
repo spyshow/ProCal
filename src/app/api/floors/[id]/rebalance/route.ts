@@ -6,8 +6,8 @@ import { phaseBalance } from "@/lib/calculations/phaseBalance";
 /**
  * Re-balance: run the greedy LPT phase assignment for all 1-phase loads on this
  * floor and persist the results. 3-phase loads keep assignedPhase=null (they
- * draw from all three phases). Manual overrides are overwritten by a
- * re-balance action; use PATCH /api/floor-items/[id] to pin a specific phase.
+ * draw from all three phases). Items with a manual assignedPhase pin are
+ * preserved; only auto-assigned (null) items get rebalanced.
  */
 export async function POST(
   request: Request,
@@ -41,9 +41,15 @@ export async function POST(
     const project = floorDesign.building.project;
     const balance = phaseBalance(floorDesign.items as any, project as any);
 
-    // Persist assignments for 1-phase items only.
+    // Persist assignments for 1-phase items only, but preserve manual overrides.
+    // Items with an existing assignedPhase in the DB are pinned — skip them.
+    const pinnedIds = new Set(
+      floorDesign.items
+        .filter((item) => item.assignedPhase != null)
+        .map((item) => item.id)
+    );
     const updates = balance.assignments
-      .filter((a) => a.phaseCount === 1 && a.assignedPhase >= 1 && a.assignedPhase <= 3)
+      .filter((a) => a.phaseCount === 1 && a.assignedPhase >= 1 && a.assignedPhase <= 3 && !pinnedIds.has(a.id))
       .map((a) =>
         db.floorItem.update({
           where: { id: a.id },

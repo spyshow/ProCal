@@ -698,16 +698,21 @@ export default function ProjectDetailPage() {
                                   </p>
                                 </div>
                                 {(bl.loadLibraryItem?.phase ?? 3) !== 3 && (
-                                  <select
-                                    value={bl.assignedPhase ?? ''}
-                                    onChange={(e) => handleUpdateBuildingLoadPhase(bl.id, e.target.value === '' ? null : Number(e.target.value))}
-                                    className="dense-input text-xs py-0.5 px-1 rounded bg-gray-800/50 border-gray-700"
-                                  >
-                                    <option value="">Auto</option>
-                                    <option value="1">L1</option>
-                                    <option value="2">L2</option>
-                                    <option value="3">L3</option>
-                                  </select>
+                                  <div className="flex items-center gap-0.5">
+                                    <button
+                                      onClick={() => handleUpdateBuildingLoadPhase(bl.id, null)}
+                                      className={`px-1.5 py-0.5 text-[10px] rounded font-mono ${bl.assignedPhase === null ? 'bg-yellow-600 text-white' : 'bg-gray-800 text-gray-500 hover:text-gray-300'}`}
+                                      title="Auto-assign phase"
+                                    >A</button>
+                                    {[1, 2, 3].map((p) => (
+                                      <button
+                                        key={p}
+                                        onClick={() => handleUpdateBuildingLoadPhase(bl.id, p)}
+                                        className={`px-1.5 py-0.5 text-[10px] rounded font-mono ${bl.assignedPhase === p ? 'bg-orange-600 text-white' : 'bg-gray-800 text-gray-500 hover:text-gray-300'}`}
+                                        title={`Assign to L${p}`}
+                                      >L{p}</button>
+                                    ))}
+                                  </div>
                                 )}
                                 <button
                                   onClick={() => handleDeleteBuildingLoad(bl.id)}

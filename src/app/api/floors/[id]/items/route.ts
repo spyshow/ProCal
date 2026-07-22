@@ -62,12 +62,12 @@ export async function POST(
       calculatedConnectedLoad = totalConnectedLoadVA / 1000; // Convert to kW
       calculatedMaxDemand = calculatedConnectedLoad * 0.4; // Demand factor 0.4
 
-      // Phase-aware current calculation
+      // Phase-aware current calculation (kW-based, PF applied)
       const isThreePhase = template.phases === 3;
       if (isThreePhase) {
-        calculatedCurrent = calculatedMaxDemand / (Math.sqrt(3) * voltageKv); // 3-phase
+        calculatedCurrent = calculatedMaxDemand / (Math.sqrt(3) * voltageKv * powerFactor);
       } else {
-        calculatedCurrent = calculatedMaxDemand / voltageKv; // single-phase (230V → 0.23 kV)
+        calculatedCurrent = calculatedMaxDemand / (voltageKv * powerFactor);
       }
 
       // Size breaker and cable based on calculated current
@@ -98,7 +98,7 @@ export async function POST(
       if (isThreePhase) {
         calculatedCurrent = calculatedMaxDemand / (Math.sqrt(3) * (libraryItem.voltage / 1000) * libraryItem.powerFactor);
       } else {
-        calculatedCurrent = calculatedMaxDemand / (libraryItem.voltage / 1000);
+        calculatedCurrent = calculatedMaxDemand / ((libraryItem.voltage / 1000) * libraryItem.powerFactor);
       }
       calculatedCurrent = parseFloat(calculatedCurrent.toFixed(2));
 

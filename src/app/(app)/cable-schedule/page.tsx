@@ -282,7 +282,7 @@ export default function CableSchedulePage() {
           ampacity: result.ampacity,
           kind: 'sdb',
         });
-      });
+      }
     }
     setCables(cableList);
   }, [project, selectedBuilding]);

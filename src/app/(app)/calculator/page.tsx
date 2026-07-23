@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import type { FloorItem, FloorDesign, Building, Project } from '@/types';
 import { phaseBalance } from '@/lib/calculations/phaseBalance';
+import { MotionIcon } from '@/components/MotionIcon';
 
 export default function CalculatorPage() {
   return (
@@ -48,6 +49,12 @@ function CalculatorContent() {
     loadLibraryItemId: '',
     customKw: '15',
   });
+  const [confirmDialog, setConfirmDialog] = useState<{
+    open: boolean;
+    title: string;
+    message: string;
+    onConfirm: () => void;
+  }>({ open: false, title: '', message: '', onConfirm: () => {} });
 
   const loadProject = useCallback(async () => {
     if (!selectedProjectId) {
@@ -174,6 +181,19 @@ function CalculatorContent() {
   const bldg = project.buildings.find((b) => b.id === selectedBuilding) || project.buildings[0];
   const sortedFloors = [...bldg.floorDesigns].sort((a, b) => a.floorNumber - b.floorNumber);
 
+  // Detect stale apartment calculations: compare template room loads with stored values.
+  const needsRecalculation = project.buildings.some((b) =>
+    b.floorDesigns.some((fd) =>
+      fd.items.some((item) => {
+        if (item.type !== 'APARTMENT' || !item.apartmentTemplate?.rooms) return false;
+        const expectedLoad = item.apartmentTemplate.rooms.reduce(
+          (sum, r) => sum + r.connectedLoad, 0
+        ) / 1000;
+        return Math.abs(expectedLoad - item.calculatedConnectedLoad) > 0.01;
+      })
+    )
+  );
+
   // Per-building aggregate balance (all floor items + building loads).
   // This computes phase assignments for ALL 1-phase loads across the building.
   const allBuildingItems: any[] = [
@@ -219,16 +239,45 @@ function CalculatorContent() {
           </p>
         </div>
         {bldg.floorDesigns.some(fd => fd.items.some(i => i.type === 'APARTMENT')) && (
-          <button
-            onClick={async () => {
-              await fetch(`/api/buildings/${bldg.id}/recalculate`, { method: 'POST' });
-              loadProject();
-            }}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold"
-          >
-            <RefreshCw size={14} />
-            Recalculate All Floors
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={async () => {
+                await fetch(`/api/buildings/${bldg.id}/recalculate`, { method: 'POST' });
+                loadProject();
+              }}
+              className={`group flex items-center gap-2 px-4 py-2 rounded-lg text-white text-sm font-semibold transition-all duration-300 ${
+                needsRecalculation
+                  ? 'bg-amber-600 hover:bg-amber-500 shadow-amber-500/20 shadow-lg'
+                  : 'bg-blue-600 hover:bg-blue-500'
+              }`}
+            >
+              <MotionIcon
+                name="RefreshCw"
+                size={14}
+                animation={needsRecalculation ? 'spin' : 'none'}
+                className={`${!needsRecalculation ? 'group-hover:animate-[spin_1s_linear_infinite]' : ''}`}
+              />
+              {needsRecalculation ? 'Recalculate Needed' : 'Recalculate All Floors'}
+            </button>
+            <button
+              onClick={() => {
+                setConfirmDialog({
+                  open: true,
+                  title: 'Rebalance All Floors',
+                  message: 'This will reset all apartment phase assignments to auto mode. Manually pinned phases will be cleared. Continue?',
+                  onConfirm: async () => {
+                    setConfirmDialog((d) => ({ ...d, open: false }));
+                    await fetch(`/api/buildings/${bldg.id}/rebalance`, { method: 'POST' });
+                    loadProject();
+                  },
+                });
+              }}
+              className="group flex items-center gap-2 px-4 py-2 rounded-lg bg-teal-600 hover:bg-teal-500 text-white text-sm font-semibold transition-colors"
+            >
+              <MotionIcon name="ArrowUpDown" size={14} animation="none" className="group-hover:animate-[pulse_1s_ease-in-out_infinite]" />
+              Rebalance All Floors
+            </button>
+          </div>
         )}
       </div>
 
@@ -748,6 +797,42 @@ function CalculatorContent() {
           );
         })}
       </div>
+
+      {/* Confirm Dialog */}
+      {confirmDialog.open && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            onClick={() => setConfirmDialog((d) => ({ ...d, open: false }))}
+          />
+          <div
+            className="relative bg-gray-900 border border-gray-700 rounded-xl shadow-2xl p-6 w-full max-w-md mx-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center gap-3 mb-4">
+              <div className="flex items-center justify-center w-10 h-10 rounded-full bg-amber-500/10">
+                <AlertTriangle size={20} className="text-amber-500" />
+              </div>
+              <h3 className="text-lg font-semibold text-white">{confirmDialog.title}</h3>
+            </div>
+            <p className="text-sm text-gray-400 mb-6 leading-relaxed">{confirmDialog.message}</p>
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setConfirmDialog((d) => ({ ...d, open: false }))}
+                className="px-4 py-2 rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-300 text-sm font-medium transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmDialog.onConfirm}
+                className="px-4 py-2 rounded-lg bg-teal-600 hover:bg-teal-500 text-white text-sm font-semibold transition-colors"
+              >
+                Confirm
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

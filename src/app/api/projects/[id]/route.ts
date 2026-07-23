@@ -23,7 +23,9 @@ export async function GET(
               include: {
                 items: {
                   include: {
-                    apartmentTemplate: true,
+                    apartmentTemplate: {
+                      include: { rooms: true },
+                    },
                     loadLibraryItem: true,
                   },
                 },

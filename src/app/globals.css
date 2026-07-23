@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "motion-icons-react/style.css";
 
 @layer base {
   :root {

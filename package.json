@@ -19,6 +19,7 @@
     "better-sqlite3": "^12.11.1",
     "jose": "^6.2.3",
     "lucide-react": "^1.23.0",
+    "motion-icons-react": "^1.1.0",
     "next": "16.2.10",
     "pagedjs": "^0.4.3",
     "print-js": "^1.6.0",

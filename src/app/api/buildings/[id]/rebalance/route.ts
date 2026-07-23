@@ -4,8 +4,8 @@ import { getSessionUser } from "@/lib/auth";
 import { phaseBalance } from "@/lib/calculations/phaseBalance";
 
 /**
- * Re-balance: run the greedy LPT phase assignment for all 1-phase building
- * loads and persist the results. 3-phase loads keep assignedPhase=null.
+ * Reset all apartment phase assignments to auto (null) for the selected building.
+ * This clears any manually pinned phases so the UI shows auto-computed assignments.
  */
 export async function POST(
   request: Request,
@@ -23,7 +23,11 @@ export async function POST(
       where: { id: buildingId },
       include: {
         project: true,
-        buildingLoads: { include: { loadLibraryItem: true } },
+        floorDesigns: {
+          include: {
+            items: true,
+          },
+        },
       },
     });
 
@@ -31,29 +35,26 @@ export async function POST(
       return NextResponse.json({ error: "Building not found" }, { status: 404 });
     }
 
-    const balance = phaseBalance(building.buildingLoads as any, building.project as any);
+    // Reset all floor-item assignedPhase to null (auto) for apartment items.
+    const allFloorItems = building.floorDesigns.flatMap((fd) => fd.items);
+    const pinnedItems = allFloorItems.filter(
+      (item) => item.assignedPhase != null && item.type === 'APARTMENT'
+    );
 
-    const updates = balance.assignments
-      .filter((a) => a.phaseCount === 1 && a.assignedPhase >= 1 && a.assignedPhase <= 3)
-      .map((a) =>
-        db.buildingLoad.update({
-          where: { id: a.id },
-          data: { assignedPhase: a.assignedPhase },
-        })
+    if (pinnedItems.length > 0) {
+      await db.$transaction(
+        pinnedItems.map((item) =>
+          db.floorItem.update({
+            where: { id: item.id },
+            data: { assignedPhase: null },
+          })
+        )
       );
+    }
 
-    await db.$transaction(updates);
-
-    const updated = await db.building.findUnique({
-      where: { id: buildingId },
-      include: {
-        buildingLoads: { include: { loadLibraryItem: true } },
-      },
-    });
-
-    return NextResponse.json({ balance, building: updated });
+    return NextResponse.json({ success: true, reset: pinnedItems.length });
   } catch (error) {
-    console.error("POST Rebalance Building Loads Error:", error);
+    console.error("POST Rebalance Building Error:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }

@@ -116,6 +116,8 @@ export interface PhaseBalance {
   internalImbalanceNotModeled: boolean;
   /** Per-load resolved phase assignment (1/2/3), so the UI can show it. */
   assignments: { id: string; assignedPhase: number; phaseCount: 1 | 3 }[];
+  /** Raw phasor components — combine these before sqrt when merging boards. */
+  neutralPhasors: { x: number; y: number };
 }
 
 /**
@@ -373,6 +375,7 @@ function finalize(
     neutralOversized,
     internalImbalanceNotModeled,
     assignments,
+    neutralPhasors: { x: neutralX, y: neutralY },
   };
 }
 

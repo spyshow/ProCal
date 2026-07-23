@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { sizeCableAndBreaker } from "@/lib/calculations/cables";
+import { getApartmentDiversityFactor } from "@/lib/calculations/loads";
 
 export async function POST(
   request: Request,
@@ -28,6 +29,10 @@ export async function POST(
       include: { apartmentTemplate: { include: { rooms: true } } },
     });
 
+    // Apply IEC diversity factor based on total apartment count in building.
+    const apartmentCount = items.length;
+    const diversityFactor = getApartmentDiversityFactor(apartmentCount);
+
     let updated = 0;
     for (const item of items) {
       if (!item.apartmentTemplate) continue;
@@ -38,14 +43,15 @@ export async function POST(
       );
 
       const calculatedConnectedLoad = totalConnectedLoadVA / 1000;
-      const calculatedMaxDemand = calculatedConnectedLoad * 0.4;
+      const calculatedMaxDemand = calculatedConnectedLoad * diversityFactor;
       const isThreePhase = template.phases === 3;
 
       let calculatedCurrent: number;
       if (isThreePhase) {
         calculatedCurrent = calculatedMaxDemand / (Math.sqrt(3) * voltageKv * powerFactor);
       } else {
-        calculatedCurrent = calculatedMaxDemand / (voltageKv * powerFactor);
+        // 1-phase: use V_LN = V_LL / √3 (e.g. 230V for a 400V system)
+        calculatedCurrent = calculatedMaxDemand / ((voltageKv / Math.sqrt(3)) * powerFactor);
       }
 
       const sizing = sizeCableAndBreaker(calculatedCurrent, isThreePhase, {
@@ -53,6 +59,7 @@ export async function POST(
         insulation: "XLPE",
         ambientTemp: 30,
         groupingCount: 1,
+        installMethod: item.installMethod ?? "C",
       });
 
       await db.floorItem.update({
@@ -68,7 +75,7 @@ export async function POST(
       updated++;
     }
 
-    return NextResponse.json({ success: true, updated });
+    return NextResponse.json({ success: true, updated, diversityFactor });
   } catch (error) {
     console.error("Recalculate Building Error:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });

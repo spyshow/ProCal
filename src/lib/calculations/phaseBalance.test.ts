@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { phaseBalance } from './phaseBalance';
-import type { BuildingLoad, FloorItem, Project } from '@/types';
+import type { BuildingLoad, FloorItem, LoadLibraryItem, Project } from '@/types';
 
 /**
  * Per-phase load balancing tests for phaseBalance.ts.

@@ -49,13 +49,6 @@ function CalculatorContent() {
     loadLibraryItemId: '',
     customKw: '15',
   });
-  const [confirmDialog, setConfirmDialog] = useState<{
-    open: boolean;
-    title: string;
-    message: string;
-    onConfirm: () => void;
-  }>({ open: false, title: '', message: '', onConfirm: () => {} });
-
   const loadProject = useCallback(async () => {
     if (!selectedProjectId) {
       setLoading(false);
@@ -195,16 +188,13 @@ function CalculatorContent() {
   );
 
   // Per-building aggregate balance (all floor items + building loads).
-  // This computes phase assignments for ALL 1-phase loads across the building.
-  const allBuildingItems: any[] = [
+  // Single combined balance so 1-phase loads auto-assign across the full board,
+  // not within separate groups (which would pile them onto the same phase).
+  const allItems = [
     ...bldg.floorDesigns.flatMap((fd) => fd.items),
-    ...(bldg.buildingLoads || []).map((bl: any) => ({
-      ...bl,
-      type: 'BUILDING_LOAD',
-      calculatedCurrent: 0, // computed by phaseBalance from library power×qty
-    })),
+    ...(bldg.buildingLoads ?? []),
   ];
-  const buildingBalance = phaseBalance(allBuildingItems as any, project);
+  const buildingBalance = phaseBalance(allItems as any, project);
 
   // Create a map of item ID → assigned phase from building-level balance.
   // This ensures per-floor balance uses the building-level assignments.
@@ -218,12 +208,16 @@ function CalculatorContent() {
   const totalConnectedLoad = sortedFloors.reduce(
     (sum, fd) => sum + fd.items.reduce((s, i) => s + i.calculatedConnectedLoad, 0),
     0
-  );
+  ) + (bldg.buildingLoads ?? []).reduce((sum, bl) => sum + (bl.loadLibraryItem?.power ?? 0) * bl.quantity, 0);
   const totalMaxDemand = sortedFloors.reduce(
     (sum, fd) => sum + fd.items.reduce((s, i) => s + i.calculatedMaxDemand, 0),
     0
-  );
-  const totalCurrent3Ph = totalMaxDemand / (Math.sqrt(3) * (project.voltage / 1000) * project.powerFactor);
+  ) + (bldg.buildingLoads ?? []).reduce((sum, bl) => sum + (bl.loadLibraryItem?.power ?? 0) * bl.quantity, 0);
+  // Building mechanical loads (elevators, fire/booster pumps) carry no inter-load
+  // diversity — worst case they run together — so no demandFactor here. This keeps
+  // Max Demand consistent with the per-phase current (phaseBalance also omits it).
+  // Incomer current = max phase current from the combined building balance (correct for mixed 1φ/3φ boards).
+  const totalCurrent3Ph = buildingBalance.maxPhaseCurrent;
 
   return (
     <div className="p-6 space-y-5 max-w-7xl mx-auto">
@@ -260,17 +254,18 @@ function CalculatorContent() {
               {needsRecalculation ? 'Recalculate Needed' : 'Recalculate All Floors'}
             </button>
             <button
-              onClick={() => {
-                setConfirmDialog({
-                  open: true,
-                  title: 'Rebalance All Floors',
-                  message: 'This will reset all apartment phase assignments to auto mode. Manually pinned phases will be cleared. Continue?',
-                  onConfirm: async () => {
-                    setConfirmDialog((d) => ({ ...d, open: false }));
-                    await fetch(`/api/buildings/${bldg.id}/rebalance`, { method: 'POST' });
+              onClick={async () => {
+                try {
+                  const res = await fetch(`/api/buildings/${bldg.id}/rebalance`, { method: 'POST' });
+                  if (res.ok) {
                     loadProject();
-                  },
-                });
+                  } else {
+                    const err = await res.json().catch(() => ({}));
+                    alert(err.error || 'Rebalance failed');
+                  }
+                } catch (e) {
+                  alert('Network error during rebalance');
+                }
               }}
               className="group flex items-center gap-2 px-4 py-2 rounded-lg bg-teal-600 hover:bg-teal-500 text-white text-sm font-semibold transition-colors"
             >
@@ -400,8 +395,8 @@ function CalculatorContent() {
       <div className="space-y-2">
         {sortedFloors.map((fd) => {
           const expanded = expandedFloor === fd.id;
+          const floorConnected = fd.items.reduce((s, i) => s + i.calculatedConnectedLoad, 0);
           const floorDemand = fd.items.reduce((s, i) => s + i.calculatedMaxDemand, 0);
-          const floorCurrent = fd.items.reduce((s, i) => s + i.calculatedCurrent, 0);
           const floorBalance = phaseBalance(fd.items, project, buildingPhaseMap);
 
           return (
@@ -423,7 +418,7 @@ function CalculatorContent() {
                   </span>
                 </div>
                 <span className="text-xs font-mono text-gray-500">
-                  {floorDemand.toFixed(1)} kW / {floorCurrent.toFixed(1)} A
+                  {floorConnected.toFixed(1)} kW / {floorDemand.toFixed(1)} kW demand
                 </span>
                 <span className="text-[10px] font-mono text-gray-400 hidden sm:inline">
                   L1 {floorBalance.phaseCurrent[0].toFixed(0)}A · L2 {floorBalance.phaseCurrent[1].toFixed(0)}A · L3 {floorBalance.phaseCurrent[2].toFixed(0)}A
@@ -798,41 +793,6 @@ function CalculatorContent() {
         })}
       </div>
 
-      {/* Confirm Dialog */}
-      {confirmDialog.open && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div
-            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-            onClick={() => setConfirmDialog((d) => ({ ...d, open: false }))}
-          />
-          <div
-            className="relative bg-gray-900 border border-gray-700 rounded-xl shadow-2xl p-6 w-full max-w-md mx-4"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-center gap-3 mb-4">
-              <div className="flex items-center justify-center w-10 h-10 rounded-full bg-amber-500/10">
-                <AlertTriangle size={20} className="text-amber-500" />
-              </div>
-              <h3 className="text-lg font-semibold text-white">{confirmDialog.title}</h3>
-            </div>
-            <p className="text-sm text-gray-400 mb-6 leading-relaxed">{confirmDialog.message}</p>
-            <div className="flex justify-end gap-3">
-              <button
-                onClick={() => setConfirmDialog((d) => ({ ...d, open: false }))}
-                className="px-4 py-2 rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-300 text-sm font-medium transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={confirmDialog.onConfirm}
-                className="px-4 py-2 rounded-lg bg-teal-600 hover:bg-teal-500 text-white text-sm font-semibold transition-colors"
-              >
-                Confirm
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

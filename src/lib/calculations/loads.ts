@@ -14,7 +14,7 @@ export function getApartmentDiversityFactor(count: number): number {
 
 /**
  * Calculates current (Amperes) for a three-phase system.
- * Power in kVA or kW (if kW, it will divide by powerFactor to get kVA).
+ * Power in kVA. Caller must convert kW → kVA (divide by powerFactor) before passing.
  */
 export function calculateThreePhaseCurrent(
   powerKva: number,
@@ -42,8 +42,9 @@ export const STANDARD_TRANSFORMERS = [100, 160, 250, 400, 630, 800, 1000, 1250, 
 
 /**
  * Sizes the transformer to the next standard rating with an optional safety margin.
- * When perPhaseKva is provided, uses the max-loaded phase (transformer is limited
- * by its most-loaded winding under imbalance). Falls back to the lumped total.
+ * When perPhaseKva is provided, uses max-loaded phase × 3 (a 3-phase transformer
+ * rated at S kVA delivers S/3 kVA per winding; the most-loaded winding limits it).
+ * Falls back to the lumped total.
  */
 export function sizeTransformer(
   demandKva: number,
@@ -51,7 +52,7 @@ export function sizeTransformer(
   perPhaseKva?: [number, number, number]
 ): number {
   const effectiveDemand = perPhaseKva
-    ? Math.max(perPhaseKva[0], perPhaseKva[1], perPhaseKva[2])
+    ? Math.max(...perPhaseKva) * 3   // max phase × 3 = minimum 3-phase kVA
     : demandKva;
   const targetKva = effectiveDemand * safetyMargin;
   const match = STANDARD_TRANSFORMERS.find((rating) => rating >= targetKva);

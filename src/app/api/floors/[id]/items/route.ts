@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getSessionUser } from "@/lib/auth";
 import { sizeCableAndBreaker } from "@/lib/calculations/cables";
+import { getApartmentDiversityFactor } from "@/lib/calculations/loads";
 
 export async function POST(
   request: Request,
@@ -60,14 +61,19 @@ export async function POST(
       );
 
       calculatedConnectedLoad = totalConnectedLoadVA / 1000; // Convert to kW
-      calculatedMaxDemand = calculatedConnectedLoad * 0.4; // Demand factor 0.4
+      // Apply IEC diversity factor based on total apartment count in building.
+      const aptCount = await db.floorItem.count({
+        where: { floorDesign: { buildingId: floorDesign.buildingId }, type: "APARTMENT" },
+      });
+      calculatedMaxDemand = calculatedConnectedLoad * getApartmentDiversityFactor(aptCount);
 
       // Phase-aware current calculation (kW-based, PF applied)
       const isThreePhase = template.phases === 3;
       if (isThreePhase) {
         calculatedCurrent = calculatedMaxDemand / (Math.sqrt(3) * voltageKv * powerFactor);
       } else {
-        calculatedCurrent = calculatedMaxDemand / (voltageKv * powerFactor);
+        // 1-phase: use V_LN = V_LL / √3 (e.g. 230V for a 400V system)
+        calculatedCurrent = calculatedMaxDemand / ((voltageKv / Math.sqrt(3)) * powerFactor);
       }
 
       // Size breaker and cable based on calculated current
@@ -76,6 +82,7 @@ export async function POST(
         insulation: "XLPE",
         ambientTemp: 30,
         groupingCount: 1,
+        installMethod: "C",
       });
       breakerSize = `${sizing.breakerSize}A`;
       cableSize = `${sizing.cableSize} mm²`;
@@ -107,6 +114,7 @@ export async function POST(
         insulation: "XLPE",
         ambientTemp: 30,
         groupingCount: 2,
+        installMethod: "C",
       });
 
       breakerSize = `${sizing.breakerSize}A`;
@@ -139,6 +147,7 @@ export async function POST(
         insulation: "XLPE",
         ambientTemp: 30,
         groupingCount: 2,
+        installMethod: "C",
       });
 
       breakerSize = `${sizing.breakerSize}A`;

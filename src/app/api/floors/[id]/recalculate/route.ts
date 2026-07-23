@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { sizeCableAndBreaker } from "@/lib/calculations/cables";
+import { getApartmentDiversityFactor } from "@/lib/calculations/loads";
 
 export async function POST(
   request: Request,
@@ -20,6 +21,15 @@ export async function POST(
     const voltageKv = project.voltage / 1000;
     const powerFactor = project.powerFactor;
 
+    // Get total apartment count in the building for diversity factor.
+    const totalAptCount = await db.floorItem.count({
+      where: {
+        floorDesign: { buildingId: floorDesign.buildingId },
+        type: "APARTMENT",
+      },
+    });
+    const diversityFactor = getApartmentDiversityFactor(totalAptCount);
+
     const items = await db.floorItem.findMany({
       where: { floorDesignId },
       include: { apartmentTemplate: { include: { rooms: true } } },
@@ -35,14 +45,15 @@ export async function POST(
       );
 
       const calculatedConnectedLoad = totalConnectedLoadVA / 1000;
-      const calculatedMaxDemand = calculatedConnectedLoad * 0.4;
+      const calculatedMaxDemand = calculatedConnectedLoad * diversityFactor;
       const isThreePhase = template.phases === 3;
 
       let calculatedCurrent: number;
       if (isThreePhase) {
         calculatedCurrent = calculatedMaxDemand / (Math.sqrt(3) * voltageKv * powerFactor);
       } else {
-        calculatedCurrent = calculatedMaxDemand / (voltageKv * powerFactor);
+        // 1-phase: use V_LN = V_LL / √3 (e.g. 230V for a 400V system)
+        calculatedCurrent = calculatedMaxDemand / ((voltageKv / Math.sqrt(3)) * powerFactor);
       }
 
       const sizing = sizeCableAndBreaker(calculatedCurrent, isThreePhase, {
@@ -50,6 +61,7 @@ export async function POST(
         insulation: "XLPE",
         ambientTemp: 30,
         groupingCount: 1,
+        installMethod: item.installMethod ?? "C",
       });
 
       await db.floorItem.update({
@@ -65,7 +77,7 @@ export async function POST(
       updated++;
     }
 
-    return NextResponse.json({ success: true, updated });
+    return NextResponse.json({ success: true, updated, diversityFactor });
   } catch (error) {
     console.error("Recalculate Error:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });

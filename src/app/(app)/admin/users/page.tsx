@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from "react";
-import { Users, ShieldCheck, ShieldOff, Plus, Minus } from "lucide-react";
+import { Users, ShieldCheck, ShieldOff, Plus, Minus, UserPlus, X } from "lucide-react";
 
 type User = {
   id: string;
@@ -14,11 +14,16 @@ type User = {
   _count: { projects: number };
 };
 
+const EMPTY_FORM = { username: "", name: "", password: "", role: "USER", credits: 0 };
+
 export default function AdminUsersPage() {
   const [users, setUsers] = useState<User[]>([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showCreate, setShowCreate] = useState(false);
+  const [form, setForm] = useState(EMPTY_FORM);
+  const [creating, setCreating] = useState(false);
 
   async function load(q = "") {
     setLoading(true);
@@ -45,15 +50,75 @@ export default function AdminUsersPage() {
     }
   }
 
+  async function create(e: React.FormEvent) {
+    e.preventDefault();
+    setCreating(true);
+    setError(null);
+    const res = await fetch("/api/admin/users", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(form),
+    });
+    if (res.ok) {
+      const user: User = await res.json();
+      setUsers((prev) => [user, ...prev]);
+      setForm(EMPTY_FORM);
+      setShowCreate(false);
+    } else {
+      const body = await res.json().catch(() => ({}));
+      setError(body.error || `Create failed (${res.status})`);
+    }
+    setCreating(false);
+  }
+
   return (
     <div className="p-6 max-w-5xl mx-auto space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-white flex items-center gap-2">
-          <Users size={22} className="text-orange-500" />
-          Users
-        </h1>
-        <p className="text-sm text-gray-400 mt-1">Manage roles, credits, and access.</p>
+        <div className="flex items-center justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-bold text-white flex items-center gap-2">
+              <Users size={22} className="text-orange-500" />
+              Users
+            </h1>
+            <p className="text-sm text-gray-400 mt-1">Manage roles, credits, and access.</p>
+          </div>
+          <button
+            onClick={() => setShowCreate((v) => !v)}
+            className="flex items-center gap-2 rounded-lg bg-orange-500 px-3 py-2 text-sm font-medium text-white hover:bg-orange-600 transition-colors"
+          >
+            {showCreate ? <X size={16} /> : <UserPlus size={16} />}
+            {showCreate ? "Cancel" : "Add User"}
+          </button>
+        </div>
       </div>
+
+      {showCreate && (
+        <form onSubmit={create} className="grid gap-3 rounded-xl border border-gray-800 bg-gray-900/40 p-4 sm:grid-cols-2 lg:grid-cols-5">
+          <input required placeholder="Username" value={form.username}
+            onChange={(e) => setForm({ ...form, username: e.target.value })}
+            className="rounded-lg border border-gray-700 bg-gray-900 px-3 py-2 text-sm text-gray-200 placeholder-gray-500 focus:outline-none focus:border-orange-500" />
+          <input required placeholder="Name" value={form.name}
+            onChange={(e) => setForm({ ...form, name: e.target.value })}
+            className="rounded-lg border border-gray-700 bg-gray-900 px-3 py-2 text-sm text-gray-200 placeholder-gray-500 focus:outline-none focus:border-orange-500" />
+          <input required type="password" placeholder="Password (min 6)" value={form.password}
+            onChange={(e) => setForm({ ...form, password: e.target.value })}
+            className="rounded-lg border border-gray-700 bg-gray-900 px-3 py-2 text-sm text-gray-200 placeholder-gray-500 focus:outline-none focus:border-orange-500" />
+          <select value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })}
+            className="rounded-lg border border-gray-700 bg-gray-900 px-3 py-2 text-sm text-gray-200 focus:outline-none focus:border-orange-500">
+            <option value="USER">USER</option>
+            <option value="ADMIN">ADMIN</option>
+          </select>
+          <div className="flex gap-2">
+            <input type="number" min={0} placeholder="Credits" value={form.credits}
+              onChange={(e) => setForm({ ...form, credits: parseInt(e.target.value) || 0 })}
+              className="w-full rounded-lg border border-gray-700 bg-gray-900 px-3 py-2 text-sm text-gray-200 placeholder-gray-500 focus:outline-none focus:border-orange-500" />
+            <button type="submit" disabled={creating}
+              className="rounded-lg bg-orange-500 px-4 py-2 text-sm font-medium text-white hover:bg-orange-600 disabled:opacity-50 transition-colors">
+              {creating ? "…" : "Create"}
+            </button>
+          </div>
+        </form>
+      )}
 
       {error && (
         <p className="text-sm text-red-400 bg-red-500/10 rounded-lg px-3 py-2">{error}</p>

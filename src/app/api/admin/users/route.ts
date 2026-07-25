@@ -1,6 +1,51 @@
 import { NextResponse } from "next/server";
+import bcrypt from "bcryptjs";
 import { db } from "@/lib/db";
 import { requireAdmin } from "@/lib/auth";
+
+export async function POST(request: Request) {
+  try {
+    const gate = await requireAdmin();
+    if (gate instanceof NextResponse) return gate;
+
+    const { username, password, name, role, credits } = await request.json();
+
+    if (!username || !password || !name) {
+      return NextResponse.json({ error: "Username, password, and name are required" }, { status: 400 });
+    }
+    if (username.length < 3) {
+      return NextResponse.json({ error: "Username must be at least 3 characters" }, { status: 400 });
+    }
+    if (password.length < 6) {
+      return NextResponse.json({ error: "Password must be at least 6 characters" }, { status: 400 });
+    }
+
+    const existing = await db.user.findUnique({ where: { username } });
+    if (existing) {
+      return NextResponse.json({ error: "Username already taken" }, { status: 409 });
+    }
+
+    const passwordHash = await bcrypt.hash(password, 10);
+    const user = await db.user.create({
+      data: {
+        username,
+        name,
+        passwordHash,
+        role: role === "ADMIN" ? "ADMIN" : "USER",
+        credits: Number.isInteger(credits) && credits >= 0 ? credits : 0,
+      },
+      select: {
+        id: true, username: true, name: true, role: true, credits: true, disabled: true,
+        createdAt: true, _count: { select: { projects: true } },
+      },
+    });
+
+    return NextResponse.json(user);
+  } catch (error) {
+    console.error("POST Admin User Error:", error);
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+  }
+}
 
 export async function GET(request: Request) {
   try {

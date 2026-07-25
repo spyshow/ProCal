@@ -1,5 +1,6 @@
 import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
+import { NextResponse } from "next/server";
 import { db } from "./db";
 
 const JWT_SECRET = new TextEncoder().encode(
@@ -37,10 +38,34 @@ export async function getSessionUser() {
   try {
     const user = await db.user.findUnique({
       where: { id: payload.userId },
-      select: { id: true, username: true, name: true },
+      select: { id: true, username: true, name: true, role: true },
     });
     return user;
   } catch {
     return null;
   }
+}
+
+/**
+ * Guard for admin-only routes. Returns either the authenticated admin user, or
+ * a NextResponse to short-circuit the handler:
+ *   - 401 if not logged in
+ *   - 403 if logged in but not an ADMIN
+ *
+ * Usage:
+ *   const gate = await requireAdmin();
+ *   if (gate instanceof NextResponse) return gate;
+ *   // gate is the admin user here
+ */
+export async function requireAdmin(): Promise<
+  { id: string; username: string; name: string; role: string } | NextResponse
+> {
+  const user = await getSessionUser();
+  if (!user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  if (user.role !== "ADMIN") {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+  return user;
 }

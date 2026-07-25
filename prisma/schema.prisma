@@ -12,6 +12,8 @@ model User {
   username     String    @unique
   passwordHash String
   name         String
+  role         String    @default("USER") // "USER" | "ADMIN" — gates /api/admin/*
+  credits      Int       @default(0)      // project credits; decremented on project create
   createdAt    DateTime  @default(now())
   projects     Project[]
 }

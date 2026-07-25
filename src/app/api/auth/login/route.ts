@@ -26,6 +26,10 @@ export async function POST(request: Request) {
       );
     }
 
+    if (user.disabled) {
+      return NextResponse.json({ error: "Account disabled" }, { status: 403 });
+    }
+
     // Verify password
     const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
     if (!isPasswordValid) {

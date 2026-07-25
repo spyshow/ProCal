@@ -1,7 +1,7 @@
 'use client';
 
 import Link from "next/link";
-import { Shield, Database } from "lucide-react";
+import { Shield, Database, Users } from "lucide-react";
 
 const ADMIN_LINKS = [
   {
@@ -9,6 +9,12 @@ const ADMIN_LINKS = [
     href: "/admin/breakers",
     icon: Database,
     description: "Manage breaker families, models, and bulk import manufacturer CSVs.",
+  },
+  {
+    label: "Users",
+    href: "/admin/users",
+    icon: Users,
+    description: "Manage roles, grant project credits, and enable or disable accounts.",
   },
 ];
 

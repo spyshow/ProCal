@@ -14,6 +14,7 @@ model User {
   name         String
   role         String    @default("USER") // "USER" | "ADMIN" — gates /api/admin/*
   credits      Int       @default(0)      // project credits; decremented on project create
+  disabled     Boolean   @default(false)  // soft-delete; preserves project history
   createdAt    DateTime  @default(now())
   projects     Project[]
 }

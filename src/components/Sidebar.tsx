@@ -270,6 +270,13 @@ export default function Sidebar() {
   const pathname = usePathname();
   const router   = useRouter();
   const [loggingOut, setLoggingOut] = useState(false);
+  const [currentUser, setCurrentUser] = useState<{ name: string; username: string; role: string } | null>(null);
+
+  useEffect(() => {
+    fetch("/api/auth/me", { cache: "no-store" })
+      .then((r) => r.ok ? r.json() : null)
+      .then((data) => { if (data?.user) setCurrentUser(data.user); });
+  }, []);
 
   const handleLogout = async () => {
     setLoggingOut(true);
@@ -354,15 +361,17 @@ export default function Sidebar() {
         <div className="px-3 flex items-center gap-3">
           {/* Avatar placeholder */}
           <div className="w-8 h-8 rounded-lg bg-orange-600/30 border border-orange-500/30 flex items-center justify-center flex-shrink-0">
-            <span className="text-xs font-bold text-orange-400">E</span>
+            <span className="text-xs font-bold text-orange-400">
+              {currentUser?.name?.[0]?.toUpperCase() ?? "?"}
+            </span>
           </div>
 
           <div className="flex-1 min-w-0">
             <p className="text-xs font-semibold text-gray-200 truncate leading-tight">
-              Engineer
+              {currentUser?.name ?? "…"}
             </p>
             <p className="text-[10px] text-gray-500 truncate leading-tight">
-              ProCal User
+              {currentUser?.role === "ADMIN" ? "Admin" : "ProCal User"}
             </p>
           </div>
 

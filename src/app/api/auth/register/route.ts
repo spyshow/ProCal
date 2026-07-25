@@ -51,6 +51,7 @@ export async function POST(request: Request) {
     const token = await signJWT({
       userId: user.id,
       username: user.username,
+      role: user.role,
     });
 
     const response = NextResponse.json({

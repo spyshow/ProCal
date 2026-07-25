@@ -3,9 +3,10 @@ import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { db } from "./db";
 
-const JWT_SECRET = new TextEncoder().encode(
-  process.env.JWT_SECRET || "super-secret-electrical-key-12345"
-);
+if (!process.env.JWT_SECRET) {
+  throw new Error("JWT_SECRET env var is required");
+}
+const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET);
 
 export async function signJWT(payload: { userId: string; username: string }) {
   return new SignJWT(payload)

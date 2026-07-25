@@ -18,11 +18,14 @@ export default function AdminUsersPage() {
   const [users, setUsers] = useState<User[]>([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   async function load(q = "") {
     setLoading(true);
+    setError(null);
     const res = await fetch(`/api/admin/users?search=${encodeURIComponent(q)}`);
     if (res.ok) setUsers(await res.json());
+    else setError(`Failed to load users (${res.status})`);
     setLoading(false);
   }
 
@@ -37,6 +40,8 @@ export default function AdminUsersPage() {
     if (res.ok) {
       const updated: User = await res.json();
       setUsers((prev) => prev.map((u) => (u.id === id ? { ...u, ...updated } : u)));
+    } else {
+      setError(`Update failed (${res.status})`);
     }
   }
 
@@ -49,6 +54,10 @@ export default function AdminUsersPage() {
         </h1>
         <p className="text-sm text-gray-400 mt-1">Manage roles, credits, and access.</p>
       </div>
+
+      {error && (
+        <p className="text-sm text-red-400 bg-red-500/10 rounded-lg px-3 py-2">{error}</p>
+      )}
 
       <input
         type="search"

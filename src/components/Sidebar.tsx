@@ -33,6 +33,7 @@ interface NavItem {
   label: string;
   href: string;
   icon: React.ElementType;
+  adminOnly?: boolean;
 }
 
 // ---------------------------------------------------------------------------
@@ -49,7 +50,7 @@ const NAV_ITEMS: NavItem[] = [
   { label: "Coordination",     href: "/coordination",   icon: Shield          },
   { label: "SLD Designer",     href: "/sld",            icon: GitBranch       },
   { label: "Reports",          href: "/reports",        icon: FileText        },
-  { label: "Admin",            href: "/admin",          icon: Shield          },
+  { label: "Admin",            href: "/admin",          icon: Shield, adminOnly: true },
   { label: "Settings",         href: "/settings",       icon: Settings        },
 ];
 
@@ -96,7 +97,7 @@ function ProjectSelector() {
     setFetching(true);
     setError(null);
     try {
-      const res = await fetch("/api/projects");
+      const res = await fetch("/api/projects", { cache: "no-store" });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       // Support both { projects: [] } envelope and bare array
@@ -270,6 +271,13 @@ export default function Sidebar() {
   const pathname = usePathname();
   const router   = useRouter();
   const [loggingOut, setLoggingOut] = useState(false);
+  const [currentUser, setCurrentUser] = useState<{ name: string; username: string; role: string } | null>(null);
+
+  useEffect(() => {
+    fetch("/api/auth/me", { cache: "no-store" })
+      .then((r) => r.ok ? r.json() : null)
+      .then((data) => { if (data?.user) setCurrentUser(data.user); });
+  }, []);
 
   const handleLogout = async () => {
     setLoggingOut(true);
@@ -278,7 +286,12 @@ export default function Sidebar() {
     } catch (err) {
       console.error("Logout error:", err);
     } finally {
-      router.push("/login");
+      // Clear per-user client state so the next login doesn't inherit it.
+      localStorage.removeItem("selected_project_id");
+      localStorage.removeItem("preferred_manufacturer");
+      // Hard navigation tears down the React tree (incl. ProjectContext + cached
+      // project lists) so no previous user's data survives the session switch.
+      window.location.href = "/login";
     }
   };
 
@@ -311,7 +324,7 @@ export default function Sidebar() {
         <p className="px-1 pt-1 pb-2 text-[10px] font-semibold uppercase tracking-widest text-gray-500">
           Navigation
         </p>
-        {NAV_ITEMS.map(({ label, href, icon: Icon }) => {
+        {NAV_ITEMS.filter((item) => !item.adminOnly || currentUser?.role === "ADMIN").map(({ label, href, icon: Icon }) => {
           const isActive = pathname === href || pathname.startsWith(`${href}/`);
           return (
             <Link
@@ -349,15 +362,17 @@ export default function Sidebar() {
         <div className="px-3 flex items-center gap-3">
           {/* Avatar placeholder */}
           <div className="w-8 h-8 rounded-lg bg-orange-600/30 border border-orange-500/30 flex items-center justify-center flex-shrink-0">
-            <span className="text-xs font-bold text-orange-400">E</span>
+            <span className="text-xs font-bold text-orange-400">
+              {currentUser?.name?.[0]?.toUpperCase() ?? "?"}
+            </span>
           </div>
 
           <div className="flex-1 min-w-0">
             <p className="text-xs font-semibold text-gray-200 truncate leading-tight">
-              Engineer
+              {currentUser?.name ?? "…"}
             </p>
             <p className="text-[10px] text-gray-500 truncate leading-tight">
-              ProCal User
+              {currentUser?.role === "ADMIN" ? "Admin" : "ProCal User"}
             </p>
           </div>
 

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { getSessionUser } from "@/lib/auth";
+import { requireAdmin } from "@/lib/auth";
 import { upsertBreakerFamilies, getFamilyKey } from "@/lib/breaker-families";
 
 interface RouteParams {
@@ -9,8 +9,8 @@ interface RouteParams {
 
 export async function GET(request: Request, { params }: RouteParams) {
   try {
-    const user = await getSessionUser();
-    if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    const gate = await requireAdmin();
+    if (gate instanceof NextResponse) return gate;
 
     const { id } = await params;
     const item = await db.equipmentCatalog.findUnique({
@@ -47,8 +47,8 @@ function parseBreaker(data: Record<string, unknown>) {
 
 export async function PUT(request: Request, { params }: RouteParams) {
   try {
-    const user = await getSessionUser();
-    if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    const gate = await requireAdmin();
+    if (gate instanceof NextResponse) return gate;
 
     const { id } = await params;
     const data = await request.json();
@@ -76,8 +76,8 @@ export async function PUT(request: Request, { params }: RouteParams) {
 
 export async function DELETE(request: Request, { params }: RouteParams) {
   try {
-    const user = await getSessionUser();
-    if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    const gate = await requireAdmin();
+    if (gate instanceof NextResponse) return gate;
 
     const { id } = await params;
     await db.equipmentCatalog.delete({ where: { id } });

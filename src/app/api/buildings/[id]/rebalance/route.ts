@@ -1,11 +1,10 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getSessionUser } from "@/lib/auth";
-import { phaseBalance } from "@/lib/calculations/phaseBalance";
 
 /**
- * Reset all apartment phase assignments to auto (null) for the selected building.
- * This clears any manually pinned phases so the UI shows auto-computed assignments.
+ * Reset all apartment phase pins to auto (null) for the selected building.
+ * The calculator page recomputes auto-assignments on-the-fly via buildingPhaseMap.
  */
 export async function POST(
   request: Request,
@@ -24,10 +23,9 @@ export async function POST(
       include: {
         project: true,
         floorDesigns: {
-          include: {
-            items: true,
-          },
+          include: { items: true },
         },
+        buildingLoads: true,
       },
     });
 
@@ -35,24 +33,40 @@ export async function POST(
       return NextResponse.json({ error: "Building not found" }, { status: 404 });
     }
 
-    // Reset all floor-item assignedPhase to null (auto) for apartment items.
+    // Reset ALL floor-item assignedPhase to null (auto) for apartment items.
     const allFloorItems = building.floorDesigns.flatMap((fd) => fd.items);
-    const pinnedItems = allFloorItems.filter(
+    const pinnedFloorItems = allFloorItems.filter(
       (item) => item.assignedPhase != null && item.type === 'APARTMENT'
     );
 
-    if (pinnedItems.length > 0) {
-      await db.$transaction(
-        pinnedItems.map((item) =>
-          db.floorItem.update({
-            where: { id: item.id },
-            data: { assignedPhase: null },
-          })
-        )
-      );
+    // Also reset building-load assignedPhase to null.
+    const pinnedBuildingLoads = building.buildingLoads.filter(
+      (bl) => bl.assignedPhase != null
+    );
+
+    const updates = [
+      ...pinnedFloorItems.map((item) =>
+        db.floorItem.update({
+          where: { id: item.id },
+          data: { assignedPhase: null },
+        })
+      ),
+      ...pinnedBuildingLoads.map((bl) =>
+        db.buildingLoad.update({
+          where: { id: bl.id },
+          data: { assignedPhase: null },
+        })
+      ),
+    ];
+
+    if (updates.length > 0) {
+      await db.$transaction(updates);
     }
 
-    return NextResponse.json({ success: true, reset: pinnedItems.length });
+    return NextResponse.json({
+      success: true,
+      reset: updates.length,
+    });
   } catch (error) {
     console.error("POST Rebalance Building Error:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });

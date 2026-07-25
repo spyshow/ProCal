@@ -57,30 +57,46 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Project name is required" }, { status: 400 });
     }
 
-    const project = await db.project.create({
-      data: {
-        name,
-        client: client || "",
-        consultant: consultant || "",
-        contractor: contractor || "",
-        location: location || "",
-        engineer: engineer || user.name,
-        date: date || new Date().toISOString().split("T")[0],
-        voltage: parseFloat(voltage) || 400,
-        frequency: parseFloat(frequency) || 50,
-        powerFactor: parseFloat(powerFactor) || 0.85,
-        maxDemandFactor: parseFloat(maxDemandFactor) || 0.8,
-        notes: notes || "",
-        preferredManufacturer: preferredManufacturer || "MIXED",
-        maxVoltageDropLighting: parseFloat(maxVoltageDropLighting) || 3,
-        maxVoltageDropPower: parseFloat(maxVoltageDropPower) || 5,
-        calculationStandard:
-          calculationStandard === "NEMA" || calculationStandard === "IEC"
-            ? calculationStandard
-            : "IEC",
-        userId: user.id,
-      },
-    });
+    // Admins bypass the credit gate (they manage the system).
+    if (user.role !== "ADMIN") {
+      const fresh = await db.user.findUnique({ where: { id: user.id }, select: { credits: true } });
+      if (!fresh || fresh.credits < 1) {
+        return NextResponse.json({ error: "No credits remaining" }, { status: 402 });
+      }
+    }
+
+    const projectData = {
+      name,
+      client: client || "",
+      consultant: consultant || "",
+      contractor: contractor || "",
+      location: location || "",
+      engineer: engineer || user.name,
+      date: date || new Date().toISOString().split("T")[0],
+      voltage: parseFloat(voltage) || 400,
+      frequency: parseFloat(frequency) || 50,
+      powerFactor: parseFloat(powerFactor) || 0.85,
+      maxDemandFactor: parseFloat(maxDemandFactor) || 0.8,
+      notes: notes || "",
+      preferredManufacturer: preferredManufacturer || "MIXED",
+      maxVoltageDropLighting: parseFloat(maxVoltageDropLighting) || 3,
+      maxVoltageDropPower: parseFloat(maxVoltageDropPower) || 5,
+      calculationStandard:
+        calculationStandard === "NEMA" || calculationStandard === "IEC"
+          ? calculationStandard
+          : "IEC",
+      userId: user.id,
+    };
+
+    let project;
+    if (user.role === "ADMIN") {
+      project = await db.project.create({ data: projectData });
+    } else {
+      [, project] = await db.$transaction([
+        db.user.update({ where: { id: user.id }, data: { credits: { decrement: 1 } } }),
+        db.project.create({ data: projectData }),
+      ]);
+    }
 
     return NextResponse.json(project);
   } catch (error) {

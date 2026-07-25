@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from "react";
-import { Users, ShieldCheck, ShieldOff, Plus, Minus, UserPlus, X } from "lucide-react";
+import { Users, UserPlus, Pencil, X } from "lucide-react";
 
 type User = {
   id: string;
@@ -14,16 +14,49 @@ type User = {
   _count: { projects: number };
 };
 
-const EMPTY_FORM = { username: "", name: "", password: "", role: "USER", credits: 0 };
+const EMPTY_CREATE = { username: "", name: "", password: "", role: "USER", credits: 0 };
+
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div className="flex flex-col gap-1">
+      <label className="text-xs font-medium text-gray-400">{label}</label>
+      {children}
+    </div>
+  );
+}
+
+const INPUT = "rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 text-sm text-gray-200 placeholder-gray-500 focus:outline-none focus:border-orange-500 w-full";
+const SELECT = INPUT;
+
+function Modal({ title, onClose, children }: { title: string; onClose: () => void; children: React.ReactNode }) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+      <div className="w-full max-w-md rounded-2xl border border-gray-800 bg-gray-950 p-6 shadow-xl">
+        <div className="flex items-center justify-between mb-5">
+          <h2 className="text-base font-semibold text-white">{title}</h2>
+          <button onClick={onClose} className="text-gray-500 hover:text-gray-300"><X size={18} /></button>
+        </div>
+        {children}
+      </div>
+    </div>
+  );
+}
 
 export default function AdminUsersPage() {
   const [users, setUsers] = useState<User[]>([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Create modal
   const [showCreate, setShowCreate] = useState(false);
-  const [form, setForm] = useState(EMPTY_FORM);
+  const [createForm, setCreateForm] = useState(EMPTY_CREATE);
   const [creating, setCreating] = useState(false);
+
+  // Edit modal
+  const [editUser, setEditUser] = useState<User | null>(null);
+  const [editForm, setEditForm] = useState({ role: "USER", credits: 0, disabled: false });
+  const [saving, setSaving] = useState(false);
 
   async function load(q = "") {
     setLoading(true);
@@ -36,33 +69,24 @@ export default function AdminUsersPage() {
 
   useEffect(() => { load(); }, []);
 
-  async function patch(id: string, data: Partial<Pick<User, "role" | "credits" | "disabled">>) {
-    const res = await fetch(`/api/admin/users/${id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-    });
-    if (res.ok) {
-      const updated: User = await res.json();
-      setUsers((prev) => prev.map((u) => (u.id === id ? { ...u, ...updated } : u)));
-    } else {
-      setError(`Update failed (${res.status})`);
-    }
+  function openEdit(u: User) {
+    setEditUser(u);
+    setEditForm({ role: u.role, credits: u.credits, disabled: u.disabled });
   }
 
-  async function create(e: React.FormEvent) {
+  async function submitCreate(e: React.FormEvent) {
     e.preventDefault();
     setCreating(true);
     setError(null);
     const res = await fetch("/api/admin/users", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form),
+      body: JSON.stringify(createForm),
     });
     if (res.ok) {
-      const user: User = await res.json();
-      setUsers((prev) => [user, ...prev]);
-      setForm(EMPTY_FORM);
+      const created: User = await res.json();
+      setUsers((prev) => [created, ...prev]);
+      setCreateForm(EMPTY_CREATE);
       setShowCreate(false);
     } else {
       const body = await res.json().catch(() => ({}));
@@ -71,58 +95,45 @@ export default function AdminUsersPage() {
     setCreating(false);
   }
 
+  async function submitEdit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!editUser) return;
+    setSaving(true);
+    setError(null);
+    const res = await fetch(`/api/admin/users/${editUser.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(editForm),
+    });
+    if (res.ok) {
+      const updated: User = await res.json();
+      setUsers((prev) => prev.map((u) => (u.id === editUser.id ? { ...u, ...updated } : u)));
+      setEditUser(null);
+    } else {
+      setError(`Update failed (${res.status})`);
+    }
+    setSaving(false);
+  }
+
   return (
     <div className="p-6 max-w-5xl mx-auto space-y-6">
-      <div>
-        <div className="flex items-center justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-bold text-white flex items-center gap-2">
-              <Users size={22} className="text-orange-500" />
-              Users
-            </h1>
-            <p className="text-sm text-gray-400 mt-1">Manage roles, credits, and access.</p>
-          </div>
-          <button
-            onClick={() => setShowCreate((v) => !v)}
-            className="flex items-center gap-2 rounded-lg bg-orange-500 px-3 py-2 text-sm font-medium text-white hover:bg-orange-600 transition-colors"
-          >
-            {showCreate ? <X size={16} /> : <UserPlus size={16} />}
-            {showCreate ? "Cancel" : "Add User"}
-          </button>
+      <div className="flex items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-white flex items-center gap-2">
+            <Users size={22} className="text-orange-500" />
+            Users
+          </h1>
+          <p className="text-sm text-gray-400 mt-1">Manage roles, credits, and access.</p>
         </div>
+        <button
+          onClick={() => setShowCreate(true)}
+          className="flex items-center gap-2 rounded-lg bg-orange-500 px-3 py-2 text-sm font-medium text-white hover:bg-orange-600 transition-colors"
+        >
+          <UserPlus size={16} /> Add User
+        </button>
       </div>
 
-      {showCreate && (
-        <form onSubmit={create} className="grid gap-3 rounded-xl border border-gray-800 bg-gray-900/40 p-4 sm:grid-cols-2 lg:grid-cols-5">
-          <input required placeholder="Username" value={form.username}
-            onChange={(e) => setForm({ ...form, username: e.target.value })}
-            className="rounded-lg border border-gray-700 bg-gray-900 px-3 py-2 text-sm text-gray-200 placeholder-gray-500 focus:outline-none focus:border-orange-500" />
-          <input required placeholder="Name" value={form.name}
-            onChange={(e) => setForm({ ...form, name: e.target.value })}
-            className="rounded-lg border border-gray-700 bg-gray-900 px-3 py-2 text-sm text-gray-200 placeholder-gray-500 focus:outline-none focus:border-orange-500" />
-          <input required type="password" placeholder="Password (min 6)" value={form.password}
-            onChange={(e) => setForm({ ...form, password: e.target.value })}
-            className="rounded-lg border border-gray-700 bg-gray-900 px-3 py-2 text-sm text-gray-200 placeholder-gray-500 focus:outline-none focus:border-orange-500" />
-          <select value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })}
-            className="rounded-lg border border-gray-700 bg-gray-900 px-3 py-2 text-sm text-gray-200 focus:outline-none focus:border-orange-500">
-            <option value="USER">USER</option>
-            <option value="ADMIN">ADMIN</option>
-          </select>
-          <div className="flex gap-2">
-            <input type="number" min={0} placeholder="Credits" value={form.credits}
-              onChange={(e) => setForm({ ...form, credits: parseInt(e.target.value) || 0 })}
-              className="w-full rounded-lg border border-gray-700 bg-gray-900 px-3 py-2 text-sm text-gray-200 placeholder-gray-500 focus:outline-none focus:border-orange-500" />
-            <button type="submit" disabled={creating}
-              className="rounded-lg bg-orange-500 px-4 py-2 text-sm font-medium text-white hover:bg-orange-600 disabled:opacity-50 transition-colors">
-              {creating ? "…" : "Create"}
-            </button>
-          </div>
-        </form>
-      )}
-
-      {error && (
-        <p className="text-sm text-red-400 bg-red-500/10 rounded-lg px-3 py-2">{error}</p>
-      )}
+      {error && <p className="text-sm text-red-400 bg-red-500/10 rounded-lg px-3 py-2">{error}</p>}
 
       <input
         type="search"
@@ -152,50 +163,20 @@ export default function AdminUsersPage() {
                     <div className="text-xs text-gray-500">{u.username}</div>
                   </td>
                   <td className="px-4 py-3">
-                    <button
-                      onClick={() => patch(u.id, { role: u.role === "ADMIN" ? "USER" : "ADMIN" })}
-                      className={`flex items-center gap-1 rounded px-2 py-1 text-xs font-medium transition-colors ${
-                        u.role === "ADMIN"
-                          ? "bg-orange-500/20 text-orange-400 hover:bg-orange-500/30"
-                          : "bg-gray-800 text-gray-400 hover:bg-gray-700"
-                      }`}
-                    >
-                      {u.role === "ADMIN" ? <ShieldCheck size={12} /> : <ShieldOff size={12} />}
+                    <span className={`rounded px-2 py-0.5 text-xs font-medium ${u.role === "ADMIN" ? "bg-orange-500/20 text-orange-400" : "bg-gray-800 text-gray-400"}`}>
                       {u.role}
-                    </button>
+                    </span>
                   </td>
-                  <td className="px-4 py-3">
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={() => patch(u.id, { credits: Math.max(0, u.credits - 1) })}
-                        disabled={u.credits === 0}
-                        className="rounded p-1 text-gray-500 hover:text-gray-300 disabled:opacity-30"
-                      >
-                        <Minus size={12} />
-                      </button>
-                      <span className="w-6 text-center">{u.credits}</span>
-                      <button
-                        onClick={() => patch(u.id, { credits: u.credits + 1 })}
-                        className="rounded p-1 text-gray-500 hover:text-gray-300"
-                      >
-                        <Plus size={12} />
-                      </button>
-                    </div>
-                  </td>
+                  <td className="px-4 py-3 text-gray-300">{u.credits}</td>
                   <td className="px-4 py-3 text-gray-400">{u._count.projects}</td>
                   <td className="px-4 py-3">
-                    <span className={`rounded px-2 py-0.5 text-xs font-medium ${
-                      u.disabled ? "bg-red-500/20 text-red-400" : "bg-green-500/20 text-green-400"
-                    }`}>
+                    <span className={`rounded px-2 py-0.5 text-xs font-medium ${u.disabled ? "bg-red-500/20 text-red-400" : "bg-green-500/20 text-green-400"}`}>
                       {u.disabled ? "Disabled" : "Active"}
                     </span>
                   </td>
                   <td className="px-4 py-3">
-                    <button
-                      onClick={() => patch(u.id, { disabled: !u.disabled })}
-                      className="text-xs text-gray-500 hover:text-gray-300 transition-colors"
-                    >
-                      {u.disabled ? "Enable" : "Disable"}
+                    <button onClick={() => openEdit(u)} className="text-gray-500 hover:text-orange-400 transition-colors">
+                      <Pencil size={14} />
                     </button>
                   </td>
                 </tr>
@@ -203,6 +184,81 @@ export default function AdminUsersPage() {
             </tbody>
           </table>
         </div>
+      )}
+
+      {showCreate && (
+        <Modal title="Add User" onClose={() => setShowCreate(false)}>
+          <form onSubmit={submitCreate} className="space-y-4">
+            <Field label="Username">
+              <input required className={INPUT} placeholder="e.g. jsmith" value={createForm.username}
+                onChange={(e) => setCreateForm({ ...createForm, username: e.target.value })} />
+            </Field>
+            <Field label="Full Name">
+              <input required className={INPUT} placeholder="e.g. John Smith" value={createForm.name}
+                onChange={(e) => setCreateForm({ ...createForm, name: e.target.value })} />
+            </Field>
+            <Field label="Password (min 6 characters)">
+              <input required type="password" className={INPUT} placeholder="••••••" value={createForm.password}
+                onChange={(e) => setCreateForm({ ...createForm, password: e.target.value })} />
+            </Field>
+            <Field label="Role">
+              <select className={SELECT} value={createForm.role}
+                onChange={(e) => setCreateForm({ ...createForm, role: e.target.value })}>
+                <option value="USER">USER — standard access</option>
+                <option value="ADMIN">ADMIN — full admin access</option>
+              </select>
+            </Field>
+            <Field label="Starting Credits">
+              <input type="number" min={0} className={INPUT} value={createForm.credits}
+                onChange={(e) => setCreateForm({ ...createForm, credits: parseInt(e.target.value) || 0 })} />
+            </Field>
+            <div className="flex justify-end gap-3 pt-2">
+              <button type="button" onClick={() => setShowCreate(false)}
+                className="rounded-lg px-4 py-2 text-sm text-gray-400 hover:text-gray-200 transition-colors">
+                Cancel
+              </button>
+              <button type="submit" disabled={creating}
+                className="rounded-lg bg-orange-500 px-4 py-2 text-sm font-medium text-white hover:bg-orange-600 disabled:opacity-50 transition-colors">
+                {creating ? "Creating…" : "Create User"}
+              </button>
+            </div>
+          </form>
+        </Modal>
+      )}
+
+      {editUser && (
+        <Modal title={`Edit — ${editUser.name}`} onClose={() => setEditUser(null)}>
+          <form onSubmit={submitEdit} className="space-y-4">
+            <Field label="Role">
+              <select className={SELECT} value={editForm.role}
+                onChange={(e) => setEditForm({ ...editForm, role: e.target.value })}>
+                <option value="USER">USER — standard access</option>
+                <option value="ADMIN">ADMIN — full admin access</option>
+              </select>
+            </Field>
+            <Field label="Credits">
+              <input type="number" min={0} className={INPUT} value={editForm.credits}
+                onChange={(e) => setEditForm({ ...editForm, credits: parseInt(e.target.value) || 0 })} />
+            </Field>
+            <Field label="Account Status">
+              <select className={SELECT} value={editForm.disabled ? "disabled" : "active"}
+                onChange={(e) => setEditForm({ ...editForm, disabled: e.target.value === "disabled" })}>
+                <option value="active">Active — user can log in</option>
+                <option value="disabled">Disabled — user cannot log in</option>
+              </select>
+            </Field>
+            <div className="flex justify-end gap-3 pt-2">
+              <button type="button" onClick={() => setEditUser(null)}
+                className="rounded-lg px-4 py-2 text-sm text-gray-400 hover:text-gray-200 transition-colors">
+                Cancel
+              </button>
+              <button type="submit" disabled={saving}
+                className="rounded-lg bg-orange-500 px-4 py-2 text-sm font-medium text-white hover:bg-orange-600 disabled:opacity-50 transition-colors">
+                {saving ? "Saving…" : "Save Changes"}
+              </button>
+            </div>
+          </form>
+        </Modal>
       )}
     </div>
   );

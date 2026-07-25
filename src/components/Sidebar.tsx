@@ -96,7 +96,7 @@ function ProjectSelector() {
     setFetching(true);
     setError(null);
     try {
-      const res = await fetch("/api/projects");
+      const res = await fetch("/api/projects", { cache: "no-store" });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       // Support both { projects: [] } envelope and bare array
@@ -278,7 +278,12 @@ export default function Sidebar() {
     } catch (err) {
       console.error("Logout error:", err);
     } finally {
-      router.push("/login");
+      // Clear per-user client state so the next login doesn't inherit it.
+      localStorage.removeItem("selected_project_id");
+      localStorage.removeItem("preferred_manufacturer");
+      // Hard navigation tears down the React tree (incl. ProjectContext + cached
+      // project lists) so no previous user's data survives the session switch.
+      window.location.href = "/login";
     }
   };
 

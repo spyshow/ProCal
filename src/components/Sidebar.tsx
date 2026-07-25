@@ -33,6 +33,7 @@ interface NavItem {
   label: string;
   href: string;
   icon: React.ElementType;
+  adminOnly?: boolean;
 }
 
 // ---------------------------------------------------------------------------
@@ -49,7 +50,7 @@ const NAV_ITEMS: NavItem[] = [
   { label: "Coordination",     href: "/coordination",   icon: Shield          },
   { label: "SLD Designer",     href: "/sld",            icon: GitBranch       },
   { label: "Reports",          href: "/reports",        icon: FileText        },
-  { label: "Admin",            href: "/admin",          icon: Shield          },
+  { label: "Admin",            href: "/admin",          icon: Shield, adminOnly: true },
   { label: "Settings",         href: "/settings",       icon: Settings        },
 ];
 
@@ -323,7 +324,7 @@ export default function Sidebar() {
         <p className="px-1 pt-1 pb-2 text-[10px] font-semibold uppercase tracking-widest text-gray-500">
           Navigation
         </p>
-        {NAV_ITEMS.map(({ label, href, icon: Icon }) => {
+        {NAV_ITEMS.filter((item) => !item.adminOnly || currentUser?.role === "ADMIN").map(({ label, href, icon: Icon }) => {
           const isActive = pathname === href || pathname.startsWith(`${href}/`);
           return (
             <Link

@@ -55,3 +55,19 @@ Mixing kVA-magnitudes (no PF) with kW-magnitudes (with PF) produces a kVA-neutra
 ---
 
 *Skipped 2026-07-14:* harmonic/THD field on the load model for triplen-neutral sizing (niche — nonlinear-load-heavy buildings; YAGNI for ProCal's current residential/commercial target; the fundamental 2× neutral guard covers the common case).
+
+---
+
+## TODO-3: Admin dashboard signups/projects trend sparkline (P3)
+
+**What:** Add a small inline sparkline to the admin dashboard (`src/app/(admin)/admin/page.tsx`) showing new users and new projects per week. Extend `GET /api/admin/stats` (`src/app/api/admin/stats/route.ts`) to group `User.createdAt` and `Project.createdAt` by week and return time-series arrays alongside the point-in-time counts.
+
+**Why:** The dashboard today answers "how many users now" but not "are we growing." A trend line turns the ops hub from a snapshot into a signal.
+
+**Pros:** Owner sees growth/decline at a glance without querying the DB; small addition on top of the existing stats endpoint.
+
+**Cons:** SQLite has no native date-bucketing helper — needs either raw SQL (`strftime`) or in-app grouping of `createdAt` rows; adds a charting concern the design doc deliberately excluded.
+
+**Context:** Surfaced as expansion E2 in `/plan-ceo-review` 2026-07-25. Deferred because the design doc (`~/.gstack/projects/spyshow-ProCal/Jihad.Kherfan-fix-admin-role-authorization-design-20260725-131304.md`) set "no charts, no date ranges" as an explicit scope constraint for the initial dashboard. Revisit once user count makes a weekly trend meaningful (a handful of users produces a flat, useless line).
+
+**Depends on / blocked by:** None. The stats endpoint and dashboard page it extends are now live on this branch.

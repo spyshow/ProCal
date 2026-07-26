@@ -1,4 +1,5 @@
 import { CABLE_CATALOG, TEMP_DERATING, GROUP_DERATING, CableSpec } from "./cablesData";
+import { METHOD_AMPACITY_FACTORS } from "./installationMethods";
 
 export interface SizingResult {
   cableSize: number;
@@ -25,9 +26,11 @@ export function sizeCableAndBreaker(
     insulation: "PVC" | "XLPE";
     ambientTemp: number;
     groupingCount: number;
+    neutralCurrent?: number;
+    installMethod?: string;
   }
 ): SizingResult {
-  const { material, insulation, ambientTemp, groupingCount } = options;
+  const { material, insulation, ambientTemp, groupingCount, neutralCurrent, installMethod } = options;
 
   // 1. Select breaker size (In >= Ib)
   const breakerSize = STANDARD_BREAKERS.find((rating) => rating >= ib) || STANDARD_BREAKERS[STANDARD_BREAKERS.length - 1];
@@ -35,7 +38,8 @@ export function sizeCableAndBreaker(
   // 2. Calculate derating factors
   const tempFactor = (TEMP_DERATING[insulation] && TEMP_DERATING[insulation][ambientTemp]) ?? 1.0;
   const groupFactor = GROUP_DERATING[groupingCount] ?? 0.5;
-  const totalDerating = tempFactor * groupFactor;
+  const installFactor = (installMethod ? METHOD_AMPACITY_FACTORS[installMethod] : undefined) ?? 1.0;
+  const totalDerating = tempFactor * groupFactor * installFactor;
 
   // 3. Find smallest cable size that complies with Iz >= In (where Iz = TableAmpacity * totalDerating)
   let selectedCable: CableSpec = CABLE_CATALOG[CABLE_CATALOG.length - 1];
@@ -78,13 +82,32 @@ export function sizeCableAndBreaker(
   // 4. Conductor sizing for Neutral and Earth (PE) according to IEC 60364-5-54
   const phaseSize = selectedCable.size;
   let neutralSize = phaseSize;
-  
-  // Neutral can be reduced to 50% for copper phase cables > 16 mm² if load is balanced
+
+  // Neutral can be reduced to 50% for copper phase cables > 16 mm² if load is balanced.
+  // If neutralCurrent is provided and exceeds the reduced neutral's ampacity, upsize to phase size.
   if (phaseSize > 16 && isThreePhase) {
-    neutralSize = Math.max(16, Math.round(phaseSize / 2));
-    // Find closest standard size in catalog
-    const closestSpec = CABLE_CATALOG.find((c) => c.size >= neutralSize);
-    neutralSize = closestSpec ? closestSpec.size : phaseSize;
+    const reducedNeutral = Math.max(16, Math.round(phaseSize / 2));
+    const closestSpec = CABLE_CATALOG.find((c) => c.size >= reducedNeutral);
+    const reducedSize = closestSpec ? closestSpec.size : phaseSize;
+
+    if (neutralCurrent != null) {
+      // Check if actual neutral current exceeds the reduced neutral's ampacity
+      const reducedAmpacity = CABLE_CATALOG.find((c) => c.size === reducedSize);
+      const neutralAmpacity = reducedAmpacity
+        ? (material === "copper"
+            ? (insulation === "PVC" ? reducedAmpacity.copperPvc1Ph : reducedAmpacity.copperXlpe1Ph)
+            : reducedAmpacity.alXlpe3Ph) * totalDerating
+        : 0;
+
+      if (neutralCurrent > neutralAmpacity) {
+        // Neutral current exceeds reduced ampacity — use phase-size neutral
+        neutralSize = phaseSize;
+      } else {
+        neutralSize = reducedSize;
+      }
+    } else {
+      neutralSize = reducedSize;
+    }
   }
 
   let earthSize = phaseSize;

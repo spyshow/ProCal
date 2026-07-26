@@ -644,18 +644,6 @@ export type BuildingUncheckedUpdateManyWithoutProjectNestedInput = {
   deleteMany?: Prisma.BuildingScalarWhereInput | Prisma.BuildingScalarWhereInput[]
 }
 
-export type IntFieldUpdateOperationsInput = {
-  set?: number
-  increment?: number
-  decrement?: number
-  multiply?: number
-  divide?: number
-}
-
-export type BoolFieldUpdateOperationsInput = {
-  set?: boolean
-}
-
 export type BuildingCreateNestedOneWithoutBuildingLoadsInput = {
   create?: Prisma.XOR<Prisma.BuildingCreateWithoutBuildingLoadsInput, Prisma.BuildingUncheckedCreateWithoutBuildingLoadsInput>
   connectOrCreate?: Prisma.BuildingCreateOrConnectWithoutBuildingLoadsInput

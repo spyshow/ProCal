@@ -33,7 +33,6 @@ interface NavItem {
   label: string;
   href: string;
   icon: React.ElementType;
-  adminOnly?: boolean;
 }
 
 // ---------------------------------------------------------------------------
@@ -50,7 +49,6 @@ const NAV_ITEMS: NavItem[] = [
   { label: "Coordination",     href: "/coordination",   icon: Shield          },
   { label: "SLD Designer",     href: "/sld",            icon: GitBranch       },
   { label: "Reports",          href: "/reports",        icon: FileText        },
-  { label: "Admin",            href: "/admin",          icon: Shield, adminOnly: true },
   { label: "Settings",         href: "/settings",       icon: Settings        },
 ];
 
@@ -324,7 +322,7 @@ export default function Sidebar() {
         <p className="px-1 pt-1 pb-2 text-[10px] font-semibold uppercase tracking-widest text-gray-500">
           Navigation
         </p>
-        {NAV_ITEMS.filter((item) => !item.adminOnly || currentUser?.role === "ADMIN").map(({ label, href, icon: Icon }) => {
+        {NAV_ITEMS.map(({ label, href, icon: Icon }) => {
           const isActive = pathname === href || pathname.startsWith(`${href}/`);
           return (
             <Link
@@ -358,6 +356,20 @@ export default function Sidebar() {
 
       {/* ── Bottom Section ───────────────────────────────────────────────── */}
       <div className="border-t border-gray-800/80 pt-4 pb-4">
+        {/* Admin entry — role-gated, lives with the user identity, not the nav */}
+        {currentUser?.role === "ADMIN" && (
+          <Link
+            href="/admin"
+            title="Admin dashboard"
+            className="mx-3 mb-3 flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium
+                       text-orange-400/90 bg-orange-600/10 border border-orange-600/20
+                       hover:bg-orange-600/20 hover:text-orange-300 transition-colors duration-150"
+          >
+            <Shield size={14} className="flex-shrink-0 text-orange-500" />
+            Admin Dashboard
+          </Link>
+        )}
+
         {/* User info + logout */}
         <div className="px-3 flex items-center gap-3">
           {/* Avatar placeholder */}

@@ -328,6 +328,7 @@ function feederFromItem(
     insulation: "XLPE",
     ambientTemp: 30,
     groupingCount: 2,
+    installMethod: item.installMethod ?? undefined,
   });
   const category = categoryForFloorItem(item);
   const poles: 1 | 3 = isThreePhase ? 3 : 1;
@@ -388,6 +389,7 @@ function feederFromBuildingLoad(
     insulation: "XLPE",
     ambientTemp: 30,
     groupingCount: 1,
+    installMethod: (load as any).installMethod ?? undefined,
   });
   const poles: 1 | 3 = isThreePhase ? 3 : 1;
   const match = findBreaker(sizing.breakerSize, "MCCB", poles);

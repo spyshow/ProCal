@@ -94,6 +94,7 @@ export interface Project {
   voltage: number;
   frequency: number;
   powerFactor: number;
+  transformerSize?: number | null; // kVA — sized transformer (Prisma: Float?)
   country: string;
   preferredManufacturer: string;
   defaultAcbFamilyId?: string | null;

@@ -14,7 +14,9 @@ import { calculateVoltageDrop, sizeCableAndBreaker } from '@/lib/calculations/ca
 import { calculateThreePhaseCurrent, sizeTransformer } from '@/lib/calculations/loads';
 import type { FloorItem, FloorDesign, Building, Project } from '@/types';
 
-interface FloorData extends FloorDesign {
+// riserCableSize is parsed from FloorDesign's string form (e.g. "120 mm²") into
+// a numeric mm² here, so it's Omit-ted from the base and redeclared as number.
+interface FloorData extends Omit<FloorDesign, 'riserCableSize'> {
   floorDemand: number;
   floorConnectedLoad: number;
   floorCurrent: number;

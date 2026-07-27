@@ -614,6 +614,7 @@ export type EquipmentCatalogCreateOrConnectWithoutFamilyInput = {
 
 export type EquipmentCatalogCreateManyFamilyInputEnvelope = {
   data: Prisma.EquipmentCatalogCreateManyFamilyInput | Prisma.EquipmentCatalogCreateManyFamilyInput[]
+  skipDuplicates?: boolean
 }
 
 export type EquipmentCatalogUpsertWithWhereUniqueWithoutFamilyInput = {
@@ -1470,6 +1471,7 @@ export type EquipmentCatalogCreateManyArgs<ExtArgs extends runtime.Types.Extensi
    * The data used to create many EquipmentCatalogs.
    */
   data: Prisma.EquipmentCatalogCreateManyInput | Prisma.EquipmentCatalogCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -1488,6 +1490,7 @@ export type EquipmentCatalogCreateManyAndReturnArgs<ExtArgs extends runtime.Type
    * The data used to create many EquipmentCatalogs.
    */
   data: Prisma.EquipmentCatalogCreateManyInput | Prisma.EquipmentCatalogCreateManyInput[]
+  skipDuplicates?: boolean
   /**
    * Choose, which related nodes to fetch as well
    */

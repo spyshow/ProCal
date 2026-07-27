@@ -1296,6 +1296,7 @@ export type BreakerSettingsCreateManyArgs<ExtArgs extends runtime.Types.Extensio
    * The data used to create many BreakerSettings.
    */
   data: Prisma.BreakerSettingsCreateManyInput | Prisma.BreakerSettingsCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -1314,6 +1315,7 @@ export type BreakerSettingsCreateManyAndReturnArgs<ExtArgs extends runtime.Types
    * The data used to create many BreakerSettings.
    */
   data: Prisma.BreakerSettingsCreateManyInput | Prisma.BreakerSettingsCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**

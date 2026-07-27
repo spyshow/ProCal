@@ -1479,6 +1479,7 @@ export type BreakerFamilyCreateManyArgs<ExtArgs extends runtime.Types.Extensions
    * The data used to create many BreakerFamilies.
    */
   data: Prisma.BreakerFamilyCreateManyInput | Prisma.BreakerFamilyCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -1497,6 +1498,7 @@ export type BreakerFamilyCreateManyAndReturnArgs<ExtArgs extends runtime.Types.E
    * The data used to create many BreakerFamilies.
    */
   data: Prisma.BreakerFamilyCreateManyInput | Prisma.BreakerFamilyCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**

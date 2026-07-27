@@ -482,6 +482,7 @@ export type FloorDesignCreateOrConnectWithoutBuildingInput = {
 
 export type FloorDesignCreateManyBuildingInputEnvelope = {
   data: Prisma.FloorDesignCreateManyBuildingInput | Prisma.FloorDesignCreateManyBuildingInput[]
+  skipDuplicates?: boolean
 }
 
 export type FloorDesignUpsertWithWhereUniqueWithoutBuildingInput = {
@@ -1361,6 +1362,7 @@ export type FloorDesignCreateManyArgs<ExtArgs extends runtime.Types.Extensions.I
    * The data used to create many FloorDesigns.
    */
   data: Prisma.FloorDesignCreateManyInput | Prisma.FloorDesignCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -1379,6 +1381,7 @@ export type FloorDesignCreateManyAndReturnArgs<ExtArgs extends runtime.Types.Ext
    * The data used to create many FloorDesigns.
    */
   data: Prisma.FloorDesignCreateManyInput | Prisma.FloorDesignCreateManyInput[]
+  skipDuplicates?: boolean
   /**
    * Choose, which related nodes to fetch as well
    */

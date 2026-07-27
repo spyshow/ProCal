@@ -506,6 +506,7 @@ export type ApartmentTemplateCreateOrConnectWithoutProjectInput = {
 
 export type ApartmentTemplateCreateManyProjectInputEnvelope = {
   data: Prisma.ApartmentTemplateCreateManyProjectInput | Prisma.ApartmentTemplateCreateManyProjectInput[]
+  skipDuplicates?: boolean
 }
 
 export type ApartmentTemplateUpsertWithWhereUniqueWithoutProjectInput = {
@@ -1460,6 +1461,7 @@ export type ApartmentTemplateCreateManyArgs<ExtArgs extends runtime.Types.Extens
    * The data used to create many ApartmentTemplates.
    */
   data: Prisma.ApartmentTemplateCreateManyInput | Prisma.ApartmentTemplateCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -1478,6 +1480,7 @@ export type ApartmentTemplateCreateManyAndReturnArgs<ExtArgs extends runtime.Typ
    * The data used to create many ApartmentTemplates.
    */
   data: Prisma.ApartmentTemplateCreateManyInput | Prisma.ApartmentTemplateCreateManyInput[]
+  skipDuplicates?: boolean
   /**
    * Choose, which related nodes to fetch as well
    */

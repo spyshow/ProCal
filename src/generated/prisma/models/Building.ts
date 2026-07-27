@@ -644,18 +644,6 @@ export type BuildingUncheckedUpdateManyWithoutProjectNestedInput = {
   deleteMany?: Prisma.BuildingScalarWhereInput | Prisma.BuildingScalarWhereInput[]
 }
 
-export type IntFieldUpdateOperationsInput = {
-  set?: number
-  increment?: number
-  decrement?: number
-  multiply?: number
-  divide?: number
-}
-
-export type BoolFieldUpdateOperationsInput = {
-  set?: boolean
-}
-
 export type BuildingCreateNestedOneWithoutBuildingLoadsInput = {
   create?: Prisma.XOR<Prisma.BuildingCreateWithoutBuildingLoadsInput, Prisma.BuildingUncheckedCreateWithoutBuildingLoadsInput>
   connectOrCreate?: Prisma.BuildingCreateOrConnectWithoutBuildingLoadsInput
@@ -727,6 +715,7 @@ export type BuildingCreateOrConnectWithoutProjectInput = {
 
 export type BuildingCreateManyProjectInputEnvelope = {
   data: Prisma.BuildingCreateManyProjectInput | Prisma.BuildingCreateManyProjectInput[]
+  skipDuplicates?: boolean
 }
 
 export type BuildingUpsertWithWhereUniqueWithoutProjectInput = {
@@ -1833,6 +1822,7 @@ export type BuildingCreateManyArgs<ExtArgs extends runtime.Types.Extensions.Inte
    * The data used to create many Buildings.
    */
   data: Prisma.BuildingCreateManyInput | Prisma.BuildingCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -1851,6 +1841,7 @@ export type BuildingCreateManyAndReturnArgs<ExtArgs extends runtime.Types.Extens
    * The data used to create many Buildings.
    */
   data: Prisma.BuildingCreateManyInput | Prisma.BuildingCreateManyInput[]
+  skipDuplicates?: boolean
   /**
    * Choose, which related nodes to fetch as well
    */

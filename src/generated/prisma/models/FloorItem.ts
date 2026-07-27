@@ -806,6 +806,7 @@ export type FloorItemCreateOrConnectWithoutApartmentTemplateInput = {
 
 export type FloorItemCreateManyApartmentTemplateInputEnvelope = {
   data: Prisma.FloorItemCreateManyApartmentTemplateInput | Prisma.FloorItemCreateManyApartmentTemplateInput[]
+  skipDuplicates?: boolean
 }
 
 export type FloorItemUpsertWithWhereUniqueWithoutApartmentTemplateInput = {
@@ -889,6 +890,7 @@ export type FloorItemCreateOrConnectWithoutLoadLibraryItemInput = {
 
 export type FloorItemCreateManyLoadLibraryItemInputEnvelope = {
   data: Prisma.FloorItemCreateManyLoadLibraryItemInput | Prisma.FloorItemCreateManyLoadLibraryItemInput[]
+  skipDuplicates?: boolean
 }
 
 export type FloorItemUpsertWithWhereUniqueWithoutLoadLibraryItemInput = {
@@ -950,6 +952,7 @@ export type FloorItemCreateOrConnectWithoutFloorDesignInput = {
 
 export type FloorItemCreateManyFloorDesignInputEnvelope = {
   data: Prisma.FloorItemCreateManyFloorDesignInput | Prisma.FloorItemCreateManyFloorDesignInput[]
+  skipDuplicates?: boolean
 }
 
 export type FloorItemUpsertWithWhereUniqueWithoutFloorDesignInput = {
@@ -1988,6 +1991,7 @@ export type FloorItemCreateManyArgs<ExtArgs extends runtime.Types.Extensions.Int
    * The data used to create many FloorItems.
    */
   data: Prisma.FloorItemCreateManyInput | Prisma.FloorItemCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -2006,6 +2010,7 @@ export type FloorItemCreateManyAndReturnArgs<ExtArgs extends runtime.Types.Exten
    * The data used to create many FloorItems.
    */
   data: Prisma.FloorItemCreateManyInput | Prisma.FloorItemCreateManyInput[]
+  skipDuplicates?: boolean
   /**
    * Choose, which related nodes to fetch as well
    */

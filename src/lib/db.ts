@@ -1,5 +1,5 @@
 import { PrismaClient } from "../generated/prisma/client";
-import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
+import { PrismaPg } from "@prisma/adapter-pg";
 
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
@@ -8,15 +8,11 @@ const globalForPrisma = globalThis as unknown as {
 let prismaInstance: PrismaClient;
 
 if (process.env.NODE_ENV === "production") {
-  const adapter = new PrismaBetterSqlite3({
-    url: "file:./dev.db",
-  });
+  const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
   prismaInstance = new PrismaClient({ adapter });
 } else {
   if (!globalForPrisma.prisma) {
-    const adapter = new PrismaBetterSqlite3({
-      url: "file:./dev.db",
-    });
+    const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
     globalForPrisma.prisma = new PrismaClient({ adapter });
   }
   prismaInstance = globalForPrisma.prisma;

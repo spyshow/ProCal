@@ -1,0 +1,21 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: procal-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: procal
+      POSTGRES_PASSWORD: procal
+      POSTGRES_DB: procal
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U procal -d procal"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  pgdata:

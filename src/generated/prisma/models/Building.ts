@@ -715,6 +715,7 @@ export type BuildingCreateOrConnectWithoutProjectInput = {
 
 export type BuildingCreateManyProjectInputEnvelope = {
   data: Prisma.BuildingCreateManyProjectInput | Prisma.BuildingCreateManyProjectInput[]
+  skipDuplicates?: boolean
 }
 
 export type BuildingUpsertWithWhereUniqueWithoutProjectInput = {
@@ -1821,6 +1822,7 @@ export type BuildingCreateManyArgs<ExtArgs extends runtime.Types.Extensions.Inte
    * The data used to create many Buildings.
    */
   data: Prisma.BuildingCreateManyInput | Prisma.BuildingCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -1839,6 +1841,7 @@ export type BuildingCreateManyAndReturnArgs<ExtArgs extends runtime.Types.Extens
    * The data used to create many Buildings.
    */
   data: Prisma.BuildingCreateManyInput | Prisma.BuildingCreateManyInput[]
+  skipDuplicates?: boolean
   /**
    * Choose, which related nodes to fetch as well
    */

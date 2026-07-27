@@ -632,6 +632,7 @@ export type BuildingLoadCreateOrConnectWithoutBuildingInput = {
 
 export type BuildingLoadCreateManyBuildingInputEnvelope = {
   data: Prisma.BuildingLoadCreateManyBuildingInput | Prisma.BuildingLoadCreateManyBuildingInput[]
+  skipDuplicates?: boolean
 }
 
 export type BuildingLoadUpsertWithWhereUniqueWithoutBuildingInput = {
@@ -700,6 +701,7 @@ export type BuildingLoadCreateOrConnectWithoutLoadLibraryItemInput = {
 
 export type BuildingLoadCreateManyLoadLibraryItemInputEnvelope = {
   data: Prisma.BuildingLoadCreateManyLoadLibraryItemInput | Prisma.BuildingLoadCreateManyLoadLibraryItemInput[]
+  skipDuplicates?: boolean
 }
 
 export type BuildingLoadUpsertWithWhereUniqueWithoutLoadLibraryItemInput = {
@@ -1588,6 +1590,7 @@ export type BuildingLoadCreateManyArgs<ExtArgs extends runtime.Types.Extensions.
    * The data used to create many BuildingLoads.
    */
   data: Prisma.BuildingLoadCreateManyInput | Prisma.BuildingLoadCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -1606,6 +1609,7 @@ export type BuildingLoadCreateManyAndReturnArgs<ExtArgs extends runtime.Types.Ex
    * The data used to create many BuildingLoads.
    */
   data: Prisma.BuildingLoadCreateManyInput | Prisma.BuildingLoadCreateManyInput[]
+  skipDuplicates?: boolean
   /**
    * Choose, which related nodes to fetch as well
    */

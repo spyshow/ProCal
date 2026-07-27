@@ -713,6 +713,7 @@ export type LoadLibraryItemCreateOrConnectWithoutProjectInput = {
 
 export type LoadLibraryItemCreateManyProjectInputEnvelope = {
   data: Prisma.LoadLibraryItemCreateManyProjectInput | Prisma.LoadLibraryItemCreateManyProjectInput[]
+  skipDuplicates?: boolean
 }
 
 export type LoadLibraryItemUpsertWithWhereUniqueWithoutProjectInput = {
@@ -1800,6 +1801,7 @@ export type LoadLibraryItemCreateManyArgs<ExtArgs extends runtime.Types.Extensio
    * The data used to create many LoadLibraryItems.
    */
   data: Prisma.LoadLibraryItemCreateManyInput | Prisma.LoadLibraryItemCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -1818,6 +1820,7 @@ export type LoadLibraryItemCreateManyAndReturnArgs<ExtArgs extends runtime.Types
    * The data used to create many LoadLibraryItems.
    */
   data: Prisma.LoadLibraryItemCreateManyInput | Prisma.LoadLibraryItemCreateManyInput[]
+  skipDuplicates?: boolean
   /**
    * Choose, which related nodes to fetch as well
    */

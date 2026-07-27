@@ -538,6 +538,7 @@ export type ApartmentRoomCreateOrConnectWithoutTemplateInput = {
 
 export type ApartmentRoomCreateManyTemplateInputEnvelope = {
   data: Prisma.ApartmentRoomCreateManyTemplateInput | Prisma.ApartmentRoomCreateManyTemplateInput[]
+  skipDuplicates?: boolean
 }
 
 export type ApartmentRoomUpsertWithWhereUniqueWithoutTemplateInput = {
@@ -1361,6 +1362,7 @@ export type ApartmentRoomCreateManyArgs<ExtArgs extends runtime.Types.Extensions
    * The data used to create many ApartmentRooms.
    */
   data: Prisma.ApartmentRoomCreateManyInput | Prisma.ApartmentRoomCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -1379,6 +1381,7 @@ export type ApartmentRoomCreateManyAndReturnArgs<ExtArgs extends runtime.Types.E
    * The data used to create many ApartmentRooms.
    */
   data: Prisma.ApartmentRoomCreateManyInput | Prisma.ApartmentRoomCreateManyInput[]
+  skipDuplicates?: boolean
   /**
    * Choose, which related nodes to fetch as well
    */

@@ -1,5 +1,35 @@
 import { describe, it, expect } from 'vitest';
 import { calculateVoltageDrop } from './cables';
+import { computeFloorRiserVd, parseMm2 } from './riser';
+import { phaseBalance } from './phaseBalance';
+import type { FloorDesign, FloorItem, Project } from '@/types';
+
+// ---- fixtures for computeFloorRiserVd ----
+
+const proj: Project = {
+  id: 'p1', name: 'T', client: '', consultant: '', contractor: '', location: '', engineer: '', date: '',
+  voltage: 400, frequency: 50, powerFactor: 0.85, country: 'US', preferredManufacturer: 'ABB',
+  logoUrl: null, maxVoltageDropLighting: 3, maxVoltageDropPower: 5,
+  buildings: [], apartmentTemplates: [], loadLibraryItems: [],
+};
+
+function apt(overrides: Partial<FloorItem> = {}): FloorItem {
+  return {
+    id: 'i1', name: 'Apt A', type: 'APARTMENT',
+    calculatedConnectedLoad: 5, calculatedMaxDemand: 2, calculatedCurrent: 20,
+    breakerSize: '16A', cableSize: '16 mm²', voltageDrop: 0.1,
+    ...overrides,
+  };
+}
+
+function floor(overrides: Partial<FloorDesign> = {}): FloorDesign {
+  return {
+    id: 'f1', floorNumber: 1, hasFloorSubPanels: false, items: [],
+    ...overrides,
+  };
+}
+
+const V230 = 400 / Math.sqrt(3); // line-neutral voltage for 1-phase feeders
 
 /**
  * Riser Diagram Calculation Tests
@@ -182,6 +212,118 @@ describe('Riser Diagram Voltage Drop Calculations', () => {
 
       // For this example, VD should be within limits
       expect(cumulativeVD).toBeLessThan(maxTotalVD);
+    });
+  });
+
+  // ---- computeFloorRiserVd: the correctness fix ----
+
+  describe('parseMm2', () => {
+    it('extracts the leading number from a cable-size string', () => {
+      expect(parseMm2('120 mm²')).toBe(120);
+      expect(parseMm2('16 mm²')).toBe(16);
+      expect(parseMm2('16')).toBe(16);
+      expect(parseMm2(null)).toBeNull();
+      expect(parseMm2('')).toBeNull();
+      expect(parseMm2('N/A')).toBeNull();
+    });
+  });
+
+  describe('Direct floor: no fabricated riser, branch = worst apartment', () => {
+    it('branchVdPercent is the max apartment branch ΔV, not an aggregate; hasRiser=false', () => {
+      const a = apt({ id: 'a', name: 'A', cableLength: 10 });   // short branch
+      const b = apt({ id: 'b', name: 'B', cableLength: 30 });   // long branch → higher ΔV
+      const fd = floor({ hasFloorSubPanels: false, items: [a, b] });
+      const r = computeFloorRiserVd(fd, proj);
+
+      // Honest per-apartment 1-phase ΔV at 230V (the fix), computed independently.
+      const vdA = calculateVoltageDrop(20, 10, 16, 0.85, false, V230).dropPercent;
+      const vdB = calculateVoltageDrop(20, 30, 16, 0.85, false, V230).dropPercent;
+      expect(vdB).toBeGreaterThan(vdA);            // longer run → more drop
+      expect(r.branchVdPercent).toBe(vdB);          // MAX of the two, not their sum/aggregate
+      expect(r.hasRiser).toBe(false);              // no invented riser on a direct floor
+      expect(r.riserVdPercent).toBe(0);
+      expect(r.totalVdPercent).toBe(r.branchVdPercent);
+      expect(r.worstItemName).toBe('B');
+      expect(r.branchNoData).toBe(false);
+    });
+  });
+
+  describe('SDB floor: total = riser + branch; riser uses maxPhaseCurrent', () => {
+    it('riser ΔV off maxPhaseCurrent (≤ lumped), total = riser + worst branch', () => {
+      // Two equal 1-phase apartments → round-robin onto L1 and L2, so maxPhaseCurrent
+      // is ONE apartment's current — not the lumped sum. The riser carries that.
+      const a = apt({ id: 'a', name: 'A', cableLength: 10 });
+      const b = apt({ id: 'b', name: 'B', cableLength: 10 });
+      const items = [a, b];
+      const fd = floor({
+        hasFloorSubPanels: true,
+        riserCableLength: 25,
+        riserCableSize: '120 mm²',
+        items,
+      });
+      const r = computeFloorRiserVd(fd, proj);
+
+      const balance = phaseBalance(items, proj);
+      expect(balance.maxPhaseCurrent).toBe(20);                 // one apt, NOT 40 (lumped)
+      expect(r.riserCurrent).toBe(balance.maxPhaseCurrent);      // imbalance-aware, per eng-review
+
+      const riserExpected = calculateVoltageDrop(20, 25, 120, 0.85, true, 400).dropPercent;
+      const branchExpected = calculateVoltageDrop(20, 10, 16, 0.85, false, V230).dropPercent;
+      expect(r.riserVdPercent).toBe(riserExpected);
+      expect(r.branchVdPercent).toBe(branchExpected);
+      expect(r.totalVdPercent).toBeCloseTo(riserExpected + branchExpected, 5);
+      expect(r.hasRiser).toBe(true);
+
+      // And maxPhaseCurrent sizing yields a SMALLER riser ΔV than the lumped path would.
+      const lumpedRiser = calculateVoltageDrop(40, 25, 120, 0.85, true, 400).dropPercent;
+      expect(r.riserVdPercent).toBeLessThan(lumpedRiser);
+    });
+  });
+
+  describe('1-phase vs 3-phase apartment: correct voltage + formula path', () => {
+    it('a 1-phase apartment uses the 230V / 2·I·L path; 3-phase uses 400V / √3·I·L', () => {
+      const one = floor({ items: [apt({ cableLength: 12, cableSize: '16 mm²' })] });
+      const rOne = computeFloorRiserVd(one, proj);
+      expect(rOne.branchVdPercent).toBe(
+        calculateVoltageDrop(20, 12, 16, 0.85, false, V230).dropPercent
+      );
+
+      const threeApt = apt({
+        cableLength: 12, cableSize: '16 mm²',
+        apartmentTemplate: { id: 't', name: 'T', phases: 3, rooms: [], createdAt: '', updatedAt: '' },
+      });
+      const three = floor({ items: [threeApt] });
+      const rThree = computeFloorRiserVd(three, proj);
+      expect(rThree.branchVdPercent).toBe(
+        calculateVoltageDrop(20, 12, 16, 0.85, true, 400).dropPercent
+      );
+
+      // The two paths must differ — the bug was running everything as 3-phase/400V.
+      expect(rOne.branchVdPercent).not.toBeCloseTo(rThree.branchVdPercent, 1);
+    });
+  });
+
+  describe('Missing cable data: flagged, never fabricated', () => {
+    it('direct floor with no cableLength → branchNoData, zero branch, no worst item', () => {
+      const r = computeFloorRiserVd(floor({ items: [apt({ cableLength: null })] }), proj);
+      expect(r.branchNoData).toBe(true);
+      expect(r.totalNoData).toBe(true);
+      expect(r.branchVdPercent).toBe(0);
+      expect(r.worstItemName).toBeNull();
+    });
+
+    it('SDB floor with a riser but missing riser size/length → riserNoData, riserVd=0', () => {
+      const r = computeFloorRiserVd(
+        floor({ hasFloorSubPanels: true, riserCableSize: null, riserCableLength: null,
+                items: [apt({ cableLength: 10 })] }),
+        proj
+      );
+      expect(r.hasRiser).toBe(true);
+      expect(r.riserNoData).toBe(true);
+      expect(r.riserVdPercent).toBe(0);
+      expect(r.riserCableSize).toBeNull();
+      expect(r.totalNoData).toBe(true);        // total path incomputable → flagged, not invented
+      expect(r.branchNoData).toBe(false);     // apartment branch itself is fine
     });
   });
 });

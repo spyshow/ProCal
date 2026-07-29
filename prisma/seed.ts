@@ -18,6 +18,7 @@ async function main() {
       username: "engineer",
       name: "Lead Electrical Engineer",
       passwordHash,
+      role: "ADMIN", // dev seed admin — gates /api/admin/* and the sidebar Admin button
     },
   });
   console.log("User seeded:", user.username);

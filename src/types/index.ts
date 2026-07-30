@@ -47,6 +47,8 @@ export interface FloorDesign {
   hasFloorSubPanels: boolean;
   riserCableLength?: number | null; // meters — riser cable from MDB to SDB
   riserCableSize?: string | null; // e.g., "120 mm²"
+  riserInstallMethod?: string | null; // IEC 60364-5-52 method (B1, B2, C, E, F, G) — SDB only
+  riserCableInsulation?: string | null; // "PVC" or "XLPE" — SDB only
   items: FloorItem[];
 }
 

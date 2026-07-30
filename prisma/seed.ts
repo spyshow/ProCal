@@ -183,8 +183,21 @@ async function main() {
 
   for (const item of catalogData) {
     const familyId = familyIdByKey.get(getFamilyKey(item.manufacturer, item.category, item.series));
-    await db.equipmentCatalog.create({
-      data: { ...item, familyId },
+    // upsert on catalogUniqueKey (manufacturer, category, series, model, ratedCurrent, poles)
+    // so re-running migrate dev / db seed doesn't duplicate the catalog rows.
+    await db.equipmentCatalog.upsert({
+      where: {
+        catalogUniqueKey: {
+          manufacturer: item.manufacturer,
+          category: item.category,
+          series: item.series,
+          model: item.model,
+          ratedCurrent: item.ratedCurrent,
+          poles: item.poles,
+        },
+      },
+      update: { ...item, familyId },
+      create: { ...item, familyId },
     });
   }
 

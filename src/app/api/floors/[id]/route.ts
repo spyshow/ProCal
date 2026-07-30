@@ -47,6 +47,8 @@ export async function PATCH(
         hasFloorSubPanels: data.hasFloorSubPanels ?? floor.hasFloorSubPanels,
         riserCableLength: data.riserCableLength ?? floor.riserCableLength,
         riserCableSize: data.riserCableSize ?? floor.riserCableSize,
+        riserInstallMethod: data.riserInstallMethod ?? floor.riserInstallMethod,
+        riserCableInsulation: data.riserCableInsulation ?? floor.riserCableInsulation,
       },
     });
 

@@ -5,6 +5,7 @@ import { useEffect, useState, useCallback, useRef } from 'react';
 import { useProject } from '@/context/ProjectContext';
 import { usePathname, useRouter } from 'next/navigation';
 import { recalculateCable } from '@/lib/sld/cable-editor';
+import { cablePatchUrl, upsizeBody, fieldEditBody } from '@/lib/sld/cablePersist';
 import { isThreePhaseForItem } from '@/lib/calculations/feeders';
 import { phaseBalance } from '@/lib/calculations/phaseBalance';
 import MethodSelector from '@/components/MethodSelector';
@@ -246,6 +247,8 @@ export default function CableSchedulePage() {
         const floorCurrent = floorDemand / (Math.sqrt(3) * (project.voltage / 1000) * project.powerFactor);
         const cableSizeNum = parseFloat(fd.riserCableSize || '') || 120;
         const length = fd.riserCableLength || 10;
+        const sdbMethod = fd.riserInstallMethod || 'C';
+        const sdbInsulation = (fd.riserCableInsulation as 'PVC' | 'XLPE') || 'XLPE';
 
         const result = recalculateCable({
           current: floorCurrent,
@@ -255,8 +258,8 @@ export default function CableSchedulePage() {
           powerFactor: project.powerFactor || 0.85,
           systemVoltage: project.voltage === 400 ? 400 : 230,
           maxVoltageDropPercent: limits.power,
-          method: 'C',
-          insulation: 'XLPE',
+          method: sdbMethod,
+          insulation: sdbInsulation,
         });
 
         cableList.push({
@@ -277,8 +280,8 @@ export default function CableSchedulePage() {
           newCableSize: result.cableSize,
           newVD: result.voltageDropPercent,
           changed: result.changed,
-          method: 'C',
-          insulation: 'XLPE',
+          method: sdbMethod,
+          insulation: sdbInsulation,
           ampacity: result.ampacity,
           kind: 'sdb',
         });
@@ -307,25 +310,13 @@ export default function CableSchedulePage() {
         insulation: field === 'insulation' ? value : c.insulation,
       });
 
-      // Persist to database (fire and forget)
-      const payload: any = {};
-      if (field === 'length') payload.cableLength = value;
-      if (field === 'method') payload.installMethod = value;
-      if (field === 'insulation') payload.cableInsulation = value;
-      let patchUrl: string;
-      if (c.kind === 'building') {
-        patchUrl = `/api/building-loads/${id}`;
-      } else if (c.kind === 'sdb') {
-        // SDB - save riserCableLength to FloorDesign
-        patchUrl = `/api/floors/${id.replace('sdb-', '')}`;
-        if (field === 'length') payload.riserCableLength = value;
-      } else {
-        patchUrl = `/api/floor-items/${id}`;
-      }
-      fetch(patchUrl, {
+      // Persist to database (fire and forget). Routing + field-name mapping is
+      // centralized in cablePersist — SDB lives on FloorDesign with riser* names,
+      // floor/building use cableLength/installMethod/cableInsulation.
+      fetch(cablePatchUrl(c.kind, id), {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
+        body: JSON.stringify(fieldEditBody(c.kind, field as 'length' | 'method' | 'insulation', value)),
       }).catch(err => console.error('Failed to save:', err));
 
       return {
@@ -374,17 +365,31 @@ export default function CableSchedulePage() {
     const changedCables = cables.filter(c => c.changed && c.newCableSize !== null);
 
     try {
-      await Promise.all(changedCables.map(c =>
-        fetch(c.kind === 'building' ? `/api/building-loads/${c.id}` : `/api/floor-items/${c.id}`, {
+      // Route the upsize PATCH per cable kind (centralized in cablePersist).
+      // SDB cables target FloorDesign.riserCableSize; floor/building → cableSize.
+      const results = await Promise.all(changedCables.map(async (c) => {
+        const url = cablePatchUrl(c.kind, c.id);
+        const body = upsizeBody(c.newCableSize!, c.kind);
+        const res = await fetch(url, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ cableSize: `${c.newCableSize}` }),
-        })
-      ));
+          body: JSON.stringify(body),
+        });
+        // fetch resolves on HTTP errors without throwing — a 404/500 would
+        // otherwise look like success here and desync local state from the DB.
+        if (!res.ok) console.error('Apply upsize failed:', url, res.status, body);
+        return res.ok ? c.id : null;
+      }));
+      const savedIds = new Set(results.filter((r): r is string => r !== null));
 
-      // Update local state: apply new cable size and recalculate VD with it
+      if (savedIds.size < changedCables.length) {
+        alert(`Saved ${savedIds.size} of ${changedCables.length} cable upsize${changedCables.length > 1 ? 's' : ''}. See console for failures.`);
+      }
+
+      // Update local state only for cables that actually persisted; recompute VD
+      // with the new size so `changed` flips to false and the alert clears.
       setCables(prev => prev.map(c => {
-        if (c.changed && c.newCableSize !== null) {
+        if (savedIds.has(c.id) && c.newCableSize !== null) {
           const result = recalculateCable({
             current: c.current,
             isThreePhase: c.isThreePhase,

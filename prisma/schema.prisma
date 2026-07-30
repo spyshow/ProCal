@@ -149,6 +149,8 @@ model FloorDesign {
   hasFloorSubPanels   Boolean     @default(false)
   riserCableLength    Float?      // meters — riser cable from MDB to SDB (only for hasFloorSubPanels=true)
   riserCableSize      String?     // e.g., "120 mm²" — riser cable size (only for hasFloorSubPanels=true)
+  riserInstallMethod   String?    @default("C")   // IEC 60364-5-52: B1, B2, C, E, F, G (riser cable, SDB only)
+  riserCableInsulation String?    @default("XLPE") // "PVC" or "XLPE" (riser cable, SDB only)
   buildingId          String
   building            Building    @relation(fields: [buildingId], references: [id], onDelete: Cascade)
   items               FloorItem[]

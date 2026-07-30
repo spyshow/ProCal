@@ -345,7 +345,7 @@ export default function RiserPage() {
                     {fd.hasRiser
                       ? fd.riserNoData
                         ? 'no riser data'
-                        : `${fd.riserCableSize ?? '—'}mm² XLPE · ${fd.riserCableLength?.toFixed(0) ?? '—'}m`
+                        : `${fd.riserCableSize ?? '—'}mm² ${fd.riserCableInsulation || 'XLPE'} · ${fd.riserCableLength?.toFixed(0) ?? '—'}m`
                       : `${fd.items.length} apt feeders`}
                   </text>
 

@@ -39,7 +39,7 @@ export async function getSessionUser() {
   try {
     const user = await db.user.findUnique({
       where: { id: payload.userId },
-      select: { id: true, username: true, name: true, role: true },
+      select: { id: true, username: true, name: true, role: true, credits: true, email: true },
     });
     return user;
   } catch {
@@ -59,7 +59,7 @@ export async function getSessionUser() {
  *   // gate is the admin user here
  */
 export async function requireAdmin(): Promise<
-  { id: string; username: string; name: string; role: string } | NextResponse
+  { id: string; username: string; name: string; role: string; credits: number; email: string | null } | NextResponse
 > {
   const user = await getSessionUser();
   if (!user) {

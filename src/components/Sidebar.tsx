@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useProject } from "@/context/ProjectContext";
+import { useUser } from "@/context/UserContext";
 import {
   LayoutDashboard,
   FolderOpen,
@@ -268,14 +269,8 @@ function ProjectSelector() {
 export default function Sidebar() {
   const pathname = usePathname();
   const router   = useRouter();
+  const { user: currentUser } = useUser();
   const [loggingOut, setLoggingOut] = useState(false);
-  const [currentUser, setCurrentUser] = useState<{ name: string; username: string; role: string } | null>(null);
-
-  useEffect(() => {
-    fetch("/api/auth/me", { cache: "no-store" })
-      .then((r) => r.ok ? r.json() : null)
-      .then((data) => { if (data?.user) setCurrentUser(data.user); });
-  }, []);
 
   const handleLogout = async () => {
     setLoggingOut(true);

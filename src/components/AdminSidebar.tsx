@@ -22,14 +22,14 @@ const NAV_ITEMS: AdminNavItem[] = [
   { label: "Dashboard",       href: "/admin",          icon: LayoutDashboard },
   { label: "Users",           href: "/admin/users",    icon: Users },
   { label: "Breaker Catalog", href: "/admin/breakers", icon: Database },
+  { label: "Billing Leads",   href: "/admin/leads",    icon: CreditCard },
 ];
 
-// ponytail: Projects & Billing have no admin pages or backend yet — shown as
-// non-link "Soon" rows so the menu shape exists without 404 links. Convert to
-// real links (and build the pages + /api/admin endpoints) when those ship.
+// ponytail: Projects has no admin page or backend yet — shown as a non-link
+// "Soon" row so the menu shape exists without a 404 link. Convert to a real
+// link when it ships.
 const COMING_SOON: { label: string; icon: React.ElementType }[] = [
   { label: "Projects", icon: FolderOpen },
-  { label: "Billing",  icon: CreditCard },
 ];
 
 export default function AdminSidebar() {

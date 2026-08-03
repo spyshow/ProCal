@@ -2,10 +2,14 @@
 
 Two deliverable-generating surfaces: the **single-line diagram** (SLD) designer
 and the **printable reports** (schedules + cover). Both read the same project
-graph the calculator reads, so the printed/scaled output always agrees with the
-on-screen numbers. Source of truth: `src/lib/sld/generator.ts`,
+graph the calculator reads. The breaker schedule recomputes its rows live
+through `computeFeeders` (so it agrees with the panel page); the other
+schedules read the **stored** `FloorItem` sizing fields written at insert/
+recalculate time (so they agree only after `recalculate` is run). One schedule
+(`VDSchedule`) has a hardcoded status band that ignores per-project limits —
+see "Known gaps". Source of truth: `src/lib/sld/generator.ts`,
 `src/app/(app)/sld/page.tsx`, `src/app/(app)/reports/page.tsx`,
-`src/components/report/*`.
+`src/components/report/*`, and the tested-but-unused `src/lib/reports/aggregates.ts`.
 
 ```mermaid
 flowchart LR
@@ -15,9 +19,10 @@ flowchart LR
   SX --> PP[post-process: extendCables + repositionLabels]
   PP --> PNG[exportPNG: SVG→canvas→PNG]
   PP --> PDF[exportPDF: window.print]
-  P --> F[computeFeeders / isThreePhaseForItem]
-  F --> Sched[BreakerSchedule / MDBSchedule / BOMSchedule / CableSchedule / VDSchedule]
-  Sched --> RPT[react-to-print → PDF: Cover + all 5 schedules]
+  P --> F[BreakerSchedule: computeFeeders live]
+  P --> S[Stored FloorItem fields: MDB/BOM/Cable/VD schedules]
+  F --> RPT[react-to-print → PDF: Cover + all 5 schedules]
+  S --> RPT
 ```
 
 ## SLD: DSL generation · `src/lib/sld/generator.ts`
@@ -182,51 +187,102 @@ renders with blanks, not a crash.
 
 All take `{ project, buildingId?, showHeader? }` (the breaker one adds
 `manufacturer?`). `buildingId` scopes a single-building view; omitted = all
-buildings. All are pure client render over the project graph + the calc engine —
-no per-row fetch.
+buildings. All are pure client render over the project graph — no per-row
+fetch. **Most read the stored `FloorItem` sizing fields; one recomputes live.**
 
-### `BreakerSchedule.tsx`
-**The one that calls `computeFeeders`.** Fetches `/api/equipment?manufacturer=…`
-(mixing skipped), builds a `FindBreaker` that **matches category + poles (≤2
-for 1-phase, =3 for 3-phase) + ratedCurrent ≥ need, smallest match, fallback
-flag on miss**. Then `computeFeeders(bldg, project, findBreaker)` →
-`mdbFeeders` + `smdbFeeders(floorNumber)` flattened into rows, grouped by
-`type` (APARTMENT / SERVICE_PANEL / PUMP_PANEL / ELEVATOR_PANEL), with floor
-parsed from the feeder name (`/^F(\d+)/`). This is the load-bearing reuse: the
-printed breaker schedule **always agrees** with the Panel designer page, because
-they share `computeFeeders`. `isThreePhase` is `type !== 'APARTMENT'`.
+### `BreakerSchedule.tsx` — the live one
+**The only schedule that calls `computeFeeders`.** Fetches
+`/api/equipment?manufacturer=…` (mixing skipped), builds a `FindBreaker` that
+**matches category + poles (≤2 for 1-phase, =3 for 3-phase) + ratedCurrent ≥
+need, smallest match, fallback flag on miss**. Then
+`computeFeeders(bldg, project, findBreaker)` → `mdbFeeders` +
+`smdbFeeders(floorNumber)` flattened into rows, grouped by `type` (APARTMENT /
+SERVICE_PANEL / PUMP_PANEL / ELEVATOR_PANEL), with floor parsed from the feeder
+name (`/^F(\d+)/`). This is the load-bearing reuse: the printed breaker schedule
+**always agrees** with the Panel designer page, because they share
+`computeFeeders`. `isThreePhase` is `type !== 'APARTMENT'`.
 
-### `CableSchedule.tsx`
-Per-item rows from `floorDesigns.items`, phase label via
-`isThreePhaseForItem(item)`, current/breaker/cable from the stored item fields,
-method/insulation with `C`/`XLPE` fallbacks. No `computeFeeders` — it lists
-**per-circuit** cables (every floor item), not feeders.
+### `CableSchedule.tsx` — stored fields + one helper
+Per-item rows from `floorDesigns.items`. The only calc-engine touch is
+`isThreePhaseForItem(item)` for the phase label; current/breaker/cable come from
+the stored `FloorItem` fields, with `C`/`XLPE` fallbacks. No `computeFeeders` —
+it lists **per-circuit** cables (every floor item), not feeders.
 
-### `MDBSchedule.tsx`, `BOMSchedule.tsx`, `VDSchedule.tsx`
-The MDB, bill-of-materials, and voltage-drop schedules. They compose off the
-same project graph + calc-engine helpers (MDB from `computeFeeders`; VD from the
-riser/feeder voltage-drop math in `cables.ts` + `riser.ts`).
+### `MDBSchedule.tsx` — stored fields + inline floor sums
+Lists every outgoing MDB feeder by walking `floorDesigns.items` and grouping by
+`building-F{n}`. For floors with `hasFloorSubPanels`, it **emits a synthetic
+`SUB_PANEL` feeder row** whose demand/current are the inline sums
+(`Σ calculatedMaxDemand`, `Σ calculatedCurrent`, breaker `Math.ceil(current) A`),
+then follows with each item's own row. All values come from the **stored**
+`FloorItem` fields — it does not call `computeFeeders`. So an MDB row matches
+the breaker schedule's *model numbers* only after `recalculate` re-sizes the
+stored fields.
+
+### `BOMSchedule.tsx` — stored fields, inline aggregation
+Walks `floorDesigns.items` and aggregates **by `cableSize`** (circuit count +
+estimated total length) and **by `breakerSize`** (quantity). Cable length uses
+the `cableLength ?? 10 + (floor - 1) * 5` fallback when not persisted. Counts
+breaker `breakerSize` strings as-is (no amp parse). Reads stored fields only.
+
+### `VDSchedule.tsx` — stored VD + a hardcoded status band
+Reads the **stored** `item.voltageDrop` (written at insert time by
+`sizeCableAndBreaker`/`calculateVoltageDrop` in `/api/floors/[id]/items`). The
+status band is **hardcoded**: `vd <= 3 ? OK : vd <= 5 ? WARNING : FAIL` — it
+does **not** use the project's configurable `maxVoltageDropLighting`/
+`maxVoltageDropPower`, and does **not** recompute VD live. See "Known gaps"
+below. The printed foot text cites "IEC 60364-5-52 limits: 3% / 5%" as if they
+were the project's, but the code ignores the project limits.
 
 ### `CoverPage.tsx`, `ReportHeader.tsx`
 Print-only branding: cover page (project + company identity) and the repeating
 per-page header. Driven by `companyName`/`companyLogoUrl` from `/api/settings`.
 
+## Known gaps in the reports layer
+
+Two worth knowing before you trust a printed report:
+
+1. **`src/lib/reports/aggregates.ts` is a parallel, unused-by-the-UI layer.**
+   It's tested (`aggregates.test.ts`), imports `computeFeeders` +
+   `calculateVoltageDrop`, and respects the project's `maxVoltageDropLighting`/
+   `maxVoltageDropPower` with a `1.2×` WARNING band (the honest version). But
+   **no schedule component imports it** — they each inline their own
+   aggregation. So the tested aggregation path is dead in production; the UI
+   schedules are the live ones. If you change how a schedule aggregates, update
+   both (or wire the components to `aggregates.ts` and delete the inline paths).
+2. **`VDSchedule` hardcodes the 3 %/5 % band** and ignores the project's
+   settable limits. A project with `maxVoltageDropPower = 4` will still label a
+   4.5 % power-drop as `WARNING` (against an assumed 5), not `FAIL` (against its
+   real 4 limit). The `aggregates.ts` version (`aggregateVoltageDropRows`) gets
+   this right. If the report must honor per-project limits, route VD through
+   `aggregates` — don't edit the hardcoded thresholds in the component.
+
 ## How the pieces share numbers
 
-| View | Source of feeder/breaker/cable numbers |
-|------|-----------------------------------------|
+| View | Source of feeder/breaker/cable/VD numbers |
+|------|--------------------------------------------|
 | Panel designer page | `computeFeeders(building, project, findBreaker)` live |
-| Breaker Schedule (print) | `computeFeeders(building, project, findBreaker)` live |
+| Breaker Schedule (print) | `computeFeeders(building, project, findBreaker)` live — matches the panel page |
 | SLD | stored `item.calculatedCurrent` / `.breakerSize` / `.cableSize` (written by `/api/floors/[id]/items` + `recalculate`) |
-| Cable Schedule | stored `item.*` per circuit |
+| Cable Schedule | stored `item.*` per circuit (phase label via `isThreePhaseForItem`) |
+| MDB Schedule | stored `item.*` per item + inline floor sums for sub-panel rows |
+| BOM Schedule | stored `item.cableSize`/`.breakerSize` aggregated inline (count + est. length) |
+| VD Schedule | stored `item.voltageDrop` + **hardcoded 3/5 % band** (project limits ignored) |
 | Reports summary | `calculateThreePhaseCurrent(Σ item.calculatedMaxDemand)` |
+| `reports/aggregates.ts` | `computeFeeders` + `calculateVoltageDrop` + project limits — **tested but unused by the UI** |
 
-The SLD and the cable schedule read **stored** item fields (the numbers written
-at insert/recalculate time). The breaker schedule reads them **live** via
-`computeFeeders`. If those ever disagree, `recalculate` is the reconciliation
-button — it re-sizes every apartment item from its template rooms and writes
-the stored fields back. Run it before printing if templates or apartment counts
-changed since the items were last sized.
+So: the **breaker schedule and the panel designer** share `computeFeeders` and
+agree live. **Everything else reads stored `FloorItem` fields** written at
+insert/recalculate time. If templates or apartment counts changed since items
+were last sized, the stored numbers are stale and the stored-field schedules
+(SLD, cable, MDB, BOM, VD) drift from the live breaker schedule until you run
+**recalculate** — the reconciliation button.
+
+> **The one real inconsistency to watch:** `VDSchedule` labels against a
+> hardcoded 3 %/5 % band, so its `OK/WARNING/FAIL` doesn't honor a project's
+> `maxVoltageDropLighting`/`maxVoltageDropPower`. The tested-but-unused
+> `reports/aggregates.ts` does honor them. Don't trust the VD schedule's color
+> against a project with non-default limits; recompute with `aggregates` or
+> check the stored `item.voltageDrop` against the project limit yourself.
 
 ## Related
 

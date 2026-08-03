@@ -51,7 +51,6 @@ dev.db
 task.md
 implementation_plan.md
 agent.json
-vitest.config.ts
 nul
 
 # Auto Claude data directory

@@ -37,6 +37,11 @@ export const config = {
      * - API routes that are NOT auth API routes
      * - static files, images, favicon
      */
-    "/((?!api/projects|api/buildings|api/cables|api/equipment|_next/static|_next/image|favicon.ico).*)",
+    // api/projects|buildings|cables|equipment — excluded pre-existing (self-auth).
+    // api/contact + api/admin — excluded so an expired session yields JSON 401
+    // from the handler's self-auth (CQ-B / OV-α), not the 302→/login HTML the
+    // matcher produces for other paths. Kills the cookie-expiry→silent-failure
+    // class on the billing path and on all 11 admin routes.
+    "/((?!api/projects|api/buildings|api/cables|api/equipment|api/contact|api/admin|_next/static|_next/image|favicon.ico).*)",
   ],
 };

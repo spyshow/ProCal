@@ -1,7 +1,7 @@
 'use client';
 /* eslint-disable react-hooks/set-state-in-effect */
 
-import { useEffect, useState, useCallback, useRef } from 'react';
+import { useEffect, useState, useCallback, useRef, useMemo } from 'react';
 import { useProject } from '@/context/ProjectContext';
 import { SchematexDiagram } from 'schematex/react';
 import { generateSLDPages, type SLDPage as SLDPageType } from '@/lib/sld/generator';
@@ -30,76 +30,52 @@ import {
   X,
   Play,
   Cpu,
+  Building2,
+  Plug,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import type { Project } from '@/types';
 
-interface TreeItem {
+export interface ComponentProperty {
   id: string;
   name: string;
-  type: 'feeder' | 'transformer' | 'breaker' | 'panel' | 'bus';
-  subLabel?: string;
-  status?: 'Active' | 'Tripped' | 'Open';
-  children?: TreeItem[];
+  type: string;
+  rating: string;
+  voltage: string;
+  current: string;
+  power: string;
+  cableSize?: string;
+  connections: string[];
 }
 
 export default function SLDPage() {
   const { selectedProjectId } = useProject();
   const [project, setProject] = useState<Project | null>(null);
   const [loading, setLoading] = useState(true);
-  const [selectedBuilding, setSelectedBuilding] = useState<string | null>(null);
+  const [selectedBuildingId, setSelectedBuildingId] = useState<string | null>(null);
   const [zoom, setZoom] = useState(100);
   const [pages, setPages] = useState<SLDPageType[]>([]);
   const [activePage, setActivePage] = useState(0);
   const [activeTab, setActiveTab] = useState<'riser' | 'sld' | 'panels'>('riser');
   const [activeMode, setActiveMode] = useState<'analyze' | 'simulate' | 'library'>('simulate');
-  
-  // Left Explorer Drawer State
+
+  // Explorer Search & Tree Collapse State
   const [explorerSearch, setExplorerSearch] = useState('');
   const [expandedNodes, setExpandedNodes] = useState<Record<string, boolean>>({
-    riserA: true,
-    transformers: true,
-    msb1: true,
-    distribution: true,
+    grid: true,
+    mdb: true,
   });
 
-  // Right Properties Inspector State
-  const [selectedComponent, setSelectedComponent] = useState<{
-    id: string;
-    name: string;
-    type: string;
-    rating: string;
-    status: 'Closed' | 'Open' | 'Tripped';
-    voltage: string;
-    current: string;
-    power: string;
-    connections: string[];
-  }>({
-    id: 'MCCB-04',
-    name: 'MCCB-04 Main Incomer',
-    type: 'Eaton 400A MCCB',
-    rating: '400A',
-    status: 'Closed',
-    voltage: '415V',
-    current: '3.2 A',
-    power: '200 kW',
-    connections: ['Main Switchboard MSB-1', 'Panel DP-1 (415V)', 'Panel DP-2 (415V)'],
-  });
+  // Simulation Status State Map: componentId -> 'Closed' | 'Open' | 'Tripped'
+  const [breakerStatuses, setBreakerStatuses] = useState<Record<string, 'Closed' | 'Open' | 'Tripped'>>({});
 
+  // Selected Component for Right Inspector
+  const [selectedComponent, setSelectedComponent] = useState<ComponentProperty | null>(null);
   const [showDsl, setShowDsl] = useState(false);
   const svgContainerRef = useRef<HTMLDivElement>(null);
 
-  // Apply zoom to the SVG element directly
-  useEffect(() => {
-    if (!svgContainerRef.current) return;
-    const svg = svgContainerRef.current.querySelector('svg');
-    if (svg) {
-      svg.style.transform = `scale(${zoom / 100})`;
-      svg.style.transformOrigin = 'top left';
-    }
-  }, [zoom, pages, activePage]);
-
+  // Load project details from API
   const loadProject = useCallback(async () => {
     if (!selectedProjectId) {
       setLoading(false);
@@ -110,28 +86,182 @@ export default function SLDPage() {
       if (res.ok) {
         const data = await res.json();
         setProject(data);
-        if (!selectedBuilding && data.buildings.length > 0) {
-          setSelectedBuilding(data.buildings[0].id);
+        if (data.buildings && data.buildings.length > 0) {
+          setSelectedBuildingId(data.buildings[0].id);
         }
       }
     } catch (err) {
       console.error(err);
-    } finally {
+    } fontally: {
       setLoading(false);
     }
-  }, [selectedProjectId, selectedBuilding]);
+  }, [selectedProjectId]);
 
   useEffect(() => {
     loadProject();
   }, [loadProject]);
 
+  // Generate real SLD Pages from project data
   useEffect(() => {
     if (!project) return;
     const generatedPages = generateSLDPages(project);
     setPages(generatedPages);
     setActivePage(0);
+
+    // Default select main transformer / utility grid
+    const txRating = project.transformerSize ? `${project.transformerSize} kVA` : '1000 kVA';
+    setSelectedComponent({
+      id: 'xfmr-main',
+      name: `${project.name} Main Transformer`,
+      type: 'Cast Resin Dy11 Step-Down Transformer',
+      rating: txRating,
+      voltage: `${project.voltage}V`,
+      current: `${Math.round(((project.transformerSize || 1000) * 1000) / (Math.sqrt(3) * project.voltage))} A`,
+      power: `${project.transformerSize || 1000} kVA`,
+      connections: ['Utility Grid 11kV Incomer', 'Main Switchboard MDB Bus'],
+    });
   }, [project]);
 
+  // Apply zoom to SVG element
+  useEffect(() => {
+    if (!svgContainerRef.current) return;
+    const svg = svgContainerRef.current.querySelector('svg');
+    if (svg) {
+      svg.style.transform = `scale(${zoom / 100})`;
+      svg.style.transformOrigin = 'top left';
+    }
+  }, [zoom, pages, activePage]);
+
+  // Extract Real Component Tree from Project Data
+  const dynamicTree = useMemo(() => {
+    if (!project) return [];
+
+    const rootItems: Array<{
+      id: string;
+      name: string;
+      type: string;
+      icon: 'zap' | 'cpu' | 'layers' | 'breaker' | 'plug';
+      badge?: string;
+      children?: Array<any>;
+      data: ComponentProperty;
+    }> = [];
+
+    // 1. Grid Incomer
+    rootItems.push({
+      id: 'grid-utility',
+      name: `Utility Grid Incomer (${project.voltage}V)`,
+      type: 'Utility Grid',
+      icon: 'zap',
+      data: {
+        id: 'grid-utility',
+        name: `Utility Incomer (${project.voltage}V)`,
+        type: 'HV Utility Feeder',
+        rating: '11kV / 400V Grid',
+        voltage: `${project.voltage}V`,
+        current: '800 A',
+        power: '500 kW',
+        connections: ['Main Step-Down Transformer'],
+      },
+    });
+
+    // 2. Transformer
+    const txKva = project.transformerSize || 1000;
+    rootItems.push({
+      id: 'xfmr-main',
+      name: `Main Transformer (${txKva} kVA)`,
+      type: 'Transformer',
+      icon: 'cpu',
+      badge: `${txKva}kVA`,
+      data: {
+        id: 'xfmr-main',
+        name: `${project.name} Main Transformer`,
+        type: 'Step-Down Dy11 Transformer',
+        rating: `${txKva} kVA`,
+        voltage: `${project.voltage}V`,
+        current: `${Math.round((txKva * 1000) / (Math.sqrt(3) * project.voltage))} A`,
+        power: `${txKva} kVA`,
+        connections: ['Utility Grid', 'Main Switchboard MDB Bus'],
+      },
+    });
+
+    // 3. Buildings & Floor Switchboards
+    if (project.buildings) {
+      project.buildings.forEach((bldg) => {
+        const bldgChildren: Array<any> = [];
+
+        if (bldg.floorDesigns) {
+          bldg.floorDesigns.forEach((fd) => {
+            if (!fd.items || fd.items.length === 0) return;
+            const floorCurrent = fd.items.reduce((s, i) => s + (i.calculatedCurrent || 0), 0);
+            const floorPower = fd.items.reduce((s, i) => s + (i.calculatedMaxDemand || 0), 0);
+
+            const itemChildren = fd.items.map((item, idx) => {
+              const itemId = `item-${fd.floorNumber}-${idx}`;
+              return {
+                id: itemId,
+                name: `${item.name} (${item.breakerSize || 'MCB'})`,
+                type: item.type || 'Electrical Load',
+                icon: 'plug',
+                badge: item.breakerSize,
+                data: {
+                  id: itemId,
+                  name: item.name,
+                  type: `${item.type || 'Branch Load'} Circuit`,
+                  rating: item.breakerSize || '16A MCB',
+                  voltage: `${project.voltage}V`,
+                  current: `${item.calculatedCurrent?.toFixed(1) || '0.0'} A`,
+                  power: `${item.calculatedMaxDemand?.toFixed(1) || '0.0'} kW`,
+                  cableSize: item.cableSize || '3x2.5mm²',
+                  connections: [`Floor ${fd.floorNumber} Distribution Bus`],
+                },
+              };
+            });
+
+            bldgChildren.push({
+              id: `floor-${fd.floorNumber}`,
+              name: `Floor ${fd.floorNumber} Sub-Panel (${Math.ceil(floorCurrent)}A Main)`,
+              type: 'Distribution Panel',
+              icon: 'layers',
+              badge: `${Math.ceil(floorCurrent)}A`,
+              children: itemChildren,
+              data: {
+                id: `floor-${fd.floorNumber}`,
+                name: `Floor ${fd.floorNumber} Main Panel`,
+                type: fd.hasFloorSubPanels ? 'Sub-Distribution Board (TP&N)' : 'Distribution Bus',
+                rating: `${Math.ceil(floorCurrent)}A Breaker`,
+                voltage: `${project.voltage}V`,
+                current: `${floorCurrent.toFixed(1)} A`,
+                power: `${floorPower.toFixed(1)} kW`,
+                connections: ['MDB Busbar', ...fd.items.map((i) => i.name)],
+              },
+            });
+          });
+        }
+
+        rootItems.push({
+          id: `bldg-${bldg.id}`,
+          name: `${bldg.name} (${bldg.floors} Floors)`,
+          type: 'Building Riser',
+          icon: 'layers',
+          children: bldgChildren,
+          data: {
+            id: `bldg-${bldg.id}`,
+            name: bldg.name,
+            type: 'Building Electrical Riser',
+            rating: '400V Feeder',
+            voltage: `${project.voltage}V`,
+            current: 'Variable',
+            power: 'Building Total Demand',
+            connections: ['MDB Main Switchboard'],
+          },
+        });
+      });
+    }
+
+    return rootItems;
+  }, [project]);
+
+  // Export handlers
   const exportPNG = async () => {
     if (!svgContainerRef.current) return;
     const svg = svgContainerRef.current.querySelector('svg');
@@ -171,7 +301,7 @@ export default function SLDPage() {
       canvas.height = fullHeight * scale;
       const ctx = canvas.getContext('2d')!;
       ctx.scale(scale, scale);
-      ctx.fillStyle = '#020617'; // Dark background
+      ctx.fillStyle = '#020617';
       ctx.fillRect(0, 0, fullWidth, fullHeight);
       ctx.drawImage(img, 0, 0, fullWidth, fullHeight);
 
@@ -179,9 +309,7 @@ export default function SLDPage() {
         if (!blob) return;
         const a = document.createElement('a');
         a.href = URL.createObjectURL(blob);
-        a.download = pages.length > 1
-          ? `${project?.name || 'sld'}-page${activePage + 1}.png`
-          : `${project?.name || 'sld'}-diagram.png`;
+        a.download = `${project?.name || 'sld'}-page${activePage + 1}.png`;
         a.click();
         URL.revokeObjectURL(a.href);
       }, 'image/png');
@@ -195,7 +323,7 @@ export default function SLDPage() {
     window.print();
   };
 
-  // Extend vertical cables and apply neon dark styling
+  // Extend vertical cables
   const extendCables = (svg: SVGSVGElement) => {
     const allLines = svg.querySelectorAll('line');
     const allPaths = svg.querySelectorAll('path');
@@ -249,7 +377,7 @@ export default function SLDPage() {
     const texts = svg.querySelectorAll('text');
     if (texts.length === 0) return;
 
-    const mcbSymbols: { cx: number; cy: number; topY: number; botY: number; leftX: number; rightX: number }[] = [];
+    const mcbSymbols: { cx: number; cy: number; topY: number; botY: number; rightX: number }[] = [];
     svg.querySelectorAll('line').forEach((line) => {
       const x1 = parseFloat(line.getAttribute('x1') || '0');
       const y1 = parseFloat(line.getAttribute('y1') || '0');
@@ -261,7 +389,6 @@ export default function SLDPage() {
           cy: (y1 + y2) / 2,
           topY: Math.min(y1, y2),
           botY: Math.max(y1, y2),
-          leftX: Math.min(x1, x2),
           rightX: Math.max(x1, x2),
         });
       }
@@ -330,6 +457,12 @@ export default function SLDPage() {
     setExpandedNodes((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
+  const getStatus = (id: string) => breakerStatuses[id] || 'Closed';
+
+  const updateStatus = (id: string, status: 'Closed' | 'Open' | 'Tripped') => {
+    setBreakerStatuses((prev) => ({ ...prev, [id]: status }));
+  };
+
   if (loading)
     return (
       <div className="flex items-center justify-center min-h-screen bg-slate-950 text-slate-300">
@@ -349,6 +482,8 @@ export default function SLDPage() {
       </div>
     );
 
+  const activeStatus = selectedComponent ? getStatus(selectedComponent.id) : 'Closed';
+
   return (
     <div className="flex flex-col h-screen bg-slate-950 text-slate-100 overflow-hidden font-sans select-none">
       {/* Top Workstation Window Bar & Header */}
@@ -360,9 +495,9 @@ export default function SLDPage() {
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-sm font-bold text-white tracking-tight">SLD Pro</span>
+              <span className="text-sm font-bold text-white tracking-tight">SLD Pro Workstation</span>
               <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-orange-500/20 text-orange-400 border border-orange-500/30">
-                V4.2
+                V4.2 Dynamic
               </span>
               <span className="text-slate-600">|</span>
               <span className="text-xs text-slate-300 font-medium truncate max-w-[200px]">
@@ -393,7 +528,7 @@ export default function SLDPage() {
             }`}
           >
             <Play className="w-3 h-3 text-orange-400 fill-orange-400" />
-            Simulate
+            Simulate Engine
           </button>
           <button
             onClick={() => setActiveMode('library')}
@@ -460,13 +595,14 @@ export default function SLDPage() {
 
       {/* Main Workstation 3-Panel Body */}
       <div className="flex flex-1 overflow-hidden relative">
-        {/* LEFT PANEL: Project Explorer & Riser Tree */}
+        {/* LEFT PANEL: Dynamic Project Explorer */}
         <aside className="w-72 border-r border-slate-800/80 bg-slate-950 flex flex-col shrink-0">
           <div className="p-3 border-b border-slate-800/80 flex items-center justify-between">
             <div className="flex items-center gap-2 text-xs font-semibold text-slate-300">
               <FolderTree size={14} className="text-orange-400" />
-              <span>Project Explorer</span>
+              <span>Project Explorer Tree</span>
             </div>
+            <span className="text-[10px] font-mono text-slate-500">{dynamicTree.length} Nodes</span>
           </div>
 
           {/* Search Bar */}
@@ -475,7 +611,7 @@ export default function SLDPage() {
               <Search className="w-3.5 h-3.5 absolute left-2.5 top-2.5 text-slate-500" />
               <input
                 type="text"
-                placeholder="Filter nodes or panels…"
+                placeholder="Search circuits or panels…"
                 value={explorerSearch}
                 onChange={(e) => setExplorerSearch(e.target.value)}
                 className="w-full bg-slate-900 border border-slate-800 rounded-lg pl-8 pr-3 py-1 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-orange-500/50"
@@ -483,179 +619,112 @@ export default function SLDPage() {
             </div>
           </div>
 
-          {/* Riser & Switchboard Hierarchy Tree */}
+          {/* Dynamic Hierarchy Tree */}
           <div className="flex-1 overflow-y-auto p-2 space-y-1 text-xs no-scrollbar">
-            {/* Tree Section: Riser A */}
-            <div>
-              <button
-                onClick={() => toggleNode('riserA')}
-                className="w-full flex items-center gap-1.5 py-1 px-1.5 rounded hover:bg-slate-900 text-slate-300 font-semibold text-left"
-              >
-                {expandedNodes['riserA'] ? (
-                  <ChevronDown className="w-3.5 h-3.5 text-slate-500" />
-                ) : (
-                  <ChevronRight className="w-3.5 h-3.5 text-slate-500" />
-                )}
-                <GitBranch className="w-3.5 h-3.5 text-orange-400" />
-                <span>Building Riser: Riser A</span>
-              </button>
+            {dynamicTree
+              .filter((item) =>
+                explorerSearch ? item.name.toLowerCase().includes(explorerSearch.toLowerCase()) : true
+              )
+              .map((item) => {
+                const isExpanded = expandedNodes[item.id] ?? true;
+                const isSelected = selectedComponent?.id === item.data.id;
+                const currentStatus = getStatus(item.data.id);
 
-              {expandedNodes['riserA'] && (
-                <div className="pl-4 space-y-0.5 mt-0.5 border-l border-slate-800/80 ml-2.5">
-                  <button
-                    onClick={() =>
-                      setSelectedComponent({
-                        id: 'INCOMER-11KV',
-                        name: '11kV Main Incomer Feeder',
-                        type: 'High Voltage Utility Feeder',
-                        rating: '11kV',
-                        status: 'Closed',
-                        voltage: '11,000 V',
-                        current: '120 A',
-                        power: '2280 kW',
-                        connections: ['Transformer T1 (11/0.415kV)', 'Transformer T2 (11/0.415kV)'],
-                      })
-                    }
-                    className="w-full flex items-center justify-between py-1 px-2 rounded hover:bg-slate-900/80 text-slate-400 hover:text-slate-200 text-left"
-                  >
-                    <span className="flex items-center gap-1.5">
-                      <Zap className="w-3 h-3 text-orange-400" /> 11kV Main Incomer
-                    </span>
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-                  </button>
+                return (
+                  <div key={item.id}>
+                    <button
+                      onClick={() => {
+                        toggleNode(item.id);
+                        setSelectedComponent(item.data);
+                      }}
+                      className={`w-full flex items-center justify-between py-1.5 px-2 rounded-lg text-left transition-colors ${
+                        isSelected
+                          ? 'bg-orange-500/15 text-orange-300 border border-orange-500/30 font-medium'
+                          : 'hover:bg-slate-900 text-slate-300'
+                      }`}
+                    >
+                      <div className="flex items-center gap-1.5 truncate pr-1">
+                        {item.children && item.children.length > 0 ? (
+                          isExpanded ? (
+                            <ChevronDown className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+                          ) : (
+                            <ChevronRight className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+                          )
+                        ) : (
+                          <div className="w-3.5 h-3.5 shrink-0" />
+                        )}
+                        {item.icon === 'zap' && <Zap className="w-3.5 h-3.5 text-orange-400 shrink-0" />}
+                        {item.icon === 'cpu' && <Cpu className="w-3.5 h-3.5 text-amber-400 shrink-0" />}
+                        {item.icon === 'layers' && <Layers className="w-3.5 h-3.5 text-sky-400 shrink-0" />}
+                        {item.icon === 'plug' && <Plug className="w-3.5 h-3.5 text-emerald-400 shrink-0" />}
+                        <span className="truncate">{item.name}</span>
+                      </div>
+                      {item.badge && (
+                        <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-slate-800 text-slate-400 shrink-0">
+                          {item.badge}
+                        </span>
+                      )}
+                    </button>
 
-                  <button
-                    onClick={() =>
-                      setSelectedComponent({
-                        id: 'TRANSFORMER-T1',
-                        name: 'Transformer T1 (2500kVA)',
-                        type: 'Cast Resin Dy11 Transformer',
-                        rating: '2500 kVA',
-                        status: 'Closed',
-                        voltage: '11kV / 415V',
-                        current: '3470 A',
-                        power: '2125 kW',
-                        connections: ['11kV Bus', 'Main Switchboard MSB-1', 'Panel DP-1'],
-                      })
-                    }
-                    className="w-full flex items-center justify-between py-1 px-2 rounded hover:bg-slate-900/80 text-slate-400 hover:text-slate-200 text-left"
-                  >
-                    <span className="flex items-center gap-1.5">
-                      <Cpu className="w-3 h-3 text-amber-400" /> T1 (2500kVA 11kV/415V)
-                    </span>
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-                  </button>
+                    {/* Render Children Recursively */}
+                    {item.children && isExpanded && (
+                      <div className="pl-4 space-y-0.5 mt-0.5 border-l border-slate-800/80 ml-2.5">
+                        {item.children.map((child: any) => {
+                          const isChildSelected = selectedComponent?.id === child.data.id;
+                          const childStatus = getStatus(child.data.id);
+                          return (
+                            <div key={child.id}>
+                              <button
+                                onClick={() => setSelectedComponent(child.data)}
+                                className={`w-full flex items-center justify-between py-1 px-2 rounded text-left transition-colors text-xs ${
+                                  isChildSelected
+                                    ? 'bg-orange-500/15 text-orange-300 border border-orange-500/30 font-medium'
+                                    : 'hover:bg-slate-900/80 text-slate-400 hover:text-slate-200'
+                                }`}
+                              >
+                                <span className="flex items-center gap-1.5 truncate">
+                                  <Layers className="w-3 h-3 text-sky-400 shrink-0" />
+                                  <span className="truncate">{child.name}</span>
+                                </span>
+                                <span
+                                  className={`w-1.5 h-1.5 rounded-full shrink-0 ${
+                                    childStatus === 'Closed' ? 'bg-emerald-400' : 'bg-rose-400'
+                                  }`}
+                                />
+                              </button>
 
-                  <button
-                    onClick={() =>
-                      setSelectedComponent({
-                        id: 'MCCB-04',
-                        name: 'MCCB-04 Main Incomer',
-                        type: 'Eaton 400A MCCB',
-                        rating: '400A',
-                        status: 'Closed',
-                        voltage: '415V',
-                        current: '3.2 A',
-                        power: '200 kW',
-                        connections: ['Main Switchboard MSB-1', 'Panel DP-1', 'Panel DP-2'],
-                      })
-                    }
-                    className="w-full flex items-center justify-between py-1 px-2 rounded bg-orange-500/10 text-orange-300 font-medium border border-orange-500/30 text-left"
-                  >
-                    <span className="flex items-center gap-1.5">
-                      <ShieldCheck className="w-3 h-3 text-orange-400" /> MCCB-04 (400A)
-                    </span>
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-                  </button>
-                </div>
-              )}
-            </div>
-
-            {/* Tree Section: Main Switchboard MSB-1 */}
-            <div className="pt-1">
-              <button
-                onClick={() => toggleNode('msb1')}
-                className="w-full flex items-center gap-1.5 py-1 px-1.5 rounded hover:bg-slate-900 text-slate-300 font-semibold text-left"
-              >
-                {expandedNodes['msb1'] ? (
-                  <ChevronDown className="w-3.5 h-3.5 text-slate-500" />
-                ) : (
-                  <ChevronRight className="w-3.5 h-3.5 text-slate-500" />
-                )}
-                <Layers className="w-3.5 h-3.5 text-sky-400" />
-                <span>Main Switchboard: MSB-1</span>
-              </button>
-
-              {expandedNodes['msb1'] && (
-                <div className="pl-4 space-y-0.5 mt-0.5 border-l border-slate-800/80 ml-2.5">
-                  <button
-                    onClick={() =>
-                      setSelectedComponent({
-                        id: 'PANEL-DP1',
-                        name: 'Distribution Panel DP-1',
-                        type: 'Sub-Distribution Panel (TP&N)',
-                        rating: '250A Busbar',
-                        status: 'Closed',
-                        voltage: '415V / 230V',
-                        current: '145 A',
-                        power: '95 kW',
-                        connections: ['MCCB-04', 'Floor 1 Lighting', 'Floor 1 Power'],
-                      })
-                    }
-                    className="w-full flex items-center justify-between py-1 px-2 rounded hover:bg-slate-900/80 text-slate-400 hover:text-slate-200 text-left"
-                  >
-                    <span className="flex items-center gap-1.5">
-                      <Layers className="w-3 h-3 text-sky-400" /> Panel DP-1 (415V)
-                    </span>
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-                  </button>
-
-                  <button
-                    onClick={() =>
-                      setSelectedComponent({
-                        id: 'PANEL-DP2',
-                        name: 'Distribution Panel DP-2',
-                        type: 'Sub-Distribution Panel (TP&N)',
-                        rating: '250A Busbar',
-                        status: 'Closed',
-                        voltage: '415V / 230V',
-                        current: '160 A',
-                        power: '105 kW',
-                        connections: ['MCCB-04', 'Floor 2 HVAC', 'Floor 2 Sockets'],
-                      })
-                    }
-                    className="w-full flex items-center justify-between py-1 px-2 rounded hover:bg-slate-900/80 text-slate-400 hover:text-slate-200 text-left"
-                  >
-                    <span className="flex items-center gap-1.5">
-                      <Layers className="w-3 h-3 text-sky-400" /> Panel DP-2 (415V)
-                    </span>
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-                  </button>
-
-                  <button
-                    onClick={() =>
-                      setSelectedComponent({
-                        id: 'PANEL-DP3',
-                        name: 'Distribution Panel DP-3',
-                        type: 'Sub-Distribution Panel (TP&N)',
-                        rating: '160A Busbar',
-                        status: 'Closed',
-                        voltage: '415V / 230V',
-                        current: '110 A',
-                        power: '72 kW',
-                        connections: ['MCCB-04', 'Floor 3 Power'],
-                      })
-                    }
-                    className="w-full flex items-center justify-between py-1 px-2 rounded hover:bg-slate-900/80 text-slate-400 hover:text-slate-200 text-left"
-                  >
-                    <span className="flex items-center gap-1.5">
-                      <Layers className="w-3 h-3 text-sky-400" /> Panel DP-3 (415V)
-                    </span>
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-                  </button>
-                </div>
-              )}
-            </div>
+                              {/* Nested Sub-Items */}
+                              {child.children && (
+                                <div className="pl-3 space-y-0.5 mt-0.5 border-l border-slate-800/50 ml-2">
+                                  {child.children.map((sub: any) => {
+                                    const isSubSelected = selectedComponent?.id === sub.data.id;
+                                    return (
+                                      <button
+                                        key={sub.id}
+                                        onClick={() => setSelectedComponent(sub.data)}
+                                        className={`w-full flex items-center justify-between py-0.5 px-1.5 rounded text-[11px] text-left transition-colors ${
+                                          isSubSelected
+                                            ? 'bg-orange-500/20 text-orange-300 font-medium'
+                                            : 'hover:bg-slate-900/60 text-slate-400 hover:text-slate-300'
+                                        }`}
+                                      >
+                                        <span className="truncate flex items-center gap-1">
+                                          <Plug className="w-2.5 h-2.5 text-emerald-400 shrink-0" />
+                                          <span className="truncate">{sub.name}</span>
+                                        </span>
+                                      </button>
+                                    );
+                                  })}
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
           </div>
         </aside>
 
@@ -685,6 +754,28 @@ export default function SLDPage() {
               <Layers className="w-3.5 h-3.5 text-sky-400" />
               <span>Single Line Overview</span>
             </button>
+
+            {pages.length > 1 && (
+              <div className="ml-auto flex items-center gap-2 pr-2 text-xs">
+                <button
+                  onClick={() => setActivePage((p) => Math.max(0, p - 1))}
+                  disabled={activePage === 0}
+                  className="px-2 py-0.5 rounded bg-slate-800 text-slate-400 hover:text-white disabled:opacity-30"
+                >
+                  ← Prev Page
+                </button>
+                <span className="font-mono text-slate-400">
+                  {activePage + 1} / {pages.length}
+                </span>
+                <button
+                  onClick={() => setActivePage((p) => Math.min(pages.length - 1, p + 1))}
+                  disabled={activePage === pages.length - 1}
+                  className="px-2 py-0.5 rounded bg-slate-800 text-slate-400 hover:text-white disabled:opacity-30"
+                >
+                  Next Page →
+                </button>
+              </div>
+            )}
           </div>
 
           {/* Canvas Area with Dark Grid Background */}
@@ -699,10 +790,14 @@ export default function SLDPage() {
 
             {/* Floating Live Simulation Banner */}
             <div className="absolute top-4 left-4 z-10 flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-900/90 backdrop-blur-md border border-white/10 text-xs text-slate-300 shadow-lg">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
-              <span>Live Power Flow Active</span>
+              <span
+                className={`w-2 h-2 rounded-full ${
+                  activeStatus === 'Closed' ? 'bg-emerald-400 animate-ping' : 'bg-rose-400'
+                }`}
+              />
+              <span>Simulation Status: {activeStatus}</span>
               <span className="text-slate-600">|</span>
-              <span className="text-orange-400 font-mono">11kV Feeder A</span>
+              <span className="text-orange-400 font-mono">{project.voltage}V Grid</span>
             </div>
           </div>
 
@@ -711,10 +806,7 @@ export default function SLDPage() {
             <div className="border-t border-slate-800 bg-slate-950 p-4 max-h-48 overflow-auto font-mono text-[11px] text-slate-300">
               <div className="flex items-center justify-between mb-2">
                 <span className="font-bold text-orange-400">Generated Schematex DSL</span>
-                <button
-                  onClick={() => setShowDsl(false)}
-                  className="text-slate-400 hover:text-white"
-                >
+                <button onClick={() => setShowDsl(false)} className="text-slate-400 hover:text-white">
                   <X className="w-4 h-4" />
                 </button>
               </div>
@@ -723,7 +815,7 @@ export default function SLDPage() {
           )}
         </main>
 
-        {/* RIGHT PANEL: Properties & Simulation Inspector */}
+        {/* RIGHT PANEL: Dynamic Properties Inspector */}
         <aside className="w-80 border-l border-slate-800/80 bg-slate-950 flex flex-col shrink-0">
           <div className="p-3 border-b border-slate-800/80 flex items-center justify-between">
             <div className="flex items-center gap-2 text-xs font-semibold text-slate-300">
@@ -740,128 +832,116 @@ export default function SLDPage() {
           </div>
 
           {/* Component Details Form & Live Control */}
-          <div className="p-4 space-y-4 flex-1 overflow-y-auto no-scrollbar text-xs">
-            {/* Header Badge & Name */}
-            <div className="p-3 rounded-xl bg-slate-900 border border-slate-800 space-y-1">
-              <div className="flex items-center justify-between">
-                <span className="text-[10px] font-mono uppercase tracking-wider text-slate-500">
-                  {selectedComponent.id}
-                </span>
-                <span
-                  className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold border ${
-                    selectedComponent.status === 'Closed'
-                      ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30'
-                      : 'bg-rose-500/10 text-rose-400 border-rose-500/30'
-                  }`}
-                >
+          {selectedComponent ? (
+            <div className="p-4 space-y-4 flex-1 overflow-y-auto no-scrollbar text-xs">
+              {/* Header Badge & Name */}
+              <div className="p-3 rounded-xl bg-slate-900 border border-slate-800 space-y-1">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-mono uppercase tracking-wider text-slate-500">
+                    {selectedComponent.id}
+                  </span>
                   <span
-                    className={`w-1.5 h-1.5 rounded-full ${
-                      selectedComponent.status === 'Closed' ? 'bg-emerald-400' : 'bg-rose-400'
+                    className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold border ${
+                      activeStatus === 'Closed'
+                        ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30'
+                        : 'bg-rose-500/10 text-rose-400 border-rose-500/30'
                     }`}
-                  />
-                  {selectedComponent.status === 'Closed' ? 'Active (Closed)' : 'Tripped'}
-                </span>
-              </div>
-              <h4 className="text-sm font-extrabold text-white">{selectedComponent.name}</h4>
-              <p className="text-xs text-slate-400">{selectedComponent.type}</p>
-            </div>
-
-            {/* Properties Inputs & Status Simulation Selector */}
-            <div className="space-y-3 pt-1">
-              <div>
-                <label className="block text-slate-400 text-[11px] mb-1">Protection Type</label>
-                <input
-                  type="text"
-                  value={selectedComponent.type}
-                  onChange={(e) =>
-                    setSelectedComponent({ ...selectedComponent, type: e.target.value })
-                  }
-                  className="w-full bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-orange-500/50"
-                />
+                  >
+                    <span
+                      className={`w-1.5 h-1.5 rounded-full ${
+                        activeStatus === 'Closed' ? 'bg-emerald-400' : 'bg-rose-400'
+                      }`}
+                    />
+                    {activeStatus === 'Closed' ? 'Active (Closed)' : activeStatus}
+                  </span>
+                </div>
+                <h4 className="text-sm font-extrabold text-white">{selectedComponent.name}</h4>
+                <p className="text-xs text-slate-400">{selectedComponent.type}</p>
               </div>
 
-              <div className="grid grid-cols-2 gap-2">
+              {/* Properties Inputs & Status Simulation Selector */}
+              <div className="space-y-3 pt-1">
                 <div>
-                  <label className="block text-slate-400 text-[11px] mb-1">Trip Rating</label>
+                  <label className="block text-slate-400 text-[11px] mb-1">Protection Rating</label>
                   <input
                     type="text"
                     value={selectedComponent.rating}
-                    onChange={(e) =>
-                      setSelectedComponent({ ...selectedComponent, rating: e.target.value })
-                    }
-                    className="w-full bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-orange-500/50"
+                    readOnly
+                    className="w-full bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none"
                   />
                 </div>
+
+                {selectedComponent.cableSize && (
+                  <div>
+                    <label className="block text-slate-400 text-[11px] mb-1">Cable Conductor Schedule</label>
+                    <input
+                      type="text"
+                      value={selectedComponent.cableSize}
+                      readOnly
+                      className="w-full bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-amber-300 font-mono focus:outline-none"
+                    />
+                  </div>
+                )}
+
+                {/* Status Simulation Switch */}
                 <div>
-                  <label className="block text-slate-400 text-[11px] mb-1">Voltage Rating</label>
-                  <input
-                    type="text"
-                    value={selectedComponent.voltage}
+                  <label className="block text-slate-400 text-[11px] mb-1">Simulation Switch</label>
+                  <select
+                    value={activeStatus}
                     onChange={(e) =>
-                      setSelectedComponent({ ...selectedComponent, voltage: e.target.value })
+                      updateStatus(selectedComponent.id, e.target.value as 'Closed' | 'Open' | 'Tripped')
                     }
-                    className="w-full bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-orange-500/50"
-                  />
+                    className="w-full bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-orange-500/50 cursor-pointer"
+                  >
+                    <option value="Closed">Closed (Normal Power Flow)</option>
+                    <option value="Open">Open (Manual Disconnect)</option>
+                    <option value="Tripped">Tripped (Simulate Fault)</option>
+                  </select>
                 </div>
               </div>
 
-              {/* Status Simulation Switch */}
-              <div>
-                <label className="block text-slate-400 text-[11px] mb-1">Simulation Status</label>
-                <select
-                  value={selectedComponent.status}
-                  onChange={(e) =>
-                    setSelectedComponent({
-                      ...selectedComponent,
-                      status: e.target.value as 'Closed' | 'Open' | 'Tripped',
-                    })
-                  }
-                  className="w-full bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-orange-500/50"
-                >
-                  <option value="Closed">Closed (Active Power)</option>
-                  <option value="Open">Open (Manual Disconnect)</option>
-                  <option value="Tripped">Tripped (Fault Alert)</option>
-                </select>
-              </div>
-            </div>
-
-            {/* Live Measurements Card */}
-            <div className="p-3 rounded-xl bg-slate-900/60 border border-slate-800/80 space-y-2">
-              <span className="text-[10px] font-mono uppercase tracking-wider text-slate-400">
-                Live Load Telemetry
-              </span>
-              <div className="grid grid-cols-2 gap-2 text-xs">
-                <div className="bg-slate-950 p-2 rounded-lg border border-slate-800">
-                  <span className="text-[10px] text-slate-500 block">Current Draw</span>
-                  <span className="font-mono font-bold text-orange-400">
-                    {selectedComponent.current}
-                  </span>
-                </div>
-                <div className="bg-slate-950 p-2 rounded-lg border border-slate-800">
-                  <span className="text-[10px] text-slate-500 block">Active Power</span>
-                  <span className="font-mono font-bold text-amber-400">
-                    {selectedComponent.power}
-                  </span>
+              {/* Live Measurements Card */}
+              <div className="p-3 rounded-xl bg-slate-900/60 border border-slate-800/80 space-y-2">
+                <span className="text-[10px] font-mono uppercase tracking-wider text-slate-400">
+                  Live Project Calculations
+                </span>
+                <div className="grid grid-cols-2 gap-2 text-xs">
+                  <div className="bg-slate-950 p-2 rounded-lg border border-slate-800">
+                    <span className="text-[10px] text-slate-500 block">Current Load</span>
+                    <span className="font-mono font-bold text-orange-400">
+                      {selectedComponent.current}
+                    </span>
+                  </div>
+                  <div className="bg-slate-950 p-2 rounded-lg border border-slate-800">
+                    <span className="text-[10px] text-slate-500 block">Max Demand</span>
+                    <span className="font-mono font-bold text-amber-400">
+                      {selectedComponent.power}
+                    </span>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            {/* Downstream Connections List */}
-            <div className="space-y-1.5 pt-2">
-              <span className="text-[10px] font-mono uppercase tracking-wider text-slate-400 block">
-                Connected Downstream
-              </span>
-              {selectedComponent.connections.map((conn, idx) => (
-                <div
-                  key={idx}
-                  className="p-2 rounded-lg bg-slate-900 border border-slate-800/80 flex items-center justify-between text-[11px] text-slate-300"
-                >
-                  <span className="truncate max-w-[190px]">{conn}</span>
-                  <ChevronRight className="w-3.5 h-3.5 text-slate-500" />
-                </div>
-              ))}
+              {/* Downstream Connections List */}
+              <div className="space-y-1.5 pt-2">
+                <span className="text-[10px] font-mono uppercase tracking-wider text-slate-400 block">
+                  Connections Path
+                </span>
+                {selectedComponent.connections.map((conn, idx) => (
+                  <div
+                    key={idx}
+                    className="p-2 rounded-lg bg-slate-900 border border-slate-800/80 flex items-center justify-between text-[11px] text-slate-300"
+                  >
+                    <span className="truncate max-w-[190px]">{conn}</span>
+                    <ChevronRight className="w-3.5 h-3.5 text-slate-500" />
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
+          ) : (
+            <div className="p-6 text-center text-slate-500 text-xs">
+              Select any node from the tree or diagram to view live property inspection.
+            </div>
+          )}
         </aside>
       </div>
     </div>

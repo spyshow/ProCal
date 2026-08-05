@@ -1,12 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
 export default function LoginPage() {
-  const router = useRouter();
-
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -31,13 +28,15 @@ export default function LoginPage() {
         body: JSON.stringify({ username: username.trim(), password }),
       });
 
+      const data = await res.json().catch(() => ({}));
+
       if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        setError(data?.message || 'Invalid credentials. Please try again.');
+        setError(data?.error || data?.message || 'Invalid credentials. Please try again.');
         return;
       }
 
-      router.push('/dashboard');
+      // Hard redirect to dashboard ensures session cookie is attached to all subsequent server requests
+      window.location.href = '/dashboard';
     } catch {
       setError('Unable to connect to the server. Please try again.');
     } finally {
@@ -220,7 +219,6 @@ export default function LoginPage() {
                   aria-label={showPassword ? 'Hide password' : 'Show password'}
                 >
                   {showPassword ? (
-                    /* Eye-off */
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       viewBox="0 0 24 24"
@@ -237,7 +235,6 @@ export default function LoginPage() {
                       <line x1="1" y1="1" x2="23" y2="23" />
                     </svg>
                   ) : (
-                    /* Eye */
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       viewBox="0 0 24 24"
@@ -297,7 +294,6 @@ export default function LoginPage() {
             >
               {isLoading ? (
                 <>
-                  {/* Spinner */}
                   <svg
                     className="animate-spin w-4 h-4 text-orange-200"
                     xmlns="http://www.w3.org/2000/svg"
@@ -323,7 +319,6 @@ export default function LoginPage() {
                 </>
               ) : (
                 <>
-                  {/* Zap icon inside button */}
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     viewBox="0 0 24 24"

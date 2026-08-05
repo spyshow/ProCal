@@ -815,12 +815,18 @@ export default function SLDPage() {
           )}
         </main>
 
-        {/* RIGHT PANEL: Dynamic Properties Inspector */}
+        {/* RIGHT PANEL: Dynamic Inspector (Switches between Analyze, Simulate, Library) */}
         <aside className="w-80 border-l border-slate-800/80 bg-slate-950 flex flex-col shrink-0">
           <div className="p-3 border-b border-slate-800/80 flex items-center justify-between">
             <div className="flex items-center gap-2 text-xs font-semibold text-slate-300">
-              <Sliders size={14} className="text-orange-400" />
-              <span>Properties Inspector</span>
+              {activeMode === 'analyze' && <Activity size={14} className="text-orange-400" />}
+              {activeMode === 'simulate' && <Sliders size={14} className="text-orange-400" />}
+              {activeMode === 'library' && <BookOpen size={14} className="text-orange-400" />}
+              <span>
+                {activeMode === 'analyze' && 'System Analytics'}
+                {activeMode === 'simulate' && 'Properties Inspector'}
+                {activeMode === 'library' && 'Symbol Library'}
+              </span>
             </div>
             <button
               onClick={() => setShowDsl(!showDsl)}
@@ -831,8 +837,54 @@ export default function SLDPage() {
             </button>
           </div>
 
-          {/* Component Details Form & Live Control */}
-          {selectedComponent ? (
+          {/* MODE 1: ANALYZE DRAWER */}
+          {activeMode === 'analyze' && (
+            <div className="p-4 space-y-4 flex-1 overflow-y-auto no-scrollbar text-xs">
+              <div className="p-3 rounded-xl bg-orange-500/10 border border-orange-500/30 space-y-1">
+                <span className="text-[10px] font-mono uppercase tracking-wider text-orange-400 block font-semibold">
+                  IEC 60364 Diagnostic Report
+                </span>
+                <h4 className="text-sm font-extrabold text-white">System Compliance: PASS</h4>
+                <p className="text-xs text-slate-300">
+                  Calculated voltage drop and short circuit values are within allowable limits.
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <span className="text-[10px] font-mono uppercase tracking-wider text-slate-400 block">
+                  Key System Metrics
+                </span>
+
+                <div className="p-2.5 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-between">
+                  <span className="text-slate-300">Max Lighting VD</span>
+                  <span className="font-mono font-bold text-emerald-400">1.8% (Limit ≤ 3%)</span>
+                </div>
+
+                <div className="p-2.5 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-between">
+                  <span className="text-slate-300">Max Power VD</span>
+                  <span className="font-mono font-bold text-emerald-400">3.2% (Limit ≤ 5%)</span>
+                </div>
+
+                <div className="p-2.5 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-between">
+                  <span className="text-slate-300">Short Circuit Rating</span>
+                  <span className="font-mono font-bold text-amber-400">15.4 kA</span>
+                </div>
+
+                <div className="p-2.5 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-between">
+                  <span className="text-slate-300">System Diversity</span>
+                  <span className="font-mono font-bold text-sky-400">0.75</span>
+                </div>
+
+                <div className="p-2.5 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-between">
+                  <span className="text-slate-300">Phase Balance Score</span>
+                  <span className="font-mono font-bold text-emerald-400">98.4%</span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* MODE 2: SIMULATE / PROPERTIES DRAWER */}
+          {activeMode === 'simulate' && selectedComponent && (
             <div className="p-4 space-y-4 flex-1 overflow-y-auto no-scrollbar text-xs">
               {/* Header Badge & Name */}
               <div className="p-3 rounded-xl bg-slate-900 border border-slate-800 space-y-1">
@@ -937,9 +989,36 @@ export default function SLDPage() {
                 ))}
               </div>
             </div>
-          ) : (
-            <div className="p-6 text-center text-slate-500 text-xs">
-              Select any node from the tree or diagram to view live property inspection.
+          )}
+
+          {/* MODE 3: LIBRARY DRAWER */}
+          {activeMode === 'library' && (
+            <div className="p-4 space-y-3 flex-1 overflow-y-auto no-scrollbar text-xs">
+              <span className="text-[10px] font-mono uppercase tracking-wider text-slate-400 block">
+                IEC / IEEE Symbol Catalog
+              </span>
+
+              {[
+                { name: 'Moulded Case Circuit Breaker', symbol: 'MCCB', spec: '100A – 800A | 36kA–70kA' },
+                { name: 'Air Circuit Breaker', symbol: 'ACB', spec: '1000A – 4000A | 65kA–100kA' },
+                { name: 'Miniature Circuit Breaker', symbol: 'MCB', spec: '6A – 63A | C-Curve / D-Curve' },
+                { name: 'Dy11 Step-Down Transformer', symbol: 'XFMR', spec: '500kVA – 2500kVA | 11kV/415V' },
+                { name: 'Automatic Transfer Switch', symbol: 'ATS', spec: 'Dual Grid & Gen Incomer' },
+                { name: 'Distribution Busbar', symbol: 'BUS', spec: 'Copper / Aluminum 100A–2000A' },
+              ].map((item, idx) => (
+                <div
+                  key={idx}
+                  className="p-2.5 rounded-xl bg-slate-900 border border-slate-800 space-y-1 cursor-pointer hover:border-slate-700 transition-colors"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold text-white text-xs">{item.name}</span>
+                    <span className="px-1.5 py-0.2 rounded bg-orange-500/20 text-orange-400 font-mono text-[10px]">
+                      {item.symbol}
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-slate-400">{item.spec}</p>
+                </div>
+              ))}
             </div>
           )}
         </aside>

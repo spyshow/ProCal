@@ -1,0 +1,66 @@
+=== AUTO-BUILD PROGRESS ===
+
+Project: Project-specific onboarding and in-app documentation
+Workspace: 003-project-specific-onboarding-and-in-app-documentati
+Started: 2026-07-13
+
+Workflow Type: feature
+Rationale: The task adds three user-facing deliverables (README rewrite, first-run wizard, tooltips) on top of an existing Next.js frontend. These can be implemented in sequential frontend phases with an integration phase at the end.
+
+Session 1 (Planner):
+- Created project_index.json
+- Created context.json
+- Created implementation_plan.json
+- Phases: 4
+- Total subtasks: 10
+- Created init.sh
+
+Phase Summary:
+- Phase 1: ProCal README Rewrite (1 subtask, depends on: none)
+- Phase 2: First-Run Wizard (4 subtasks, depends on: none)
+- Phase 3: In-App Tooltips and Helper Text (4 subtasks, depends on: none)
+- Phase 4: Integration and Polish (2 subtasks, depends on: phase-1-readme, phase-2-wizard, phase-3-tooltips)
+
+Services Involved:
+- frontend: Next.js + React app with embedded Prisma/SQLite API routes
+
+Parallelism Analysis:
+- Max parallel phases: 3
+- Recommended workers: 2
+- Parallel groups:
+  - phase-1-readme, phase-2-wizard, phase-3-tooltips (disjoint file sets, no dependencies)
+
+Verification Strategy:
+- Risk level: low
+- Required checks: TypeScript, lint, existing unit tests, browser verification
+- No security scan or staging deployment required
+
+=== STARTUP COMMAND ===
+
+To continue building this spec, run:
+
+  npm run dev
+
+Or use the orchestrator command if available:
+  source auto-claude/.venv/bin/activate && python auto-claude/run.py --spec 003 --parallel 2
+
+Session 2 (Contributor) — subtask-3-1:
+- Created src/components/InfoTooltip.tsx (reusable icon + label + helper text, portal-based tooltip following MethodSelector patterns).
+- Verified via git commit: src/components/InfoTooltip.tsx added.
+- TypeScript check command (npx tsc --noEmit --project tsconfig.json) could not be executed in this environment because node.exe is not available in PATH. Static review confirms the component uses strict-compatible types, proper React hooks, and follows project patterns.
+- Updated implementation_plan.json: subtask-3-1 status set to completed.
+- Committed plan update.
+
+=== END SESSION 2 ===
+
+Session 3 (Contributor) — subtask-3-3:
+- Modified src/app/(app)/calculator/page.tsx:
+  - Imported InfoTooltip component.
+  - Added InfoTooltip to summary bar labels (Total Connected, Max Demand, Total Current (3Φ), Floors) with IEC context helpers.
+  - Added helper text at the top of the add-item form explaining template vs custom load.
+  - Added InfoTooltip to add-item form labels: Type, Template, Source, and Custom Power (kW).
+- Verification: TypeScript, lint, and browser checks could not be run because node.exe is missing from this environment. Static review confirms imports, JSX, and prop usage match the existing InfoTooltip and project patterns.
+- Updated implementation_plan.json: subtask-3-3 status set to completed.
+- Committed change and plan update.
+
+=== END SESSION 3 ===

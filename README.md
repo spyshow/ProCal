@@ -71,113 +71,23 @@ New to the codebase? Start with the [tutorial](./docs/tutorial-getting-started.m
 | Export | `react-to-print` (PDF), `print-js`, `pagedjs` |
 | Tests | Vitest |
 
-The calculation engine is pure TypeScript with Vitest self-checks (`src/lib/calculations/*.test.ts`, plus `sld/` and `reports/`) — no React, no DB.
-
----
-
-## Project layout
-
-```
-src/
-  app/
-    (app)/          # authenticated engineering app (sidebar layout)
-      dashboard/ projects/ calculator/ panel/ riser/
-      coordination/ sld/ cable-schedule/ breaker-schedule/
-      reports/ settings/
-    (admin)/        # role-gated admin (stats, users, breaker catalog)
-    login/ signup/  # public auth pages
-    api/            # route handlers (projects, buildings, floors, admin, auth, …)
-  components/       # Sidebar, report/* schedules, RoomInput, TemplateManager, …
-  context/          # ProjectContext (active project + preferred manufacturer)
-  lib/
-    calculations/   # loads, cables, cablesData, installationMethods,
-                    # shortCircuit, selectivity, phaseBalance, feeders, riser
-    sld/            # Schematex DSL generator + cable editor
-    reports/        # BOM / feeder / cable / breaker / VD aggregates
-    auth.ts db.ts middleware.ts
-  types/            # shared TS interfaces (Project, Building, FloorItem, …)
-prisma/
-  schema.prisma
-  migrations/
-  seed.ts           # engineer/admin user + ABB/Schneider equipment catalog
-  seed-test-project.ts  # mixed-use demo project (towers + mall)
-```
-
-### Data model (Prisma)
-`User` → `Project` → `Building` → `FloorDesign` → `FloorItem` (and `BuildingLoad`, `ApartmentTemplate` → `ApartmentRoom`, `LoadLibraryItem`). `EquipmentCatalog` rows belong to a `BreakerFamily`; projects pick default ACB/MCCB/MCB families. `BreakerSettings` store per-feeder protection settings (Ir/Tr/Isd/Tsd/I²t/Ii/Ig/Tg). Per-phase `assignedPhase` lives on `FloorItem` and `BuildingLoad` (`null` = auto-assign on read).
-
 ---
 
 ## Getting started
 
 ### Prerequisites
-- Node.js (matches the Next.js 16 / React 19 stack)
-- A PostgreSQL database
-- `DATABASE_URL` and `JWT_SECRET` environment variables (see `.env` example below)
+- Node.js
+- PostgreSQL database
+- `DATABASE_URL` and `JWT_SECRET` environment variables (see `.env`)
 
-### Install & configure
+### Install & Run
 ```bash
 npm install
+npm run dev
 ```
 
-Create a `.env` (this repo's values are for a local Postgres named `procal`):
-```env
-DATABASE_URL="postgresql://procal:procal@localhost:5432/procal?schema=public"
-JWT_SECRET="<a long random hex string>"
-```
-
-### Database
+### Lint & Test
 ```bash
-npx prisma migrate dev     # create/apply migrations
-npx prisma generate        # (re)generate the Prisma client into src/generated/prisma
+npm run lint
+npm test
 ```
-
-Seed the admin user and the ABB/Schneider equipment catalog:
-```bash
-npx tsx prisma/seed.ts
-# → engineer / password123  (role: ADMIN)
-```
-
-Optionally seed a full mixed-use demo project (two residential towers + a shopping mall, 112 apartments, templates, load library):
-```bash
-npx tsx prisma/seed-test-project.ts
-```
-
-### Run
-```bash
-npm run dev      # http://localhost:3000  → redirects to /dashboard (→ /login if not authed)
-npm run build
-npm start
-```
-Log in with `engineer` / `password123`, or self-register at `/signup`.
-
-### Lint & test
-```bash
-npm run lint        # eslint
-npm test            # vitest run
-npm run test:watch  # vitest watch mode
-```
-
----
-
-## How a project flows
-
-1. **Create a project** (`/projects`) — client, consultant, contractor, location, engineer, voltage/frequency/PF, country, preferred manufacturer (ABB / Schneider / MIXED), calculation standard (IEC / NEMA), voltage-drop limits.
-2. **Buildings** (`/projects/[id]`) — floors, service floors, apartments/floor, supply voltage, earthing (TN-S default), lightning protection, generator/transformer, mechanical loads. Define **apartment templates** (room-by-room, 1- or 3-phase) and a **load library** here.
-3. **Load Calculator** (`/calculator`) — add floor items, watch totals, per-phase balance, neutral and unbalance update; recalculate, rebalance, copy between floors.
-4. **Panel / Riser / SLD / Coordination** designers consume the saved data through one shared `computeFeeders` path so sizing matches everywhere.
-5. **Schedules & Reports** (`/reports`) aggregate everything across the building and **export PDF** for submittal.
-
----
-
-## Conventions
-
-- UI matches the existing dark/orange engineering aesthetic — reuse `.engineering-table` and `.dense-input` classes (see `src/components/Sidebar.tsx` and `globals.css`) rather than introducing a foreign look. See `CLAUDE.md` "Frontend design" for the preferred component/styling tooling (21st.dev, UI UX Pro Max, framer-motion).
-- Route groups: `(app)` is the authenticated engineering workspace (sidebar layout); `(admin)` is the role-gated admin area; `/login` and `/signup` are public.
-- Calculations live in pure, tested modules under `src/lib/calculations/` — the UI, API routes, and reports all import from there so numbers never drift between surfaces.
-
----
-
-## License
-
-Private (`"private": true` in `package.json`).

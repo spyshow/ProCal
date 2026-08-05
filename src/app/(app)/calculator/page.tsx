@@ -19,6 +19,7 @@ import {
   RefreshCw,
   AlertTriangle,
 } from 'lucide-react';
+import InfoTooltip from '@/components/InfoTooltip';
 import type { FloorItem, FloorDesign, Building, Project } from '@/types';
 import { phaseBalance } from '@/lib/calculations/phaseBalance';
 import { MotionIcon } from '@/components/MotionIcon';
@@ -298,13 +299,36 @@ function CalculatorContent() {
       {/* Summary Bar */}
       <div className="grid grid-cols-4 gap-3">
         {[
-          { label: 'Total Connected', value: `${totalConnectedLoad.toFixed(1)} kW`, color: 'text-gray-200' },
-          { label: 'Max Demand', value: `${totalMaxDemand.toFixed(1)} kW`, color: 'text-orange-400' },
-          { label: 'Total Current (3Φ)', value: `${totalCurrent3Ph.toFixed(1)} A`, color: 'text-blue-400' },
-          { label: 'Floors', value: `${bldg.floorDesigns.length}`, color: 'text-green-400' },
-        ].map(({ label, value, color }) => (
+          {
+            label: 'Total Connected',
+            value: `${totalConnectedLoad.toFixed(1)} kW`,
+            color: 'text-gray-200',
+            helper: 'Sum of all installed loads before applying demand diversity. Used as the starting kW for the project.'
+          },
+          {
+            label: 'Max Demand',
+            value: `${totalMaxDemand.toFixed(1)} kW`,
+            color: 'text-orange-400',
+            helper: 'Estimated realistic maximum load after IEC demand factors are applied. Basis for cable and breaker sizing.'
+          },
+          {
+            label: 'Total Current (3Φ)',
+            value: `${totalCurrent3Ph.toFixed(1)} A`,
+            color: 'text-blue-400',
+            helper: 'Three-phase line current calculated from max demand, system voltage, and power factor. Used to size the main feeder.'
+          },
+          {
+            label: 'Floors',
+            value: `${bldg.floorDesigns.length}`,
+            color: 'text-green-400',
+            helper: 'Number of floor designs for the selected building. Each floor holds apartments and service loads.'
+          },
+        ].map(({ label, value, color, helper }) => (
           <div key={label} className="rounded-lg border border-gray-800 bg-gray-900/40 p-3">
-            <p className="text-[10px] text-gray-500 uppercase tracking-wider">{label}</p>
+            <p className="text-[10px] text-gray-500 uppercase tracking-wider flex items-center gap-1">
+              {label}
+              <InfoTooltip label={label} helper={helper} />
+            </p>
             <p className={`text-lg font-bold font-mono mt-0.5 ${color}`}>{value}</p>
           </div>
         ))}
@@ -525,9 +549,18 @@ function CalculatorContent() {
                   {/* Add Item Button / Form */}
                   {showAddItem === fd.id ? (
                     <div className="rounded-lg border border-gray-700 bg-gray-800/50 p-3 space-y-2">
+                      <p className="text-[11px] text-gray-400">
+                        Add an apartment from a template, or add a service/pump/elevator load from the library or as a custom kW value.
+                      </p>
                       <div className="flex gap-2 items-end">
                         <div>
-                          <label className="block text-[10px] text-gray-500 mb-1">Type</label>
+                          <label className="flex items-center gap-1 text-[10px] text-gray-500 mb-1">
+                            Type
+                            <InfoTooltip
+                              label="Item Type"
+                              helper="Apartment uses an apartment template with IEC demand factors. Service/Pump/Elevator panels can be picked from the load library or entered as a custom kW."
+                            />
+                          </label>
                           <select
                             value={addForm.type}
                             onChange={(e) => setAddForm({ ...addForm, type: e.target.value })}
@@ -542,7 +575,13 @@ function CalculatorContent() {
                         {addForm.type === 'APARTMENT' ? (
                           <>
                             <div className="flex-1">
-                              <label className="block text-[10px] text-gray-500 mb-1">Template</label>
+                              <label className="flex items-center gap-1 text-[10px] text-gray-500 mb-1">
+                                Template
+                                <InfoTooltip
+                                  label="Apartment Template"
+                                  helper="Choose a saved apartment template. Its connected load and max demand are calculated from room areas, load densities, and AC units."
+                                />
+                              </label>
                               <select
                                 value={addForm.apartmentTemplateId}
                                 onChange={(e) => {
@@ -613,7 +652,13 @@ function CalculatorContent() {
                         ) : (
                           <>
                             <div className="flex-1">
-                              <label className="block text-[10px] text-gray-500 mb-1">Source</label>
+                              <label className="flex items-center gap-1 text-[10px] text-gray-500 mb-1">
+                                Source
+                                <InfoTooltip
+                                  label="Load Source"
+                                  helper="Pick a predefined load from the library, or choose Custom kW to enter a one-off power value for a service panel, pump, or elevator."
+                                />
+                              </label>
                               <select
                                 value={addForm.loadLibraryItemId || '_custom'}
                                 onChange={(e) => {
@@ -653,7 +698,13 @@ function CalculatorContent() {
                             </div>
                             {!addForm.loadLibraryItemId && (
                               <div>
-                                <label className="block text-[10px] text-gray-500 mb-1">Power (kW)</label>
+                                <label className="flex items-center gap-1 text-[10px] text-gray-500 mb-1">
+                                  Power (kW)
+                                  <InfoTooltip
+                                    label="Custom Power"
+                                    helper="Enter the installed active power in kilowatts. The calculator applies power factor and demand factor to size the breaker and cable."
+                                  />
+                                </label>
                                 <input
                                   type="number"
                                   step="0.1"

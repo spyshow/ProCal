@@ -4,7 +4,7 @@
 import { useEffect, useState, useCallback, useRef, useMemo } from 'react';
 import { useProject } from '@/context/ProjectContext';
 import { SchematexDiagram } from 'schematex/react';
-import { generateSLDPages, type SLDPage as SLDPageType } from '@/lib/sld/generator';
+import { generateSLDPages, generateSLD, type SLDPage as SLDPageType } from '@/lib/sld/generator';
 import {
   GitBranch,
   ZoomIn,
@@ -47,6 +47,7 @@ export interface ComponentProperty {
   power: string;
   cableSize?: string;
   connections: string[];
+  floorNumber?: number;
 }
 
 export default function SLDPage() {
@@ -92,7 +93,7 @@ export default function SLDPage() {
       }
     } catch (err) {
       console.error(err);
-    } fontally: {
+    } finally {
       setLoading(false);
     }
   }, [selectedProjectId]);
@@ -108,7 +109,6 @@ export default function SLDPage() {
     setPages(generatedPages);
     setActivePage(0);
 
-    // Default select main transformer / utility grid
     const txRating = project.transformerSize ? `${project.transformerSize} kVA` : '1000 kVA';
     setSelectedComponent({
       id: 'xfmr-main',
@@ -122,6 +122,29 @@ export default function SLDPage() {
     });
   }, [project]);
 
+  // Single Line Overview Full DSL
+  const overviewDsl = useMemo(() => {
+    if (!project) return '';
+    return generateSLD(project);
+  }, [project]);
+
+  // Select node & auto-switch canvas page if node belongs to a floor
+  const handleSelectNode = useCallback(
+    (data: ComponentProperty, floorNumber?: number) => {
+      setSelectedComponent(data);
+      if (floorNumber !== undefined && pages.length > 0) {
+        const pageIdx = pages.findIndex(
+          (p) => p.title === `F${floorNumber}` || p.floors.includes(`Floor ${floorNumber}`)
+        );
+        if (pageIdx !== -1) {
+          setActivePage(pageIdx);
+          setActiveTab('riser');
+        }
+      }
+    },
+    [pages]
+  );
+
   // Apply zoom to SVG element
   useEffect(() => {
     if (!svgContainerRef.current) return;
@@ -130,9 +153,9 @@ export default function SLDPage() {
       svg.style.transform = `scale(${zoom / 100})`;
       svg.style.transformOrigin = 'top left';
     }
-  }, [zoom, pages, activePage]);
+  }, [zoom, pages, activePage, activeTab]);
 
-  // Extract Real Component Tree from Project Data
+  // Extract Real Component Tree from Project Data with Floor Navigation
   const dynamicTree = useMemo(() => {
     if (!project) return [];
 
@@ -142,6 +165,7 @@ export default function SLDPage() {
       type: string;
       icon: 'zap' | 'cpu' | 'layers' | 'breaker' | 'plug';
       badge?: string;
+      floorNumber?: number;
       children?: Array<any>;
       data: ComponentProperty;
     }> = [];
@@ -203,6 +227,7 @@ export default function SLDPage() {
                 type: item.type || 'Electrical Load',
                 icon: 'plug',
                 badge: item.breakerSize,
+                floorNumber: fd.floorNumber,
                 data: {
                   id: itemId,
                   name: item.name,
@@ -213,6 +238,7 @@ export default function SLDPage() {
                   power: `${item.calculatedMaxDemand?.toFixed(1) || '0.0'} kW`,
                   cableSize: item.cableSize || '3x2.5mm²',
                   connections: [`Floor ${fd.floorNumber} Distribution Bus`],
+                  floorNumber: fd.floorNumber,
                 },
               };
             });
@@ -223,6 +249,7 @@ export default function SLDPage() {
               type: 'Distribution Panel',
               icon: 'layers',
               badge: `${Math.ceil(floorCurrent)}A`,
+              floorNumber: fd.floorNumber,
               children: itemChildren,
               data: {
                 id: `floor-${fd.floorNumber}`,
@@ -233,6 +260,7 @@ export default function SLDPage() {
                 current: `${floorCurrent.toFixed(1)} A`,
                 power: `${floorPower.toFixed(1)} kW`,
                 connections: ['MDB Busbar', ...fd.items.map((i) => i.name)],
+                floorNumber: fd.floorNumber,
               },
             });
           });
@@ -432,6 +460,7 @@ export default function SLDPage() {
   };
 
   useEffect(() => {
+    if (activeTab === 'sld') return;
     if (!pages[activePage]) return;
 
     const processSVG = () => {
@@ -451,7 +480,7 @@ export default function SLDPage() {
 
     const timer = setTimeout(processSVG, 200);
     return () => clearTimeout(timer);
-  }, [pages, activePage]);
+  }, [pages, activePage, activeTab]);
 
   const toggleNode = (key: string) => {
     setExpandedNodes((prev) => ({ ...prev, [key]: !prev[key] }));
@@ -635,7 +664,7 @@ export default function SLDPage() {
                     <button
                       onClick={() => {
                         toggleNode(item.id);
-                        setSelectedComponent(item.data);
+                        handleSelectNode(item.data, item.floorNumber);
                       }}
                       className={`w-full flex items-center justify-between py-1.5 px-2 rounded-lg text-left transition-colors ${
                         isSelected
@@ -675,7 +704,7 @@ export default function SLDPage() {
                           return (
                             <div key={child.id}>
                               <button
-                                onClick={() => setSelectedComponent(child.data)}
+                                onClick={() => handleSelectNode(child.data, child.floorNumber)}
                                 className={`w-full flex items-center justify-between py-1 px-2 rounded text-left transition-colors text-xs ${
                                   isChildSelected
                                     ? 'bg-orange-500/15 text-orange-300 border border-orange-500/30 font-medium'
@@ -701,7 +730,7 @@ export default function SLDPage() {
                                     return (
                                       <button
                                         key={sub.id}
-                                        onClick={() => setSelectedComponent(sub.data)}
+                                        onClick={() => handleSelectNode(sub.data, sub.floorNumber)}
                                         className={`w-full flex items-center justify-between py-0.5 px-1.5 rounded text-[11px] text-left transition-colors ${
                                           isSubSelected
                                             ? 'bg-orange-500/20 text-orange-300 font-medium'
@@ -741,8 +770,9 @@ export default function SLDPage() {
               }`}
             >
               <GitBranch className="w-3.5 h-3.5 text-orange-400" />
-              <span>Riser Tree Canvas</span>
+              <span>Floor Diagram ({pages[activePage]?.title || 'Riser'})</span>
             </button>
+
             <button
               onClick={() => setActiveTab('sld')}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-t-lg text-xs font-medium border-t border-x transition-colors ${
@@ -752,27 +782,27 @@ export default function SLDPage() {
               }`}
             >
               <Layers className="w-3.5 h-3.5 text-sky-400" />
-              <span>Single Line Overview</span>
+              <span>Full Single Line Overview</span>
             </button>
 
-            {pages.length > 1 && (
+            {activeTab === 'riser' && pages.length > 1 && (
               <div className="ml-auto flex items-center gap-2 pr-2 text-xs">
                 <button
                   onClick={() => setActivePage((p) => Math.max(0, p - 1))}
                   disabled={activePage === 0}
                   className="px-2 py-0.5 rounded bg-slate-800 text-slate-400 hover:text-white disabled:opacity-30"
                 >
-                  ← Prev Page
+                  ← Prev
                 </button>
                 <span className="font-mono text-slate-400">
-                  {activePage + 1} / {pages.length}
+                  {activePage + 1} / {pages.length} ({pages[activePage]?.title})
                 </span>
                 <button
                   onClick={() => setActivePage((p) => Math.min(pages.length - 1, p + 1))}
                   disabled={activePage === pages.length - 1}
                   className="px-2 py-0.5 rounded bg-slate-800 text-slate-400 hover:text-white disabled:opacity-30"
                 >
-                  Next Page →
+                  Next →
                 </button>
               </div>
             )}
@@ -785,7 +815,11 @@ export default function SLDPage() {
               ref={svgContainerRef}
               className="relative bg-slate-900/70 backdrop-blur-md rounded-2xl border border-white/10 p-6 sm:p-8 shadow-[0_0_50px_rgba(0,0,0,0.6)] min-w-[750px] transition-all duration-300"
             >
-              {pages[activePage] && <SchematexDiagram dsl={pages[activePage].dsl} />}
+              {activeTab === 'sld' ? (
+                <SchematexDiagram dsl={overviewDsl} />
+              ) : (
+                pages[activePage] && <SchematexDiagram dsl={pages[activePage].dsl} />
+              )}
             </div>
 
             {/* Floating Live Simulation Banner */}
@@ -797,7 +831,9 @@ export default function SLDPage() {
               />
               <span>Simulation Status: {activeStatus}</span>
               <span className="text-slate-600">|</span>
-              <span className="text-orange-400 font-mono">{project.voltage}V Grid</span>
+              <span className="text-orange-400 font-mono">
+                {activeTab === 'sld' ? 'Full Project SLD' : pages[activePage]?.floors}
+              </span>
             </div>
           </div>
 
@@ -810,7 +846,9 @@ export default function SLDPage() {
                   <X className="w-4 h-4" />
                 </button>
               </div>
-              <pre className="text-slate-400">{pages[activePage]?.dsl || ''}</pre>
+              <pre className="text-slate-400">
+                {activeTab === 'sld' ? overviewDsl : pages[activePage]?.dsl || ''}
+              </pre>
             </div>
           )}
         </main>

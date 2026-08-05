@@ -447,7 +447,7 @@ export default function ProjectDetailPage() {
                 <input
                   value={projectForm[key as string] || ''}
                   onChange={(e) => setProjectForm({ ...projectForm, [key as string]: e.target.value })}
-                  placeholder={placeholder}
+                  placeholder={(placeholder as string) || undefined}
                   className="dense-input w-full rounded"
                 />
                 {helper && <p className="text-[10px] text-gray-600 mt-1 leading-snug">{helper}</p>}

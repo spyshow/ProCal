@@ -106,7 +106,7 @@ export default function LoadManager({ projectId, loads, onRefresh }: LoadManager
         </Button>
       </div>
 
-      <Dialog open={showForm} onOpenChange={(open) => !open && resetForm()}>
+      <Dialog open={showForm} onOpenChange={(open: boolean) => !open && resetForm()}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>{editing ? 'Edit Load Item' : 'Add New Load Item'}</DialogTitle>

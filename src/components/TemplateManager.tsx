@@ -90,7 +90,7 @@ export default function TemplateManager({ projectId, templates, onRefresh }: Tem
         </Button>
       </div>
 
-      <Dialog open={showForm} onOpenChange={(open) => !open && resetForm()}>
+      <Dialog open={showForm} onOpenChange={(open: boolean) => !open && resetForm()}>
         <DialogContent className="max-w-lg">
           <DialogHeader>
             <DialogTitle>{editing ? 'Edit Apartment Template' : 'Add Apartment Template'}</DialogTitle>

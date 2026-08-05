@@ -14,6 +14,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { HeroSlideshow } from "@/components/HeroSlideshow";
 
 export default function Home() {
   return (
@@ -119,6 +120,9 @@ export default function Home() {
           </span>
         </div>
       </section>
+
+      {/* Hero Slideshow showcasing app functions */}
+      <HeroSlideshow />
 
       {/* Feature Showcase Grid */}
       <section className="py-16 md:py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-t border-slate-800/80">

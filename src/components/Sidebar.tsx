@@ -253,7 +253,7 @@ export default function Sidebar() {
     } finally {
       localStorage.removeItem("selected_project_id");
       localStorage.removeItem("preferred_manufacturer");
-      window.location.href = "/login";
+      window.location.href = "/";
     }
   };
 

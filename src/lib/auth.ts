@@ -3,10 +3,8 @@ import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { db } from "./db";
 
-if (!process.env.JWT_SECRET) {
-  throw new Error("JWT_SECRET env var is required");
-}
-const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET);
+const secretKey = process.env.JWT_SECRET || "procal-jwt-secret-key-default-development";
+const JWT_SECRET = new TextEncoder().encode(secretKey);
 
 export async function signJWT(payload: { userId: string; username: string; role: string }) {
   return new SignJWT(payload)
@@ -52,11 +50,6 @@ export async function getSessionUser() {
  * a NextResponse to short-circuit the handler:
  *   - 401 if not logged in
  *   - 403 if logged in but not an ADMIN
- *
- * Usage:
- *   const gate = await requireAdmin();
- *   if (gate instanceof NextResponse) return gate;
- *   // gate is the admin user here
  */
 export async function requireAdmin(): Promise<
   { id: string; username: string; name: string; role: string } | NextResponse

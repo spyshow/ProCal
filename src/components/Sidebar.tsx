@@ -19,10 +19,8 @@ import {
   ChevronDown,
   Building2,
 } from "lucide-react";
+import { cn } from "@/lib/utils";
 
-// ---------------------------------------------------------------------------
-// Types
-// ---------------------------------------------------------------------------
 interface Project {
   id: string;
   name: string;
@@ -35,9 +33,6 @@ interface NavItem {
   icon: React.ElementType;
 }
 
-// ---------------------------------------------------------------------------
-// Constants
-// ---------------------------------------------------------------------------
 const NAV_ITEMS: NavItem[] = [
   { label: "Dashboard",        href: "/dashboard",      icon: LayoutDashboard },
   { label: "Projects",         href: "/projects",       icon: FolderOpen      },
@@ -52,11 +47,6 @@ const NAV_ITEMS: NavItem[] = [
   { label: "Settings",         href: "/settings",       icon: Settings        },
 ];
 
-// ---------------------------------------------------------------------------
-// Sub-components
-// ---------------------------------------------------------------------------
-
-/** Inline lightning-bolt SVG logo mark */
 function LogoMark() {
   return (
     <svg
@@ -78,9 +68,6 @@ function LogoMark() {
   );
 }
 
-// ---------------------------------------------------------------------------
-// ProjectSelector
-// ---------------------------------------------------------------------------
 function ProjectSelector() {
   const { selectedProject, selectProject } = useProject();
   const [open, setOpen]         = useState(false);
@@ -89,16 +76,14 @@ function ProjectSelector() {
   const [error, setError]       = useState<string | null>(null);
   const dropdownRef             = useRef<HTMLDivElement>(null);
 
-  /** Fetch projects once when dropdown opens for the first time */
   const loadProjects = useCallback(async () => {
-    if (projects.length > 0 || fetching) return; // already loaded or in-flight
+    if (projects.length > 0 || fetching) return;
     setFetching(true);
     setError(null);
     try {
       const res = await fetch("/api/projects", { cache: "no-store" });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
-      // Support both { projects: [] } envelope and bare array
       setProjects(Array.isArray(data) ? data : (data.projects ?? []));
     } catch (err) {
       console.error("Failed to load projects:", err);
@@ -118,7 +103,6 @@ function ProjectSelector() {
     setOpen(false);
   };
 
-  /** Close on outside click */
   useEffect(() => {
     if (!open) return;
     const handler = (e: MouseEvent) => {
@@ -136,50 +120,44 @@ function ProjectSelector() {
         onClick={handleToggle}
         aria-haspopup="listbox"
         aria-expanded={open}
-        className={[
+        className={cn(
           "w-full flex items-center justify-between gap-2",
           "px-3 py-2.5 rounded-lg text-sm font-medium",
-          "bg-gray-800 border transition-colors duration-150",
+          "bg-slate-900/90 border transition-all duration-200 backdrop-blur-md shadow-sm",
           open
-            ? "border-orange-500/60 text-white"
-            : "border-gray-700 text-gray-300 hover:border-gray-600 hover:text-white",
-        ].join(" ")}
+            ? "border-orange-500/80 text-white ring-2 ring-orange-500/20"
+            : "border-slate-800 text-slate-300 hover:border-slate-700 hover:text-white"
+        )}
       >
         <span className="flex items-center gap-2 min-w-0">
-          <Building2 size={14} className="flex-shrink-0 text-orange-500" />
+          <Building2 size={14} className="flex-shrink-0 text-orange-400" />
           <span className="truncate">
             {selectedProject ? selectedProject.name : "Select Project"}
           </span>
         </span>
         <ChevronDown
           size={14}
-          className={[
+          className={cn(
             "flex-shrink-0 transition-transform duration-200",
-            open ? "rotate-180 text-orange-400" : "text-gray-500",
-          ].join(" ")}
+            open ? "rotate-180 text-orange-400" : "text-slate-500"
+          )}
         />
       </button>
 
       {open && (
         <div
           role="listbox"
-          className={[
-            "absolute left-3 right-3 z-50 mt-1.5",
-            "bg-gray-800 border border-gray-700 rounded-lg shadow-xl",
-            "overflow-hidden",
-          ].join(" ")}
+          className="absolute left-3 right-3 z-50 mt-1.5 bg-slate-950/95 border border-slate-700/80 rounded-lg shadow-2xl overflow-hidden backdrop-blur-xl animate-in fade-in-0 zoom-in-95"
         >
-          {/* Header row */}
-          <div className="px-3 py-2 border-b border-gray-700/60">
-            <p className="text-[10px] font-semibold uppercase tracking-widest text-gray-500">
-              Projects
+          <div className="px-3 py-2 border-b border-slate-800 bg-slate-900/50">
+            <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400">
+              Select Active Project
             </p>
           </div>
 
-          {/* Content */}
           <div className="max-h-56 overflow-y-auto custom-scrollbar">
             {fetching && (
-              <div className="flex items-center justify-center py-6 gap-2 text-gray-500">
+              <div className="flex items-center justify-center py-6 gap-2 text-slate-400">
                 <svg
                   className="animate-spin h-4 w-4 text-orange-500"
                   xmlns="http://www.w3.org/2000/svg"
@@ -205,13 +183,13 @@ function ProjectSelector() {
             )}
 
             {!fetching && error && (
-              <div className="px-3 py-4 text-xs text-red-400 text-center">
+              <div className="px-3 py-4 text-xs text-rose-400 text-center">
                 {error}
               </div>
             )}
 
             {!fetching && !error && projects.length === 0 && (
-              <div className="px-3 py-4 text-xs text-gray-500 text-center">
+              <div className="px-3 py-4 text-xs text-slate-500 text-center">
                 No projects found
               </div>
             )}
@@ -226,34 +204,32 @@ function ProjectSelector() {
                     role="option"
                     aria-selected={isActive}
                     onClick={() => handleSelect(proj.id)}
-                    className={[
-                      "w-full text-left px-3 py-2.5 text-sm transition-colors duration-100",
-                      "flex items-start gap-2",
+                    className={cn(
+                      "w-full text-left px-3 py-2.5 text-sm transition-colors duration-150 flex items-start gap-2",
                       isActive
-                        ? "bg-orange-600/20 text-orange-300"
-                        : "text-gray-300 hover:bg-gray-700/60 hover:text-white",
-                    ].join(" ")}
+                        ? "bg-orange-600/20 text-orange-300 font-semibold"
+                        : "text-slate-300 hover:bg-slate-800/80 hover:text-white"
+                    )}
                   >
                     <span className="flex-1 truncate font-medium">
                       {proj.name}
                     </span>
                     {isActive && (
-                      <span className="flex-shrink-0 mt-0.5 w-1.5 h-1.5 rounded-full bg-orange-500" />
+                      <span className="flex-shrink-0 mt-1.5 w-1.5 h-1.5 rounded-full bg-orange-500 shadow-[0_0_8px_rgba(234,88,12,0.8)]" />
                     )}
                   </button>
                 );
               })}
           </div>
 
-          {/* Footer — quick link to projects page */}
-          <div className="border-t border-gray-700/60">
+          <div className="border-t border-slate-800 bg-slate-900/30">
             <Link
               href="/projects"
               onClick={() => setOpen(false)}
-              className="flex items-center gap-2 px-3 py-2 text-xs text-gray-500 hover:text-orange-400 transition-colors duration-100"
+              className="flex items-center gap-2 px-3 py-2 text-xs text-slate-400 hover:text-orange-400 transition-colors duration-150"
             >
               <FolderOpen size={12} />
-              Manage projects
+              Manage all projects
             </Link>
           </div>
         </div>
@@ -262,12 +238,8 @@ function ProjectSelector() {
   );
 }
 
-// ---------------------------------------------------------------------------
-// Main Sidebar
-// ---------------------------------------------------------------------------
 export default function Sidebar() {
   const pathname = usePathname();
-  const router   = useRouter();
   const [loggingOut, setLoggingOut] = useState(false);
   const [currentUser, setCurrentUser] = useState<{ name: string; username: string; role: string } | null>(null);
 
@@ -284,11 +256,8 @@ export default function Sidebar() {
     } catch (err) {
       console.error("Logout error:", err);
     } finally {
-      // Clear per-user client state so the next login doesn't inherit it.
       localStorage.removeItem("selected_project_id");
       localStorage.removeItem("preferred_manufacturer");
-      // Hard navigation tears down the React tree (incl. ProjectContext + cached
-      // project lists) so no previous user's data survives the session switch.
       window.location.href = "/login";
     }
   };
@@ -296,30 +265,32 @@ export default function Sidebar() {
   return (
     <aside
       style={{ width: "240px" }}
-      className="fixed top-0 left-0 h-screen flex flex-col bg-gray-900 border-r border-gray-800 z-40 select-none"
+      className="fixed top-0 left-0 h-screen flex flex-col bg-slate-950/95 border-r border-slate-800/80 backdrop-blur-xl z-40 select-none shadow-2xl"
     >
-      {/* ── Logo ─────────────────────────────────────────────────────────── */}
-      <div className="flex items-center gap-2.5 px-4 py-5 border-b border-gray-800/80">
-        <LogoMark />
-        <span className="text-xl font-bold tracking-tight text-orange-500">
+      {/* Logo */}
+      <div className="flex items-center gap-2.5 px-4 py-5 border-b border-slate-800/80">
+        <div className="w-8 h-8 rounded-lg bg-orange-600/20 border border-orange-500/30 flex items-center justify-center shadow-[0_0_12px_rgba(234,88,12,0.3)]">
+          <LogoMark />
+        </div>
+        <span className="text-xl font-bold tracking-tight text-white flex items-center gap-1">
           ProCal
         </span>
-        <span className="ml-auto text-[9px] font-semibold uppercase tracking-wider text-gray-600 bg-gray-800 px-1.5 py-0.5 rounded">
-          v1
+        <span className="ml-auto text-[9px] font-bold uppercase tracking-wider text-orange-400 bg-orange-500/10 border border-orange-500/20 px-1.5 py-0.5 rounded">
+          v1.0
         </span>
       </div>
 
-      {/* ── Project Selector ─────────────────────────────────────────────── */}
+      {/* Active Project */}
       <div className="pt-4">
-        <p className="px-4 mb-2 text-[10px] font-semibold uppercase tracking-widest text-gray-500">
+        <p className="px-4 mb-2 text-[10px] font-semibold uppercase tracking-widest text-slate-500">
           Active Project
         </p>
         <ProjectSelector />
       </div>
 
-      {/* ── Navigation ───────────────────────────────────────────────────── */}
-      <nav className="flex-1 overflow-y-auto px-3 space-y-0.5" aria-label="Main navigation">
-        <p className="px-1 pt-1 pb-2 text-[10px] font-semibold uppercase tracking-widest text-gray-500">
+      {/* Navigation */}
+      <nav className="flex-1 overflow-y-auto px-3 space-y-0.5 custom-scrollbar" aria-label="Main navigation">
+        <p className="px-1 pt-1 pb-2 text-[10px] font-semibold uppercase tracking-widest text-slate-500">
           Navigation
         </p>
         {NAV_ITEMS.map(({ label, href, icon: Icon }) => {
@@ -328,63 +299,57 @@ export default function Sidebar() {
             <Link
               key={href}
               href={href}
-              className={[
-                "flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium",
-                "transition-colors duration-150 outline-none",
-                "focus-visible:ring-2 focus-visible:ring-orange-500",
+              className={cn(
+                "flex items-center gap-3 px-3.5 py-2 rounded-lg text-sm font-medium transition-all duration-200 outline-none",
                 isActive
-                  ? "bg-orange-600/20 text-orange-400 border-l-2 border-orange-500 pl-[14px]"
-                  : "text-gray-400 hover:text-white hover:bg-gray-800 border-l-2 border-transparent",
-              ].join(" ")}
+                  ? "bg-gradient-to-r from-orange-600/25 to-amber-600/10 text-orange-300 border-l-2 border-orange-500 shadow-[0_0_15px_rgba(234,88,12,0.15)] font-semibold"
+                  : "text-slate-400 hover:text-slate-100 hover:bg-slate-900/80 border-l-2 border-transparent"
+              )}
               aria-current={isActive ? "page" : undefined}
             >
               <Icon
                 size={17}
-                className={[
-                  "flex-shrink-0 transition-colors duration-150",
-                  isActive ? "text-orange-500" : "text-gray-500",
-                ].join(" ")}
+                className={cn(
+                  "flex-shrink-0 transition-colors duration-200",
+                  isActive ? "text-orange-400" : "text-slate-500"
+                )}
               />
               <span className="truncate">{label}</span>
               {isActive && (
-                <span className="ml-auto w-1.5 h-1.5 rounded-full bg-orange-500 flex-shrink-0" />
+                <span className="ml-auto w-1.5 h-1.5 rounded-full bg-orange-500 shadow-[0_0_8px_rgba(234,88,12,0.9)] flex-shrink-0" />
               )}
             </Link>
           );
         })}
       </nav>
 
-      {/* ── Bottom Section ───────────────────────────────────────────────── */}
-      <div className="border-t border-gray-800/80 pt-4 pb-4">
-        {/* Admin entry — role-gated, lives with the user identity, not the nav */}
+      {/* Bottom Section */}
+      <div className="border-t border-slate-800/80 pt-3 pb-3">
         {currentUser?.role === "ADMIN" && (
           <Link
             href="/admin"
             title="Admin dashboard"
-            className="mx-3 mb-3 flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium
-                       text-orange-400/90 bg-orange-600/10 border border-orange-600/20
-                       hover:bg-orange-600/20 hover:text-orange-300 transition-colors duration-150"
+            className="mx-3 mb-3 flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium text-orange-300 bg-orange-500/10 border border-orange-500/20 hover:bg-orange-500/20 transition-all duration-150"
           >
-            <Shield size={14} className="flex-shrink-0 text-orange-500" />
+            <Shield size={14} className="flex-shrink-0 text-orange-400" />
             Admin Dashboard
           </Link>
         )}
 
-        {/* User info + logout */}
-        <div className="px-3 flex items-center gap-3">
-          {/* Avatar placeholder */}
-          <div className="w-8 h-8 rounded-lg bg-orange-600/30 border border-orange-500/30 flex items-center justify-center flex-shrink-0">
-            <span className="text-xs font-bold text-orange-400">
+        {/* User profile & logout */}
+        <div className="px-3 flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-lg bg-orange-600/20 border border-orange-500/40 flex items-center justify-center flex-shrink-0">
+            <span className="text-xs font-bold text-orange-300">
               {currentUser?.name?.[0]?.toUpperCase() ?? "?"}
             </span>
           </div>
 
           <div className="flex-1 min-w-0">
-            <p className="text-xs font-semibold text-gray-200 truncate leading-tight">
-              {currentUser?.name ?? "…"}
+            <p className="text-xs font-semibold text-slate-200 truncate leading-tight">
+              {currentUser?.name ?? "Engineer"}
             </p>
-            <p className="text-[10px] text-gray-500 truncate leading-tight">
-              {currentUser?.role === "ADMIN" ? "Admin" : "ProCal User"}
+            <p className="text-[10px] text-slate-500 truncate leading-tight">
+              {currentUser?.role === "ADMIN" ? "Administrator" : "ProCal Member"}
             </p>
           </div>
 
@@ -393,13 +358,12 @@ export default function Sidebar() {
             disabled={loggingOut}
             title="Sign out"
             aria-label="Sign out"
-            className={[
-              "flex-shrink-0 p-1.5 rounded-md transition-colors duration-150",
-              "focus-visible:ring-2 focus-visible:ring-orange-500 outline-none",
+            className={cn(
+              "flex-shrink-0 p-1.5 rounded-md transition-colors duration-150 outline-none focus:ring-2 focus:ring-orange-500",
               loggingOut
-                ? "text-gray-600 cursor-not-allowed"
-                : "text-gray-500 hover:text-red-400 hover:bg-red-500/10",
-            ].join(" ")}
+                ? "text-slate-600 cursor-not-allowed"
+                : "text-slate-400 hover:text-rose-400 hover:bg-rose-500/10"
+            )}
           >
             {loggingOut ? (
               <svg

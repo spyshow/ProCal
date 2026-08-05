@@ -62,6 +62,11 @@ export async function POST(request: Request) {
     return response;
   } catch (error: unknown) {
     console.error("Login API Error:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    const message =
+      error instanceof Error ? error.message : "Database connection or authentication error";
+    return NextResponse.json(
+      { error: `Login failed: ${message}` },
+      { status: 500 }
+    );
   }
 }

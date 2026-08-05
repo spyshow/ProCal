@@ -3,37 +3,103 @@
 
 @layer base {
   :root {
-    --background: 222.2 84% 4.9%; /* Slate-950 */
-    --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
+    --background: 222 47% 4%; /* #030712 - Gray 950 */
+    --foreground: 210 40% 98%; /* #f8fafc */
+
+    --card: 222 47% 6%; /* #0b0f19 */
     --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
+
+    --popover: 222 47% 6%;
     --popover-foreground: 210 40% 98%;
-    --primary: 24 100% 50%; /* ABB Orange */
-    --primary-foreground: 222.2 47.4% 11.2%;
-    --secondary: 217.2 32.6% 17.5%;
+
+    --primary: 24 95% 53%; /* ABB Industrial Orange #ea580c / #f97316 */
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 217 33% 14%; /* #111827 */
     --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
+
+    --muted: 217 33% 14%;
+    --muted-foreground: 215 20% 65%;
+
+    --accent: 217 33% 17%;
     --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
+
+    --destructive: 0 63% 31%;
     --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 24 100% 50%;
-    --radius: 0.25rem;
+
+    --border: 217 33% 18%; /* #1f2937 */
+    --input: 217 33% 18%;
+    --ring: 24 95% 53%;
+
+    --radius: 0.5rem;
+
+    --chart-1: 24 95% 53%;
+    --chart-2: 142 71% 45%;
+    --chart-3: 199 89% 48%;
+    --chart-4: 38 92% 50%;
+    --chart-5: 280 65% 60%;
   }
 }
 
 body {
-  background-color: #030712; /* Gray-950 */
-  color: #f3f4f6; /* Gray-100 */
-  font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+  background-color: #030712;
+  color: #f8fafc;
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   overflow-x: hidden;
+  min-height: 100vh;
 }
 
-/* Custom Scrollbars (engineering software look) */
+/* ---------------------------------------------------------------------------
+   Aceternity & 21st.dev Visual Utility Classes
+   --------------------------------------------------------------------------- */
+
+/* Ambient Grid Pattern */
+.bg-grid-pattern {
+  background-size: 32px 32px;
+  background-image: 
+    linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+}
+
+.bg-dot-pattern {
+  background-size: 20px 20px;
+  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.07) 1px, transparent 1px);
+}
+
+/* Glowing card highlight on hover */
+.glow-card {
+  position: relative;
+  background: rgba(11, 15, 25, 0.7);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glow-card:hover {
+  border-color: rgba(234, 88, 12, 0.4);
+  box-shadow: 0 0 25px -5px rgba(234, 88, 12, 0.15), 0 0 10px -2px rgba(234, 88, 12, 0.1);
+  transform: translateY(-1px);
+}
+
+/* Glassmorphism panel */
+.glass-panel {
+  background: rgba(11, 15, 25, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Glow button styling */
+.btn-glow-orange {
+  box-shadow: 0 0 20px -3px rgba(234, 88, 12, 0.4);
+  transition: all 0.2s ease-in-out;
+}
+
+.btn-glow-orange:hover {
+  box-shadow: 0 0 30px 2px rgba(234, 88, 12, 0.6);
+}
+
+/* Custom Scrollbars */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -49,35 +115,37 @@ body {
   background: #ea580c;
 }
 
-/* Compact data table styling */
+/* Engineering Table & Spreadsheet View */
 .engineering-table th {
-  padding: 6px 8px;
+  padding: 8px 10px;
   font-size: 0.75rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: #9ca3af;
   border-bottom: 1px solid #1f2937;
+  background-color: rgba(17, 24, 39, 0.5);
 }
 
 .engineering-table td {
-  padding: 6px 8px;
+  padding: 8px 10px;
   font-size: 0.8125rem;
-  border-bottom: 1px solid #111827;
+  border-bottom: 1px solid rgba(31, 41, 55, 0.6);
 }
 
-/* Input fields in spreadsheet view */
 .dense-input {
-  padding: 2px 4px;
+  padding: 4px 8px;
   font-size: 0.8125rem;
-  background-color: #111827;
+  background-color: rgba(17, 24, 39, 0.8);
   border: 1px solid #374151;
   color: #ffffff;
-  border-radius: 2px;
+  border-radius: 0.375rem;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 .dense-input:focus {
   outline: none;
-  border-color: #f97316;
+  border-color: #ea580c;
+  box-shadow: 0 0 0 2px rgba(234, 88, 12, 0.25);
 }
 
 /* ---------------------------------------------------------------------------
@@ -88,7 +156,6 @@ body {
   size: A4;
   margin: 15mm;
 
-  /* Running footer with page number (supported by Paged.js and modern browsers) */
   @bottom-center {
     content: counter(page) " / " counter(pages);
     font-size: 9pt;
@@ -96,7 +163,6 @@ body {
   }
 }
 
-/* Cover page is the first printed sheet - no header/footer and full bleed area */
 @page :first {
   margin: 0;
 
@@ -105,7 +171,6 @@ body {
   }
 }
 
-/* Hide tab panels during normal screen usage */
 .tab-hidden {
   position: absolute;
   width: 1px;
@@ -118,7 +183,6 @@ body {
   border: 0;
 }
 
-/* Print-only layout helpers */
 .page-break-before {
   break-before: page;
   page-break-before: always;
@@ -147,14 +211,12 @@ body {
     height: auto !important;
   }
 
-  /* Remove screen height constraints so content can flow across pages */
   html, body, div, main, section, article {
     height: auto !important;
     max-height: none !important;
     overflow: visible !important;
   }
 
-  /* Use the full printable width - drop the sidebar offset applied to <main> */
   main {
     margin-left: 0 !important;
     margin-right: 0 !important;
@@ -162,17 +224,14 @@ body {
     width: 100% !important;
   }
 
-  /* Hide sidebar, navigation, chrome and screen-only report content */
   nav, aside, [class*="sidebar"], .print\:hidden, header:not(.report-header), .screen-only-report {
     display: none !important;
   }
 
-  /* Hide interactive controls */
   button, [role="button"], input[type="button"] {
     display: none !important;
   }
 
-  /* Show the full print report and let it flow across pages */
   #print-all-tabs {
     display: block !important;
     position: static !important;
@@ -191,13 +250,11 @@ body {
     color: black !important;
   }
 
-  /* Make sure the printable report header is visible despite the global header rule */
   #print-all-tabs header.report-header,
   header.report-header {
     display: block !important;
   }
 
-  /* Cover page sizing and isolation */
   .cover-page {
     width: 210mm !important;
     min-height: 297mm !important;
@@ -210,20 +267,17 @@ body {
     overflow: visible !important;
   }
 
-  /* Each schedule section begins on a fresh page and can span multiple sheets */
   .report-section,
   #print-all-tabs > div:not(:first-child) {
     break-before: page;
     page-break-before: always;
   }
 
-  /* Avoid orphaned section headings */
   h1, h2, h3 {
     break-after: avoid;
     page-break-after: avoid;
   }
 
-  /* Keep tables together when possible but let rows break across pages cleanly */
   table {
     width: 100% !important;
     table-layout: auto !important;
@@ -261,24 +315,20 @@ body {
     background-color: white !important;
   }
 
-  /* Scale wide tables to fit the printable area */
   .report-section table,
   #print-all-tabs table {
     max-width: 100% !important;
   }
 
-  /* Remove scroll wrappers in print — tables should fit natively */
   #print-all-tabs .overflow-x-auto {
     overflow: visible !important;
   }
 
-  /* Keep images within the page */
   img {
     max-width: 100% !important;
     height: auto !important;
   }
 
-  /* SLD diagram fills page when printing */
   .bg-white.rounded-xl svg {
     width: 100% !important;
     height: auto !important;

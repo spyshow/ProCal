@@ -10,7 +10,7 @@ export default function AppLayout({
       <div className="print:hidden flex-shrink-0">
         <Sidebar />
       </div>
-      <main className="flex-1 overflow-y-auto bg-gray-950 print:overflow-visible print:w-full print:h-auto print:m-0 md:ml-[240px]">
+      <main className="flex-1 overflow-y-auto bg-slate-950 print:overflow-visible print:w-full print:h-auto print:m-0 md:ml-[240px]">
         {children}
       </main>
     </div>

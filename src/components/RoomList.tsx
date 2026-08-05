@@ -4,6 +4,7 @@ import { Plus } from 'lucide-react';
 import { RoomInput, RoomData } from './RoomInput';
 import { ROOM_TYPES, COUNTRY_DEFAULTS } from '@/lib/country-defaults';
 import type { AcSizingRule } from '@/lib/country-defaults';
+import { Button } from '@/components/ui/button';
 
 interface RoomListProps {
   rooms: RoomData[];
@@ -53,7 +54,6 @@ export function RoomList({ rooms, onChange, country = 'Syria', acRules }: RoomLi
     onChange(rooms.filter((r) => r.id !== id));
   };
 
-  // Calculate totals
   const totalArea = rooms.reduce((sum, r) => sum + r.area, 0);
   const totalLoad = rooms.reduce((sum, r) => sum + r.connectedLoad, 0);
   const totalAcLoad = rooms
@@ -61,23 +61,23 @@ export function RoomList({ rooms, onChange, country = 'Syria', acRules }: RoomLi
     .reduce((sum, r) => sum + (r.connectedLoad - r.area * r.loadDensity), 0);
 
   return (
-    <div className="space-y-3">
-      {/* Header */}
+    <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
-          Rooms ({rooms.length})
+        <h3 className="text-xs font-bold text-slate-300 uppercase tracking-widest">
+          Apartment Layout ({rooms.length} Rooms)
         </h3>
-        <button
+        <Button
           type="button"
           onClick={handleAddRoom}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gray-800 hover:bg-gray-700 text-xs text-gray-400 hover:text-orange-400 transition-colors"
+          variant="outline"
+          size="sm"
+          className="gap-1.5"
         >
-          <Plus size={12} />
+          <Plus size={14} className="text-orange-400" />
           Add Room
-        </button>
+        </Button>
       </div>
 
-      {/* Room List */}
       <div className="space-y-2">
         {rooms.map((room) => (
           <RoomInput
@@ -91,23 +91,22 @@ export function RoomList({ rooms, onChange, country = 'Syria', acRules }: RoomLi
         ))}
       </div>
 
-      {/* Totals */}
-      <div className="flex items-center gap-6 p-3 rounded-lg bg-gray-800/50 border border-gray-700">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 p-4 rounded-xl bg-slate-950/80 border border-slate-800 backdrop-blur-md shadow-lg">
         <div>
-          <span className="text-[10px] text-gray-500 uppercase">Total Area</span>
-          <p className="text-sm font-mono text-gray-300">{totalArea.toFixed(1)} m²</p>
+          <span className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">Total Area</span>
+          <p className="text-base font-mono font-bold text-slate-200 mt-0.5">{totalArea.toFixed(1)} m²</p>
         </div>
         <div>
-          <span className="text-[10px] text-gray-500 uppercase">Total Load</span>
-          <p className="text-sm font-mono text-orange-400">{totalLoad.toFixed(0)} VA</p>
+          <span className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">Total Load</span>
+          <p className="text-base font-mono font-bold text-orange-400 mt-0.5">{totalLoad.toFixed(0)} VA</p>
         </div>
         <div>
-          <span className="text-[10px] text-gray-500 uppercase">AC Load</span>
-          <p className="text-sm font-mono text-blue-400">{totalAcLoad.toFixed(0)} VA</p>
+          <span className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">AC Load</span>
+          <p className="text-base font-mono font-bold text-sky-400 mt-0.5">{totalAcLoad.toFixed(0)} VA</p>
         </div>
         <div>
-          <span className="text-[10px] text-gray-500 uppercase">Connected</span>
-          <p className="text-sm font-mono text-green-400">{(totalLoad / 1000).toFixed(2)} kW</p>
+          <span className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">Connected Power</span>
+          <p className="text-base font-mono font-bold text-emerald-400 mt-0.5">{(totalLoad / 1000).toFixed(2)} kW</p>
         </div>
       </div>
     </div>

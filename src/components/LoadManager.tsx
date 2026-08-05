@@ -2,6 +2,24 @@
 
 import { useState } from 'react';
 import { Plus, Pencil, Trash2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog';
 
 interface LoadItem {
   id: string;
@@ -71,118 +89,142 @@ export default function LoadManager({ projectId, loads, onRefresh }: LoadManager
     setShowForm(true);
   };
 
-  const inputClass =
-    'w-full rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent';
-  const labelClass = 'block mb-1 text-xs font-semibold uppercase tracking-wider text-gray-400';
-
   return (
-    <div>
-      <div className="flex items-center justify-between mb-3">
-        <h3 className="text-sm font-semibold text-white uppercase tracking-wider">Load Library</h3>
-        <button
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <div>
+          <h3 className="text-sm font-bold text-white uppercase tracking-wider">Load Library</h3>
+          <p className="text-xs text-slate-400">Manage electrical equipment, connected loads, and power factors</p>
+        </div>
+        <Button
           onClick={() => { resetForm(); setShowForm(true); }}
-          className="flex items-center gap-1.5 text-xs text-orange-500 hover:text-orange-400 font-medium"
+          variant="glow"
+          size="sm"
+          className="gap-1.5"
         >
           <Plus className="w-3.5 h-3.5" /> Add Load
-        </button>
+        </Button>
       </div>
 
-      {showForm && (
-        <form onSubmit={handleSubmit} className="mb-4 p-4 rounded-lg border border-gray-700 bg-gray-800/50 space-y-3">
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <div>
-              <label className={labelClass}>Name</label>
-              <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className={inputClass} placeholder="e.g. corridor lights" required />
+      <Dialog open={showForm} onOpenChange={(open) => !open && resetForm()}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>{editing ? 'Edit Load Item' : 'Add New Load Item'}</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleSubmit} className="space-y-4 py-2">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <div className="col-span-2">
+                <label className="block mb-1 text-xs font-semibold text-slate-300">Name</label>
+                <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="e.g. Corridor Lighting" required />
+              </div>
+              <div className="col-span-2">
+                <label className="block mb-1 text-xs font-semibold text-slate-300">Category</label>
+                <select
+                  value={form.category}
+                  onChange={(e) => setForm({ ...form, category: e.target.value })}
+                  className="flex h-9 w-full rounded-md border border-slate-700/80 bg-slate-900/80 px-3 py-1 text-sm text-slate-100 shadow-sm transition-all focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
+                >
+                  {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className="block mb-1 text-xs font-semibold text-slate-300">Power (kW)</label>
+                <Input value={form.power || ''} onChange={(e) => setForm({ ...form, power: parseFloat(e.target.value) || 0 })} type="number" step="0.1" required />
+              </div>
+              <div>
+                <label className="block mb-1 text-xs font-semibold text-slate-300">Voltage (V)</label>
+                <select
+                  value={form.voltage}
+                  onChange={(e) => setForm({ ...form, voltage: parseInt(e.target.value) })}
+                  className="flex h-9 w-full rounded-md border border-slate-700/80 bg-slate-900/80 px-3 py-1 text-sm text-slate-100 shadow-sm transition-all focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
+                >
+                  <option value={230}>230V (1-Ph)</option>
+                  <option value={400}>400V (3-Ph)</option>
+                </select>
+              </div>
+              <div>
+                <label className="block mb-1 text-xs font-semibold text-slate-300">Phase</label>
+                <select
+                  value={form.phase}
+                  onChange={(e) => setForm({ ...form, phase: parseInt(e.target.value) })}
+                  className="flex h-9 w-full rounded-md border border-slate-700/80 bg-slate-900/80 px-3 py-1 text-sm text-slate-100 shadow-sm transition-all focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
+                >
+                  <option value={1}>1-Phase</option>
+                  <option value={3}>3-Phase</option>
+                </select>
+              </div>
+              <div>
+                <label className="block mb-1 text-xs font-semibold text-slate-300">PF</label>
+                <Input value={form.powerFactor} onChange={(e) => setForm({ ...form, powerFactor: parseFloat(e.target.value) || 0.85 })} type="number" step="0.01" />
+              </div>
+              <div>
+                <label className="block mb-1 text-xs font-semibold text-slate-300">Demand Factor</label>
+                <Input value={form.demandFactor} onChange={(e) => setForm({ ...form, demandFactor: parseFloat(e.target.value) || 1 })} type="number" step="0.01" />
+              </div>
+              <div>
+                <label className="block mb-1 text-xs font-semibold text-slate-300">Quantity</label>
+                <Input value={form.quantity} onChange={(e) => setForm({ ...form, quantity: parseInt(e.target.value) || 1 })} type="number" min="1" />
+              </div>
             </div>
-            <div>
-              <label className={labelClass}>Category</label>
-              <select value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} className={inputClass}>
-                {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
-              </select>
-            </div>
-            <div>
-              <label className={labelClass}>Power (kW)</label>
-              <input value={form.power || ''} onChange={(e) => setForm({ ...form, power: parseFloat(e.target.value) || 0 })} type="number" step="0.1" className={inputClass} required />
-            </div>
-            <div>
-              <label className={labelClass}>Voltage (V)</label>
-              <select value={form.voltage} onChange={(e) => setForm({ ...form, voltage: parseInt(e.target.value) })} className={inputClass}>
-                <option value={230}>230V (1-phase)</option>
-                <option value={400}>400V (3-phase)</option>
-              </select>
-            </div>
-            <div>
-              <label className={labelClass}>Phase</label>
-              <select value={form.phase} onChange={(e) => setForm({ ...form, phase: parseInt(e.target.value) })} className={inputClass}>
-                <option value={1}>1-Phase</option>
-                <option value={3}>3-Phase</option>
-              </select>
-            </div>
-            <div>
-              <label className={labelClass}>PF</label>
-              <input value={form.powerFactor} onChange={(e) => setForm({ ...form, powerFactor: parseFloat(e.target.value) || 0.85 })} type="number" step="0.01" className={inputClass} />
-            </div>
-            <div>
-              <label className={labelClass}>Demand Factor</label>
-              <input value={form.demandFactor} onChange={(e) => setForm({ ...form, demandFactor: parseFloat(e.target.value) || 1 })} type="number" step="0.01" className={inputClass} />
-            </div>
-            <div>
-              <label className={labelClass}>Quantity</label>
-              <input value={form.quantity} onChange={(e) => setForm({ ...form, quantity: parseInt(e.target.value) || 1 })} type="number" min="1" className={inputClass} />
-            </div>
-          </div>
-          <div className="flex justify-end gap-2">
-            <button type="button" onClick={resetForm} className="px-3 py-1.5 text-xs text-gray-400 hover:text-white">Cancel</button>
-            <button type="submit" className="px-3 py-1.5 bg-orange-600 hover:bg-orange-500 text-white text-xs font-medium rounded-lg">
-              {editing ? 'Update' : 'Create'}
-            </button>
-          </div>
-        </form>
-      )}
+            <DialogFooter>
+              <Button type="button" variant="outline" size="sm" onClick={resetForm}>Cancel</Button>
+              <Button type="submit" variant="glow" size="sm">
+                {editing ? 'Update Load' : 'Create Load'}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
 
-      <div className="overflow-x-auto">
-        <table className="w-full text-xs">
-          <thead>
-            <tr className="border-b border-gray-800 text-left">
-              <th className="px-3 py-2 text-gray-400 uppercase tracking-wider font-semibold">Name</th>
-              <th className="px-3 py-2 text-gray-400 uppercase tracking-wider font-semibold">Category</th>
-              <th className="px-3 py-2 text-gray-400 uppercase tracking-wider font-semibold">kW</th>
-              <th className="px-3 py-2 text-gray-400 uppercase tracking-wider font-semibold">V</th>
-              <th className="px-3 py-2 text-gray-400 uppercase tracking-wider font-semibold">PF</th>
-              <th className="px-3 py-2 text-gray-400 uppercase tracking-wider font-semibold">DF</th>
-              <th className="px-3 py-2 text-gray-400 uppercase tracking-wider font-semibold">Qty</th>
-              <th className="px-3 py-2 text-gray-400 uppercase tracking-wider font-semibold">Current (A)</th>
-              <th className="px-3 py-2 text-gray-400 uppercase tracking-wider font-semibold text-right">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-800">
-            {loads.length === 0 ? (
-              <tr><td colSpan={9} className="px-3 py-6 text-center text-gray-600">No loads yet</td></tr>
-            ) : (
-              loads.map((l) => (
-                <tr key={l.id} className="hover:bg-gray-800/40">
-                  <td className="px-3 py-2 text-white font-medium">{l.name}</td>
-                  <td className="px-3 py-2 text-gray-400">{l.category}</td>
-                  <td className="px-3 py-2 text-gray-400">{l.power}</td>
-                  <td className="px-3 py-2 text-gray-400">{l.voltage}</td>
-                  <td className="px-3 py-2 text-gray-400">{l.powerFactor}</td>
-                  <td className="px-3 py-2 text-gray-400">{l.demandFactor}</td>
-                  <td className="px-3 py-2 text-gray-400">{l.quantity}</td>
-                  <td className="px-3 py-2 text-orange-400 font-mono">{l.runningCurrent}</td>
-                  <td className="px-3 py-2 text-right">
-                    <button onClick={() => startEdit(l)} className="p-1 text-gray-500 hover:text-orange-400">
-                      <Pencil className="w-3 h-3" />
-                    </button>
-                    <button onClick={() => handleDelete(l.id)} className="p-1 text-gray-500 hover:text-red-400 ml-1">
-                      <Trash2 className="w-3 h-3" />
-                    </button>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Name</TableHead>
+            <TableHead>Category</TableHead>
+            <TableHead>kW</TableHead>
+            <TableHead>V</TableHead>
+            <TableHead>PF</TableHead>
+            <TableHead>DF</TableHead>
+            <TableHead>Qty</TableHead>
+            <TableHead>Current (A)</TableHead>
+            <TableHead className="text-right">Actions</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {loads.length === 0 ? (
+            <TableRow>
+              <TableCell colSpan={9} className="text-center py-6 text-slate-500">
+                No load items defined yet
+              </TableCell>
+            </TableRow>
+          ) : (
+            loads.map((l) => (
+              <TableRow key={l.id}>
+                <TableCell className="font-semibold text-slate-100">{l.name}</TableCell>
+                <TableCell>
+                  <Badge variant="outline">{l.category}</Badge>
+                </TableCell>
+                <TableCell className="font-mono">{l.power}</TableCell>
+                <TableCell className="font-mono">{l.voltage}V</TableCell>
+                <TableCell className="font-mono">{l.powerFactor}</TableCell>
+                <TableCell className="font-mono">{l.demandFactor}</TableCell>
+                <TableCell className="font-mono">{l.quantity}</TableCell>
+                <TableCell className="font-mono text-orange-400 font-bold">{l.runningCurrent} A</TableCell>
+                <TableCell className="text-right">
+                  <div className="flex items-center justify-end gap-1">
+                    <Button onClick={() => startEdit(l)} variant="ghost" size="icon" className="h-7 w-7">
+                      <Pencil className="w-3.5 h-3.5 text-slate-400 hover:text-orange-400" />
+                    </Button>
+                    <Button onClick={() => handleDelete(l.id)} variant="ghost" size="icon" className="h-7 w-7">
+                      <Trash2 className="w-3.5 h-3.5 text-slate-400 hover:text-rose-400" />
+                    </Button>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))
+          )}
+        </TableBody>
+      </Table>
     </div>
   );
 }

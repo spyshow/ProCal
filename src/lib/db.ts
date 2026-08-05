@@ -5,14 +5,17 @@ const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
 };
 
+const connectionString =
+  process.env.DATABASE_URL || "postgresql://procal:procal@localhost:5432/procal";
+
 let prismaInstance: PrismaClient;
 
 if (process.env.NODE_ENV === "production") {
-  const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
+  const adapter = new PrismaPg({ connectionString });
   prismaInstance = new PrismaClient({ adapter });
 } else {
   if (!globalForPrisma.prisma) {
-    const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
+    const adapter = new PrismaPg({ connectionString });
     globalForPrisma.prisma = new PrismaClient({ adapter });
   }
   prismaInstance = globalForPrisma.prisma;

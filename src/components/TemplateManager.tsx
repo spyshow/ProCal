@@ -2,6 +2,24 @@
 
 import { useState } from 'react';
 import { Plus, Pencil, Trash2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog';
 
 interface Template {
   id: string;
@@ -55,108 +73,119 @@ export default function TemplateManager({ projectId, templates, onRefresh }: Tem
     setShowForm(true);
   };
 
-  const inputClass =
-    'w-full rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent';
-  const labelClass = 'block mb-1 text-xs font-semibold uppercase tracking-wider text-gray-400';
-
   return (
-    <div>
-      <div className="flex items-center justify-between mb-3">
-        <h3 className="text-sm font-semibold text-white uppercase tracking-wider">Apartment Templates</h3>
-        <button
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <div>
+          <h3 className="text-sm font-bold text-white uppercase tracking-wider">Apartment Templates</h3>
+          <p className="text-xs text-slate-400">Reusable apartment unit load templates and protection sizing</p>
+        </div>
+        <Button
           onClick={() => { resetForm(); setShowForm(true); }}
-          className="flex items-center gap-1.5 text-xs text-orange-500 hover:text-orange-400 font-medium"
+          variant="glow"
+          size="sm"
+          className="gap-1.5"
         >
           <Plus className="w-3.5 h-3.5" /> Add Template
-        </button>
+        </Button>
       </div>
 
-      {showForm && (
-        <form onSubmit={handleSubmit} className="mb-4 p-4 rounded-lg border border-gray-700 bg-gray-800/50 space-y-3">
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <div>
-              <label className={labelClass}>Name</label>
-              <input
-                value={form.name}
-                onChange={(e) => setForm({ ...form, name: e.target.value })}
-                className={inputClass}
-                placeholder="e.g. Studio 1BR"
-                required
-              />
+      <Dialog open={showForm} onOpenChange={(open) => !open && resetForm()}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>{editing ? 'Edit Apartment Template' : 'Add Apartment Template'}</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleSubmit} className="space-y-4 py-2">
+            <div className="space-y-3">
+              <div>
+                <label className="block mb-1 text-xs font-semibold text-slate-300">Template Name</label>
+                <Input
+                  value={form.name}
+                  onChange={(e) => setForm({ ...form, name: e.target.value })}
+                  placeholder="e.g. Studio 1BR Type A"
+                  required
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block mb-1 text-xs font-semibold text-slate-300">Area (m²)</label>
+                  <Input
+                    value={form.area || ''}
+                    onChange={(e) => setForm({ ...form, area: parseFloat(e.target.value) || 0 })}
+                    type="number"
+                    step="0.1"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block mb-1 text-xs font-semibold text-slate-300">Load Density (VA/m²)</label>
+                  <Input
+                    value={form.loadDensity || ''}
+                    onChange={(e) => setForm({ ...form, loadDensity: parseFloat(e.target.value) || 0 })}
+                    type="number"
+                    step="1"
+                    required
+                  />
+                </div>
+              </div>
             </div>
-            <div>
-              <label className={labelClass}>Area (m²)</label>
-              <input
-                value={form.area || ''}
-                onChange={(e) => setForm({ ...form, area: parseFloat(e.target.value) || 0 })}
-                type="number"
-                step="0.1"
-                className={inputClass}
-                required
-              />
-            </div>
-            <div>
-              <label className={labelClass}>Load Density (VA/m²)</label>
-              <input
-                value={form.loadDensity || ''}
-                onChange={(e) => setForm({ ...form, loadDensity: parseFloat(e.target.value) || 0 })}
-                type="number"
-                step="1"
-                className={inputClass}
-                required
-              />
-            </div>
-          </div>
-          <div className="flex justify-end gap-2">
-            <button type="button" onClick={resetForm} className="px-3 py-1.5 text-xs text-gray-400 hover:text-white">
-              Cancel
-            </button>
-            <button type="submit" className="px-3 py-1.5 bg-orange-600 hover:bg-orange-500 text-white text-xs font-medium rounded-lg">
-              {editing ? 'Update' : 'Create'}
-            </button>
-          </div>
-        </form>
-      )}
+            <DialogFooter>
+              <Button type="button" variant="outline" size="sm" onClick={resetForm}>Cancel</Button>
+              <Button type="submit" variant="glow" size="sm">
+                {editing ? 'Update Template' : 'Create Template'}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
 
-      <div className="overflow-x-auto">
-        <table className="w-full text-xs">
-          <thead>
-            <tr className="border-b border-gray-800 text-left">
-              <th className="px-3 py-2 text-gray-400 uppercase tracking-wider font-semibold">Name</th>
-              <th className="px-3 py-2 text-gray-400 uppercase tracking-wider font-semibold">Area</th>
-              <th className="px-3 py-2 text-gray-400 uppercase tracking-wider font-semibold">Density</th>
-              <th className="px-3 py-2 text-gray-400 uppercase tracking-wider font-semibold">Load (VA)</th>
-              <th className="px-3 py-2 text-gray-400 uppercase tracking-wider font-semibold">Breaker</th>
-              <th className="px-3 py-2 text-gray-400 uppercase tracking-wider font-semibold">Cable</th>
-              <th className="px-3 py-2 text-gray-400 uppercase tracking-wider font-semibold text-right">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-800">
-            {templates.length === 0 ? (
-              <tr><td colSpan={7} className="px-3 py-6 text-center text-gray-600">No templates yet</td></tr>
-            ) : (
-              templates.map((t) => (
-                <tr key={t.id} className="hover:bg-gray-800/40">
-                  <td className="px-3 py-2 text-white font-medium">{t.name}</td>
-                  <td className="px-3 py-2 text-gray-400">{t.area} m²</td>
-                  <td className="px-3 py-2 text-gray-400">{t.loadDensity}</td>
-                  <td className="px-3 py-2 text-gray-400">{t.connectedLoad.toLocaleString()}</td>
-                  <td className="px-3 py-2 text-orange-400 font-mono">{t.breakerSize}</td>
-                  <td className="px-3 py-2 text-orange-400 font-mono">{t.cableSize}</td>
-                  <td className="px-3 py-2 text-right">
-                    <button onClick={() => startEdit(t)} className="p-1 text-gray-500 hover:text-orange-400">
-                      <Pencil className="w-3 h-3" />
-                    </button>
-                    <button onClick={() => handleDelete(t.id)} className="p-1 text-gray-500 hover:text-red-400 ml-1">
-                      <Trash2 className="w-3 h-3" />
-                    </button>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Template Name</TableHead>
+            <TableHead>Area</TableHead>
+            <TableHead>Density</TableHead>
+            <TableHead>Connected Load</TableHead>
+            <TableHead>Breaker Size</TableHead>
+            <TableHead>Cable Size</TableHead>
+            <TableHead className="text-right">Actions</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {templates.length === 0 ? (
+            <TableRow>
+              <TableCell colSpan={7} className="text-center py-6 text-slate-500">
+                No templates configured yet
+              </TableCell>
+            </TableRow>
+          ) : (
+            templates.map((t) => (
+              <TableRow key={t.id}>
+                <TableCell className="font-semibold text-slate-100">{t.name}</TableCell>
+                <TableCell>{t.area} m²</TableCell>
+                <TableCell>{t.loadDensity} VA/m²</TableCell>
+                <TableCell className="font-mono text-orange-400 font-bold">{t.connectedLoad.toLocaleString()} VA</TableCell>
+                <TableCell>
+                  {t.breakerSize ? <Badge variant="default" className="font-mono">{t.breakerSize}</Badge> : '—'}
+                </TableCell>
+                <TableCell>
+                  {t.cableSize ? <Badge variant="secondary" className="font-mono">{t.cableSize}</Badge> : '—'}
+                </TableCell>
+                <TableCell className="text-right">
+                  <div className="flex items-center justify-end gap-1">
+                    <Button onClick={() => startEdit(t)} variant="ghost" size="icon" className="h-7 w-7">
+                      <Pencil className="w-3.5 h-3.5 text-slate-400 hover:text-orange-400" />
+                    </Button>
+                    <Button onClick={() => handleDelete(t.id)} variant="ghost" size="icon" className="h-7 w-7">
+                      <Trash2 className="w-3.5 h-3.5 text-slate-400 hover:text-rose-400" />
+                    </Button>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))
+          )}
+        </TableBody>
+      </Table>
     </div>
   );
 }

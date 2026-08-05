@@ -47,7 +47,7 @@ export default function Home() {
                 </span>
               </span>
               <p className="text-[10px] text-slate-400 tracking-wide font-mono uppercase">
-                ABB Electrical Engineering
+                Electrical Calculation Suite
               </p>
             </div>
           </Link>
@@ -109,7 +109,7 @@ export default function Home() {
             <CheckCircle2 className="w-4 h-4 text-emerald-400" /> IEC & NEC Standard Calculations
           </span>
           <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-900/80 border border-slate-800">
-            <CheckCircle2 className="w-4 h-4 text-emerald-400" /> ABB Switchgear Integration
+            <CheckCircle2 className="w-4 h-4 text-emerald-400" /> Smart Switchgear & Protection Catalog
           </span>
           <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-900/80 border border-slate-800">
             <CheckCircle2 className="w-4 h-4 text-emerald-400" /> Automated Riser & SLD Generation
@@ -176,7 +176,7 @@ export default function Home() {
               </div>
               <CardTitle>Breaker & Protection Selection</CardTitle>
               <CardDescription>
-                Match ABB MCCBs, MCBs, and ACB protection devices with exact trip ratings, breaking capacities, and frame sizes.
+                Match MCCBs, MCBs, and ACB protection devices with exact trip ratings, breaking capacities, and frame sizes.
               </CardDescription>
             </CardHeader>
             <CardContent className="pt-0">

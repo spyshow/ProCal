@@ -106,7 +106,7 @@ export default function DashboardPage() {
           <div className="flex items-center gap-3">
             <h1 className="text-3xl font-extrabold text-white tracking-tight">Dashboard</h1>
             <Badge variant="glow">
-              {preferredManufacturer || 'ABB'} Mode
+              {preferredManufacturer || 'Multi-Vendor'} Mode
             </Badge>
           </div>
           <p className="text-sm text-slate-400 mt-1">

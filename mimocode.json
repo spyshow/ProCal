@@ -1,0 +1,9 @@
+{
+  "mcp": {
+    "icons8mcp": {
+      "type": "remote",
+      "url": "https://mcp.icons8.com/mcp/"
+    }
+  },
+  "$schema": "https://mimo.xiaomi.com/mimocode/config.json"
+}

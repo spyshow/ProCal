@@ -4,7 +4,6 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useProject } from '@/context/ProjectContext';
-import OnboardingWizard, { DEFAULT_ONBOARDING_STEPS } from '@/components/OnboardingWizard';
 import {
   FolderOpen,
   Zap,
@@ -34,25 +33,9 @@ interface ProjectSummary {
 }
 
 export default function DashboardPage() {
-  const { selectedProject, preferredManufacturer, hasCompletedOnboarding, completeOnboarding } = useProject();
+  const { selectedProject, preferredManufacturer } = useProject();
   const [projects, setProjects] = useState<ProjectSummary[]>([]);
   const [loading, setLoading] = useState(true);
-  const [showWizard, setShowWizard] = useState(false);
-
-  useEffect(() => {
-    if (!hasCompletedOnboarding) {
-      setShowWizard(true);
-    }
-  }, [hasCompletedOnboarding]);
-
-  const handleWizardComplete = () => {
-    completeOnboarding();
-    setShowWizard(false);
-  };
-
-  const handleWizardClose = () => {
-    setShowWizard(false);
-  };
 
   useEffect(() => {
     fetch('/api/projects')
@@ -185,13 +168,6 @@ export default function DashboardPage() {
           ))}
         </div>
       </div>
-
-      <OnboardingWizard
-        steps={DEFAULT_ONBOARDING_STEPS}
-        isOpen={showWizard}
-        onClose={handleWizardClose}
-        onComplete={handleWizardComplete}
-      />
 
       {/* Recent Projects */}
       <div>

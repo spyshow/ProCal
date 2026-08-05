@@ -5,11 +5,22 @@ import { signJWT } from "@/lib/auth";
 
 export async function POST(request: Request) {
   try {
-    const { username, password, name } = await request.json();
+    const { username, password, name, email } = await request.json();
 
-    if (!username || !password || !name) {
+    if (!username || !password || !name || !email) {
       return NextResponse.json(
-        { error: "Username, password, and name are required" },
+        { error: "Username, password, name, and email are required" },
+        { status: 400 }
+      );
+    }
+
+    // Hand-rolled format check — matches the codebase's no-zod validation
+    // idiom (see admin/users/route.ts). A required, replyable email is the
+    // SMTP Reply-To and pre-fills /billing (eng-review D3 / OV-γ).
+    const emailTrim = String(email).trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailTrim)) {
+      return NextResponse.json(
+        { error: "A valid email is required" },
         { status: 400 }
       );
     }
@@ -44,6 +55,7 @@ export async function POST(request: Request) {
         username,
         name,
         passwordHash,
+        email: emailTrim,
       },
     });
 

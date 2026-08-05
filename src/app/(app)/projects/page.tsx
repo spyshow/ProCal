@@ -5,7 +5,8 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useProject } from '@/context/ProjectContext';
-import { Building2, Plus, Trash2, ArrowRight } from 'lucide-react';
+import { useUser } from '@/context/UserContext';
+import { Building2, Plus, Trash2, ArrowRight, Wallet } from 'lucide-react';
 import { COUNTRY_DEFAULTS } from '@/lib/country-defaults';
 
 interface Project {
@@ -23,6 +24,7 @@ interface Project {
 export default function ProjectsPage() {
   const router = useRouter();
   const { selectProject } = useProject();
+  const { user, refreshUser } = useUser();
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [showNew, setShowNew] = useState(false);
@@ -41,6 +43,14 @@ export default function ProjectsPage() {
     calculationStandard: 'IEC',
   });
   const [saving, setSaving] = useState(false);
+  const [formError, setFormError] = useState('');
+
+  // CQ-C proactive gate: a non-admin with zero project credits can't create —
+  // route them to buy (Track 4 /billing). Admins bypass the credit gate
+  // server-side, so they always see "New Project". The race (form open at 1
+  // credit, spent elsewhere, then submit → 402) is handled by the branched else
+  // in handleCreate; this gate only hides creation when credits are already 0.
+  const isZeroCredits = user != null && user.role !== 'ADMIN' && user.credits < 1;
 
   const loadProjects = () => {
     fetch('/api/projects')
@@ -57,6 +67,7 @@ export default function ProjectsPage() {
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.name.trim()) return;
+    setFormError('');
     setSaving(true);
     try {
       const res = await fetch('/api/projects', {
@@ -70,9 +81,20 @@ export default function ProjectsPage() {
         setShowNew(false);
         setForm({ name: '', client: '', consultant: '', contractor: '', location: '', engineer: '', country: 'Syria', voltage: '400', frequency: '50', powerFactor: '0.85', maxDemandFactor: '0.8', calculationStandard: 'IEC' });
         loadProjects();
+      } else if (res.status === 402) {
+        // CQ-A self-heal: credit gate tripped server-side (the proactive gate
+        // race window). Refresh the shared user so the gate reflects server
+        // truth, then send them to buy. The 402 returned before the decrement
+        // transaction, so no credit was lost.
+        await refreshUser();
+        router.push('/billing');
+      } else {
+        const data = await res.json().catch(() => ({}));
+        setFormError(data?.error || 'Could not create the project. Please try again.');
       }
     } catch (err) {
       console.error(err);
+      setFormError('Unable to reach the server. Please try again.');
     } finally {
       setSaving(false);
     }
@@ -101,14 +123,38 @@ export default function ProjectsPage() {
           <h1 className="text-2xl font-bold text-white">Projects</h1>
           <p className="text-sm text-gray-400 mt-1">Manage your electrical design projects</p>
         </div>
-        <button
-          onClick={() => setShowNew(!showNew)}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-sm font-semibold transition-colors"
-        >
-          <Plus size={16} />
-          New Project
-        </button>
+        {isZeroCredits ? (
+          <Link
+            href="/billing"
+            className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-sm font-semibold transition-colors"
+            title="You have no project credits — request more"
+          >
+            <Wallet size={16} />
+            Get credits to create a project
+          </Link>
+        ) : (
+          <button
+            onClick={() => setShowNew(!showNew)}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-sm font-semibold transition-colors"
+          >
+            <Plus size={16} />
+            New Project
+          </button>
+        )}
       </div>
+
+      {/* Zero-credit notice — sits above the list, mirrors the button swap */}
+      {isZeroCredits && !showNew && (
+        <div className="flex items-center gap-3 rounded-xl border border-orange-800/60 bg-orange-900/15 px-4 py-3 text-sm">
+          <Wallet size={16} className="flex-shrink-0 text-orange-400" />
+          <span className="text-orange-200">
+            You have no project credits left. Request more to create a new project.
+          </span>
+          <Link href="/billing" className="ml-auto font-semibold text-orange-300 hover:text-orange-200 transition-colors">
+            Request credits →
+          </Link>
+        </div>
+      )}
 
       {/* New Project Form */}
       {showNew && (
@@ -193,11 +239,16 @@ export default function ProjectsPage() {
               </select>
             </div>
           </div>
+          {formError && (
+            <div role="alert" className="rounded-lg border border-red-800/60 bg-red-900/20 px-3 py-2 text-sm text-red-300">
+              {formError}
+            </div>
+          )}
           <div className="flex gap-2">
             <button type="submit" disabled={saving} className="px-4 py-2 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-sm font-semibold disabled:opacity-50">
               {saving ? 'Creating…' : 'Create Project'}
             </button>
-            <button type="button" onClick={() => setShowNew(false)} className="px-4 py-2 rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-300 text-sm">
+            <button type="button" onClick={() => { setShowNew(false); setFormError(''); }} className="px-4 py-2 rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-300 text-sm">
               Cancel
             </button>
           </div>

@@ -52,6 +52,7 @@ export const AnyNull = runtime.AnyNull
 
 export const ModelName = {
   User: 'User',
+  ContactRequest: 'ContactRequest',
   Project: 'Project',
   Building: 'Building',
   BuildingLoad: 'BuildingLoad',
@@ -86,6 +87,7 @@ export const UserScalarFieldEnum = {
   username: 'username',
   passwordHash: 'passwordHash',
   name: 'name',
+  email: 'email',
   role: 'role',
   credits: 'credits',
   disabled: 'disabled',
@@ -93,6 +95,20 @@ export const UserScalarFieldEnum = {
 } as const
 
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
+
+
+export const ContactRequestScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  email: 'email',
+  message: 'message',
+  requestedCredits: 'requestedCredits',
+  status: 'status',
+  createdAt: 'createdAt',
+  closedAt: 'closedAt'
+} as const
+
+export type ContactRequestScalarFieldEnum = (typeof ContactRequestScalarFieldEnum)[keyof typeof ContactRequestScalarFieldEnum]
 
 
 export const ProjectScalarFieldEnum = {

@@ -385,6 +385,7 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 
 export const ModelName = {
   User: 'User',
+  ContactRequest: 'ContactRequest',
   Project: 'Project',
   Building: 'Building',
   BuildingLoad: 'BuildingLoad',
@@ -411,7 +412,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "project" | "building" | "buildingLoad" | "apartmentTemplate" | "apartmentRoom" | "loadLibraryItem" | "floorDesign" | "floorItem" | "equipmentCatalog" | "breakerFamily" | "breakerSettings"
+    modelProps: "user" | "contactRequest" | "project" | "building" | "buildingLoad" | "apartmentTemplate" | "apartmentRoom" | "loadLibraryItem" | "floorDesign" | "floorItem" | "equipmentCatalog" | "breakerFamily" | "breakerSettings"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -486,6 +487,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.UserCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.UserCountAggregateOutputType> | number
+        }
+      }
+    }
+    ContactRequest: {
+      payload: Prisma.$ContactRequestPayload<ExtArgs>
+      fields: Prisma.ContactRequestFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ContactRequestFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContactRequestPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ContactRequestFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContactRequestPayload>
+        }
+        findFirst: {
+          args: Prisma.ContactRequestFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContactRequestPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ContactRequestFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContactRequestPayload>
+        }
+        findMany: {
+          args: Prisma.ContactRequestFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContactRequestPayload>[]
+        }
+        create: {
+          args: Prisma.ContactRequestCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContactRequestPayload>
+        }
+        createMany: {
+          args: Prisma.ContactRequestCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ContactRequestCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContactRequestPayload>[]
+        }
+        delete: {
+          args: Prisma.ContactRequestDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContactRequestPayload>
+        }
+        update: {
+          args: Prisma.ContactRequestUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContactRequestPayload>
+        }
+        deleteMany: {
+          args: Prisma.ContactRequestDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ContactRequestUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ContactRequestUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContactRequestPayload>[]
+        }
+        upsert: {
+          args: Prisma.ContactRequestUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContactRequestPayload>
+        }
+        aggregate: {
+          args: Prisma.ContactRequestAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateContactRequest>
+        }
+        groupBy: {
+          args: Prisma.ContactRequestGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ContactRequestGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ContactRequestCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ContactRequestCountAggregateOutputType> | number
         }
       }
     }
@@ -1347,6 +1422,7 @@ export const UserScalarFieldEnum = {
   username: 'username',
   passwordHash: 'passwordHash',
   name: 'name',
+  email: 'email',
   role: 'role',
   credits: 'credits',
   disabled: 'disabled',
@@ -1354,6 +1430,20 @@ export const UserScalarFieldEnum = {
 } as const
 
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
+
+
+export const ContactRequestScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  email: 'email',
+  message: 'message',
+  requestedCredits: 'requestedCredits',
+  status: 'status',
+  createdAt: 'createdAt',
+  closedAt: 'closedAt'
+} as const
+
+export type ContactRequestScalarFieldEnum = (typeof ContactRequestScalarFieldEnum)[keyof typeof ContactRequestScalarFieldEnum]
 
 
 export const ProjectScalarFieldEnum = {
@@ -1759,6 +1849,7 @@ export type PrismaClientOptions = ({
 }
 export type GlobalOmitConfig = {
   user?: Prisma.UserOmit
+  contactRequest?: Prisma.ContactRequestOmit
   project?: Prisma.ProjectOmit
   building?: Prisma.BuildingOmit
   buildingLoad?: Prisma.BuildingLoadOmit

@@ -17,5 +17,16 @@ services:
       timeout: 5s
       retries: 10
 
+  # Captured-lead notification relay (Approach B, the loop's notify step).
+  # Mailpit = the maintained Mailhog successor — accepts unauthenticated SMTP
+  # on 1025 and serves a web inbox on 8025. Dev only; prod uses a real relay.
+  mail:
+    image: axllent/mailpit
+    container_name: procal-mail
+    restart: unless-stopped
+    ports:
+      - "1025:1025"   # SMTP relay for the app (src/lib/notify.ts)
+      - "8025:8025"   # web inbox — http://localhost:8025 to read captured leads
+
 volumes:
   pgdata:

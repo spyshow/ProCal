@@ -18,6 +18,18 @@ export async function PATCH(
       disabled?: boolean;
     };
 
+    // OV-δ: harden the grant PATCH to match its POST sibling (admin/users/
+    // route.ts:35). credits is the loop-fulfillment knob — a non-integer or
+    // negative value is rejected with 400 rather than silently persisted, so
+    // an admin can't 400-then-no-row their way to a half-state.
+    if (credits !== undefined && !(Number.isInteger(credits) && credits >= 0)) {
+      return NextResponse.json({ error: "credits must be a non-negative integer" }, { status: 400 });
+    }
+    // Role is an allow-listed enum, matches POST.
+    if (role !== undefined && role !== "ADMIN" && role !== "USER") {
+      return NextResponse.json({ error: "role must be ADMIN or USER" }, { status: 400 });
+    }
+
     const data: Record<string, unknown> = {};
     if (role !== undefined) data.role = role;
     if (credits !== undefined) data.credits = credits;

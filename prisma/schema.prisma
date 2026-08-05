@@ -8,15 +8,35 @@ datasource db {
 }
 
 model User {
-  id           String    @id @default(uuid())
-  username     String    @unique
-  passwordHash String
-  name         String
-  role         String    @default("USER") // "USER" | "ADMIN" — gates /api/admin/*
-  credits      Int       @default(0)      // project credits; decremented on project create
-  disabled     Boolean   @default(false)  // soft-delete; preserves project history
-  createdAt    DateTime  @default(now())
-  projects     Project[]
+  id              String           @id @default(uuid())
+  username        String           @unique
+  passwordHash    String
+  name            String
+  email           String?          // collected at signup; pre-fills /billing + SMTP Reply-To (eng-review D3/OV-γ)
+  role            String           @default("USER") // "USER" | "ADMIN" — gates /api/admin/*
+  credits         Int              @default(0)      // project credits; decremented on project create
+  disabled        Boolean          @default(false)  // soft-delete; preserves project history
+  createdAt       DateTime         @default(now())
+  projects        Project[]
+  contactRequests ContactRequest[]
+}
+
+// Captured-lead billing loop (Approach B). One OPEN per user is enforced in-app
+// (eng-review CQ-C); onDelete: Restrict guards against a manual delete that would
+// orphan the lead ledger against Project.user's Cascade.
+model ContactRequest {
+  id               String    @id @default(uuid())
+  userId           String
+  user             User      @relation(fields: [userId], references: [id], onDelete: Restrict)
+  email            String?   // denormalized snapshot of the requester's email at submit time
+  message          String
+  requestedCredits Int?
+  status           String    @default("OPEN") // "OPEN" | "CLOSED"
+  createdAt        DateTime  @default(now())
+  closedAt         DateTime?
+
+  @@index([status]) // /admin/leads filters by status
+  @@index([userId]) // dedupe lookup (CQ-C) + user relation
 }
 
 model Project {

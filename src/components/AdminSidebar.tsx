@@ -23,11 +23,11 @@ const NAV_ITEMS: AdminNavItem[] = [
   { label: "Dashboard",       href: "/admin",          icon: LayoutDashboard },
   { label: "Users",           href: "/admin/users",    icon: Users },
   { label: "Breaker Catalog", href: "/admin/breakers", icon: Database },
+  { label: "Billing Leads",   href: "/admin/leads",    icon: CreditCard },
 ];
 
 const COMING_SOON: { label: string; icon: React.ElementType }[] = [
   { label: "Projects", icon: FolderOpen },
-  { label: "Billing",  icon: CreditCard },
 ];
 
 export default function AdminSidebar() {

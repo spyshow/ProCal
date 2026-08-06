@@ -168,28 +168,29 @@ export function OnboardingTour() {
 
   return (
     <div className="fixed inset-0 z-50 overflow-hidden pointer-events-auto">
-      {/* Background Dim Backdrop */}
-      <div
-        className="absolute inset-0 bg-slate-950/80 backdrop-blur-sm transition-opacity duration-300"
-        onClick={handleComplete}
-      />
-
-      {/* Target Spotlight Highlight Ring */}
-      {targetRect && (
+      {/* Target Spotlight Cutout Box & Shadow */}
+      {targetRect ? (
         <div
           style={{
-            top: `${targetRect.top - 6}px`,
-            left: `${targetRect.left - 6}px`,
+            top: `${Math.max(4, targetRect.top - 6)}px`,
+            left: `${Math.max(4, targetRect.left - 6)}px`,
             width: `${targetRect.width + 12}px`,
             height: `${targetRect.height + 12}px`,
+            boxShadow: '0 0 0 9999px rgba(2, 6, 23, 0.75), 0 0 25px rgba(234, 88, 12, 0.6)',
           }}
-          className="absolute rounded-xl border-2 border-orange-500 shadow-[0_0_25px_rgba(234,88,12,0.6)] pointer-events-none transition-all duration-300 animate-pulse"
+          className="absolute rounded-xl border-2 border-orange-500 pointer-events-none transition-all duration-300 z-40"
+        />
+      ) : (
+        /* Full background overlay when no target element */
+        <div
+          className="absolute inset-0 bg-slate-950/75 transition-opacity duration-300"
+          onClick={handleComplete}
         />
       )}
 
       {/* Tour Card Popover Modal */}
-      <div className="absolute inset-0 flex items-center justify-center p-4 pointer-events-none">
-        <div className="pointer-events-auto w-full max-w-lg bg-slate-900/95 border border-orange-500/30 rounded-2xl p-6 shadow-2xl backdrop-blur-xl animate-in fade-in-0 zoom-in-95 duration-200 text-white">
+      <div className="absolute inset-0 flex items-center justify-center p-4 pointer-events-none z-50">
+        <div className="pointer-events-auto w-full max-w-lg bg-slate-900/95 border border-orange-500/40 rounded-2xl p-6 shadow-2xl backdrop-blur-md animate-in fade-in-0 zoom-in-95 duration-200 text-white">
           {/* Header */}
           <div className="flex items-center justify-between border-b border-slate-800 pb-4 mb-4">
             <div className="flex items-center gap-3">

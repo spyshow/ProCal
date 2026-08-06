@@ -20,6 +20,7 @@ import {
   Building2,
   PanelLeftClose,
   PanelLeftOpen,
+  HelpCircle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -353,6 +354,34 @@ export default function Sidebar() {
 
       {/* Bottom Section */}
       <div className="border-t border-slate-800/80 pt-3 pb-3 space-y-2">
+        {/* Help & Product Tour Button (Above Collapse Sidebar Button) */}
+        <div className={cn("px-3 flex", isCollapsed ? "justify-center px-0" : "justify-end")}>
+          <button
+            onClick={() => {
+              window.dispatchEvent(new CustomEvent('trigger-procal-tour'));
+            }}
+            className={cn(
+              "flex items-center gap-2 p-1.5 rounded-lg text-slate-400 hover:text-orange-300 hover:bg-slate-900 border border-slate-800/80 hover:border-orange-500/30 transition-all duration-150 text-xs w-full",
+              isCollapsed ? "justify-center w-9 h-9 p-0" : "justify-between px-3 py-1.5"
+            )}
+            title="Help & Product Tour"
+          >
+            {isCollapsed ? (
+              <HelpCircle size={16} className="text-orange-400" />
+            ) : (
+              <>
+                <span className="text-[11px] font-medium text-slate-300 flex items-center gap-1.5">
+                  <HelpCircle size={14} className="text-orange-400" />
+                  Help & Tour
+                </span>
+                <span className="text-[9px] font-bold text-orange-400 bg-orange-500/10 border border-orange-500/20 px-1 py-0.2 rounded">
+                  Guide
+                </span>
+              </>
+            )}
+          </button>
+        </div>
+
         {/* Toggle Collapse/Expand Button (above Admin Dashboard and User Profile) */}
         <div data-tour="sidebar-toggle" className={cn("px-3 flex", isCollapsed ? "justify-center px-0" : "justify-end")}>
           <button

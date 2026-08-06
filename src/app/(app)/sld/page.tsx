@@ -505,7 +505,7 @@ export default function SLDPage() {
     if (!styleEl) {
       styleEl = document.createElement('style');
       styleEl.id = 'print-landscape-override';
-      styleEl.innerHTML = '@page { size: landscape !important; margin: 5mm !important; }';
+      styleEl.innerHTML = '@page { size: 297mm 210mm !important; margin: 5mm !important; }';
       document.head.appendChild(styleEl);
     }
     window.print();
@@ -1459,7 +1459,7 @@ export default function SLDPage() {
               <h2 className="text-sm font-bold text-black uppercase mb-3 border-l-4 border-black pl-2">
                 3. Single Line Diagram Drawings Index ({pages.length} Pages)
               </h2>
-              <div className="grid grid-cols-2 gap-x-6 gap-y-1 text-xs font-mono border border-gray-300 rounded-lg p-3 bg-gray-50/50">
+              <div className="grid grid-cols-3 gap-x-4 gap-y-0.5 text-[11px] font-mono border border-gray-300 rounded-lg p-2.5 bg-gray-50/50">
                 {pages.map((p, idx) => (
                   <div key={idx} className="flex justify-between py-0.5 border-b border-gray-200 truncate pr-2">
                     <span className="font-bold shrink-0 mr-2">Drawing {String(idx + 1).padStart(2, '0')}:</span>

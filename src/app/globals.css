@@ -199,8 +199,8 @@ body {
 }
 
 @page {
-  size: landscape !important;
-  margin: 5mm;
+  size: 297mm 210mm !important;
+  margin: 5mm !important;
 }
 
 @media print {

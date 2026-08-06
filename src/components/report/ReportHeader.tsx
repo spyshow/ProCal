@@ -111,55 +111,41 @@ export default function ReportHeader({
   subtitle,
 }: ReportHeaderProps) {
   const displayLogo = project.logoUrl || companyLogoUrl;
-  const displayCompany = companyName || "ProCal Engineering";
-  const displayTitle = title || `${project.name} — Electrical Design Report`;
+  const displayCompany = companyName || "ProCal Engineering Suite";
+  const displayTitle = title || project.name;
   const reportDate = project.date || new Date().toLocaleDateString();
 
   return (
     <header
       aria-label="Report header"
-      className="w-full border-b-2 border-orange-500 bg-white pb-3 mb-4"
+      className="w-full border-b-2 border-slate-900 bg-slate-900 text-white p-3.5 rounded-xl shadow-sm mb-4"
     >
-      <div className="flex items-start justify-between gap-4">
-        {/* Brand + title block */}
-        <div className="flex items-start gap-3">
-          <LogoMark />
-          <div>
-            <p className="text-sm font-bold text-orange-600">{displayCompany}</p>
-            <h1 className="text-base font-extrabold text-gray-900 leading-tight">
-              {displayTitle}
-            </h1>
-            {subtitle && (
-              <p className="text-xs text-gray-500 mt-0.5">{subtitle}</p>
-            )}
-          </div>
+      <div className="flex items-center justify-between gap-4">
+        <div>
+          <h1 className="text-base font-black tracking-tight text-white uppercase">
+            {displayTitle}
+          </h1>
+          <p className="text-xs font-semibold text-slate-300">
+            {subtitle || "ELECTRICAL DESIGN & SCHEDULE PACKAGE"}
+          </p>
+          <p className="text-[10px] text-slate-400 mt-0.5">
+            Prepared in accordance with IEC 60364 &amp; BS 7671 Electrical Regulations
+          </p>
         </div>
-
-        {/* Logo */}
-        {displayLogo && (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={displayLogo}
-            alt={`${displayCompany} logo`}
-            className="h-12 w-auto object-contain flex-shrink-0"
-          />
-        )}
-      </div>
-
-      {/* Metadata row */}
-      <div className="mt-3 grid grid-cols-2 md:grid-cols-4 gap-x-4 gap-y-1">
-        <MetaItem label="Client" value={project.client} />
-        <MetaItem label="Location" value={project.location} />
-        <MetaItem label="Engineer" value={project.engineer} />
-        <MetaItem label="Date" value={reportDate} />
-        <MetaItem
-          label="System"
-          value={`${project.voltage}V / ${project.frequency}Hz`}
-        />
-        <MetaItem
-          label="Buildings"
-          value={project.buildings.map((b) => b.name).join(", ")}
-        />
+        <div className="text-right text-xs space-y-0.5 font-mono text-slate-300 flex flex-col items-end">
+          {displayLogo ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={displayLogo}
+              alt={`${displayCompany} logo`}
+              className="h-8 w-auto object-contain mb-1 bg-white/90 p-1 rounded"
+            />
+          ) : (
+            <div className="font-bold text-xs text-amber-400">{displayCompany}</div>
+          )}
+          <div>Ref: <span className="font-semibold text-white">PRJ-{project.id.slice(-6).toUpperCase()}</span></div>
+          <div>Date: <span className="font-semibold text-white">{reportDate}</span></div>
+        </div>
       </div>
     </header>
   );

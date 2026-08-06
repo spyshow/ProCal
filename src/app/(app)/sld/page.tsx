@@ -37,6 +37,7 @@ import {
   ArrowDownRight,
   PanelLeftClose,
   PanelLeftOpen,
+  HelpCircle,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -698,7 +699,7 @@ export default function SLDPage() {
   return (
     <div className="sld-workstation-root flex flex-col h-screen bg-slate-950 text-slate-100 overflow-hidden font-sans select-none print:h-auto print:bg-white print:text-black print:overflow-visible">
       {/* Top Workstation Window Bar & Header */}
-      <header className="h-14 border-b border-white/10 bg-slate-950/90 backdrop-blur-xl px-4 flex items-center justify-between z-30 shrink-0 print:hidden">
+      <header data-tour="sld-header" className="h-14 border-b border-white/10 bg-slate-950/90 backdrop-blur-xl px-4 flex items-center justify-between z-30 shrink-0 print:hidden">
         {/* Left: App Title & Breadcrumbs */}
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-lg bg-orange-600/20 border border-orange-500/40 flex items-center justify-center shadow-[0_0_12px_rgba(234,88,12,0.3)]">
@@ -756,6 +757,18 @@ export default function SLDPage() {
 
         {/* Right: Actions & Zoom Controls */}
         <div className="flex items-center gap-2">
+          {/* Page Tour Button */}
+          <button
+            onClick={() => {
+              window.dispatchEvent(new CustomEvent('trigger-procal-sld-tour'));
+            }}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-orange-600/20 border border-orange-500/30 text-orange-300 hover:bg-orange-600/30 text-xs font-semibold shadow-sm transition-all"
+            title="Interactive SLD Workstation Tour"
+          >
+            <HelpCircle className="w-3.5 h-3.5 text-orange-400" />
+            Page Tour
+          </button>
+
           {/* Zoom Toolbar */}
           <div className="flex items-center gap-1 bg-slate-900 border border-slate-800 rounded-lg p-1">
             <button
@@ -817,6 +830,7 @@ export default function SLDPage() {
       <div className="flex flex-1 overflow-hidden relative">
         {/* LEFT PANEL: Collapsible Dynamic Project Explorer */}
         <aside
+          data-tour="sld-tree"
           className={`${
             isSidebarCollapsed ? 'w-12' : 'w-72'
           } border-r border-slate-800/80 bg-slate-950 flex flex-col shrink-0 transition-all duration-200 print:hidden relative`}
@@ -997,6 +1011,7 @@ export default function SLDPage() {
 
         {/* CENTER PANEL: Canvas Workstation Viewport */}
         <main
+          data-tour="sld-canvas"
           className={`sld-main-viewport flex-1 flex flex-col bg-slate-950 overflow-hidden relative ${
             isPrintingAll ? 'print:hidden' : 'print:bg-white print:overflow-visible print:w-full print:block'
           }`}

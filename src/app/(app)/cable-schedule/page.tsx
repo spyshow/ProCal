@@ -9,7 +9,7 @@ import { cablePatchUrl, upsizeBody, fieldEditBody } from '@/lib/sld/cablePersist
 import { isThreePhaseForItem } from '@/lib/calculations/feeders';
 import { phaseBalance } from '@/lib/calculations/phaseBalance';
 import MethodSelector from '@/components/MethodSelector';
-import { Cable, RefreshCw, AlertTriangle, Check, Settings, Save } from 'lucide-react';
+import { Cable, RefreshCw, AlertTriangle, Check, Settings, Save, HelpCircle } from 'lucide-react';
 import type { Project } from '@/types';
 
 interface CableEntry {
@@ -536,15 +536,26 @@ export default function CableSchedulePage() {
       )}
 
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div data-tour="cable-header" className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-white flex items-center gap-2">
             <Cable size={22} className="text-orange-500" />
             Cable Schedule
           </h1>
-          <p className="text-sm text-gray-400 mt-1">{project.name} — Cable lengths & voltage drop calculator</p>
+          <p className="text-sm text-gray-400 mt-1">{project.name} — Cable lengths &amp; voltage drop calculator</p>
         </div>
         <div className="flex items-center gap-2">
+          {/* Page Tour Button */}
+          <button
+            onClick={() => {
+              window.dispatchEvent(new CustomEvent('trigger-procal-cable-schedule-tour'));
+            }}
+            className="flex items-center gap-2 px-3.5 py-2 rounded-lg bg-orange-600/20 border border-orange-500/30 text-orange-300 hover:bg-orange-600/30 hover:border-orange-500/50 text-xs font-semibold shadow-sm transition-all shrink-0"
+            title="Interactive Cable Schedule Tour"
+          >
+            <HelpCircle size={15} className="text-orange-400" />
+            Page Tour
+          </button>
           <button onClick={() => setShowSettings(!showSettings)}
             className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-semibold ${showSettings ? 'bg-orange-600 text-white' : 'bg-gray-800 text-gray-400 hover:text-white'}`}>
             <Settings size={14} />
@@ -560,7 +571,7 @@ export default function CableSchedulePage() {
 
       {/* Settings Panel */}
       {showSettings && (
-        <div className="rounded-xl border border-orange-500/30 bg-gray-900/60 p-4 space-y-4">
+        <div data-tour="cable-derating" className="rounded-xl border border-orange-500/30 bg-gray-900/60 p-4 space-y-4">
           <h3 className="text-sm font-bold text-orange-400">Default Settings</h3>
           <div className="grid grid-cols-2 gap-4">
             <div>
@@ -648,7 +659,7 @@ export default function CableSchedulePage() {
       </div>
 
       {/* Cable Schedule Table - Grouped by Floor */}
-      <div className="space-y-4">
+      <div data-tour="cable-table" className="space-y-4">
         {floorKeys.map(key => {
           const groupCables = cablesByFloor[key];
           return (

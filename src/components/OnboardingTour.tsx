@@ -173,20 +173,122 @@ const CALCULATOR_TOUR_STEPS: Step[] = [
   },
 ];
 
+const CABLE_SCHEDULE_TOUR_STEPS: Step[] = [
+  {
+    id: 'cable-header',
+    title: 'Cable Schedule & IEC 60364 Sizing',
+    subtitle: 'Conductor Sizing Standards',
+    content: 'Automatically size phase conductors, neutral conductors, and protective earth (PE) conductors in compliance with IEC 60364-5-52.',
+    targetAttr: 'cable-header',
+    route: '/cable-schedule',
+    icon: Cable,
+  },
+  {
+    id: 'cable-derating',
+    title: 'Derating Factors & Installation Methods',
+    subtitle: 'Insulation & Ambient Conditions',
+    content: 'Configure cable insulation (XLPE/PVC), installation method (perforated tray, direct buried, conduit), ambient temperature, and grouping derating factors.',
+    targetAttr: 'cable-derating',
+    route: '/cable-schedule',
+    icon: Sparkles,
+  },
+  {
+    id: 'cable-table',
+    title: 'Calculated Cable Sizing Table',
+    subtitle: 'Cross-Sections & Voltage Drop',
+    content: 'Review recommended conductor cross-sections (mm²), voltage drop percentage (%ΔV), and short-circuit withstand capability.',
+    targetAttr: 'cable-table',
+    route: '/cable-schedule',
+    icon: FileText,
+  },
+];
+
+const BREAKER_SCHEDULE_TOUR_STEPS: Step[] = [
+  {
+    id: 'breaker-header',
+    title: 'Breaker Schedule & Catalog Selector',
+    subtitle: 'Manufacturer Database Matching',
+    content: 'Match circuit breakers across MCB, MCCB, and ACB categories from Schneider Electric, ABB, and Siemens catalog databases.',
+    targetAttr: 'breaker-header',
+    route: '/breaker-schedule',
+    icon: CircuitBoard,
+  },
+  {
+    id: 'breaker-family-select',
+    title: 'Default Breaker Family Selection',
+    subtitle: 'Configured Series & Product Lines',
+    content: 'Configure default series (e.g. Acti9 iC60N, ComPacT NSX, MasterPact MTZ) for final distribution and main incomers.',
+    targetAttr: 'breaker-family-select',
+    route: '/breaker-schedule',
+    icon: Sparkles,
+  },
+  {
+    id: 'breaker-table',
+    title: 'Distribution Circuit Breaker Table',
+    subtitle: 'Trip Ratings & Breaking Capacity',
+    content: 'Inspect nominal trip ratings (In), pole configurations (1P/3P/4P), breaking capacities (Icu), and trip unit parameters.',
+    targetAttr: 'breaker-table',
+    route: '/breaker-schedule',
+    icon: FileText,
+  },
+];
+
+const SLD_TOUR_STEPS: Step[] = [
+  {
+    id: 'sld-header',
+    title: 'Single Line Diagram (SLD) Workstation',
+    subtitle: 'Interactive CAD Schematic Editor',
+    content: 'View, edit, and export floor-by-floor Single Line Diagrams with live schematic rendering and component hierarchy.',
+    targetAttr: 'sld-header',
+    route: '/sld',
+    icon: GitBranch,
+  },
+  {
+    id: 'sld-tree',
+    title: 'Distribution Hierarchy Explorer',
+    subtitle: 'Sub-Panel Tree Navigation',
+    content: 'Navigate incomer transformers, main distribution boards (MDB), sub-main panels (SMDB), and final distribution boards (FDB).',
+    targetAttr: 'sld-tree',
+    route: '/sld',
+    icon: GitBranch,
+  },
+  {
+    id: 'sld-canvas',
+    title: 'Schematic Diagram Canvas & Print Controls',
+    subtitle: 'Live CAD View & PDF Export',
+    content: 'Inspect electrical schematic symbols, breaker ratings, cable tags, and print full-bleed landscape PDF engineering drawing sheets.',
+    targetAttr: 'sld-canvas',
+    route: '/sld',
+    icon: FileText,
+  },
+];
+
+type TourMode = 'full' | 'calculator' | 'cable-schedule' | 'breaker-schedule' | 'sld';
+
 export function OnboardingTour() {
   const { user } = useUser();
   const router = useRouter();
   const pathname = usePathname();
   const [activeStep, setActiveStep] = useState<number>(-1);
-  const [tourMode, setTourMode] = useState<'full' | 'calculator'>('full');
+  const [tourMode, setTourMode] = useState<TourMode>('full');
   const [targetRect, setTargetRect] = useState<DOMRect | null>(null);
 
-  const stepsList = tourMode === 'calculator' ? CALCULATOR_TOUR_STEPS : TOUR_STEPS;
+  const stepsList =
+    tourMode === 'calculator'
+      ? CALCULATOR_TOUR_STEPS
+      : tourMode === 'cable-schedule'
+      ? CABLE_SCHEDULE_TOUR_STEPS
+      : tourMode === 'breaker-schedule'
+      ? BREAKER_SCHEDULE_TOUR_STEPS
+      : tourMode === 'sld'
+      ? SLD_TOUR_STEPS
+      : TOUR_STEPS;
+
   const storageKey = user?.id ? `procal_tour_completed_${user.id}` : 'procal_tour_completed_guest';
 
   // Restore active step from sessionStorage if resuming across page navigation
   useEffect(() => {
-    const savedMode = sessionStorage.getItem('procal_tour_mode') as 'full' | 'calculator' | null;
+    const savedMode = sessionStorage.getItem('procal_tour_mode') as TourMode | null;
     if (savedMode) {
       setTourMode(savedMode);
     }
@@ -222,17 +324,52 @@ export function OnboardingTour() {
       goToStep(0, 'calculator');
     };
 
+    const handleCableTour = () => {
+      setTourMode('cable-schedule');
+      sessionStorage.setItem('procal_tour_mode', 'cable-schedule');
+      goToStep(0, 'cable-schedule');
+    };
+
+    const handleBreakerTour = () => {
+      setTourMode('breaker-schedule');
+      sessionStorage.setItem('procal_tour_mode', 'breaker-schedule');
+      goToStep(0, 'breaker-schedule');
+    };
+
+    const handleSldTour = () => {
+      setTourMode('sld');
+      sessionStorage.setItem('procal_tour_mode', 'sld');
+      goToStep(0, 'sld');
+    };
+
     window.addEventListener('trigger-procal-tour', handleFullTour);
     window.addEventListener('trigger-procal-calculator-tour', handleCalculatorTour);
+    window.addEventListener('trigger-procal-cable-schedule-tour', handleCableTour);
+    window.addEventListener('trigger-procal-breaker-schedule-tour', handleBreakerTour);
+    window.addEventListener('trigger-procal-sld-tour', handleSldTour);
+
     return () => {
       window.removeEventListener('trigger-procal-tour', handleFullTour);
       window.removeEventListener('trigger-procal-calculator-tour', handleCalculatorTour);
+      window.removeEventListener('trigger-procal-cable-schedule-tour', handleCableTour);
+      window.removeEventListener('trigger-procal-breaker-schedule-tour', handleBreakerTour);
+      window.removeEventListener('trigger-procal-sld-tour', handleSldTour);
     };
   }, []);
 
-  const goToStep = useCallback((stepIndex: number, modeOverride?: 'full' | 'calculator') => {
+  const goToStep = useCallback((stepIndex: number, modeOverride?: TourMode) => {
     const activeMode = modeOverride || tourMode;
-    const activeSteps = activeMode === 'calculator' ? CALCULATOR_TOUR_STEPS : TOUR_STEPS;
+    const activeSteps =
+      activeMode === 'calculator'
+        ? CALCULATOR_TOUR_STEPS
+        : activeMode === 'cable-schedule'
+        ? CABLE_SCHEDULE_TOUR_STEPS
+        : activeMode === 'breaker-schedule'
+        ? BREAKER_SCHEDULE_TOUR_STEPS
+        : activeMode === 'sld'
+        ? SLD_TOUR_STEPS
+        : TOUR_STEPS;
+
     if (stepIndex < 0 || stepIndex >= activeSteps.length) return;
 
     setActiveStep(stepIndex);

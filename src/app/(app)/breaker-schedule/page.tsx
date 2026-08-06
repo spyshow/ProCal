@@ -3,7 +3,7 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { useProject } from '@/context/ProjectContext';
-import { CircuitBoard, Filter, AlertTriangle, RefreshCw } from 'lucide-react';
+import { CircuitBoard, Filter, AlertTriangle, RefreshCw, HelpCircle } from 'lucide-react';
 import { computeFeeders, createFindBreaker, type EquipmentItem, type DefaultFamilies } from '@/lib/calculations/feeders';
 import type { Project } from '@/types';
 
@@ -197,7 +197,7 @@ export default function BreakerSchedulePage() {
 
   return (
     <div className="p-6 space-y-5 max-w-7xl mx-auto">
-      <div className="flex items-center justify-between">
+      <div data-tour="breaker-header" className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-white flex items-center gap-2">
             <CircuitBoard size={22} className="text-orange-500" />
@@ -205,19 +205,32 @@ export default function BreakerSchedulePage() {
           </h1>
           <p className="text-sm text-gray-400 mt-1">{project.name} — Default breaker families</p>
         </div>
-        <button
-          onClick={loadProject}
-          disabled={loading}
-          className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-800 text-gray-300 hover:bg-gray-700 disabled:opacity-50 text-sm"
-          title="Reload project data and recalculate schedule"
-        >
-          <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
-          Recalculate
-        </button>
+        <div className="flex items-center gap-2">
+          {/* Page Tour Button */}
+          <button
+            onClick={() => {
+              window.dispatchEvent(new CustomEvent('trigger-procal-breaker-schedule-tour'));
+            }}
+            className="flex items-center gap-2 px-3.5 py-2 rounded-lg bg-orange-600/20 border border-orange-500/30 text-orange-300 hover:bg-orange-600/30 hover:border-orange-500/50 text-xs font-semibold shadow-sm transition-all shrink-0"
+            title="Interactive Breaker Schedule Tour"
+          >
+            <HelpCircle size={15} className="text-orange-400" />
+            Page Tour
+          </button>
+          <button
+            onClick={loadProject}
+            disabled={loading}
+            className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-800 text-gray-300 hover:bg-gray-700 disabled:opacity-50 text-sm"
+            title="Reload project data and recalculate schedule"
+          >
+            <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
+            Recalculate
+          </button>
+        </div>
       </div>
 
       {/* Default Breaker Families */}
-      <div className="rounded-xl border border-gray-800 bg-gray-900/40 p-4">
+      <div data-tour="breaker-family-select" className="rounded-xl border border-gray-800 bg-gray-900/40 p-4">
         <h2 className="text-sm font-bold text-orange-400 mb-3 uppercase tracking-wide">Default Breaker Families</h2>
         <div className="space-y-4">
           {FAMILY_CATEGORIES.map(({ key, label, description }) => (
@@ -274,6 +287,7 @@ export default function BreakerSchedulePage() {
       </div>
 
       {/* Breaker Tables by Type */}
+      <div data-tour="breaker-table" className="space-y-4">
       {Object.entries(grouped).map(([type, items]) => (
         <div key={type} className="rounded-xl border border-gray-800 bg-gray-900/40 p-4">
           <h3 className="text-sm font-bold text-orange-400 mb-3">{type.replace('_', ' ')}</h3>
@@ -320,6 +334,7 @@ export default function BreakerSchedulePage() {
           </table>
         </div>
       ))}
+      </div>
 
       {filteredBreakers.length === 0 && (
         <div className="rounded-xl border border-gray-800 bg-gray-900/40 p-8 text-center">

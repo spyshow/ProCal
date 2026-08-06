@@ -308,7 +308,7 @@ body {
   #print-sld-complete-package svg path,
   #print-sld-complete-package svg rect,
   #print-sld-complete-package svg polygon {
-    stroke: #000000 !important;
+    stroke: #0f172a !important;
   }
 
   #print-sld-complete-package {

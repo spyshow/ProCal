@@ -200,7 +200,7 @@ body {
 
 @page {
   size: 297mm 210mm !important;
-  margin: 5mm !important;
+  margin: 10mm !important;
 }
 
 @media print {
@@ -217,8 +217,8 @@ body {
     color: black !important;
     overflow: visible !important;
     height: auto !important;
-    width: 285mm !important;
-    max-width: 285mm !important;
+    width: 277mm !important;
+    max-width: 277mm !important;
     margin: 0 auto !important;
     padding: 0 !important;
     box-sizing: border-box !important;
@@ -235,8 +235,8 @@ body {
     margin-left: auto !important;
     margin-right: auto !important;
     padding: 0 !important;
-    width: 285mm !important;
-    max-width: 285mm !important;
+    width: 277mm !important;
+    max-width: 277mm !important;
   }
 
   nav, aside, [class*="sidebar"], .print\:hidden, header:not(.report-header), .screen-only-report {
@@ -255,14 +255,14 @@ body {
     color: black !important;
     height: auto !important;
     overflow: visible !important;
-    width: 285mm !important;
-    max-width: 285mm !important;
+    width: 277mm !important;
+    max-width: 277mm !important;
     margin: 0 auto !important;
     box-sizing: border-box !important;
   }
   
   .sld-main-viewport:not(.print\:hidden) {
-    width: 285mm !important;
+    width: 277mm !important;
     padding: 0 !important;
     margin: 0 auto !important;
     display: block !important;
@@ -314,8 +314,8 @@ body {
   #print-sld-complete-package {
     display: block !important;
     position: static !important;
-    width: 285mm !important;
-    max-width: 285mm !important;
+    width: 277mm !important;
+    max-width: 277mm !important;
     margin: 0 auto !important;
     box-sizing: border-box !important;
   }

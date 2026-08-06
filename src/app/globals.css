@@ -199,33 +199,125 @@ body {
 }
 
 @media print {
+  @page {
+    size: A4 landscape;
+    margin: 5mm;
+  }
+
   * {
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
+    background-image: none !important;
+    box-sizing: border-box !important;
   }
 
-  html, body {
+  html, body, #__next {
     background: white !important;
+    background-image: none !important;
     color: black !important;
     overflow: visible !important;
     height: auto !important;
+    width: 285mm !important;
+    max-width: 285mm !important;
+    margin: 0 auto !important;
+    padding: 0 !important;
+    box-sizing: border-box !important;
   }
 
   html, body, div, main, section, article {
     height: auto !important;
     max-height: none !important;
     overflow: visible !important;
+    box-sizing: border-box !important;
   }
 
   main {
-    margin-left: 0 !important;
-    margin-right: 0 !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
     padding: 0 !important;
-    width: 100% !important;
+    width: 285mm !important;
+    max-width: 285mm !important;
   }
 
   nav, aside, [class*="sidebar"], .print\:hidden, header:not(.report-header), .screen-only-report {
     display: none !important;
+  }
+
+  /* SLD Workstation Print Styles */
+  .sld-workstation-root,
+  .sld-main-viewport,
+  .sld-canvas-wrapper,
+  .sld-canvas-container-outer,
+  #print-sld-complete-package {
+    background: white !important;
+    background-color: white !important;
+    background-image: none !important;
+    color: black !important;
+    height: auto !important;
+    overflow: visible !important;
+    width: 285mm !important;
+    max-width: 285mm !important;
+    margin: 0 auto !important;
+    box-sizing: border-box !important;
+  }
+  
+  .sld-main-viewport:not(.print\:hidden) {
+    width: 285mm !important;
+    padding: 0 !important;
+    margin: 0 auto !important;
+    display: block !important;
+  }
+
+  .sld-canvas-wrapper {
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    min-width: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    max-height: 150mm !important;
+    overflow: hidden !important;
+  }
+
+  .sld-canvas-wrapper svg,
+  #print-sld-complete-package svg {
+    transform: none !important;
+    width: 100% !important;
+    height: auto !important;
+    max-width: 100% !important;
+    max-height: 150mm !important;
+    background: white !important;
+    background-image: none !important;
+    margin: 0 auto !important;
+    display: block !important;
+    box-sizing: border-box !important;
+  }
+
+  .sld-canvas-wrapper svg text,
+  #print-sld-complete-package svg text {
+    fill: #000000 !important;
+    font-weight: 600 !important;
+  }
+
+  .sld-canvas-wrapper svg line,
+  .sld-canvas-wrapper svg path,
+  .sld-canvas-wrapper svg rect,
+  .sld-canvas-wrapper svg polygon,
+  #print-sld-complete-package svg line,
+  #print-sld-complete-package svg path,
+  #print-sld-complete-package svg rect,
+  #print-sld-complete-package svg polygon {
+    stroke: #000000 !important;
+  }
+
+  #print-sld-complete-package {
+    display: block !important;
+    position: static !important;
+    width: 285mm !important;
+    max-width: 285mm !important;
+    margin: 0 auto !important;
+    box-sizing: border-box !important;
   }
 
   button, [role="button"], input[type="button"] {

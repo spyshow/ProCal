@@ -360,7 +360,7 @@ export function OnboardingTour() {
             {/* Step Counter */}
             <div className="flex items-center gap-2">
               <span className="text-xs font-mono text-slate-400 bg-slate-800 px-2 py-1 rounded-md border border-slate-700">
-                Step <strong className="text-orange-400">{activeStep + 1}</strong> of {TOUR_STEPS.length}
+                Step <strong className="text-orange-400">{activeStep + 1}</strong> of {stepsList.length}
               </span>
             </div>
 

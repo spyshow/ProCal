@@ -351,7 +351,7 @@ function CalculatorContent() {
       </div>
 
       {/* Per-Phase Building Summary */}
-      <div className="rounded-xl border border-gray-800 bg-gray-900/40 p-4">
+      <div data-tour="calc-building-loads" className="rounded-xl border border-gray-800 bg-gray-900/40 p-4">
         <div className="flex items-center justify-between mb-3">
           <h3 className="text-sm font-semibold text-gray-300">
             Per-Phase Balance — {bldg.name}
@@ -432,7 +432,7 @@ function CalculatorContent() {
       )}
 
       {/* Floor List */}
-      <div className="space-y-2">
+      <div data-tour="calc-floors" className="space-y-2">
         {sortedFloors.map((fd) => {
           const expanded = expandedFloor === fd.id;
           const floorConnected = fd.items.reduce((s, i) => s + i.calculatedConnectedLoad, 0);

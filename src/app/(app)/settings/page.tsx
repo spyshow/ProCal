@@ -4,7 +4,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Settings, Save, RotateCcw, Building2 } from 'lucide-react';
+import { Settings, Save, RotateCcw, Building2, Compass } from 'lucide-react';
 import { COUNTRY_DEFAULTS, ROOM_TYPES, CountryConfig, AcSizingRule } from '@/lib/country-defaults';
 
 type SettingsTab = 'engineering' | 'company';
@@ -205,6 +205,16 @@ export default function SettingsPage() {
             Configure engineering defaults and company branding
           </p>
         </div>
+
+        <button
+          onClick={() => {
+            window.dispatchEvent(new CustomEvent('trigger-procal-tour'));
+          }}
+          className="flex items-center gap-2 px-3.5 py-2 rounded-lg bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-500 hover:to-amber-500 text-white text-xs font-semibold shadow-md transition-all shrink-0"
+        >
+          <Compass size={15} />
+          Replay Product Tour
+        </button>
       </div>
 
       {/* Tabs */}

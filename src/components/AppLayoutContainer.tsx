@@ -3,6 +3,7 @@
 import React from 'react';
 import { SidebarProvider, useSidebar } from '@/context/SidebarContext';
 import Sidebar from '@/components/Sidebar';
+import { OnboardingTour } from '@/components/OnboardingTour';
 
 function LayoutInner({ children }: { children: React.ReactNode }) {
   const { isCollapsed } = useSidebar();
@@ -19,6 +20,7 @@ function LayoutInner({ children }: { children: React.ReactNode }) {
       >
         {children}
       </main>
+      <OnboardingTour />
     </div>
   );
 }

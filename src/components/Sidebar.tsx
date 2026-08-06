@@ -284,7 +284,7 @@ export default function Sidebar() {
       className="fixed top-0 left-0 h-screen flex flex-col bg-slate-950/95 border-r border-slate-800/80 backdrop-blur-xl z-40 select-none shadow-2xl transition-all duration-200"
     >
       {/* Logo Header */}
-      <div className="flex items-center gap-2.5 px-3.5 py-4 border-b border-slate-800/80">
+      <div data-tour="brand-logo" className="flex items-center gap-2.5 px-3.5 py-4 border-b border-slate-800/80">
         <div className="w-8 h-8 rounded-lg bg-orange-600/20 border border-orange-500/30 flex items-center justify-center shadow-[0_0_12px_rgba(234,88,12,0.3)] shrink-0 mx-auto md:mx-0">
           <LogoMark />
         </div>
@@ -301,7 +301,7 @@ export default function Sidebar() {
       </div>
 
       {/* Active Project */}
-      <div className="pt-3">
+      <div data-tour="project-selector" className="pt-3">
         {!isCollapsed && (
           <p className="px-4 mb-2 text-[10px] font-semibold uppercase tracking-widest text-slate-500">
             Active Project
@@ -319,10 +319,12 @@ export default function Sidebar() {
         )}
         {NAV_ITEMS.map(({ label, href, icon: Icon }) => {
           const isActive = pathname === href || pathname.startsWith(`${href}/`);
+          const tourKey = `tour-${href.replace("/", "")}`;
           return (
             <Link
               key={href}
               href={href}
+              data-tour={tourKey}
               title={isCollapsed ? label : undefined}
               className={cn(
                 "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 outline-none",
@@ -352,7 +354,7 @@ export default function Sidebar() {
       {/* Bottom Section */}
       <div className="border-t border-slate-800/80 pt-3 pb-3 space-y-2">
         {/* Toggle Collapse/Expand Button (above Admin Dashboard and User Profile) */}
-        <div className={cn("px-3 flex", isCollapsed ? "justify-center px-0" : "justify-end")}>
+        <div data-tour="sidebar-toggle" className={cn("px-3 flex", isCollapsed ? "justify-center px-0" : "justify-end")}>
           <button
             onClick={toggleSidebar}
             className={cn(

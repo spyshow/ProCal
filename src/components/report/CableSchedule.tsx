@@ -50,6 +50,27 @@ export default function CableSchedule({ project, buildingId, showHeader = true }
         });
       }
     }
+    for (const bl of b.buildingLoads || []) {
+      const lib = bl.loadLibraryItem;
+      if (!lib) continue;
+      const isThreePhase = lib.phase === 3;
+      const totalKw = lib.power * bl.quantity;
+      const current = isThreePhase
+        ? totalKw / (Math.sqrt(3) * (lib.voltage / 1000) * lib.powerFactor)
+        : totalKw / ((lib.voltage / 1000) * lib.powerFactor);
+      rows.push({
+        id: bl.id,
+        buildingName: b.name,
+        floor: 0,
+        circuit: lib.name,
+        phaseLabel: isThreePhase ? '3Φ' : '1Φ',
+        current,
+        breaker: (bl as any).breakerSize || '32A',
+        cable: bl.cableSize || '4 mm²',
+        method: bl.installMethod || 'C',
+        insulation: bl.cableInsulation || 'XLPE',
+      });
+    }
   }
 
   return (

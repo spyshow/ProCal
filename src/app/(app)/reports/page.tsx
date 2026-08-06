@@ -9,7 +9,7 @@ import {
   Table,
   Building2,
 } from 'lucide-react';
-import { calculateThreePhaseCurrent } from '@/lib/calculations/loads';
+import { phaseBalance } from '@/lib/calculations/phaseBalance';
 import CoverPage from '@/components/report/CoverPage';
 import ReportHeader from '@/components/report/ReportHeader';
 import BOMSchedule from '@/components/report/BOMSchedule';
@@ -112,10 +112,13 @@ export default function ReportsPage() {
         <tbody>
           {project.buildings.map((b) => {
             const totalApts = b.floors * b.apartmentsPerFloor;
-            const totalDemand = b.floorDesigns.reduce(
-              (s, fd) => s + fd.items.reduce((s2, i) => s2 + i.calculatedMaxDemand, 0), 0
-            );
-            const mainCurrent = calculateThreePhaseCurrent(totalDemand * 1000, project.voltage);
+            const allItems = [
+              ...b.floorDesigns.flatMap((fd) => fd.items),
+              ...(b.buildingLoads ?? []),
+            ];
+            const balance = phaseBalance(allItems as any, project as any);
+            const totalDemand = balance.totalKw;
+            const mainCurrent = balance.maxPhaseCurrent;
             return (
               <tr key={b.id} className="hover:bg-gray-50">
                 <td className="border p-2 font-semibold">{b.name}</td>

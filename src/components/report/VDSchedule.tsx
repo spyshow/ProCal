@@ -1,5 +1,5 @@
-'use client';
-
+import { calculateVoltageDrop } from '@/lib/calculations/cables';
+import { isThreePhaseForItem } from '@/lib/calculations/feeders';
 import type { Project } from '@/types';
 
 export interface VDScheduleProps {
@@ -35,8 +35,24 @@ export default function VDSchedule({ project, buildingId, showHeader = true }: V
     if (buildingId && b.id !== buildingId) continue;
     for (const fd of b.floorDesigns) {
       for (const item of fd.items) {
-        const vd = item.voltageDrop ?? 0;
-        const status = vd <= 3 ? 'OK' : vd <= 5 ? 'WARNING' : 'FAIL';
+        const isThreePhase = isThreePhaseForItem(item);
+        const length = item.cableLength ?? cableLengthFallback(fd.floorNumber);
+        const cableSizeNum = parseFloat(item.cableSize) || 4;
+        const systemVoltage = project.voltage === 400 ? 400 : 230;
+
+        const calculatedVD = calculateVoltageDrop(
+          item.calculatedCurrent,
+          length,
+          cableSizeNum,
+          project.powerFactor || 0.85,
+          isThreePhase,
+          systemVoltage
+        ).dropPercent;
+
+        const vd = item.voltageDrop && item.voltageDrop > 0 ? item.voltageDrop : calculatedVD;
+        const limit = item.type === 'APARTMENT' ? (project.maxVoltageDropLighting || 3) : (project.maxVoltageDropPower || 5);
+        const status = vd <= limit ? 'OK' : vd <= limit * 1.2 ? 'WARNING' : 'FAIL';
+
         rows.push({
           id: item.id || `${b.id}-${fd.floorNumber}-${item.name}`,
           buildingName: b.name,
@@ -44,11 +60,48 @@ export default function VDSchedule({ project, buildingId, showHeader = true }: V
           circuit: item.name,
           current: item.calculatedCurrent,
           cable: item.cableSize,
-          length: item.cableLength ?? cableLengthFallback(fd.floorNumber),
+          length,
           vd,
           status,
         });
       }
+    }
+
+    for (const bl of b.buildingLoads || []) {
+      const lib = bl.loadLibraryItem;
+      if (!lib) continue;
+      const isThreePhase = lib.phase === 3;
+      const totalKw = lib.power * bl.quantity;
+      const current = isThreePhase
+        ? totalKw / (Math.sqrt(3) * (lib.voltage / 1000) * lib.powerFactor)
+        : totalKw / ((lib.voltage / 1000) * lib.powerFactor);
+      const length = bl.cableLength || 10;
+      const cableSizeNum = parseFloat(bl.cableSize || '') || 4;
+      const systemVoltage = project.voltage === 400 ? 400 : 230;
+
+      const vd = calculateVoltageDrop(
+        current,
+        length,
+        cableSizeNum,
+        lib.powerFactor || project.powerFactor || 0.85,
+        isThreePhase,
+        systemVoltage
+      ).dropPercent;
+
+      const limit = project.maxVoltageDropPower || 5;
+      const status = vd <= limit ? 'OK' : vd <= limit * 1.2 ? 'WARNING' : 'FAIL';
+
+      rows.push({
+        id: bl.id,
+        buildingName: b.name,
+        floor: 0,
+        circuit: lib.name,
+        current,
+        cable: bl.cableSize || '4 mm²',
+        length,
+        vd,
+        status,
+      });
     }
   }
 

@@ -39,6 +39,23 @@ export default function BOMSchedule({ project, buildingId, showHeader = true }: 
         });
       }
     }
+    for (const bl of b.buildingLoads || []) {
+      if (!bl.loadLibraryItem) continue;
+      allItems.push({
+        id: bl.id,
+        name: bl.loadLibraryItem.name,
+        type: 'SERVICE_PANEL' as const,
+        calculatedConnectedLoad: bl.loadLibraryItem.power * bl.quantity,
+        calculatedMaxDemand: bl.loadLibraryItem.power * bl.quantity,
+        calculatedCurrent: 0,
+        breakerSize: (bl as any).breakerSize || '32A',
+        cableSize: bl.cableSize || '4 mm²',
+        voltageDrop: 0,
+        cableLength: bl.cableLength || 10,
+        floor: 0,
+        building: b.name,
+      });
+    }
   }
 
   const cableBOM: Record<string, BOMItem> = {};

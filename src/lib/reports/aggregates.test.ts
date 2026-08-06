@@ -326,7 +326,7 @@ describe('aggregateCableRows', () => {
         items: [item({
           type: 'SERVICE_PANEL',
           apartmentTemplate: null,
-          loadLibraryItem: { name: 'Lights', category: 'Lighting', power: 1, voltage: 230, phase: 1, powerFactor: 0.9, demandFactor: 0.8, quantity: 10 },
+          loadLibraryItem: { id: 'l1', name: 'Lights', category: 'Lighting', power: 1, voltage: 230, phase: 1, powerFactor: 0.9, demandFactor: 0.8, quantity: 10, runningCurrent: 4, startingCurrent: 4, notes: null },
         })],
       }],
     });
@@ -471,7 +471,7 @@ describe('aggregateVoltageDropRows', () => {
           cableSize: '6 mm²',
           cableLength: 50,
           apartmentTemplate: null,
-          loadLibraryItem: { name: 'Lights', category: 'Lighting', power: 1, voltage: 230, phase: 1, powerFactor: 0.9, demandFactor: 0.8, quantity: 10 },
+          loadLibraryItem: { id: 'l2', name: 'Lights', category: 'Lighting', power: 1, voltage: 230, phase: 1, powerFactor: 0.9, demandFactor: 0.8, quantity: 10, runningCurrent: 4, startingCurrent: 4, notes: null },
         })],
       }],
     });

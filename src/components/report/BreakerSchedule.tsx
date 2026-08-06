@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { computeFeeders, type EquipmentItem, type FindBreaker, type FoundBreaker } from '@/lib/calculations/feeders';
+import { computeFeeders, createFindBreaker, type EquipmentItem, type FindBreaker, type FoundBreaker } from '@/lib/calculations/feeders';
 import type { Project } from '@/types';
 
 export interface BreakerScheduleProps {
@@ -59,30 +59,15 @@ export default function BreakerSchedule({
     };
   }, [manufacturer]);
 
-  const findBreaker: FindBreaker = (currentRating, category, poles, _options) => {
-    const matchesPoles = (e: EquipmentItem) =>
-      poles === 1 ? e.poles <= 2 : e.poles === 3;
-    const filtered = equipment.filter(
-      (e) => e.category === category && matchesPoles(e) && e.ratedCurrent >= currentRating
-    );
-    const match = filtered.sort((a, b) => a.ratedCurrent - b.ratedCurrent)[0];
-    if (match) {
-      return {
-        model: `${match.manufacturer} ${match.series} ${match.model}`,
-        manufacturer: match.manufacturer,
-        familyName: match.familyName,
-        ratedCurrent: match.ratedCurrent,
-        fallback: false,
-      };
-    }
-    return {
-      model: null,
-      manufacturer: null,
-      familyName: null,
-      ratedCurrent: null,
-      fallback: true,
-    };
-  };
+  const findBreaker: FindBreaker = createFindBreaker(
+    equipment,
+    {
+      ACB: project.defaultAcbFamilyId ?? undefined,
+      MCCB: project.defaultMccbFamilyId ?? undefined,
+      MCB: project.defaultMcbFamilyId ?? undefined,
+    },
+    manufacturer || project.preferredManufacturer
+  );
 
   const breakers: BreakerRow[] = [];
 

@@ -63,11 +63,11 @@ describe('isThreePhaseForItem', () => {
   });
 
   it('Load Library item with phase === 3 → true', () => {
-    expect(isThreePhaseForItem(item({ type: 'SERVICE_PANEL', loadLibraryItem: { name: 'Pump', category: 'Pump', power: 7.5, voltage: 400, phase: 3, powerFactor: 0.85, demandFactor: 1, quantity: 1 } }))).toBe(true);
+    expect(isThreePhaseForItem(item({ type: 'SERVICE_PANEL', loadLibraryItem: { id: 'l1', name: 'Pump', category: 'Pump', power: 7.5, voltage: 400, phase: 3, powerFactor: 0.85, demandFactor: 1, quantity: 1, runningCurrent: 10, startingCurrent: 50, notes: null } }))).toBe(true);
   });
 
   it('Load Library item with phase === 1 → false', () => {
-    expect(isThreePhaseForItem(item({ type: 'SERVICE_PANEL', loadLibraryItem: { name: 'Light', category: 'Lighting', power: 1, voltage: 230, phase: 1, powerFactor: 0.9, demandFactor: 0.8, quantity: 10 } }))).toBe(false);
+    expect(isThreePhaseForItem(item({ type: 'SERVICE_PANEL', loadLibraryItem: { id: 'l2', name: 'Light', category: 'Lighting', power: 1, voltage: 230, phase: 1, powerFactor: 0.9, demandFactor: 0.8, quantity: 10, runningCurrent: 4, startingCurrent: 4, notes: null } }))).toBe(false);
   });
 
   it('Manual panel entry (no template, no library item) → true (3-phase default)', () => {
@@ -249,7 +249,7 @@ describe('regression: three-phase classification', () => {
       type: 'SERVICE_PANEL',
       calculatedCurrent: 25,
       apartmentTemplate: null,
-      loadLibraryItem: { name: 'Lights', category: 'Lighting', power: 1, voltage: 230, phase: 1, powerFactor: 0.9, demandFactor: 0.8, quantity: 10 },
+      loadLibraryItem: { id: 'l3', name: 'Lights', category: 'Lighting', power: 1, voltage: 230, phase: 1, powerFactor: 0.9, demandFactor: 0.8, quantity: 10, runningCurrent: 4, startingCurrent: 4, notes: null },
     });
     expect(isThreePhaseForItem(singlePhaseLib)).toBe(false);
 

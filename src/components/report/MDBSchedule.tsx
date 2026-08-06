@@ -1,6 +1,6 @@
-'use client';
-
-import type { FloorItem, Project } from '@/types';
+import { useEffect, useState } from 'react';
+import { computeFeeders, createFindBreaker, type EquipmentItem, type FindBreaker } from '@/lib/calculations/feeders';
+import type { Project } from '@/types';
 
 export interface MDBScheduleProps {
   project: Project;
@@ -24,80 +24,91 @@ interface MDBRow {
 /**
  * Printable Main Distribution Board feeder schedule.
  *
- * Lists every outgoing MDB feeder. Floors with sub-panels receive a dedicated
- * SMDB feeder row, followed by their individual downstream loads.
+ * Uses `computeFeeders` to list every outgoing MDB feeder, SMDB sub-panel feeder,
+ * and downstream circuit breaker matching the rest of the application.
  */
 export default function MDBSchedule({ project, buildingId, showHeader = true }: MDBScheduleProps) {
-  const allItems: (FloorItem & { floor: number; building: string; hasFloorSubPanels?: boolean })[] = [];
+  const [equipment, setEquipment] = useState<EquipmentItem[]>([]);
 
-  for (const b of project.buildings) {
-    if (buildingId && b.id !== buildingId) continue;
-    for (const fd of b.floorDesigns) {
-      for (const item of fd.items) {
-        allItems.push({
-          ...item,
-          floor: fd.floorNumber,
-          building: b.name,
-          hasFloorSubPanels: fd.hasFloorSubPanels,
-        });
-      }
+  useEffect(() => {
+    let cancelled = false;
+    const params = new URLSearchParams();
+    if (project.preferredManufacturer && project.preferredManufacturer !== 'MIXED') {
+      params.set('manufacturer', project.preferredManufacturer);
     }
-  }
 
-  // Group by building+floor for sub-panel logic
-  const floorGroups: Record<
-    string,
-    { building: string; floor: number; hasSubPanel: boolean; items: typeof allItems }
-  > = {};
+    fetch(`/api/equipment?${params.toString()}`)
+      .then((res) => (res.ok ? res.json() : []))
+      .then((data) => {
+        if (!cancelled) setEquipment(data);
+      })
+      .catch(() => {
+        if (!cancelled) setEquipment([]);
+      });
 
-  for (const item of allItems) {
-    const key = `${item.building}-F${item.floor}`;
-    if (!floorGroups[key]) {
-      floorGroups[key] = {
-        building: item.building,
-        floor: item.floor,
-        hasSubPanel: !!item.hasFloorSubPanels,
-        items: [],
-      };
-    }
-    floorGroups[key].items.push(item);
-  }
+    return () => {
+      cancelled = true;
+    };
+  }, [project.preferredManufacturer]);
+
+  const findBreaker: FindBreaker = createFindBreaker(
+    equipment,
+    {
+      ACB: project.defaultAcbFamilyId ?? undefined,
+      MCCB: project.defaultMccbFamilyId ?? undefined,
+      MCB: project.defaultMcbFamilyId ?? undefined,
+    },
+    project.preferredManufacturer
+  );
 
   let mdbIndex = 0;
   const mdbRows: MDBRow[] = [];
 
-  for (const fg of Object.values(floorGroups).sort((a, b) => b.floor - a.floor)) {
-    if (fg.hasSubPanel && fg.items.length > 0) {
-      const floorDemand = fg.items.reduce((s, i) => s + i.calculatedMaxDemand, 0);
-      const floorCurrent = fg.items.reduce((s, i) => s + i.calculatedCurrent, 0);
+  for (const bldg of project.buildings) {
+    if (buildingId && bldg.id !== buildingId) continue;
+    const { mdbFeeders, smdbFloorNumbers, smdbFeeders } = computeFeeders(bldg, project, findBreaker);
+
+    const feederFloor = (feederName: string): number => {
+      const m = feederName.match(/^F(\d+)/);
+      return m ? parseInt(m[1], 10) : 0;
+    };
+
+    const currentToKw = (current: number) =>
+      (Math.sqrt(3) * (project.voltage / 1000) * current * project.powerFactor);
+
+    for (const f of mdbFeeders) {
       mdbIndex += 1;
+      const floor = feederFloor(f.name);
       mdbRows.push({
         idx: mdbIndex,
-        building: fg.building,
-        floor: fg.floor,
-        feeder: `Floor ${fg.floor} Sub-Panel`,
-        type: 'SUB_PANEL',
-        demand: floorDemand,
-        current: floorCurrent,
-        breaker: `${Math.ceil(floorCurrent)}A`,
-        cable: fg.items[0]?.cableSize || '',
-        isSubPanel: true,
+        building: bldg.name,
+        floor,
+        feeder: f.name,
+        type: f.type,
+        demand: currentToKw(f.current),
+        current: f.current,
+        breaker: `${f.breakerSize}A`,
+        cable: `${f.cableSize} mm²`,
+        isSubPanel: f.type === 'SMDB',
       });
     }
 
-    for (const item of fg.items) {
-      mdbIndex += 1;
-      mdbRows.push({
-        idx: mdbIndex,
-        building: item.building,
-        floor: item.floor,
-        feeder: item.name,
-        type: item.type,
-        demand: item.calculatedMaxDemand,
-        current: item.calculatedCurrent,
-        breaker: item.breakerSize,
-        cable: item.cableSize,
-      });
+    for (const floorNumber of smdbFloorNumbers) {
+      for (const f of smdbFeeders(floorNumber)) {
+        mdbIndex += 1;
+        mdbRows.push({
+          idx: mdbIndex,
+          building: bldg.name,
+          floor: floorNumber,
+          feeder: f.name,
+          type: f.type,
+          demand: currentToKw(f.current),
+          current: f.current,
+          breaker: `${f.breakerSize}A`,
+          cable: `${f.cableSize} mm²`,
+          isSubPanel: false,
+        });
+      }
     }
   }
 

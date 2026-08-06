@@ -284,42 +284,21 @@ export default function Sidebar() {
       className="fixed top-0 left-0 h-screen flex flex-col bg-slate-950/95 border-r border-slate-800/80 backdrop-blur-xl z-40 select-none shadow-2xl transition-all duration-200"
     >
       {/* Logo Header */}
-      {isCollapsed ? (
-        <div className="flex flex-col items-center justify-center py-3.5 px-2 border-b border-slate-800/80">
-          <button
-            onClick={toggleSidebar}
-            title="Expand ProCal Menu"
-            className="w-9 h-9 rounded-lg bg-orange-600/20 border border-orange-500/30 flex items-center justify-center shadow-[0_0_12px_rgba(234,88,12,0.3)] hover:border-orange-400 hover:bg-orange-600/30 transition-all duration-150 relative group"
-          >
-            <LogoMark />
-            <div className="absolute -bottom-1 -right-1 bg-slate-900 border border-slate-700 rounded-full p-0.5 text-orange-400 group-hover:scale-110 transition-transform">
-              <PanelLeftOpen size={10} />
-            </div>
-          </button>
+      <div className="flex items-center gap-2.5 px-3.5 py-4 border-b border-slate-800/80">
+        <div className="w-8 h-8 rounded-lg bg-orange-600/20 border border-orange-500/30 flex items-center justify-center shadow-[0_0_12px_rgba(234,88,12,0.3)] shrink-0 mx-auto md:mx-0">
+          <LogoMark />
         </div>
-      ) : (
-        <div className="flex items-center justify-between px-3.5 py-4 border-b border-slate-800/80">
-          <div className="flex items-center gap-2.5 min-w-0">
-            <div className="w-8 h-8 rounded-lg bg-orange-600/20 border border-orange-500/30 flex items-center justify-center shadow-[0_0_12px_rgba(234,88,12,0.3)] shrink-0">
-              <LogoMark />
-            </div>
+        {!isCollapsed && (
+          <>
             <span className="text-xl font-bold tracking-tight text-white flex items-center gap-1">
               ProCal
             </span>
-            <span className="text-[9px] font-bold uppercase tracking-wider text-orange-400 bg-orange-500/10 border border-orange-500/20 px-1.5 py-0.5 rounded">
+            <span className="ml-auto text-[9px] font-bold uppercase tracking-wider text-orange-400 bg-orange-500/10 border border-orange-500/20 px-1.5 py-0.5 rounded">
               v1.0
             </span>
-          </div>
-
-          <button
-            onClick={toggleSidebar}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-900 transition-colors shrink-0"
-            title="Collapse Main Menu"
-          >
-            <PanelLeftClose size={16} />
-          </button>
-        </div>
-      )}
+          </>
+        )}
+      </div>
 
       {/* Active Project */}
       <div className="pt-3">
@@ -371,13 +350,34 @@ export default function Sidebar() {
       </nav>
 
       {/* Bottom Section */}
-      <div className="border-t border-slate-800/80 pt-3 pb-3">
+      <div className="border-t border-slate-800/80 pt-3 pb-3 space-y-2">
+        {/* Toggle Collapse/Expand Button (above Admin Dashboard and User Profile) */}
+        <div className={cn("px-3 flex", isCollapsed ? "justify-center px-0" : "justify-end")}>
+          <button
+            onClick={toggleSidebar}
+            className={cn(
+              "flex items-center gap-2 p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-900 border border-slate-800/80 transition-all duration-150 text-xs w-full",
+              isCollapsed ? "justify-center w-9 h-9 p-0" : "justify-between px-3 py-1.5"
+            )}
+            title={isCollapsed ? "Expand Main Menu" : "Collapse Main Menu"}
+          >
+            {isCollapsed ? (
+              <PanelLeftOpen size={16} className="text-orange-400" />
+            ) : (
+              <>
+                <span className="text-[11px] font-medium text-slate-400">Collapse Sidebar</span>
+                <PanelLeftClose size={15} className="text-slate-400" />
+              </>
+            )}
+          </button>
+        </div>
+
         {currentUser?.role === "ADMIN" && (
           <Link
             href="/admin"
             title="Admin dashboard"
             className={cn(
-              "mx-2 mb-3 flex items-center gap-2.5 rounded-lg text-xs font-medium text-orange-300 bg-orange-500/10 border border-orange-500/20 hover:bg-orange-500/20 transition-all duration-150",
+              "mx-2 flex items-center gap-2.5 rounded-lg text-xs font-medium text-orange-300 bg-orange-500/10 border border-orange-500/20 hover:bg-orange-500/20 transition-all duration-150",
               isCollapsed ? "justify-center p-2" : "px-3 py-2"
             )}
           >

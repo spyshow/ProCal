@@ -35,6 +35,8 @@ import {
   Plug,
   ArrowUpRight,
   ArrowDownRight,
+  PanelLeftClose,
+  PanelLeftOpen,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -67,7 +69,8 @@ export default function SLDPage() {
   const [activeTab, setActiveTab] = useState<'riser' | 'sld' | 'panels'>('riser');
   const [activeMode, setActiveMode] = useState<'analyze' | 'simulate' | 'library'>('simulate');
 
-  // Explorer Search & Tree Collapse State
+  // Explorer Search & Sidebar Collapsible State
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [explorerSearch, setExplorerSearch] = useState('');
   const [expandedNodes, setExpandedNodes] = useState<Record<string, boolean>>({
     grid: true,
@@ -801,137 +804,184 @@ export default function SLDPage() {
 
       {/* Main Workstation 3-Panel Body */}
       <div className="flex flex-1 overflow-hidden relative">
-        {/* LEFT PANEL: Dynamic Project Explorer */}
-        <aside className="w-72 border-r border-slate-800/80 bg-slate-950 flex flex-col shrink-0 print:hidden">
-          <div className="p-3 border-b border-slate-800/80 flex items-center justify-between">
-            <div className="flex items-center gap-2 text-xs font-semibold text-slate-300">
-              <FolderTree size={14} className="text-orange-400" />
-              <span>Project Explorer Tree</span>
+        {/* LEFT PANEL: Collapsible Dynamic Project Explorer */}
+        <aside
+          className={`${
+            isSidebarCollapsed ? 'w-12' : 'w-72'
+          } border-r border-slate-800/80 bg-slate-950 flex flex-col shrink-0 transition-all duration-200 print:hidden relative`}
+        >
+          {isSidebarCollapsed ? (
+            /* Collapsed Icon Bar */
+            <div className="flex flex-col items-center py-3 gap-4">
+              <button
+                onClick={() => setIsSidebarCollapsed(false)}
+                className="p-2 rounded-lg bg-slate-900 border border-slate-800 text-orange-400 hover:text-white hover:border-slate-700 transition-colors shadow-sm"
+                title="Expand Project Explorer Menu"
+              >
+                <PanelLeftOpen size={16} />
+              </button>
+
+              <div className="w-6 h-px bg-slate-800 my-1" />
+
+              <button
+                onClick={() => setIsSidebarCollapsed(false)}
+                className="p-2 rounded-lg text-slate-400 hover:text-orange-400 hover:bg-slate-900 transition-colors"
+                title="Project Explorer Tree"
+              >
+                <FolderTree size={16} />
+              </button>
+
+              <button
+                onClick={() => setIsSidebarCollapsed(false)}
+                className="p-2 rounded-lg text-slate-400 hover:text-orange-400 hover:bg-slate-900 transition-colors"
+                title="Search Circuits"
+              >
+                <Search size={16} />
+              </button>
             </div>
-            <span className="text-[10px] font-mono text-slate-500">{dynamicTree.length} Nodes</span>
-          </div>
+          ) : (
+            /* Full Expanded Explorer Sidebar */
+            <>
+              <div className="p-3 border-b border-slate-800/80 flex items-center justify-between">
+                <div className="flex items-center gap-2 text-xs font-semibold text-slate-300">
+                  <FolderTree size={14} className="text-orange-400" />
+                  <span>Project Explorer Tree</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-mono text-slate-500">{dynamicTree.length} Nodes</span>
+                  <button
+                    onClick={() => setIsSidebarCollapsed(true)}
+                    className="p-1 rounded text-slate-400 hover:text-white hover:bg-slate-900 transition-colors"
+                    title="Collapse Explorer Menu"
+                  >
+                    <PanelLeftClose size={14} />
+                  </button>
+                </div>
+              </div>
 
-          {/* Search Bar */}
-          <div className="p-2.5 border-b border-slate-800/60">
-            <div className="relative">
-              <Search className="w-3.5 h-3.5 absolute left-2.5 top-2.5 text-slate-500" />
-              <input
-                type="text"
-                placeholder="Search circuits or panels…"
-                value={explorerSearch}
-                onChange={(e) => setExplorerSearch(e.target.value)}
-                className="w-full bg-slate-900 border border-slate-800 rounded-lg pl-8 pr-3 py-1 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-orange-500/50"
-              />
-            </div>
-          </div>
+              {/* Search Bar */}
+              <div className="p-2.5 border-b border-slate-800/60">
+                <div className="relative">
+                  <Search className="w-3.5 h-3.5 absolute left-2.5 top-2.5 text-slate-500" />
+                  <input
+                    type="text"
+                    placeholder="Search circuits or panels…"
+                    value={explorerSearch}
+                    onChange={(e) => setExplorerSearch(e.target.value)}
+                    className="w-full bg-slate-900 border border-slate-800 rounded-lg pl-8 pr-3 py-1 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-orange-500/50"
+                  />
+                </div>
+              </div>
 
-          {/* Dynamic Hierarchy Tree */}
-          <div className="flex-1 overflow-y-auto p-2 space-y-1 text-xs no-scrollbar">
-            {dynamicTree
-              .filter((item) =>
-                explorerSearch ? item.name.toLowerCase().includes(explorerSearch.toLowerCase()) : true
-              )
-              .map((item) => {
-                const isExpanded = expandedNodes[item.id] ?? true;
-                const isSelected = selectedComponent?.id === item.data.id;
-                const currentStatus = getStatus(item.data.id);
+              {/* Dynamic Hierarchy Tree */}
+              <div className="flex-1 overflow-y-auto p-2 space-y-1 text-xs no-scrollbar">
+                {dynamicTree
+                  .filter((item) =>
+                    explorerSearch ? item.name.toLowerCase().includes(explorerSearch.toLowerCase()) : true
+                  )
+                  .map((item) => {
+                    const isExpanded = expandedNodes[item.id] ?? true;
+                    const isSelected = selectedComponent?.id === item.data.id;
+                    const currentStatus = getStatus(item.data.id);
 
-                return (
-                  <div key={item.id}>
-                    <button
-                      onClick={() => {
-                        toggleNode(item.id);
-                        handleSelectNode(item.data, item.floorNumber);
-                      }}
-                      className={`w-full flex items-center justify-between py-1.5 px-2 rounded-lg text-left transition-colors ${
-                        isSelected
-                          ? 'bg-orange-500/15 text-orange-300 border border-orange-500/30 font-medium'
-                          : 'hover:bg-slate-900 text-slate-300'
-                      }`}
-                    >
-                      <div className="flex items-center gap-1.5 truncate pr-1">
-                        {item.children && item.children.length > 0 ? (
-                          isExpanded ? (
-                            <ChevronDown className="w-3.5 h-3.5 text-slate-500 shrink-0" />
-                          ) : (
-                            <ChevronRight className="w-3.5 h-3.5 text-slate-500 shrink-0" />
-                          )
-                        ) : (
-                          <div className="w-3.5 h-3.5 shrink-0" />
-                        )}
-                        {item.icon === 'zap' && <Zap className="w-3.5 h-3.5 text-orange-400 shrink-0" />}
-                        {item.icon === 'cpu' && <Cpu className="w-3.5 h-3.5 text-amber-400 shrink-0" />}
-                        {item.icon === 'layers' && <Layers className="w-3.5 h-3.5 text-sky-400 shrink-0" />}
-                        {item.icon === 'plug' && <Plug className="w-3.5 h-3.5 text-emerald-400 shrink-0" />}
-                        <span className="truncate">{item.name}</span>
-                      </div>
-                      {item.badge && (
-                        <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-slate-800 text-slate-400 shrink-0">
-                          {item.badge}
-                        </span>
-                      )}
-                    </button>
+                    return (
+                      <div key={item.id}>
+                        <button
+                          onClick={() => {
+                            toggleNode(item.id);
+                            handleSelectNode(item.data, item.floorNumber);
+                          }}
+                          className={`w-full flex items-center justify-between py-1.5 px-2 rounded-lg text-left transition-colors ${
+                            isSelected
+                              ? 'bg-orange-500/15 text-orange-300 border border-orange-500/30 font-medium'
+                              : 'hover:bg-slate-900 text-slate-300'
+                          }`}
+                        >
+                          <div className="flex items-center gap-1.5 truncate pr-1">
+                            {item.children && item.children.length > 0 ? (
+                              isExpanded ? (
+                                <ChevronDown className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+                              ) : (
+                                <ChevronRight className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+                              )
+                            ) : (
+                              <div className="w-3.5 h-3.5 shrink-0" />
+                            )}
+                            {item.icon === 'zap' && <Zap className="w-3.5 h-3.5 text-orange-400 shrink-0" />}
+                            {item.icon === 'cpu' && <Cpu className="w-3.5 h-3.5 text-amber-400 shrink-0" />}
+                            {item.icon === 'layers' && <Layers className="w-3.5 h-3.5 text-sky-400 shrink-0" />}
+                            {item.icon === 'plug' && <Plug className="w-3.5 h-3.5 text-emerald-400 shrink-0" />}
+                            <span className="truncate">{item.name}</span>
+                          </div>
+                          {item.badge && (
+                            <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-slate-800 text-slate-400 shrink-0">
+                              {item.badge}
+                            </span>
+                          )}
+                        </button>
 
-                    {/* Render Children Recursively */}
-                    {item.children && isExpanded && (
-                      <div className="pl-4 space-y-0.5 mt-0.5 border-l border-slate-800/80 ml-2.5">
-                        {item.children.map((child: any) => {
-                          const isChildSelected = selectedComponent?.id === child.data.id;
-                          const childStatus = getStatus(child.data.id);
-                          return (
-                            <div key={child.id}>
-                              <button
-                                onClick={() => handleSelectNode(child.data, child.floorNumber)}
-                                className={`w-full flex items-center justify-between py-1 px-2 rounded text-left transition-colors text-xs ${
-                                  isChildSelected
-                                    ? 'bg-orange-500/15 text-orange-300 border border-orange-500/30 font-medium'
-                                    : 'hover:bg-slate-900/80 text-slate-400 hover:text-slate-200'
-                                }`}
-                              >
-                                <span className="flex items-center gap-1.5 truncate">
-                                  <Layers className="w-3 h-3 text-sky-400 shrink-0" />
-                                  <span className="truncate">{child.name}</span>
-                                </span>
-                                <span
-                                  className={`w-1.5 h-1.5 rounded-full shrink-0 ${
-                                    childStatus === 'Closed' ? 'bg-emerald-400' : 'bg-rose-400'
-                                  }`}
-                                />
-                              </button>
+                        {/* Render Children Recursively */}
+                        {item.children && isExpanded && (
+                          <div className="pl-4 space-y-0.5 mt-0.5 border-l border-slate-800/80 ml-2.5">
+                            {item.children.map((child: any) => {
+                              const isChildSelected = selectedComponent?.id === child.data.id;
+                              const childStatus = getStatus(child.data.id);
+                              return (
+                                <div key={child.id}>
+                                  <button
+                                    onClick={() => handleSelectNode(child.data, child.floorNumber)}
+                                    className={`w-full flex items-center justify-between py-1 px-2 rounded text-left transition-colors text-xs ${
+                                      isChildSelected
+                                        ? 'bg-orange-500/15 text-orange-300 border border-orange-500/30 font-medium'
+                                        : 'hover:bg-slate-900/80 text-slate-400 hover:text-slate-200'
+                                    }`}
+                                  >
+                                    <span className="flex items-center gap-1.5 truncate">
+                                      <Layers className="w-3 h-3 text-sky-400 shrink-0" />
+                                      <span className="truncate">{child.name}</span>
+                                    </span>
+                                    <span
+                                      className={`w-1.5 h-1.5 rounded-full shrink-0 ${
+                                        childStatus === 'Closed' ? 'bg-emerald-400' : 'bg-rose-400'
+                                      }`}
+                                    />
+                                  </button>
 
-                              {/* Nested Sub-Items */}
-                              {child.children && (
-                                <div className="pl-3 space-y-0.5 mt-0.5 border-l border-slate-800/50 ml-2">
-                                  {child.children.map((sub: any) => {
-                                    const isSubSelected = selectedComponent?.id === sub.data.id;
-                                    return (
-                                      <button
-                                        key={sub.id}
-                                        onClick={() => handleSelectNode(sub.data, sub.floorNumber)}
-                                        className={`w-full flex items-center justify-between py-0.5 px-1.5 rounded text-[11px] text-left transition-colors ${
-                                          isSubSelected
-                                            ? 'bg-orange-500/20 text-orange-300 font-medium'
-                                            : 'hover:bg-slate-900/60 text-slate-400 hover:text-slate-300'
-                                        }`}
-                                      >
-                                        <span className="truncate flex items-center gap-1">
-                                          <Plug className="w-2.5 h-2.5 text-emerald-400 shrink-0" />
-                                          <span className="truncate">{sub.name}</span>
-                                        </span>
-                                      </button>
-                                    );
-                                  })}
+                                  {/* Nested Sub-Items */}
+                                  {child.children && (
+                                    <div className="pl-3 space-y-0.5 mt-0.5 border-l border-slate-800/50 ml-2">
+                                      {child.children.map((sub: any) => {
+                                        const isSubSelected = selectedComponent?.id === sub.data.id;
+                                        return (
+                                          <button
+                                            key={sub.id}
+                                            onClick={() => handleSelectNode(sub.data, sub.floorNumber)}
+                                            className={`w-full flex items-center justify-between py-0.5 px-1.5 rounded text-[11px] text-left transition-colors ${
+                                              isSubSelected
+                                                ? 'bg-orange-500/20 text-orange-300 font-medium'
+                                                : 'hover:bg-slate-900/60 text-slate-400 hover:text-slate-300'
+                                            }`}
+                                          >
+                                            <span className="truncate flex items-center gap-1">
+                                              <Plug className="w-2.5 h-2.5 text-emerald-400 shrink-0" />
+                                              <span className="truncate">{sub.name}</span>
+                                            </span>
+                                          </button>
+                                        );
+                                      })}
+                                    </div>
+                                  )}
                                 </div>
-                              )}
-                            </div>
-                          );
-                        })}
+                              );
+                            })}
+                          </div>
+                        )}
                       </div>
-                    )}
-                  </div>
-                );
-              })}
-          </div>
+                    );
+                  })}
+              </div>
+            </>
+          )}
         </aside>
 
         {/* CENTER PANEL: Canvas Workstation Viewport */}
@@ -943,6 +993,15 @@ export default function SLDPage() {
           {/* Document View Header */}
           <div className="h-9 border-b border-slate-800/80 bg-slate-900/80 flex items-center px-4 justify-between shrink-0 print:hidden font-sans">
             <div className="flex items-center gap-2 text-xs font-semibold text-slate-200">
+              {isSidebarCollapsed && (
+                <button
+                  onClick={() => setIsSidebarCollapsed(false)}
+                  className="p-1 rounded bg-slate-800 text-orange-400 hover:text-white hover:bg-slate-700 transition-colors mr-1"
+                  title="Expand Project Explorer Menu"
+                >
+                  <PanelLeftOpen size={14} />
+                </button>
+              )}
               <GitBranch className="w-4 h-4 text-orange-400" />
               <span>Single Line Diagram — {pages[activePage]?.floors || pages[activePage]?.title || 'Floor View'}</span>
             </div>

@@ -500,10 +500,21 @@ export default function SLDPage() {
     return { totalPower, totalCurrent, totalCircuits, totalFloors };
   }, [project]);
 
+  const triggerLandscapePrint = () => {
+    let styleEl = document.getElementById('print-landscape-override') as HTMLStyleElement;
+    if (!styleEl) {
+      styleEl = document.createElement('style');
+      styleEl.id = 'print-landscape-override';
+      styleEl.innerHTML = '@page { size: landscape !important; margin: 5mm !important; }';
+      document.head.appendChild(styleEl);
+    }
+    window.print();
+  };
+
   const exportPDF = () => {
     setIsPrintingAll(false);
     setTimeout(() => {
-      window.print();
+      triggerLandscapePrint();
     }, 50);
   };
 
@@ -518,7 +529,7 @@ export default function SLDPage() {
     window.addEventListener('afterprint', handleAfterPrint);
 
     setTimeout(() => {
-      window.print();
+      triggerLandscapePrint();
     }, 200);
   };
 

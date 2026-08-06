@@ -128,7 +128,7 @@ const TOUR_STEPS: Step[] = [
     title: 'Workspace Settings & Controls',
     subtitle: 'Customization & Replay',
     content: 'Configure country engineering defaults, company logos, voltage drop limits, or replay this guided product tour anytime!',
-    targetAttr: 'sidebar-toggle',
+    targetAttr: 'tour-settings',
     route: '/settings',
     icon: Sparkles,
   },

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
+import { useRouter, usePathname } from 'next/navigation';
 import { useUser } from '@/context/UserContext';
 import {
   Zap,
@@ -23,32 +24,36 @@ interface Step {
   subtitle: string;
   content: string;
   targetAttr: string;
+  route: string;
   icon: React.ElementType;
 }
 
 const TOUR_STEPS: Step[] = [
   {
     id: 'welcome',
-    title: 'Welcome to ProCal',
+    title: 'Welcome & Dashboard Overview',
     subtitle: 'Executive Electrical Engineering Suite',
-    content: 'ProCal is an advanced electrical design suite for load calculation, vector phase balancing, IEC 60364 cable sizing, breaker selection, and Single Line Diagram (SLD) generation.',
+    content: 'ProCal is an advanced electrical design suite. Explore real-time project statistics, active load summaries, and engineering metrics.',
     targetAttr: 'brand-logo',
+    route: '/dashboard',
     icon: Compass,
   },
   {
     id: 'projects',
-    title: 'Active Project Selector',
-    subtitle: 'Manage Buildings & Projects',
-    content: 'Easily select your active project, switch between multi-building complexes (towers, malls, apartments), or manage your engineering project portfolio.',
+    title: 'Project Portfolio & Building Management',
+    subtitle: 'Manage Projects & Buildings',
+    content: 'Manage your engineering project portfolio, create new projects, and configure multi-building complexes (towers, commercial malls, residential blocks).',
     targetAttr: 'project-selector',
+    route: '/projects',
     icon: Building2,
   },
   {
     id: 'calculator',
     title: 'Load Calculator & Phase Balancing',
-    subtitle: 'Electrical Demand Calculations',
-    content: 'Calculate load currents, power factor displacement, demand factors, and vector neutral currents to ensure optimal 3-phase load balance across all floors.',
+    subtitle: 'Electrical Demand & Neutral Balancing',
+    content: 'Calculate load currents, power factor displacement angles, demand factors, and vector 3-phase neutral unbalance across all floors.',
     targetAttr: 'tour-calculator',
+    route: '/calculator',
     icon: Zap,
   },
   {
@@ -57,6 +62,7 @@ const TOUR_STEPS: Step[] = [
     subtitle: 'IEC 60364 Sizing & Catalog Matching',
     content: 'Automatically size power cables and match MCB, MCCB, and ACB breaker families from top manufacturers like Schneider, ABB, and Siemens.',
     targetAttr: 'tour-breaker-schedule',
+    route: '/breaker-schedule',
     icon: CircuitBoard,
   },
   {
@@ -65,6 +71,7 @@ const TOUR_STEPS: Step[] = [
     subtitle: 'Interactive Single Line Diagram Editor',
     content: 'Inspect floor-by-floor Single Line Diagrams with collapsible tree explorer, interactive node details, and live schematic diagram rendering.',
     targetAttr: 'tour-sld',
+    route: '/sld',
     icon: GitBranch,
   },
   {
@@ -73,47 +80,69 @@ const TOUR_STEPS: Step[] = [
     subtitle: 'Print & Export Drawing Packages',
     content: 'Generate executive summary cover reports with color-coded key performance cards, distribution hierarchy tables, and complete landscape drawing packages.',
     targetAttr: 'tour-reports',
+    route: '/reports',
     icon: FileText,
   },
   {
-    id: 'controls',
-    title: 'Workspace Controls & Settings',
-    subtitle: 'Collapsible Menu & Customization',
-    content: 'Collapse the sidebar anytime for an expanded workstation layout. You can also re-trigger this product tour anytime from the Settings page!',
+    id: 'settings',
+    title: 'Workspace Settings & Tour Controls',
+    subtitle: 'Customization & Replay',
+    content: 'Configure engineering defaults, company logos, voltage drop limits, or replay this guided product tour anytime!',
     targetAttr: 'sidebar-toggle',
+    route: '/settings',
     icon: Sparkles,
   },
 ];
 
 export function OnboardingTour() {
   const { user } = useUser();
+  const router = useRouter();
+  const pathname = usePathname();
   const [activeStep, setActiveStep] = useState<number>(-1);
   const [targetRect, setTargetRect] = useState<DOMRect | null>(null);
 
   const storageKey = user?.id ? `procal_tour_completed_${user.id}` : 'procal_tour_completed_guest';
 
-  // Check if tour should auto-trigger on first sign-in
+  // Restore active step from sessionStorage if resuming across page navigation
   useEffect(() => {
-    const hasCompleted = localStorage.getItem(storageKey);
-    if (!hasCompleted && user) {
-      // Small delay for UI layout to settle
-      const timer = setTimeout(() => {
-        setActiveStep(0);
-      }, 600);
-      return () => clearTimeout(timer);
+    const savedStepStr = sessionStorage.getItem('procal_tour_active_step');
+    if (savedStepStr !== null) {
+      const stepIdx = parseInt(savedStepStr, 10);
+      if (!isNaN(stepIdx) && stepIdx >= 0 && stepIdx < TOUR_STEPS.length) {
+        setActiveStep(stepIdx);
+      }
+    } else {
+      const hasCompleted = localStorage.getItem(storageKey);
+      if (!hasCompleted && user) {
+        const timer = setTimeout(() => {
+          goToStep(0);
+        }, 600);
+        return () => clearTimeout(timer);
+      }
     }
   }, [user, storageKey]);
 
   // Listen for manual "trigger-procal-tour" custom event
   useEffect(() => {
     const handleTrigger = () => {
-      setActiveStep(0);
+      goToStep(0);
     };
     window.addEventListener('trigger-procal-tour', handleTrigger);
     return () => window.removeEventListener('trigger-procal-tour', handleTrigger);
   }, []);
 
-  // Update target bounding rect when step changes
+  const goToStep = useCallback((stepIndex: number) => {
+    if (stepIndex < 0 || stepIndex >= TOUR_STEPS.length) return;
+    setActiveStep(stepIndex);
+    sessionStorage.setItem('procal_tour_active_step', String(stepIndex));
+
+    const targetRoute = TOUR_STEPS[stepIndex].route;
+    if (targetRoute && pathname !== targetRoute) {
+      router.push(targetRoute);
+    }
+  }, [pathname, router]);
+
+  // Update target bounding rect when step or pathname changes
   const updateTargetRect = useCallback(() => {
     if (activeStep < 0 || activeStep >= TOUR_STEPS.length) {
       setTargetRect(null);
@@ -129,18 +158,23 @@ export function OnboardingTour() {
   }, [activeStep]);
 
   useEffect(() => {
-    updateTargetRect();
+    // Retry finding element as page loads
+    const timer1 = setTimeout(updateTargetRect, 100);
+    const timer2 = setTimeout(updateTargetRect, 400);
+
     window.addEventListener('resize', updateTargetRect);
     window.addEventListener('scroll', updateTargetRect, true);
     return () => {
+      clearTimeout(timer1);
+      clearTimeout(timer2);
       window.removeEventListener('resize', updateTargetRect);
       window.removeEventListener('scroll', updateTargetRect, true);
     };
-  }, [updateTargetRect]);
+  }, [updateTargetRect, pathname, activeStep]);
 
   const handleNext = () => {
     if (activeStep < TOUR_STEPS.length - 1) {
-      setActiveStep((prev) => prev + 1);
+      goToStep(activeStep + 1);
     } else {
       handleComplete();
     }
@@ -148,12 +182,13 @@ export function OnboardingTour() {
 
   const handleBack = () => {
     if (activeStep > 0) {
-      setActiveStep((prev) => prev - 1);
+      goToStep(activeStep - 1);
     }
   };
 
   const handleComplete = () => {
     localStorage.setItem(storageKey, 'true');
+    sessionStorage.removeItem('procal_tour_active_step');
     setActiveStep(-1);
   };
 

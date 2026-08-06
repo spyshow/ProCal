@@ -57,7 +57,7 @@ export function aggregateBOM(project: Project): BOMResult {
       size,
       rating: 0,
       count,
-      totalLength: length,
+      totalLength: Math.round(length),
     }));
 
   const breakers = Array.from(breakerMap.values())

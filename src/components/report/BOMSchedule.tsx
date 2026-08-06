@@ -9,21 +9,23 @@ export interface BOMScheduleProps {
 }
 
 interface BOMItem {
-  size: string;
+  sizeNum: number;
+  sizeLabel: string;
   length: number;
   count: number;
 }
 
 interface BreakerBOMItem {
-  rating: string;
+  ratingAmps: number;
+  ratingLabel: string;
   count: number;
 }
 
 /**
  * Printable Bill of Materials schedule.
  *
- * Aggregates cable and breaker quantities across every floor item in the
- * project (optionally filtered to a single building).
+ * Aggregates cable and breaker quantities across every floor item and building load
+ * in the project (optionally filtered to a single building).
  */
 export default function BOMSchedule({ project, buildingId, showHeader = true }: BOMScheduleProps) {
   const allItems: (FloorItem & { floor: number; building: string })[] = [];
@@ -58,27 +60,33 @@ export default function BOMSchedule({ project, buildingId, showHeader = true }: 
     }
   }
 
-  const cableBOM: Record<string, BOMItem> = {};
-  const breakerBOM: Record<string, BreakerBOMItem> = {};
+  const cableBOM: Record<number, BOMItem> = {};
+  const breakerBOM: Record<number, BreakerBOMItem> = {};
   const cableLengthFallback = (floor: number) => 10 + (floor - 1) * 5;
 
   for (const item of allItems) {
-    const cableKey = item.cableSize;
-    if (!cableBOM[cableKey]) {
-      cableBOM[cableKey] = { size: item.cableSize, length: 0, count: 0 };
-    }
-    cableBOM[cableKey].length += item.cableLength ?? cableLengthFallback(item.floor);
-    cableBOM[cableKey].count += 1;
+    const sizeNum = parseFloat(item.cableSize) || 4;
+    const sizeLabel = `${sizeNum} mm²`;
 
-    const breakerKey = item.breakerSize;
-    if (!breakerBOM[breakerKey]) {
-      breakerBOM[breakerKey] = { rating: item.breakerSize, count: 0 };
+    if (!cableBOM[sizeNum]) {
+      cableBOM[sizeNum] = { sizeNum, sizeLabel, length: 0, count: 0 };
     }
-    breakerBOM[breakerKey].count += 1;
+    cableBOM[sizeNum].length += item.cableLength ?? cableLengthFallback(item.floor);
+    cableBOM[sizeNum].count += 1;
+
+    const breakerAmps = parseFloat(String(item.breakerSize).replace(/[^0-9.]/g, '')) || 16;
+    const breakerLabel = `${breakerAmps}A`;
+
+    if (!breakerBOM[breakerAmps]) {
+      breakerBOM[breakerAmps] = { ratingAmps: breakerAmps, ratingLabel: breakerLabel, count: 0 };
+    }
+    breakerBOM[breakerAmps].count += 1;
   }
 
-  const cableRows = Object.values(cableBOM);
-  const breakerRows = Object.values(breakerBOM);
+  const cableRows = Object.values(cableBOM).sort((a, b) => a.sizeNum - b.sizeNum);
+  const breakerRows = Object.values(breakerBOM).sort((a, b) => a.ratingAmps - b.ratingAmps);
+
+  const totalCableLength = Math.round(cableRows.reduce((s, e) => s + e.length, 0));
 
   return (
     <div className="space-y-6">
@@ -101,18 +109,16 @@ export default function BOMSchedule({ project, buildingId, showHeader = true }: 
         </thead>
         <tbody>
           {cableRows.map((entry) => (
-            <tr key={entry.size} className="hover:bg-gray-50">
-              <td className="border p-2 font-mono font-semibold">{entry.size} mm²</td>
+            <tr key={entry.sizeNum} className="hover:bg-gray-50">
+              <td className="border p-2 font-mono font-semibold">{entry.sizeLabel}</td>
               <td className="border p-2 text-right font-mono">{entry.count}</td>
-              <td className="border p-2 text-right font-mono">{entry.length}m</td>
+              <td className="border p-2 text-right font-mono">{Math.round(entry.length)}m</td>
             </tr>
           ))}
           <tr className="bg-gray-50 font-bold">
             <td className="border p-2">TOTAL</td>
             <td className="border p-2 text-right font-mono">{allItems.length}</td>
-            <td className="border p-2 text-right font-mono">
-              {cableRows.reduce((s, e) => s + e.length, 0)}m
-            </td>
+            <td className="border p-2 text-right font-mono">{totalCableLength}m</td>
           </tr>
         </tbody>
       </table>
@@ -127,8 +133,8 @@ export default function BOMSchedule({ project, buildingId, showHeader = true }: 
         </thead>
         <tbody>
           {breakerRows.map((entry) => (
-            <tr key={entry.rating} className="hover:bg-gray-50">
-              <td className="border p-2 font-mono font-semibold">{entry.rating}</td>
+            <tr key={entry.ratingAmps} className="hover:bg-gray-50">
+              <td className="border p-2 font-mono font-semibold">{entry.ratingLabel}</td>
               <td className="border p-2 text-right font-mono">{entry.count}</td>
             </tr>
           ))}

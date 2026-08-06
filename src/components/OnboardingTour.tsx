@@ -134,68 +134,130 @@ const TOUR_STEPS: Step[] = [
   },
 ];
 
+const CALCULATOR_TOUR_STEPS: Step[] = [
+  {
+    id: 'calc-summary',
+    title: 'Load Demand Summary & Incomer Current',
+    subtitle: 'Aggregated Electrical Demands',
+    content: 'View total connected load (kW), maximum demand after diversity factors, and calculated incomer line current (A) for your selected building.',
+    targetAttr: 'calc-summary',
+    route: '/calculator',
+    icon: Zap,
+  },
+  {
+    id: 'calc-buildings',
+    title: 'Building Selector & Multi-Structure Tabs',
+    subtitle: 'Complex Building Tabs',
+    content: 'Switch between individual towers, commercial blocks, or podium buildings in your project to calculate their independent load schedules.',
+    targetAttr: 'calc-buildings',
+    route: '/calculator',
+    icon: Building2,
+  },
+  {
+    id: 'calc-building-loads',
+    title: 'Mechanical & Central Building Loads',
+    subtitle: 'Elevators, Pumps & Plant Equipment',
+    content: 'Configure shared building mechanical loads such as passenger elevators, domestic booster pumps, and HVAC chillers.',
+    targetAttr: 'calc-building-loads',
+    route: '/calculator',
+    icon: Cpu,
+  },
+  {
+    id: 'calc-floors',
+    title: 'Floor Load Designs & 3-Phase Phase Balance',
+    subtitle: 'Floor Breakdown & Neutral Current',
+    content: 'Inspect floor-by-floor loads, apartment template densities, and automatic vector phase balancing (L1, L2, L3) to prevent neutral overload.',
+    targetAttr: 'calc-floors',
+    route: '/calculator',
+    icon: CircuitBoard,
+  },
+];
+
 export function OnboardingTour() {
   const { user } = useUser();
   const router = useRouter();
   const pathname = usePathname();
   const [activeStep, setActiveStep] = useState<number>(-1);
+  const [tourMode, setTourMode] = useState<'full' | 'calculator'>('full');
   const [targetRect, setTargetRect] = useState<DOMRect | null>(null);
 
+  const stepsList = tourMode === 'calculator' ? CALCULATOR_TOUR_STEPS : TOUR_STEPS;
   const storageKey = user?.id ? `procal_tour_completed_${user.id}` : 'procal_tour_completed_guest';
 
   // Restore active step from sessionStorage if resuming across page navigation
   useEffect(() => {
+    const savedMode = sessionStorage.getItem('procal_tour_mode') as 'full' | 'calculator' | null;
+    if (savedMode) {
+      setTourMode(savedMode);
+    }
     const savedStepStr = sessionStorage.getItem('procal_tour_active_step');
     if (savedStepStr !== null) {
       const stepIdx = parseInt(savedStepStr, 10);
-      if (!isNaN(stepIdx) && stepIdx >= 0 && stepIdx < TOUR_STEPS.length) {
+      if (!isNaN(stepIdx) && stepIdx >= 0) {
         setActiveStep(stepIdx);
       }
     } else {
       const hasCompleted = localStorage.getItem(storageKey);
       if (!hasCompleted && user) {
         const timer = setTimeout(() => {
-          goToStep(0);
+          setTourMode('full');
+          goToStep(0, 'full');
         }, 600);
         return () => clearTimeout(timer);
       }
     }
   }, [user, storageKey]);
 
-  // Listen for manual "trigger-procal-tour" custom event
+  // Listen for manual tour trigger custom events
   useEffect(() => {
-    const handleTrigger = () => {
-      goToStep(0);
+    const handleFullTour = () => {
+      setTourMode('full');
+      sessionStorage.setItem('procal_tour_mode', 'full');
+      goToStep(0, 'full');
     };
-    window.addEventListener('trigger-procal-tour', handleTrigger);
-    return () => window.removeEventListener('trigger-procal-tour', handleTrigger);
+
+    const handleCalculatorTour = () => {
+      setTourMode('calculator');
+      sessionStorage.setItem('procal_tour_mode', 'calculator');
+      goToStep(0, 'calculator');
+    };
+
+    window.addEventListener('trigger-procal-tour', handleFullTour);
+    window.addEventListener('trigger-procal-calculator-tour', handleCalculatorTour);
+    return () => {
+      window.removeEventListener('trigger-procal-tour', handleFullTour);
+      window.removeEventListener('trigger-procal-calculator-tour', handleCalculatorTour);
+    };
   }, []);
 
-  const goToStep = useCallback((stepIndex: number) => {
-    if (stepIndex < 0 || stepIndex >= TOUR_STEPS.length) return;
+  const goToStep = useCallback((stepIndex: number, modeOverride?: 'full' | 'calculator') => {
+    const activeMode = modeOverride || tourMode;
+    const activeSteps = activeMode === 'calculator' ? CALCULATOR_TOUR_STEPS : TOUR_STEPS;
+    if (stepIndex < 0 || stepIndex >= activeSteps.length) return;
+
     setActiveStep(stepIndex);
     sessionStorage.setItem('procal_tour_active_step', String(stepIndex));
 
-    const targetRoute = TOUR_STEPS[stepIndex].route;
+    const targetRoute = activeSteps[stepIndex].route;
     if (targetRoute && pathname !== targetRoute) {
       router.push(targetRoute);
     }
-  }, [pathname, router]);
+  }, [pathname, router, tourMode]);
 
   // Update target bounding rect when step or pathname changes
   const updateTargetRect = useCallback(() => {
-    if (activeStep < 0 || activeStep >= TOUR_STEPS.length) {
+    if (activeStep < 0 || activeStep >= stepsList.length) {
       setTargetRect(null);
       return;
     }
-    const currentStep = TOUR_STEPS[activeStep];
+    const currentStep = stepsList[activeStep];
     const el = document.querySelector(`[data-tour="${currentStep.targetAttr}"]`);
     if (el) {
       setTargetRect(el.getBoundingClientRect());
     } else {
       setTargetRect(null);
     }
-  }, [activeStep]);
+  }, [activeStep, stepsList]);
 
   useEffect(() => {
     // Retry finding element as page loads
@@ -213,7 +275,7 @@ export function OnboardingTour() {
   }, [updateTargetRect, pathname, activeStep]);
 
   const handleNext = () => {
-    if (activeStep < TOUR_STEPS.length - 1) {
+    if (activeStep < stepsList.length - 1) {
       goToStep(activeStep + 1);
     } else {
       handleComplete();
@@ -229,17 +291,18 @@ export function OnboardingTour() {
   const handleComplete = () => {
     localStorage.setItem(storageKey, 'true');
     sessionStorage.removeItem('procal_tour_active_step');
+    sessionStorage.removeItem('procal_tour_mode');
     setActiveStep(-1);
   };
 
-  if (activeStep < 0 || activeStep >= TOUR_STEPS.length) {
+  if (activeStep < 0 || activeStep >= stepsList.length) {
     return null;
   }
 
-  const currentStep = TOUR_STEPS[activeStep];
+  const currentStep = stepsList[activeStep];
   const Icon = currentStep.icon;
   const isFirst = activeStep === 0;
-  const isLast = activeStep === TOUR_STEPS.length - 1;
+  const isLast = activeStep === stepsList.length - 1;
 
   return (
     <div className="fixed inset-0 z-50 overflow-hidden pointer-events-auto">

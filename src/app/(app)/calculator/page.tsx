@@ -18,6 +18,7 @@ import {
   Copy,
   RefreshCw,
   AlertTriangle,
+  HelpCircle,
 } from 'lucide-react';
 import InfoTooltip from '@/components/InfoTooltip';
 import type { FloorItem, FloorDesign, Building, Project } from '@/types';
@@ -233,53 +234,68 @@ function CalculatorContent() {
             {project.name} — {project.voltage}V, PF {project.powerFactor}
           </p>
         </div>
-        {bldg.floorDesigns.some(fd => fd.items.some(i => i.type === 'APARTMENT')) && (
-          <div className="flex items-center gap-2">
-            <button
-              onClick={async () => {
-                await fetch(`/api/buildings/${bldg.id}/recalculate`, { method: 'POST' });
-                loadProject();
-              }}
-              className={`group flex items-center gap-2 px-4 py-2 rounded-lg text-white text-sm font-semibold transition-all duration-300 ${
-                needsRecalculation
-                  ? 'bg-amber-600 hover:bg-amber-500 shadow-amber-500/20 shadow-lg'
-                  : 'bg-blue-600 hover:bg-blue-500'
-              }`}
-            >
-              <MotionIcon
-                name="RefreshCw"
-                size={14}
-                animation={needsRecalculation ? 'spin' : 'none'}
-                className={`${!needsRecalculation ? 'group-hover:animate-[spin_1s_linear_infinite]' : ''}`}
-              />
-              {needsRecalculation ? 'Recalculate Needed' : 'Recalculate All Floors'}
-            </button>
-            <button
-              onClick={async () => {
-                try {
-                  const res = await fetch(`/api/buildings/${bldg.id}/rebalance`, { method: 'POST' });
-                  if (res.ok) {
-                    loadProject();
-                  } else {
-                    const err = await res.json().catch(() => ({}));
-                    alert(err.error || 'Rebalance failed');
+
+        <div className="flex items-center gap-3">
+          {/* Page-Specific Tour Button */}
+          <button
+            onClick={() => {
+              window.dispatchEvent(new CustomEvent('trigger-procal-calculator-tour'));
+            }}
+            className="flex items-center gap-2 px-3.5 py-2 rounded-lg bg-orange-600/20 border border-orange-500/30 text-orange-300 hover:bg-orange-600/30 hover:border-orange-500/50 text-xs font-semibold shadow-sm transition-all shrink-0"
+            title="Interactive Load Calculator Tour"
+          >
+            <HelpCircle size={15} className="text-orange-400" />
+            Page Tour
+          </button>
+
+          {bldg.floorDesigns.some(fd => fd.items.some(i => i.type === 'APARTMENT')) && (
+            <div className="flex items-center gap-2">
+              <button
+                onClick={async () => {
+                  await fetch(`/api/buildings/${bldg.id}/recalculate`, { method: 'POST' });
+                  loadProject();
+                }}
+                className={`group flex items-center gap-2 px-4 py-2 rounded-lg text-white text-sm font-semibold transition-all duration-300 ${
+                  needsRecalculation
+                    ? 'bg-amber-600 hover:bg-amber-500 shadow-amber-500/20 shadow-lg'
+                    : 'bg-blue-600 hover:bg-blue-500'
+                }`}
+              >
+                <MotionIcon
+                  name="RefreshCw"
+                  size={14}
+                  animation={needsRecalculation ? 'spin' : 'none'}
+                  className={`${!needsRecalculation ? 'group-hover:animate-[spin_1s_linear_infinite]' : ''}`}
+                />
+                {needsRecalculation ? 'Recalculate Needed' : 'Recalculate All Floors'}
+              </button>
+              <button
+                onClick={async () => {
+                  try {
+                    const res = await fetch(`/api/buildings/${bldg.id}/rebalance`, { method: 'POST' });
+                    if (res.ok) {
+                      loadProject();
+                    } else {
+                      const err = await res.json().catch(() => ({}));
+                      alert(err.error || 'Rebalance failed');
+                    }
+                  } catch (e) {
+                    alert('Network error during rebalance');
                   }
-                } catch (e) {
-                  alert('Network error during rebalance');
-                }
-              }}
-              className="group flex items-center gap-2 px-4 py-2 rounded-lg bg-teal-600 hover:bg-teal-500 text-white text-sm font-semibold transition-colors"
-            >
-              <MotionIcon name="ArrowUpDown" size={14} animation="none" className="group-hover:animate-[pulse_1s_ease-in-out_infinite]" />
-              Rebalance All Floors
-            </button>
-          </div>
-        )}
+                }}
+                className="group flex items-center gap-2 px-4 py-2 rounded-lg bg-teal-600 hover:bg-teal-500 text-white text-sm font-semibold transition-colors"
+              >
+                <MotionIcon name="ArrowUpDown" size={14} animation="none" className="group-hover:animate-[pulse_1s_ease-in-out_infinite]" />
+                Rebalance All Floors
+              </button>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Building Selector */}
       {project.buildings.length > 1 && (
-        <div className="flex gap-2">
+        <div data-tour="calc-buildings" className="flex gap-2">
           {project.buildings.map((b) => (
             <button
               key={b.id}
@@ -297,7 +313,7 @@ function CalculatorContent() {
       )}
 
       {/* Summary Bar */}
-      <div className="grid grid-cols-4 gap-3">
+      <div data-tour="calc-summary" className="grid grid-cols-4 gap-3">
         {[
           {
             label: 'Total Connected',

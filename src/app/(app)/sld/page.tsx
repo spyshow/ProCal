@@ -11,6 +11,7 @@ import {
   ZoomOut,
   RotateCcw,
   Download,
+  Printer,
   FileImage,
   FolderTree,
   ChevronRight,
@@ -32,6 +33,8 @@ import {
   Cpu,
   Building2,
   Plug,
+  ArrowUpRight,
+  ArrowDownRight,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -47,7 +50,10 @@ export interface ComponentProperty {
   power: string;
   cableSize?: string;
   connections: string[];
+  upstream?: string[];
+  downstream?: string[];
   floorNumber?: number;
+  buildingName?: string;
 }
 
 export default function SLDPage() {
@@ -110,15 +116,19 @@ export default function SLDPage() {
     setActivePage(0);
 
     const txRating = project.transformerSize ? `${project.transformerSize} kVA` : '1000 kVA';
+    const txKvaVal = project.transformerSize || 1000;
     setSelectedComponent({
       id: 'xfmr-main',
       name: `${project.name} Main Transformer`,
       type: 'Cast Resin Dy11 Step-Down Transformer',
       rating: txRating,
       voltage: `${project.voltage}V`,
-      current: `${Math.round(((project.transformerSize || 1000) * 1000) / (Math.sqrt(3) * project.voltage))} A`,
-      power: `${project.transformerSize || 1000} kVA`,
+      current: `${Math.round((txKvaVal * 1000) / (Math.sqrt(3) * project.voltage))} A`,
+      power: `${txKvaVal} kVA`,
+      cableSize: '2x(4x1c 300mm² Cu/XLPE)',
       connections: ['Utility Grid 11kV Incomer', 'Main Switchboard MDB Bus'],
+      upstream: ['Utility Grid 11kV Incomer (Substation Supply)'],
+      downstream: ['Main Switchboard MDB Busbar (400V Distribution)'],
     });
   }, [project]);
 
@@ -133,11 +143,27 @@ export default function SLDPage() {
     (data: ComponentProperty, floorNumber?: number) => {
       setSelectedComponent(data);
       if (floorNumber !== undefined && pages.length > 0) {
-        const pageIdx = pages.findIndex(
-          (p) => p.title === `F${floorNumber}` || p.floors.includes(`Floor ${floorNumber}`)
-        );
-        if (pageIdx !== -1) {
-          setActivePage(pageIdx);
+        const targetBldg = data.buildingName;
+
+        const pageIdx = pages.findIndex((p) => {
+          const matchesFloor = p.floorNumber === floorNumber;
+          const matchesBldg =
+            !targetBldg ||
+            !p.buildingName ||
+            targetBldg.toLowerCase().includes(p.buildingName.toLowerCase()) ||
+            p.buildingName.toLowerCase().includes(targetBldg.toLowerCase());
+          return matchesFloor && matchesBldg;
+        });
+
+        const finalIdx =
+          pageIdx !== -1
+            ? pageIdx
+            : pages.findIndex(
+                (p) => p.floorNumber === floorNumber || p.title.includes(`F${floorNumber}`)
+              );
+
+        if (finalIdx !== -1) {
+          setActivePage(finalIdx);
           setActiveTab('riser');
         }
       }
@@ -171,6 +197,7 @@ export default function SLDPage() {
     }> = [];
 
     // 1. Grid Incomer
+    const txKva = project.transformerSize || 1000;
     rootItems.push({
       id: 'grid-utility',
       name: `Utility Grid Incomer (${project.voltage}V)`,
@@ -184,12 +211,14 @@ export default function SLDPage() {
         voltage: `${project.voltage}V`,
         current: '800 A',
         power: '500 kW',
+        cableSize: '3x1c 240mm² XLPE 11kV Feeder',
         connections: ['Main Step-Down Transformer'],
+        upstream: ['HV Regional Substation (11kV Utility Grid)'],
+        downstream: [`Main Step-Down Transformer (${txKva} kVA)`],
       },
     });
 
     // 2. Transformer
-    const txKva = project.transformerSize || 1000;
     rootItems.push({
       id: 'xfmr-main',
       name: `Main Transformer (${txKva} kVA)`,
@@ -204,7 +233,10 @@ export default function SLDPage() {
         voltage: `${project.voltage}V`,
         current: `${Math.round((txKva * 1000) / (Math.sqrt(3) * project.voltage))} A`,
         power: `${txKva} kVA`,
+        cableSize: '2x(4x1c 300mm² Cu/XLPE)',
         connections: ['Utility Grid', 'Main Switchboard MDB Bus'],
+        upstream: ['Utility Grid 11kV Incomer'],
+        downstream: ['Main Switchboard MDB Busbar (400V Distribution)'],
       },
     });
 
@@ -214,13 +246,23 @@ export default function SLDPage() {
         const bldgChildren: Array<any> = [];
 
         if (bldg.floorDesigns) {
-          bldg.floorDesigns.forEach((fd) => {
+          const sortedFloors = [...bldg.floorDesigns].sort(
+            (a, b) => a.floorNumber - b.floorNumber
+          );
+
+          sortedFloors.forEach((fd) => {
             if (!fd.items || fd.items.length === 0) return;
             const floorCurrent = fd.items.reduce((s, i) => s + (i.calculatedCurrent || 0), 0);
             const floorPower = fd.items.reduce((s, i) => s + (i.calculatedMaxDemand || 0), 0);
 
             const itemChildren = fd.items.map((item, idx) => {
-              const itemId = `item-${fd.floorNumber}-${idx}`;
+              const itemId = `item-${bldg.id}-${fd.floorNumber}-${idx}`;
+              const itemCable =
+                item.cableSize ||
+                (item.calculatedCurrent && item.calculatedCurrent > 20
+                  ? '3x4mm² Cu/PVC'
+                  : '3x2.5mm² Cu/PVC');
+
               return {
                 id: itemId,
                 name: `${item.name} (${item.breakerSize || 'MCB'})`,
@@ -236,35 +278,66 @@ export default function SLDPage() {
                   voltage: `${project.voltage}V`,
                   current: `${item.calculatedCurrent?.toFixed(1) || '0.0'} A`,
                   power: `${item.calculatedMaxDemand?.toFixed(1) || '0.0'} kW`,
-                  cableSize: item.cableSize || '3x2.5mm²',
+                  cableSize: itemCable,
                   connections: [`Floor ${fd.floorNumber} Distribution Bus`],
+                  upstream: [`Floor ${fd.floorNumber} Main Panel (DB-F${fd.floorNumber})`],
+                  downstream: [`${item.name} End Loads & Outlets`],
                   floorNumber: fd.floorNumber,
+                  buildingName: bldg.name,
                 },
               };
             });
 
+            const feederCable =
+              fd.riserCableSize ||
+              (floorCurrent > 200
+                ? '4x120mm² Cu/XLPE'
+                : floorCurrent > 100
+                ? '4x50mm² Cu/XLPE'
+                : floorCurrent > 63
+                ? '4x25mm² Cu/XLPE'
+                : '4x16mm² Cu/XLPE');
+
+            const floorTitle = fd.hasFloorSubPanels
+              ? `Floor ${fd.floorNumber} Sub-Panel (${Math.ceil(floorCurrent)}A Main)`
+              : `Floor ${fd.floorNumber} (${Math.ceil(floorCurrent)}A Main)`;
+
+            const floorPanelName = fd.hasFloorSubPanels
+              ? `Floor ${fd.floorNumber} Sub-Panel (SDB)`
+              : `Floor ${fd.floorNumber} Distribution Board (DB)`;
+
+            const floorId = `floor-${bldg.id}-${fd.floorNumber}`;
+
             bldgChildren.push({
-              id: `floor-${fd.floorNumber}`,
-              name: `Floor ${fd.floorNumber} Sub-Panel (${Math.ceil(floorCurrent)}A Main)`,
-              type: 'Distribution Panel',
+              id: floorId,
+              name: floorTitle,
+              type: fd.hasFloorSubPanels ? 'Sub-Distribution Board (SDB)' : 'Distribution Board (DB)',
               icon: 'layers',
               badge: `${Math.ceil(floorCurrent)}A`,
               floorNumber: fd.floorNumber,
               children: itemChildren,
               data: {
-                id: `floor-${fd.floorNumber}`,
-                name: `Floor ${fd.floorNumber} Main Panel`,
-                type: fd.hasFloorSubPanels ? 'Sub-Distribution Board (TP&N)' : 'Distribution Bus',
-                rating: `${Math.ceil(floorCurrent)}A Breaker`,
+                id: floorId,
+                name: floorPanelName,
+                type: fd.hasFloorSubPanels ? 'Sub-Distribution Board (TP&N SDB)' : 'Distribution Board (DB)',
+                rating: `${Math.ceil(floorCurrent)}A Main Breaker`,
                 voltage: `${project.voltage}V`,
                 current: `${floorCurrent.toFixed(1)} A`,
                 power: `${floorPower.toFixed(1)} kW`,
+                cableSize: feederCable,
                 connections: ['MDB Busbar', ...fd.items.map((i) => i.name)],
+                upstream: [`Rising Main Busbar / Feeder from MDB`],
+                downstream: fd.items.map((i) => i.name),
                 floorNumber: fd.floorNumber,
+                buildingName: bldg.name,
               },
             });
           });
         }
+
+        bldgChildren.sort((a, b) => (a.floorNumber ?? 0) - (b.floorNumber ?? 0));
+
+        const riserCable = 'Rising Main Busbar Trunking (800A) / 4x185mm² Cu';
 
         rootItems.push({
           id: `bldg-${bldg.id}`,
@@ -278,9 +351,12 @@ export default function SLDPage() {
             type: 'Building Electrical Riser',
             rating: '400V Feeder',
             voltage: `${project.voltage}V`,
-            current: 'Variable',
+            current: 'Variable (Building Total)',
             power: 'Building Total Demand',
-            connections: ['MDB Main Switchboard'],
+            cableSize: riserCable,
+            connections: ['MDB Main Switchboard', ...bldgChildren.map((c) => c.name)],
+            upstream: ['Main Switchboard MDB Busbar (400V)'],
+            downstream: bldgChildren.map((c) => c.name),
           },
         });
       });
@@ -288,6 +364,53 @@ export default function SLDPage() {
 
     return rootItems;
   }, [project]);
+
+  // Sync selected tree node when page index changes via Prev/Next buttons
+  const selectPageFloor = useCallback(
+    (pageIndex: number) => {
+      setActivePage(pageIndex);
+      const targetPage = pages[pageIndex];
+      if (!targetPage) return;
+
+      const targetBldgName = targetPage.buildingName;
+      const targetFloorNum =
+        targetPage.floorNumber ??
+        (targetPage.title.match(/F(\d+)/i) ? parseInt(targetPage.title.match(/F(\d+)/i)![1], 10) : undefined);
+
+      for (const item of dynamicTree) {
+        const matchesBldg =
+          !targetBldgName || item.name.toLowerCase().includes(targetBldgName.toLowerCase());
+
+        if (matchesBldg && item.children) {
+          const floorChild = item.children.find(
+            (c: any) => c.floorNumber === targetFloorNum
+          );
+          if (floorChild) {
+            setSelectedComponent(floorChild.data);
+            setExpandedNodes((prev) => ({ ...prev, [item.id]: true }));
+            return;
+          }
+        }
+      }
+
+      // Fallback search across all children if exact building match wasn't found
+      if (targetFloorNum !== undefined) {
+        for (const item of dynamicTree) {
+          if (item.children) {
+            const floorChild = item.children.find(
+              (c: any) => c.floorNumber === targetFloorNum
+            );
+            if (floorChild) {
+              setSelectedComponent(floorChild.data);
+              setExpandedNodes((prev) => ({ ...prev, [item.id]: true }));
+              break;
+            }
+          }
+        }
+      }
+    },
+    [pages, dynamicTree]
+  );
 
   // Export handlers
   const exportPNG = async () => {
@@ -347,8 +470,53 @@ export default function SLDPage() {
     img.src = url;
   };
 
+  const [isPrintingAll, setIsPrintingAll] = useState(false);
+
+  const projectMetrics = useMemo(() => {
+    if (!project || !project.buildings) return { totalPower: 0, totalCurrent: 0, totalCircuits: 0, totalFloors: 0 };
+    let totalPower = 0;
+    let totalCurrent = 0;
+    let totalCircuits = 0;
+    let totalFloors = 0;
+
+    project.buildings.forEach((bldg) => {
+      if (bldg.floorDesigns) {
+        totalFloors += bldg.floorDesigns.length;
+        bldg.floorDesigns.forEach((fd) => {
+          if (fd.items) {
+            totalCircuits += fd.items.length;
+            fd.items.forEach((i) => {
+              totalPower += i.calculatedMaxDemand || 0;
+              totalCurrent += i.calculatedCurrent || 0;
+            });
+          }
+        });
+      }
+    });
+
+    return { totalPower, totalCurrent, totalCircuits, totalFloors };
+  }, [project]);
+
   const exportPDF = () => {
-    window.print();
+    setIsPrintingAll(false);
+    setTimeout(() => {
+      window.print();
+    }, 50);
+  };
+
+  const exportPrintAll = () => {
+    setIsPrintingAll(true);
+
+    const handleAfterPrint = () => {
+      setIsPrintingAll(false);
+      window.removeEventListener('afterprint', handleAfterPrint);
+    };
+
+    window.addEventListener('afterprint', handleAfterPrint);
+
+    setTimeout(() => {
+      window.print();
+    }, 200);
   };
 
   // Extend vertical cables
@@ -514,9 +682,9 @@ export default function SLDPage() {
   const activeStatus = selectedComponent ? getStatus(selectedComponent.id) : 'Closed';
 
   return (
-    <div className="flex flex-col h-screen bg-slate-950 text-slate-100 overflow-hidden font-sans select-none">
+    <div className="sld-workstation-root flex flex-col h-screen bg-slate-950 text-slate-100 overflow-hidden font-sans select-none print:h-auto print:bg-white print:text-black print:overflow-visible">
       {/* Top Workstation Window Bar & Header */}
-      <header className="h-14 border-b border-white/10 bg-slate-950/90 backdrop-blur-xl px-4 flex items-center justify-between z-30 shrink-0">
+      <header className="h-14 border-b border-white/10 bg-slate-950/90 backdrop-blur-xl px-4 flex items-center justify-between z-30 shrink-0 print:hidden">
         {/* Left: App Title & Breadcrumbs */}
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-lg bg-orange-600/20 border border-orange-500/40 flex items-center justify-center shadow-[0_0_12px_rgba(234,88,12,0.3)]">
@@ -614,10 +782,19 @@ export default function SLDPage() {
           <button
             onClick={exportPDF}
             className="p-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-300 hover:text-white hover:border-slate-700 text-xs flex items-center gap-1.5"
-            title="Export PDF Document"
+            title="Export Current Page to PDF/Print"
           >
             <Download size={14} className="text-sky-400" />
-            <span className="hidden sm:inline">Print / PDF</span>
+            <span className="hidden sm:inline">Print Page</span>
+          </button>
+
+          <button
+            onClick={exportPrintAll}
+            className="p-1.5 rounded-lg bg-orange-600/20 border border-orange-500/40 text-orange-300 hover:bg-orange-600/30 text-xs flex items-center gap-1.5 font-medium shadow-[0_0_12px_rgba(234,88,12,0.2)]"
+            title="Print Complete Project Package (Executive Summary + All Single Line Diagrams)"
+          >
+            <Printer size={14} className="text-orange-400" />
+            <span className="hidden sm:inline">Print All (Full Package)</span>
           </button>
         </div>
       </header>
@@ -625,7 +802,7 @@ export default function SLDPage() {
       {/* Main Workstation 3-Panel Body */}
       <div className="flex flex-1 overflow-hidden relative">
         {/* LEFT PANEL: Dynamic Project Explorer */}
-        <aside className="w-72 border-r border-slate-800/80 bg-slate-950 flex flex-col shrink-0">
+        <aside className="w-72 border-r border-slate-800/80 bg-slate-950 flex flex-col shrink-0 print:hidden">
           <div className="p-3 border-b border-slate-800/80 flex items-center justify-between">
             <div className="flex items-center gap-2 text-xs font-semibold text-slate-300">
               <FolderTree size={14} className="text-orange-400" />
@@ -758,49 +935,34 @@ export default function SLDPage() {
         </aside>
 
         {/* CENTER PANEL: Canvas Workstation Viewport */}
-        <main className="flex-1 flex flex-col bg-slate-950 overflow-hidden relative">
-          {/* Document View Tabs */}
-          <div className="h-9 border-b border-slate-800/80 bg-slate-900/80 flex items-center px-2 gap-1 overflow-x-auto shrink-0">
-            <button
-              onClick={() => setActiveTab('riser')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-t-lg text-xs font-medium border-t border-x transition-colors ${
-                activeTab === 'riser'
-                  ? 'bg-slate-950 text-white border-slate-700 shadow-sm'
-                  : 'bg-slate-900/50 text-slate-400 border-transparent hover:text-slate-200'
-              }`}
-            >
-              <GitBranch className="w-3.5 h-3.5 text-orange-400" />
-              <span>Floor Diagram ({pages[activePage]?.title || 'Riser'})</span>
-            </button>
+        <main
+          className={`sld-main-viewport flex-1 flex flex-col bg-slate-950 overflow-hidden relative ${
+            isPrintingAll ? 'print:hidden' : 'print:bg-white print:overflow-visible print:w-full print:block'
+          }`}
+        >
+          {/* Document View Header */}
+          <div className="h-9 border-b border-slate-800/80 bg-slate-900/80 flex items-center px-4 justify-between shrink-0 print:hidden font-sans">
+            <div className="flex items-center gap-2 text-xs font-semibold text-slate-200">
+              <GitBranch className="w-4 h-4 text-orange-400" />
+              <span>Single Line Diagram — {pages[activePage]?.floors || pages[activePage]?.title || 'Floor View'}</span>
+            </div>
 
-            <button
-              onClick={() => setActiveTab('sld')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-t-lg text-xs font-medium border-t border-x transition-colors ${
-                activeTab === 'sld'
-                  ? 'bg-slate-950 text-white border-slate-700 shadow-sm'
-                  : 'bg-slate-900/50 text-slate-400 border-transparent hover:text-slate-200'
-              }`}
-            >
-              <Layers className="w-3.5 h-3.5 text-sky-400" />
-              <span>Full Single Line Overview</span>
-            </button>
-
-            {activeTab === 'riser' && pages.length > 1 && (
-              <div className="ml-auto flex items-center gap-2 pr-2 text-xs">
+            {pages.length > 1 && (
+              <div className="flex items-center gap-2 text-xs">
                 <button
-                  onClick={() => setActivePage((p) => Math.max(0, p - 1))}
+                  onClick={() => selectPageFloor(Math.max(0, activePage - 1))}
                   disabled={activePage === 0}
-                  className="px-2 py-0.5 rounded bg-slate-800 text-slate-400 hover:text-white disabled:opacity-30"
+                  className="px-2.5 py-1 rounded bg-slate-800 text-slate-300 hover:text-white disabled:opacity-30 transition-colors"
                 >
                   ← Prev
                 </button>
-                <span className="font-mono text-slate-400">
-                  {activePage + 1} / {pages.length} ({pages[activePage]?.title})
+                <span className="text-slate-400 font-mono text-[11px]">
+                  {activePage + 1} / {pages.length}
                 </span>
                 <button
-                  onClick={() => setActivePage((p) => Math.min(pages.length - 1, p + 1))}
+                  onClick={() => selectPageFloor(Math.min(pages.length - 1, activePage + 1))}
                   disabled={activePage === pages.length - 1}
-                  className="px-2 py-0.5 rounded bg-slate-800 text-slate-400 hover:text-white disabled:opacity-30"
+                  className="px-2.5 py-1 rounded bg-slate-800 text-slate-300 hover:text-white disabled:opacity-30 transition-colors"
                 >
                   Next →
                 </button>
@@ -809,21 +971,40 @@ export default function SLDPage() {
           </div>
 
           {/* Canvas Area with Dark Grid Background */}
-          <div className="flex-1 overflow-auto p-6 bg-[radial-gradient(#1e293b_1px,transparent_1px)] [background-size:16px_16px] relative flex items-center justify-center">
+          <div className="sld-canvas-container-outer flex-1 overflow-auto p-6 bg-[radial-gradient(#1e293b_1px,transparent_1px)] [background-size:16px_16px] relative flex items-center justify-center print:bg-white print:p-0 print:m-0 print:block print:w-full">
+            {/* Professional Engineering Print Header (Visible ONLY when printing) */}
+            <div className="hidden print:flex flex-col border-b-2 border-black pb-2 mb-4 font-sans text-black w-full max-w-full box-border">
+              <div className="flex items-start justify-between gap-4">
+                <div className="min-w-0 flex-1">
+                  <h1 className="text-base font-bold uppercase tracking-tight truncate text-black">
+                    {project.name}
+                  </h1>
+                  <p className="text-xs text-gray-700 font-semibold truncate mt-0.5">
+                    SINGLE LINE DIAGRAM — {pages[activePage]?.floors || pages[activePage]?.title}
+                  </p>
+                </div>
+                <div className="text-right text-[10px] text-gray-800 font-mono shrink-0 leading-tight space-y-0.5 pr-1">
+                  <div><span className="font-bold">{project.voltage}V 3-Phase</span> | <span className="font-bold">{project.frequency || 50}Hz</span></div>
+                  <div>Standard: <span className="font-bold">IEC 60364</span> | Date: <span className="font-bold">{new Date().toLocaleDateString()}</span></div>
+                </div>
+              </div>
+              <div className="flex items-center justify-between text-[10px] text-gray-600 border-t border-gray-200 mt-1.5 pt-1">
+                <span>Client: <strong className="text-black">{project.client || 'N/A'}</strong></span>
+                <span>Consultant: <strong className="text-black">{project.consultant || 'N/A'}</strong></span>
+                <span>Engineer: <strong className="text-black">{project.engineer || 'N/A'}</strong></span>
+              </div>
+            </div>
+
             {/* SVG Canvas Container */}
             <div
               ref={svgContainerRef}
-              className="relative bg-slate-900/70 backdrop-blur-md rounded-2xl border border-white/10 p-6 sm:p-8 shadow-[0_0_50px_rgba(0,0,0,0.6)] min-w-[750px] transition-all duration-300"
+              className="sld-canvas-wrapper relative bg-slate-900/70 backdrop-blur-md rounded-2xl border border-white/10 p-6 sm:p-8 shadow-[0_0_50px_rgba(0,0,0,0.6)] min-w-[750px] transition-all duration-300 print:bg-white print:border-none print:shadow-none print:p-0 print:m-0 print:min-w-0 print:w-full"
             >
-              {activeTab === 'sld' ? (
-                <SchematexDiagram dsl={overviewDsl} />
-              ) : (
-                pages[activePage] && <SchematexDiagram dsl={pages[activePage].dsl} />
-              )}
+              {pages[activePage] && <SchematexDiagram dsl={pages[activePage].dsl} />}
             </div>
 
             {/* Floating Live Simulation Banner */}
-            <div className="absolute top-4 left-4 z-10 flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-900/90 backdrop-blur-md border border-white/10 text-xs text-slate-300 shadow-lg">
+            <div className="absolute top-4 left-4 z-10 flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-900/90 backdrop-blur-md border border-white/10 text-xs text-slate-300 shadow-lg print:hidden">
               <span
                 className={`w-2 h-2 rounded-full ${
                   activeStatus === 'Closed' ? 'bg-emerald-400 animate-ping' : 'bg-rose-400'
@@ -832,14 +1013,14 @@ export default function SLDPage() {
               <span>Simulation Status: {activeStatus}</span>
               <span className="text-slate-600">|</span>
               <span className="text-orange-400 font-mono">
-                {activeTab === 'sld' ? 'Full Project SLD' : pages[activePage]?.floors}
+                {pages[activePage]?.floors}
               </span>
             </div>
           </div>
 
           {/* DSL Code View Collapsible Drawer */}
           {showDsl && (
-            <div className="border-t border-slate-800 bg-slate-950 p-4 max-h-48 overflow-auto font-mono text-[11px] text-slate-300">
+            <div className="border-t border-slate-800 bg-slate-950 p-4 max-h-48 overflow-auto font-mono text-[11px] text-slate-300 print:hidden">
               <div className="flex items-center justify-between mb-2">
                 <span className="font-bold text-orange-400">Generated Schematex DSL</span>
                 <button onClick={() => setShowDsl(false)} className="text-slate-400 hover:text-white">
@@ -847,14 +1028,14 @@ export default function SLDPage() {
                 </button>
               </div>
               <pre className="text-slate-400">
-                {activeTab === 'sld' ? overviewDsl : pages[activePage]?.dsl || ''}
+                {pages[activePage]?.dsl || ''}
               </pre>
             </div>
           )}
         </main>
 
         {/* RIGHT PANEL: Dynamic Inspector (Switches between Analyze, Simulate, Library) */}
-        <aside className="w-80 border-l border-slate-800/80 bg-slate-950 flex flex-col shrink-0">
+        <aside className="w-80 border-l border-slate-800/80 bg-slate-950 flex flex-col shrink-0 print:hidden">
           <div className="p-3 border-b border-slate-800/80 flex items-center justify-between">
             <div className="flex items-center gap-2 text-xs font-semibold text-slate-300">
               {activeMode === 'analyze' && <Activity size={14} className="text-orange-400" />}
@@ -961,17 +1142,19 @@ export default function SLDPage() {
                   />
                 </div>
 
-                {selectedComponent.cableSize && (
-                  <div>
-                    <label className="block text-slate-400 text-[11px] mb-1">Cable Conductor Schedule</label>
-                    <input
-                      type="text"
-                      value={selectedComponent.cableSize}
-                      readOnly
-                      className="w-full bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-amber-300 font-mono focus:outline-none"
-                    />
-                  </div>
-                )}
+                {/* Cable Conductor Schedule */}
+                <div>
+                  <label className="block text-slate-400 text-[11px] mb-1 flex items-center justify-between">
+                    <span>Cable Conductor Schedule</span>
+                    <span className="text-[10px] text-amber-400/80 font-mono">IEC 60228</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={selectedComponent.cableSize || '3x2.5mm² Cu/PVC'}
+                    readOnly
+                    className="w-full bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-amber-300 font-mono font-medium focus:outline-none shadow-inner"
+                  />
+                </div>
 
                 {/* Status Simulation Switch */}
                 <div>
@@ -1011,20 +1194,55 @@ export default function SLDPage() {
                 </div>
               </div>
 
-              {/* Downstream Connections List */}
-              <div className="space-y-1.5 pt-2">
-                <span className="text-[10px] font-mono uppercase tracking-wider text-slate-400 block">
-                  Connections Path
-                </span>
-                {selectedComponent.connections.map((conn, idx) => (
-                  <div
-                    key={idx}
-                    className="p-2 rounded-lg bg-slate-900 border border-slate-800/80 flex items-center justify-between text-[11px] text-slate-300"
-                  >
-                    <span className="truncate max-w-[190px]">{conn}</span>
-                    <ChevronRight className="w-3.5 h-3.5 text-slate-500" />
-                  </div>
-                ))}
+              {/* Upstream & Downstream Connection Paths */}
+              <div className="space-y-3 pt-2">
+                {/* Upstream Supply Path */}
+                <div className="space-y-1.5">
+                  <span className="text-[10px] font-mono uppercase tracking-wider text-sky-400 flex items-center gap-1 font-semibold">
+                    <ArrowUpRight className="w-3.5 h-3.5 text-sky-400" />
+                    <span>Upstream Supply Source</span>
+                  </span>
+                  {selectedComponent.upstream && selectedComponent.upstream.length > 0 ? (
+                    selectedComponent.upstream.map((conn, idx) => (
+                      <div
+                        key={idx}
+                        className="p-2 rounded-lg bg-sky-950/30 border border-sky-800/40 flex items-center justify-between text-[11px] text-sky-200"
+                      >
+                        <span className="truncate max-w-[210px]">{conn}</span>
+                        <ArrowUpRight className="w-3 h-3 text-sky-400 shrink-0" />
+                      </div>
+                    ))
+                  ) : (
+                    <div className="p-2 rounded-lg bg-slate-900 border border-slate-800 text-[11px] text-slate-500 italic">
+                      Direct High-Voltage Grid Supply
+                    </div>
+                  )}
+                </div>
+
+                {/* Downstream Distribution Path */}
+                <div className="space-y-1.5">
+                  <span className="text-[10px] font-mono uppercase tracking-wider text-emerald-400 flex items-center gap-1 font-semibold">
+                    <ArrowDownRight className="w-3.5 h-3.5 text-emerald-400" />
+                    <span>Downstream Distribution ({selectedComponent.downstream?.length || selectedComponent.connections.length || 0})</span>
+                  </span>
+                  {(selectedComponent.downstream && selectedComponent.downstream.length > 0) || selectedComponent.connections.length > 0 ? (
+                    <div className="space-y-1 max-h-40 overflow-y-auto pr-0.5 no-scrollbar">
+                      {(selectedComponent.downstream || selectedComponent.connections).map((conn, idx) => (
+                        <div
+                          key={idx}
+                          className="p-2 rounded-lg bg-slate-900 border border-slate-800/80 flex items-center justify-between text-[11px] text-slate-300 hover:border-slate-700 transition-colors"
+                        >
+                          <span className="truncate max-w-[210px]">{conn}</span>
+                          <ChevronRight className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="p-2 rounded-lg bg-slate-900 border border-slate-800 text-[11px] text-slate-500 italic">
+                      Final Load Outlets / Equipment
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           )}
@@ -1061,6 +1279,162 @@ export default function SLDPage() {
           )}
         </aside>
       </div>
+
+      {/* ================= PRINT ALL COMPLETE PROJECT PACKAGE ================= */}
+      {isPrintingAll && (
+        <div id="print-sld-complete-package" className="hidden print:block bg-white text-black p-0 font-sans">
+          {/* PAGE 1: EXECUTIVE PROJECT & ENGINEERING SUMMARY REPORT */}
+          <div className="h-[180mm] max-h-[180mm] overflow-hidden flex flex-col justify-between box-border">
+            <div>
+              {/* Document Header */}
+              <div className="flex items-center justify-between border-b-2 border-black pb-4 mb-6">
+                <div>
+                  <h1 className="text-2xl font-black tracking-tight text-black uppercase">
+                    {project.name}
+                  </h1>
+                  <p className="text-sm font-bold text-gray-700 mt-1">
+                    EXECUTIVE ELECTRICAL ENGINEERING & SLD PACKAGE
+                  </p>
+                  <p className="text-xs text-gray-500 mt-0.5">
+                    Prepared in accordance with IEC 60364 & BS 7671 Electrical Regulations
+                  </p>
+                </div>
+                <div className="text-right text-xs space-y-1 font-mono">
+                  <div className="font-bold text-sm text-black">ProCal Engineering Suite</div>
+                  <div>Report Ref: <span className="font-semibold">PRJ-{project.id.slice(-6).toUpperCase()}</span></div>
+                  <div>Date: <span className="font-semibold">{new Date().toLocaleDateString()}</span></div>
+                </div>
+              </div>
+
+              {/* Project Meta Cards */}
+              <div className="grid grid-cols-3 gap-4 mb-6 border border-gray-300 rounded-lg p-4 bg-gray-50/50 text-xs">
+                <div>
+                  <span className="text-gray-500 block text-[10px] uppercase font-bold">Client Name</span>
+                  <span className="font-bold text-black text-sm">{project.client || 'N/A'}</span>
+                </div>
+                <div>
+                  <span className="text-gray-500 block text-[10px] uppercase font-bold">Consultant</span>
+                  <span className="font-bold text-black text-sm">{project.consultant || 'N/A'}</span>
+                </div>
+                <div>
+                  <span className="text-gray-500 block text-[10px] uppercase font-bold">Lead Engineer</span>
+                  <span className="font-bold text-black text-sm">{project.engineer || 'N/A'}</span>
+                </div>
+              </div>
+
+              {/* Electrical Key Performance Metrics */}
+              <h2 className="text-sm font-bold text-black uppercase mb-3 border-l-4 border-black pl-2">
+                1. System Electrical Calculations Summary
+              </h2>
+              <div className="grid grid-cols-4 gap-4 mb-6">
+                <div className="border border-gray-300 rounded-lg p-3 text-center bg-gray-50">
+                  <span className="text-[10px] font-bold uppercase text-gray-500 block">Total Max Demand</span>
+                  <span className="text-lg font-black text-black">{projectMetrics.totalPower.toFixed(1)} kW</span>
+                </div>
+                <div className="border border-gray-300 rounded-lg p-3 text-center bg-gray-50">
+                  <span className="text-[10px] font-bold uppercase text-gray-500 block">Calculated Current</span>
+                  <span className="text-lg font-black text-black">{projectMetrics.totalCurrent.toFixed(1)} A</span>
+                </div>
+                <div className="border border-gray-300 rounded-lg p-3 text-center bg-gray-50">
+                  <span className="text-[10px] font-bold uppercase text-gray-500 block">System Voltage</span>
+                  <span className="text-lg font-black text-black">{project.voltage}V 3-Phase</span>
+                </div>
+                <div className="border border-gray-300 rounded-lg p-3 text-center bg-gray-50">
+                  <span className="text-[10px] font-bold uppercase text-gray-500 block">Utility Transformer</span>
+                  <span className="text-lg font-black text-black">1000 kVA (400V)</span>
+                </div>
+              </div>
+
+              {/* Buildings & Distribution Structure */}
+              <h2 className="text-sm font-bold text-black uppercase mb-3 border-l-4 border-black pl-2">
+                2. Project Distribution Hierarchy & Infrastructure
+              </h2>
+              <table className="w-full text-left text-xs border border-gray-300 mb-6">
+                <thead>
+                  <tr className="bg-gray-100 border-b border-gray-300 text-[11px] font-bold text-gray-700 uppercase">
+                    <th className="p-2 border-r border-gray-300">Building / Structure</th>
+                    <th className="p-2 border-r border-gray-300">Floors</th>
+                    <th className="p-2 border-r border-gray-300">Distribution Panels (SDB/DB)</th>
+                    <th className="p-2 border-r border-gray-300">Feeder Cable Specs</th>
+                    <th className="p-2">Max Demand (kW)</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-200">
+                  {project.buildings?.map((bldg) => {
+                    const bldgCurrent = bldg.floorDesigns?.reduce(
+                      (s, fd) => s + (fd.items?.reduce((is, i) => is + (i.calculatedCurrent || 0), 0) || 0),
+                      0
+                    ) || 0;
+                    const bldgPower = bldg.floorDesigns?.reduce(
+                      (s, fd) => s + (fd.items?.reduce((is, i) => is + (i.calculatedMaxDemand || 0), 0) || 0),
+                      0
+                    ) || 0;
+
+                    return (
+                      <tr key={bldg.id}>
+                        <td className="p-2 border-r border-gray-300 font-bold">{bldg.name}</td>
+                        <td className="p-2 border-r border-gray-300">{bldg.floors} Floors</td>
+                        <td className="p-2 border-r border-gray-300">{bldg.floorDesigns?.length || 0} Sub-Panels</td>
+                        <td className="p-2 border-r border-gray-300 font-mono text-[11px]">
+                          Rising Main Busbar Trunking (800A)
+                        </td>
+                        <td className="p-2 font-bold">{bldgPower.toFixed(1)} kW ({bldgCurrent.toFixed(1)}A)</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+
+              {/* Included Diagram Pages Index */}
+              <h2 className="text-sm font-bold text-black uppercase mb-3 border-l-4 border-black pl-2">
+                3. Single Line Diagram Drawings Index ({pages.length} Pages)
+              </h2>
+              <div className="grid grid-cols-2 gap-x-6 gap-y-1 text-xs font-mono border border-gray-300 rounded-lg p-3 bg-gray-50/50">
+                {pages.map((p, idx) => (
+                  <div key={idx} className="flex justify-between py-0.5 border-b border-gray-200 truncate pr-2">
+                    <span className="font-bold shrink-0 mr-2">Drawing {String(idx + 1).padStart(2, '0')}:</span>
+                    <span className="truncate">{p.floors || p.title}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Cover Page Footer */}
+            <div className="border-t border-gray-300 pt-3 text-[10px] text-gray-500 flex justify-between font-mono mt-8">
+              <div>ProCal Engineering System — Single Line Diagram Generator</div>
+              <div>Page 1 of {pages.length + 1}</div>
+            </div>
+          </div>
+
+          {/* PAGES 2..N: EVERY FLOOR DIAGRAM PAGE */}
+          {pages.map((page, idx) => (
+            <div
+              key={idx}
+              style={{ pageBreakBefore: 'always', breakBefore: 'page', pageBreakInside: 'avoid', breakInside: 'avoid' }}
+              className="pt-2 w-full max-w-full box-border max-h-[180mm] overflow-hidden"
+            >
+              <div className="flex items-start justify-between border-b-2 border-black pb-2 mb-2 font-sans text-black w-full max-w-full box-border">
+                <div className="min-w-0 flex-1">
+                  <h1 className="text-base font-bold text-black uppercase tracking-tight truncate">
+                    {project.name}
+                  </h1>
+                  <p className="text-xs text-gray-700 font-semibold truncate mt-0.5">
+                    SINGLE LINE DIAGRAM — {page.floors || page.title}
+                  </p>
+                </div>
+                <div className="text-right text-[10px] text-gray-800 font-mono shrink-0 leading-tight space-y-0.5 pr-1">
+                  <div><span className="font-bold">{project.voltage}V 3-Phase</span> | <span className="font-bold">IEC 60364</span></div>
+                  <div>Drawing: <span className="font-bold">{String(idx + 1).padStart(2, '0')} / {pages.length}</span></div>
+                </div>
+              </div>
+
+              <div className="sld-canvas-wrapper w-full max-h-[150mm] overflow-hidden">
+                <SchematexDiagram dsl={page.dsl} />
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

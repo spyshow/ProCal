@@ -201,87 +201,111 @@ export function createFindBreaker(
   preferredManufacturer?: string
 ): FindBreaker {
   return (currentRating, category, poles, options = {}) => {
-    // Normalize: 1-phase matches poles <= 2; 3-phase matches poles === 3.
-    const matchesPoles = (e: EquipmentItem) =>
-      poles === 1 ? e.poles <= 2 : e.poles === 3;
-
-    const familyId = options.familyId ?? defaultFamilies?.[category];
-    const familyManufacturer = familyId
-      ? equipment.find((e) => e.familyId === familyId)?.manufacturer
+    const requestedFamilyId = options.familyId ?? defaultFamilies?.[category];
+    const familyItem = requestedFamilyId
+      ? equipment.find((e) => e.familyId === requestedFamilyId)
       : undefined;
 
-    // Step 1: selected/default family.
-    if (familyId) {
-      const familyMatch = equipment
+    const familyManufacturer = familyItem?.manufacturer;
+    const familyName = familyItem?.familyName;
+
+    // Helper to attempt finding a matching EquipmentItem for a category & familyId
+    const attemptCategoryMatch = (
+      cat: "ACB" | "MCCB" | "MCB",
+      famId?: string
+    ): { item: EquipmentItem; fallback: boolean } | null => {
+      // For MCB, 1-phase strictly matches 1P/2P (poles <= 2).
+      // For MCCB/ACB (or escalated categories), 3P breakers can also be used for 1-phase heavy feeders.
+      const matchPoles = (e: EquipmentItem) => {
+        if (cat === "MCB") {
+          return poles === 1 ? e.poles <= 2 : e.poles === 3;
+        }
+        return poles === 1 ? e.poles <= 3 : e.poles === 3;
+      };
+
+      // 1. Specified family
+      if (famId) {
+        const familyMatch = equipment
+          .filter(
+            (e) =>
+              e.familyId === famId &&
+              e.category === cat &&
+              matchPoles(e) &&
+              e.ratedCurrent >= currentRating
+          )
+          .sort((a, b) => a.ratedCurrent - b.ratedCurrent)[0];
+
+        if (familyMatch) {
+          return { item: familyMatch, fallback: cat !== category || famId !== requestedFamilyId };
+        }
+      }
+
+      // 2. Manufacturer match (family's manufacturer, option manufacturer, or preferred manufacturer)
+      const mfg =
+        options.manufacturer ??
+        familyManufacturer ??
+        (preferredManufacturer && preferredManufacturer !== "MIXED" ? preferredManufacturer : undefined);
+
+      if (mfg) {
+        const mfgMatch = equipment
+          .filter(
+            (e) =>
+              e.category === cat &&
+              e.manufacturer.toUpperCase() === mfg.toUpperCase() &&
+              matchPoles(e) &&
+              e.ratedCurrent >= currentRating
+          )
+          .sort((a, b) => a.ratedCurrent - b.ratedCurrent)[0];
+
+        if (mfgMatch) {
+          return { item: mfgMatch, fallback: true };
+        }
+      }
+
+      // 3. Any match in category
+      const anyMatch = equipment
         .filter(
-          (e) =>
-            e.familyId === familyId &&
-            e.category === category &&
-            matchesPoles(e) &&
-            e.ratedCurrent >= currentRating
+          (e) => e.category === cat && matchPoles(e) && e.ratedCurrent >= currentRating
         )
         .sort((a, b) => a.ratedCurrent - b.ratedCurrent)[0];
 
-      if (familyMatch) {
-        return {
-          model: formatBreakerModel(familyMatch),
-          manufacturer: familyMatch.manufacturer,
-          familyName: familyMatch.familyName,
-          ratedCurrent: familyMatch.ratedCurrent,
-          fallback: false,
-        };
+      if (anyMatch) {
+        return { item: anyMatch, fallback: true };
       }
+
+      return null;
+    };
+
+    // Step A: Attempt match in requested category
+    let result = attemptCategoryMatch(category, requestedFamilyId);
+
+    // Step B: If requested category is MCB and rating > 63A (MCBs max out at 63A), fallback to MCCB category
+    if (!result && category === "MCB" && currentRating > 63) {
+      const mccbFamilyId = defaultFamilies?.MCCB;
+      result = attemptCategoryMatch("MCCB", mccbFamilyId);
     }
 
-    // Step 2: fallback to the family's manufacturer, or the preferred manufacturer.
-    const manufacturer =
-      options.manufacturer ??
-      familyManufacturer ??
-      preferredManufacturer;
-    if (manufacturer && manufacturer !== "MIXED") {
-      const mfgMatch = equipment
-        .filter(
-          (e) =>
-            e.category === category &&
-            e.manufacturer.toUpperCase() === manufacturer.toUpperCase() &&
-            matchesPoles(e) &&
-            e.ratedCurrent >= currentRating
-        )
-        .sort((a, b) => a.ratedCurrent - b.ratedCurrent)[0];
-
-      if (mfgMatch) {
-        return {
-          model: formatBreakerModel(mfgMatch),
-          manufacturer: mfgMatch.manufacturer,
-          familyName: mfgMatch.familyName,
-          ratedCurrent: mfgMatch.ratedCurrent,
-          fallback: true,
-        };
-      }
+    // Step C: If still no match and category is MCCB and rating > 630A, fallback to ACB category
+    if (!result && category === "MCCB" && currentRating > 630) {
+      const acbFamilyId = defaultFamilies?.ACB;
+      result = attemptCategoryMatch("ACB", acbFamilyId);
     }
 
-    // Step 3: last resort, any matching category + poles.
-    const anyMatch = equipment
-      .filter(
-        (e) => e.category === category && matchesPoles(e) && e.ratedCurrent >= currentRating
-      )
-      .sort((a, b) => a.ratedCurrent - b.ratedCurrent)[0];
-
-    if (anyMatch) {
+    if (result) {
       return {
-        model: formatBreakerModel(anyMatch),
-        manufacturer: anyMatch.manufacturer,
-        familyName: anyMatch.familyName,
-        ratedCurrent: anyMatch.ratedCurrent,
-        fallback: true,
+        model: formatBreakerModel(result.item),
+        manufacturer: result.item.manufacturer,
+        familyName: result.item.familyName,
+        ratedCurrent: result.item.ratedCurrent,
+        fallback: result.fallback,
       };
     }
 
-    // Nothing found.
+    // Step D: Fallback if NO equipment entry exists in DB for this rating
     return {
       model: null,
-      manufacturer: null,
-      familyName: null,
+      manufacturer: familyManufacturer ?? null,
+      familyName: familyName ?? null,
       ratedCurrent: null,
       fallback: false,
     };
@@ -357,7 +381,7 @@ function feederFromItem(
     cableSize: finalSizing.cableSize,
     breakerModel:
       match.model ??
-      `${match.manufacturer ?? ""} ${category} ${actualBreakerSize}`.trim(),
+      `${match.manufacturer ? match.manufacturer + " " : ""}${match.familyName ? match.familyName + " " : ""}${category} ${actualBreakerSize}`.trim(),
     manufacturer: match.manufacturer,
     familyName: match.familyName,
     fallback: match.fallback,
@@ -411,7 +435,7 @@ function feederFromBuildingLoad(
     cableSize: finalSizing.cableSize,
     breakerModel:
       match.model ??
-      `${match.manufacturer ?? ""} MCCB ${actualBreakerSize}`.trim(),
+      `${match.manufacturer ? match.manufacturer + " " : ""}${match.familyName ? match.familyName + " " : ""}MCCB ${actualBreakerSize}`.trim(),
     manufacturer: match.manufacturer,
     familyName: match.familyName,
     fallback: match.fallback,

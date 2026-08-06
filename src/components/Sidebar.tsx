@@ -1,10 +1,9 @@
-"use client";
-
 import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useProject } from "@/context/ProjectContext";
 import { useUser } from "@/context/UserContext";
+import { useSidebar } from "@/context/SidebarContext";
 import {
   LayoutDashboard,
   FolderOpen,
@@ -19,6 +18,8 @@ import {
   LogOut,
   ChevronDown,
   Building2,
+  PanelLeftClose,
+  PanelLeftOpen,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -69,8 +70,9 @@ function LogoMark() {
   );
 }
 
-function ProjectSelector() {
+function ProjectSelector({ isCollapsed }: { isCollapsed?: boolean }) {
   const { selectedProject, selectProject } = useProject();
+  const { toggleSidebar } = useSidebar();
   const [open, setOpen]         = useState(false);
   const [projects, setProjects] = useState<Project[]>([]);
   const [fetching, setFetching] = useState(false);
@@ -95,6 +97,10 @@ function ProjectSelector() {
   }, [projects.length, fetching]);
 
   const handleToggle = () => {
+    if (isCollapsed) {
+      toggleSidebar();
+      return;
+    }
     if (!open) loadProjects();
     setOpen((prev) => !prev);
   };
@@ -114,6 +120,20 @@ function ProjectSelector() {
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
   }, [open]);
+
+  if (isCollapsed) {
+    return (
+      <div className="flex justify-center mb-3">
+        <button
+          onClick={handleToggle}
+          title={selectedProject ? `Project: ${selectedProject.name}` : "Select Project"}
+          className="p-2 rounded-lg bg-slate-900 border border-slate-800 text-orange-400 hover:text-white hover:border-slate-700 transition-colors shadow-sm"
+        >
+          <Building2 size={16} />
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div ref={dropdownRef} className="relative px-3 mb-4">
@@ -242,6 +262,7 @@ function ProjectSelector() {
 export default function Sidebar() {
   const pathname = usePathname();
   const { user: currentUser } = useUser();
+  const { isCollapsed, toggleSidebar } = useSidebar();
   const [loggingOut, setLoggingOut] = useState(false);
 
   const handleLogout = async () => {
@@ -259,43 +280,63 @@ export default function Sidebar() {
 
   return (
     <aside
-      style={{ width: "240px" }}
-      className="fixed top-0 left-0 h-screen flex flex-col bg-slate-950/95 border-r border-slate-800/80 backdrop-blur-xl z-40 select-none shadow-2xl"
+      style={{ width: isCollapsed ? "64px" : "240px" }}
+      className="fixed top-0 left-0 h-screen flex flex-col bg-slate-950/95 border-r border-slate-800/80 backdrop-blur-xl z-40 select-none shadow-2xl transition-all duration-200"
     >
-      {/* Logo */}
-      <div className="flex items-center gap-2.5 px-4 py-5 border-b border-slate-800/80">
-        <div className="w-8 h-8 rounded-lg bg-orange-600/20 border border-orange-500/30 flex items-center justify-center shadow-[0_0_12px_rgba(234,88,12,0.3)]">
-          <LogoMark />
+      {/* Logo Header */}
+      <div className="flex items-center gap-2.5 px-3.5 py-4 border-b border-slate-800/80 justify-between">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <div className="w-8 h-8 rounded-lg bg-orange-600/20 border border-orange-500/30 flex items-center justify-center shadow-[0_0_12px_rgba(234,88,12,0.3)] shrink-0">
+            <LogoMark />
+          </div>
+          {!isCollapsed && (
+            <>
+              <span className="text-xl font-bold tracking-tight text-white flex items-center gap-1">
+                ProCal
+              </span>
+              <span className="text-[9px] font-bold uppercase tracking-wider text-orange-400 bg-orange-500/10 border border-orange-500/20 px-1.5 py-0.5 rounded">
+                v1.0
+              </span>
+            </>
+          )}
         </div>
-        <span className="text-xl font-bold tracking-tight text-white flex items-center gap-1">
-          ProCal
-        </span>
-        <span className="ml-auto text-[9px] font-bold uppercase tracking-wider text-orange-400 bg-orange-500/10 border border-orange-500/20 px-1.5 py-0.5 rounded">
-          v1.0
-        </span>
+
+        <button
+          onClick={toggleSidebar}
+          className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-900 transition-colors shrink-0"
+          title={isCollapsed ? "Expand Main Menu" : "Collapse Main Menu"}
+        >
+          {isCollapsed ? <PanelLeftOpen size={16} /> : <PanelLeftClose size={16} />}
+        </button>
       </div>
 
       {/* Active Project */}
-      <div className="pt-4">
-        <p className="px-4 mb-2 text-[10px] font-semibold uppercase tracking-widest text-slate-500">
-          Active Project
-        </p>
-        <ProjectSelector />
+      <div className="pt-3">
+        {!isCollapsed && (
+          <p className="px-4 mb-2 text-[10px] font-semibold uppercase tracking-widest text-slate-500">
+            Active Project
+          </p>
+        )}
+        <ProjectSelector isCollapsed={isCollapsed} />
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 overflow-y-auto px-3 space-y-0.5 custom-scrollbar" aria-label="Main navigation">
-        <p className="px-1 pt-1 pb-2 text-[10px] font-semibold uppercase tracking-widest text-slate-500">
-          Navigation
-        </p>
+      <nav className="flex-1 overflow-y-auto px-2 space-y-0.5 custom-scrollbar" aria-label="Main navigation">
+        {!isCollapsed && (
+          <p className="px-2 pt-1 pb-2 text-[10px] font-semibold uppercase tracking-widest text-slate-500">
+            Navigation
+          </p>
+        )}
         {NAV_ITEMS.map(({ label, href, icon: Icon }) => {
           const isActive = pathname === href || pathname.startsWith(`${href}/`);
           return (
             <Link
               key={href}
               href={href}
+              title={isCollapsed ? label : undefined}
               className={cn(
-                "flex items-center gap-3 px-3.5 py-2 rounded-lg text-sm font-medium transition-all duration-200 outline-none",
+                "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 outline-none",
+                isCollapsed ? "justify-center px-0 py-2.5" : "",
                 isActive
                   ? "bg-gradient-to-r from-orange-600/25 to-amber-600/10 text-orange-300 border-l-2 border-orange-500 shadow-[0_0_15px_rgba(234,88,12,0.15)] font-semibold"
                   : "text-slate-400 hover:text-slate-100 hover:bg-slate-900/80 border-l-2 border-transparent"
@@ -303,14 +344,14 @@ export default function Sidebar() {
               aria-current={isActive ? "page" : undefined}
             >
               <Icon
-                size={17}
+                size={18}
                 className={cn(
                   "flex-shrink-0 transition-colors duration-200",
                   isActive ? "text-orange-400" : "text-slate-500"
                 )}
               />
-              <span className="truncate">{label}</span>
-              {isActive && (
+              {!isCollapsed && <span className="truncate">{label}</span>}
+              {!isCollapsed && isActive && (
                 <span className="ml-auto w-1.5 h-1.5 rounded-full bg-orange-500 shadow-[0_0_8px_rgba(234,88,12,0.9)] flex-shrink-0" />
               )}
             </Link>
@@ -324,29 +365,37 @@ export default function Sidebar() {
           <Link
             href="/admin"
             title="Admin dashboard"
-            className="mx-3 mb-3 flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium text-orange-300 bg-orange-500/10 border border-orange-500/20 hover:bg-orange-500/20 transition-all duration-150"
+            className={cn(
+              "mx-2 mb-3 flex items-center gap-2.5 rounded-lg text-xs font-medium text-orange-300 bg-orange-500/10 border border-orange-500/20 hover:bg-orange-500/20 transition-all duration-150",
+              isCollapsed ? "justify-center p-2" : "px-3 py-2"
+            )}
           >
-            <Shield size={14} className="flex-shrink-0 text-orange-400" />
-            Admin Dashboard
+            <Shield size={16} className="flex-shrink-0 text-orange-400" />
+            {!isCollapsed && <span>Admin Dashboard</span>}
           </Link>
         )}
 
         {/* User profile & logout */}
-        <div className="px-3 flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg bg-orange-600/20 border border-orange-500/40 flex items-center justify-center flex-shrink-0">
+        <div className={cn("px-2 flex items-center gap-2", isCollapsed ? "flex-col justify-center" : "gap-2.5 px-3")}>
+          <div
+            title={currentUser?.name ?? "Engineer"}
+            className="w-8 h-8 rounded-lg bg-orange-600/20 border border-orange-500/40 flex items-center justify-center flex-shrink-0"
+          >
             <span className="text-xs font-bold text-orange-300">
               {currentUser?.name?.[0]?.toUpperCase() ?? "?"}
             </span>
           </div>
 
-          <div className="flex-1 min-w-0">
-            <p className="text-xs font-semibold text-slate-200 truncate leading-tight">
-              {currentUser?.name ?? "Engineer"}
-            </p>
-            <p className="text-[10px] text-slate-500 truncate leading-tight">
-              {currentUser?.role === "ADMIN" ? "Administrator" : "ProCal Member"}
-            </p>
-          </div>
+          {!isCollapsed && (
+            <div className="flex-1 min-w-0">
+              <p className="text-xs font-semibold text-slate-200 truncate leading-tight">
+                {currentUser?.name ?? "Engineer"}
+              </p>
+              <p className="text-[10px] text-slate-500 truncate leading-tight">
+                {currentUser?.role === "ADMIN" ? "Administrator" : "ProCal Member"}
+              </p>
+            </div>
+          )}
 
           <button
             onClick={handleLogout}
@@ -390,3 +439,4 @@ export default function Sidebar() {
     </aside>
   );
 }
+

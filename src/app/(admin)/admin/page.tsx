@@ -2,13 +2,15 @@
 
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
-import { Users, FolderOpen, Coins, Database, CreditCard, ShieldCheck, RefreshCw } from "lucide-react";
+import { Users, FolderOpen, Coins, Database, CreditCard, ShieldCheck, RefreshCw, MessageSquareWarning } from "lucide-react";
 
 interface Stats {
   users: { total: number; enabled: number; disabled: number; admins: number };
   projects: number;
   creditsHeld: number;
   catalogItems: number;
+  openLeads?: number;
+  totalLeads?: number;
 }
 
 function StatTile({
@@ -16,14 +18,16 @@ function StatTile({
   value,
   icon: Icon,
   sub,
+  highlight,
 }: {
   label: string;
   value: number | null;
   icon: React.ElementType;
   sub?: string;
+  highlight?: boolean;
 }) {
   return (
-    <div className="rounded-xl border border-gray-800 bg-gray-900/40 p-5 space-y-2">
+    <div className={`rounded-xl border p-5 space-y-2 ${highlight ? 'border-orange-500/40 bg-orange-950/20' : 'border-gray-800 bg-gray-900/40'}`}>
       <div className="flex items-center gap-2 text-gray-400 text-sm">
         <Icon size={15} className="text-orange-500" />
         {label}
@@ -31,7 +35,7 @@ function StatTile({
       {value === null ? (
         <div className="h-8 w-16 rounded bg-gray-800 animate-pulse" />
       ) : (
-        <div className="text-2xl font-bold text-white">{value.toLocaleString()}</div>
+        <div className={`text-2xl font-bold ${highlight ? 'text-orange-300' : 'text-white'}`}>{value.toLocaleString()}</div>
       )}
       {sub && <div className="text-xs text-gray-500">{sub}</div>}
     </div>
@@ -96,6 +100,34 @@ export default function AdminDashboard() {
         </div>
       </div>
 
+      {/* User Messages & Reports */}
+      <section className="space-y-3">
+        <h2 className="text-xs font-semibold text-gray-500 uppercase tracking-wider flex items-center gap-2">
+          <MessageSquareWarning size={13} /> User Messages &amp; Error Reports
+        </h2>
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <StatTile
+            label="Open Messages & Issues"
+            value={v(stats?.openLeads)}
+            icon={MessageSquareWarning}
+            sub="Awaiting admin review"
+            highlight={(stats?.openLeads ?? 0) > 0}
+          />
+          <StatTile
+            label="Total Submitted Reports"
+            value={v(stats?.totalLeads)}
+            icon={MessageSquareWarning}
+            sub="All-time reports & inquiries"
+          />
+        </div>
+        <Link
+          href="/admin/feedback"
+          className="inline-block text-xs font-semibold text-orange-400 hover:text-orange-300 transition-colors"
+        >
+          View all messages &amp; diagnostics →
+        </Link>
+      </section>
+
       {/* Users */}
       <section className="space-y-3">
         <h2 className="text-xs font-semibold text-gray-500 uppercase tracking-wider flex items-center gap-2">
@@ -147,3 +179,4 @@ export default function AdminDashboard() {
     </div>
   );
 }
+

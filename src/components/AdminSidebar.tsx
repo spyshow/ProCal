@@ -10,6 +10,7 @@ import {
   Database,
   FolderOpen,
   CreditCard,
+  MessageSquareWarning,
   Shield,
   ArrowLeft,
   ArrowRight,
@@ -29,9 +30,10 @@ export default function AdminSidebar() {
 
   const navItems: AdminNavItem[] = [
     { id: "dashboard", label: t('nav.dashboard', 'Dashboard'), href: "/admin", icon: LayoutDashboard },
-    { id: "users", label: "Users", href: "/admin/users", icon: Users },
-    { id: "breakers", label: "Breaker Catalog", href: "/admin/breakers", icon: Database },
-    { id: "leads", label: "Billing Leads", href: "/admin/leads", icon: CreditCard },
+    { id: "users", label: t('nav.users', 'Users'), href: "/admin/users", icon: Users },
+    { id: "feedback", label: t('nav.feedback', 'User Messages & Errors'), href: "/admin/feedback", icon: MessageSquareWarning },
+    { id: "leads", label: t('nav.leads', 'Billing Leads'), href: "/admin/leads", icon: CreditCard },
+    { id: "breakers", label: t('nav.breakers', 'Breaker Catalog'), href: "/admin/breakers", icon: Database },
   ];
 
   return (

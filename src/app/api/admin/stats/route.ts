@@ -7,7 +7,7 @@ export async function GET() {
     const gate = await requireAdmin();
     if (gate instanceof NextResponse) return gate;
 
-    const [userStats, projectCount, creditsHeld, catalogCount] = await Promise.all([
+    const [userStats, projectCount, creditsHeld, catalogCount, openLeads, totalLeads] = await Promise.all([
       db.user.groupBy({
         by: ["disabled", "role"],
         _count: { id: true },
@@ -15,6 +15,8 @@ export async function GET() {
       db.project.count(),
       db.user.aggregate({ _sum: { credits: true } }),
       db.equipmentCatalog.count(),
+      db.contactRequest.count({ where: { status: "OPEN" } }),
+      db.contactRequest.count(),
     ]);
 
     const total = userStats.reduce((s, r) => s + r._count.id, 0);
@@ -26,6 +28,8 @@ export async function GET() {
       projects: projectCount,
       creditsHeld: creditsHeld._sum.credits ?? 0,
       catalogItems: catalogCount,
+      openLeads,
+      totalLeads,
     });
   } catch (error) {
     console.error("GET /api/admin/stats error:", error);

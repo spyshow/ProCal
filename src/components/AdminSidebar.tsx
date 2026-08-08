@@ -52,7 +52,7 @@ export default function AdminSidebar() {
 
       {/* Navigation */}
       <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-0.5 custom-scrollbar" aria-label="Admin navigation">
-        <p className="px-1 pb-2 text-[10px] font-semibold uppercase tracking-widest text-slate-500">
+        <p className="px-1 pb-2 text-[10px] font-semibold uppercase tracking-widest text-slate-400">
           {t('common.actions', 'Management')}
         </p>
         {navItems.map(({ label, href, icon: Icon }) => {
@@ -78,7 +78,7 @@ export default function AdminSidebar() {
                 size={17}
                 className={cn(
                   "flex-shrink-0 transition-colors duration-200",
-                  isActive ? "text-orange-400" : "text-slate-500"
+                  isActive ? "text-orange-400" : "text-slate-400"
                 )}
               />
               <span className="truncate">{label}</span>

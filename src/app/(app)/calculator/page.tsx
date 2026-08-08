@@ -22,6 +22,7 @@ import {
   HelpCircle,
 } from 'lucide-react';
 import InfoTooltip from '@/components/InfoTooltip';
+import { PageSkeleton } from '@/components/ui/skeleton';
 import type { FloorItem, FloorDesign, Building, Project } from '@/types';
 import { phaseBalance } from '@/lib/calculations/phaseBalance';
 import { MotionIcon } from '@/components/MotionIcon';
@@ -37,11 +38,11 @@ export default function CalculatorPage() {
 function CalculatorContent() {
   const searchParams = useSearchParams();
   const focusFloorId = searchParams.get('floor');
-  const { selectedProjectId } = useProject();
+  const { selectedProjectId, selectedProject, loading: contextLoading } = useProject();
   const { t, isRtl } = useTranslation();
 
-  const [project, setProject] = useState<Project | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [project, setProject] = useState<Project | null>(selectedProject);
+  const [loading, setLoading] = useState(!selectedProject);
   const [selectedBuilding, setSelectedBuilding] = useState<string | null>(null);
   const [expandedFloor, setExpandedFloor] = useState<string | null>(focusFloorId || null);
   const [expandedBuildingLoads, setExpandedBuildingLoads] = useState(true);
@@ -53,8 +54,27 @@ function CalculatorContent() {
     loadLibraryItemId: '',
     customKw: '15',
   });
+
+  useEffect(() => {
+    if (selectedProject && selectedProject.id === selectedProjectId) {
+      setProject(selectedProject);
+      if (!selectedBuilding && selectedProject.buildings.length > 0) {
+        setSelectedBuilding(selectedProject.buildings[0].id);
+      }
+      setLoading(false);
+    }
+  }, [selectedProject, selectedProjectId, selectedBuilding]);
+
   const loadProject = useCallback(async () => {
     if (!selectedProjectId) {
+      setLoading(false);
+      return;
+    }
+    if (selectedProject?.id === selectedProjectId) {
+      setProject(selectedProject);
+      if (!selectedBuilding && selectedProject.buildings.length > 0) {
+        setSelectedBuilding(selectedProject.buildings[0].id);
+      }
       setLoading(false);
       return;
     }
@@ -72,11 +92,13 @@ function CalculatorContent() {
     } finally {
       setLoading(false);
     }
-  }, [selectedProjectId, selectedBuilding]);
+  }, [selectedProjectId, selectedProject, selectedBuilding]);
 
   useEffect(() => {
-    loadProject();
-  }, [loadProject]);
+    if (!selectedProject || selectedProject.id !== selectedProjectId) {
+      loadProject();
+    }
+  }, [loadProject, selectedProject, selectedProjectId]);
 
   const handleAddItem = async (floorDesignId: string) => {
     const res = await fetch(`/api/floors/${floorDesignId}/items`, {
@@ -156,17 +178,13 @@ function CalculatorContent() {
     loadProject();
   };
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-full">
-        <div className="text-gray-500 text-sm">Loading…</div>
-      </div>
-    );
+  if (loading || (!project && (contextLoading || selectedProjectId))) {
+    return <PageSkeleton titleWidth="w-64" rowCount={8} />;
   }
 
   if (!project || project.buildings.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center h-full text-center p-8">
+      <div className="flex flex-col items-center justify-center min-h-[60vh] text-center p-8">
         <Building2 size={40} className="text-gray-600 mb-3" />
         <p className="text-gray-400 text-sm">
           {project ? 'No buildings in this project. Add buildings from the project settings.' : 'Select a project first.'}

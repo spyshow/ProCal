@@ -4,6 +4,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useProject } from '@/context/ProjectContext';
 import { useTranslation } from '@/i18n';
+import { PageSkeleton } from '@/components/ui/skeleton';
 import { CircuitBoard, Filter, AlertTriangle, RefreshCw, HelpCircle } from 'lucide-react';
 import { computeFeeders, createFindBreaker, type EquipmentItem, type DefaultFamilies } from '@/lib/calculations/feeders';
 import type { Project } from '@/types';
@@ -33,18 +34,44 @@ interface BreakerEntry {
 }
 
 export default function BreakerSchedulePage() {
-  const { selectedProjectId, preferredManufacturer } = useProject();
+  const { selectedProjectId, selectedProject, loading: contextLoading, preferredManufacturer } = useProject();
   const { t, isRtl } = useTranslation();
-  const [project, setProject] = useState<Project | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [project, setProject] = useState<Project | null>(selectedProject);
+  const [loading, setLoading] = useState(!selectedProject);
   const [saving, setSaving] = useState(false);
   const [equipment, setEquipment] = useState<EquipmentItem[]>([]);
   const [families, setFamilies] = useState<BreakerFamilyOption[]>([]);
   const [selectedBuilding, setSelectedBuilding] = useState<string>('all');
-  const [defaults, setDefaults] = useState<DefaultFamilies>({});
+  const [defaults, setDefaults] = useState<DefaultFamilies>(() => ({
+    ACB: selectedProject?.defaultAcbFamilyId ?? undefined,
+    MCCB: selectedProject?.defaultMccbFamilyId ?? undefined,
+    MCB: selectedProject?.defaultMcbFamilyId ?? undefined,
+  }));
+
+  useEffect(() => {
+    if (selectedProject && selectedProject.id === selectedProjectId) {
+      setProject(selectedProject);
+      setDefaults({
+        ACB: selectedProject.defaultAcbFamilyId ?? undefined,
+        MCCB: selectedProject.defaultMccbFamilyId ?? undefined,
+        MCB: selectedProject.defaultMcbFamilyId ?? undefined,
+      });
+      setLoading(false);
+    }
+  }, [selectedProject, selectedProjectId]);
 
   const loadProject = useCallback(async () => {
     if (!selectedProjectId) { setLoading(false); return; }
+    if (selectedProject?.id === selectedProjectId) {
+      setProject(selectedProject);
+      setDefaults({
+        ACB: selectedProject.defaultAcbFamilyId ?? undefined,
+        MCCB: selectedProject.defaultMccbFamilyId ?? undefined,
+        MCB: selectedProject.defaultMcbFamilyId ?? undefined,
+      });
+      setLoading(false);
+      return;
+    }
     try {
       const res = await fetch(`/api/projects/${selectedProjectId}`);
       if (res.ok) {
@@ -57,7 +84,7 @@ export default function BreakerSchedulePage() {
         });
       }
     } catch (err) { console.error(err); } finally { setLoading(false); }
-  }, [selectedProjectId]);
+  }, [selectedProjectId, selectedProject]);
 
   const loadEquipment = useCallback(async () => {
     try {
@@ -79,7 +106,11 @@ export default function BreakerSchedulePage() {
     } catch (err) { console.error(err); }
   }, []);
 
-  useEffect(() => { loadProject(); }, [loadProject]);
+  useEffect(() => {
+    if (!selectedProject || selectedProject.id !== selectedProjectId) {
+      loadProject();
+    }
+  }, [loadProject, selectedProject, selectedProjectId]);
   useEffect(() => { loadEquipment(); }, [loadEquipment]);
   useEffect(() => { loadFamilies(); }, [loadFamilies]);
 
@@ -114,7 +145,10 @@ export default function BreakerSchedulePage() {
     saveDefaults(next);
   };
 
-  if (loading) return <div className="flex items-center justify-center h-full"><p className="text-gray-500 text-sm">Loading…</p></div>;
+  if (loading || (!project && (contextLoading || selectedProjectId))) {
+    return <PageSkeleton titleWidth="w-60" rowCount={6} />;
+  }
+
   if (!project || project.buildings.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center h-full text-center p-8">

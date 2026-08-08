@@ -270,7 +270,7 @@ export default function Sidebar() {
       {/* Active Project */}
       <div data-tour="project-selector" className="pt-3">
         {!isCollapsed && (
-          <p className="px-4 mb-2 text-[10px] font-semibold uppercase tracking-widest text-slate-500">
+          <p className="px-4 mb-2 text-[10px] font-semibold uppercase tracking-widest text-slate-400">
             {t('nav.selectProject', 'Active Project')}
           </p>
         )}
@@ -280,7 +280,7 @@ export default function Sidebar() {
       {/* Navigation */}
       <nav className="flex-1 overflow-y-auto px-2 space-y-0.5 custom-scrollbar" aria-label="Main navigation">
         {!isCollapsed && (
-          <p className="px-2 pt-1 pb-2 text-[10px] font-semibold uppercase tracking-widest text-slate-500">
+          <p className="px-2 pt-1 pb-2 text-[10px] font-semibold uppercase tracking-widest text-slate-400">
             {t('common.actions', 'Navigation')}
           </p>
         )}
@@ -415,7 +415,7 @@ export default function Sidebar() {
                 <p className="text-xs font-semibold text-slate-200 truncate leading-tight">
                   {currentUser?.name ?? "Engineer"}
                 </p>
-                <p className="text-[10px] text-slate-500 truncate leading-tight">
+                <p className="text-[10px] text-slate-400 truncate leading-tight">
                   {currentUser?.role === "ADMIN" ? "Administrator" : "ProCal Member"}
                 </p>
               </div>

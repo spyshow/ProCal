@@ -10,6 +10,7 @@ import { isThreePhaseForItem } from '@/lib/calculations/feeders';
 import { phaseBalance } from '@/lib/calculations/phaseBalance';
 import MethodSelector from '@/components/MethodSelector';
 import { useTranslation } from '@/i18n';
+import { PageSkeleton } from '@/components/ui/skeleton';
 import { Cable, RefreshCw, AlertTriangle, Check, Settings, Save, HelpCircle } from 'lucide-react';
 import type { Project } from '@/types';
 
@@ -38,12 +39,12 @@ interface CableEntry {
 }
 
 export default function CableSchedulePage() {
-  const { selectedProjectId } = useProject();
+  const { selectedProjectId, selectedProject, loading: contextLoading } = useProject();
   const { t, isRtl } = useTranslation();
   const pathname = usePathname();
   const router = useRouter();
-  const [project, setProject] = useState<Project | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [project, setProject] = useState<Project | null>(selectedProject);
+  const [loading, setLoading] = useState(!selectedProject);
   const [cables, setCables] = useState<CableEntry[]>([]);
   const [selectedBuilding, setSelectedBuilding] = useState<string | null>(null);
   const [showSettings, setShowSettings] = useState(false);
@@ -95,8 +96,31 @@ export default function CableSchedulePage() {
     return () => document.removeEventListener('click', handleClick, true);
   }, [hasUnsavedChanges, pathname]);
 
+  // Sync with context project to avoid duplicate network calls
+  useEffect(() => {
+    if (selectedProject && selectedProject.id === selectedProjectId) {
+      setProject(selectedProject);
+      if (!selectedBuilding && selectedProject.buildings.length > 0) {
+        setSelectedBuilding(selectedProject.buildings[0].id);
+      }
+      setLoading(false);
+    }
+  }, [selectedProject, selectedProjectId, selectedBuilding]);
+
   const loadProject = useCallback(async () => {
-    if (!selectedProjectId) { setLoading(false); return; }
+    if (!selectedProjectId) {
+      setLoading(false);
+      return;
+    }
+    // If context already has this project, don't duplicate the request
+    if (selectedProject?.id === selectedProjectId) {
+      setProject(selectedProject);
+      if (!selectedBuilding && selectedProject.buildings.length > 0) {
+        setSelectedBuilding(selectedProject.buildings[0].id);
+      }
+      setLoading(false);
+      return;
+    }
     try {
       const res = await fetch(`/api/projects/${selectedProjectId}`);
       if (res.ok) {
@@ -105,9 +129,13 @@ export default function CableSchedulePage() {
         if (!selectedBuilding && data.buildings.length > 0) setSelectedBuilding(data.buildings[0].id);
       }
     } catch (err) { console.error(err); } finally { setLoading(false); }
-  }, [selectedProjectId]);
+  }, [selectedProjectId, selectedProject, selectedBuilding]);
 
-  useEffect(() => { loadProject(); }, [loadProject]);
+  useEffect(() => {
+    if (!selectedProject || selectedProject.id !== selectedProjectId) {
+      loadProject();
+    }
+  }, [loadProject, selectedProject, selectedProjectId]);
 
   useEffect(() => {
     if (!project) return;
@@ -484,8 +512,18 @@ export default function CableSchedulePage() {
   // Check if there are cables that need upsize
   const cablesNeedingUpsize = cables.filter(c => c.changed);
 
-  if (loading) return <div className="flex items-center justify-center h-full"><p className="text-gray-500 text-sm">Loading…</p></div>;
-  if (!project) return <div className="flex items-center justify-center h-full"><p className="text-gray-400 text-sm">Select a project first.</p></div>;
+  if (loading || (!project && (contextLoading || selectedProjectId))) {
+    return <PageSkeleton titleWidth="w-56" rowCount={8} />;
+  }
+
+  if (!project) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] text-center p-8">
+        <Cable size={40} className="text-slate-600 mb-3" />
+        <p className="text-slate-400 text-sm">{t('common.selectProject', 'Select a project first.')}</p>
+      </div>
+    );
+  }
 
   // Group cables by section: Building Loads, SDBs, Floors
   const cablesByFloor = cables.reduce((acc, cable) => {
@@ -511,7 +549,7 @@ export default function CableSchedulePage() {
   });
 
   return (
-    <div className="p-6 space-y-5 max-w-7xl mx-auto">
+    <div className="p-6 space-y-5 max-w-7xl mx-auto min-h-[80vh]">
       {/* Unsaved Changes Banner */}
       {cablesNeedingUpsize.length > 0 && (
         <div className="rounded-xl border border-yellow-500/30 bg-yellow-500/10 p-4 flex items-center justify-between">

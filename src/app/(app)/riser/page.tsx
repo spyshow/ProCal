@@ -14,6 +14,7 @@ import {
 import { sizeCableAndBreaker } from '@/lib/calculations/cables';
 import { calculateThreePhaseCurrent, sizeTransformer } from '@/lib/calculations/loads';
 import { computeFloorRiserVd, type RiserFloorVd } from '@/lib/calculations/riser';
+import { PageSkeleton } from '@/components/ui/skeleton';
 import type { FloorDesign, Project } from '@/types';
 
 // FloorDesign.riserCableSize is a string ("120 mm²"); the riser calc helper
@@ -31,16 +32,34 @@ interface FloorData extends Omit<FloorDesign, 'riserCableSize' | 'riserCableLeng
 }
 
 export default function RiserPage() {
-  const { selectedProjectId } = useProject();
+  const { selectedProjectId, selectedProject, loading: contextLoading } = useProject();
   const { t, isRtl } = useTranslation();
-  const [project, setProject] = useState<Project | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [project, setProject] = useState<Project | null>(selectedProject);
+  const [loading, setLoading] = useState(!selectedProject);
   const [selectedBuilding, setSelectedBuilding] = useState<string | null>(null);
   const [zoom, setZoom] = useState(1);
   const svgRef = useRef<SVGSVGElement>(null);
 
+  useEffect(() => {
+    if (selectedProject && selectedProject.id === selectedProjectId) {
+      setProject(selectedProject);
+      if (!selectedBuilding && selectedProject.buildings.length > 0) {
+        setSelectedBuilding(selectedProject.buildings[0].id);
+      }
+      setLoading(false);
+    }
+  }, [selectedProject, selectedProjectId, selectedBuilding]);
+
   const loadProject = useCallback(async () => {
     if (!selectedProjectId) { setLoading(false); return; }
+    if (selectedProject?.id === selectedProjectId) {
+      setProject(selectedProject);
+      if (!selectedBuilding && selectedProject.buildings.length > 0) {
+        setSelectedBuilding(selectedProject.buildings[0].id);
+      }
+      setLoading(false);
+      return;
+    }
     try {
       const res = await fetch(`/api/projects/${selectedProjectId}`);
       if (res.ok) {
@@ -49,16 +68,23 @@ export default function RiserPage() {
         if (!selectedBuilding && data.buildings.length > 0) setSelectedBuilding(data.buildings[0].id);
       }
     } catch (err) { console.error(err); } finally { setLoading(false); }
-  }, [selectedProjectId]);
+  }, [selectedProjectId, selectedProject, selectedBuilding]);
 
-  useEffect(() => { loadProject(); }, [loadProject]);
+  useEffect(() => {
+    if (!selectedProject || selectedProject.id !== selectedProjectId) {
+      loadProject();
+    }
+  }, [loadProject, selectedProject, selectedProjectId]);
 
-  if (loading) return <div className="flex items-center justify-center h-full"><p className="text-gray-500 text-sm">Loading…</p></div>;
+  if (loading || (!project && (contextLoading || selectedProjectId))) {
+    return <PageSkeleton titleWidth="w-56" rowCount={6} />;
+  }
+
   if (!project || project.buildings.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center h-full text-center p-8">
+      <div className="flex flex-col items-center justify-center min-h-[60vh] text-center p-8">
         <GitBranch size={40} className="text-gray-600 mb-3" />
-        <p className="text-gray-400 text-sm">No project data. Select a project first.</p>
+        <p className="text-gray-400 text-sm">No project data. Select a project from the sidebar.</p>
       </div>
     );
   }

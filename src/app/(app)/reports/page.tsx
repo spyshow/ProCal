@@ -4,11 +4,14 @@ import { useEffect, useState, useRef } from 'react';
 import { useReactToPrint } from 'react-to-print';
 import { useProject } from '@/context/ProjectContext';
 import { useTranslation } from '@/i18n';
+import { PageSkeleton } from '@/components/ui/skeleton';
 import {
   FileText,
   FileDown,
+  Printer,
   Table,
   Building2,
+  HelpCircle,
 } from 'lucide-react';
 import { phaseBalance } from '@/lib/calculations/phaseBalance';
 import CoverPage from '@/components/report/CoverPage';
@@ -21,18 +24,36 @@ import VDSchedule from '@/components/report/VDSchedule';
 import type { Project, ReportTab } from '@/types';
 
 export default function ReportsPage() {
-  const { selectedProjectId, preferredManufacturer } = useProject();
+  const { selectedProjectId, selectedProject, loading: contextLoading, preferredManufacturer } = useProject();
   const { t, isRtl } = useTranslation();
-  const [project, setProject] = useState<Project | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [project, setProject] = useState<Project | null>(selectedProject);
+  const [loading, setLoading] = useState(!selectedProject);
   const [activeTab, setActiveTab] = useState<ReportTab>('summary');
   const [selectedBuilding, setSelectedBuilding] = useState<string | null>(null);
   const [company, setCompany] = useState<{ companyName: string; logoUrl: string }>({ companyName: "", logoUrl: "" });
 
   useEffect(() => {
+    if (selectedProject && selectedProject.id === selectedProjectId) {
+      setProject(selectedProject);
+      if (!selectedBuilding && selectedProject.buildings.length > 0) {
+        setSelectedBuilding(selectedProject.buildings[0].id);
+      }
+      setLoading(false);
+    }
+  }, [selectedProject, selectedProjectId, selectedBuilding]);
+
+  useEffect(() => {
     let cancelled = false;
     const run = async () => {
       if (!selectedProjectId) { setLoading(false); return; }
+      if (selectedProject?.id === selectedProjectId) {
+        setProject(selectedProject);
+        if (!selectedBuilding && selectedProject.buildings.length > 0) {
+          setSelectedBuilding(selectedProject.buildings[0].id);
+        }
+        setLoading(false);
+        return;
+      }
       try {
         const res = await fetch(`/api/projects/${selectedProjectId}`);
         if (res.ok) {
@@ -43,9 +64,11 @@ export default function ReportsPage() {
         }
       } catch (err) { console.error(err); } finally { if (!cancelled) setLoading(false); }
     };
-    run();
+    if (!selectedProject || selectedProject.id !== selectedProjectId) {
+      run();
+    }
     return () => { cancelled = true; };
-  }, [selectedProjectId]);
+  }, [selectedProjectId, selectedProject, selectedBuilding]);
 
   useEffect(() => {
     fetch("/api/settings")
@@ -61,10 +84,13 @@ export default function ReportsPage() {
     documentTitle: project?.name ? `${project.name} - Report` : 'Report',
   });
 
-  if (loading) return <div className="flex items-center justify-center h-full"><p className="text-gray-500 text-sm">Loading…</p></div>;
+  if (loading || (!project && (contextLoading || selectedProjectId))) {
+    return <PageSkeleton titleWidth="w-56" rowCount={6} />;
+  }
+
   if (!project) {
     return (
-      <div className="flex flex-col items-center justify-center h-full text-center p-8">
+      <div className="flex flex-col items-center justify-center min-h-[60vh] text-center p-8">
         <FileText size={40} className="text-gray-600 mb-3" />
         <p className="text-gray-400 text-sm">{t('projects.selectProjectPrompt', 'No project data. Select a project first.')}</p>
       </div>

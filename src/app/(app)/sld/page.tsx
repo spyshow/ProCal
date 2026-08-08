@@ -61,10 +61,10 @@ export interface ComponentProperty {
 }
 
 export default function SLDPage() {
-  const { selectedProjectId } = useProject();
+  const { selectedProjectId, selectedProject, loading: contextLoading } = useProject();
   const { t, isRtl } = useTranslation();
-  const [project, setProject] = useState<Project | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [project, setProject] = useState<Project | null>(selectedProject);
+  const [loading, setLoading] = useState(!selectedProject);
   const [selectedBuildingId, setSelectedBuildingId] = useState<string | null>(null);
   const [zoom, setZoom] = useState(100);
   const [pages, setPages] = useState<SLDPageType[]>([]);
@@ -88,9 +88,27 @@ export default function SLDPage() {
   const [showDsl, setShowDsl] = useState(false);
   const svgContainerRef = useRef<HTMLDivElement>(null);
 
+  useEffect(() => {
+    if (selectedProject && selectedProject.id === selectedProjectId) {
+      setProject(selectedProject);
+      if (selectedProject.buildings && selectedProject.buildings.length > 0) {
+        setSelectedBuildingId(selectedProject.buildings[0].id);
+      }
+      setLoading(false);
+    }
+  }, [selectedProject, selectedProjectId]);
+
   // Load project details from API
   const loadProject = useCallback(async () => {
     if (!selectedProjectId) {
+      setLoading(false);
+      return;
+    }
+    if (selectedProject?.id === selectedProjectId) {
+      setProject(selectedProject);
+      if (selectedProject.buildings && selectedProject.buildings.length > 0) {
+        setSelectedBuildingId(selectedProject.buildings[0].id);
+      }
       setLoading(false);
       return;
     }
@@ -108,11 +126,13 @@ export default function SLDPage() {
     } finally {
       setLoading(false);
     }
-  }, [selectedProjectId]);
+  }, [selectedProjectId, selectedProject]);
 
   useEffect(() => {
-    loadProject();
-  }, [loadProject]);
+    if (!selectedProject || selectedProject.id !== selectedProjectId) {
+      loadProject();
+    }
+  }, [loadProject, selectedProject, selectedProjectId]);
 
   // Generate real SLD Pages from project data
   useEffect(() => {

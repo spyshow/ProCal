@@ -610,6 +610,8 @@
     "messageLabel": "Beschreibung & Reproduktionsschritte",
     "messagePlaceholder": "Beschreiben Sie, was passiert ist und welches Ergebnis erwartet wurde...",
     "emailLabel": "Ihre E-Mail (für Rückfragen)",
+    "reportingAs": "Benutzerkonto",
+    "emailFromProfile": "E-Mail-Adresse wurde automatisch aus Ihrem Benutzerprofil übernommen",
     "diagnosticsToggle": "Systemdiagnose einbinden",
     "diagnosticsHelp": "Fügt Seiten-URL, aktives Projekt und Browserdaten an, um Fehler schneller zu beheben.",
     "diagnosticsSummary": "Angehängte Diagnose",

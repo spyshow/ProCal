@@ -117,7 +117,7 @@ export function FeedbackFloatingButton() {
         category: categoryLabels[category],
         subject: subject.trim(),
         message: message.trim(),
-        email: email.trim(),
+        email: (user?.email || email || '').trim(),
         pageUrl: includeDiagnostics ? pageUrl : undefined,
         projectId: includeDiagnostics && project?.id ? project.id : undefined,
         projectName: includeDiagnostics && project?.name ? project.name : undefined,
@@ -355,19 +355,31 @@ export function FeedbackFloatingButton() {
                   />
                 </div>
 
-                {/* Email Input */}
+                {/* User Email & Account Binding */}
                 <div>
-                  <label htmlFor="feedback-email" className="block text-xs font-medium text-slate-300 mb-1">
-                    {t('feedback.emailLabel', 'Your Email (for updates)')}
-                  </label>
+                  <div className="flex items-center justify-between mb-1">
+                    <label htmlFor="feedback-email" className="text-xs font-medium text-slate-300">
+                      {t('feedback.emailLabel', 'Your Email (for updates)')}
+                    </label>
+                    {user?.name && (
+                      <span className="text-[11px] text-slate-400">
+                        {t('feedback.reportingAs', 'User')}: <span className="font-semibold text-slate-200">{user.name}</span>
+                      </span>
+                    )}
+                  </div>
                   <input
                     id="feedback-email"
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="engineer@company.com"
+                    placeholder={user?.email || "engineer@company.com"}
                     className="w-full px-3.5 py-2 rounded-xl bg-slate-950/80 border border-slate-700 focus:border-orange-500 focus:ring-1 focus:ring-orange-500 text-slate-100 text-xs placeholder:text-slate-500 outline-none transition-colors"
                   />
+                  {user?.email && email === user.email && (
+                    <p className="text-[10px] text-green-400/90 mt-1 flex items-center gap-1">
+                      <CheckCircle2 size={11} /> {t('feedback.emailFromProfile', 'Email automatically filled from your user account profile')}
+                    </p>
+                  )}
                 </div>
 
                 {/* Diagnostics Toggle & Collapsible info */}

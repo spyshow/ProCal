@@ -633,6 +633,8 @@
     "messageLabel": "Description & Steps to Reproduce",
     "messagePlaceholder": "Describe what happened, expected behavior, or your message...",
     "emailLabel": "Your Email (for updates)",
+    "reportingAs": "User Account",
+    "emailFromProfile": "Email automatically filled from your user account profile",
     "diagnosticsToggle": "Include System Diagnostics",
     "diagnosticsHelp": "Includes page URL, active project, and browser info to help us debug faster.",
     "diagnosticsSummary": "Attached Diagnostics",

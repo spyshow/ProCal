@@ -50,10 +50,13 @@ export async function POST(request: Request) {
   const trimmedMessage = message.trim().slice(0, 4000);
   const trimmedSubject = typeof subject === "string" ? subject.trim().slice(0, 200) : "";
   const trimmedCategory = typeof category === "string" ? category.trim().slice(0, 50) : "Bug Report";
+
+  // Take the email address directly from authenticated user info
   const replyEmail =
-    typeof clientEmail === "string" && clientEmail.trim().length > 0
+    user?.email ||
+    (typeof clientEmail === "string" && clientEmail.trim().length > 0
       ? clientEmail.trim()
-      : user?.email || "";
+      : "");
 
   // 1. Dispatch email notification to admin / configured lead recipient
   await sendFeedbackNotification({

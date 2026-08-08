@@ -611,6 +611,8 @@
     "messageLabel": "Descrizione e passaggi per riprodurre",
     "messagePlaceholder": "Descrivi cosa è successo e il risultato atteso...",
     "emailLabel": "La tua email (per risposte)",
+    "reportingAs": "Account Utente",
+    "emailFromProfile": "L'indirizzo email è stato recuperato automaticamente dal tuo profilo",
     "diagnosticsToggle": "Includi diagnostica di sistema",
     "diagnosticsHelp": "Include l'URL della pagina, il progetto attivo e le informazioni del browser per aiutarci a risolvere i bug più rapidamente.",
     "diagnosticsSummary": "Diagnostica allegata",

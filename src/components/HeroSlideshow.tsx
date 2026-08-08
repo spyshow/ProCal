@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import Image, { StaticImageData } from "next/image";
 import Link from "next/link";
 import {
@@ -14,6 +14,7 @@ import {
   Pause,
   Play,
   ArrowRight,
+  ArrowLeft,
   CheckCircle2,
   Sparkles,
   Maximize2,
@@ -25,6 +26,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { useTranslation } from "@/i18n";
 
 import slideLoadCalc from "../../public/slides/slide_load_calc.jpg";
 import slideCableSizing from "../../public/slides/slide_cable_sizing.jpg";
@@ -35,6 +37,7 @@ import slidePdfReports from "../../public/slides/slide_pdf_reports.jpg";
 interface SlideData {
   id: string;
   title: string;
+  tabLabel: string;
   badge: string;
   tagline: string;
   description: string;
@@ -49,130 +52,149 @@ interface SlideData {
   fallbackIcon: React.ElementType;
 }
 
-const slides: SlideData[] = [
-  {
-    id: "load-calc",
-    title: "Building Load & Phase Balancing",
-    badge: "IEC 60364 / NEC Compliant",
-    tagline: "Total Load Demand & Diversity Engine",
-    description:
-      "Calculate connected and diversified power across complex multi-floor structures. Automatically balance loads across R-Y-B phases with real-time total kVA and current demand updates.",
-    highlights: [
-      "Multi-building & multi-room load breakdown",
-      "Automatic 3-Phase balancing (Phase R, Y, B)",
-      "Standard demand & diversity factor presets",
-    ],
-    icon: Zap,
-    accentColor: "text-orange-400",
-    accentBorder: "border-orange-500/40",
-    accentBg: "bg-orange-500/10",
-    image: slideLoadCalc,
-    href: "/calculator",
-    ctaText: "Launch Load Calculator",
-    fallbackIcon: Activity,
-  },
-  {
-    id: "cable-sizing",
-    title: "Cable Schedule & Voltage Drop Sizing",
-    badge: "Automated Conductor Sizing",
-    tagline: "Ampacity & Voltage Loss Validation",
-    description:
-      "Automate conductor sizing, insulation selection, and derating factors. Validates allowable voltage drop percentages for feeder and branch circuits automatically.",
-    highlights: [
-      "XLPE & PVC insulation ampacity calculations",
-      "Parallel run conductor load distribution",
-      "Exact voltage drop % & thermal stress limits",
-    ],
-    icon: Cable,
-    accentColor: "text-amber-400",
-    accentBorder: "border-amber-500/40",
-    accentBg: "bg-amber-500/10",
-    image: slideCableSizing,
-    href: "/cable-schedule",
-    ctaText: "Open Cable Schedule",
-    fallbackIcon: Layers,
-  },
-  {
-    id: "sld-diagram",
-    title: "Interactive Single Line Diagrams (SLD)",
-    badge: "Auto Schematic Canvas",
-    tagline: "Dynamic Riser & Switchboard Generation",
-    description:
-      "Convert load schedules into high-resolution single line diagrams and building vertical risers linked directly to circuit protection parameters and busbars.",
-    highlights: [
-      "Automated Main Switchboard (MSB) layout",
-      "Multi-level building vertical riser tree",
-      "Real-time schematic updates from schedule data",
-    ],
-    icon: GitBranch,
-    accentColor: "text-sky-400",
-    accentBorder: "border-sky-500/40",
-    accentBg: "bg-sky-500/10",
-    image: slideSldDiagram,
-    href: "/sld",
-    ctaText: "Open SLD Designer",
-    fallbackIcon: GitBranch,
-  },
-  {
-    id: "breaker-schedule",
-    title: "Circuit Breaker & Protection Selection",
-    badge: "Smart Switchgear Catalog",
-    tagline: "MCCB, MCB & ACB Protection Matching",
-    description:
-      "Match protection devices against calculated short circuit currents (kA). Select exact trip frame sizes, breaking capacities, and thermal-magnetic trip curves.",
-    highlights: [
-      "MCCB, MCB, ACB, and ELCB/RCD catalog match",
-      "Short-circuit breaking capacity (Icu / Ics) check",
-      "Custom trip setting and frame size selection",
-    ],
-    icon: CircuitBoard,
-    accentColor: "text-emerald-400",
-    accentBorder: "border-emerald-500/40",
-    accentBg: "bg-emerald-500/10",
-    image: slideBreakerSchedule,
-    href: "/breaker-schedule",
-    ctaText: "View Protection Catalog",
-    fallbackIcon: ShieldCheck,
-  },
-  {
-    id: "pdf-reports",
-    title: "Printable PDF Reports & Bill of Materials",
-    badge: "Executive Export Ready",
-    tagline: "Professional Engineering Submissions",
-    description:
-      "Generate submission-ready PDF packages including calculation covers, schedule tables, bill of materials (BOM), and high-resolution SLD diagrams in seconds.",
-    highlights: [
-      "Customizable project cover page & approval stamps",
-      "Detailed Bill of Materials (BOM) export",
-      "Printable high-res vector PDF diagrams & schedules",
-    ],
-    icon: FileText,
-    accentColor: "text-rose-400",
-    accentBorder: "border-rose-500/40",
-    accentBg: "bg-rose-500/10",
-    image: slidePdfReports,
-    href: "/reports",
-    ctaText: "Generate PDF Reports",
-    fallbackIcon: BarChart3,
-  },
-];
-
 export function HeroSlideshow() {
+  const { t, isRtl } = useTranslation();
   const [activeIndex, setActiveIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(true);
   const [isHovered, setIsHovered] = useState(false);
   const [modalImage, setModalImage] = useState<StaticImageData | string | null>(null);
   const [imageError, setImageError] = useState<Record<string, boolean>>({});
 
-  const activeSlide = slides[activeIndex];
+  const slides: SlideData[] = useMemo(
+    () => [
+      {
+        id: "load-calc",
+        title: t("slideshow.loadCalc.title", "Building Load & Phase Balancing"),
+        tabLabel: t("slideshow.loadCalc.tab", "Building Load"),
+        badge: t("slideshow.loadCalc.badge", "IEC 60364 / NEC Compliant"),
+        tagline: t("slideshow.loadCalc.tagline", "Total Load Demand & Diversity Engine"),
+        description: t(
+          "slideshow.loadCalc.description",
+          "Calculate connected and diversified power across complex multi-floor structures. Automatically balance loads across R-Y-B phases with real-time total kVA and current demand updates."
+        ),
+        highlights: [
+          t("slideshow.loadCalc.h1", "Multi-building & multi-room load breakdown"),
+          t("slideshow.loadCalc.h2", "Automatic 3-Phase balancing (Phase R, Y, B)"),
+          t("slideshow.loadCalc.h3", "Standard demand & diversity factor presets"),
+        ],
+        icon: Zap,
+        accentColor: "text-orange-400",
+        accentBorder: "border-orange-500/40",
+        accentBg: "bg-orange-500/10",
+        image: slideLoadCalc,
+        href: "/calculator",
+        ctaText: t("slideshow.loadCalc.cta", "Launch Load Calculator"),
+        fallbackIcon: Activity,
+      },
+      {
+        id: "cable-sizing",
+        title: t("slideshow.cableSizing.title", "Cable Schedule & Voltage Drop Sizing"),
+        tabLabel: t("slideshow.cableSizing.tab", "Cable Schedule"),
+        badge: t("slideshow.cableSizing.badge", "Automated Conductor Sizing"),
+        tagline: t("slideshow.cableSizing.tagline", "Ampacity & Voltage Loss Validation"),
+        description: t(
+          "slideshow.cableSizing.description",
+          "Automate conductor sizing, insulation selection, and derating factors. Validates allowable voltage drop percentages for feeder and branch circuits automatically."
+        ),
+        highlights: [
+          t("slideshow.cableSizing.h1", "XLPE & PVC insulation ampacity calculations"),
+          t("slideshow.cableSizing.h2", "Parallel run conductor load distribution"),
+          t("slideshow.cableSizing.h3", "Exact voltage drop % & thermal stress limits"),
+        ],
+        icon: Cable,
+        accentColor: "text-amber-400",
+        accentBorder: "border-amber-500/40",
+        accentBg: "bg-amber-500/10",
+        image: slideCableSizing,
+        href: "/cable-schedule",
+        ctaText: t("slideshow.cableSizing.cta", "Open Cable Schedule"),
+        fallbackIcon: Layers,
+      },
+      {
+        id: "sld-diagram",
+        title: t("slideshow.sldDiagram.title", "Interactive Single Line Diagrams (SLD)"),
+        tabLabel: t("slideshow.sldDiagram.tab", "Interactive Single Line Diagrams (SLD)"),
+        badge: t("slideshow.sldDiagram.badge", "Auto Schematic Canvas"),
+        tagline: t("slideshow.sldDiagram.tagline", "Dynamic Riser & Switchboard Generation"),
+        description: t(
+          "slideshow.sldDiagram.description",
+          "Convert load schedules into high-resolution single line diagrams and building vertical risers linked directly to circuit protection parameters and busbars."
+        ),
+        highlights: [
+          t("slideshow.sldDiagram.h1", "Automated Main Switchboard (MSB) layout"),
+          t("slideshow.sldDiagram.h2", "Multi-level building vertical riser tree"),
+          t("slideshow.sldDiagram.h3", "Real-time schematic updates from schedule data"),
+        ],
+        icon: GitBranch,
+        accentColor: "text-sky-400",
+        accentBorder: "border-sky-500/40",
+        accentBg: "bg-sky-500/10",
+        image: slideSldDiagram,
+        href: "/sld",
+        ctaText: t("slideshow.sldDiagram.cta", "Open SLD Designer"),
+        fallbackIcon: GitBranch,
+      },
+      {
+        id: "breaker-schedule",
+        title: t("slideshow.breakerSchedule.title", "Circuit Breaker & Protection Selection"),
+        tabLabel: t("slideshow.breakerSchedule.tab", "Circuit Breaker"),
+        badge: t("slideshow.breakerSchedule.badge", "Smart Switchgear Catalog"),
+        tagline: t("slideshow.breakerSchedule.tagline", "MCCB, MCB & ACB Protection Matching"),
+        description: t(
+          "slideshow.breakerSchedule.description",
+          "Match protection devices against calculated short circuit currents (kA). Select exact trip frame sizes, breaking capacities, and thermal-magnetic trip curves."
+        ),
+        highlights: [
+          t("slideshow.breakerSchedule.h1", "MCCB, MCB, ACB, and ELCB/RCD catalog match"),
+          t("slideshow.breakerSchedule.h2", "Short-circuit breaking capacity (Icu / Ics) check"),
+          t("slideshow.breakerSchedule.h3", "Custom trip setting and frame size selection"),
+        ],
+        icon: CircuitBoard,
+        accentColor: "text-emerald-400",
+        accentBorder: "border-emerald-500/40",
+        accentBg: "bg-emerald-500/10",
+        image: slideBreakerSchedule,
+        href: "/breaker-schedule",
+        ctaText: t("slideshow.breakerSchedule.cta", "View Protection Catalog"),
+        fallbackIcon: ShieldCheck,
+      },
+      {
+        id: "pdf-reports",
+        title: t("slideshow.pdfReports.title", "Printable PDF Reports & Bill of Materials"),
+        tabLabel: t("slideshow.pdfReports.tab", "Printable PDF Reports"),
+        badge: t("slideshow.pdfReports.badge", "Executive Export Ready"),
+        tagline: t("slideshow.pdfReports.tagline", "Professional Engineering Submissions"),
+        description: t(
+          "slideshow.pdfReports.description",
+          "Generate submission-ready PDF packages including calculation covers, schedule tables, bill of materials (BOM), and high-resolution SLD diagrams in seconds."
+        ),
+        highlights: [
+          t("slideshow.pdfReports.h1", "Customizable project cover page & approval stamps"),
+          t("slideshow.pdfReports.h2", "Detailed Bill of Materials (BOM) export"),
+          t("slideshow.pdfReports.h3", "Printable high-res vector PDF diagrams & schedules"),
+        ],
+        icon: FileText,
+        accentColor: "text-rose-400",
+        accentBorder: "border-rose-500/40",
+        accentBg: "bg-rose-500/10",
+        image: slidePdfReports,
+        href: "/reports",
+        ctaText: t("slideshow.pdfReports.cta", "Generate PDF Reports"),
+        fallbackIcon: BarChart3,
+      },
+    ],
+    [t]
+  );
+
+  const activeSlide = slides[activeIndex] || slides[0];
 
   const handleNext = useCallback(() => {
     setActiveIndex((prev) => (prev + 1) % slides.length);
-  }, []);
+  }, [slides.length]);
 
   const handlePrev = useCallback(() => {
     setActiveIndex((prev) => (prev - 1 + slides.length) % slides.length);
-  }, []);
+  }, [slides.length]);
 
   useEffect(() => {
     if (!isPlaying || isHovered) return;
@@ -188,15 +210,18 @@ export function HeroSlideshow() {
     <section className="relative my-8 md:my-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       {/* Section Header Title */}
       <div className="text-center mb-8">
-        <Badge variant="glow" className="mb-3.5 px-3 py-1 text-xs">
-          <Sparkles className="w-3.5 h-3.5 mr-1.5 text-orange-400 inline animate-spin" />
-          Interactive Feature Showcase
+        <Badge variant="glow" className="mb-3.5 px-3 py-1 text-xs inline-flex items-center gap-1.5">
+          <Sparkles className="w-3.5 h-3.5 text-orange-400 inline animate-spin" />
+          {t("slideshow.badge", "Interactive Feature Showcase")}
         </Badge>
         <h2 className="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">
-          Explore ProCal in Action
+          {t("slideshow.heading", "Explore ProCal in Action")}
         </h2>
         <p className="text-slate-400 mt-2 text-sm sm:text-base max-w-2xl mx-auto">
-          Click through the core functions below to see how ProCal streamlines complex electrical design tasks.
+          {t(
+            "slideshow.subheading",
+            "Click through the core functions below to see how ProCal streamlines complex electrical design tasks."
+          )}
         </p>
       </div>
 
@@ -222,7 +247,7 @@ export function HeroSlideshow() {
               >
                 <Icon className={`w-3.5 h-3.5 ${isActive ? slide.accentColor : "text-slate-400"}`} />
               </div>
-              <span>{slide.title.split("&")[0].trim()}</span>
+              <span>{slide.tabLabel}</span>
             </button>
           );
         })}
@@ -257,7 +282,9 @@ export function HeroSlideshow() {
               ) : (
                 /* Fallback Rich Vector UI Container */
                 <div className="w-full h-full flex flex-col items-center justify-center p-6 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-center relative overflow-hidden">
-                  <div className={`w-16 h-16 rounded-2xl ${activeSlide.accentBg} border ${activeSlide.accentBorder} flex items-center justify-center mb-4 shadow-xl animate-pulse`}>
+                  <div
+                    className={`w-16 h-16 rounded-2xl ${activeSlide.accentBg} border ${activeSlide.accentBorder} flex items-center justify-center mb-4 shadow-xl animate-pulse`}
+                  >
                     <activeSlide.fallbackIcon className={`w-8 h-8 ${activeSlide.accentColor}`} />
                   </div>
                   <h4 className="text-lg font-bold text-white mb-1">{activeSlide.title}</h4>
@@ -271,7 +298,7 @@ export function HeroSlideshow() {
               )}
 
               {/* Floating Badge Overlay */}
-              <div className="absolute top-3 left-3 sm:top-4 sm:left-4 z-10">
+              <div className="absolute top-3 start-3 sm:top-4 sm:start-4 z-10">
                 <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-950/85 backdrop-blur-md border border-white/10 text-xs font-semibold text-slate-200 shadow-lg">
                   <span className={`w-2 h-2 rounded-full ${activeSlide.accentBg} animate-ping`} />
                   {activeSlide.badge}
@@ -282,8 +309,8 @@ export function HeroSlideshow() {
               {!hasError && (
                 <button
                   onClick={() => setModalImage(activeSlide.image)}
-                  className="absolute bottom-3 right-3 sm:bottom-4 sm:right-4 z-10 p-2.5 rounded-xl bg-slate-950/80 backdrop-blur-md border border-white/20 text-slate-300 hover:text-white hover:bg-slate-900 transition-all opacity-0 group-hover:opacity-100 shadow-lg"
-                  title="Expand Preview Image"
+                  className="absolute bottom-3 end-3 sm:bottom-4 sm:end-4 z-10 p-2.5 rounded-xl bg-slate-950/80 backdrop-blur-md border border-white/20 text-slate-300 hover:text-white hover:bg-slate-900 transition-all opacity-0 group-hover:opacity-100 shadow-lg"
+                  title={t("slideshow.expandImage", "Expand Preview Image")}
                 >
                   <Maximize2 className="w-4 h-4" />
                 </button>
@@ -309,9 +336,7 @@ export function HeroSlideshow() {
                 {activeSlide.title}
               </h3>
 
-              <p className="text-sm sm:text-base text-slate-300 leading-relaxed">
-                {activeSlide.description}
-              </p>
+              <p className="text-sm sm:text-base text-slate-300 leading-relaxed">{activeSlide.description}</p>
 
               {/* Key Bullet Highlights */}
               <ul className="space-y-2.5 pt-2">
@@ -329,7 +354,7 @@ export function HeroSlideshow() {
               <Link href={activeSlide.href}>
                 <Button variant="glow" size="lg" className="w-full sm:w-auto gap-2 text-sm font-semibold">
                   {activeSlide.ctaText}
-                  <ArrowRight className="w-4 h-4" />
+                  {isRtl ? <ArrowLeft className="w-4 h-4" /> : <ArrowRight className="w-4 h-4" />}
                 </Button>
               </Link>
 
@@ -339,31 +364,31 @@ export function HeroSlideshow() {
                   <Button
                     variant="ghost"
                     size="icon"
-                    onClick={handlePrev}
+                    onClick={isRtl ? handleNext : handlePrev}
                     className="w-8 h-8 rounded-lg hover:bg-slate-800 hover:text-white"
                   >
-                    <ChevronLeft className="w-4 h-4" />
+                    {isRtl ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
                   </Button>
                   <Button
                     variant="ghost"
                     size="icon"
                     onClick={() => setIsPlaying(!isPlaying)}
                     className="w-8 h-8 rounded-lg hover:bg-slate-800 hover:text-white"
-                    title={isPlaying ? "Pause Slideshow" : "Play Slideshow"}
+                    title={isPlaying ? t("slideshow.pause", "Pause Slideshow") : t("slideshow.play", "Play Slideshow")}
                   >
                     {isPlaying ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
                   </Button>
                   <Button
                     variant="ghost"
                     size="icon"
-                    onClick={handleNext}
+                    onClick={isRtl ? handlePrev : handleNext}
                     className="w-8 h-8 rounded-lg hover:bg-slate-800 hover:text-white"
                   >
-                    <ChevronRight className="w-4 h-4" />
+                    {isRtl ? <ChevronLeft className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
                   </Button>
                 </div>
 
-                <span className="text-xs font-mono text-slate-500">
+                <span className="text-xs font-mono text-slate-500" dir="ltr">
                   <span className="text-white font-bold">{String(activeIndex + 1).padStart(2, "0")}</span> /{" "}
                   {String(slides.length).padStart(2, "0")}
                 </span>
@@ -397,7 +422,7 @@ export function HeroSlideshow() {
             />
             <button
               onClick={() => setModalImage(null)}
-              className="absolute top-4 right-4 p-2 rounded-full bg-slate-900/80 text-white hover:bg-slate-800 border border-white/20"
+              className="absolute top-4 end-4 p-2 rounded-full bg-slate-900/80 text-white hover:bg-slate-800 border border-white/20"
             >
               <X className="w-5 h-5" />
             </button>

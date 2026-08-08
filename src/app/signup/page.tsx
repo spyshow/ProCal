@@ -3,9 +3,12 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useTranslation } from '@/i18n';
+import { LanguageSelector } from '@/components/LanguageSelector';
 
 export default function SignupPage() {
   const router = useRouter();
+  const { t, isRtl } = useTranslation();
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -21,7 +24,7 @@ export default function SignupPage() {
     setError('');
 
     if (!name.trim() || !email.trim() || !username.trim() || !password || !confirmPassword) {
-      setError('Please fill in all fields.');
+      setError(t('auth.invalidCredentials', 'Please fill in all fields.'));
       return;
     }
 
@@ -93,16 +96,13 @@ export default function SignupPage() {
                   strokeWidth="0.6"
                   strokeLinejoin="round"
                 />
-                <line x1="2" y1="7" x2="4.5" y2="7" stroke="#fb923c" strokeWidth="1.2" strokeLinecap="round" opacity="0.7" />
-                <line x1="19.5" y1="17" x2="22" y2="17" stroke="#fb923c" strokeWidth="1.2" strokeLinecap="round" opacity="0.7" />
-                <line x1="1.5" y1="12" x2="3.5" y2="12" stroke="#fdba74" strokeWidth="0.9" strokeLinecap="round" opacity="0.5" />
               </svg>
             </div>
             <h1 className="text-4xl font-extrabold tracking-tight text-white leading-none">
-              Pro<span className="text-orange-500">Cal</span>
+              {t('common.appName', 'ProCal')}
             </h1>
-            <p className="mt-2 text-sm font-medium tracking-widest text-gray-400 uppercase">
-              Create Your Account
+            <p className="mt-2 text-sm font-medium tracking-widest text-gray-400 uppercase text-center">
+              {t('auth.signupTitle', 'Create Your Account')}
             </p>
             <div className="mt-6 w-full border-t border-gray-700/60" />
           </div>
@@ -112,23 +112,17 @@ export default function SignupPage() {
             {/* Name */}
             <div>
               <label htmlFor="name" className="block mb-1.5 text-xs font-semibold uppercase tracking-wider text-gray-400">
-                Full Name
+                {t('auth.name', 'Full Name')}
               </label>
               <div className="relative">
-                <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-gray-500">
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4" aria-hidden="true">
-                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                    <circle cx="12" cy="7" r="4" />
-                  </svg>
-                </span>
                 <input
                   id="name"
                   type="text"
                   autoFocus
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="Enter your full name"
-                  className="w-full rounded-lg border border-gray-700 bg-gray-800 pl-10 pr-4 py-3 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-shadow"
+                  placeholder={t('auth.name', 'Enter your full name')}
+                  className="w-full rounded-lg border border-gray-700 bg-gray-800 px-4 py-3 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-shadow"
                 />
               </div>
             </div>
@@ -136,15 +130,9 @@ export default function SignupPage() {
             {/* Email */}
             <div>
               <label htmlFor="email" className="block mb-1.5 text-xs font-semibold uppercase tracking-wider text-gray-400">
-                Email
+                {t('auth.email', 'Email Address')}
               </label>
               <div className="relative">
-                <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-gray-500">
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4" aria-hidden="true">
-                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
-                    <polyline points="22,6 12,13 2,6" />
-                  </svg>
-                </span>
                 <input
                   id="email"
                   type="email"
@@ -152,7 +140,7 @@ export default function SignupPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="you@example.com"
-                  className="w-full rounded-lg border border-gray-700 bg-gray-800 pl-10 pr-4 py-3 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-shadow"
+                  className="w-full rounded-lg border border-gray-700 bg-gray-800 px-4 py-3 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-shadow"
                 />
               </div>
             </div>
@@ -160,23 +148,17 @@ export default function SignupPage() {
             {/* Username */}
             <div>
               <label htmlFor="username" className="block mb-1.5 text-xs font-semibold uppercase tracking-wider text-gray-400">
-                Username
+                {t('auth.username', 'Username')}
               </label>
               <div className="relative">
-                <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-gray-500">
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4" aria-hidden="true">
-                    <circle cx="12" cy="8" r="4" />
-                    <path d="M4 20c0-4 3.582-7 8-7s8 3 8 7" />
-                  </svg>
-                </span>
                 <input
                   id="username"
                   type="text"
                   autoComplete="username"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  placeholder="Choose a username"
-                  className="w-full rounded-lg border border-gray-700 bg-gray-800 pl-10 pr-4 py-3 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-shadow"
+                  placeholder={t('auth.username', 'Choose a username')}
+                  className="w-full rounded-lg border border-gray-700 bg-gray-800 px-4 py-3 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-shadow"
                 />
               </div>
             </div>
@@ -184,42 +166,25 @@ export default function SignupPage() {
             {/* Password */}
             <div>
               <label htmlFor="password" className="block mb-1.5 text-xs font-semibold uppercase tracking-wider text-gray-400">
-                Password
+                {t('auth.password', 'Password')}
               </label>
               <div className="relative">
-                <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-gray-500">
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4" aria-hidden="true">
-                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-                    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-                  </svg>
-                </span>
                 <input
                   id="password"
                   type={showPassword ? 'text' : 'password'}
                   autoComplete="new-password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Create a password (min. 6 chars)"
-                  className="w-full rounded-lg border border-gray-700 bg-gray-800 pl-10 pr-11 py-3 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-shadow"
+                  placeholder={t('auth.password', 'Create a password')}
+                  className="w-full rounded-lg border border-gray-700 bg-gray-800 px-4 py-3 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-shadow"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword((prev) => !prev)}
-                  className="absolute inset-y-0 right-0 flex items-center pr-3.5 text-gray-400 hover:text-orange-400 transition-colors"
+                  className={isRtl ? "absolute inset-y-0 left-0 flex items-center pl-3.5 text-gray-400 hover:text-orange-400 transition-colors" : "absolute inset-y-0 right-0 flex items-center pr-3.5 text-gray-400 hover:text-orange-400 transition-colors"}
                   aria-label={showPassword ? 'Hide password' : 'Show password'}
                 >
-                  {showPassword ? (
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4" aria-hidden="true">
-                      <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" />
-                      <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" />
-                      <line x1="1" y1="1" x2="23" y2="23" />
-                    </svg>
-                  ) : (
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4" aria-hidden="true">
-                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                      <circle cx="12" cy="12" r="3" />
-                    </svg>
-                  )}
+                  <span className="text-xs text-slate-400">{showPassword ? '●●●' : '👁'}</span>
                 </button>
               </div>
             </div>
@@ -227,23 +192,17 @@ export default function SignupPage() {
             {/* Confirm Password */}
             <div>
               <label htmlFor="confirmPassword" className="block mb-1.5 text-xs font-semibold uppercase tracking-wider text-gray-400">
-                Confirm Password
+                {t('auth.password', 'Confirm Password')}
               </label>
               <div className="relative">
-                <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-gray-500">
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4" aria-hidden="true">
-                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-                    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-                  </svg>
-                </span>
                 <input
                   id="confirmPassword"
                   type={showPassword ? 'text' : 'password'}
                   autoComplete="new-password"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  placeholder="Confirm your password"
-                  className="w-full rounded-lg border border-gray-700 bg-gray-800 pl-10 pr-4 py-3 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-shadow"
+                  placeholder={t('auth.password', 'Confirm your password')}
+                  className="w-full rounded-lg border border-gray-700 bg-gray-800 px-4 py-3 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-shadow"
                 />
               </div>
             </div>
@@ -251,11 +210,6 @@ export default function SignupPage() {
             {/* Error message */}
             {error && (
               <div role="alert" className="flex items-start gap-2.5 rounded-lg border border-red-800/60 bg-red-900/20 px-4 py-3 text-sm text-red-300">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mt-0.5 w-4 h-4 flex-shrink-0 text-red-400" aria-hidden="true">
-                  <circle cx="12" cy="12" r="10" />
-                  <line x1="12" y1="8" x2="12" y2="12" />
-                  <line x1="12" y1="16" x2="12.01" y2="16" />
-                </svg>
                 <span>{error}</span>
               </div>
             )}
@@ -267,39 +221,34 @@ export default function SignupPage() {
               className="relative w-full rounded-lg bg-orange-600 hover:bg-orange-500 disabled:bg-orange-800 disabled:cursor-not-allowed text-white font-semibold py-3 px-6 text-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 focus:ring-offset-gray-900 flex items-center justify-center gap-2"
             >
               {isLoading ? (
-                <>
-                  <svg className="animate-spin w-4 h-4 text-orange-200" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" aria-hidden="true">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
-                  </svg>
-                  <span>Creating account...</span>
-                </>
+                <span>{t('common.loading', 'Creating account...')}</span>
               ) : (
-                <>
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4" aria-hidden="true">
-                    <path d="M13 2L4.5 13.5H11L10 22L19.5 10H13L13 2Z" />
-                  </svg>
-                  <span>Create Account</span>
-                </>
+                <span>{t('auth.signUpBtn', 'Create Account')}</span>
               )}
             </button>
           </form>
 
           {/* Login link */}
           <div className="mt-6 text-center text-sm text-gray-400">
-            Already have an account?{' '}
+            {t('auth.haveAccount', 'Already have an account?')}{' '}
             <Link href="/login" className="font-medium text-orange-500 hover:text-orange-400 transition-colors">
-              Sign in
+              {t('auth.signInBtn', 'Sign in')}
             </Link>
           </div>
         </div>
 
-        <p className="mt-6 text-center text-xs text-gray-600 select-none">
-          &copy; 2025&nbsp;
+        {/* ── Language Selector in Bottom Section ── */}
+        <div className="mt-6 flex justify-center">
+          <LanguageSelector variant="footer" />
+        </div>
+
+        <p className="mt-4 text-center text-xs text-gray-600 select-none">
+          &copy; 2026&nbsp;
           <span className="text-gray-500 font-medium">ProCal</span>
-          &nbsp;&mdash;&nbsp;Professional Electrical Engineering Software.
+          &nbsp;&mdash;&nbsp;{t('common.appTagline', 'Professional Electrical Engineering Software.')}
         </p>
       </div>
     </div>
   );
 }
+

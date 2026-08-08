@@ -4,6 +4,7 @@
 import { useEffect, useState, useCallback, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useProject } from '@/context/ProjectContext';
+import { useTranslation } from '@/i18n';
 import {
   Building2,
   Plus,
@@ -37,6 +38,7 @@ function CalculatorContent() {
   const searchParams = useSearchParams();
   const focusFloorId = searchParams.get('floor');
   const { selectedProjectId } = useProject();
+  const { t, isRtl } = useTranslation();
 
   const [project, setProject] = useState<Project | null>(null);
   const [loading, setLoading] = useState(true);
@@ -228,7 +230,7 @@ function CalculatorContent() {
         <div>
           <h1 className="text-2xl font-bold text-white flex items-center gap-2">
             <Calculator size={22} className="text-orange-500" />
-            Load Calculator &amp; Floor Designer
+            {t('calculator.title', 'Load Calculator & Floor Designer')}
           </h1>
           <p className="text-sm text-gray-400 mt-1">
             {project.name} — {project.voltage}V, PF {project.powerFactor}
@@ -245,7 +247,7 @@ function CalculatorContent() {
             title="Interactive Load Calculator Tour"
           >
             <HelpCircle size={15} className="text-orange-400" />
-            Page Tour
+            {t('cableSchedule.pageTour', 'Page Tour')}
           </button>
 
           {bldg.floorDesigns.some(fd => fd.items.some(i => i.type === 'APARTMENT')) && (
@@ -267,7 +269,7 @@ function CalculatorContent() {
                   animation={needsRecalculation ? 'spin' : 'none'}
                   className={`${!needsRecalculation ? 'group-hover:animate-[spin_1s_linear_infinite]' : ''}`}
                 />
-                {needsRecalculation ? 'Recalculate Needed' : 'Recalculate All Floors'}
+                {needsRecalculation ? t('calculator.recalculateNeeded', 'Recalculate Needed') : t('calculator.recalculateAllFloors', 'Recalculate All Floors')}
               </button>
               <button
                 onClick={async () => {
@@ -286,24 +288,22 @@ function CalculatorContent() {
                 className="group flex items-center gap-2 px-4 py-2 rounded-lg bg-teal-600 hover:bg-teal-500 text-white text-sm font-semibold transition-colors"
               >
                 <MotionIcon name="ArrowUpDown" size={14} animation="none" className="group-hover:animate-[pulse_1s_ease-in-out_infinite]" />
-                Rebalance All Floors
+                {t('calculator.rebalanceAll', 'Rebalance All')}
               </button>
             </div>
           )}
         </div>
       </div>
 
-      {/* Building Selector */}
+      {/* Building Tabs */}
       {project.buildings.length > 1 && (
-        <div data-tour="calc-buildings" className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
           {project.buildings.map((b) => (
             <button
               key={b.id}
-              onClick={() => { setSelectedBuilding(b.id); setExpandedFloor(null); }}
+              onClick={() => setSelectedBuilding(b.id)}
               className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-                selectedBuilding === b.id
-                  ? 'bg-orange-600 text-white'
-                  : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+                selectedBuilding === b.id ? 'bg-orange-600 text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
               }`}
             >
               {b.name}
@@ -312,29 +312,29 @@ function CalculatorContent() {
         </div>
       )}
 
-      {/* Summary Bar */}
-      <div data-tour="calc-summary" className="grid grid-cols-4 gap-3">
+      {/* Summary Stats */}
+      <div data-tour="calc-stats" className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {[
           {
-            label: 'Total Connected',
+            label: t('common.connectedLoad', 'Connected Load'),
             value: `${totalConnectedLoad.toFixed(1)} kW`,
             color: 'text-gray-200',
             helper: 'Sum of all installed loads before applying demand diversity. Used as the starting kW for the project.'
           },
           {
-            label: 'Max Demand',
+            label: t('common.maxDemand', 'Max Demand'),
             value: `${totalMaxDemand.toFixed(1)} kW`,
             color: 'text-orange-400',
             helper: 'Estimated realistic maximum load after IEC demand factors are applied. Basis for cable and breaker sizing.'
           },
           {
-            label: 'Total Current (3Φ)',
+            label: t('calculator.totalCurrent3Ph', 'Total Current (3Φ)'),
             value: `${totalCurrent3Ph.toFixed(1)} A`,
             color: 'text-blue-400',
             helper: 'Three-phase line current calculated from max demand, system voltage, and power factor. Used to size the main feeder.'
           },
           {
-            label: 'Floors',
+            label: t('calculator.floorsCount', 'Floors'),
             value: `${bldg.floorDesigns.length}`,
             color: 'text-green-400',
             helper: 'Number of floor designs for the selected building. Each floor holds apartments and service loads.'
@@ -354,7 +354,7 @@ function CalculatorContent() {
       <div data-tour="calc-building-loads" className="rounded-xl border border-gray-800 bg-gray-900/40 p-4">
         <div className="flex items-center justify-between mb-3">
           <h3 className="text-sm font-semibold text-gray-300">
-            Per-Phase Balance — {bldg.name}
+            {t('calculator.perPhaseBalance', 'Per-Phase Balance')} &mdash; {bldg.name}
           </h3>
           {buildingBalance.imbalanced && (
             <span className="text-[11px] font-semibold text-red-400 bg-red-500/10 px-2 py-0.5 rounded">
@@ -363,7 +363,7 @@ function CalculatorContent() {
           )}
           {buildingBalance.internalImbalanceNotModeled && (
             <span className="text-[11px] font-semibold text-yellow-500 bg-yellow-500/10 px-2 py-0.5 rounded inline-flex items-center gap-1">
-              <AlertTriangle size={11} /> 3φ-apt internal imbalance not modeled
+              <AlertTriangle size={11} /> {t('calculator.internalImbalanceWarning', '3φ-apt internal imbalance not modeled')}
             </span>
           )}
         </div>
@@ -372,9 +372,9 @@ function CalculatorContent() {
             { label: `L1 (${project.calculationStandard || 'IEC'})`, value: `${buildingBalance.phaseCurrent[0].toFixed(1)} A`, sub: `${buildingBalance.phaseKw[0].toFixed(1)} kW`, color: 'text-orange-400' },
             { label: 'L2', value: `${buildingBalance.phaseCurrent[1].toFixed(1)} A`, sub: `${buildingBalance.phaseKw[1].toFixed(1)} kW`, color: 'text-orange-400' },
             { label: 'L3', value: `${buildingBalance.phaseCurrent[2].toFixed(1)} A`, sub: `${buildingBalance.phaseKw[2].toFixed(1)} kW`, color: 'text-orange-400' },
-            { label: 'Neutral', value: `${buildingBalance.neutralCurrent.toFixed(1)} A`, sub: buildingBalance.neutralOversized ? 'over 2×max' : 'ok', color: 'text-yellow-400' },
-            { label: 'Unbalance', value: `${buildingBalance.unbalancePct.toFixed(1)}%`, sub: `limit ${buildingBalance.unbalanceLimitPct}%`, color: 'text-gray-300' },
-            { label: 'Total kW', value: `${buildingBalance.totalKw.toFixed(1)} kW`, sub: `max ${buildingBalance.maxPhaseCurrent.toFixed(0)} A`, color: 'text-blue-400' },
+            { label: t('calculator.neutral', 'Neutral'), value: `${buildingBalance.neutralCurrent.toFixed(1)} A`, sub: buildingBalance.neutralOversized ? t('calculator.over2xMax', 'over 2×max') : t('calculator.ok', 'ok'), color: 'text-yellow-400' },
+            { label: t('calculator.unbalance', 'Unbalance'), value: `${buildingBalance.unbalancePct.toFixed(1)}%`, sub: `${t('calculator.limit', 'limit')} ${buildingBalance.unbalanceLimitPct}%`, color: 'text-gray-300' },
+            { label: t('calculator.totalKw', 'Total kW'), value: `${buildingBalance.totalKw.toFixed(1)} kW`, sub: `max ${buildingBalance.maxPhaseCurrent.toFixed(0)} A`, color: 'text-blue-400' },
           ].map(({ label, value, sub, color }) => (
             <div key={label} className="rounded-lg border border-gray-800 bg-gray-950/30 p-3">
               <p className="text-[10px] text-gray-500 uppercase tracking-wider">{label}</p>
@@ -398,9 +398,9 @@ function CalculatorContent() {
               <ChevronRight size={14} className="text-gray-500" />
             )}
             <Wrench size={14} className="text-orange-500" />
-            <span className="text-sm text-gray-300 font-medium">Building Loads</span>
+            <span className="text-sm text-gray-300 font-medium">{t('cableSchedule.buildingLoads', 'Building Loads')}</span>
             <span className="text-xs text-gray-500">
-              {bldg.buildingLoads.length} item{bldg.buildingLoads.length !== 1 ? 's' : ''}
+              {bldg.buildingLoads.length} {t('cableSchedule.circuits', 'items')}
             </span>
             <div className="flex-1" />
             <span className="text-xs font-mono text-gray-500">
@@ -424,7 +424,7 @@ function CalculatorContent() {
                 </div>
               ))}
               <p className="text-[10px] text-gray-600 pt-1">
-                Attach building loads from the Buildings page.
+                {t('calculator.attachBuildingLoadsHint', 'Attach building loads from the Buildings page.')}
               </p>
             </div>
           )}
@@ -454,11 +454,11 @@ function CalculatorContent() {
                 <Zap size={14} className="text-gray-500" />
                 <div className="flex-1 min-w-0">
                   <span className="text-sm text-gray-300 font-medium">
-                    {fd.items.length} item{fd.items.length !== 1 ? 's' : ''}
+                    {fd.items.length} {t('cableSchedule.circuits', 'items')}
                   </span>
                 </div>
                 <span className="text-xs font-mono text-gray-500">
-                  {floorConnected.toFixed(1)} kW / {floorDemand.toFixed(1)} kW demand
+                  {floorConnected.toFixed(1)} kW / {floorDemand.toFixed(1)} kW {t('riser.demand', 'demand')}
                 </span>
                 <span className="text-[10px] font-mono text-gray-400 hidden sm:inline">
                   L1 {floorBalance.phaseCurrent[0].toFixed(0)}A · L2 {floorBalance.phaseCurrent[1].toFixed(0)}A · L3 {floorBalance.phaseCurrent[2].toFixed(0)}A
@@ -466,7 +466,7 @@ function CalculatorContent() {
                     <span className="text-yellow-500 ml-1">N {floorBalance.neutralCurrent.toFixed(0)}A</span>
                   )}
                   {floorBalance.imbalanced && (
-                    <span className="text-red-500 ml-1">Unbal {floorBalance.unbalancePct.toFixed(1)}%</span>
+                    <span className="text-red-500 ml-1">{t('calculator.unbalance', 'Unbal')} {floorBalance.unbalancePct.toFixed(1)}%</span>
                   )}
                 </span>
               </div>
@@ -477,16 +477,16 @@ function CalculatorContent() {
                     <table className="w-full engineering-table">
                       <thead>
                         <tr>
-                          <th className="text-left">Type</th>
-                          <th className="text-left">Name</th>
-                          <th className="text-center">Phase</th>
-                          <th className="text-center">Assigned</th>
-                          <th className="text-right">Load (kW)</th>
-                          <th className="text-right">Demand (kW)</th>
-                          <th className="text-right">Current (A)</th>
-                          <th className="text-center">Breaker</th>
-                          <th className="text-center">Cable</th>
-                          <th className="text-center">VDrop</th>
+                          <th className="text-start">{t('common.type', 'Type')}</th>
+                          <th className="text-start">{t('common.name', 'Name')}</th>
+                          <th className="text-center">{t('calculator.rebalance', 'Phase')}</th>
+                          <th className="text-center">{t('calculator.assigned', 'Assigned')}</th>
+                          <th className="text-end">{t('calculator.loadKw', 'Load (kW)')}</th>
+                          <th className="text-end">{t('calculator.demandKw', 'Demand (kW)')}</th>
+                          <th className="text-end">{t('cableSchedule.current', 'Current (A)')}</th>
+                          <th className="text-center">{t('common.breaker', 'Breaker')}</th>
+                          <th className="text-center">{t('common.cable', 'Cable')}</th>
+                          <th className="text-center">{t('cableSchedule.vd', 'VDrop')}</th>
                           <th className="text-center"></th>
                         </tr>
                       </thead>

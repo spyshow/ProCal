@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { useReactToPrint } from 'react-to-print';
 import { useProject } from '@/context/ProjectContext';
+import { useTranslation } from '@/i18n';
 import {
   FileText,
   FileDown,
@@ -21,6 +22,7 @@ import type { Project, ReportTab } from '@/types';
 
 export default function ReportsPage() {
   const { selectedProjectId, preferredManufacturer } = useProject();
+  const { t, isRtl } = useTranslation();
   const [project, setProject] = useState<Project | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<ReportTab>('summary');
@@ -64,17 +66,17 @@ export default function ReportsPage() {
     return (
       <div className="flex flex-col items-center justify-center h-full text-center p-8">
         <FileText size={40} className="text-gray-600 mb-3" />
-        <p className="text-gray-400 text-sm">No project data. Select a project first.</p>
+        <p className="text-gray-400 text-sm">{t('projects.selectProjectPrompt', 'No project data. Select a project first.')}</p>
       </div>
     );
   }
 
   const tabs: { key: ReportTab; label: string; icon: typeof FileText }[] = [
-    { key: 'summary', label: 'Project Summary', icon: FileText },
-    { key: 'bom', label: 'Bill of Materials', icon: Table },
-    { key: 'mdb', label: 'MDB Schedule', icon: Building2 },
-    { key: 'cable', label: 'Cable Schedule', icon: Table },
-    { key: 'vd', label: 'Voltage Drop', icon: Table },
+    { key: 'summary', label: t('reports.executiveSummary', 'Project Summary'), icon: FileText },
+    { key: 'bom', label: t('reports.billOfMaterials', 'Bill of Materials'), icon: Table },
+    { key: 'mdb', label: t('reports.loadSchedules', 'MDB Schedule'), icon: Building2 },
+    { key: 'cable', label: t('reports.cableSizingReport', 'Cable Schedule'), icon: Table },
+    { key: 'vd', label: t('cables.title', 'Voltage Drop'), icon: Table },
   ];
 
   const renderSummary = () => (
@@ -183,7 +185,7 @@ export default function ReportsPage() {
         <div>
           <h1 className="text-2xl font-bold text-white flex items-center gap-2">
             <FileText size={22} className="text-orange-500" />
-            Reports &amp; Schedules
+            {t('reports.title', 'Reports & Schedules')}
           </h1>
           <p className="text-sm text-gray-400 mt-1">{project.name}</p>
         </div>
@@ -192,7 +194,7 @@ export default function ReportsPage() {
           className="flex items-center gap-2 px-3 py-2 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-sm font-semibold"
         >
           <FileDown size={14} />
-          Export PDF
+          {t('reports.downloadPdf', 'Export PDF')}
         </button>
       </div>
 

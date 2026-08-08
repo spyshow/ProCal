@@ -1,9 +1,21 @@
+import "dotenv/config";
 import { PrismaClient } from "../src/generated/prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
+import { Pool } from "pg";
 import bcrypt from "bcryptjs";
 import { upsertBreakerFamilies, getFamilyKey } from "../src/lib/breaker-families";
 
-const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
+const connectionString = process.env.DATABASE_URL;
+const isRemoteDb =
+  connectionString?.includes("supabase.co") ||
+  connectionString?.includes("pooler.supabase.com") ||
+  connectionString?.includes("sslmode=");
+
+const pool = new Pool({
+  connectionString,
+  ssl: isRemoteDb ? { rejectUnauthorized: false } : undefined,
+});
+const adapter = new PrismaPg(pool);
 const db = new PrismaClient({ adapter });
 
 async function main() {

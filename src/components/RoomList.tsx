@@ -5,6 +5,7 @@ import { RoomInput, RoomData } from './RoomInput';
 import { ROOM_TYPES, COUNTRY_DEFAULTS } from '@/lib/country-defaults';
 import type { AcSizingRule } from '@/lib/country-defaults';
 import { Button } from '@/components/ui/button';
+import { useTranslation } from '@/i18n';
 
 interface RoomListProps {
   rooms: RoomData[];
@@ -18,6 +19,7 @@ function generateId() {
 }
 
 export function RoomList({ rooms, onChange, country = 'Syria', acRules }: RoomListProps) {
+  const { t } = useTranslation();
   const defaults = COUNTRY_DEFAULTS[country];
   const rules = acRules || defaults?.acSizingRules || [];
 
@@ -64,7 +66,7 @@ export function RoomList({ rooms, onChange, country = 'Syria', acRules }: RoomLi
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="text-xs font-bold text-slate-300 uppercase tracking-widest">
-          Apartment Layout ({rooms.length} Rooms)
+          {t('calculator.apartmentLayout', 'Apartment Layout')} ({rooms.length} {t('calculator.roomsCount', 'Rooms')})
         </h3>
         <Button
           type="button"
@@ -74,7 +76,7 @@ export function RoomList({ rooms, onChange, country = 'Syria', acRules }: RoomLi
           className="gap-1.5"
         >
           <Plus size={14} className="text-orange-400" />
-          Add Room
+          {t('calculator.addRoom', 'Add Room')}
         </Button>
       </div>
 
@@ -93,19 +95,19 @@ export function RoomList({ rooms, onChange, country = 'Syria', acRules }: RoomLi
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 p-4 rounded-xl bg-slate-950/80 border border-slate-800 backdrop-blur-md shadow-lg">
         <div>
-          <span className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">Total Area</span>
+          <span className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">{t('calculator.totalArea', 'Total Area')}</span>
           <p className="text-base font-mono font-bold text-slate-200 mt-0.5">{totalArea.toFixed(1)} m²</p>
         </div>
         <div>
-          <span className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">Total Load</span>
+          <span className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">{t('common.totalLoad', 'Total Load')}</span>
           <p className="text-base font-mono font-bold text-orange-400 mt-0.5">{totalLoad.toFixed(0)} VA</p>
         </div>
         <div>
-          <span className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">AC Load</span>
+          <span className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">{t('calculator.acLoad', 'AC Load')}</span>
           <p className="text-base font-mono font-bold text-sky-400 mt-0.5">{totalAcLoad.toFixed(0)} VA</p>
         </div>
         <div>
-          <span className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">Connected Power</span>
+          <span className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">{t('calculator.connectedPower', 'Connected Power')}</span>
           <p className="text-base font-mono font-bold text-emerald-400 mt-0.5">{(totalLoad / 1000).toFixed(2)} kW</p>
         </div>
       </div>

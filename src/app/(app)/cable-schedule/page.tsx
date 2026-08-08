@@ -9,6 +9,7 @@ import { cablePatchUrl, upsizeBody, fieldEditBody } from '@/lib/sld/cablePersist
 import { isThreePhaseForItem } from '@/lib/calculations/feeders';
 import { phaseBalance } from '@/lib/calculations/phaseBalance';
 import MethodSelector from '@/components/MethodSelector';
+import { useTranslation } from '@/i18n';
 import { Cable, RefreshCw, AlertTriangle, Check, Settings, Save, HelpCircle } from 'lucide-react';
 import type { Project } from '@/types';
 
@@ -38,6 +39,7 @@ interface CableEntry {
 
 export default function CableSchedulePage() {
   const { selectedProjectId } = useProject();
+  const { t, isRtl } = useTranslation();
   const pathname = usePathname();
   const router = useRouter();
   const [project, setProject] = useState<Project | null>(null);
@@ -517,10 +519,10 @@ export default function CableSchedulePage() {
             <AlertTriangle size={20} className="text-yellow-400" />
             <div>
               <p className="text-sm font-semibold text-yellow-300">
-                {cablesNeedingUpsize.length} cable{cablesNeedingUpsize.length > 1 ? 's' : ''} need{cablesNeedingUpsize.length === 1 ? 's' : ''} upsize
+                {cablesNeedingUpsize.length} {t('cableSchedule.warningNeedUpsize', 'cables need upsize')}
               </p>
               <p className="text-xs text-yellow-400/70">
-                Click &quot;Apply&quot; to save the new cable sizes to the database
+                {t('cableSchedule.clickApply', 'Click "Apply" to save the new cable sizes to the database')}
               </p>
             </div>
           </div>
@@ -530,19 +532,19 @@ export default function CableSchedulePage() {
             className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-yellow-500 hover:bg-yellow-400 text-gray-900 text-sm font-semibold disabled:opacity-50"
           >
             <Save size={14} />
-            {saving ? 'Saving…' : 'Apply'}
+            {saving ? t('common.saving', 'Saving…') : t('cableSchedule.apply', 'Apply')}
           </button>
         </div>
       )}
 
       {/* Header */}
-      <div data-tour="cable-header" className="flex items-center justify-between">
+      <div data-tour="cable-header" className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-white flex items-center gap-2">
             <Cable size={22} className="text-orange-500" />
-            Cable Schedule
+            {t('cableSchedule.title', 'Cable Schedule')}
           </h1>
-          <p className="text-sm text-gray-400 mt-1">{project.name} — Cable lengths &amp; voltage drop calculator</p>
+          <p className="text-sm text-gray-400 mt-1">{project.name} &mdash; {t('cableSchedule.subtitle', 'Cable lengths & voltage drop calculator')}</p>
         </div>
         <div className="flex items-center gap-2">
           {/* Page Tour Button */}
@@ -554,17 +556,17 @@ export default function CableSchedulePage() {
             title="Interactive Cable Schedule Tour"
           >
             <HelpCircle size={15} className="text-orange-400" />
-            Page Tour
+            {t('cableSchedule.pageTour', 'Page Tour')}
           </button>
           <button onClick={() => setShowSettings(!showSettings)}
             className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-semibold ${showSettings ? 'bg-orange-600 text-white' : 'bg-gray-800 text-gray-400 hover:text-white'}`}>
             <Settings size={14} />
-            Default Settings
+            {t('cableSchedule.defaultSettings', 'Default Settings')}
           </button>
           <button onClick={recalculateAll}
             className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold">
             <RefreshCw size={14} />
-            Recalculate All
+            {t('cableSchedule.recalculateAll', 'Recalculate All')}
           </button>
         </div>
       </div>
@@ -572,10 +574,10 @@ export default function CableSchedulePage() {
       {/* Settings Panel */}
       {showSettings && (
         <div data-tour="cable-derating" className="rounded-xl border border-orange-500/30 bg-gray-900/60 p-4 space-y-4">
-          <h3 className="text-sm font-bold text-orange-400">Default Settings</h3>
+          <h3 className="text-sm font-bold text-orange-400">{t('cableSchedule.defaultSettings', 'Default Settings')}</h3>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs text-gray-500 mb-1">Default Installation Method</label>
+              <label className="block text-xs text-gray-500 mb-1">{t('cables.installationMethod', 'Default Installation Method')}</label>
               <MethodSelector
                 value={defaultMethod}
                 onChange={(m) => {
@@ -585,7 +587,7 @@ export default function CableSchedulePage() {
               />
             </div>
             <div>
-              <label className="block text-xs text-gray-500 mb-1">Default Insulation</label>
+              <label className="block text-xs text-gray-500 mb-1">{t('cables.insulation', 'Default Insulation')}</label>
               <select
                 value={defaultInsulation}
                 onChange={(e) => {
@@ -611,10 +613,10 @@ export default function CableSchedulePage() {
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                 </svg>
-                Saving…
+                {t('common.saving', 'Saving…')}
               </>
             ) : (
-              'Apply to All Cables'
+              t('cableSchedule.apply', 'Apply to All Cables')
             )}
           </button>
         </div>
@@ -622,10 +624,10 @@ export default function CableSchedulePage() {
 
       {/* Building Selector */}
       {project.buildings.length > 1 && (
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
           <button onClick={() => setSelectedBuilding(null)}
             className={`px-3 py-1.5 rounded-lg text-sm font-medium ${selectedBuilding === null ? 'bg-orange-600 text-white' : 'bg-gray-800 text-gray-400'}`}>
-            All Buildings
+            {t('cableSchedule.allBuildings', 'All Buildings')}
           </button>
           {project.buildings.map((b) => (
             <button key={b.id} onClick={() => setSelectedBuilding(b.id)}
@@ -637,21 +639,21 @@ export default function CableSchedulePage() {
       )}
 
       {/* Summary Stats */}
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         <div className="bg-gray-900/60 border border-gray-800 rounded-xl p-4">
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-gray-500 mb-1">Total Cables</p>
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-gray-500 mb-1">{t('cableSchedule.totalCables', 'TOTAL CABLES')}</p>
           <p className="text-2xl font-bold text-white">{cables.length}</p>
         </div>
         <div className="bg-gray-900/60 border border-gray-800 rounded-xl p-4">
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-gray-500 mb-1">Total Length</p>
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-gray-500 mb-1">{t('cableSchedule.totalLength', 'TOTAL LENGTH')}</p>
           <p className="text-2xl font-bold text-white">{cables.reduce((sum, c) => sum + c.length, 0).toFixed(0)}m</p>
         </div>
         <div className="bg-gray-900/60 border border-gray-800 rounded-xl p-4">
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-gray-500 mb-1">Need Upsize</p>
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-gray-500 mb-1">{t('cableSchedule.needUpsize', 'NEED UPSIZE')}</p>
           <p className="text-2xl font-bold text-yellow-400">{cables.filter(c => c.changed).length}</p>
         </div>
         <div className="bg-gray-900/60 border border-gray-800 rounded-xl p-4">
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-gray-500 mb-1">Compliant</p>
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-gray-500 mb-1">{t('cableSchedule.compliant', 'COMPLIANT')}</p>
           <p className="text-2xl font-bold text-green-400">
             {cables.filter(c => c.newVD !== null && !c.changed).length}/{cables.filter(c => c.newVD !== null).length || '—'}
           </p>
@@ -662,11 +664,12 @@ export default function CableSchedulePage() {
       <div data-tour="cable-table" className="space-y-4">
         {floorKeys.map(key => {
           const groupCables = cablesByFloor[key];
+          const displayKey = key === 'Building Loads' ? t('cableSchedule.buildingLoads', 'Building Loads') : key;
           return (
           <div key={key} className="rounded-xl border border-gray-800 bg-gray-900/40 p-4 space-y-3">
             <div className="flex items-center gap-2 mb-2">
-              <span className="text-sm font-bold text-orange-400">{key}</span>
-              <span className="text-xs text-gray-500">({groupCables.length} circuits)</span>
+              <span className="text-sm font-bold text-orange-400">{displayKey}</span>
+              <span className="text-xs text-gray-500">({groupCables.length} {t('cableSchedule.circuits', 'circuits')})</span>
             </div>
 
             <div className="relative">
@@ -674,22 +677,22 @@ export default function CableSchedulePage() {
               <table className="w-full engineering-table text-xs">
                 <thead>
                   <tr>
-                    {!selectedBuilding && <th className="text-left">Building</th>}
-                    <th className="text-left">Load</th>
-                    <th className="text-left">Cable</th>
-                    <th className="text-right">L1 (A)</th>
-                    <th className="text-right">L2 (A)</th>
-                    <th className="text-right">L3 (A)</th>
-                    <th className="text-right">N (A)</th>
-                    <th className="text-right">Current (A)</th>
-                    <th className="text-center">Size (mm²)</th>
-                    <th className="text-center">Method</th>
-                    <th className="text-center">Insulation</th>
-                    <th className="text-center">Ampacity (A)</th>
-                    <th className="text-right" style={{ width: '100px' }}>Length (m)</th>
-                    <th className="text-center">New Cable</th>
-                    <th className="text-center">VD (%)</th>
-                    <th className="text-center">Status</th>
+                    {!selectedBuilding && <th className="text-start">{t('calculator.building', 'Building')}</th>}
+                    <th className="text-start">{t('cableSchedule.load', 'LOAD')}</th>
+                    <th className="text-start">{t('cableSchedule.cable', 'CABLE')}</th>
+                    <th className="text-end">{t('cableSchedule.l1', 'L1 (A)')}</th>
+                    <th className="text-end">{t('cableSchedule.l2', 'L2 (A)')}</th>
+                    <th className="text-end">{t('cableSchedule.l3', 'L3 (A)')}</th>
+                    <th className="text-end">{t('cableSchedule.neutral', 'N (A)')}</th>
+                    <th className="text-end">{t('cableSchedule.current', 'CURRENT (A)')}</th>
+                    <th className="text-center">{t('cableSchedule.size', 'SIZE (MM²)')}</th>
+                    <th className="text-center">{t('cableSchedule.method', 'METHOD')}</th>
+                    <th className="text-center">{t('cableSchedule.insulation', 'INSULATION')}</th>
+                    <th className="text-center">{t('cableSchedule.ampacity', 'AMPACITY (A)')}</th>
+                    <th className="text-end" style={{ width: '100px' }}>{t('cableSchedule.length', 'LENGTH (M)')}</th>
+                    <th className="text-center">{t('cableSchedule.newCable', 'NEW CABLE')}</th>
+                    <th className="text-center">{t('cableSchedule.vd', 'VD (%)')}</th>
+                    <th className="text-center">{t('cableSchedule.status', 'STATUS')}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -698,11 +701,11 @@ export default function CableSchedulePage() {
                       {!selectedBuilding && <td className="text-gray-400 font-mono text-xs">{c.building}</td>}
                       <td className="text-gray-200 font-mono font-semibold">{c.name}</td>
                       <td className="text-gray-400 font-mono text-xs">{c.cableName}</td>
-                      <td className="text-right font-mono text-orange-400">{c.phaseCurrent[0].toFixed(1)}</td>
-                      <td className="text-right font-mono text-orange-400">{c.phaseCurrent[1].toFixed(1)}</td>
-                      <td className="text-right font-mono text-orange-400">{c.phaseCurrent[2].toFixed(1)}</td>
-                      <td className="text-right font-mono text-yellow-400">{c.neutralCurrent.toFixed(1)}</td>
-                      <td className="text-right font-mono">{c.current.toFixed(1)}</td>
+                      <td className="text-end font-mono text-orange-400">{c.phaseCurrent[0].toFixed(1)}</td>
+                      <td className="text-end font-mono text-orange-400">{c.phaseCurrent[1].toFixed(1)}</td>
+                      <td className="text-end font-mono text-orange-400">{c.phaseCurrent[2].toFixed(1)}</td>
+                      <td className="text-end font-mono text-yellow-400">{c.neutralCurrent.toFixed(1)}</td>
+                      <td className="text-end font-mono">{c.current.toFixed(1)}</td>
                       <td className="text-center font-mono text-green-400">{c.cableSize} mm²</td>
                       <td className="text-center">
                         <MethodSelector
@@ -721,12 +724,12 @@ export default function CableSchedulePage() {
                         </select>
                       </td>
                       <td className="text-center font-mono text-blue-400">{c.ampacity}A</td>
-                      <td className="text-right">
+                      <td className="text-end">
                         <input
                           type="number"
                           value={c.length}
                           onChange={(e) => updateCableField(c.id, 'length', parseFloat(e.target.value) || (10 + (c.floor - 1) * 5))}
-                          className="dense-input w-20 rounded text-right text-xs"
+                          className="dense-input w-20 rounded text-end text-xs"
                           min="1"
                         />
                       </td>
@@ -739,11 +742,11 @@ export default function CableSchedulePage() {
                       <td className="text-center">
                         {c.changed ? (
                           <span className="inline-flex items-center gap-1 text-yellow-400 font-semibold">
-                            <AlertTriangle size={12} /> UP
+                            <AlertTriangle size={12} /> {t('cableSchedule.upsize', 'UP')}
                           </span>
                         ) : c.newVD !== null ? (
                           <span className="inline-flex items-center gap-1 text-green-400">
-                            <Check size={12} /> OK
+                            <Check size={12} /> {t('cableSchedule.ok', 'OK')}
                           </span>
                         ) : (
                           <span className="text-gray-600">—</span>
@@ -762,10 +765,10 @@ export default function CableSchedulePage() {
 
       {/* Legend */}
       <div className="text-[10px] text-gray-600 space-y-1">
-        <p>Edit cable lengths, method, and insulation — values save automatically. Click &quot;Recalculate All&quot; to refresh.</p>
-        <p><span className="text-blue-400">Method:</span> B1/B2 = in conduit, C = clipped directly, E = spaced, F = on tray, G = on ladder</p>
-        <p><span className="text-blue-400">Insulation:</span> XLPE rated 90°C, PVC rated 70°C. XLPE allows higher ampacity.</p>
-        <p>IEC 60364-5-52 limits: 3% lighting, 5% power. <span className="text-yellow-400">UP</span> = cable upsized to meet VD limit.</p>
+        <p>{t('cableSchedule.legendTip', 'Edit cable lengths, method, and insulation — values save automatically. Click "Recalculate All" to refresh.')}</p>
+        <p>{t('cableSchedule.legendMethod', 'Method: B1/B2 = in conduit, C = clipped directly, E = spaced, F = on tray, G = on ladder')}</p>
+        <p>{t('cableSchedule.legendInsulation', 'Insulation: XLPE rated 90°C, PVC rated 70°C. XLPE allows higher ampacity.')}</p>
+        <p>{t('cableSchedule.legendLimits', 'IEC 60364-5-52 limits: 3% lighting, 5% power. UP = cable upsized to meet VD limit.')}</p>
       </div>
 
       {/* Unsaved Changes Dialog */}
@@ -773,30 +776,30 @@ export default function CableSchedulePage() {
         <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/60 backdrop-blur-sm">
           <div className="bg-gray-900 border border-gray-700 rounded-xl shadow-2xl p-6 w-96 space-y-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-yellow-500/20 flex items-center justify-center">
+              <div className="w-10 h-10 rounded-full bg-yellow-500/20 flex items-center justify-center flex-shrink-0">
                 <AlertTriangle size={20} className="text-yellow-400" />
               </div>
               <div>
-                <h3 className="text-lg font-bold text-white">Unsaved Changes</h3>
-                <p className="text-sm text-gray-400">You have cable upsizes that haven&apos;t been applied.</p>
+                <h3 className="text-lg font-bold text-white">{t('cableSchedule.unsavedChanges', 'Unsaved Changes')}</h3>
+                <p className="text-sm text-gray-400">{t('cableSchedule.unsavedUpsizesDesc', "You have cable upsizes that haven't been applied.")}</p>
               </div>
             </div>
             <p className="text-sm text-gray-300">
-              Do you want to save the new cable sizes before leaving?
+              {t('cableSchedule.saveBeforeLeavingPrompt', 'Do you want to save the new cable sizes before leaving?')}
             </p>
             <div className="flex gap-2 justify-end">
               <button
                 onClick={handleDiscard}
                 className="px-4 py-2 rounded-lg bg-gray-700 hover:bg-gray-600 text-white text-sm font-medium"
               >
-                Discard
+                {t('common.discard', 'Discard')}
               </button>
               <button
                 onClick={handleSaveAndNavigate}
                 disabled={saving}
                 className="px-4 py-2 rounded-lg bg-yellow-500 hover:bg-yellow-400 text-gray-900 text-sm font-semibold disabled:opacity-50"
               >
-                {saving ? 'Saving…' : 'Save & Leave'}
+                {saving ? t('common.saving', 'Saving…') : t('cableSchedule.saveAndLeave', 'Save & Leave')}
               </button>
             </div>
           </div>

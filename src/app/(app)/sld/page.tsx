@@ -3,6 +3,7 @@
 
 import { useEffect, useState, useCallback, useRef, useMemo } from 'react';
 import { useProject } from '@/context/ProjectContext';
+import { useTranslation } from '@/i18n';
 import { SchematexDiagram } from 'schematex/react';
 import { generateSLDPages, generateSLD, type SLDPage as SLDPageType } from '@/lib/sld/generator';
 import {
@@ -61,6 +62,7 @@ export interface ComponentProperty {
 
 export default function SLDPage() {
   const { selectedProjectId } = useProject();
+  const { t, isRtl } = useTranslation();
   const [project, setProject] = useState<Project | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedBuildingId, setSelectedBuildingId] = useState<string | null>(null);
@@ -707,13 +709,13 @@ export default function SLDPage() {
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-sm font-bold text-white tracking-tight">SLD Pro Workstation</span>
+              <span className="text-sm font-bold text-white tracking-tight">{t('sld.title', 'Single Line Diagram')}</span>
               <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-orange-500/20 text-orange-400 border border-orange-500/30">
                 V4.2 Dynamic
               </span>
               <span className="text-slate-600">|</span>
               <span className="text-xs text-slate-300 font-medium truncate max-w-[200px]">
-                Project: {project.name}
+                {project.name}
               </span>
             </div>
           </div>
@@ -729,7 +731,7 @@ export default function SLDPage() {
                 : 'text-slate-400 hover:text-slate-200'
             }`}
           >
-            Analyze
+            {t('sld.modeAnalyze', 'Analyze')}
           </button>
           <button
             onClick={() => setActiveMode('simulate')}
@@ -740,7 +742,7 @@ export default function SLDPage() {
             }`}
           >
             <Play className="w-3 h-3 text-orange-400 fill-orange-400" />
-            Simulate Engine
+            {t('sld.modeSimulate', 'Simulate Engine')}
           </button>
           <button
             onClick={() => setActiveMode('library')}
@@ -751,7 +753,7 @@ export default function SLDPage() {
             }`}
           >
             <BookOpen className="w-3 h-3 text-slate-400" />
-            Library
+            {t('sld.modeLibrary', 'Library')}
           </button>
         </div>
 
@@ -766,7 +768,7 @@ export default function SLDPage() {
             title="Interactive SLD Workstation Tour"
           >
             <HelpCircle className="w-3.5 h-3.5 text-orange-400" />
-            Page Tour
+            {t('cableSchedule.pageTour', 'Page Tour')}
           </button>
 
           {/* Zoom Toolbar */}
@@ -778,7 +780,7 @@ export default function SLDPage() {
             >
               <ZoomOut size={14} />
             </button>
-            <span className="text-[11px] font-mono text-slate-400 w-10 text-center">{zoom}%</span>
+            <span className="text-[11px] font-mono text-slate-400 w-10 text-center" dir="ltr">{zoom}%</span>
             <button
               onClick={() => setZoom((z) => Math.min(200, z + 10))}
               className="p-1 rounded text-slate-400 hover:text-white hover:bg-slate-800"
@@ -803,7 +805,7 @@ export default function SLDPage() {
             title="Export PNG Diagram"
           >
             <FileImage size={14} className="text-emerald-400" />
-            <span className="hidden sm:inline">Export PNG</span>
+            <span className="hidden sm:inline">{t('sld.exportPng', 'Export PNG')}</span>
           </button>
 
           <button
@@ -812,7 +814,7 @@ export default function SLDPage() {
             title="Export Current Page to PDF/Print"
           >
             <Download size={14} className="text-sky-400" />
-            <span className="hidden sm:inline">Print Page</span>
+            <span className="hidden sm:inline">{t('sld.printPage', 'Print Page')}</span>
           </button>
 
           <button
@@ -821,7 +823,7 @@ export default function SLDPage() {
             title="Print Complete Project Package (Executive Summary + All Single Line Diagrams)"
           >
             <Printer size={14} className="text-orange-400" />
-            <span className="hidden sm:inline">Print All (Full Package)</span>
+            <span className="hidden sm:inline">{t('sld.printAll', 'Print All (Full Package)')}</span>
           </button>
         </div>
       </header>
@@ -870,10 +872,10 @@ export default function SLDPage() {
               <div className="p-3 border-b border-slate-800/80 flex items-center justify-between">
                 <div className="flex items-center gap-2 text-xs font-semibold text-slate-300">
                   <FolderTree size={14} className="text-orange-400" />
-                  <span>Project Explorer Tree</span>
+                  <span>{t('sld.explorerTree', 'Project Explorer Tree')}</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-[10px] font-mono text-slate-500">{dynamicTree.length} Nodes</span>
+                  <span className="text-[10px] font-mono text-slate-500">{dynamicTree.length} {t('sld.nodes', 'Nodes')}</span>
                   <button
                     onClick={() => setIsSidebarCollapsed(true)}
                     className="p-1 rounded text-slate-400 hover:text-white hover:bg-slate-900 transition-colors"
@@ -887,13 +889,13 @@ export default function SLDPage() {
               {/* Search Bar */}
               <div className="p-2.5 border-b border-slate-800/60">
                 <div className="relative">
-                  <Search className="w-3.5 h-3.5 absolute left-2.5 top-2.5 text-slate-500" />
+                  <Search className="w-3.5 h-3.5 absolute start-2.5 top-2.5 text-slate-500" />
                   <input
                     type="text"
-                    placeholder="Search circuits or panels…"
+                    placeholder={t('sld.searchPlaceholder', 'Search circuits or panels…')}
                     value={explorerSearch}
                     onChange={(e) => setExplorerSearch(e.target.value)}
-                    className="w-full bg-slate-900 border border-slate-800 rounded-lg pl-8 pr-3 py-1 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-orange-500/50"
+                    className="w-full bg-slate-900 border border-slate-800 rounded-lg ps-8 pe-3 py-1 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-orange-500/50"
                   />
                 </div>
               </div>
@@ -1127,9 +1129,9 @@ export default function SLDPage() {
               {activeMode === 'simulate' && <Sliders size={14} className="text-orange-400" />}
               {activeMode === 'library' && <BookOpen size={14} className="text-orange-400" />}
               <span>
-                {activeMode === 'analyze' && 'System Analytics'}
-                {activeMode === 'simulate' && 'Properties Inspector'}
-                {activeMode === 'library' && 'Symbol Library'}
+                {activeMode === 'analyze' && t('sld.modeAnalyze', 'System Analytics')}
+                {activeMode === 'simulate' && t('sld.propertiesInspector', 'Properties Inspector')}
+                {activeMode === 'library' && t('sld.symbolLibrary', 'Symbol Library')}
               </span>
             </div>
             <button
@@ -1146,9 +1148,9 @@ export default function SLDPage() {
             <div className="p-4 space-y-4 flex-1 overflow-y-auto no-scrollbar text-xs">
               <div className="p-3 rounded-xl bg-orange-500/10 border border-orange-500/30 space-y-1">
                 <span className="text-[10px] font-mono uppercase tracking-wider text-orange-400 block font-semibold">
-                  IEC 60364 Diagnostic Report
+                  {t('sld.diagReport', 'IEC 60364 Diagnostic Report')}
                 </span>
-                <h4 className="text-sm font-extrabold text-white">System Compliance: PASS</h4>
+                <h4 className="text-sm font-extrabold text-white">{t('sld.systemPass', 'System Compliance: PASS')}</h4>
                 <p className="text-xs text-slate-300">
                   Calculated voltage drop and short circuit values are within allowable limits.
                 </p>
@@ -1160,27 +1162,27 @@ export default function SLDPage() {
                 </span>
 
                 <div className="p-2.5 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-between">
-                  <span className="text-slate-300">Max Lighting VD</span>
+                  <span className="text-slate-300">{t('sld.maxLightingVd', 'Max Lighting VD')}</span>
                   <span className="font-mono font-bold text-emerald-400">1.8% (Limit ≤ 3%)</span>
                 </div>
 
                 <div className="p-2.5 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-between">
-                  <span className="text-slate-300">Max Power VD</span>
+                  <span className="text-slate-300">{t('sld.maxPowerVd', 'Max Power VD')}</span>
                   <span className="font-mono font-bold text-emerald-400">3.2% (Limit ≤ 5%)</span>
                 </div>
 
                 <div className="p-2.5 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-between">
-                  <span className="text-slate-300">Short Circuit Rating</span>
+                  <span className="text-slate-300">{t('sld.shortCircuitRating', 'Short Circuit Rating')}</span>
                   <span className="font-mono font-bold text-amber-400">15.4 kA</span>
                 </div>
 
                 <div className="p-2.5 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-between">
-                  <span className="text-slate-300">System Diversity</span>
+                  <span className="text-slate-300">{t('sld.systemDiversity', 'System Diversity')}</span>
                   <span className="font-mono font-bold text-sky-400">0.75</span>
                 </div>
 
                 <div className="p-2.5 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-between">
-                  <span className="text-slate-300">Phase Balance Score</span>
+                  <span className="text-slate-300">{t('sld.phaseBalanceScore', 'Phase Balance Score')}</span>
                   <span className="font-mono font-bold text-emerald-400">98.4%</span>
                 </div>
               </div>
@@ -1208,7 +1210,7 @@ export default function SLDPage() {
                         activeStatus === 'Closed' ? 'bg-emerald-400' : 'bg-rose-400'
                       }`}
                     />
-                    {activeStatus === 'Closed' ? 'Active (Closed)' : activeStatus}
+                    {activeStatus === 'Closed' ? t('sld.activeClosed', 'Active (Closed)') : activeStatus === 'Open' ? t('sld.open', 'Open') : t('sld.tripped', 'Tripped')}
                   </span>
                 </div>
                 <h4 className="text-sm font-extrabold text-white">{selectedComponent.name}</h4>
@@ -1218,7 +1220,7 @@ export default function SLDPage() {
               {/* Properties Inputs & Status Simulation Selector */}
               <div className="space-y-3 pt-1">
                 <div>
-                  <label className="block text-slate-400 text-[11px] mb-1">Protection Rating</label>
+                  <label className="block text-slate-400 text-[11px] mb-1">{t('sld.protectionRating', 'Protection Rating')}</label>
                   <input
                     type="text"
                     value={selectedComponent.rating}
@@ -1230,7 +1232,7 @@ export default function SLDPage() {
                 {/* Cable Conductor Schedule */}
                 <div>
                   <label className="block text-slate-400 text-[11px] mb-1 flex items-center justify-between">
-                    <span>Cable Conductor Schedule</span>
+                    <span>{t('sld.cableConductorSchedule', 'Cable Conductor Schedule')}</span>
                     <span className="text-[10px] text-amber-400/80 font-mono">IEC 60228</span>
                   </label>
                   <input
@@ -1243,7 +1245,7 @@ export default function SLDPage() {
 
                 {/* Status Simulation Switch */}
                 <div>
-                  <label className="block text-slate-400 text-[11px] mb-1">Simulation Switch</label>
+                  <label className="block text-slate-400 text-[11px] mb-1">{t('sld.simulationSwitch', 'Simulation Switch')}</label>
                   <select
                     value={activeStatus}
                     onChange={(e) =>
@@ -1251,9 +1253,9 @@ export default function SLDPage() {
                     }
                     className="w-full bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-orange-500/50 cursor-pointer"
                   >
-                    <option value="Closed">Closed (Normal Power Flow)</option>
-                    <option value="Open">Open (Manual Disconnect)</option>
-                    <option value="Tripped">Tripped (Simulate Fault)</option>
+                    <option value="Closed">{t('sld.closedNormal', 'Closed (Normal Power Flow)')}</option>
+                    <option value="Open">{t('sld.openManual', 'Open (Manual Disconnect)')}</option>
+                    <option value="Tripped">{t('sld.trippedFault', 'Tripped (Simulate Fault)')}</option>
                   </select>
                 </div>
               </div>
@@ -1261,17 +1263,17 @@ export default function SLDPage() {
               {/* Live Measurements Card */}
               <div className="p-3 rounded-xl bg-slate-900/60 border border-slate-800/80 space-y-2">
                 <span className="text-[10px] font-mono uppercase tracking-wider text-slate-400">
-                  Live Project Calculations
+                  {t('sld.liveCalculations', 'LIVE PROJECT CALCULATIONS')}
                 </span>
                 <div className="grid grid-cols-2 gap-2 text-xs">
                   <div className="bg-slate-950 p-2 rounded-lg border border-slate-800">
-                    <span className="text-[10px] text-slate-500 block">Current Load</span>
+                    <span className="text-[10px] text-slate-500 block">{t('sld.currentLoad', 'Current Load')}</span>
                     <span className="font-mono font-bold text-orange-400">
                       {selectedComponent.current}
                     </span>
                   </div>
                   <div className="bg-slate-950 p-2 rounded-lg border border-slate-800">
-                    <span className="text-[10px] text-slate-500 block">Max Demand</span>
+                    <span className="text-[10px] text-slate-500 block">{t('common.maxDemand', 'Max Demand')}</span>
                     <span className="font-mono font-bold text-amber-400">
                       {selectedComponent.power}
                     </span>
@@ -1285,7 +1287,7 @@ export default function SLDPage() {
                 <div className="space-y-1.5">
                   <span className="text-[10px] font-mono uppercase tracking-wider text-sky-400 flex items-center gap-1 font-semibold">
                     <ArrowUpRight className="w-3.5 h-3.5 text-sky-400" />
-                    <span>Upstream Supply Source</span>
+                    <span>{t('sld.upstreamSupplySource', 'UPSTREAM SUPPLY SOURCE')}</span>
                   </span>
                   {selectedComponent.upstream && selectedComponent.upstream.length > 0 ? (
                     selectedComponent.upstream.map((conn, idx) => (
@@ -1299,7 +1301,7 @@ export default function SLDPage() {
                     ))
                   ) : (
                     <div className="p-2 rounded-lg bg-slate-900 border border-slate-800 text-[11px] text-slate-500 italic">
-                      Direct High-Voltage Grid Supply
+                      {t('sld.directGridSupply', 'Direct High-Voltage Grid Supply')}
                     </div>
                   )}
                 </div>
@@ -1308,7 +1310,7 @@ export default function SLDPage() {
                 <div className="space-y-1.5">
                   <span className="text-[10px] font-mono uppercase tracking-wider text-emerald-400 flex items-center gap-1 font-semibold">
                     <ArrowDownRight className="w-3.5 h-3.5 text-emerald-400" />
-                    <span>Downstream Distribution ({selectedComponent.downstream?.length || selectedComponent.connections.length || 0})</span>
+                    <span>{t('sld.downstreamDistribution', 'DOWNSTREAM DISTRIBUTION')} ({selectedComponent.downstream?.length || selectedComponent.connections.length || 0})</span>
                   </span>
                   {(selectedComponent.downstream && selectedComponent.downstream.length > 0) || selectedComponent.connections.length > 0 ? (
                     <div className="space-y-1 max-h-40 overflow-y-auto pr-0.5 no-scrollbar">
@@ -1324,7 +1326,7 @@ export default function SLDPage() {
                     </div>
                   ) : (
                     <div className="p-2 rounded-lg bg-slate-900 border border-slate-800 text-[11px] text-slate-500 italic">
-                      Final Load Outlets / Equipment
+                      {t('sld.finalOutlets', 'Final Load Outlets / Equipment')}
                     </div>
                   )}
                 </div>

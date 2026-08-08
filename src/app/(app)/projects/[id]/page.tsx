@@ -4,6 +4,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useProject } from '@/context/ProjectContext';
+import { useTranslation } from '@/i18n';
 import {
   Building2,
   Plus,
@@ -29,7 +30,6 @@ interface FloorDesign {
 interface BuildingLoad {
   id: string;
   buildingId: string;
-  loadLibraryItemId: string | null;
   loadLibraryItem: {
     id: string;
     name: string;
@@ -87,6 +87,7 @@ export default function ProjectDetailPage() {
   const router = useRouter();
   const projectId = params.id as string;
   const { selectProject, refreshProject } = useProject();
+  const { t, isRtl } = useTranslation();
 
   const [project, setProject] = useState<Project | null>(null);
   const [loading, setLoading] = useState(true);

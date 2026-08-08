@@ -7,6 +7,7 @@ import type { AcSizingRule } from '@/lib/country-defaults';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { useTranslation } from '@/i18n';
 
 export interface RoomData {
   id: string;
@@ -27,6 +28,8 @@ interface RoomInputProps {
 }
 
 export function RoomInput({ room, acRules, onChange, onRemove, canRemove }: RoomInputProps) {
+  const { t } = useTranslation();
+
   const handleTypeChange = (type: string) => {
     onChange(room.id, { type });
   };
@@ -50,7 +53,7 @@ export function RoomInput({ room, acRules, onChange, onRemove, canRemove }: Room
     <div className="grid grid-cols-12 gap-2 items-end p-3 rounded-lg border border-slate-800 bg-slate-950/70 backdrop-blur-md hover:border-slate-700 transition-all">
       {/* Room Type */}
       <div className="col-span-2">
-        <label className="block text-[10px] font-semibold text-slate-400 mb-1 uppercase tracking-wider">Type</label>
+        <label className="block text-[10px] font-semibold text-slate-400 mb-1 uppercase tracking-wider">{t('common.type', 'Type')}</label>
         <select
           value={room.type}
           onChange={(e) => handleTypeChange(e.target.value)}
@@ -67,19 +70,19 @@ export function RoomInput({ room, acRules, onChange, onRemove, canRemove }: Room
 
       {/* Room Name */}
       <div className="col-span-3">
-        <label className="block text-[10px] font-semibold text-slate-400 mb-1 uppercase tracking-wider">Name</label>
+        <label className="block text-[10px] font-semibold text-slate-400 mb-1 uppercase tracking-wider">{t('common.name', 'Name')}</label>
         <Input
           value={room.name}
           onChange={(e) => onChange(room.id, { name: e.target.value })}
           className="h-8 text-xs"
-          placeholder="e.g. Master Bedroom"
+          placeholder={t('calculator.roomPlaceholder', 'e.g. Master Bedroom')}
           aria-label="Room name"
         />
       </div>
 
       {/* Area */}
       <div className="col-span-2">
-        <label className="block text-[10px] font-semibold text-slate-400 mb-1 uppercase tracking-wider">Area (m²)</label>
+        <label className="block text-[10px] font-semibold text-slate-400 mb-1 uppercase tracking-wider">{t('calculator.area', 'Area (m²)')}</label>
         <Input
           type="number"
           value={room.area || ''}
@@ -93,7 +96,7 @@ export function RoomInput({ room, acRules, onChange, onRemove, canRemove }: Room
 
       {/* Load Density */}
       <div className="col-span-2">
-        <label className="block text-[10px] font-semibold text-slate-400 mb-1 uppercase tracking-wider">Density (VA/m²)</label>
+        <label className="block text-[10px] font-semibold text-slate-400 mb-1 uppercase tracking-wider">{t('calculator.density', 'Density (VA/m²)')}</label>
         <Input
           type="number"
           value={room.loadDensity || ''}
@@ -107,7 +110,7 @@ export function RoomInput({ room, acRules, onChange, onRemove, canRemove }: Room
 
       {/* AC Toggle */}
       <div className="col-span-1">
-        <label className="block text-[10px] font-semibold text-slate-400 mb-1 uppercase tracking-wider">AC</label>
+        <label className="block text-[10px] font-semibold text-slate-400 mb-1 uppercase tracking-wider">{t('calculator.ac', 'AC')}</label>
         <button
           type="button"
           onClick={() => handleAcToggle(!room.hasAc)}
@@ -126,8 +129,8 @@ export function RoomInput({ room, acRules, onChange, onRemove, canRemove }: Room
 
       {/* Connected Load */}
       <div className="col-span-1">
-        <label className="block text-[10px] font-semibold text-slate-400 mb-1 uppercase tracking-wider">Load (VA)</label>
-        <div className="h-8 py-1.5 px-2 rounded bg-slate-900 border border-slate-800 text-xs font-mono text-orange-400 font-bold text-right flex items-center justify-end">
+        <label className="block text-[10px] font-semibold text-slate-400 mb-1 uppercase tracking-wider">{t('calculator.loadVa', 'Load (VA)')}</label>
+        <div className="h-8 py-1.5 px-2 rounded bg-slate-900 border border-slate-800 text-xs font-mono text-orange-400 font-bold text-end flex items-center justify-end">
           {room.connectedLoad.toFixed(0)}
         </div>
       </div>

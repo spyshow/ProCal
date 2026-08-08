@@ -3,6 +3,7 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { useProject } from '@/context/ProjectContext';
+import { useTranslation } from '@/i18n';
 import { CircuitBoard, Filter, AlertTriangle, RefreshCw, HelpCircle } from 'lucide-react';
 import { computeFeeders, createFindBreaker, type EquipmentItem, type DefaultFamilies } from '@/lib/calculations/feeders';
 import type { Project } from '@/types';
@@ -31,14 +32,9 @@ interface BreakerEntry {
   isThreePhase: boolean;
 }
 
-const FAMILY_CATEGORIES = [
-  { key: 'ACB' as const, label: 'Main Incomer', description: 'ACB / main breaker / transformer secondary' },
-  { key: 'MCCB' as const, label: 'Feeders & Sub-panels', description: 'MCCB — mechanical loads, SMDB feeders, risers' },
-  { key: 'MCB' as const, label: 'Final Distribution', description: 'MCB — apartments, small shops, lighting' },
-];
-
 export default function BreakerSchedulePage() {
   const { selectedProjectId, preferredManufacturer } = useProject();
+  const { t, isRtl } = useTranslation();
   const [project, setProject] = useState<Project | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -197,13 +193,13 @@ export default function BreakerSchedulePage() {
 
   return (
     <div className="p-6 space-y-5 max-w-7xl mx-auto">
-      <div data-tour="breaker-header" className="flex items-center justify-between">
+      <div data-tour="breaker-header" className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-white flex items-center gap-2">
             <CircuitBoard size={22} className="text-orange-500" />
-            Breaker Schedule
+            {t('breakerSchedule.title', 'Breaker Schedule')}
           </h1>
-          <p className="text-sm text-gray-400 mt-1">{project.name} — Default breaker families</p>
+          <p className="text-sm text-gray-400 mt-1">{project.name} &mdash; {t('breakerSchedule.subtitle', 'Default breaker families and protection sizing')}</p>
         </div>
         <div className="flex items-center gap-2">
           {/* Page Tour Button */}
@@ -215,7 +211,7 @@ export default function BreakerSchedulePage() {
             title="Interactive Breaker Schedule Tour"
           >
             <HelpCircle size={15} className="text-orange-400" />
-            Page Tour
+            {t('cableSchedule.pageTour', 'Page Tour')}
           </button>
           <button
             onClick={loadProject}
@@ -224,23 +220,27 @@ export default function BreakerSchedulePage() {
             title="Reload project data and recalculate schedule"
           >
             <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
-            Recalculate
+            {t('cableSchedule.recalculateAll', 'Recalculate')}
           </button>
         </div>
       </div>
 
       {/* Default Breaker Families */}
       <div data-tour="breaker-family-select" className="rounded-xl border border-gray-800 bg-gray-900/40 p-4">
-        <h2 className="text-sm font-bold text-orange-400 mb-3 uppercase tracking-wide">Default Breaker Families</h2>
+        <h2 className="text-sm font-bold text-orange-400 mb-3 uppercase tracking-wide">{t('breakers.subtitle', 'Default Breaker Families')}</h2>
         <div className="space-y-4">
-          {FAMILY_CATEGORIES.map(({ key, label, description }) => (
+          {[
+            { key: 'ACB' as const, label: t('panel.incomer', 'Main Incomer'), description: 'ACB / main breaker / transformer secondary' },
+            { key: 'MCCB' as const, label: t('panel.outgoingFeeders', 'Feeders & Sub-panels'), description: 'MCCB — mechanical loads, SMDB feeders, risers' },
+            { key: 'MCB' as const, label: t('breakers.deviceTag', 'Final Distribution'), description: 'MCB — apartments, small shops, lighting' },
+          ].map(({ key, label, description }) => (
             <div key={key} className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6 pb-4 border-b border-gray-800 last:border-0 last:pb-0">
               <div className="sm:w-64">
                 <strong className="text-gray-200 text-sm block">{label}</strong>
                 <small className="text-gray-500">{description}</small>
               </div>
               <div className="flex-1">
-                <label className="block text-[10px] uppercase tracking-wide text-gray-500 mb-1">Family / Series</label>
+                <label className="block text-[10px] uppercase tracking-wide text-gray-500 mb-1">{t('breakers.series', 'Family / Series')}</label>
                 <select
                   value={defaults[key] ?? ''}
                   onChange={(e) => handleFamilyChange(key, e.target.value)}
@@ -270,7 +270,7 @@ export default function BreakerSchedulePage() {
               selectedBuilding === 'all' ? 'bg-orange-600 text-white' : 'bg-gray-800 text-gray-400'
             }`}
           >
-            All Buildings
+            {t('cableSchedule.allBuildings', 'All Buildings')}
           </button>
           {project.buildings.map((b) => (
             <button
@@ -291,60 +291,62 @@ export default function BreakerSchedulePage() {
       {Object.entries(grouped).map(([type, items]) => (
         <div key={type} className="rounded-xl border border-gray-800 bg-gray-900/40 p-4">
           <h3 className="text-sm font-bold text-orange-400 mb-3">{type.replace('_', ' ')}</h3>
-          <table className="w-full engineering-table text-xs">
-            <thead>
-              <tr>
-                <th className="text-left">Feeder</th>
-                <th className="text-left">Building</th>
-                <th className="text-center">Floor</th>
-                <th className="text-right">Current (A)</th>
-                <th className="text-center">Breaker (A)</th>
-                <th className="text-center">Manufacturer</th>
-                <th className="text-center">Family</th>
-                <th className="text-left">Breaker Model</th>
-                <th className="text-center">Cable (mm²)</th>
-                <th className="text-center">Phase</th>
-              </tr>
-            </thead>
-            <tbody>
-              {items.map((b) => (
-                <tr key={b.id} className="hover:bg-gray-800/30">
-                  <td className="text-gray-200 font-semibold">{b.name}</td>
-                  <td className="text-gray-400">{b.buildingName}</td>
-                  <td className="text-center font-mono text-orange-400">F{b.floor}</td>
-                  <td className="text-right font-mono">{b.current.toFixed(1)}</td>
-                  <td className="text-center font-mono text-blue-400">{b.breakerSize}</td>
-                  <td className="text-center text-gray-300">{b.manufacturer ?? '—'}</td>
-                  <td className="text-center text-gray-300">{b.familyName ?? '—'}</td>
-                  <td className="text-xs text-gray-300">
-                    <span className="flex items-center gap-1">
-                      {b.breakerModel}
-                      {b.fallback && (
-                        <span title={`No ${b.familyName ?? 'selected'} model ≥ ${b.current.toFixed(1)}A; used fallback.`}>
-                          <AlertTriangle size={12} className="text-yellow-500" />
-                        </span>
-                      )}
-                    </span>
-                  </td>
-                  <td className="text-center font-mono text-green-400">{b.cableSize}</td>
-                  <td className="text-center font-mono">{b.isThreePhase ? '3Φ' : '1Φ'}</td>
+          <div className="overflow-x-auto">
+            <table className="w-full engineering-table text-xs">
+              <thead>
+                <tr>
+                  <th className="text-start">{t('cableSchedule.load', 'Feeder')}</th>
+                  <th className="text-start">{t('calculator.building', 'Building')}</th>
+                  <th className="text-center">{t('calculator.floor', 'Floor')}</th>
+                  <th className="text-end">{t('cableSchedule.current', 'Current (A)')}</th>
+                  <th className="text-center">{t('breakers.frameSize', 'Breaker (A)')}</th>
+                  <th className="text-center">{t('breakers.manufacturer', 'Manufacturer')}</th>
+                  <th className="text-center">{t('breakers.series', 'Family')}</th>
+                  <th className="text-start">{t('breakerSchedule.title', 'Breaker Model')}</th>
+                  <th className="text-center">{t('cableSchedule.size', 'Cable (mm²)')}</th>
+                  <th className="text-center">{t('calculator.rebalance', 'Phase')}</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {items.map((b) => (
+                  <tr key={b.id} className="hover:bg-gray-800/30">
+                    <td className="text-gray-200 font-semibold">{b.name}</td>
+                    <td className="text-gray-400">{b.buildingName}</td>
+                    <td className="text-center font-mono text-orange-400">F{b.floor}</td>
+                    <td className="text-end font-mono">{b.current.toFixed(1)}</td>
+                    <td className="text-center font-mono text-blue-400">{b.breakerSize}</td>
+                    <td className="text-center text-gray-300">{b.manufacturer ?? '—'}</td>
+                    <td className="text-center text-gray-300">{b.familyName ?? '—'}</td>
+                    <td className="text-xs text-gray-300">
+                      <span className="flex items-center gap-1">
+                        {b.breakerModel}
+                        {b.fallback && (
+                          <span title={`No ${b.familyName ?? 'selected'} model ≥ ${b.current.toFixed(1)}A; used fallback.`}>
+                            <AlertTriangle size={12} className="text-yellow-500" />
+                          </span>
+                        )}
+                      </span>
+                    </td>
+                    <td className="text-center font-mono text-green-400">{b.cableSize}</td>
+                    <td className="text-center font-mono">{b.isThreePhase ? '3Φ' : '1Φ'}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       ))}
       </div>
 
       {filteredBreakers.length === 0 && (
         <div className="rounded-xl border border-gray-800 bg-gray-900/40 p-8 text-center">
-          <p className="text-gray-500 text-sm">No breakers to display for this selection.</p>
+          <p className="text-gray-500 text-sm">{t('nav.noProjects', 'No breakers to display for this selection.')}</p>
         </div>
       )}
 
       {/* Summary */}
       <div className="text-[10px] text-gray-600">
-        <p>Total breakers: {filteredBreakers.length}</p>
+        <p>{t('cableSchedule.totalCables', 'Total breakers')}: {filteredBreakers.length}</p>
       </div>
     </div>
   );

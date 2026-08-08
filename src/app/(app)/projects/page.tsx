@@ -6,7 +6,8 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useProject } from '@/context/ProjectContext';
 import { useUser } from '@/context/UserContext';
-import { Building2, Plus, Trash2, ArrowRight, Wallet } from 'lucide-react';
+import { useTranslation } from '@/i18n';
+import { Building2, Plus, Trash2, ArrowRight, ArrowLeft, Wallet } from 'lucide-react';
 import { COUNTRY_DEFAULTS } from '@/lib/country-defaults';
 
 interface Project {
@@ -25,6 +26,7 @@ export default function ProjectsPage() {
   const router = useRouter();
   const { selectProject } = useProject();
   const { user, refreshUser } = useUser();
+  const { t, isRtl } = useTranslation();
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [showNew, setShowNew] = useState(false);
@@ -120,8 +122,8 @@ export default function ProjectsPage() {
     <div className="p-6 space-y-6 max-w-6xl mx-auto">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white">Projects</h1>
-          <p className="text-sm text-gray-400 mt-1">Manage your electrical design projects</p>
+          <h1 className="text-2xl font-bold text-white">{t('projects.title', 'Projects')}</h1>
+          <p className="text-sm text-gray-400 mt-1">{t('projects.subtitle', 'Manage your electrical design projects')}</p>
         </div>
         {isZeroCredits ? (
           <Link
@@ -130,7 +132,7 @@ export default function ProjectsPage() {
             title="You have no project credits — request more"
           >
             <Wallet size={16} />
-            Get credits to create a project
+            {t('projects.getCredits', 'Get credits to create a project')}
           </Link>
         ) : (
           <button
@@ -138,7 +140,7 @@ export default function ProjectsPage() {
             className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-sm font-semibold transition-colors"
           >
             <Plus size={16} />
-            New Project
+            {t('projects.newProject', 'New Project')}
           </button>
         )}
       </div>
@@ -148,10 +150,10 @@ export default function ProjectsPage() {
         <div className="flex items-center gap-3 rounded-xl border border-orange-800/60 bg-orange-900/15 px-4 py-3 text-sm">
           <Wallet size={16} className="flex-shrink-0 text-orange-400" />
           <span className="text-orange-200">
-            You have no project credits left. Request more to create a new project.
+            {t('projects.noCreditsNotice', 'You have no project credits left. Request more to create a new project.')}
           </span>
-          <Link href="/billing" className="ml-auto font-semibold text-orange-300 hover:text-orange-200 transition-colors">
-            Request credits →
+          <Link href="/billing" className="ms-auto font-semibold text-orange-300 hover:text-orange-200 transition-colors">
+            {t('projects.requestCredits', 'Request credits →')}
           </Link>
         </div>
       )}
@@ -159,40 +161,40 @@ export default function ProjectsPage() {
       {/* New Project Form */}
       {showNew && (
         <form onSubmit={handleCreate} className="rounded-xl border border-gray-800 bg-gray-900/60 p-5 space-y-4">
-          <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wider">New Project</h3>
+          <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wider">{t('projects.newProject', 'New Project')}</h3>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
             <div>
-              <label className="block text-xs text-gray-400 mb-1">Project Name *</label>
+              <label className="block text-xs text-gray-400 mb-1">{t('projects.projectName', 'Project Name *')}</label>
               <input
                 value={form.name}
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
                 className="dense-input w-full rounded"
-                placeholder="e.g. Marina Residence"
+                placeholder={t('projects.projectNamePlaceholder', 'e.g. Marina Residence')}
                 required
               />
             </div>
             <div>
-              <label className="block text-xs text-gray-400 mb-1">Client</label>
+              <label className="block text-xs text-gray-400 mb-1">{t('projects.client', 'Client')}</label>
               <input value={form.client} onChange={(e) => setForm({ ...form, client: e.target.value })} className="dense-input w-full rounded" />
             </div>
             <div>
-              <label className="block text-xs text-gray-400 mb-1">Consultant</label>
+              <label className="block text-xs text-gray-400 mb-1">{t('projects.consultant', 'Consultant')}</label>
               <input value={form.consultant} onChange={(e) => setForm({ ...form, consultant: e.target.value })} className="dense-input w-full rounded" />
             </div>
             <div>
-              <label className="block text-xs text-gray-400 mb-1">Contractor</label>
+              <label className="block text-xs text-gray-400 mb-1">{t('projects.contractor', 'Contractor')}</label>
               <input value={form.contractor} onChange={(e) => setForm({ ...form, contractor: e.target.value })} className="dense-input w-full rounded" />
             </div>
             <div>
-              <label className="block text-xs text-gray-400 mb-1">Location</label>
+              <label className="block text-xs text-gray-400 mb-1">{t('projects.location', 'Location')}</label>
               <input value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} className="dense-input w-full rounded" />
             </div>
             <div>
-              <label className="block text-xs text-gray-400 mb-1">Engineer</label>
+              <label className="block text-xs text-gray-400 mb-1">{t('projects.engineer', 'Engineer')}</label>
               <input value={form.engineer} onChange={(e) => setForm({ ...form, engineer: e.target.value })} className="dense-input w-full rounded" />
             </div>
             <div>
-              <label className="block text-xs text-gray-400 mb-1">Country *</label>
+              <label className="block text-xs text-gray-400 mb-1">{t('projects.country', 'Country *')}</label>
               <select
                 value={form.country}
                 onChange={(e) => {
@@ -215,19 +217,19 @@ export default function ProjectsPage() {
               </select>
             </div>
             <div>
-              <label className="block text-xs text-gray-400 mb-1">Voltage (V)</label>
+              <label className="block text-xs text-gray-400 mb-1">{t('common.voltage', 'Voltage (V)')}</label>
               <input value={form.voltage} onChange={(e) => setForm({ ...form, voltage: e.target.value })} className="dense-input w-full rounded" />
             </div>
             <div>
-              <label className="block text-xs text-gray-400 mb-1">Frequency (Hz)</label>
+              <label className="block text-xs text-gray-400 mb-1">{t('common.frequency', 'Frequency (Hz)')}</label>
               <input value={form.frequency} onChange={(e) => setForm({ ...form, frequency: e.target.value })} className="dense-input w-full rounded" />
             </div>
             <div>
-              <label className="block text-xs text-gray-400 mb-1">Power Factor</label>
+              <label className="block text-xs text-gray-400 mb-1">{t('common.powerFactor', 'Power Factor')}</label>
               <input value={form.powerFactor} onChange={(e) => setForm({ ...form, powerFactor: e.target.value })} className="dense-input w-full rounded" />
             </div>
             <div>
-              <label className="block text-xs text-gray-400 mb-1">Calculation Standard</label>
+              <label className="block text-xs text-gray-400 mb-1">{t('common.standard', 'Calculation Standard')}</label>
               <select
                 value={form.calculationStandard}
                 onChange={(e) => setForm({ ...form, calculationStandard: e.target.value })}
@@ -246,10 +248,10 @@ export default function ProjectsPage() {
           )}
           <div className="flex gap-2">
             <button type="submit" disabled={saving} className="px-4 py-2 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-sm font-semibold disabled:opacity-50">
-              {saving ? 'Creating…' : 'Create Project'}
+              {saving ? t('common.saving', 'Creating…') : t('projects.createProject', 'Create Project')}
             </button>
             <button type="button" onClick={() => { setShowNew(false); setFormError(''); }} className="px-4 py-2 rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-300 text-sm">
-              Cancel
+              {t('common.cancel', 'Cancel')}
             </button>
           </div>
         </form>
@@ -257,11 +259,11 @@ export default function ProjectsPage() {
 
       {/* Projects List */}
       {loading ? (
-        <div className="text-center text-gray-500 py-12">Loading…</div>
+        <div className="text-center text-gray-500 py-12">{t('common.loading', 'Loading…')}</div>
       ) : projects.length === 0 ? (
         <div className="text-center py-16 rounded-xl border border-gray-800 bg-gray-900/40">
           <Building2 size={40} className="mx-auto text-gray-600 mb-3" />
-          <p className="text-gray-400">No projects yet. Create one to get started.</p>
+          <p className="text-gray-400">{t('projects.noProjectsPrompt', 'No projects yet. Create one to get started.')}</p>
         </div>
       ) : (
         <div className="space-y-3">
@@ -276,7 +278,7 @@ export default function ProjectsPage() {
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-semibold text-gray-200 truncate">{proj.name}</p>
                 <p className="text-xs text-gray-500 truncate">
-                  {proj.client || '—'} · {proj.location || '—'} · {proj.buildings.length} building{proj.buildings.length !== 1 ? 's' : ''}
+                  {proj.client || '—'} · {proj.location || '—'} · {proj.buildings.length} {t('calculator.buildingsCount', 'buildings')}
                 </p>
               </div>
               <div className="text-xs text-gray-500 flex-shrink-0">
@@ -288,12 +290,12 @@ export default function ProjectsPage() {
                 onClick={() => handleSelect(proj.id)}
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gray-800 hover:bg-orange-600/20 text-sm text-gray-300 hover:text-orange-300 transition-colors"
               >
-                Open <ArrowRight size={14} />
+                {t('common.open', 'Open')} {isRtl ? <ArrowLeft size={14} /> : <ArrowRight size={14} />}
               </button>
               <button
                 onClick={() => handleDelete(proj.id)}
                 className="p-1.5 rounded-lg text-gray-600 hover:text-red-400 hover:bg-red-500/10 transition-colors"
-                title="Delete project"
+                title={t('common.delete', 'Delete project')}
               >
                 <Trash2 size={14} />
               </button>

@@ -2,6 +2,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
 import { useState, useMemo, useRef, useCallback } from 'react';
+import { useTranslation } from '@/i18n';
 import {
   Shield,
   AlertTriangle,
@@ -22,13 +23,14 @@ import {
 
 type SelectivityStatus = 'FULL' | 'PARTIAL' | 'NONE';
 
-const STATUS_CONFIG: Record<SelectivityStatus, { color: string; bg: string; icon: typeof CheckCircle; label: string }> = {
-  FULL: { color: 'text-green-400', bg: 'bg-green-500/10', icon: CheckCircle, label: 'Full Selectivity' },
-  PARTIAL: { color: 'text-yellow-400', bg: 'bg-yellow-500/10', icon: AlertTriangle, label: 'Partial Selectivity' },
-  NONE: { color: 'text-red-400', bg: 'bg-red-500/10', icon: XCircle, label: 'No Selectivity' },
-};
-
 export default function CoordinationPage() {
+  const { t, isRtl } = useTranslation();
+
+  const STATUS_CONFIG: Record<SelectivityStatus, { color: string; bg: string; icon: typeof CheckCircle; label: string }> = {
+    FULL: { color: 'text-green-400', bg: 'bg-green-500/10', icon: CheckCircle, label: t('breakers.fullSelectivity', 'Full Selectivity') },
+    PARTIAL: { color: 'text-yellow-400', bg: 'bg-yellow-500/10', icon: AlertTriangle, label: t('breakers.partialSelectivity', 'Partial Selectivity') },
+    NONE: { color: 'text-red-400', bg: 'bg-red-500/10', icon: XCircle, label: t('breakers.noSelectivity', 'No Selectivity') },
+  };
   // Upstream breaker settings
   const [upstream, setUpstream] = useState<BreakerCurveSettings>({
     inRating: 630,
@@ -131,14 +133,14 @@ export default function CoordinationPage() {
 
   return (
     <div className="p-6 space-y-5 max-w-7xl mx-auto">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-white flex items-center gap-2">
             <Shield size={22} className="text-orange-500" />
-            Coordination Studio
+            {t('coordination.title', 'Protection Coordination Studio')}
           </h1>
           <p className="text-sm text-gray-400 mt-1">
-            IEC 60947-2 selectivity verification with logarithmic TCC curves
+            {t('coordination.subtitle', 'Time-Current Characteristic (TCC) analysis & selectivity verification')}
           </p>
         </div>
         <div className={`flex items-center gap-2 px-4 py-2 rounded-lg ${statusConfig.bg}`}>
@@ -155,7 +157,7 @@ export default function CoordinationPage() {
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-semibold text-blue-400 flex items-center gap-2">
                 <div className="w-3 h-3 rounded-full bg-blue-500" />
-                Upstream Breaker
+                {t('coordination.upstreamBreaker', 'Upstream Breaker')} ({upstream.inRating}A)
               </h3>
               <div className="flex gap-1">
                 <button
@@ -195,7 +197,7 @@ export default function CoordinationPage() {
                 <label className="text-gray-500">tr (s)</label>
                 <input
                   type="number"
-                  step="0.1"
+                  step="0.5"
                   value={upstream.tr}
                   onChange={(e) => setUpstream({ ...upstream, tr: parseFloat(e.target.value) || 0 })}
                   className="dense-input w-full rounded"
@@ -246,34 +248,11 @@ export default function CoordinationPage() {
           {/* Downstream Breaker */}
           <div className="rounded-xl border border-gray-800 bg-gray-900/60 p-4 space-y-3">
             <div className="flex items-center justify-between">
-              <h3 className="text-sm font-semibold text-orange-400 flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-orange-500" />
-                Downstream Breaker
+              <h3 className="text-sm font-semibold text-orange-400 flex items-center gap-1.5">
+                <Shield size={14} />
+                {t('coordination.downstreamBreaker', 'Downstream Breaker')} ({downstream.inRating}A)
               </h3>
-              <div className="flex gap-1">
-                <button
-                  onClick={() => setShowSettings(showSettings === 'downstream' ? null : 'downstream')}
-                  className="p-1 rounded text-gray-500 hover:text-gray-300"
-                >
-                  <Settings size={14} />
-                </button>
-                <button
-                  onClick={() => applyRecommended('downstream')}
-                  className="p-1 rounded text-gray-500 hover:text-orange-400"
-                  title="Auto-configure"
-                >
-                  <Play size={14} />
-                </button>
-              </div>
             </div>
-            <div className="text-xs text-gray-500 font-mono">
-              In={downstream.inRating}A
-            </div>
-
-            {showSettings === 'downstream' && (
-              <BreakerSettingsForm settings={downstream} onChange={setDownstream} />
-            )}
-
             <div className="grid grid-cols-2 gap-2 text-xs">
               <div>
                 <label className="text-gray-500">Ir (A)</label>
@@ -288,7 +267,7 @@ export default function CoordinationPage() {
                 <label className="text-gray-500">tr (s)</label>
                 <input
                   type="number"
-                  step="0.1"
+                  step="0.5"
                   value={downstream.tr}
                   onChange={(e) => setDownstream({ ...downstream, tr: parseFloat(e.target.value) || 0 })}
                   className="dense-input w-full rounded"
@@ -338,9 +317,9 @@ export default function CoordinationPage() {
 
           {/* Fault Current */}
           <div className="rounded-xl border border-gray-800 bg-gray-900/60 p-4 space-y-2">
-            <h3 className="text-sm font-semibold text-gray-400">Fault Parameters</h3>
+            <h3 className="text-sm font-semibold text-gray-400">{t('coordination.faultParameters', 'Fault Parameters')}</h3>
             <div>
-              <label className="text-xs text-gray-500">Available Fault Current (A)</label>
+              <label className="text-xs text-gray-500">{t('coordination.availableFaultCurrent', 'Available Fault Current (A)')}</label>
               <input
                 type="number"
                 value={faultCurrent}
@@ -357,7 +336,7 @@ export default function CoordinationPage() {
         {/* Right: TCC Chart */}
         <div className="lg:col-span-2 rounded-xl border border-gray-800 bg-gray-900/60 p-4">
           <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">
-            Time-Current Characteristic (TCC) — Log-Log Scale
+            {t('coordination.tccTitle', 'Time-Current Characteristic (TCC) — Log-Log Scale')}
           </h3>
           <div className="bg-gray-950 rounded-lg border border-gray-800 p-2 overflow-x-auto">
             <svg viewBox={`0 0 ${svgWidth} ${svgHeight}`} width="100%" xmlns="http://www.w3.org/2000/svg">
@@ -394,7 +373,7 @@ export default function CoordinationPage() {
 
               {/* Axis labels */}
               <text x={plotLeft + plotWidth / 2} y={svgHeight - 8} textAnchor="middle" fill="#9ca3af" fontSize="10">
-                Current (Amperes)
+                {t('coordination.currentAmperes', 'Current (Amperes)')}
               </text>
               <text
                 x="15"
@@ -404,7 +383,7 @@ export default function CoordinationPage() {
                 fontSize="10"
                 transform={`rotate(-90, 15, ${plotTop + plotHeight / 2})`}
               >
-                Time (Seconds)
+                {t('coordination.timeSeconds', 'Time (Seconds)')}
               </text>
 
               {/* Cable Damage Curve */}

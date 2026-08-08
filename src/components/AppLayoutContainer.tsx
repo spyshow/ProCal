@@ -5,6 +5,7 @@ import { SidebarProvider, useSidebar } from '@/context/SidebarContext';
 import { useTranslation } from '@/i18n';
 import Sidebar from '@/components/Sidebar';
 import { OnboardingTour } from '@/components/OnboardingTour';
+import { FeedbackFloatingButton } from '@/components/FeedbackFloatingButton';
 
 function LayoutInner({ children }: { children: React.ReactNode }) {
   const { isCollapsed } = useSidebar();
@@ -29,6 +30,7 @@ function LayoutInner({ children }: { children: React.ReactNode }) {
         {children}
       </main>
       <OnboardingTour />
+      <FeedbackFloatingButton />
     </div>
   );
 }

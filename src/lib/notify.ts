@@ -86,6 +86,62 @@ export async function sendLeadNotification(input: {
   }
 }
 
+export async function sendFeedbackNotification(input: {
+  category: string;
+  subject?: string;
+  replyToEmail?: string;
+  name?: string;
+  username?: string;
+  message: string;
+  pageUrl?: string;
+  projectId?: string;
+  projectName?: string;
+  errorDetails?: string;
+  systemInfo?: string;
+}): Promise<SendResult> {
+  const to = process.env.LEADS_TO_ADDRESS;
+  if (!to) {
+    return { ok: true, messageId: "dev-feedback-id" };
+  }
+
+  const categoryTag = input.category ? `[${input.category}] ` : '[Feedback] ';
+  const subject = `ProCal Feedback: ${categoryTag}${input.subject || input.name || input.username || "User Report"}`;
+  const body = [
+    `New User Feedback / Error Report from ProCal`,
+    `==========================================`,
+    ``,
+    `Category: ${input.category || "Bug / Error Report"}`,
+    `Subject: ${input.subject || "(no subject)"}`,
+    `User: ${input.name || "Guest"} (${input.username || "unauthenticated"})`,
+    `Email: ${input.replyToEmail || "None provided"}`,
+    input.pageUrl ? `Page URL: ${input.pageUrl}` : ``,
+    input.projectId ? `Project: ${input.projectName || ""} (ID: ${input.projectId})` : ``,
+    input.systemInfo ? `System Info: ${input.systemInfo}` : ``,
+    ``,
+    `User Message:`,
+    `------------------------------------------`,
+    input.message,
+    ``,
+    input.errorDetails ? `Error / Technical Details:\n------------------------------------------\n${input.errorDetails}\n` : ``,
+  ]
+    .filter(Boolean)
+    .join("\r\n");
+
+  try {
+    const info = await getTransporter().sendMail({
+      from: to,
+      to,
+      replyTo: input.replyToEmail || undefined,
+      subject,
+      text: body,
+    });
+    return { ok: true, messageId: info.messageId };
+  } catch (err) {
+    const error = err instanceof Error ? err.message : "SMTP send failed";
+    return { ok: false, error };
+  }
+}
+
 /** Test hook: reset the cached transporter between unit tests (t22 mocks us). */
 export function __resetTransporterForTests() {
   transporter = null;

@@ -615,7 +615,7 @@ export default function CableSchedulePage() {
           <h3 className="text-sm font-bold text-orange-400">{t('cableSchedule.defaultSettings', 'Default Settings')}</h3>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs text-gray-500 mb-1">{t('cables.installationMethod', 'Default Installation Method')}</label>
+              <label className="block text-xs text-slate-400 mb-1">{t('cables.installationMethod', 'Default Installation Method')}</label>
               <MethodSelector
                 value={defaultMethod}
                 onChange={(m) => {
@@ -625,7 +625,7 @@ export default function CableSchedulePage() {
               />
             </div>
             <div>
-              <label className="block text-xs text-gray-500 mb-1">{t('cables.insulation', 'Default Insulation')}</label>
+              <label className="block text-xs text-slate-400 mb-1">{t('cables.insulation', 'Default Insulation')}</label>
               <select
                 value={defaultInsulation}
                 onChange={(e) => {
@@ -664,12 +664,12 @@ export default function CableSchedulePage() {
       {project.buildings.length > 1 && (
         <div className="flex gap-2 flex-wrap">
           <button onClick={() => setSelectedBuilding(null)}
-            className={`px-3 py-1.5 rounded-lg text-sm font-medium ${selectedBuilding === null ? 'bg-orange-600 text-white' : 'bg-gray-800 text-gray-400'}`}>
+            className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors ${selectedBuilding === null ? 'bg-orange-500 text-slate-950 font-bold shadow-sm' : 'bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white'}`}>
             {t('cableSchedule.allBuildings', 'All Buildings')}
           </button>
           {project.buildings.map((b) => (
             <button key={b.id} onClick={() => setSelectedBuilding(b.id)}
-              className={`px-3 py-1.5 rounded-lg text-sm font-medium ${selectedBuilding === b.id ? 'bg-orange-600 text-white' : 'bg-gray-800 text-gray-400'}`}>
+              className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors ${selectedBuilding === b.id ? 'bg-orange-500 text-slate-950 font-bold shadow-sm' : 'bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white'}`}>
               {b.name}
             </button>
           ))}
@@ -679,19 +679,19 @@ export default function CableSchedulePage() {
       {/* Summary Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         <div className="bg-gray-900/60 border border-gray-800 rounded-xl p-4">
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-gray-500 mb-1">{t('cableSchedule.totalCables', 'TOTAL CABLES')}</p>
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 mb-1">{t('cableSchedule.totalCables', 'TOTAL CABLES')}</p>
           <p className="text-2xl font-bold text-white">{cables.length}</p>
         </div>
         <div className="bg-gray-900/60 border border-gray-800 rounded-xl p-4">
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-gray-500 mb-1">{t('cableSchedule.totalLength', 'TOTAL LENGTH')}</p>
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 mb-1">{t('cableSchedule.totalLength', 'TOTAL LENGTH')}</p>
           <p className="text-2xl font-bold text-white">{cables.reduce((sum, c) => sum + c.length, 0).toFixed(0)}m</p>
         </div>
         <div className="bg-gray-900/60 border border-gray-800 rounded-xl p-4">
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-gray-500 mb-1">{t('cableSchedule.needUpsize', 'NEED UPSIZE')}</p>
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 mb-1">{t('cableSchedule.needUpsize', 'NEED UPSIZE')}</p>
           <p className="text-2xl font-bold text-yellow-400">{cables.filter(c => c.changed).length}</p>
         </div>
         <div className="bg-gray-900/60 border border-gray-800 rounded-xl p-4">
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-gray-500 mb-1">{t('cableSchedule.compliant', 'COMPLIANT')}</p>
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 mb-1">{t('cableSchedule.compliant', 'COMPLIANT')}</p>
           <p className="text-2xl font-bold text-green-400">
             {cables.filter(c => c.newVD !== null && !c.changed).length}/{cables.filter(c => c.newVD !== null).length || '—'}
           </p>
@@ -707,7 +707,7 @@ export default function CableSchedulePage() {
           <div key={key} className="rounded-xl border border-gray-800 bg-gray-900/40 p-4 space-y-3">
             <div className="flex items-center gap-2 mb-2">
               <span className="text-sm font-bold text-orange-400">{displayKey}</span>
-              <span className="text-xs text-gray-500">({groupCables.length} {t('cableSchedule.circuits', 'circuits')})</span>
+              <span className="text-xs text-slate-400">({groupCables.length} {t('cableSchedule.circuits', 'circuits')})</span>
             </div>
 
             <div className="relative">
@@ -771,10 +771,10 @@ export default function CableSchedulePage() {
                           min="1"
                         />
                       </td>
-                      <td className={`text-center font-mono ${c.changed ? 'text-yellow-400 font-bold' : 'text-gray-500'}`}>
+                      <td className={`text-center font-mono ${c.changed ? 'text-yellow-400 font-bold' : 'text-slate-400'}`}>
                         {c.newCableSize !== null ? `${c.newCableSize} mm²` : '—'}
                       </td>
-                      <td className={`text-center font-mono ${c.newVD !== null && c.newVD > 5 ? 'text-red-400' : c.newVD !== null && c.newVD > 3 ? 'text-yellow-400' : 'text-gray-500'}`}>
+                      <td className={`text-center font-mono ${c.newVD !== null && c.newVD > 5 ? 'text-red-400' : c.newVD !== null && c.newVD > 3 ? 'text-yellow-400' : 'text-slate-400'}`}>
                         {c.newVD !== null ? `${c.newVD.toFixed(2)}%` : '—'}
                       </td>
                       <td className="text-center">

@@ -591,5 +591,35 @@
       "h3": "Echtzeit-Aktualisierung bei Datenänderungen",
       "cta": "Schaltplan-Editor öffnen"
     }
+  },
+  "feedback": {
+    "buttonLabel": "Feedback & Fehler",
+    "tooltip": "Fehler melden oder Feedback an Administrator senden",
+    "title": "Feedback an den Administrator senden",
+    "subtitle": "Berechnungsfehler aufgetreten oder Verbesserungsvorschlag? Informieren Sie unser Ingenieursteam.",
+    "categoryBug": "Fehler- / Bug-Bericht",
+    "categoryCalc": "Berechnungsabweichung",
+    "categoryFeature": "Funktionsanfrage",
+    "categoryGeneral": "Allgemeine Anfrage",
+    "subjectLabel": "Betreff",
+    "subjectPlaceholder": "Kurze Zusammenfassung des Problems...",
+    "messageLabel": "Beschreibung & Reproduktionsschritte",
+    "messagePlaceholder": "Beschreiben Sie, was passiert ist und welches Ergebnis erwartet wurde...",
+    "emailLabel": "Ihre E-Mail (für Rückfragen)",
+    "diagnosticsToggle": "Systemdiagnose einbinden",
+    "diagnosticsHelp": "Fügt Seiten-URL, aktives Projekt und Browserdaten an, um Fehler schneller zu beheben.",
+    "diagnosticsSummary": "Angehängte Diagnose",
+    "pageUrl": "Seiten-URL",
+    "activeProject": "Aktives Projekt",
+    "browserInfo": "Browser & Bildschirm",
+    "errorLogLabel": "Fehlerdetails / Konsolenmeldung (optional)",
+    "errorLogPlaceholder": "Fehlermeldungen hier einfügen...",
+    "submit": "Bericht senden",
+    "submitting": "Wird gesendet...",
+    "successTitle": "Nachricht erfolgreich gesendet!",
+    "successMessage": "Vielen Dank für Ihre Hilfe bei der Verbesserung von ProCal! Unser Team wird Ihren Bericht prüfen.",
+    "sendAnother": "Weitere Nachricht senden",
+    "close": "Schließen"
   }
 }
+

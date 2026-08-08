@@ -614,5 +614,35 @@
       "h3": "Printable high-res vector PDF diagrams & schedules",
       "cta": "Generate PDF Reports"
     }
+  },
+  "feedback": {
+    "buttonLabel": "Feedback",
+    "tooltip": "Report an Error or Send Feedback to Admin",
+    "title": "Send Feedback to Admin",
+    "subtitle": "Encountered a calculation error or have a suggestion? Let our engineering team know.",
+    "categoryBug": "Bug / Error Report",
+    "categoryCalc": "Calculation Discrepancy",
+    "categoryFeature": "Feature Request",
+    "categoryGeneral": "General Inquiry",
+    "subjectLabel": "Subject",
+    "subjectPlaceholder": "Brief summary of the issue...",
+    "messageLabel": "Description & Steps to Reproduce",
+    "messagePlaceholder": "Describe what happened, expected behavior, or your message...",
+    "emailLabel": "Your Email (for updates)",
+    "diagnosticsToggle": "Include System Diagnostics",
+    "diagnosticsHelp": "Includes page URL, active project, and browser info to help us debug faster.",
+    "diagnosticsSummary": "Attached Diagnostics",
+    "pageUrl": "Page URL",
+    "activeProject": "Active Project",
+    "browserInfo": "Browser & Screen",
+    "errorLogLabel": "Error Details / Console Message (optional)",
+    "errorLogPlaceholder": "Paste any error messages or numbers here...",
+    "submit": "Send to Admin",
+    "submitting": "Sending...",
+    "successTitle": "Message Sent Successfully!",
+    "successMessage": "Thank you for helping us improve ProCal! The engineering and administration team has received your report.",
+    "sendAnother": "Send Another Message",
+    "close": "Close"
   }
 }
+

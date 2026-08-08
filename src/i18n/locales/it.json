@@ -592,5 +592,35 @@
       "h3": "Aggiornamento in tempo reale alla modifica dei dati",
       "cta": "Apri Editor Schema Unifilare"
     }
+  },
+  "feedback": {
+    "buttonLabel": "Feedback & Errori",
+    "tooltip": "Segnala un errore o invia feedback all'amministratore",
+    "title": "Invia feedback all'amministratore",
+    "subtitle": "Hai riscontrato un errore di calcolo o un suggerimento? Informa il nostro team di ingegneri.",
+    "categoryBug": "Segnalazione bug / errore",
+    "categoryCalc": "Discrepanza di calcolo",
+    "categoryFeature": "Richiesta di funzionalità",
+    "categoryGeneral": "Richiesta generale",
+    "subjectLabel": "Oggetto",
+    "subjectPlaceholder": "Breve riepilogo del problema...",
+    "messageLabel": "Descrizione e passaggi per riprodurre",
+    "messagePlaceholder": "Descrivi cosa è successo e il risultato atteso...",
+    "emailLabel": "La tua email (per risposte)",
+    "diagnosticsToggle": "Includi diagnostica di sistema",
+    "diagnosticsHelp": "Include l'URL della pagina, il progetto attivo e le informazioni del browser per aiutarci a risolvere i bug più rapidamente.",
+    "diagnosticsSummary": "Diagnostica allegata",
+    "pageUrl": "URL pagina",
+    "activeProject": "Progetto attivo",
+    "browserInfo": "Browser e schermo",
+    "errorLogLabel": "Dettagli errore / Messaggio console (opzionale)",
+    "errorLogPlaceholder": "Incolla qui eventuali messaggi di errore...",
+    "submit": "Invia rapporto",
+    "submitting": "Invio in corso...",
+    "successTitle": "Messaggio inviato con successo!",
+    "successMessage": "Grazie per averci aiutato a migliorare ProCal! Il nostro team esaminerà la tua segnalazione.",
+    "sendAnother": "Invia un altro messaggio",
+    "close": "Chiudi"
   }
 }
+

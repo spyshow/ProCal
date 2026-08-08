@@ -1,15 +1,15 @@
 'use client';
 
 /* eslint-disable react-hooks/immutability, react-hooks/set-state-in-effect, @next/next/no-img-element */
-'use client';
-
 import { useState, useEffect } from 'react';
-import { Settings, Save, RotateCcw, Building2 } from 'lucide-react';
+import { Settings, Save, RotateCcw, Building2, Globe } from 'lucide-react';
 import { COUNTRY_DEFAULTS, ROOM_TYPES, CountryConfig, AcSizingRule } from '@/lib/country-defaults';
+import { useTranslation, SupportedLanguage } from '@/i18n';
 
-type SettingsTab = 'engineering' | 'company';
+type SettingsTab = 'engineering' | 'company' | 'language';
 
 export default function SettingsPage() {
+  const { t, language, setLanguage, isRtl } = useTranslation();
   const [settings, setSettings] = useState<Record<string, CountryConfig>>({});
   const [selectedCountry, setSelectedCountry] = useState('Syria');
   const [loading, setLoading] = useState(true);
@@ -19,7 +19,6 @@ export default function SettingsPage() {
 
   // Voltage drop limits
   const [vdLimits, setVdLimits] = useState({ lighting: 3, power: 5 });
-
 
   // Company settings
   const [company, setCompany] = useState({ companyName: "", logoUrl: "" });
@@ -77,12 +76,12 @@ export default function SettingsPage() {
         body: JSON.stringify({ country: selectedCountry, settings: settings[selectedCountry] }),
       });
       if (res.ok) {
-        setMessage({ type: 'success', text: 'Settings saved successfully' });
+        setMessage({ type: 'success', text: t('settings.saveSuccess', 'Settings saved successfully') });
       } else {
-        setMessage({ type: 'error', text: 'Failed to save settings' });
+        setMessage({ type: 'error', text: t('settings.saveError', 'Failed to save settings') });
       }
     } catch {
-      setMessage({ type: 'error', text: 'Failed to save settings' });
+      setMessage({ type: 'error', text: t('settings.saveError', 'Failed to save settings') });
     } finally {
       setSaving(false);
     }
@@ -98,12 +97,12 @@ export default function SettingsPage() {
         body: JSON.stringify({ company }),
       });
       if (res.ok) {
-        setMessage({ type: 'success', text: 'Company settings saved' });
+        setMessage({ type: 'success', text: t('settings.saveCompanySuccess', 'Company settings saved') });
       } else {
-        setMessage({ type: 'error', text: 'Failed to save' });
+        setMessage({ type: 'error', text: t('settings.saveError', 'Failed to save') });
       }
     } catch {
-      setMessage({ type: 'error', text: 'Failed to save' });
+      setMessage({ type: 'error', text: t('settings.saveError', 'Failed to save') });
     } finally {
       setSaving(false);
     }
@@ -116,7 +115,7 @@ export default function SettingsPage() {
         ...settings,
         [selectedCountry]: { ...defaults },
       });
-      setMessage({ type: 'success', text: 'Settings reset to defaults' });
+      setMessage({ type: 'success', text: t('settings.resetSuccess', 'Settings reset to defaults') });
     }
   };
 
@@ -185,7 +184,7 @@ export default function SettingsPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-full">
-        <div className="text-gray-500 text-sm">Loading settings…</div>
+        <div className="text-gray-500 text-sm">{t('settings.loading', 'Loading settings…')}</div>
       </div>
     );
   }
@@ -199,10 +198,10 @@ export default function SettingsPage() {
         <div>
           <h1 className="text-2xl font-bold text-white flex items-center gap-2">
             <Settings size={22} className="text-orange-500" />
-            Settings
+            {t('settings.title', 'Settings')}
           </h1>
           <p className="text-sm text-gray-400 mt-1">
-            Configure engineering defaults and company branding
+            {t('settings.subtitle', 'Configure engineering defaults and company branding')}
           </p>
         </div>
       </div>
@@ -210,8 +209,9 @@ export default function SettingsPage() {
       {/* Tabs */}
       <div className="flex gap-1 border-b border-gray-800">
         {([
-          { key: 'engineering' as const, label: 'Engineering Defaults', icon: Settings },
-          { key: 'company' as const, label: 'Company & Branding', icon: Building2 },
+          { key: 'engineering' as const, label: t('settings.engineering', 'Engineering Defaults'), icon: Settings },
+          { key: 'company' as const, label: t('settings.company', 'Company & Branding'), icon: Building2 },
+          { key: 'language' as const, label: t('common.language', 'Language & RTL'), icon: Globe },
         ]).map(({ key, label, icon: Icon }) => (
           <button
             key={key}
@@ -246,7 +246,7 @@ export default function SettingsPage() {
               className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-300 text-sm"
             >
               <RotateCcw size={14} />
-              Reset to Defaults
+              {t('settings.reset', 'Reset to Defaults')}
             </button>
             <button
               onClick={handleSave}
@@ -254,13 +254,13 @@ export default function SettingsPage() {
               className="flex items-center gap-2 px-4 py-2 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-sm font-semibold disabled:opacity-50"
             >
               <Save size={14} />
-              {saving ? 'Saving…' : 'Save Settings'}
+              {saving ? t('settings.saving', 'Saving…') : t('settings.save', 'Save Settings')}
             </button>
           </div>
 
           {/* Country Selector */}
           <div className="rounded-xl border border-gray-800 bg-gray-900/40 p-4">
-            <label className="block text-xs text-gray-400 mb-2">Select Country</label>
+            <label className="block text-xs text-gray-400 mb-2">{t('settings.selectCountry', 'Select Country')}</label>
             <select
               value={selectedCountry}
               onChange={(e) => setSelectedCountry(e.target.value)}
@@ -277,7 +277,7 @@ export default function SettingsPage() {
               {/* Room Densities */}
               <div className="rounded-xl border border-gray-800 bg-gray-900/40 p-4 space-y-4">
                 <h2 className="text-sm font-semibold text-gray-300 uppercase tracking-wider">
-                  Room Densities (VA/m²)
+                  {t('settings.roomDensities', 'Room Densities (VA/m²)')}
                 </h2>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   {ROOM_TYPES.map((room) => (
@@ -300,20 +300,20 @@ export default function SettingsPage() {
               <div className="rounded-xl border border-gray-800 bg-gray-900/40 p-4 space-y-4">
                 <div className="flex items-center justify-between">
                   <h2 className="text-sm font-semibold text-gray-300 uppercase tracking-wider">
-                    AC Sizing Rules (BTU → Watts)
+                    {t('settings.acSizingRules', 'AC Sizing Rules (BTU → Watts)')}
                   </h2>
                   <button
                     onClick={addAcRule}
                     className="text-xs text-orange-400 hover:text-orange-300"
                   >
-                    + Add Rule
+                    {t('settings.addRule', '+ Add Rule')}
                   </button>
                 </div>
                 <div className="space-y-3">
                   {currentSettings.acSizingRules.map((rule, index) => (
                     <div key={index} className="flex items-center gap-4">
                       <div className="flex-1">
-                        <label className="block text-[10px] text-gray-500 mb-1">Max Area (m²)</label>
+                        <label className="block text-[10px] text-gray-500 mb-1">{t('settings.maxArea', 'Max Area (m²)')}</label>
                         <input
                           type="number"
                           value={rule.maxArea === Infinity || rule.maxArea == null ? '' : rule.maxArea}
@@ -327,7 +327,7 @@ export default function SettingsPage() {
                         />
                       </div>
                       <div className="flex-1">
-                        <label className="block text-[10px] text-gray-500 mb-1">BTU</label>
+                        <label className="block text-[10px] text-gray-500 mb-1">{t('settings.btu', 'BTU')}</label>
                         <input
                           type="number"
                           value={rule.btu}
@@ -336,7 +336,7 @@ export default function SettingsPage() {
                         />
                       </div>
                       <div className="flex-1">
-                        <label className="block text-[10px] text-gray-500 mb-1">Watts</label>
+                        <label className="block text-[10px] text-gray-500 mb-1">{t('settings.watts', 'Watts')}</label>
                         <input
                           type="number"
                           value={rule.watts}
@@ -360,11 +360,11 @@ export default function SettingsPage() {
               {/* Voltage Drop Limits */}
               <div className="rounded-xl border border-gray-800 bg-gray-900/40 p-4 space-y-3">
                 <h3 className="text-sm font-semibold text-gray-300 border-b border-gray-800 pb-1">
-                  Voltage Drop Limits (IEC 60364-5-52)
+                  {t('settings.voltageDropLimits', 'Voltage Drop Limits (IEC 60364-5-52)')}
                 </h3>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-[10px] text-gray-500 mb-1">Lighting Circuits (%)</label>
+                    <label className="block text-[10px] text-gray-500 mb-1">{t('settings.lightingLimit', 'Lighting Circuits (%)')}</label>
                     <input
                       type="number"
                       step="0.5"
@@ -378,7 +378,7 @@ export default function SettingsPage() {
                     />
                   </div>
                   <div>
-                    <label className="block text-[10px] text-gray-500 mb-1">Power Circuits (%)</label>
+                    <label className="block text-[10px] text-gray-500 mb-1">{t('settings.powerLimit', 'Power Circuits (%)')}</label>
                     <input
                       type="number"
                       step="0.5"
@@ -393,7 +393,7 @@ export default function SettingsPage() {
                   </div>
                 </div>
                 <p className="text-[10px] text-gray-600">
-                  IEC 60364-5-52 standard: 3% for lighting, 5% for power loads. Total from source to load.
+                  {t('settings.voltageDropNote', 'IEC 60364-5-52 standard: 3% for lighting, 5% for power loads. Total from source to load.')}
                 </p>
               </div>
             </>
@@ -405,24 +405,24 @@ export default function SettingsPage() {
       {activeTab === 'company' && (
         <div className="rounded-xl border border-gray-800 bg-gray-900/40 p-4 space-y-4">
           <h2 className="text-sm font-semibold text-gray-300 uppercase tracking-wider">
-            Company Information
+            {t('settings.companyInfo', 'Company Information')}
           </h2>
 
           {/* Company Name */}
           <div>
-            <label className="block text-xs text-gray-400 mb-1">Company Name</label>
+            <label className="block text-xs text-gray-400 mb-1">{t('settings.companyName', 'Company Name')}</label>
             <input
               type="text"
               value={company.companyName}
               onChange={(e) => setCompany({ ...company, companyName: e.target.value })}
               className="dense-input w-full max-w-md rounded"
-              placeholder="Your Company Name"
+              placeholder={t('settings.companyNamePlaceholder', 'Your Company Name')}
             />
           </div>
 
           {/* Logo Upload */}
           <div>
-            <label className="block text-xs text-gray-400 mb-1">Company Logo</label>
+            <label className="block text-xs text-gray-400 mb-1">{t('settings.companyLogo', 'Company Logo')}</label>
             <div className="flex items-center gap-4">
               {company.logoUrl ? (
                 <div className="relative">
@@ -441,7 +441,7 @@ export default function SettingsPage() {
               ) : (
                 <label className="flex flex-col items-center justify-center w-32 h-20 border-2 border-dashed border-gray-700 rounded-lg cursor-pointer hover:border-orange-500 transition-colors">
                   <span className="text-xs text-gray-500">
-                    {uploading ? "Uploading…" : "Click to upload"}
+                    {uploading ? t('settings.uploading', 'Uploading…') : t('settings.clickToUpload', 'Click to upload')}
                   </span>
                   <input
                     type="file"
@@ -467,7 +467,7 @@ export default function SettingsPage() {
                 </label>
               )}
             </div>
-            <p className="text-[10px] text-gray-600 mt-1">PNG, JPG, SVG, or WebP. Max 2MB.</p>
+            <p className="text-[10px] text-gray-600 mt-1">{t('settings.logoFormats', 'PNG, JPG, SVG, or WebP. Max 2MB.')}</p>
           </div>
 
           {/* Save */}
@@ -478,8 +478,67 @@ export default function SettingsPage() {
               className="flex items-center gap-2 px-4 py-2 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-sm font-semibold disabled:opacity-50"
             >
               <Save size={14} />
-              {saving ? 'Saving…' : 'Save Company Settings'}
+              {saving ? t('settings.saving', 'Saving…') : t('settings.saveCompany', 'Save Company Settings')}
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* Language & RTL Settings Tab */}
+      {activeTab === 'language' && (
+        <div className="rounded-xl border border-gray-800 bg-gray-900/40 p-6 space-y-6 max-w-2xl">
+          <div>
+            <h2 className="text-base font-semibold text-white flex items-center gap-2">
+              <Globe size={18} className="text-orange-400" />
+              {t('common.language', 'Language & Layout Direction')}
+            </h2>
+            <p className="text-xs text-slate-400 mt-1">
+              {t('settings.languageSubtitle', 'Select your preferred interface language and layout direction across the entire platform.')}
+            </p>
+          </div>
+
+          <div className="space-y-4">
+            <div>
+              <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">
+                {t('common.language', 'Select Language')}
+              </label>
+              <select
+                value={language}
+                onChange={(e) => setLanguage(e.target.value as SupportedLanguage)}
+                className="w-full max-w-md bg-slate-900/90 border border-slate-700 hover:border-slate-600 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 text-white rounded-xl px-4 py-3 text-sm font-medium outline-none transition-all cursor-pointer shadow-lg"
+              >
+                <option value="en">🇬🇧 English (LTR) – Default</option>
+                <option value="de">🇩🇪 Deutsch (LTR) – DIN VDE & IEC</option>
+                <option value="it">🇮🇹 Italiano (LTR) – Norme CEI & IEC</option>
+                <option value="ar">🇸🇾 العربية (RTL) – النمط العربي</option>
+              </select>
+            </div>
+
+            {/* Current Active Language Details Badge */}
+            <div className="p-4 rounded-xl border border-slate-800 bg-slate-950/60 flex items-center justify-between max-w-md">
+              <div className="flex items-center gap-3">
+                <span className="text-2xl">
+                  {language === 'en' && '🇬🇧'}
+                  {language === 'de' && '🇩🇪'}
+                  {language === 'it' && '🇮🇹'}
+                  {language === 'ar' && '🇸🇾'}
+                </span>
+                <div>
+                  <p className="text-sm font-semibold text-white">
+                    {language === 'en' && 'English'}
+                    {language === 'de' && 'Deutsch'}
+                    {language === 'it' && 'Italiano'}
+                    {language === 'ar' && 'العربية'}
+                  </p>
+                  <p className="text-xs text-slate-400">
+                    {language === 'ar' ? t('settings.rtlDesc', 'Right-to-Left (RTL) • IBM Plex Sans Arabic') : t('settings.ltrDesc', 'Left-to-Right (LTR) • Inter Sans')}
+                  </p>
+                </div>
+              </div>
+              <span className="text-xs font-bold text-orange-400 bg-orange-500/10 border border-orange-500/20 px-2.5 py-1 rounded-full uppercase">
+                {language.toUpperCase()}
+              </span>
+            </div>
           </div>
         </div>
       )}

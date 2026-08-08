@@ -3,6 +3,7 @@
 
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { useProject } from '@/context/ProjectContext';
+import { useTranslation } from '@/i18n';
 import {
   GitBranch,
   Download,
@@ -31,6 +32,7 @@ interface FloorData extends Omit<FloorDesign, 'riserCableSize' | 'riserCableLeng
 
 export default function RiserPage() {
   const { selectedProjectId } = useProject();
+  const { t, isRtl } = useTranslation();
   const [project, setProject] = useState<Project | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedBuilding, setSelectedBuilding] = useState<string | null>(null);
@@ -155,13 +157,13 @@ export default function RiserPage() {
 
   return (
     <div className="p-6 space-y-4 max-w-7xl mx-auto">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-white flex items-center gap-2">
             <GitBranch size={22} className="text-orange-500" />
-            Vertical Riser Diagram
+            {t('riser.title', 'Vertical Riser Diagram')}
           </h1>
-          <p className="text-sm text-gray-400 mt-1">{project.name} — {bldg.name}</p>
+          <p className="text-sm text-gray-400 mt-1">{project.name} &mdash; {bldg.name}</p>
         </div>
         <div className="flex gap-2">
           <button
@@ -190,7 +192,7 @@ export default function RiserPage() {
             className="flex items-center gap-2 px-3 py-2 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-sm font-semibold"
           >
             <Download size={14} />
-            Export SVG
+            {t('sld.exportSvg', 'Export SVG')}
           </button>
         </div>
       </div>
@@ -233,10 +235,10 @@ export default function RiserPage() {
 
             {/* Title */}
             <text x={busX} y="30" textAnchor="middle" fill="#9ca3af" fontSize="16" fontWeight="700">
-              RISER DIAGRAM — {bldg.name}
+              {t('riser.title', 'RISER DIAGRAM')} — {bldg.name}
             </text>
             <text x={busX} y="50" textAnchor="middle" fill="#6b7280" fontSize="11">
-              {project.voltage}V · {project.powerFactor} PF · {bldg.earthingSystem || '—'} · {bldg.earthingSystem || '—'} · {sortedFloors.length} Floors · {project.calculationStandard || 'IEC'}
+              {project.voltage}V · {project.powerFactor} PF · {bldg.earthingSystem || '—'} · {sortedFloors.length} {t('calculator.floorsCount', 'Floors')} · {project.calculationStandard || 'IEC'}
             </text>
 
             {/* Transformer symbol at bottom */}
@@ -256,7 +258,7 @@ export default function RiserPage() {
             <g transform={`translate(${busX - 90}, ${svgHeight - footerHeight - mdbHeight - 40})`}>
               <rect x="0" y="0" width="180" height={mdbHeight} fill="#1f2937" stroke="#f97316" strokeWidth="2" rx="4" />
               <text x="90" y="20" textAnchor="middle" fill="#f97316" fontSize="12" fontWeight="700">
-                MDB — Main Distribution Board
+                {t('sld.mdb', 'MDB — Main Distribution Board')}
               </text>
               <text x="90" y="38" textAnchor="middle" fill="#e5e7eb" fontSize="10" fontWeight="600">
                 {mdbSizing.breakerSize}A MCCB · {totalDemandKva.toFixed(1)} kVA
@@ -276,7 +278,7 @@ export default function RiserPage() {
               strokeWidth="3"
             />
             <text x={busX} y={headerHeight - 10} textAnchor="middle" fill="#f97316" fontSize="10" fontWeight="600">
-              MAIN BUS — {project.voltage}V
+              {t('panel.mainBusbar', 'MAIN BUS')} — {project.voltage}V
             </text>
 
             {/* Floor risers */}
@@ -303,7 +305,7 @@ export default function RiserPage() {
                   {/* Floor label */}
                   <rect x="60" y={y + floorHeight / 2 - 14} width="70" height="28" fill="#1f2937" stroke="#374151" strokeWidth="1" rx="3" />
                   <text x="95" y={y + floorHeight / 2 + 4} textAnchor="middle" fill="#f97316" fontSize="10" fontWeight="700">
-                    FL {fd.floorNumber}
+                    {t('riser.floor', 'FL')} {fd.floorNumber}
                   </text>
 
                   {/* SDB Block — placed RIGHT of the main bus, on the orange riser.
@@ -346,7 +348,7 @@ export default function RiserPage() {
                       ? fd.riserNoData
                         ? 'no riser data'
                         : `${fd.riserCableSize ?? '—'}mm² ${fd.riserCableInsulation || 'XLPE'} · ${fd.riserCableLength?.toFixed(0) ?? '—'}m`
-                      : `${fd.items.length} apt feeders`}
+                      : `${fd.items.length} ${t('cableSchedule.circuits', 'apt feeders')}`}
                   </text>
 
                   {/* Voltage Drop Indicator (transformer→furthest load = total ΔV) */}
@@ -437,7 +439,7 @@ export default function RiserPage() {
 
             {/* Legend */}
             <g transform={`translate(60, ${svgHeight - 25})`}>
-              <text x="0" y="0" fill="#9ca3af" fontSize="9" fontWeight="600">Legend (total ΔV, transformer→furthest load):</text>
+              <text x="0" y="0" fill="#9ca3af" fontSize="9" fontWeight="600">{t('sld.legend', 'Legend')} (total ΔV, transformer→furthest load):</text>
               <line x1="320" y1="0" x2="340" y2="0" stroke="#60a5fa" strokeWidth="2" />
               <text x="345" y="4" fill="#6b7280" fontSize="8">Normal ({'<'}3.2%)</text>
               <line x1="430" y1="0" x2="450" y2="0" stroke="#eab308" strokeWidth="2" />
@@ -454,22 +456,22 @@ export default function RiserPage() {
 
       {/* Summary Table */}
       <div className="rounded-xl border border-gray-800 bg-gray-900/60 p-4">
-        <h3 className="text-sm font-semibold text-gray-300 mb-3">Floor Summary</h3>
+        <h3 className="text-sm font-semibold text-gray-300 mb-3">{t('riser.floorSummary', 'Floor Summary')}</h3>
         <div className="overflow-x-auto">
           <table className="w-full text-xs">
             <thead>
               <tr className="border-b border-gray-700">
-                <th className="text-left py-2 px-3 text-gray-400">Floor</th>
-                <th className="text-left py-2 px-3 text-gray-400">Panel</th>
-                <th className="text-right py-2 px-3 text-gray-400">Demand</th>
-                <th className="text-right py-2 px-3 text-gray-400">ΣkVA</th>
-                <th className="text-right py-2 px-3 text-gray-400">DF%</th>
-                <th className="text-right py-2 px-3 text-gray-400">Current</th>
-                <th className="text-right py-2 px-3 text-gray-400">Riser ΔV<span className="block font-normal opacity-70">{'<1%'}</span></th>
-                <th className="text-right py-2 px-3 text-gray-400">Branch ΔV<span className="block font-normal opacity-70">{'<3%'}</span></th>
-                <th className="text-right py-2 px-3 text-gray-400">Total ΔV<span className="block font-normal opacity-70">{'<4%'}</span></th>
-                <th className="text-right py-2 px-3 text-gray-400">Voltage</th>
-                <th className="text-center py-2 px-3 text-gray-400">Status</th>
+                <th className="text-start py-2 px-3 text-gray-400">{t('riser.floor', 'Floor')}</th>
+                <th className="text-start py-2 px-3 text-gray-400">{t('riser.panel', 'Panel')}</th>
+                <th className="text-end py-2 px-3 text-gray-400">{t('riser.demand', 'Demand')}</th>
+                <th className="text-end py-2 px-3 text-gray-400">ΣkVA</th>
+                <th className="text-end py-2 px-3 text-gray-400">DF%</th>
+                <th className="text-end py-2 px-3 text-gray-400">{t('riser.current', 'Current')}</th>
+                <th className="text-end py-2 px-3 text-gray-400">{t('riser.riserVd', 'Riser ΔV')}<span className="block font-normal opacity-70">{'<1%'}</span></th>
+                <th className="text-end py-2 px-3 text-gray-400">{t('riser.branchVd', 'Branch ΔV')}<span className="block font-normal opacity-70">{'<3%'}</span></th>
+                <th className="text-end py-2 px-3 text-gray-400">{t('riser.totalVd', 'Total ΔV')}<span className="block font-normal opacity-70">{'<4%'}</span></th>
+                <th className="text-end py-2 px-3 text-gray-400">{t('riser.voltage', 'Voltage')}</th>
+                <th className="text-center py-2 px-3 text-gray-400">{t('riser.status', 'Status')}</th>
               </tr>
             </thead>
             <tbody>
@@ -477,20 +479,20 @@ export default function RiserPage() {
                 <tr key={fd.id} className="border-b border-gray-800">
                   <td className="py-2 px-3 text-orange-500 font-semibold">FL {fd.floorNumber}</td>
                   <td className="py-2 px-3 text-gray-300">{fd.hasFloorSubPanels ? `SDB-${fd.floorNumber}` : 'Direct'}</td>
-                  <td className="py-2 px-3 text-gray-300 text-right">{fd.floorDemand.toFixed(1)} kW</td>
-                  <td className="py-2 px-3 text-gray-300 text-right">{fd.floorKva.toFixed(1)} kVA</td>
-                  <td className="py-2 px-3 text-gray-300 text-right">{fd.diversityPct.toFixed(0)}%</td>
-                  <td className="py-2 px-3 text-gray-300 text-right">{fd.floorCurrent.toFixed(0)} A</td>
-                  <td className="py-2 px-3 text-right" style={{ color: bandColor(fd.riserVdPercent, 1, fd.hasRiser && !fd.riserNoData) }}>
+                  <td className="py-2 px-3 text-gray-300 text-end">{fd.floorDemand.toFixed(1)} kW</td>
+                  <td className="py-2 px-3 text-gray-300 text-end">{fd.floorKva.toFixed(1)} kVA</td>
+                  <td className="py-2 px-3 text-gray-300 text-end">{fd.diversityPct.toFixed(0)}%</td>
+                  <td className="py-2 px-3 text-gray-300 text-end">{fd.floorCurrent.toFixed(0)} A</td>
+                  <td className="py-2 px-3 text-end" style={{ color: bandColor(fd.riserVdPercent, 1, fd.hasRiser && !fd.riserNoData) }}>
                     {fd.hasRiser ? (fd.riserNoData ? '—' : `${fd.riserVdPercent.toFixed(2)}%`) : '—'}
                   </td>
-                  <td className="py-2 px-3 text-right" style={{ color: bandColor(fd.branchVdPercent, 3, !fd.branchNoData) }}>
+                  <td className="py-2 px-3 text-end" style={{ color: bandColor(fd.branchVdPercent, 3, !fd.branchNoData) }}>
                     {fd.branchNoData ? '—' : `${fd.branchVdPercent.toFixed(2)}%`}
                   </td>
-                  <td className="py-2 px-3 text-right font-semibold" style={{ color: bandColor(fd.totalVdPercent, 4, !fd.totalNoData) }}>
+                  <td className="py-2 px-3 text-end font-semibold" style={{ color: bandColor(fd.totalVdPercent, 4, !fd.totalNoData) }}>
                     {fd.totalNoData ? '—' : `${fd.totalVdPercent.toFixed(2)}%`}
                   </td>
-                  <td className="py-2 px-3 text-gray-300 text-right">{fd.totalNoData ? '—' : `${fd.actualVoltage.toFixed(1)} V`}</td>
+                  <td className="py-2 px-3 text-gray-300 text-end">{fd.totalNoData ? '—' : `${fd.actualVoltage.toFixed(1)} V`}</td>
                   <td className="py-2 px-3 text-center">
                     <span className={`px-2 py-0.5 rounded text-xs font-medium ${
                       fd.totalNoData ? 'bg-gray-800/50 text-gray-500' :

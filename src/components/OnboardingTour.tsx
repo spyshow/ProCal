@@ -22,241 +22,318 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
+import { useTranslation } from '@/i18n';
+
 interface Step {
   id: string;
-  title: string;
-  subtitle: string;
-  content: string;
+  titleKey: string;
+  titleDefault: string;
+  subtitleKey: string;
+  subtitleDefault: string;
+  contentKey: string;
+  contentDefault: string;
   targetAttr: string;
   route: string;
   icon: React.ElementType;
 }
 
-const TOUR_STEPS: Step[] = [
+const RAW_TOUR_STEPS: Step[] = [
   {
     id: 'dashboard',
-    title: 'Dashboard & Engineering Metrics',
-    subtitle: 'Real-Time Project Overview',
-    content: 'Welcome to ProCal! The Dashboard provides real-time statistics on active electrical loads, maximum demand, and overall project summaries.',
+    titleKey: 'tour.dashboard.title',
+    titleDefault: 'Dashboard & Engineering Metrics',
+    subtitleKey: 'tour.dashboard.subtitle',
+    subtitleDefault: 'Real-Time Project Overview',
+    contentKey: 'tour.dashboard.content',
+    contentDefault: 'Welcome to ProCal! The Dashboard provides real-time statistics on active electrical loads, maximum demand, and overall project summaries.',
     targetAttr: 'tour-dashboard',
     route: '/dashboard',
     icon: LayoutDashboard,
   },
   {
     id: 'projects',
-    title: 'Projects & Building Management',
-    subtitle: 'Manage Projects & Buildings',
-    content: 'Manage your engineering project portfolio, create new projects, and configure multi-building complexes (residential towers, commercial malls, office blocks).',
+    titleKey: 'tour.projects.title',
+    titleDefault: 'Projects & Building Management',
+    subtitleKey: 'tour.projects.subtitle',
+    subtitleDefault: 'Manage Projects & Buildings',
+    contentKey: 'tour.projects.content',
+    contentDefault: 'Manage your engineering project portfolio, create new projects, and configure multi-building complexes (residential towers, commercial malls, office blocks).',
     targetAttr: 'tour-projects',
     route: '/projects',
     icon: Building2,
   },
   {
     id: 'calculator',
-    title: 'Load Calculator & Phase Balancing',
-    subtitle: 'Electrical Demand & Neutral Current',
-    content: 'Calculate load currents, power factor displacement angles, demand factors, and vector 3-phase neutral unbalance across all floors.',
+    titleKey: 'tour.calculator.title',
+    titleDefault: 'Load Calculator & Phase Balancing',
+    subtitleKey: 'tour.calculator.subtitle',
+    subtitleDefault: 'Electrical Demand & Neutral Current',
+    contentKey: 'tour.calculator.content',
+    contentDefault: 'Calculate load currents, power factor displacement angles, demand factors, and vector 3-phase neutral unbalance across all floors.',
     targetAttr: 'tour-calculator',
     route: '/calculator',
     icon: Zap,
   },
   {
     id: 'cable-schedule',
-    title: 'Cable Schedule & Derating',
-    subtitle: 'IEC 60364 Cable Sizing',
-    content: 'Automatically size copper/aluminum XLPE cables based on installation methods, ambient temperature, grouping factors, and voltage drop limits.',
+    titleKey: 'tour.cableSchedule.title',
+    titleDefault: 'Cable Schedule & Derating',
+    subtitleKey: 'tour.cableSchedule.subtitle',
+    subtitleDefault: 'IEC 60364 Cable Sizing',
+    contentKey: 'tour.cableSchedule.content',
+    contentDefault: 'Automatically size copper/aluminum XLPE cables based on installation methods, ambient temperature, grouping factors, and voltage drop limits.',
     targetAttr: 'tour-cable-schedule',
     route: '/cable-schedule',
     icon: Cable,
   },
   {
     id: 'breaker-schedule',
-    title: 'Breaker Schedule & Selection',
-    subtitle: 'MCB, MCCB & ACB Catalog Matching',
-    content: 'Match miniature circuit breakers (MCB), molded case circuit breakers (MCCB), and air circuit breakers (ACB) from Schneider, ABB, and Siemens.',
+    titleKey: 'tour.breakerSchedule.title',
+    titleDefault: 'Breaker Schedule & Selection',
+    subtitleKey: 'tour.breakerSchedule.subtitle',
+    subtitleDefault: 'MCB, MCCB & ACB Catalog Matching',
+    contentKey: 'tour.breakerSchedule.content',
+    contentDefault: 'Match miniature circuit breakers (MCB), molded case circuit breakers (MCCB), and air circuit breakers (ACB) from Schneider, ABB, and Siemens.',
     targetAttr: 'tour-breaker-schedule',
     route: '/breaker-schedule',
     icon: CircuitBoard,
   },
   {
     id: 'panel-designer',
-    title: 'Panel Designer & Main Incomer',
-    subtitle: 'Busbar & Switchboard Configuration',
-    content: 'Configure main distribution boards (MDB) and sub-distribution boards (SMDB), transformer secondaries, and main busbar current ratings.',
+    titleKey: 'tour.panelDesigner.title',
+    titleDefault: 'Panel Designer & Main Incomer',
+    subtitleKey: 'tour.panelDesigner.subtitle',
+    subtitleDefault: 'Busbar & Switchboard Configuration',
+    contentKey: 'tour.panelDesigner.content',
+    contentDefault: 'Configure main distribution boards (MDB) and sub-distribution boards (SMDB), transformer secondaries, and main busbar current ratings.',
     targetAttr: 'tour-panel',
     route: '/panel',
     icon: Cpu,
   },
   {
     id: 'riser-diagram',
-    title: 'Riser Diagram & Feeder Distribution',
-    subtitle: 'Vertical Building Power Distribution',
-    content: 'Visualize vertical electrical risers, feeder distribution trunks, and sub-panel floor connections throughout multi-story structures.',
+    titleKey: 'tour.riserDiagram.title',
+    titleDefault: 'Riser Diagram & Feeder Distribution',
+    subtitleKey: 'tour.riserDiagram.subtitle',
+    subtitleDefault: 'Vertical Building Power Distribution',
+    contentKey: 'tour.riserDiagram.content',
+    contentDefault: 'Visualize vertical electrical risers, feeder distribution trunks, and sub-panel floor connections throughout multi-story structures.',
     targetAttr: 'tour-riser',
     route: '/riser',
     icon: GitBranch,
   },
   {
     id: 'coordination',
-    title: 'Protection Coordination',
-    subtitle: 'Selectivity & Trip Curves',
-    content: 'Analyze protection selectivity, discrimination, and tripping characteristics between upstream MCCBs/ACBs and downstream MCBs.',
+    titleKey: 'tour.coordination.title',
+    titleDefault: 'Protection Coordination',
+    subtitleKey: 'tour.coordination.subtitle',
+    subtitleDefault: 'Selectivity & Trip Curves',
+    contentKey: 'tour.coordination.content',
+    contentDefault: 'Analyze protection selectivity, discrimination, and tripping characteristics between upstream MCCBs/ACBs and downstream MCBs.',
     targetAttr: 'tour-coordination',
     route: '/coordination',
     icon: Shield,
   },
   {
     id: 'sld-designer',
-    title: 'SLD Designer Workstation',
-    subtitle: 'Interactive Single Line Diagrams',
-    content: 'Inspect floor-by-floor Single Line Diagrams with collapsible tree explorer, interactive node details, and live schematic rendering.',
+    titleKey: 'tour.sldDesigner.title',
+    titleDefault: 'SLD Designer Workstation',
+    subtitleKey: 'tour.sldDesigner.subtitle',
+    subtitleDefault: 'Interactive Single Line Diagrams',
+    contentKey: 'tour.sldDesigner.content',
+    contentDefault: 'Inspect floor-by-floor Single Line Diagrams with collapsible tree explorer, interactive node details, and live schematic rendering.',
     targetAttr: 'tour-sld',
     route: '/sld',
     icon: GitBranch,
   },
   {
     id: 'reports',
-    title: 'Executive PDF Reports',
-    subtitle: 'Print & Export Drawing Packages',
-    content: 'Generate executive summary cover reports with color-coded key performance cards, distribution hierarchy tables, and complete landscape drawing packages.',
+    titleKey: 'tour.reports.title',
+    titleDefault: 'Executive PDF Reports',
+    subtitleKey: 'tour.reports.subtitle',
+    subtitleDefault: 'Print & Export Drawing Packages',
+    contentKey: 'tour.reports.content',
+    contentDefault: 'Generate executive summary cover reports with color-coded key performance cards, distribution hierarchy tables, and complete landscape drawing packages.',
     targetAttr: 'tour-reports',
     route: '/reports',
     icon: FileText,
   },
   {
     id: 'settings',
-    title: 'Workspace Settings & Controls',
-    subtitle: 'Customization & Replay',
-    content: 'Configure country engineering defaults, company logos, voltage drop limits, or replay this guided product tour anytime!',
+    titleKey: 'tour.settings.title',
+    titleDefault: 'Workspace Settings & Controls',
+    subtitleKey: 'tour.settings.subtitle',
+    subtitleDefault: 'Customization & Replay',
+    contentKey: 'tour.settings.content',
+    contentDefault: 'Configure country engineering defaults, company logos, voltage drop limits, or replay this guided product tour anytime!',
     targetAttr: 'tour-settings',
     route: '/settings',
     icon: Sparkles,
   },
 ];
 
-const CALCULATOR_TOUR_STEPS: Step[] = [
+const RAW_CALCULATOR_TOUR_STEPS: Step[] = [
   {
     id: 'calc-summary',
-    title: 'Load Demand Summary & Incomer Current',
-    subtitle: 'Aggregated Electrical Demands',
-    content: 'View total connected load (kW), maximum demand after diversity factors, and calculated incomer line current (A) for your selected building.',
+    titleKey: 'tour.calcSummary.title',
+    titleDefault: 'Load Demand Summary & Incomer Current',
+    subtitleKey: 'tour.calcSummary.subtitle',
+    subtitleDefault: 'Aggregated Electrical Demands',
+    contentKey: 'tour.calcSummary.content',
+    contentDefault: 'View total connected load (kW), maximum demand after diversity factors, and calculated incomer line current (A) for your selected building.',
     targetAttr: 'calc-summary',
     route: '/calculator',
     icon: Zap,
   },
   {
     id: 'calc-buildings',
-    title: 'Building Selector & Multi-Structure Tabs',
-    subtitle: 'Complex Building Tabs',
-    content: 'Switch between individual towers, commercial blocks, or podium buildings in your project to calculate their independent load schedules.',
+    titleKey: 'tour.calcBuildings.title',
+    titleDefault: 'Building Selector & Multi-Structure Tabs',
+    subtitleKey: 'tour.calcBuildings.subtitle',
+    subtitleDefault: 'Complex Building Tabs',
+    contentKey: 'tour.calcBuildings.content',
+    contentDefault: 'Switch between individual towers, commercial blocks, or podium buildings in your project to calculate their independent load schedules.',
     targetAttr: 'calc-buildings',
     route: '/calculator',
     icon: Building2,
   },
   {
     id: 'calc-building-loads',
-    title: 'Mechanical & Central Building Loads',
-    subtitle: 'Elevators, Pumps & Plant Equipment',
-    content: 'Configure shared building mechanical loads such as passenger elevators, domestic booster pumps, and HVAC chillers.',
+    titleKey: 'tour.calcBuildingLoads.title',
+    titleDefault: 'Mechanical & Central Building Loads',
+    subtitleKey: 'tour.calcBuildingLoads.subtitle',
+    subtitleDefault: 'Elevators, Pumps & Plant Equipment',
+    contentKey: 'tour.calcBuildingLoads.content',
+    contentDefault: 'Configure shared building mechanical loads such as passenger elevators, domestic booster pumps, and HVAC chillers.',
     targetAttr: 'calc-building-loads',
     route: '/calculator',
     icon: Cpu,
   },
   {
     id: 'calc-floors',
-    title: 'Floor Load Designs & 3-Phase Phase Balance',
-    subtitle: 'Floor Breakdown & Neutral Current',
-    content: 'Inspect floor-by-floor loads, apartment template densities, and automatic vector phase balancing (L1, L2, L3) to prevent neutral overload.',
+    titleKey: 'tour.calcFloors.title',
+    titleDefault: 'Floor Load Designs & 3-Phase Phase Balance',
+    subtitleKey: 'tour.calcFloors.subtitle',
+    subtitleDefault: 'Floor Breakdown & Neutral Current',
+    contentKey: 'tour.calcFloors.content',
+    contentDefault: 'Inspect floor-by-floor loads, apartment template densities, and automatic vector phase balancing (L1, L2, L3) to prevent neutral overload.',
     targetAttr: 'calc-floors',
     route: '/calculator',
     icon: CircuitBoard,
   },
 ];
 
-const CABLE_SCHEDULE_TOUR_STEPS: Step[] = [
+const RAW_CABLE_SCHEDULE_TOUR_STEPS: Step[] = [
   {
     id: 'cable-header',
-    title: 'Cable Schedule & IEC 60364 Sizing',
-    subtitle: 'Conductor Sizing Standards',
-    content: 'Automatically size phase conductors, neutral conductors, and protective earth (PE) conductors in compliance with IEC 60364-5-52.',
+    titleKey: 'tour.cableHeader.title',
+    titleDefault: 'Cable Schedule & IEC 60364 Sizing',
+    subtitleKey: 'tour.cableHeader.subtitle',
+    subtitleDefault: 'Conductor Sizing Standards',
+    contentKey: 'tour.cableHeader.content',
+    contentDefault: 'Automatically size phase conductors, neutral conductors, and protective earth (PE) conductors in compliance with IEC 60364-5-52.',
     targetAttr: 'cable-header',
     route: '/cable-schedule',
     icon: Cable,
   },
   {
     id: 'cable-derating',
-    title: 'Derating Factors & Installation Methods',
-    subtitle: 'Insulation & Ambient Conditions',
-    content: 'Configure cable insulation (XLPE/PVC), installation method (perforated tray, direct buried, conduit), ambient temperature, and grouping derating factors.',
+    titleKey: 'tour.cableDerating.title',
+    titleDefault: 'Derating Factors & Installation Methods',
+    subtitleKey: 'tour.cableDerating.subtitle',
+    subtitleDefault: 'Insulation & Ambient Conditions',
+    contentKey: 'tour.cableDerating.content',
+    contentDefault: 'Configure cable insulation (XLPE/PVC), installation method (perforated tray, direct buried, conduit), ambient temperature, and grouping derating factors.',
     targetAttr: 'cable-derating',
     route: '/cable-schedule',
     icon: Sparkles,
   },
   {
     id: 'cable-table',
-    title: 'Calculated Cable Sizing Table',
-    subtitle: 'Cross-Sections & Voltage Drop',
-    content: 'Review recommended conductor cross-sections (mm²), voltage drop percentage (%ΔV), and short-circuit withstand capability.',
+    titleKey: 'tour.cableTable.title',
+    titleDefault: 'Calculated Cable Sizing Table',
+    subtitleKey: 'tour.cableTable.subtitle',
+    subtitleDefault: 'Cross-Sections & Voltage Drop',
+    contentKey: 'tour.cableTable.content',
+    contentDefault: 'Review recommended conductor cross-sections (mm²), voltage drop percentage (%ΔV), and short-circuit withstand capability.',
     targetAttr: 'cable-table',
     route: '/cable-schedule',
     icon: FileText,
   },
 ];
 
-const BREAKER_SCHEDULE_TOUR_STEPS: Step[] = [
+const RAW_BREAKER_SCHEDULE_TOUR_STEPS: Step[] = [
   {
     id: 'breaker-header',
-    title: 'Breaker Schedule & Catalog Selector',
-    subtitle: 'Manufacturer Database Matching',
-    content: 'Match circuit breakers across MCB, MCCB, and ACB categories from Schneider Electric, ABB, and Siemens catalog databases.',
+    titleKey: 'tour.breakerHeader.title',
+    titleDefault: 'Breaker Schedule & Catalog Selector',
+    subtitleKey: 'tour.breakerHeader.subtitle',
+    subtitleDefault: 'Manufacturer Database Matching',
+    contentKey: 'tour.breakerHeader.content',
+    contentDefault: 'Match circuit breakers across MCB, MCCB, and ACB categories from Schneider Electric, ABB, and Siemens catalog databases.',
     targetAttr: 'breaker-header',
     route: '/breaker-schedule',
     icon: CircuitBoard,
   },
   {
     id: 'breaker-family-select',
-    title: 'Default Breaker Family Selection',
-    subtitle: 'Configured Series & Product Lines',
-    content: 'Configure default series (e.g. Acti9 iC60N, ComPacT NSX, MasterPact MTZ) for final distribution and main incomers.',
+    titleKey: 'tour.breakerFamilySelect.title',
+    titleDefault: 'Default Breaker Family Selection',
+    subtitleKey: 'tour.breakerFamilySelect.subtitle',
+    subtitleDefault: 'Configured Series & Product Lines',
+    contentKey: 'tour.breakerFamilySelect.content',
+    contentDefault: 'Configure default series (e.g. Acti9 iC60N, ComPacT NSX, MasterPact MTZ) for final distribution and main incomers.',
     targetAttr: 'breaker-family-select',
     route: '/breaker-schedule',
     icon: Sparkles,
   },
   {
     id: 'breaker-table',
-    title: 'Distribution Circuit Breaker Table',
-    subtitle: 'Trip Ratings & Breaking Capacity',
-    content: 'Inspect nominal trip ratings (In), pole configurations (1P/3P/4P), breaking capacities (Icu), and trip unit parameters.',
+    titleKey: 'tour.breakerTable.title',
+    titleDefault: 'Distribution Circuit Breaker Table',
+    subtitleKey: 'tour.breakerTable.subtitle',
+    subtitleDefault: 'Trip Ratings & Breaking Capacity',
+    contentKey: 'tour.breakerTable.content',
+    contentDefault: 'Inspect nominal trip ratings (In), pole configurations (1P/3P/4P), breaking capacities (Icu), and trip unit parameters.',
     targetAttr: 'breaker-table',
     route: '/breaker-schedule',
     icon: FileText,
   },
 ];
 
-const SLD_TOUR_STEPS: Step[] = [
+const RAW_SLD_TOUR_STEPS: Step[] = [
   {
     id: 'sld-header',
-    title: 'Single Line Diagram (SLD) Workstation',
-    subtitle: 'Interactive CAD Schematic Editor',
-    content: 'View, edit, and export floor-by-floor Single Line Diagrams with live schematic rendering and component hierarchy.',
+    titleKey: 'tour.sldHeader.title',
+    titleDefault: 'Single Line Diagram (SLD) Workstation',
+    subtitleKey: 'tour.sldHeader.subtitle',
+    subtitleDefault: 'Interactive CAD Schematic Editor',
+    contentKey: 'tour.sldHeader.content',
+    contentDefault: 'View, edit, and export floor-by-floor Single Line Diagrams with live schematic rendering and component hierarchy.',
     targetAttr: 'sld-header',
     route: '/sld',
     icon: GitBranch,
   },
   {
     id: 'sld-tree',
-    title: 'Distribution Hierarchy Explorer',
-    subtitle: 'Sub-Panel Tree Navigation',
-    content: 'Navigate incomer transformers, main distribution boards (MDB), sub-main panels (SMDB), and final distribution boards (FDB).',
+    titleKey: 'tour.sldTree.title',
+    titleDefault: 'Distribution Hierarchy Explorer',
+    subtitleKey: 'tour.sldTree.subtitle',
+    subtitleDefault: 'Sub-Panel Tree Navigation',
+    contentKey: 'tour.sldTree.content',
+    contentDefault: 'Navigate incomer transformers, main distribution boards (MDB), sub-main panels (SMDB), and final distribution boards (FDB).',
     targetAttr: 'sld-tree',
     route: '/sld',
     icon: GitBranch,
   },
   {
     id: 'sld-canvas',
-    title: 'Schematic Diagram Canvas & Print Controls',
-    subtitle: 'Live CAD View & PDF Export',
-    content: 'Inspect electrical schematic symbols, breaker ratings, cable tags, and print full-bleed landscape PDF engineering drawing sheets.',
+    titleKey: 'tour.sldCanvas.title',
+    titleDefault: 'Schematic Diagram Canvas & Print Controls',
+    subtitleKey: 'tour.sldCanvas.subtitle',
+    subtitleDefault: 'Live CAD View & PDF Export',
+    contentKey: 'tour.sldCanvas.content',
+    contentDefault: 'Inspect electrical schematic symbols, breaker ratings, cable tags, and print full-bleed landscape PDF engineering drawing sheets.',
     targetAttr: 'sld-canvas',
     route: '/sld',
     icon: FileText,
@@ -267,22 +344,33 @@ type TourMode = 'full' | 'calculator' | 'cable-schedule' | 'breaker-schedule' | 
 
 export function OnboardingTour() {
   const { user } = useUser();
+  const { t, isRtl } = useTranslation();
   const router = useRouter();
   const pathname = usePathname();
   const [activeStep, setActiveStep] = useState<number>(-1);
   const [tourMode, setTourMode] = useState<TourMode>('full');
   const [targetRect, setTargetRect] = useState<DOMRect | null>(null);
 
-  const stepsList =
+  const rawStepsList =
     tourMode === 'calculator'
-      ? CALCULATOR_TOUR_STEPS
+      ? RAW_CALCULATOR_TOUR_STEPS
       : tourMode === 'cable-schedule'
-      ? CABLE_SCHEDULE_TOUR_STEPS
+      ? RAW_CABLE_SCHEDULE_TOUR_STEPS
       : tourMode === 'breaker-schedule'
-      ? BREAKER_SCHEDULE_TOUR_STEPS
+      ? RAW_BREAKER_SCHEDULE_TOUR_STEPS
       : tourMode === 'sld'
-      ? SLD_TOUR_STEPS
-      : TOUR_STEPS;
+      ? RAW_SLD_TOUR_STEPS
+      : RAW_TOUR_STEPS;
+
+  const stepsList = rawStepsList.map((s) => ({
+    id: s.id,
+    title: t(s.titleKey, s.titleDefault),
+    subtitle: t(s.subtitleKey, s.subtitleDefault),
+    content: t(s.contentKey, s.contentDefault),
+    targetAttr: s.targetAttr,
+    route: s.route,
+    icon: s.icon,
+  }));
 
   const storageKey = user?.id ? `procal_tour_completed_${user.id}` : 'procal_tour_completed_guest';
 
@@ -361,14 +449,14 @@ export function OnboardingTour() {
     const activeMode = modeOverride || tourMode;
     const activeSteps =
       activeMode === 'calculator'
-        ? CALCULATOR_TOUR_STEPS
+        ? RAW_CALCULATOR_TOUR_STEPS
         : activeMode === 'cable-schedule'
-        ? CABLE_SCHEDULE_TOUR_STEPS
+        ? RAW_CABLE_SCHEDULE_TOUR_STEPS
         : activeMode === 'breaker-schedule'
-        ? BREAKER_SCHEDULE_TOUR_STEPS
+        ? RAW_BREAKER_SCHEDULE_TOUR_STEPS
         : activeMode === 'sld'
-        ? SLD_TOUR_STEPS
-        : TOUR_STEPS;
+        ? RAW_SLD_TOUR_STEPS
+        : RAW_TOUR_STEPS;
 
     if (stepIndex < 0 || stepIndex >= activeSteps.length) return;
 
@@ -441,6 +529,9 @@ export function OnboardingTour() {
   const isFirst = activeStep === 0;
   const isLast = activeStep === stepsList.length - 1;
 
+  const PrevIcon = isRtl ? ChevronRight : ChevronLeft;
+  const NextIcon = isRtl ? ChevronLeft : ChevronRight;
+
   return (
     <div className="fixed inset-0 z-50 overflow-hidden pointer-events-auto">
       {/* Target Spotlight Cutout Box & Shadow */}
@@ -481,7 +572,7 @@ export function OnboardingTour() {
             <button
               onClick={handleComplete}
               className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
-              title="Close Tour"
+              title={t('tour.close', 'Close Tour')}
             >
               <X size={18} />
             </button>
@@ -497,7 +588,7 @@ export function OnboardingTour() {
             {/* Step Counter */}
             <div className="flex items-center gap-2">
               <span className="text-xs font-mono text-slate-400 bg-slate-800 px-2 py-1 rounded-md border border-slate-700">
-                Step <strong className="text-orange-400">{activeStep + 1}</strong> of {stepsList.length}
+                {t('tour.step', 'Step')} <strong className="text-orange-400">{activeStep + 1}</strong> {t('tour.of', 'of')} {stepsList.length}
               </span>
             </div>
 
@@ -508,8 +599,8 @@ export function OnboardingTour() {
                   onClick={handleBack}
                   className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-slate-700 bg-slate-800 text-xs font-semibold text-slate-300 hover:bg-slate-700 hover:text-white transition-colors"
                 >
-                  <ChevronLeft size={14} />
-                  Back
+                  <PrevIcon size={14} />
+                  {t('tour.back', 'Back')}
                 </button>
               )}
 
@@ -517,7 +608,7 @@ export function OnboardingTour() {
                 onClick={handleComplete}
                 className="px-3 py-1.5 text-xs font-medium text-slate-400 hover:text-slate-200 transition-colors"
               >
-                Skip
+                {t('tour.skip', 'Skip')}
               </button>
 
               <button
@@ -526,13 +617,13 @@ export function OnboardingTour() {
               >
                 {isLast ? (
                   <>
-                    <span>Finish</span>
+                    <span>{t('tour.finish', 'Finish')}</span>
                     <CheckCircle2 size={14} />
                   </>
                 ) : (
                   <>
-                    <span>Next</span>
-                    <ChevronRight size={14} />
+                    <span>{t('tour.next', 'Next')}</span>
+                    <NextIcon size={14} />
                   </>
                 )}
               </button>

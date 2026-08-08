@@ -4,6 +4,8 @@ import { usePathname } from "next/navigation";
 import { useProject } from "@/context/ProjectContext";
 import { useUser } from "@/context/UserContext";
 import { useSidebar } from "@/context/SidebarContext";
+import { useTranslation } from "@/i18n";
+import { LanguageSelector } from "@/components/LanguageSelector";
 import {
   LayoutDashboard,
   FolderOpen,
@@ -31,23 +33,24 @@ interface Project {
 }
 
 interface NavItem {
-  label: string;
+  id: string;
+  labelKey: string;
   href: string;
   icon: React.ElementType;
 }
 
 const NAV_ITEMS: NavItem[] = [
-  { label: "Dashboard",        href: "/dashboard",      icon: LayoutDashboard },
-  { label: "Projects",         href: "/projects",       icon: FolderOpen      },
-  { label: "Load Calculator",  href: "/calculator",     icon: Zap             },
-  { label: "Cable Schedule",   href: "/cable-schedule", icon: Cable           },
-  { label: "Breaker Schedule", href: "/breaker-schedule", icon: CircuitBoard },
-  { label: "Panel Designer",   href: "/panel",          icon: Cpu             },
-  { label: "Riser Diagram",    href: "/riser",          icon: GitBranch       },
-  { label: "Coordination",     href: "/coordination",   icon: Shield          },
-  { label: "SLD Designer",     href: "/sld",            icon: GitBranch       },
-  { label: "Reports",          href: "/reports",        icon: FileText        },
-  { label: "Settings",         href: "/settings",       icon: Settings        },
+  { id: "dashboard",       labelKey: "nav.dashboard",       href: "/dashboard",        icon: LayoutDashboard },
+  { id: "projects",        labelKey: "nav.projects",        href: "/projects",         icon: FolderOpen      },
+  { id: "calculator",      labelKey: "nav.calculator",      href: "/calculator",       icon: Zap             },
+  { id: "cableSchedule",   labelKey: "nav.cableSchedule",   href: "/cable-schedule",   icon: Cable           },
+  { id: "breakerSchedule", labelKey: "nav.breakerSchedule", href: "/breaker-schedule", icon: CircuitBoard   },
+  { id: "panelDesigner",   labelKey: "nav.panelDesigner",   href: "/panel",            icon: Cpu             },
+  { id: "riserDiagram",    labelKey: "nav.riserDiagram",    href: "/riser",            icon: GitBranch       },
+  { id: "coordination",    labelKey: "nav.coordination",    href: "/coordination",     icon: Shield          },
+  { id: "sldDesigner",     labelKey: "nav.sldDesigner",     href: "/sld",              icon: GitBranch       },
+  { id: "reports",         labelKey: "nav.reports",         href: "/reports",          icon: FileText        },
+  { id: "settings",        labelKey: "nav.settings",        href: "/settings",         icon: Settings        },
 ];
 
 function LogoMark() {
@@ -74,6 +77,7 @@ function LogoMark() {
 function ProjectSelector({ isCollapsed }: { isCollapsed?: boolean }) {
   const { selectedProject, selectProject } = useProject();
   const { toggleSidebar } = useSidebar();
+  const { t, isRtl } = useTranslation();
   const [open, setOpen]         = useState(false);
   const [projects, setProjects] = useState<Project[]>([]);
   const [fetching, setFetching] = useState(false);
@@ -122,136 +126,91 @@ function ProjectSelector({ isCollapsed }: { isCollapsed?: boolean }) {
     return () => document.removeEventListener("mousedown", handler);
   }, [open]);
 
-  if (isCollapsed) {
-    return (
-      <div className="flex justify-center mb-3">
-        <button
-          onClick={handleToggle}
-          title={selectedProject ? `Project: ${selectedProject.name}` : "Select Project"}
-          className="p-2 rounded-lg bg-slate-900 border border-slate-800 text-orange-400 hover:text-white hover:border-slate-700 transition-colors shadow-sm"
-        >
-          <Building2 size={16} />
-        </button>
-      </div>
-    );
-  }
-
   return (
-    <div ref={dropdownRef} className="relative px-3 mb-4">
+    <div className="relative px-2 mb-3" ref={dropdownRef}>
       <button
         onClick={handleToggle}
-        aria-haspopup="listbox"
-        aria-expanded={open}
         className={cn(
-          "w-full flex items-center justify-between gap-2",
-          "px-3 py-2.5 rounded-lg text-sm font-medium",
-          "bg-slate-900/90 border transition-all duration-200 backdrop-blur-md shadow-sm",
+          "w-full flex items-center rounded-lg border bg-slate-900/90 text-start text-xs transition-all duration-150 outline-none focus:ring-1 focus:ring-orange-500",
           open
-            ? "border-orange-500/80 text-white ring-2 ring-orange-500/20"
-            : "border-slate-800 text-slate-300 hover:border-slate-700 hover:text-white"
+            ? "border-orange-500/50 shadow-[0_0_12px_rgba(234,88,12,0.15)]"
+            : "border-slate-800 hover:border-slate-700 hover:bg-slate-900",
+          isCollapsed ? "justify-center p-2" : "gap-2 px-2.5 py-2"
         )}
+        title={isCollapsed ? (selectedProject ? selectedProject.name : t('nav.selectProject')) : undefined}
       >
-        <span className="flex items-center gap-2 min-w-0">
-          <Building2 size={14} className="flex-shrink-0 text-orange-400" />
-          <span className="truncate">
-            {selectedProject ? selectedProject.name : "Select Project"}
-          </span>
-        </span>
-        <ChevronDown
+        <Building2
           size={14}
           className={cn(
-            "flex-shrink-0 transition-transform duration-200",
-            open ? "rotate-180 text-orange-400" : "text-slate-500"
+            "flex-shrink-0",
+            selectedProject ? "text-orange-400" : "text-slate-500"
           )}
         />
+        {!isCollapsed && (
+          <>
+            <span className="flex-1 truncate font-medium text-slate-200">
+              {selectedProject ? selectedProject.name : t('nav.selectProject')}
+            </span>
+            <ChevronDown
+              size={12}
+              className={cn(
+                "text-slate-400 flex-shrink-0 transition-transform duration-150",
+                open && "rotate-180"
+              )}
+            />
+          </>
+        )}
       </button>
 
-      {open && (
-        <div
-          role="listbox"
-          className="absolute left-3 right-3 z-50 mt-1.5 bg-slate-950/95 border border-slate-700/80 rounded-lg shadow-2xl overflow-hidden backdrop-blur-xl animate-in fade-in-0 zoom-in-95"
-        >
-          <div className="px-3 py-2 border-b border-slate-800 bg-slate-900/50">
-            <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400">
-              Select Active Project
-            </p>
-          </div>
-
-          <div className="max-h-56 overflow-y-auto custom-scrollbar">
-            {fetching && (
-              <div className="flex items-center justify-center py-6 gap-2 text-slate-400">
-                <svg
-                  className="animate-spin h-4 w-4 text-orange-500"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                  />
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8v8H4z"
-                  />
-                </svg>
-                <span className="text-xs">Loading…</span>
+      {open && !isCollapsed && (
+        <div className={cn(
+          "absolute top-full mt-1 w-[calc(100%-16px)] z-50 rounded-lg border border-slate-700/80 bg-slate-900/95 shadow-xl backdrop-blur-md overflow-hidden",
+          isRtl ? "right-2" : "left-2"
+        )}>
+          <div className="p-1 max-h-48 overflow-y-auto custom-scrollbar">
+            {fetching ? (
+              <div className="px-3 py-2 text-xs text-slate-400 animate-pulse">
+                {t('common.loading')}
               </div>
-            )}
-
-            {!fetching && error && (
-              <div className="px-3 py-4 text-xs text-rose-400 text-center">
+            ) : error ? (
+              <div className="px-3 py-2 text-xs text-rose-400">
                 {error}
               </div>
-            )}
-
-            {!fetching && !error && projects.length === 0 && (
-              <div className="px-3 py-4 text-xs text-slate-500 text-center">
-                No projects found
+            ) : projects.length === 0 ? (
+              <div className="px-3 py-2 text-xs text-slate-500">
+                {t('nav.noProjects')}
               </div>
-            )}
-
-            {!fetching &&
-              !error &&
-              projects.map((proj) => {
-                const isActive = selectedProject?.id === proj.id;
+            ) : (
+              projects.map((p) => {
+                const isSelected = selectedProject?.id === p.id;
                 return (
                   <button
-                    key={proj.id}
-                    role="option"
-                    aria-selected={isActive}
-                    onClick={() => handleSelect(proj.id)}
+                    key={p.id}
+                    onClick={() => handleSelect(p.id)}
                     className={cn(
-                      "w-full text-left px-3 py-2.5 text-sm transition-colors duration-150 flex items-start gap-2",
-                      isActive
-                        ? "bg-orange-600/20 text-orange-300 font-semibold"
+                      "w-full text-start px-2.5 py-1.5 rounded-md text-xs transition-colors duration-100 flex items-center justify-between",
+                      isSelected
+                        ? "bg-orange-500/15 text-orange-300 font-semibold"
                         : "text-slate-300 hover:bg-slate-800/80 hover:text-white"
                     )}
                   >
-                    <span className="flex-1 truncate font-medium">
-                      {proj.name}
-                    </span>
-                    {isActive && (
-                      <span className="flex-shrink-0 mt-1.5 w-1.5 h-1.5 rounded-full bg-orange-500 shadow-[0_0_8px_rgba(234,88,12,0.8)]" />
+                    <span className="truncate">{p.name}</span>
+                    {isSelected && (
+                      <span className="w-1.5 h-1.5 rounded-full bg-orange-400 flex-shrink-0" />
                     )}
                   </button>
                 );
-              })}
+              })
+            )}
           </div>
-
-          <div className="border-t border-slate-800 bg-slate-900/30">
+          <div className="border-t border-slate-800 p-1 bg-slate-950/40">
             <Link
               href="/projects"
               onClick={() => setOpen(false)}
-              className="flex items-center gap-2 px-3 py-2 text-xs text-slate-400 hover:text-orange-400 transition-colors duration-150"
+              className="flex items-center gap-2 px-3 py-1.5 text-xs text-slate-400 hover:text-orange-400 transition-colors duration-150"
             >
               <FolderOpen size={12} />
-              Manage all projects
+              <span>{t('nav.allProjects')}</span>
             </Link>
           </div>
         </div>
@@ -264,6 +223,7 @@ export default function Sidebar() {
   const pathname = usePathname();
   const { user: currentUser } = useUser();
   const { isCollapsed, toggleSidebar } = useSidebar();
+  const { t, isRtl } = useTranslation();
   const [loggingOut, setLoggingOut] = useState(false);
 
   const handleLogout = async () => {
@@ -282,7 +242,10 @@ export default function Sidebar() {
   return (
     <aside
       style={{ width: isCollapsed ? "64px" : "240px" }}
-      className="fixed top-0 left-0 h-screen flex flex-col bg-slate-950/95 border-r border-slate-800/80 backdrop-blur-xl z-40 select-none shadow-2xl transition-all duration-200"
+      className={cn(
+        "fixed top-0 h-screen flex flex-col bg-slate-950/95 backdrop-blur-xl z-40 select-none shadow-2xl transition-all duration-200",
+        isRtl ? "right-0 border-l border-slate-800/80" : "left-0 border-r border-slate-800/80"
+      )}
     >
       {/* Logo Header */}
       <div data-tour="brand-logo" className="flex items-center gap-2.5 px-3.5 py-4 border-b border-slate-800/80">
@@ -292,9 +255,12 @@ export default function Sidebar() {
         {!isCollapsed && (
           <>
             <span className="text-xl font-bold tracking-tight text-white flex items-center gap-1">
-              ProCal
+              {t('common.appName', 'ProCal')}
             </span>
-            <span className="ml-auto text-[9px] font-bold uppercase tracking-wider text-orange-400 bg-orange-500/10 border border-orange-500/20 px-1.5 py-0.5 rounded">
+            <span className={cn(
+              "text-[9px] font-bold uppercase tracking-wider text-orange-400 bg-orange-500/10 border border-orange-500/20 px-1.5 py-0.5 rounded",
+              isRtl ? "mr-auto" : "ml-auto"
+            )}>
               v1.0
             </span>
           </>
@@ -305,7 +271,7 @@ export default function Sidebar() {
       <div data-tour="project-selector" className="pt-3">
         {!isCollapsed && (
           <p className="px-4 mb-2 text-[10px] font-semibold uppercase tracking-widest text-slate-500">
-            Active Project
+            {t('nav.selectProject', 'Active Project')}
           </p>
         )}
         <ProjectSelector isCollapsed={isCollapsed} />
@@ -315,12 +281,13 @@ export default function Sidebar() {
       <nav className="flex-1 overflow-y-auto px-2 space-y-0.5 custom-scrollbar" aria-label="Main navigation">
         {!isCollapsed && (
           <p className="px-2 pt-1 pb-2 text-[10px] font-semibold uppercase tracking-widest text-slate-500">
-            Navigation
+            {t('common.actions', 'Navigation')}
           </p>
         )}
-        {NAV_ITEMS.map(({ label, href, icon: Icon }) => {
+        {NAV_ITEMS.map(({ id, labelKey, href, icon: Icon }) => {
           const isActive = pathname === href || pathname.startsWith(`${href}/`);
           const tourKey = `tour-${href.replace("/", "")}`;
+          const label = t(labelKey);
           return (
             <Link
               key={href}
@@ -331,7 +298,11 @@ export default function Sidebar() {
                 "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 outline-none",
                 isCollapsed ? "justify-center px-0 py-2.5" : "",
                 isActive
-                  ? "bg-gradient-to-r from-orange-600/25 to-amber-600/10 text-orange-300 border-l-2 border-orange-500 shadow-[0_0_15px_rgba(234,88,12,0.15)] font-semibold"
+                  ? isRtl
+                    ? "bg-gradient-to-l from-orange-600/25 to-amber-600/10 text-orange-300 border-r-2 border-orange-500 shadow-[0_0_15px_rgba(234,88,12,0.15)] font-semibold"
+                    : "bg-gradient-to-r from-orange-600/25 to-amber-600/10 text-orange-300 border-l-2 border-orange-500 shadow-[0_0_15px_rgba(234,88,12,0.15)] font-semibold"
+                  : isRtl
+                  ? "text-slate-400 hover:text-slate-100 hover:bg-slate-900/80 border-r-2 border-transparent"
                   : "text-slate-400 hover:text-slate-100 hover:bg-slate-900/80 border-l-2 border-transparent"
               )}
               aria-current={isActive ? "page" : undefined}
@@ -345,7 +316,10 @@ export default function Sidebar() {
               />
               {!isCollapsed && <span className="truncate">{label}</span>}
               {!isCollapsed && isActive && (
-                <span className="ml-auto w-1.5 h-1.5 rounded-full bg-orange-500 shadow-[0_0_8px_rgba(234,88,12,0.9)] flex-shrink-0" />
+                <span className={cn(
+                  "w-1.5 h-1.5 rounded-full bg-orange-500 shadow-[0_0_8px_rgba(234,88,12,0.9)] flex-shrink-0",
+                  isRtl ? "mr-auto" : "ml-auto"
+                )} />
               )}
             </Link>
           );
@@ -353,9 +327,14 @@ export default function Sidebar() {
       </nav>
 
       {/* Bottom Section */}
-      <div className="border-t border-slate-800/80 pt-3 pb-3 space-y-2">
-        {/* Help & Product Tour Button (Above Collapse Sidebar Button) */}
-        <div className={cn("px-3 flex", isCollapsed ? "justify-center px-0" : "justify-end")}>
+      <div className="border-t border-slate-800/80 pt-2 pb-3 space-y-2 px-2">
+        {/* Language Selector in Bottom Section */}
+        <div data-tour="language-selector" className="w-full">
+          <LanguageSelector isCollapsed={isCollapsed} variant="compact" />
+        </div>
+
+        {/* Help & Product Tour Button */}
+        <div className={cn("flex", isCollapsed ? "justify-center" : "justify-end")}>
           <button
             onClick={() => {
               window.dispatchEvent(new CustomEvent('trigger-procal-tour'));
@@ -364,7 +343,7 @@ export default function Sidebar() {
               "flex items-center gap-2 p-1.5 rounded-lg text-slate-400 hover:text-orange-300 hover:bg-slate-900 border border-slate-800/80 hover:border-orange-500/30 transition-all duration-150 text-xs w-full",
               isCollapsed ? "justify-center w-9 h-9 p-0" : "justify-between px-3 py-1.5"
             )}
-            title="Help & Product Tour"
+            title={t('nav.helpTour', 'Help & Product Tour')}
           >
             {isCollapsed ? (
               <HelpCircle size={16} className="text-orange-400" />
@@ -372,32 +351,34 @@ export default function Sidebar() {
               <>
                 <span className="text-[11px] font-medium text-slate-300 flex items-center gap-1.5">
                   <HelpCircle size={14} className="text-orange-400" />
-                  Help & Tour
+                  {t('nav.helpTour', 'Help & Tour')}
                 </span>
                 <span className="text-[9px] font-bold text-orange-400 bg-orange-500/10 border border-orange-500/20 px-1 py-0.2 rounded">
-                  Guide
+                  {t('nav.guide', 'Guide')}
                 </span>
               </>
             )}
           </button>
         </div>
 
-        {/* Toggle Collapse/Expand Button (above Admin Dashboard and User Profile) */}
-        <div data-tour="sidebar-toggle" className={cn("px-3 flex", isCollapsed ? "justify-center px-0" : "justify-end")}>
+        {/* Toggle Collapse/Expand Button */}
+        <div data-tour="sidebar-toggle" className={cn("flex", isCollapsed ? "justify-center" : "justify-end")}>
           <button
             onClick={toggleSidebar}
             className={cn(
               "flex items-center gap-2 p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-900 border border-slate-800/80 transition-all duration-150 text-xs w-full",
               isCollapsed ? "justify-center w-9 h-9 p-0" : "justify-between px-3 py-1.5"
             )}
-            title={isCollapsed ? "Expand Main Menu" : "Collapse Main Menu"}
+            title={isCollapsed ? t('nav.expandSidebar') : t('nav.collapseSidebar')}
           >
             {isCollapsed ? (
-              <PanelLeftOpen size={16} className="text-orange-400" />
+              <PanelLeftOpen size={16} className={cn("text-orange-400", isRtl && "scale-x-[-1]")} />
             ) : (
               <>
-                <span className="text-[11px] font-medium text-slate-400">Collapse Sidebar</span>
-                <PanelLeftClose size={15} className="text-slate-400" />
+                <span className="text-[11px] font-medium text-slate-400">
+                  {t('nav.collapseSidebar', 'Collapse Sidebar')}
+                </span>
+                <PanelLeftClose size={15} className={cn("text-slate-400", isRtl && "scale-x-[-1]")} />
               </>
             )}
           </button>
@@ -406,44 +387,46 @@ export default function Sidebar() {
         {currentUser?.role === "ADMIN" && (
           <Link
             href="/admin"
-            title="Admin dashboard"
+            title={t('nav.adminDashboard', 'Admin Dashboard')}
             className={cn(
-              "mx-2 flex items-center gap-2.5 rounded-lg text-xs font-medium text-orange-300 bg-orange-500/10 border border-orange-500/20 hover:bg-orange-500/20 transition-all duration-150",
+              "flex items-center gap-2.5 rounded-lg text-xs font-medium text-orange-300 bg-orange-500/10 border border-orange-500/20 hover:bg-orange-500/20 transition-all duration-150",
               isCollapsed ? "justify-center p-2" : "px-3 py-2"
             )}
           >
             <Shield size={16} className="flex-shrink-0 text-orange-400" />
-            {!isCollapsed && <span>Admin Dashboard</span>}
+            {!isCollapsed && <span>{t('nav.adminDashboard', 'Admin Dashboard')}</span>}
           </Link>
         )}
 
         {/* User profile & logout */}
-        <div className={cn("px-2 flex items-center gap-2", isCollapsed ? "flex-col justify-center" : "gap-2.5 px-3")}>
-          <div
-            title={currentUser?.name ?? "Engineer"}
-            className="w-8 h-8 rounded-lg bg-orange-600/20 border border-orange-500/40 flex items-center justify-center flex-shrink-0"
-          >
-            <span className="text-xs font-bold text-orange-300">
-              {currentUser?.name?.[0]?.toUpperCase() ?? "?"}
-            </span>
-          </div>
-
-          {!isCollapsed && (
-            <div className="flex-1 min-w-0">
-              <p className="text-xs font-semibold text-slate-200 truncate leading-tight">
-                {currentUser?.name ?? "Engineer"}
-              </p>
-              <p className="text-[10px] text-slate-500 truncate leading-tight">
-                {currentUser?.role === "ADMIN" ? "Administrator" : "ProCal Member"}
-              </p>
+        <div className={cn("flex items-center gap-2 pt-1 border-t border-slate-800/60", isCollapsed ? "flex-col justify-center" : "justify-between")}>
+          <div className="flex items-center gap-2 min-w-0">
+            <div
+              title={currentUser?.name ?? "Engineer"}
+              className="w-8 h-8 rounded-lg bg-orange-600/20 border border-orange-500/40 flex items-center justify-center flex-shrink-0"
+            >
+              <span className="text-xs font-bold text-orange-300">
+                {currentUser?.name?.[0]?.toUpperCase() ?? "?"}
+              </span>
             </div>
-          )}
+
+            {!isCollapsed && (
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-semibold text-slate-200 truncate leading-tight">
+                  {currentUser?.name ?? "Engineer"}
+                </p>
+                <p className="text-[10px] text-slate-500 truncate leading-tight">
+                  {currentUser?.role === "ADMIN" ? "Administrator" : "ProCal Member"}
+                </p>
+              </div>
+            )}
+          </div>
 
           <button
             onClick={handleLogout}
             disabled={loggingOut}
-            title="Sign out"
-            aria-label="Sign out"
+            title={t('nav.signOut', 'Sign out')}
+            aria-label={t('nav.signOut', 'Sign out')}
             className={cn(
               "flex-shrink-0 p-1.5 rounded-md transition-colors duration-150 outline-none focus:ring-2 focus:ring-orange-500",
               loggingOut
@@ -473,7 +456,7 @@ export default function Sidebar() {
                 />
               </svg>
             ) : (
-              <LogOut size={16} />
+              <LogOut size={16} className={cn(isRtl && "scale-x-[-1]")} />
             )}
           </button>
         </div>
@@ -481,4 +464,3 @@ export default function Sidebar() {
     </aside>
   );
 }
-

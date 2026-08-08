@@ -4,6 +4,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useProject } from '@/context/ProjectContext';
+import { useTranslation } from '@/i18n';
 import {
   FolderOpen,
   Zap,
@@ -13,6 +14,7 @@ import {
   FileText,
   Building2,
   ArrowRight,
+  ArrowLeft,
   Plus,
   Plug,
 } from 'lucide-react';
@@ -34,6 +36,7 @@ interface ProjectSummary {
 
 export default function DashboardPage() {
   const { selectedProject, preferredManufacturer } = useProject();
+  const { t, isRtl } = useTranslation();
   const [projects, setProjects] = useState<ProjectSummary[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -60,28 +63,28 @@ export default function DashboardPage() {
 
   const statCards = [
     {
-      label: 'Projects',
+      label: t('nav.projects', 'Projects'),
       value: projects.length,
       icon: FolderOpen,
       color: 'text-orange-400',
       bg: 'bg-orange-500/10 border-orange-500/30',
     },
     {
-      label: 'Buildings',
+      label: t('dashboard.totalBuildings', 'Buildings'),
       value: totalBuildings,
       icon: Building2,
       color: 'text-sky-400',
       bg: 'bg-sky-500/10 border-sky-500/30',
     },
     {
-      label: 'Apartments',
+      label: t('projects.buildingsCount', 'Apartments'),
       value: totalApartments,
       icon: Plug,
       color: 'text-emerald-400',
       bg: 'bg-emerald-500/10 border-emerald-500/30',
     },
     {
-      label: 'Load Items',
+      label: t('common.connectedLoad', 'Load Items'),
       value: projects.reduce((sum, p) => sum + (p.loadLibraryItems?.length ?? 0), 0),
       icon: Zap,
       color: 'text-amber-400',
@@ -90,12 +93,12 @@ export default function DashboardPage() {
   ];
 
   const quickLinks = [
-    { label: 'Projects', href: '/projects', icon: FolderOpen, desc: 'Create and manage projects' },
-    { label: 'Load Calculator', href: '/calculator', icon: Zap, desc: 'Add loads and size cables' },
-    { label: 'Panel Designer', href: '/panel', icon: Cpu, desc: 'Design MDB/SMDB layouts' },
-    { label: 'Riser Diagram', href: '/riser', icon: GitBranch, desc: 'Visual vertical riser' },
-    { label: 'Coordination', href: '/coordination', icon: Shield, desc: 'TCC selectivity curves' },
-    { label: 'Reports', href: '/reports', icon: FileText, desc: 'BOM and schedules' },
+    { label: t('nav.projects', 'Projects'), href: '/projects', icon: FolderOpen, desc: t('projects.subtitle', 'Create and manage projects') },
+    { label: t('nav.calculator', 'Load Calculator'), href: '/calculator', icon: Zap, desc: t('calculator.subtitle', 'Add loads and size cables') },
+    { label: t('nav.panelDesigner', 'Panel Designer'), href: '/panel', icon: Cpu, desc: t('panel.subtitle', 'Design MDB/SMDB layouts') },
+    { label: t('nav.riserDiagram', 'Riser Diagram'), href: '/riser', icon: GitBranch, desc: t('nav.riserDiagram', 'Visual vertical riser') },
+    { label: t('nav.coordination', 'Coordination'), href: '/coordination', icon: Shield, desc: t('breakers.subtitle', 'TCC selectivity curves') },
+    { label: t('nav.reports', 'Reports'), href: '/reports', icon: FileText, desc: t('reports.subtitle', 'BOM and schedules') },
   ];
 
   return (
@@ -104,19 +107,19 @@ export default function DashboardPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-6">
         <div>
           <div className="flex items-center gap-3">
-            <h1 className="text-3xl font-extrabold text-white tracking-tight">Dashboard</h1>
+            <h1 className="text-3xl font-extrabold text-white tracking-tight">{t('dashboard.title', 'Dashboard')}</h1>
             <Badge variant="glow">
               {preferredManufacturer || 'Multi-Vendor'} Mode
             </Badge>
           </div>
           <p className="text-sm text-slate-400 mt-1">
-            Electrical Load Calculation &amp; Switchboard Design Center
+            {t('dashboard.subtitle', 'Electrical Load Calculation & Switchboard Design Center')}
           </p>
         </div>
         <Link href="/projects">
           <Button variant="glow" className="gap-2">
             <Plus className="w-4 h-4" />
-            New Project
+            {t('projects.createNew', 'New Project')}
           </Button>
         </Link>
       </div>
@@ -144,7 +147,7 @@ export default function DashboardPage() {
       <div>
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xs font-bold uppercase tracking-widest text-slate-400 flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-orange-500"></span> Quick Navigation
+            <span className="w-2 h-2 rounded-full bg-orange-500"></span> {t('dashboard.quickActions', 'Quick Navigation')}
           </h2>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
@@ -157,10 +160,14 @@ export default function DashboardPage() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-semibold text-slate-100 group-hover:text-orange-300 transition-colors flex items-center justify-between">
-                      {label}
-                      <ArrowRight className="w-4 h-4 text-slate-600 group-hover:text-orange-400 group-hover:translate-x-1 transition-all" />
+                      <span>{label}</span>
+                      {isRtl ? (
+                        <ArrowLeft className="w-3.5 h-3.5 text-slate-500 group-hover:text-orange-400 group-hover:-translate-x-0.5 transition-all" />
+                      ) : (
+                        <ArrowRight className="w-3.5 h-3.5 text-slate-500 group-hover:text-orange-400 group-hover:translate-x-0.5 transition-all" />
+                      )}
                     </p>
-                    <p className="text-xs text-slate-400 mt-1">{desc}</p>
+                    <p className="text-xs text-slate-400 mt-1 line-clamp-2">{desc}</p>
                   </div>
                 </div>
               </Card>
@@ -173,24 +180,25 @@ export default function DashboardPage() {
       <div>
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xs font-bold uppercase tracking-widest text-slate-400 flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-amber-500"></span> Recent Projects
+            <span className="w-2 h-2 rounded-full bg-amber-500"></span> {t('dashboard.recentProjects', 'Recent Projects')}
           </h2>
-          <Link href="/projects" className="text-xs font-semibold text-orange-400 hover:text-orange-300">
-            View All Projects &rarr;
+          <Link href="/projects" className="text-xs font-semibold text-orange-400 hover:text-orange-300 flex items-center gap-1">
+            <span>{t('dashboard.viewAllProjects', 'View All Projects')}</span>
+            <span>{isRtl ? '←' : '→'}</span>
           </Link>
         </div>
 
         {loading ? (
           <Card className="glow-card p-8 text-center text-slate-400 text-sm">
-            Loading projects…
+            {t('dashboard.loadingProjects', 'Loading projects…')}
           </Card>
         ) : projects.length === 0 ? (
           <Card className="glow-card p-8 text-center">
             <FolderOpen className="w-10 h-10 mx-auto text-slate-600 mb-3" />
-            <p className="text-sm text-slate-400">No active projects found</p>
+            <p className="text-sm text-slate-400">{t('dashboard.noActiveProjects', 'No active projects found')}</p>
             <Link href="/projects" className="mt-3 inline-block">
               <Button variant="glow" size="sm" className="gap-2">
-                <Plus className="w-4 h-4" /> Create First Project
+                <Plus className="w-4 h-4" /> {t('projects.createProject', 'Create First Project')}
               </Button>
             </Link>
           </Card>
@@ -213,21 +221,25 @@ export default function DashboardPage() {
                           {proj.name}
                         </p>
                         <p className="text-xs text-slate-400 truncate">
-                          {proj.client || 'No client specified'} · {proj.location || 'Location pending'}
+                          {proj.client || t('projects.noClient', 'No client specified')} · {proj.location || t('projects.noLocation', 'Location pending')}
                         </p>
                       </div>
                     </div>
 
                     <div className="flex items-center gap-6 flex-shrink-0">
-                      <div className="text-right hidden sm:block">
+                      <div className="text-end hidden sm:block">
                         <p className="text-xs font-mono text-slate-300 font-semibold">
-                          {(proj.buildings ?? []).length} Building{(proj.buildings ?? []).length !== 1 ? 's' : ''}
+                          {(proj.buildings ?? []).length} {t('projects.buildingsCount', 'Buildings')}
                         </p>
                         <p className="text-[11px] text-slate-500">
-                          {totalApts} Apartments
+                          {totalApts} {t('calculator.apartments', 'Apartments')}
                         </p>
                       </div>
-                      <ArrowRight className="w-4 h-4 text-slate-600 group-hover:text-orange-400 group-hover:translate-x-1 transition-all" />
+                      {isRtl ? (
+                        <ArrowLeft className="w-4 h-4 text-slate-600 group-hover:text-orange-400 group-hover:-translate-x-1 transition-all" />
+                      ) : (
+                        <ArrowRight className="w-4 h-4 text-slate-600 group-hover:text-orange-400 group-hover:translate-x-1 transition-all" />
+                      )}
                     </div>
                   </Card>
                 </Link>

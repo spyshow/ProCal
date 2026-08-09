@@ -56,6 +56,9 @@ matcher.
 ### `POST /api/auth/logout` · `src/app/api/auth/logout/route.ts`
 Clears the session.
 
+### `POST /api/auth/change-password` · `src/app/api/auth/change-password/route.ts`
+Authenticated password change. Validates `currentPassword` against user's password hash and updates to new bcrypt-hashed password (minimum 6 chars). Returns `{ success: true, message }`.
+
 ### `GET /api/contact` · `src/app/api/contact/route.ts`
 Returns `{ hasOpen }` — whether the caller has an `OPEN` `ContactRequest`. The
 billing page uses this to self-disable the form (one open lead per user, CQ-C).

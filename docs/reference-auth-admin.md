@@ -75,7 +75,7 @@ matcher-protected. Documented here as a known gap. See
 
 ## Auth routes · `src/app/api/auth/`
 
-All four are matcher-allowed (`/api/auth/*` passes the early `pathname.startsWith`
+All five are matcher-allowed (`/api/auth/*` passes the early `pathname.startsWith`
 check), so they handle their own auth semantics.
 
 ### `POST /api/auth/register` · `register/route.ts`
@@ -105,6 +105,12 @@ self-heal path hits after a 402.
 ### `POST /api/auth/logout` · `logout/route.ts`
 Deletes the `session_token` cookie, returns `{ success: true }`. No server
 session to invalidate (JWT is stateless), so logout is purely cookie-clearing.
+
+### `POST /api/auth/change-password` · `change-password/route.ts`
+Authenticated password update. `{ currentPassword, newPassword, confirmPassword }`.
+Requires active session (`getSessionUser`), validates `currentPassword` against
+`dbUser.passwordHash` with bcrypt, enforces `newPassword` length ≥ 6 chars, and
+updates `passwordHash` in DB. Returns `{ success: true, message }`.
 
 ## UserContext · `src/context/UserContext.tsx`
 

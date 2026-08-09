@@ -400,19 +400,25 @@ export default function Sidebar() {
 
         {/* User profile & logout */}
         <div className={cn("flex items-center gap-2 pt-1 border-t border-slate-800/60", isCollapsed ? "flex-col justify-center" : "justify-between")}>
-          <div className="flex items-center gap-2 min-w-0">
+          <Link
+            href="/settings?tab=account"
+            title={t('settings.account', 'Account & Security')}
+            className={cn(
+              "flex items-center gap-2 min-w-0 group rounded-lg transition-colors duration-150 p-1 -m-1 hover:bg-slate-900/80 outline-none focus:ring-1 focus:ring-orange-500",
+              isCollapsed ? "justify-center" : "flex-1"
+            )}
+          >
             <div
-              title={currentUser?.name ?? "Engineer"}
-              className="w-8 h-8 rounded-lg bg-orange-600/20 border border-orange-500/40 flex items-center justify-center flex-shrink-0"
+              className="w-8 h-8 rounded-lg bg-orange-600/20 border border-orange-500/40 flex items-center justify-center flex-shrink-0 group-hover:border-orange-400 group-hover:shadow-[0_0_10px_rgba(234,88,12,0.3)] transition-all"
             >
-              <span className="text-xs font-bold text-orange-300">
+              <span className="text-xs font-bold text-orange-300 group-hover:text-orange-200">
                 {currentUser?.name?.[0]?.toUpperCase() ?? "?"}
               </span>
             </div>
 
             {!isCollapsed && (
-              <div className="flex-1 min-w-0">
-                <p className="text-xs font-semibold text-slate-200 truncate leading-tight">
+              <div className="flex-1 min-w-0 text-start">
+                <p className="text-xs font-semibold text-slate-200 truncate leading-tight group-hover:text-orange-300 transition-colors">
                   {currentUser?.name ?? "Engineer"}
                 </p>
                 <p className="text-[10px] text-slate-400 truncate leading-tight">
@@ -420,7 +426,7 @@ export default function Sidebar() {
                 </p>
               </div>
             )}
-          </div>
+          </Link>
 
           <button
             onClick={handleLogout}

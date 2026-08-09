@@ -2,20 +2,46 @@
 
 /* eslint-disable react-hooks/immutability, react-hooks/set-state-in-effect, @next/next/no-img-element */
 import { useState, useEffect } from 'react';
-import { Settings, Save, RotateCcw, Building2, Globe } from 'lucide-react';
+import {
+  Settings,
+  Save,
+  RotateCcw,
+  Building2,
+  Globe,
+  Shield,
+  KeyRound,
+  Eye,
+  EyeOff,
+  User,
+  Lock,
+  CheckCircle2,
+  AlertCircle,
+} from 'lucide-react';
 import { COUNTRY_DEFAULTS, ROOM_TYPES, CountryConfig, AcSizingRule } from '@/lib/country-defaults';
 import { useTranslation, SupportedLanguage } from '@/i18n';
+import { useUser } from '@/context/UserContext';
 
-type SettingsTab = 'engineering' | 'company' | 'language';
+type SettingsTab = 'engineering' | 'company' | 'language' | 'account';
 
 export default function SettingsPage() {
   const { t, language, setLanguage, isRtl } = useTranslation();
+  const { user: currentUser } = useUser();
   const [settings, setSettings] = useState<Record<string, CountryConfig>>({});
   const [selectedCountry, setSelectedCountry] = useState('Syria');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [activeTab, setActiveTab] = useState<SettingsTab>('engineering');
+
+  // Password change state
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [passwordUpdating, setPasswordUpdating] = useState(false);
+  const [passwordMessage, setPasswordMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
   // Voltage drop limits
   const [vdLimits, setVdLimits] = useState({ lighting: 3, power: 5 });
@@ -27,6 +53,21 @@ export default function SettingsPage() {
   useEffect(() => {
     loadSettings();
     loadCompany();
+
+    // Support direct tab linking via ?tab=account or ?tab=security
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const tabParam = params.get('tab');
+      if (tabParam === 'account' || tabParam === 'security') {
+        setActiveTab('account');
+      } else if (tabParam === 'company') {
+        setActiveTab('company');
+      } else if (tabParam === 'language') {
+        setActiveTab('language');
+      } else if (tabParam === 'engineering') {
+        setActiveTab('engineering');
+      }
+    }
   }, []);
 
   useEffect(() => {
@@ -105,6 +146,79 @@ export default function SettingsPage() {
       setMessage({ type: 'error', text: t('settings.saveError', 'Failed to save') });
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleChangePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setPasswordMessage(null);
+
+    if (!currentPassword || !newPassword) {
+      setPasswordMessage({
+        type: 'error',
+        text: t('settings.passwordRequired', 'Please enter both your current and new password.'),
+      });
+      return;
+    }
+
+    if (newPassword.length < 6) {
+      setPasswordMessage({
+        type: 'error',
+        text: t('settings.passwordMinLength', 'Password must be at least 6 characters.'),
+      });
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      setPasswordMessage({
+        type: 'error',
+        text: t('settings.passwordMismatch', 'Passwords do not match.'),
+      });
+      return;
+    }
+
+    if (currentPassword === newPassword) {
+      setPasswordMessage({
+        type: 'error',
+        text: t('settings.passwordSameError', 'New password must be different from current password.'),
+      });
+      return;
+    }
+
+    setPasswordUpdating(true);
+    try {
+      const res = await fetch('/api/auth/change-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          currentPassword,
+          newPassword,
+          confirmPassword,
+        }),
+      });
+
+      const data = await res.json().catch(() => ({}));
+      if (res.ok) {
+        setPasswordMessage({
+          type: 'success',
+          text: t('settings.passwordUpdateSuccess', 'Password updated successfully!'),
+        });
+        setCurrentPassword('');
+        setNewPassword('');
+        setConfirmPassword('');
+      } else {
+        setPasswordMessage({
+          type: 'error',
+          text: data.error || t('settings.passwordUpdateError', 'Failed to update password.'),
+        });
+      }
+    } catch {
+      setPasswordMessage({
+        type: 'error',
+        text: t('settings.passwordUpdateError', 'Failed to update password.'),
+      });
+    } finally {
+      setPasswordUpdating(false);
     }
   };
 
@@ -212,6 +326,7 @@ export default function SettingsPage() {
           { key: 'engineering' as const, label: t('settings.engineering', 'Engineering Defaults'), icon: Settings },
           { key: 'company' as const, label: t('settings.company', 'Company & Branding'), icon: Building2 },
           { key: 'language' as const, label: t('common.language', 'Language & RTL'), icon: Globe },
+          { key: 'account' as const, label: t('settings.account', 'Account & Security'), icon: Shield },
         ]).map(({ key, label, icon: Icon }) => (
           <button
             key={key}
@@ -542,6 +657,220 @@ export default function SettingsPage() {
           </div>
         </div>
       )}
+
+      {/* Account & Security Tab */}
+      {activeTab === 'account' && (
+        <div className="space-y-6 max-w-2xl">
+          {/* User Profile Overview */}
+          <div className="rounded-xl border border-gray-800 bg-gray-900/40 p-6 space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-xl bg-orange-600/20 border border-orange-500/30 flex items-center justify-center text-orange-400 font-bold text-lg shadow-[0_0_12px_rgba(234,88,12,0.2)]">
+                {currentUser?.name?.[0]?.toUpperCase() ?? <User size={20} />}
+              </div>
+              <div>
+                <h2 className="text-base font-semibold text-white flex items-center gap-2">
+                  {currentUser?.name ?? "Engineer"}
+                </h2>
+                <p className="text-xs text-gray-400">
+                  @{currentUser?.username ?? "user"}
+                </p>
+              </div>
+              <div className="ms-auto flex items-center gap-2">
+                <span className={`px-2.5 py-1 rounded-full text-xs font-semibold uppercase tracking-wider ${
+                  currentUser?.role === 'ADMIN'
+                    ? 'bg-orange-500/20 text-orange-400 border border-orange-500/30'
+                    : 'bg-slate-800 text-slate-300 border border-slate-700'
+                }`}>
+                  {currentUser?.role === 'ADMIN' ? 'Administrator' : 'Engineer'}
+                </span>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-3 border-t border-gray-800/80 text-sm">
+              <div>
+                <span className="block text-[11px] font-medium uppercase tracking-wider text-gray-500 mb-0.5">
+                  {t('auth.email', 'Email Address')}
+                </span>
+                <span className="text-gray-200 font-medium truncate block">
+                  {currentUser?.email || '—'}
+                </span>
+              </div>
+              <div>
+                <span className="block text-[11px] font-medium uppercase tracking-wider text-gray-500 mb-0.5">
+                  {t('settings.credits', 'Project Credits')}
+                </span>
+                <span className="text-orange-400 font-semibold flex items-center gap-1.5">
+                  <span className="inline-block w-2 h-2 rounded-full bg-orange-500 animate-pulse" />
+                  {currentUser?.credits ?? 0} {t('common.credits', 'Credits')}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Change Password Card */}
+          <div className="rounded-xl border border-gray-800 bg-gray-900/40 p-6 space-y-5">
+            <div>
+              <h2 className="text-base font-semibold text-white flex items-center gap-2">
+                <Lock size={18} className="text-orange-400" />
+                {t('settings.changePassword', 'Change Password')}
+              </h2>
+              <p className="text-xs text-gray-400 mt-1">
+                {t('settings.changePasswordSubtitle', 'Ensure your account is protected with a strong, secure password.')}
+              </p>
+            </div>
+
+            {/* Password Feedback Message */}
+            {passwordMessage && (
+              <div
+                className={`p-3.5 rounded-xl text-sm flex items-start gap-2.5 ${
+                  passwordMessage.type === 'success'
+                    ? 'bg-emerald-500/10 border border-emerald-500/20 text-emerald-400'
+                    : 'bg-rose-500/10 border border-rose-500/20 text-rose-400'
+                }`}
+              >
+                {passwordMessage.type === 'success' ? (
+                  <CheckCircle2 size={18} className="shrink-0 mt-0.5" />
+                ) : (
+                  <AlertCircle size={18} className="shrink-0 mt-0.5" />
+                )}
+                <span>{passwordMessage.text}</span>
+              </div>
+            )}
+
+            <form onSubmit={handleChangePassword} className="space-y-4">
+              {/* Current Password */}
+              <div>
+                <label className="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-1.5">
+                  {t('settings.currentPassword', 'Current Password')}
+                </label>
+                <div className="relative">
+                  <input
+                    type={showCurrentPassword ? 'text' : 'password'}
+                    value={currentPassword}
+                    onChange={(e) => setCurrentPassword(e.target.value)}
+                    placeholder={t('settings.currentPasswordPlaceholder', 'Enter current password')}
+                    className="w-full bg-slate-900/90 border border-slate-700 hover:border-slate-600 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 text-white rounded-xl px-4 py-2.5 text-sm font-medium outline-none transition-all pe-10"
+                    autoComplete="current-password"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowCurrentPassword((prev) => !prev)}
+                    className="absolute inset-y-0 end-0 pe-3 flex items-center text-gray-400 hover:text-gray-200"
+                    tabIndex={-1}
+                    aria-label={showCurrentPassword ? 'Hide password' : 'Show password'}
+                  >
+                    {showCurrentPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                </div>
+              </div>
+
+              {/* New Password */}
+              <div>
+                <label className="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-1.5">
+                  {t('settings.newPassword', 'New Password')}
+                </label>
+                <div className="relative">
+                  <input
+                    type={showNewPassword ? 'text' : 'password'}
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    placeholder={t('settings.newPasswordPlaceholder', 'Enter new password (min. 6 characters)')}
+                    className="w-full bg-slate-900/90 border border-slate-700 hover:border-slate-600 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 text-white rounded-xl px-4 py-2.5 text-sm font-medium outline-none transition-all pe-10"
+                    autoComplete="new-password"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowNewPassword((prev) => !prev)}
+                    className="absolute inset-y-0 end-0 pe-3 flex items-center text-gray-400 hover:text-gray-200"
+                    tabIndex={-1}
+                    aria-label={showNewPassword ? 'Hide password' : 'Show password'}
+                  >
+                    {showNewPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                </div>
+                {/* Length indicator */}
+                <div className="flex items-center gap-1.5 mt-1.5 text-xs">
+                  <span
+                    className={
+                      newPassword.length >= 6
+                        ? 'text-emerald-400 font-medium flex items-center gap-1'
+                        : 'text-gray-500 flex items-center gap-1'
+                    }
+                  >
+                    <span className={`w-1.5 h-1.5 rounded-full ${newPassword.length >= 6 ? 'bg-emerald-400' : 'bg-gray-600'}`} />
+                    {t('settings.passwordMinLength', 'Minimum 6 characters')}
+                  </span>
+                </div>
+              </div>
+
+              {/* Confirm New Password */}
+              <div>
+                <label className="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-1.5">
+                  {t('settings.confirmNewPassword', 'Confirm New Password')}
+                </label>
+                <div className="relative">
+                  <input
+                    type={showConfirmPassword ? 'text' : 'password'}
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    placeholder={t('settings.confirmNewPasswordPlaceholder', 'Re-enter new password')}
+                    className="w-full bg-slate-900/90 border border-slate-700 hover:border-slate-600 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 text-white rounded-xl px-4 py-2.5 text-sm font-medium outline-none transition-all pe-10"
+                    autoComplete="new-password"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword((prev) => !prev)}
+                    className="absolute inset-y-0 end-0 pe-3 flex items-center text-gray-400 hover:text-gray-200"
+                    tabIndex={-1}
+                    aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
+                  >
+                    {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                </div>
+                {/* Match indicator */}
+                {confirmPassword.length > 0 && (
+                  <div className="flex items-center gap-1.5 mt-1.5 text-xs">
+                    {confirmPassword === newPassword ? (
+                      <span className="text-emerald-400 font-medium flex items-center gap-1">
+                        <CheckCircle2 size={13} />
+                        {t('settings.passwordMatch', 'Passwords match')}
+                      </span>
+                    ) : (
+                      <span className="text-rose-400 font-medium flex items-center gap-1">
+                        <AlertCircle size={13} />
+                        {t('settings.passwordMismatch', 'Passwords do not match')}
+                      </span>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* Submit Button */}
+              <div className="flex justify-end pt-2">
+                <button
+                  type="submit"
+                  disabled={
+                    passwordUpdating ||
+                    !currentPassword ||
+                    newPassword.length < 6 ||
+                    confirmPassword !== newPassword
+                  }
+                  className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-orange-600 hover:bg-orange-500 active:scale-[0.99] text-white text-sm font-semibold shadow-lg shadow-orange-600/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-150 cursor-pointer"
+                >
+                  <KeyRound size={15} />
+                  {passwordUpdating
+                    ? t('settings.updatingPassword', 'Updating Password…')
+                    : t('settings.updatePassword', 'Update Password')}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
+

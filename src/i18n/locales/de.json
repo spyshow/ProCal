@@ -73,6 +73,7 @@
     "signOut": "Abmelden",
     "selectProject": "Projekt auswählen",
     "noProjects": "Keine Projekte gefunden",
+    "pricing": "Preise",
     "allProjects": "Alle Projekte"
   },
   "landing": {
@@ -97,10 +98,25 @@
     "sldTitle": "Interaktive Schaltpläne & Steigtrassen",
     "sldDesc": "Generieren Sie dynamische einpolige Übersichtsschaltpläne und mehrstöckige Steigtrassenbäume verknüpft mit Ihren Berechnungsdaten.",
     "reportsTitle": "Druckfertige PDF-Prüfberichte",
-    "reportsDesc": "Erstellen Sie vollflächige Berechnungshefte, Stücklisten (BOM) und Pläne im Querformat für Prüfingenieure und Bauherren.",
     "configurePanels": "Verteiler konfigurieren",
     "openSld": "Schaltplan öffnen",
-    "generateReports": "Berichte erstellen"
+    "generateReports": "Berichte erstellen",
+    "3dHubTitle": "Interaktive 3D-Energieverteilungsarchitektur",
+    "3dHubSubtitle": "Ziehen zum Drehen • Modi anklicken, um 3-Phasen-Netzverhalten zu simulieren",
+    "modeBalanced": "Symmetrisches 3-Phasen-Netz",
+    "modeSurge": "Kurzschluss & Überspannung",
+    "modeBusway": "Steigleitungsschienen",
+    "dragToRotate": "Ziehen zum Drehen des 3D-Netzes",
+    "orbiting": "3D-Ansicht wird gedreht…",
+    "phaseLegend": "Phasenzuordnung",
+    "gridTelemetry": "Netz-Telemetrie",
+    "feature3d1": "Echtzeit-Vektorberechnung für Phasenasymmetrie",
+    "feature3d2": "Dynamische Kurzschlussstrom- & Selektivitätsanalyse",
+    "feature3d3": "Automatisierte Steigleitungs- & Verteilerbäume für Mehrgeschosser",
+    "openModule": "Modul öffnen",
+    "tryInteractive": "Live testen",
+    "scrollTiltNote": "Nach unten scrollen für 3D-Perspektivenausgleich • Bewegen zum Neigen",
+    "layersNote": "5 synchronisierte Berechnungsmodule"
   },
   "cableSchedule": {
     "title": "Kabelplan & Dimensionierung",
@@ -645,6 +661,55 @@
     "successMessage": "Vielen Dank für Ihre Hilfe bei der Verbesserung von ProCal! Unser Team wird Ihren Bericht prüfen.",
     "sendAnother": "Weitere Nachricht senden",
     "close": "Schließen"
+  },
+  "pricing": {
+    "badge": "Transparente Preise pro Projekt",
+    "headingPrefix": "Zahlen nach Bedarf",
+    "headingSuffix": "Ohne monatliche Bindung",
+    "subheading": "Starten Sie mit einer 100% kostenlosen Testversion. 80% Einführungsrabatt auf Ihr erstes vollständiges Projekt (20$), danach faire 100$ pro Projekt mit dauerhaftem Zugriff.",
+    "noSubscription": "Keine wiederkehrenden Gebühren • Zahlung pro Projekt",
+    "project": "Projekt",
+    "firstProject": "Erstes Projekt",
+    "includedScope": "Enthaltener Leistungsumfang:",
+    "everythingPlus": "Voller unbegrenzter Funktionsumfang:",
+    "unlimitedFloors": "Unbegrenzte Gebäude & Etagen",
+    "freeTrial": {
+      "badge": "Einmalige Testversion",
+      "title": "Kostenlose Starter-Testversion",
+      "desc": "Testen Sie die Berechnungs-Engine an einem Wohnbau-Musterprojekt.",
+      "cardNote": "Keine Kreditkarte erforderlich • 1 Gebäude & 2 Etagen",
+      "limitProjects": "Einmaliges Testguthaben",
+      "feature1": "Wohnungsvorlagen & Etagen-Lastberechnung",
+      "feature2": "Berechnung von Anschlusswert & Gleichzeitigkeitsfaktor",
+      "feature3": "Kabeldimensionierung & Spannungsfallprüfung",
+      "feature4": "Interaktive Vorschau des Übersichtsschaltplans (SLD)",
+      "cta": "Kostenlos testen"
+    },
+    "fullProject": {
+      "badge": "🔥 Einführungsangebot • 80% Rabatt auf Erstprojekt",
+      "tag": "Vollständiges Ingenieurpaket",
+      "title": "Vollständiges Ingenieurprojekt",
+      "desc": "Industrielle Lastberechnung, Schutzkoordination, Steigtrassen, Übersichtsschaltpläne und prüfbereite PDF-Berichte.",
+      "firstProjectHeader": "Erstprojekt-Aktion",
+      "standardAfter": "Regulärer Preis danach:",
+      "discountTitle": "Sonderangebot: Erstes Vollprojekt für nur 20$",
+      "discountBadge": "80$ sparen / 80% Rabatt",
+      "discountAmount": "Voller unbegrenzter Funktionsumfang für Ihr erstes Projekt für nur 20$ statt 100$.",
+      "col1Title": "Berechnungen & Auslegung",
+      "col2Title": "Schutz, SLD & Berichte",
+      "footerNote": "Zahlung pro Projekt • Dauerhafter Cloud-Zugriff & Re-Export • Keine Abogebühren",
+      "cta": "1. Projekt für 20$ sichern"
+    },
+    "reassurance": {
+      "r1Title": "Keine monatliche Bindung",
+      "r1Desc": "Nur bei Projektstart zahlen",
+      "r2Title": "IEC- & NEC-Standards",
+      "r2Desc": "100% normgerechte Berechnungen",
+      "r3Title": "Sofortiger Export",
+      "r3Desc": "Druckfertige PDF-Berichte & Stücklisten",
+      "r4Title": "Benötigen Sie Hilfe?",
+      "r4Link": "Ingenieurteam kontaktieren"
+    }
   }
 }
 

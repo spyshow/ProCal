@@ -72,6 +72,7 @@
     "signOut": "Sign Out",
     "selectProject": "Select Project",
     "noProjects": "No Projects Found",
+    "pricing": "Pricing",
     "allProjects": "All Projects"
   },
   "landing": {
@@ -96,10 +97,25 @@
     "sldTitle": "Interactive SLD & Riser Diagrams",
     "sldDesc": "Generate dynamic single line diagrams and vertical building riser trees automatically linked to project data.",
     "reportsTitle": "Printable Executive PDF Reports",
-    "reportsDesc": "Export high-resolution cover sheets, bill of materials (BOM), schedule tables, and SLD views ready for submission.",
     "configurePanels": "Configure Panels",
     "openSld": "Open SLD Designer",
-    "generateReports": "Generate Reports"
+    "generateReports": "Generate Reports",
+    "3dHubTitle": "Interactive 3D Power Architecture",
+    "3dHubSubtitle": "Drag to rotate • Click modes to simulate 3-phase grid behaviors",
+    "modeBalanced": "Balanced 3-Phase",
+    "modeSurge": "Fault & Surge Arc",
+    "modeBusway": "Riser Busway",
+    "dragToRotate": "Drag to rotate 3D grid",
+    "orbiting": "Orbiting in 3D space…",
+    "phaseLegend": "Phase Allocation",
+    "gridTelemetry": "Grid Telemetry",
+    "feature3d1": "Real-Time Phase Balancing Vector Calculations",
+    "feature3d2": "Dynamic Fault Current & Selectivity Mapping",
+    "feature3d3": "Automated Multi-Floor Riser & Feeder Trees",
+    "openModule": "Open Module",
+    "tryInteractive": "Try Live",
+    "scrollTiltNote": "Scroll down to level the 3D perspective • Hover to tilt",
+    "layersNote": "5 Synchronized Electrical Calculation Modules"
   },
   "cableSchedule": {
     "title": "Cable Schedule",
@@ -668,6 +684,55 @@
     "successMessage": "Thank you for helping us improve ProCal! The engineering and administration team has received your report.",
     "sendAnother": "Send Another Message",
     "close": "Close"
+  },
+  "pricing": {
+    "badge": "Simple Pay-Per-Project Pricing",
+    "headingPrefix": "Pay As You Build",
+    "headingSuffix": "No Monthly Lock-in",
+    "subheading": "Start with a 100% free one-time trial. Enjoy an 80% launch discount on your first full-scale project ($20), then a flat $100 per project with lifetime access.",
+    "noSubscription": "Zero Recurring Fees • Pay Per Job",
+    "project": "project",
+    "firstProject": "first project",
+    "includedScope": "Included Scope:",
+    "everythingPlus": "Full Unlimited Capabilities:",
+    "unlimitedFloors": "Unlimited buildings & floors",
+    "freeTrial": {
+      "badge": "One-Time Trial",
+      "title": "Free Starter Trial",
+      "desc": "Test-drive the engine on a sample residential project.",
+      "cardNote": "No credit card required • 1 Building & 2 Floors",
+      "limitProjects": "One-time trial allocation",
+      "feature1": "Apartment templates & floor load calculator",
+      "feature2": "Connected load & demand diversity engine",
+      "feature3": "Cable sizing & voltage drop calculations",
+      "feature4": "Single Line Diagram (SLD) interactive preview",
+      "cta": "Start Free Trial"
+    },
+    "fullProject": {
+      "badge": "🔥 Special Launch Deal • 80% OFF First Project",
+      "tag": "Full Engineering Suite",
+      "title": "Full Engineering Project",
+      "desc": "Complete industrial calculations, breaker coordination, SLD risers, and submission-ready PDF packages.",
+      "firstProjectHeader": "1st Full Project Promo",
+      "standardAfter": "Standard price after:",
+      "discountTitle": "Special First Full Project Launch Offer",
+      "discountBadge": "Save $80 / 80% OFF",
+      "discountAmount": "Get complete unlimited access for your very first project for only $20 instead of $100.",
+      "col1Title": "Calculations & Sizing",
+      "col2Title": "Protection, SLD & Reports",
+      "footerNote": "Pay per project • Lifetime cloud access • No monthly fees",
+      "cta": "Claim 1st Project for $20"
+    },
+    "reassurance": {
+      "r1Title": "No Monthly Lock-in",
+      "r1Desc": "Pay only when you start a project",
+      "r2Title": "IEC & NEC Standards",
+      "r2Desc": "100% calculation compliance",
+      "r3Title": "Instant Export",
+      "r3Desc": "Printable PDF packages & BOM",
+      "r4Title": "Need Custom Help?",
+      "r4Link": "Contact Engineering Team"
+    }
   }
 }
 

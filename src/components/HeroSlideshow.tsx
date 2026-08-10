@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import Image, { StaticImageData } from "next/image";
 import Link from "next/link";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Zap,
   Cable,
@@ -28,11 +29,11 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useTranslation } from "@/i18n";
 
-import slideLoadCalc from "../../public/slides/slide_load_calc.jpg";
-import slideCableSizing from "../../public/slides/slide_cable_sizing.jpg";
-import slideSldDiagram from "../../public/slides/slide_sld_diagram.jpg";
-import slideBreakerSchedule from "../../public/slides/slide_breaker_schedule.jpg";
-import slidePdfReports from "../../public/slides/slide_pdf_reports.jpg";
+import slideLoadCalc from "../../public/slides/slide_load_calc.webp";
+import slideCableSizing from "../../public/slides/slide_cable_sizing.webp";
+import slideSldDiagram from "../../public/slides/slide_sld_diagram.webp";
+import slideBreakerSchedule from "../../public/slides/slide_breaker_schedule.webp";
+import slidePdfReports from "../../public/slides/slide_pdf_reports.webp";
 
 interface SlideData {
   id: string;
@@ -207,7 +208,7 @@ export function HeroSlideshow() {
   const hasError = imageError[activeSlide.id];
 
   return (
-    <section className="relative my-8 md:my-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section className="relative z-10 my-8 md:my-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       {/* Section Header Title */}
       <div className="text-center mb-8">
         <Badge variant="glow" className="mb-3.5 px-3 py-1 text-xs inline-flex items-center gap-1.5">
@@ -225,7 +226,7 @@ export function HeroSlideshow() {
         </p>
       </div>
 
-      {/* Module Navigation Tabs */}
+      {/* Module Navigation Tabs with Motion */}
       <div className="flex items-center justify-start sm:justify-center gap-2 overflow-x-auto pb-4 pt-1 no-scrollbar mb-6">
         {slides.map((slide, idx) => {
           const Icon = slide.icon;
@@ -234,20 +235,27 @@ export function HeroSlideshow() {
             <button
               key={slide.id}
               onClick={() => setActiveIndex(idx)}
-              className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-medium transition-all duration-300 whitespace-nowrap cursor-pointer ${
+              className={`relative flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-medium transition-colors duration-200 whitespace-nowrap cursor-pointer ${
                 isActive
-                  ? `bg-slate-900 border ${slide.accentBorder} text-white shadow-[0_0_20px_rgba(234,88,12,0.2)] scale-[1.02]`
+                  ? "text-white"
                   : "bg-slate-950/60 border border-slate-800/80 text-slate-400 hover:text-slate-200 hover:border-slate-700"
               }`}
             >
+              {isActive && (
+                <motion.div
+                  layoutId="activeHeroTab"
+                  className={`absolute inset-0 rounded-xl bg-slate-900 border ${slide.accentBorder} shadow-[0_0_20px_rgba(234,88,12,0.2)]`}
+                  transition={{ type: "spring", stiffness: 450, damping: 35 }}
+                />
+              )}
               <div
-                className={`w-6 h-6 rounded-lg flex items-center justify-center ${
+                className={`relative z-10 w-6 h-6 rounded-lg flex items-center justify-center ${
                   isActive ? slide.accentBg : "bg-slate-900"
                 }`}
               >
                 <Icon className={`w-3.5 h-3.5 ${isActive ? slide.accentColor : "text-slate-400"}`} />
               </div>
-              <span>{slide.tabLabel}</span>
+              <span className="relative z-10">{slide.tabLabel}</span>
             </button>
           );
         })}
@@ -265,37 +273,47 @@ export function HeroSlideshow() {
         />
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">
-          {/* Left Column: UI Mockup Visual */}
+          {/* Left Column: UI Mockup Visual with Motion */}
           <div className="lg:col-span-7 group relative">
             <div className="relative aspect-[16/10] rounded-xl sm:rounded-2xl overflow-hidden border border-white/15 bg-slate-950 shadow-2xl transition-transform duration-500 group-hover:scale-[1.01]">
-              {!hasError ? (
-                <Image
-                  src={activeSlide.image}
-                  alt={activeSlide.title}
-                  fill
-                  priority
-                  unoptimized
-                  onError={() => setImageError((prev) => ({ ...prev, [activeSlide.id]: true }))}
-                  className="object-cover object-top transition-opacity duration-500"
-                  sizes="(max-width: 1024px) 100vw, 58vw"
-                />
-              ) : (
-                /* Fallback Rich Vector UI Container */
-                <div className="w-full h-full flex flex-col items-center justify-center p-6 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-center relative overflow-hidden">
-                  <div
-                    className={`w-16 h-16 rounded-2xl ${activeSlide.accentBg} border ${activeSlide.accentBorder} flex items-center justify-center mb-4 shadow-xl animate-pulse`}
-                  >
-                    <activeSlide.fallbackIcon className={`w-8 h-8 ${activeSlide.accentColor}`} />
-                  </div>
-                  <h4 className="text-lg font-bold text-white mb-1">{activeSlide.title}</h4>
-                  <p className="text-xs text-slate-400 max-w-sm leading-relaxed mb-4">{activeSlide.tagline}</p>
-                  <div className="flex items-center gap-2">
-                    <span className="px-2.5 py-1 rounded-md bg-slate-900 border border-slate-800 text-[11px] text-slate-300 font-mono">
-                      {activeSlide.badge}
-                    </span>
-                  </div>
-                </div>
-              )}
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={activeSlide.id}
+                  initial={{ opacity: 0, scale: 0.98 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 1.01 }}
+                  transition={{ duration: 0.35, ease: "easeOut" }}
+                  className="relative w-full h-full"
+                >
+                  {!hasError ? (
+                    <Image
+                      src={activeSlide.image}
+                      alt={activeSlide.title}
+                      fill
+                      priority={activeIndex === 0}
+                      onError={() => setImageError((prev) => ({ ...prev, [activeSlide.id]: true }))}
+                      className="object-cover object-top"
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 58vw, 720px"
+                    />
+                  ) : (
+                    /* Fallback Rich Vector UI Container */
+                    <div className="w-full h-full flex flex-col items-center justify-center p-6 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-center relative overflow-hidden">
+                      <div
+                        className={`w-16 h-16 rounded-2xl ${activeSlide.accentBg} border ${activeSlide.accentBorder} flex items-center justify-center mb-4 shadow-xl animate-pulse`}
+                      >
+                        <activeSlide.fallbackIcon className={`w-8 h-8 ${activeSlide.accentColor}`} />
+                      </div>
+                      <h4 className="text-lg font-bold text-white mb-1">{activeSlide.title}</h4>
+                      <p className="text-xs text-slate-400 max-w-sm leading-relaxed mb-4">{activeSlide.tagline}</p>
+                      <div className="flex items-center gap-2">
+                        <span className="px-2.5 py-1 rounded-md bg-slate-900 border border-slate-800 text-[11px] text-slate-300 font-mono">
+                          {activeSlide.badge}
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                </motion.div>
+              </AnimatePresence>
 
               {/* Floating Badge Overlay */}
               <div className="absolute top-3 start-3 sm:top-4 sm:start-4 z-10">
@@ -309,7 +327,7 @@ export function HeroSlideshow() {
               {!hasError && (
                 <button
                   onClick={() => setModalImage(activeSlide.image)}
-                  className="absolute bottom-3 end-3 sm:bottom-4 sm:end-4 z-10 p-2.5 rounded-xl bg-slate-950/80 backdrop-blur-md border border-white/20 text-slate-300 hover:text-white hover:bg-slate-900 transition-all opacity-0 group-hover:opacity-100 shadow-lg"
+                  className="absolute bottom-3 end-3 sm:bottom-4 sm:end-4 z-10 p-2.5 rounded-xl bg-slate-950/80 backdrop-blur-md border border-white/20 text-slate-300 hover:text-white hover:bg-slate-900 transition-all opacity-0 group-hover:opacity-100 shadow-lg cursor-pointer"
                   title={t("slideshow.expandImage", "Expand Preview Image")}
                 >
                   <Maximize2 className="w-4 h-4" />
@@ -318,36 +336,45 @@ export function HeroSlideshow() {
             </div>
           </div>
 
-          {/* Right Column: Slide Info & Actions */}
+          {/* Right Column: Slide Info & Actions with Motion */}
           <div className="lg:col-span-5 flex flex-col justify-between h-full space-y-6">
-            <div className="space-y-4">
-              <div className="flex items-center gap-2">
-                <div
-                  className={`w-9 h-9 rounded-xl ${activeSlide.accentBg} border ${activeSlide.accentBorder} flex items-center justify-center`}
-                >
-                  <activeSlide.icon className={`w-5 h-5 ${activeSlide.accentColor}`} />
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={activeSlide.id}
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -12 }}
+                transition={{ duration: 0.3, ease: "easeOut" }}
+                className="space-y-4"
+              >
+                <div className="flex items-center gap-2">
+                  <div
+                    className={`w-9 h-9 rounded-xl ${activeSlide.accentBg} border ${activeSlide.accentBorder} flex items-center justify-center`}
+                  >
+                    <activeSlide.icon className={`w-5 h-5 ${activeSlide.accentColor}`} />
+                  </div>
+                  <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">
+                    {activeSlide.tagline}
+                  </span>
                 </div>
-                <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">
-                  {activeSlide.tagline}
-                </span>
-              </div>
 
-              <h3 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight leading-snug">
-                {activeSlide.title}
-              </h3>
+                <h3 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight leading-snug">
+                  {activeSlide.title}
+                </h3>
 
-              <p className="text-sm sm:text-base text-slate-300 leading-relaxed">{activeSlide.description}</p>
+                <p className="text-sm sm:text-base text-slate-300 leading-relaxed">{activeSlide.description}</p>
 
-              {/* Key Bullet Highlights */}
-              <ul className="space-y-2.5 pt-2">
-                {activeSlide.highlights.map((item, idx) => (
-                  <li key={idx} className="flex items-start gap-2.5 text-xs sm:text-sm text-slate-300">
-                    <CheckCircle2 className={`w-4 h-4 mt-0.5 shrink-0 ${activeSlide.accentColor}`} />
-                    <span>{item}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
+                {/* Key Bullet Highlights */}
+                <ul className="space-y-2.5 pt-2">
+                  {activeSlide.highlights.map((item, idx) => (
+                    <li key={idx} className="flex items-start gap-2.5 text-xs sm:text-sm text-slate-300">
+                      <CheckCircle2 className={`w-4 h-4 mt-0.5 shrink-0 ${activeSlide.accentColor}`} />
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </motion.div>
+            </AnimatePresence>
 
             {/* Slide Action Button & Controls */}
             <div className="pt-4 border-t border-slate-800/80 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -406,29 +433,41 @@ export function HeroSlideshow() {
         </div>
       </div>
 
-      {/* Lightbox Image Preview Modal */}
-      {modalImage && (
-        <div
-          className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4"
-          onClick={() => setModalImage(null)}
-        >
-          <div className="relative max-w-5xl w-full aspect-[16/10] rounded-2xl overflow-hidden border border-white/20 shadow-2xl">
-            <Image
-              src={modalImage}
-              alt="Expanded Slide Preview"
-              fill
-              unoptimized
-              className="object-contain bg-slate-950"
-            />
-            <button
-              onClick={() => setModalImage(null)}
-              className="absolute top-4 end-4 p-2 rounded-full bg-slate-900/80 text-white hover:bg-slate-800 border border-white/20"
+      {/* Lightbox Image Preview Modal with Motion */}
+      <AnimatePresence>
+        {modalImage && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4"
+            onClick={() => setModalImage(null)}
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              transition={{ duration: 0.25, ease: "easeOut" }}
+              className="relative max-w-5xl w-full aspect-[16/10] rounded-2xl overflow-hidden border border-white/20 shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
             >
-              <X className="w-5 h-5" />
-            </button>
-          </div>
-        </div>
-      )}
+              <Image
+                src={modalImage}
+                alt="Expanded Slide Preview"
+                fill
+                className="object-contain bg-slate-950"
+                sizes="(max-width: 1280px) 100vw, 1280px"
+              />
+              <button
+                onClick={() => setModalImage(null)}
+                className="absolute top-4 end-4 p-2 rounded-full bg-slate-900/80 text-white hover:bg-slate-800 border border-white/20 cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </section>
   );
 }

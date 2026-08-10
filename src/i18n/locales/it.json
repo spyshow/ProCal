@@ -74,6 +74,7 @@
     "signOut": "Disconnetti",
     "selectProject": "Seleziona Progetto",
     "noProjects": "Nessun Progetto Trovato",
+    "pricing": "Prezzi",
     "allProjects": "Tutti i Progetti"
   },
   "landing": {
@@ -98,10 +99,25 @@
     "sldTitle": "Schemi Unifilari Interattivi & Montanti",
     "sldDesc": "Genera schemi unifilari dinamici e alberi montanti verticali multilivello collegati direttamente ai dati di calcolo.",
     "reportsTitle": "Relazioni Tecniche PDF Stampabili",
-    "reportsDesc": "Esporta fascicoli di calcolo ad alta risoluzione, distinte base (BOM) e schemi in formato orizzontale pronti per il deposito.",
     "configurePanels": "Configura Quadri",
     "openSld": "Apri Editor Schema Unifilare",
-    "generateReports": "Genera Relazioni"
+    "generateReports": "Genera Relazioni",
+    "3dHubTitle": "Architettura di Distribuzione Elettrica 3D Interattiva",
+    "3dHubSubtitle": "Trascina per ruotare • Clicca sulle modalità per simulare la rete trifase",
+    "modeBalanced": "Rete Trifase Bilanciata",
+    "modeSurge": "Arco e Sovratensione",
+    "modeBusway": "Condotto Sbarre Montante",
+    "dragToRotate": "Trascina per ruotare la griglia 3D",
+    "orbiting": "Rotazione nello spazio 3D…",
+    "phaseLegend": "Assegnazione Fasi",
+    "gridTelemetry": "Telemetria di Rete",
+    "feature3d1": "Calcoli Vettoriali di Bilanciamento Fasi in Tempo Reale",
+    "feature3d2": "Mappatura Dinamica Correnti di Cortocircuito e Selettività",
+    "feature3d3": "Alberi di Distribuzione e Montanti Multipiano Automatici",
+    "openModule": "Apri Modulo",
+    "tryInteractive": "Prova Live",
+    "scrollTiltNote": "Scorri verso il basso per allineare la prospettiva 3D • Passa il mouse per inclinare",
+    "layersNote": "5 Moduli di Calcolo Elettrico Sincronizzati"
   },
   "cableSchedule": {
     "title": "Tabella Cavi & Dimensionamento",
@@ -646,6 +662,55 @@
     "successMessage": "Grazie per averci aiutato a migliorare ProCal! Il nostro team esaminerà la tua segnalazione.",
     "sendAnother": "Invia un altro messaggio",
     "close": "Chiudi"
+  },
+  "pricing": {
+    "badge": "Prezzi Semplici per Progetto",
+    "headingPrefix": "Paga in Base ai Progetti",
+    "headingSuffix": "Nessun Abbonamento Mensile",
+    "subheading": "Inizia con una prova gratuita al 100%. Approfitta dello sconto di lancio dell'80% sul tuo primo progetto completo ($20), poi $100 a progetto con accesso illimitato.",
+    "noSubscription": "Zero costi ricorrenti • Pagamento per progetto",
+    "project": "progetto",
+    "firstProject": "primo progetto",
+    "includedScope": "Ambito incluso:",
+    "everythingPlus": "Funzionalità complete illimitate:",
+    "unlimitedFloors": "Edifici e piani illimitati",
+    "freeTrial": {
+      "badge": "Prova Unica",
+      "title": "Prova Gratuita Iniziale",
+      "desc": "Testa il motore di calcolo su un progetto residenziale di esempio.",
+      "cardNote": "Nessuna carta di credito richiesta • 1 Edificio e 2 Piani",
+      "limitProjects": "Credito di prova una tantum",
+      "feature1": "Modelli di appartamenti e calcolo carichi di piano",
+      "feature2": "Motore carichi installati e fattori di contemporaneità",
+      "feature3": "Dimensionamento cavi e verifica caduta di tensione",
+      "feature4": "Anteprima interattiva dello schema unifilare (SLD)",
+      "cta": "Inizia Prova Gratuita"
+    },
+    "fullProject": {
+      "badge": "🔥 Offerta Speciale Lancio • 80% di Sconto sul 1° Progetto",
+      "tag": "Suite Ingegneristica Completa",
+      "title": "Progetto Ingegneristico Completo",
+      "desc": "Calcoli industriali avanzati, coordinamento protezioni, montanti, schemi unifilari e relazioni PDF pronte all'approvazione.",
+      "firstProjectHeader": "Promo 1° Progetto Completo",
+      "standardAfter": "Prezzo standard successivo:",
+      "discountTitle": "Offerta Speciale Lancio: 1° Progetto a soli $20",
+      "discountBadge": "Risparmia $80 / 80% di Sconto",
+      "discountAmount": "Accesso illimitato completo per il tuo primissimo progetto a soli $20 anziché $100.",
+      "col1Title": "Calcoli e Dimensionamento",
+      "col2Title": "Protezioni, SLD e Relazioni",
+      "footerNote": "Pagamento per progetto • Accesso cloud a vita e riesportazione • Nessun abbonamento mensile",
+      "cta": "Lancia il 1° Progetto a $20"
+    },
+    "reassurance": {
+      "r1Title": "Nessun Vincolo Mensile",
+      "r1Desc": "Paghi solo all'avvio di un progetto",
+      "r2Title": "Norme IEC e NEC",
+      "r2Desc": "Calcoli conformi al 100% agli standard",
+      "r3Title": "Esportazione Immediata",
+      "r3Desc": "Pacchetti PDF pronti per la stampa e computo BOM",
+      "r4Title": "Hai bisogno di assistenza?",
+      "r4Link": "Contatta il team di ingegneria"
+    }
   }
 }
 

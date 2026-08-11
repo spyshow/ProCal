@@ -1571,6 +1571,7 @@ export const FloorDesignScalarFieldEnum = {
   hasFloorSubPanels: 'hasFloorSubPanels',
   riserCableLength: 'riserCableLength',
   riserCableSize: 'riserCableSize',
+  riserBreakerSize: 'riserBreakerSize',
   riserInstallMethod: 'riserInstallMethod',
   riserCableInsulation: 'riserCableInsulation',
   riserAmbientTemp: 'riserAmbientTemp',

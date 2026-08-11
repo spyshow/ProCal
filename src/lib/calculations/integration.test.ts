@@ -431,6 +431,31 @@ describe('Golden Path Cross-Module Integration Test', () => {
       expect(feeder.breakerSize).toBeLessThanOrEqual(deratedAmpacity);
     }
 
+    // -------------------------------------------------------------------------
+    // Assertion 5: Protection Hierarchy Tree, Terminal Isc & Selectivity
+    // -------------------------------------------------------------------------
+    for (const f of mdbFeeders) {
+      expect(f.parentFeederName).toBe('Main Incomer');
+      expect(f.faultCurrentKa).toBeDefined();
+      expect(f.faultCurrentKa).toBeGreaterThan(0);
+      expect(['FULL', 'PARTIAL', 'NONE']).toContain(f.selectivityStatus);
+      expect(f.cableDamageOk).toBe(true);
+    }
+
+    for (const fd of sdbFloors) {
+      const branchFeeders = smdbFeeders(fd.floorNumber);
+      for (const bf of branchFeeders) {
+        expect(bf.parentFeederName).toBe(`F${fd.floorNumber} – SMDB`);
+        expect(bf.faultCurrentKa).toBeDefined();
+        expect(bf.faultCurrentKa).toBeGreaterThan(0);
+        // Terminal fault current at the apartment branch must be lower than the SMDB riser fault current
+        const riserFeeder = mdbFeeders.find((f) => f.name === `F${fd.floorNumber} – SMDB`)!;
+        expect(bf.faultCurrentKa!).toBeLessThanOrEqual(riserFeeder.faultCurrentKa!);
+        expect(['FULL', 'PARTIAL', 'NONE']).toContain(bf.selectivityStatus);
+        expect(bf.cableDamageOk).toBe(true);
+      }
+    }
+
     const elapsed = performance.now() - startTime;
     // Execution must complete well under 2 seconds (typically < 50ms)
     expect(elapsed).toBeLessThan(2000);

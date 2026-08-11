@@ -173,6 +173,7 @@ model FloorDesign {
   hasFloorSubPanels   Boolean     @default(false)
   riserCableLength    Float?      // meters — riser cable from MDB to SDB (only for hasFloorSubPanels=true)
   riserCableSize      String?     // e.g., "120 mm²" — riser cable size (only for hasFloorSubPanels=true)
+  riserBreakerSize    String?     // e.g., "630A" — user-overridden riser breaker frame
   riserInstallMethod   String?    @default("C")   // IEC 60364-5-52: B1, B2, C, E, F, G (riser cable, SDB only)
   riserCableInsulation String?    @default("XLPE") // "PVC" or "XLPE" (riser cable, SDB only)
   riserAmbientTemp    Float?      @default(30)    // °C (riser cable, SDB only)

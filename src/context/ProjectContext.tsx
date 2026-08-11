@@ -39,7 +39,10 @@ export function ProjectProvider({ children }: { children: React.ReactNode }) {
   const fetchProjectDetails = useCallback(async (projectId: string) => {
     setLoading(true);
     try {
-      const res = await fetch(`/api/projects/${projectId}`);
+      const res = await fetch(`/api/projects/${projectId}?t=${Date.now()}`, {
+        cache: "no-store",
+        headers: { "Cache-Control": "no-cache" },
+      });
       if (res.ok) {
         const data = await res.json();
         setSelectedProject(data);

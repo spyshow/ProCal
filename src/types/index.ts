@@ -37,6 +37,7 @@ export interface FloorItem {
   apartmentTemplate?: ApartmentTemplate | null;
   loadLibraryItemId?: string | null;
   loadLibraryItem?: LoadLibraryItem | null;
+  floorDesignId?: string;
   // Per-phase balancing: assigned phase 1=L1, 2=L2, 3=L3 for a single-phase item.
   // null = unassigned → phaseBalance computes greedy LPT assignment on-read.
   // Ignored for 3-phase items (they draw from all three). Lockstep with Prisma.
@@ -49,6 +50,7 @@ export interface FloorDesign {
   hasFloorSubPanels: boolean;
   riserCableLength?: number | null; // meters — riser cable from MDB to SDB
   riserCableSize?: string | null; // e.g., "120 mm²"
+  riserBreakerSize?: string | null; // e.g., "630A"
   riserInstallMethod?: string | null; // IEC 60364-5-52 method (B1, B2, C, E, F, G) — SDB only
   riserCableInsulation?: string | null; // "PVC" or "XLPE" — SDB only
   riserAmbientTemp?: number | null;
@@ -176,6 +178,32 @@ export interface PanelFeeder {
   imbalanced?: boolean;
   neutralOversized?: boolean;
   internalImbalanceNotModeled?: boolean;
+  // Protection hierarchy & selectivity fields
+  parentFeederName?: string | null;
+  faultCurrentKa?: number;
+  selectivityStatus?: 'FULL' | 'PARTIAL' | 'NONE' | null;
+  selectivityLimitA?: number | null;
+  cableDamageOk?: boolean;
+  selectivityReason?: string | null;
+  suggestedAlternative?: string | null;
+  alternativeSuggestions?: BreakerAlternativeSuggestion[];
+  itemId?: string;
+  floorDesignId?: string;
+  buildingLoadId?: string;
+}
+
+export interface BreakerAlternativeSuggestion {
+  id: string;
+  type: 'UPSTREAM_UPGRADE' | 'DOWNSTREAM_RESIZE' | 'ELECTRONIC_TRIP_UNIT' | 'SETTINGS_ADJUSTMENT' | 'DIRECT_MDB_FEED';
+  badge: string;
+  title: string;
+  description: string;
+  suggestedModel?: string;
+  suggestedFrameSize?: number;
+  suggestedSettings?: { ir?: number; tr?: number; isd?: number; tsd?: number; ii?: number };
+  expectedSelectivity: 'FULL' | 'PARTIAL';
+  expectedLimitKa?: number;
+  actionText?: string;
 }
 
 export type ReportTab = 'bom' | 'mdb' | 'cable' | 'vd' | 'summary';

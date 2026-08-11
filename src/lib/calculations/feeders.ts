@@ -1,5 +1,8 @@
-import { sizeCableAndBreaker, parseMm2 } from "./cables";
+import { sizeCableAndBreaker, parseMm2, getItemCableLength, getBuildingLoadCableLength } from "./cables";
 import { phaseBalance } from "./phaseBalance";
+import { calculateShortCircuitCurrent, calculateIscWithCable, getTypicalImpedance } from "./shortCircuit";
+import { verifyCoordination, suggestAlternativeBreaker, type BreakerCurveSettings } from "./selectivity";
+import { calculateThreePhaseCurrent, sizeTransformer } from "./loads";
 import type { Building, BuildingLoad, FloorItem, PanelFeeder, Project } from "@/types";
 
 /**
@@ -322,8 +325,11 @@ export function createFindBreaker(
  *   Apartment             → MCB
  *   Other end-load        → MCB
  */
-function categoryForFloorItem(item: FloorItem): "MCCB" | "MCB" {
+function categoryForFloorItem(item: FloorItem, currentOrBreakerSize?: number): "ACB" | "MCCB" | "MCB" {
+  const size = currentOrBreakerSize ?? item.calculatedCurrent;
+  if (size >= 630) return "ACB";
   if (
+    size > 63 ||
     item.type === "SERVICE_PANEL" ||
     item.type === "PUMP_PANEL" ||
     item.type === "ELEVATOR_PANEL"
@@ -344,7 +350,8 @@ function feederFromItem(
   floorNumber: number,
   findBreaker: FindBreaker,
   project: Project,
-  resolvedPhase: number | null = null
+  resolvedPhase: number | null = null,
+  floorDesignId?: string
 ): PanelFeeder {
   const isThreePhase = isThreePhaseForItem(item);
   const insulation = (item.cableInsulation as "PVC" | "XLPE") ?? "XLPE";
@@ -358,14 +365,16 @@ function feederFromItem(
     groupingCount,
     installMethod,
   });
-  const category = categoryForFloorItem(item);
+  const manualBreaker = item.breakerSize ? parseInt(item.breakerSize.replace(/[^\d.]/g, ''), 10) : null;
+  const targetBreaker = manualBreaker && !isNaN(manualBreaker) ? manualBreaker : sizing.breakerSize;
+  const category = categoryForFloorItem(item, targetBreaker);
   const poles: 1 | 3 = isThreePhase ? 3 : 1;
-  const match = findBreaker(sizing.breakerSize, category, poles);
+  const match = findBreaker(targetBreaker, category, poles);
   // The selected model determines the real breaker rating. If the catalog's
   // smallest model is larger than the design breaker size, size the cable to
   // the actual model rating so breaker and cable stay consistent.
   const actualBreakerSize = Math.max(
-    sizing.breakerSize,
+    targetBreaker,
     match.ratedCurrent ?? 0
   );
   const finalSizing =
@@ -393,6 +402,8 @@ function feederFromItem(
     fallback: match.fallback,
     isThreePhase,
     assignedPhase: item.assignedPhase ?? null,
+    itemId: item.id,
+    floorDesignId: floorDesignId ?? item.floorDesignId,
     ...oneItemPhaseFields(item, project, resolvedPhase),
   };
 }
@@ -453,6 +464,7 @@ function feederFromBuildingLoad(
     fallback: match.fallback,
     isThreePhase,
     assignedPhase: load.assignedPhase ?? null,
+    buildingLoadId: load.id,
     ...oneItemPhaseFields(load, project, resolvedPhase),
   };
 }
@@ -516,8 +528,11 @@ export function computeFeeders(
         groupingCount: riserGroupingCount,
         installMethod: riserInstallMethod,
       });
-      const match = findBreaker(sizing.breakerSize, "MCCB", riserPoles);
-      const actualBreakerSize = Math.max(sizing.breakerSize, match.ratedCurrent ?? 0);
+      const manualRiserBreaker = fd.riserBreakerSize ? parseInt(fd.riserBreakerSize.replace(/[^\d.]/g, ''), 10) : null;
+      const targetRiserBreaker = manualRiserBreaker && !isNaN(manualRiserBreaker) ? manualRiserBreaker : sizing.breakerSize;
+      const riserCategory = targetRiserBreaker >= 630 ? "ACB" : "MCCB";
+      const match = findBreaker(targetRiserBreaker, riserCategory, riserPoles);
+      const actualBreakerSize = Math.max(targetRiserBreaker, match.ratedCurrent ?? 0);
       const finalSizing =
         actualBreakerSize > sizing.breakerSize
           ? sizeCableAndBreaker(actualBreakerSize, riserIsThreePhase, {
@@ -537,11 +552,12 @@ export function computeFeeders(
         cableSize: effectiveRiserSize,
         breakerModel:
           match.model ??
-          `${match.manufacturer ?? ""} MCCB ${actualBreakerSize}`.trim(),
+          `${match.manufacturer ?? ""} ${riserCategory} ${actualBreakerSize}`.trim(),
         manufacturer: match.manufacturer,
         familyName: match.familyName,
         fallback: match.fallback,
         isThreePhase: riserIsThreePhase, // physical riser is always 3-phase off the MDB bus
+        floorDesignId: fd.id,
         // Per-phase balance fields for the MDB schedule columns (T6).
         phaseCurrent: floorBalance.phaseCurrent,
         phaseKw: floorBalance.phaseKw,
@@ -562,7 +578,7 @@ export function computeFeeders(
       for (const item of fd.items) {
         const resolved = item.assignedPhase ?? phaseById.get(item.id) ?? null;
         mdbFeeders.push(
-          feederFromItem(item, fd.floorNumber, findBreaker, project, resolved)
+          feederFromItem(item, fd.floorNumber, findBreaker, project, resolved, fd.id)
         );
       }
     }
@@ -602,6 +618,134 @@ export function computeFeeders(
     if (f) mdbFeeders.push(f);
   }
 
+  // -------------------------------------------------------------------------
+  // Protection Tree Hierarchy & Terminal Short-Circuit Sizing
+  // -------------------------------------------------------------------------
+
+  // 1. Calculate transformer capacity and prospective secondary short-circuit current
+  const allItems = [
+    ...building.floorDesigns.flatMap((fd) => fd.items),
+    ...(building.buildingLoads ?? []),
+  ];
+  const overallBalance = phaseBalance(allItems as unknown as FloorItem[], project);
+  const totalDemandKva = overallBalance.totalKw / (project.powerFactor || 0.85);
+  const transformerSizeKva = project.transformerSize || sizeTransformer(totalDemandKva, 1.2) || 500;
+
+  const earthingSystem = building.earthingSystem || 'TN-S';
+  const scResult = calculateShortCircuitCurrent({
+    ratedPower: transformerSizeKva,
+    voltagePrimary: 11000,
+    voltageSecondary: project.voltage,
+    impedancePercent: getTypicalImpedance(transformerSizeKva),
+    earthingSystem,
+  });
+  const transformerIscKa = scResult.threePhaseIsc;
+
+  // 2. Main Incomer Breaker Sizing
+  const mainIncomerCurrent = calculateThreePhaseCurrent(totalDemandKva, project.voltage);
+  const mainSizing = sizeCableAndBreaker(mainIncomerCurrent, true, {
+    material: 'copper',
+    insulation: 'XLPE',
+    ambientTemp: project.ambientTemp ?? 30,
+    groupingCount: 1,
+  });
+  const mainCategory = mainSizing.breakerSize < 630 ? 'MCCB' : 'ACB';
+  const mainMatch = findBreaker(mainSizing.breakerSize, mainCategory, 3);
+  const mainBreakerSize = Math.max(mainSizing.breakerSize, mainMatch.ratedCurrent ?? 0);
+
+  const mainIncomerSettings: BreakerCurveSettings = {
+    inRating: mainBreakerSize,
+    ir: mainIncomerCurrent,
+    tr: 12,
+    isd: mainBreakerSize * 4,
+    tsd: 0.3,
+    ii: mainBreakerSize * 10,
+    category: mainBreakerSize >= 630 ? 'ACB' : 'MCCB',
+    manufacturer: mainMatch.manufacturer ?? project.preferredManufacturer ?? 'ABB',
+    model: mainMatch.model ?? `Main ${mainCategory} ${mainBreakerSize}`,
+  };
+
+  // 3. Process MDB Feeders against Main Incomer
+  for (const f of mdbFeeders) {
+    f.parentFeederName = 'Main Incomer';
+
+    // Cable length resolution
+    let cableLength = 20;
+    let cableInsulation: 'PVC' | 'XLPE' = 'XLPE';
+
+    if (f.type === 'SMDB') {
+      const matchFloor = building.floorDesigns.find((fd) => `F${fd.floorNumber} – SMDB` === f.name);
+      cableLength = matchFloor?.riserCableLength ?? (10 + (matchFloor?.floorNumber ?? 1) * 3.5);
+      cableInsulation = (matchFloor?.riserCableInsulation as 'PVC' | 'XLPE') || 'XLPE';
+    } else {
+      const matchBl = (building.buildingLoads ?? []).find((bl) => bl.loadLibraryItem?.name === f.name || bl.loadLibraryItem?.category === f.type);
+      if (matchBl) {
+        cableLength = getBuildingLoadCableLength(matchBl);
+        cableInsulation = (matchBl.cableInsulation as 'PVC' | 'XLPE') || 'XLPE';
+      } else {
+        const matchItem = building.floorDesigns
+          .flatMap((fd) => fd.items.map((it) => ({ it, floorNumber: fd.floorNumber })))
+          .find(({ it, floorNumber }) => `F${floorNumber} – ${it.name}` === f.name);
+        if (matchItem) {
+          cableLength = getItemCableLength(matchItem.it, matchItem.floorNumber);
+          cableInsulation = (matchItem.it.cableInsulation as 'PVC' | 'XLPE') || 'XLPE';
+        }
+      }
+    }
+
+    const feederVoltage = f.isThreePhase ? project.voltage : project.voltage / Math.sqrt(3);
+    const terminalIscKa = calculateIscWithCable(transformerIscKa, cableLength, f.cableSize, feederVoltage, true);
+    f.faultCurrentKa = terminalIscKa;
+
+    const downstreamSettings: BreakerCurveSettings = {
+      inRating: f.breakerSize,
+      ir: f.current,
+      tr: 12,
+      isd: f.isThreePhase ? f.breakerSize * 4 : undefined,
+      tsd: f.isThreePhase ? 0.1 : undefined,
+      ii: f.isThreePhase ? f.breakerSize * 10 : f.breakerSize * 5,
+      category: f.type === 'SMDB' || f.type === 'SERVICE_PANEL' || f.type === 'PUMP_PANEL' || f.type === 'ELEVATOR_PANEL' ? 'MCCB' : 'MCB',
+      manufacturer: f.manufacturer ?? project.preferredManufacturer ?? 'ABB',
+      model: f.breakerModel,
+    };
+
+    const coord = verifyCoordination(
+      mainIncomerSettings,
+      downstreamSettings,
+      terminalIscKa * 1000,
+      {
+        cableSizeMm2: f.cableSize,
+        cableMaterial: 'copper',
+        cableInsulation,
+        manufacturerPair: {
+          upstreamMfg: mainIncomerSettings.manufacturer ?? 'ABB',
+          downstreamMfg: downstreamSettings.manufacturer ?? 'ABB',
+        },
+      }
+    );
+
+    f.selectivityStatus = coord.status;
+    f.selectivityLimitA = coord.limitCurrent ? parseFloat((coord.limitCurrent / 1000).toFixed(2)) : null;
+    f.cableDamageOk = coord.cableDamageOk;
+    f.selectivityReason = coord.overlapDetails ?? (coord.status === 'FULL' ? 'Fully selective against Main Incomer' : 'Selectivity restricted');
+
+    if (coord.status !== 'FULL') {
+      const suggestions = suggestAlternativeBreaker(
+        mainIncomerSettings,
+        downstreamSettings,
+        terminalIscKa * 1000,
+        {
+          downstreamLoadCurrent: f.current,
+          cableSizeMm2: f.cableSize,
+          parentFeederName: f.parentFeederName,
+          preferredManufacturer: project.preferredManufacturer,
+        }
+      );
+      f.alternativeSuggestions = suggestions;
+      f.suggestedAlternative = suggestions[0]?.title ?? null;
+    }
+  }
+
   const smdbFloorNumbers = building.floorDesigns
     .filter((fd) => fd.hasFloorSubPanels)
     .map((fd) => fd.floorNumber);
@@ -611,6 +755,22 @@ export function computeFeeders(
       (f) => f.floorNumber === floorNumber
     );
     if (!fd) return [];
+
+    const smdbRiserFeeder = mdbFeeders.find((f) => f.name === `F${floorNumber} – SMDB`);
+    const smdbFaultIsc = smdbRiserFeeder?.faultCurrentKa ?? transformerIscKa;
+
+    const smdbRiserSettings: BreakerCurveSettings = {
+      inRating: smdbRiserFeeder?.breakerSize ?? 160,
+      ir: smdbRiserFeeder?.current ?? 100,
+      tr: 12,
+      isd: (smdbRiserFeeder?.breakerSize ?? 160) * 4,
+      tsd: 0.1,
+      ii: (smdbRiserFeeder?.breakerSize ?? 160) * 10,
+      category: 'MCCB',
+      manufacturer: smdbRiserFeeder?.manufacturer ?? project.preferredManufacturer ?? 'ABB',
+      model: smdbRiserFeeder?.breakerModel,
+    };
+
     // Resolve each item's phase from the floor balance so the SMDB outgoing
     // feeders reflect the real board distribution.
     const balance = phaseBalance(fd.items, project);
@@ -619,7 +779,65 @@ export function computeFeeders(
     );
     return fd.items.map((item) => {
       const resolved = item.assignedPhase ?? phaseById.get(item.id) ?? null;
-      return feederFromItem(item, floorNumber, findBreaker, project, resolved);
+      const feeder = feederFromItem(item, floorNumber, findBreaker, project, resolved, fd.id);
+
+      feeder.parentFeederName = `F${floorNumber} – SMDB`;
+
+      const branchLength = getItemCableLength(item, floorNumber);
+      const branchInsulation = (item.cableInsulation as 'PVC' | 'XLPE') || 'XLPE';
+      const branchVoltage = feeder.isThreePhase ? project.voltage : project.voltage / Math.sqrt(3);
+      const branchFaultIsc = calculateIscWithCable(smdbFaultIsc, branchLength, feeder.cableSize, branchVoltage, true);
+      feeder.faultCurrentKa = branchFaultIsc;
+
+      const branchSettings: BreakerCurveSettings = {
+        inRating: feeder.breakerSize,
+        ir: feeder.current,
+        tr: 12,
+        isd: feeder.isThreePhase ? feeder.breakerSize * 4 : undefined,
+        tsd: feeder.isThreePhase ? 0.05 : undefined,
+        ii: feeder.isThreePhase ? feeder.breakerSize * 10 : feeder.breakerSize * 5,
+        category: feeder.type === 'PUMP_PANEL' || feeder.type === 'SERVICE_PANEL' ? 'MCCB' : 'MCB',
+        manufacturer: feeder.manufacturer ?? project.preferredManufacturer ?? 'ABB',
+        model: feeder.breakerModel,
+      };
+
+      const coord = verifyCoordination(
+        smdbRiserSettings,
+        branchSettings,
+        branchFaultIsc * 1000,
+        {
+          cableSizeMm2: feeder.cableSize,
+          cableMaterial: 'copper',
+          cableInsulation: branchInsulation,
+          manufacturerPair: {
+            upstreamMfg: smdbRiserSettings.manufacturer ?? 'ABB',
+            downstreamMfg: branchSettings.manufacturer ?? 'ABB',
+          },
+        }
+      );
+
+      feeder.selectivityStatus = coord.status;
+      feeder.selectivityLimitA = coord.limitCurrent ? parseFloat((coord.limitCurrent / 1000).toFixed(2)) : null;
+      feeder.cableDamageOk = coord.cableDamageOk;
+      feeder.selectivityReason = coord.overlapDetails ?? (coord.status === 'FULL' ? `Fully selective against SMDB F${floorNumber}` : 'Selectivity restricted');
+
+      if (coord.status !== 'FULL') {
+        const suggestions = suggestAlternativeBreaker(
+          smdbRiserSettings,
+          branchSettings,
+          branchFaultIsc * 1000,
+          {
+            downstreamLoadCurrent: feeder.current,
+            cableSizeMm2: feeder.cableSize,
+            parentFeederName: feeder.parentFeederName,
+            preferredManufacturer: project.preferredManufacturer,
+          }
+        );
+        feeder.alternativeSuggestions = suggestions;
+        feeder.suggestedAlternative = suggestions[0]?.title ?? null;
+      }
+
+      return feeder;
     });
   };
 

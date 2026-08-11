@@ -1,37 +1,68 @@
 'use client';
-/* eslint-disable @typescript-eslint/no-unused-vars */
 
-import { useState, useMemo, useRef, useCallback } from 'react';
+import { useState, useMemo, useEffect, useCallback } from 'react';
 import { useTranslation } from '@/i18n';
+import { useProject } from '@/context/ProjectContext';
 import {
   Shield,
   AlertTriangle,
   CheckCircle,
   XCircle,
   Settings,
-  Play,
+  Sparkles,
+  Zap,
   RotateCcw,
+  Sliders,
+  Layers,
+  CheckCircle2,
+  Activity,
+  ArrowRight,
 } from 'lucide-react';
 import {
   generateCurvePoints,
+  generateCableDamageCurve,
   verifyCoordination,
   recommendBreakerSettings,
+  suggestAlternativeBreaker,
   type BreakerCurveSettings,
   type CoordinationResult,
   type CurvePoint,
+  type BreakerAlternativeSuggestion,
 } from '@/lib/calculations/selectivity';
+import { computeFeeders, createFindBreaker, type EquipmentItem, type DefaultFamilies } from '@/lib/calculations/feeders';
+import type { Project, PanelFeeder } from '@/types';
 
 type SelectivityStatus = 'FULL' | 'PARTIAL' | 'NONE';
 
-export default function CoordinationPage() {
-  const { t, isRtl } = useTranslation();
+interface ProjectFeederItem extends PanelFeeder {
+  buildingId: string;
+  buildingName: string;
+  floor: number;
+}
 
-  const STATUS_CONFIG: Record<SelectivityStatus, { color: string; bg: string; icon: typeof CheckCircle; label: string }> = {
-    FULL: { color: 'text-green-400', bg: 'bg-green-500/10', icon: CheckCircle, label: t('breakers.fullSelectivity', 'Full Selectivity') },
-    PARTIAL: { color: 'text-yellow-400', bg: 'bg-yellow-500/10', icon: AlertTriangle, label: t('breakers.partialSelectivity', 'Partial Selectivity') },
-    NONE: { color: 'text-red-400', bg: 'bg-red-500/10', icon: XCircle, label: t('breakers.noSelectivity', 'No Selectivity') },
-  };
-  // Upstream breaker settings
+export default function CoordinationPage() {
+  const { t } = useTranslation();
+  const { selectedProjectId, selectedProject, loading: contextLoading, preferredManufacturer, refreshProject } = useProject();
+
+  const [project, setProject] = useState<Project | null>(selectedProject);
+  const [equipment, setEquipment] = useState<EquipmentItem[]>([]);
+  const [mode, setMode] = useState<'project' | 'playground'>('project');
+  const [selectedBuildingId, setSelectedBuildingId] = useState<string>('');
+  const [selectedFeederName, setSelectedFeederName] = useState<string>('');
+  const [applyingId, setApplyingId] = useState<string | null>(null);
+
+  const [cableSize, setCableSize] = useState<number>(50);
+  const [cableInsulation, setCableInsulation] = useState<'XLPE' | 'PVC'>('XLPE');
+  const [cableMaterial, setCableMaterial] = useState<'copper' | 'aluminum'>('copper');
+
+  const [defaults] = useState<DefaultFamilies>(() => ({
+    ACB: selectedProject?.defaultAcbFamilyId ?? undefined,
+    MCCB: selectedProject?.defaultMccbFamilyId ?? undefined,
+    MCB: selectedProject?.defaultMcbFamilyId ?? undefined,
+  }));
+  const [breakerSettings, setBreakerSettings] = useState<any[]>([]);
+
+  // Upstream breaker curve settings
   const [upstream, setUpstream] = useState<BreakerCurveSettings>({
     inRating: 630,
     ir: 500,
@@ -42,9 +73,12 @@ export default function CoordinationPage() {
     ii: 5000,
     ig: 200,
     tg: 0.2,
+    category: 'ACB',
+    manufacturer: 'Schneider',
+    model: 'MasterPact MTZ1 630A MicroLogic 5.0 X',
   });
 
-  // Downstream breaker settings
+  // Downstream breaker curve settings
   const [downstream, setDownstream] = useState<BreakerCurveSettings>({
     inRating: 160,
     ir: 128,
@@ -55,60 +89,419 @@ export default function CoordinationPage() {
     ii: 1280,
     ig: 50,
     tg: 0.1,
+    category: 'MCCB',
+    manufacturer: 'Schneider',
+    model: 'ComPacT NSX160 160A MicroLogic 2.2',
   });
 
-  const [faultCurrent, setFaultCurrent] = useState(25000);
-  const [showSettings, setShowSettings] = useState<'upstream' | 'downstream' | null>(null);
+  const [faultCurrent, setFaultCurrent] = useState<number>(25000);
+  const [upstreamFeederLabel, setUpstreamFeederLabel] = useState<string>('Main Incomer');
+  const [downstreamFeederLabel, setDownstreamFeederLabel] = useState<string>('Downstream Feeder');
+
+  // Load project if needed
+  useEffect(() => {
+    if (selectedProject && selectedProject.id === selectedProjectId) {
+      setProject(selectedProject);
+    }
+  }, [selectedProject, selectedProjectId]);
+
+  // Load equipment catalog
+  const loadEquipment = useCallback(async () => {
+    try {
+      const res = await fetch(`/api/equipment?category=ACB,MCCB,MCB`);
+      if (res.ok) {
+        const data = await res.json();
+        setEquipment(data);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  }, []);
+
+  const loadBreakerSettings = useCallback(async () => {
+    try {
+      const res = await fetch(`/api/breaker-settings?t=${Date.now()}`, {
+        cache: 'no-store',
+        headers: { 'Cache-Control': 'no-cache' },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setBreakerSettings(data);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadEquipment();
+  }, [loadEquipment]);
+
+  useEffect(() => {
+    loadBreakerSettings();
+  }, [loadBreakerSettings]);
+
+  const findBreaker = useMemo(
+    () => createFindBreaker(equipment, defaults, project?.preferredManufacturer),
+    [equipment, defaults, project?.preferredManufacturer]
+  );
+
+  // Compute all real project feeders
+  const allProjectFeeders = useMemo(() => {
+    if (!project || project.buildings.length === 0) return [];
+    const list: ProjectFeederItem[] = [];
+
+    const findSavedBreakerSetting = (f: PanelFeeder) =>
+      breakerSettings.find(
+        (s) =>
+          s.breakerId === `${project.id}-${f.name}` ||
+          s.breakerId === f.name ||
+          (f.itemId && s.breakerId === f.itemId)
+      );
+
+    for (const bldg of project.buildings) {
+      const { mdbFeeders, smdbFloorNumbers, smdbFeeders } = computeFeeders(bldg, project, findBreaker);
+
+      for (const f of mdbFeeders) {
+        const saved = findSavedBreakerSetting(f);
+        list.push({
+          ...f,
+          breakerModel: saved?.model || f.breakerModel,
+          selectivityStatus: saved ? 'FULL' : f.selectivityStatus,
+          selectivityReason: saved ? `Full electronic LSI selectivity (${saved.model})` : f.selectivityReason,
+          suggestedAlternative: saved ? null : f.suggestedAlternative,
+          alternativeSuggestions: saved ? [] : f.alternativeSuggestions,
+          buildingId: bldg.id,
+          buildingName: bldg.name,
+          floor: 0,
+        });
+      }
+
+      for (const floorNumber of smdbFloorNumbers) {
+        for (const f of smdbFeeders(floorNumber)) {
+          const saved = findSavedBreakerSetting(f);
+          list.push({
+            ...f,
+            breakerModel: saved?.model || f.breakerModel,
+            selectivityStatus: saved ? 'FULL' : f.selectivityStatus,
+            selectivityReason: saved ? `Full electronic LSI selectivity (${saved.model})` : f.selectivityReason,
+            suggestedAlternative: saved ? null : f.suggestedAlternative,
+            alternativeSuggestions: saved ? [] : f.alternativeSuggestions,
+            buildingId: bldg.id,
+            buildingName: bldg.name,
+            floor: floorNumber,
+          });
+        }
+      }
+    }
+    return list;
+  }, [project, findBreaker, breakerSettings]);
+
+  // Default selection when feeders load
+  useEffect(() => {
+    if (allProjectFeeders.length > 0 && !selectedFeederName) {
+      // Find a feeder with non-full selectivity if possible to help user right away
+      const interestingFeeder =
+        allProjectFeeders.find((f) => f.selectivityStatus === 'NONE') ||
+        allProjectFeeders.find((f) => f.selectivityStatus === 'PARTIAL') ||
+        allProjectFeeders[0];
+
+      if (interestingFeeder) {
+        setSelectedBuildingId(interestingFeeder.buildingId);
+        setSelectedFeederName(interestingFeeder.name);
+      }
+    }
+  }, [allProjectFeeders, selectedFeederName]);
+
+  const selectedFeeder = useMemo(() => {
+    if (!selectedFeederName) return null;
+    return (
+      allProjectFeeders.find(
+        (f) => f.name === selectedFeederName && (!selectedBuildingId || f.buildingId === selectedBuildingId)
+      ) || null
+    );
+  }, [allProjectFeeders, selectedFeederName, selectedBuildingId]);
+
+  // When selected feeder changes, sync the upstream and downstream breaker settings
+  useEffect(() => {
+    if (mode !== 'project' || !selectedFeeder) return;
+
+    const feeder = selectedFeeder;
+
+    const parentName = feeder.parentFeederName || 'Main Incomer';
+    const upstreamFeeder = allProjectFeeders.find(
+      (f) => f.name === parentName && f.buildingId === feeder.buildingId
+    );
+
+    const mfg = feeder.manufacturer || project?.preferredManufacturer || 'Schneider';
+    const isSchneider = mfg.toUpperCase().includes('SCHNEIDER');
+
+    // Upstream breaker
+    const upIn = upstreamFeeder?.breakerSize ?? (feeder.breakerSize >= 400 ? 630 : 400);
+    const upIr = upstreamFeeder?.current ?? upIn * 0.8;
+    const upCat: 'ACB' | 'MCCB' = upIn >= 630 ? 'ACB' : 'MCCB';
+    const upModel = upstreamFeeder?.breakerModel ?? `${mfg} ${upCat} ${upIn}A`;
+
+    setUpstream({
+      inRating: upIn,
+      ir: parseFloat(upIr.toFixed(1)),
+      tr: 12,
+      isd: upIn * 4,
+      tsd: 0.3,
+      i2t: false,
+      ii: upIn * 10,
+      category: upCat,
+      manufacturer: mfg,
+      model: upModel,
+    });
+    setUpstreamFeederLabel(parentName);
+
+    // Downstream breaker
+    const downIn = feeder.breakerSize;
+    const downIr = feeder.current;
+    const downCat: 'MCB' | 'MCCB' = feeder.type === 'APARTMENT' ? 'MCB' : 'MCCB';
+    const downModel = feeder.breakerModel;
+
+    setDownstream({
+      inRating: downIn,
+      ir: parseFloat(downIr.toFixed(1)),
+      tr: 12,
+      isd: downCat === 'MCCB' ? downIn * 4 : undefined,
+      tsd: downCat === 'MCCB' ? 0.05 : undefined,
+      ii: downIn * (downCat === 'MCB' ? 5 : 10),
+      category: downCat,
+      manufacturer: mfg,
+      model: downModel,
+      curveType: 'C',
+    });
+    setDownstreamFeederLabel(feeder.name);
+
+    // Cable & Fault
+    setCableSize(feeder.cableSize || 16);
+    setFaultCurrent((feeder.faultCurrentKa ? feeder.faultCurrentKa : 15) * 1000);
+  }, [selectedFeederName, selectedBuildingId, allProjectFeeders, mode, project?.preferredManufacturer]);
 
   // Generate curve data
   const upstreamCurve = useMemo(() => generateCurvePoints(upstream), [upstream]);
   const downstreamCurve = useMemo(() => generateCurvePoints(downstream), [downstream]);
 
-  // Cable damage curve (simplified: t = (k*S/I)^2 for copper, k=143, S=50mm²)
-  const cableDamageCurve = useMemo(() => {
-    const k = 143;
-    const S = 50;
-    const points: CurvePoint[] = [];
-    for (let i = 0; i <= 100; i++) {
-      const logI = Math.log10(100) + i * (Math.log10(50000) - Math.log10(100)) / 100;
-      const I = Math.pow(10, logI);
-      const t = Math.pow((k * S) / I, 2);
-      if (t >= 0.01 && t <= 10000) {
-        points.push({ current: parseFloat(I.toFixed(1)), time: parseFloat(t.toFixed(4)) });
-      }
-    }
-    return points;
-  }, []);
-
-  // Coordination check
-  const result: CoordinationResult = useMemo(
-    () => verifyCoordination(upstream, downstream, faultCurrent, { upstreamMfg: 'ABB', downstreamMfg: 'ABB' }),
-    [upstream, downstream, faultCurrent]
+  // Cable damage curve
+  const cableDamageCurve = useMemo(
+    () => generateCableDamageCurve(cableSize, cableMaterial, cableInsulation),
+    [cableSize, cableMaterial, cableInsulation]
   );
+
+  // Live coordination check
+  const result: CoordinationResult = useMemo(
+    () =>
+      verifyCoordination(upstream, downstream, faultCurrent, {
+        cableSizeMm2: cableSize,
+        cableMaterial,
+        cableInsulation,
+        manufacturerPair: {
+          upstreamMfg: upstream.manufacturer ?? 'ABB',
+          downstreamMfg: downstream.manufacturer ?? 'ABB',
+        },
+      }),
+    [upstream, downstream, faultCurrent, cableSize, cableMaterial, cableInsulation]
+  );
+
+  // Alternative suggestions when selectivity is not full
+  const alternativeSuggestions: BreakerAlternativeSuggestion[] = useMemo(() => {
+    if (result.status === 'FULL') return [];
+    return suggestAlternativeBreaker(upstream, downstream, faultCurrent, {
+      downstreamLoadCurrent: downstream.ir,
+      cableSizeMm2: cableSize,
+      parentFeederName: upstreamFeederLabel,
+      preferredManufacturer: project?.preferredManufacturer,
+    });
+  }, [result.status, upstream, downstream, faultCurrent, cableSize, upstreamFeederLabel, project?.preferredManufacturer]);
+
+  const STATUS_CONFIG: Record<SelectivityStatus, { color: string; bg: string; border: string; icon: typeof CheckCircle; label: string }> = {
+    FULL: {
+      color: 'text-green-400',
+      bg: 'bg-green-500/10',
+      border: 'border-green-500/20',
+      icon: CheckCircle2,
+      label: t('breakers.fullSelectivity', 'Full Selectivity'),
+    },
+    PARTIAL: {
+      color: 'text-yellow-400',
+      bg: 'bg-yellow-500/10',
+      border: 'border-yellow-500/20',
+      icon: AlertTriangle,
+      label: t('breakers.partialSelectivity', 'Partial Selectivity'),
+    },
+    NONE: {
+      color: 'text-red-400',
+      bg: 'bg-red-500/10',
+      border: 'border-red-500/20',
+      icon: XCircle,
+      label: t('breakers.noSelectivity', 'No Selectivity'),
+    },
+  };
 
   const statusConfig = STATUS_CONFIG[result.status];
   const StatusIcon = statusConfig.icon;
 
-  // SVG Dimensions
-  const svgWidth = 700;
-  const svgHeight = 500;
-  const plotLeft = 80;
-  const plotTop = 40;
-  const plotWidth = svgWidth - plotLeft - 40;
-  const plotHeight = svgHeight - plotTop - 60;
+  // Apply one-click auto-tuning to achieve full selectivity
+  const applyAutoTune = () => {
+    // 1. Grade upstream Ir to at least 1.6x downstream Ir
+    const targetUpstreamIr = Math.max(upstream.inRating * 0.8, downstream.ir * 1.6);
+    const updatedUpstreamIn = upstream.inRating < targetUpstreamIr ? Math.ceil(targetUpstreamIr / 100) * 100 : upstream.inRating;
 
-  // Log scale mapping
-  const logMinI = Math.log10(Math.max(10, downstream.ir * 0.3));
-  const logMaxI = Math.log10(Math.max(faultCurrent, upstream.inRating * 20));
+    setUpstream((prev) => ({
+      ...prev,
+      inRating: updatedUpstreamIn,
+      ir: parseFloat(targetUpstreamIr.toFixed(1)),
+      tsd: 0.3,
+      isd: targetUpstreamIr * 4,
+      ii: updatedUpstreamIn * 10,
+    }));
+
+    setDownstream((prev) => ({
+      ...prev,
+      tsd: prev.category === 'MCCB' ? 0.05 : undefined,
+      isd: prev.ir * 4,
+      ii: prev.inRating * 8,
+    }));
+  };
+
+  const handleApplySuggestion = async (sug: BreakerAlternativeSuggestion) => {
+    if (!project || !selectedFeeder) return;
+    setApplyingId(sug.id);
+
+    try {
+      const bldg = project.buildings.find((b) => b.id === selectedFeeder.buildingId) || project.buildings[0];
+
+      if (sug.type === 'UPSTREAM_UPGRADE') {
+        const floorMatch = selectedFeeder.parentFeederName?.match(/F(\d+)/i);
+        const floorNum = floorMatch ? parseInt(floorMatch[1], 10) : null;
+        let floorDesignId = selectedFeeder.floorDesignId;
+        if (floorNum && bldg) {
+          const fd = (bldg.floorDesigns ?? []).find((f) => f.floorNumber === floorNum);
+          if (fd) floorDesignId = fd.id;
+        }
+
+        if (floorDesignId && selectedFeeder.parentFeederName?.includes('SMDB')) {
+          await fetch(`/api/floors/${floorDesignId}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ riserBreakerSize: `${sug.suggestedFrameSize}A` }),
+          });
+        } else {
+          await fetch('/api/breaker-settings', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              breakerId: `${project.id}-main-incomer`,
+              model: sug.suggestedModel || 'Main Incomer ACB',
+              manufacturer: selectedFeeder.manufacturer || 'Schneider',
+              frameSize: `${sug.suggestedFrameSize}A`,
+              ir: selectedFeeder.current * 1.6,
+              tr: 12,
+              isd: (sug.suggestedFrameSize || 630) * 4,
+              tsd: 0.3,
+              ii: (sug.suggestedFrameSize || 630) * 10,
+            }),
+          });
+        }
+      } else if (sug.type === 'DIRECT_MDB_FEED') {
+        let floorDesignId = selectedFeeder.floorDesignId;
+        if (!floorDesignId && bldg) {
+          const floorMatch = selectedFeeder.parentFeederName?.match(/F(\d+)/i) || selectedFeeder.name.match(/F(\d+)/i);
+          const floorNum = floorMatch ? parseInt(floorMatch[1], 10) : selectedFeeder.floor;
+          const fd = (bldg.floorDesigns ?? []).find((f) => f.floorNumber === floorNum);
+          floorDesignId = fd?.id;
+        }
+        if (floorDesignId) {
+          await fetch(`/api/floors/${floorDesignId}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ hasFloorSubPanels: false }),
+          });
+        }
+      } else if (sug.type === 'DOWNSTREAM_RESIZE') {
+        let itemId = selectedFeeder.itemId;
+        if (!itemId && bldg) {
+          for (const fd of bldg.floorDesigns ?? []) {
+            for (const it of fd.items ?? []) {
+              if (
+                `F${fd.floorNumber} – ${it.name}` === selectedFeeder.name ||
+                `F${fd.floorNumber} - ${it.name}` === selectedFeeder.name ||
+                it.name === selectedFeeder.name
+              ) {
+                itemId = it.id;
+                break;
+              }
+            }
+            if (itemId) break;
+          }
+        }
+        if (itemId) {
+          await fetch(`/api/floor-items/${itemId}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ breakerSize: `${sug.suggestedFrameSize}A` }),
+          });
+        }
+      } else if (sug.type === 'SETTINGS_ADJUSTMENT' || sug.type === 'ELECTRONIC_TRIP_UNIT') {
+        const stableBreakerId = `${project.id}-${selectedFeeder.name}`;
+        await fetch('/api/breaker-settings', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            breakerId: stableBreakerId,
+            model: sug.suggestedModel || selectedFeeder.breakerModel,
+            manufacturer: selectedFeeder.manufacturer || 'Schneider',
+            frameSize: `${selectedFeeder.breakerSize}A`,
+            ir: selectedFeeder.current,
+            tr: 12,
+            isd: sug.suggestedSettings?.isd ?? selectedFeeder.breakerSize * 4,
+            tsd: sug.suggestedSettings?.tsd ?? 0.05,
+            ii: sug.suggestedSettings?.ii ?? selectedFeeder.breakerSize * 8,
+          }),
+        });
+        await loadBreakerSettings();
+      }
+
+      await refreshProject();
+      const res = await fetch(`/api/projects/${project.id}?t=${Date.now()}`, {
+        cache: 'no-store',
+        headers: { 'Cache-Control': 'no-cache' },
+      });
+      if (res.ok) {
+        const updated = await res.json();
+        setProject(updated);
+      }
+    } catch (err) {
+      console.error('Error applying suggestion:', err);
+    } finally {
+      setApplyingId(null);
+    }
+  };
+
+  // SVG Chart Geometry
+  const svgWidth = 720;
+  const svgHeight = 480;
+  const plotLeft = 80;
+  const plotTop = 35;
+  const plotWidth = svgWidth - plotLeft - 35;
+  const plotHeight = svgHeight - plotTop - 55;
+
+  const logMinI = Math.log10(10);
+  const logMaxI = Math.log10(Math.max(50000, faultCurrent * 1.5));
   const logMinT = Math.log10(0.01);
   const logMaxT = Math.log10(10000);
 
   const mapX = (current: number) => {
-    return plotLeft + ((Math.log10(current) - logMinI) / (logMaxI - logMinI)) * plotWidth;
+    const clampedI = Math.max(10, Math.min(100000, current));
+    return plotLeft + ((Math.log10(clampedI) - logMinI) / (logMaxI - logMinI)) * plotWidth;
   };
+
   const mapY = (time: number) => {
-    const logT = Math.log10(Math.max(0.01, Math.min(10000, time)));
-    return plotTop + plotHeight - ((logT - logMinT) / (logMaxT - logMinT)) * plotHeight;
+    const clampedT = Math.max(0.01, Math.min(10000, time));
+    return plotTop + plotHeight - ((Math.log10(clampedT) - logMinT) / (logMaxT - logMinT)) * plotHeight;
   };
 
   const toPath = (points: CurvePoint[]) => {
@@ -116,81 +509,139 @@ export default function CoordinationPage() {
     return points.map((p, i) => `${i === 0 ? 'M' : 'L'}${mapX(p.current).toFixed(1)},${mapY(p.time).toFixed(1)}`).join(' ');
   };
 
-  // Grid lines
-  const currentGridLines = [10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000, 50000].filter(
-    (v) => v >= Math.pow(10, logMinI) && v <= Math.pow(10, logMaxI)
-  );
-  const timeGridLines = [0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000];
-
-  const applyRecommended = (which: 'upstream' | 'downstream') => {
-    // Simple recommendation based on nominal rating
-    if (which === 'upstream') {
-      setUpstream(recommendBreakerSettings(450, 600, 630));
-    } else {
-      setDownstream(recommendBreakerSettings(100, 180, 160));
-    }
-  };
+  const currentGridLines = [10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000, 50000];
+  const timeGridLines = [0.01, 0.1, 1, 10, 60, 300, 3600, 10000];
 
   return (
     <div className="p-6 space-y-5 max-w-7xl mx-auto">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      {/* Header & Mode Switcher */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-white flex items-center gap-2">
-            <Shield size={22} className="text-orange-500" />
-            {t('coordination.title', 'Protection Coordination Studio')}
-          </h1>
+          <div className="flex items-center gap-2">
+            <Shield size={24} className="text-orange-500" />
+            <h1 className="text-2xl font-bold text-white">
+              {t('coordination.title', 'Protection Coordination Studio')}
+            </h1>
+          </div>
           <p className="text-sm text-gray-400 mt-1">
             {t('coordination.subtitle', 'Time-Current Characteristic (TCC) analysis & selectivity verification')}
           </p>
         </div>
-        <div className={`flex items-center gap-2 px-4 py-2 rounded-lg ${statusConfig.bg}`}>
-          <StatusIcon size={18} className={statusConfig.color} />
-          <span className={`text-sm font-semibold ${statusConfig.color}`}>{statusConfig.label}</span>
+
+        <div className="flex flex-wrap items-center gap-3">
+          {/* Mode Switcher */}
+          <div className="flex items-center bg-gray-950 p-1 rounded-xl border border-gray-800 text-xs">
+            <button
+              onClick={() => setMode('project')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-medium transition-all ${
+                mode === 'project'
+                  ? 'bg-orange-500 text-white shadow-sm'
+                  : 'text-gray-400 hover:text-gray-200'
+              }`}
+            >
+              <Layers size={13} />
+              Project Feeders
+            </button>
+            <button
+              onClick={() => setMode('playground')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-medium transition-all ${
+                mode === 'playground'
+                  ? 'bg-orange-500 text-white shadow-sm'
+                  : 'text-gray-400 hover:text-gray-200'
+              }`}
+            >
+              <Sliders size={13} />
+              Custom Playground
+            </button>
+          </div>
+
+          {/* Coordination Verdict Badge */}
+          <div className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl border ${statusConfig.bg} ${statusConfig.border}`}>
+            <StatusIcon size={16} className={statusConfig.color} />
+            <span className={`text-xs font-bold ${statusConfig.color}`}>
+              {statusConfig.label} {result.limitCurrent ? `(${(result.limitCurrent / 1000).toFixed(1)} kA)` : ''}
+            </span>
+          </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-        {/* Left Panel: Breaker Settings */}
-        <div className="space-y-4">
-          {/* Upstream Breaker */}
-          <div className="rounded-xl border border-gray-800 bg-gray-900/60 p-4 space-y-3">
-            <div className="flex items-center justify-between">
-              <h3 className="text-sm font-semibold text-blue-400 flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-blue-500" />
-                {t('coordination.upstreamBreaker', 'Upstream Breaker')} ({upstream.inRating}A)
-              </h3>
-              <div className="flex gap-1">
-                <button
-                  onClick={() => setShowSettings(showSettings === 'upstream' ? null : 'upstream')}
-                  className="p-1 rounded text-gray-500 hover:text-gray-300"
+      {/* Project Feeder Selection Bar */}
+      {mode === 'project' && (
+        <div className="rounded-xl border border-gray-800 bg-gray-900/60 p-4 space-y-3">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-semibold text-gray-400">Select Feeder to Analyze:</span>
+                <select
+                  value={selectedFeederName}
+                  onChange={(e) => setSelectedFeederName(e.target.value)}
+                  className="dense-input rounded-lg text-xs bg-gray-950 border border-gray-700 text-white font-medium min-w-[280px]"
                 >
-                  <Settings size={14} />
-                </button>
-                <button
-                  onClick={() => applyRecommended('upstream')}
-                  className="p-1 rounded text-gray-500 hover:text-orange-400"
-                  title="Auto-configure"
-                >
-                  <Play size={14} />
-                </button>
+                  {allProjectFeeders.map((f) => (
+                    <option key={`${f.buildingId}-${f.name}`} value={f.name}>
+                      {f.name} ({f.breakerSize}A) &mdash; {f.selectivityStatus || 'UNKNOWN'}
+                    </option>
+                  ))}
+                </select>
               </div>
             </div>
-            <div className="text-xs text-gray-500 font-mono">
-              In={upstream.inRating}A
+
+            <div className="text-xs text-gray-400 flex items-center gap-2">
+              <span>Upstream Parent: <strong className="text-blue-400">{upstreamFeederLabel}</strong></span>
+              <ArrowRight size={12} className="text-gray-500" />
+              <span>Downstream: <strong className="text-orange-400">{downstreamFeederLabel}</strong></span>
+            </div>
+          </div>
+
+          {/* Feeder Hierarchy Banner */}
+          <div className="bg-gray-950/70 rounded-lg p-2.5 border border-gray-800 text-xs flex flex-wrap items-center justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <span className="text-gray-500">Selected Breaker:</span>
+              <span className="text-gray-200 font-semibold">{downstream.model || `${downstream.inRating}A`}</span>
+            </div>
+            <div className="flex items-center gap-4 text-gray-400 font-mono">
+              <span>Load: <strong className="text-gray-200">{downstream.ir.toFixed(1)}A</strong></span>
+              <span>Frame: <strong className="text-blue-400">{downstream.inRating}A</strong></span>
+              <span>Cable: <strong className="text-green-400">{cableSize} mm²</strong></span>
+              <span>Fault Isc: <strong className="text-orange-400">{(faultCurrent / 1000).toFixed(2)} kA</strong></span>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Main Grid: Settings (Left) & TCC Plot (Right) */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+        {/* Left Panel: Trip Unit Dials & Fault Parameters */}
+        <div className="space-y-4">
+          {/* Upstream Breaker Card */}
+          <div className="rounded-xl border border-blue-500/20 bg-gray-900/60 p-4 space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-blue-500" />
+                <h3 className="text-sm font-bold text-blue-400">
+                  Upstream ({upstreamFeederLabel})
+                </h3>
+              </div>
+              <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-blue-500/10 text-blue-300 border border-blue-500/20">
+                In = {upstream.inRating}A ({upstream.category || 'MCCB'})
+              </span>
             </div>
 
-            {showSettings === 'upstream' && (
-              <BreakerSettingsForm settings={upstream} onChange={setUpstream} />
-            )}
+            <p className="text-[11px] text-gray-400 truncate" title={upstream.model}>
+              {upstream.model || 'Standard Electronic Trip Unit'}
+            </p>
 
             <div className="grid grid-cols-2 gap-2 text-xs">
               <div>
-                <label className="text-gray-500">Ir (A)</label>
+                <label className="text-gray-500 flex justify-between">
+                  <span>Ir (A)</span>
+                  <span className="text-gray-400 font-mono">{(upstream.ir / upstream.inRating).toFixed(2)}x</span>
+                </label>
                 <input
                   type="number"
                   value={upstream.ir}
                   onChange={(e) => setUpstream({ ...upstream, ir: parseFloat(e.target.value) || 0 })}
-                  className="dense-input w-full rounded"
+                  className="dense-input w-full rounded font-mono"
                 />
               </div>
               <div>
@@ -200,16 +651,19 @@ export default function CoordinationPage() {
                   step="0.5"
                   value={upstream.tr}
                   onChange={(e) => setUpstream({ ...upstream, tr: parseFloat(e.target.value) || 0 })}
-                  className="dense-input w-full rounded"
+                  className="dense-input w-full rounded font-mono"
                 />
               </div>
               <div>
-                <label className="text-gray-500">Isd (A)</label>
+                <label className="text-gray-500 flex justify-between">
+                  <span>Isd (A)</span>
+                  <span className="text-gray-400 font-mono">{upstream.isd ? `${(upstream.isd / upstream.ir).toFixed(1)}x` : '—'}</span>
+                </label>
                 <input
                   type="number"
                   value={upstream.isd ?? ''}
                   onChange={(e) => setUpstream({ ...upstream, isd: parseFloat(e.target.value) || undefined })}
-                  className="dense-input w-full rounded"
+                  className="dense-input w-full rounded font-mono"
                 />
               </div>
               <div>
@@ -219,7 +673,7 @@ export default function CoordinationPage() {
                   step="0.01"
                   value={upstream.tsd ?? ''}
                   onChange={(e) => setUpstream({ ...upstream, tsd: parseFloat(e.target.value) || undefined })}
-                  className="dense-input w-full rounded"
+                  className="dense-input w-full rounded font-mono"
                 />
               </div>
               <div>
@@ -228,39 +682,52 @@ export default function CoordinationPage() {
                   type="number"
                   value={upstream.ii ?? ''}
                   onChange={(e) => setUpstream({ ...upstream, ii: parseFloat(e.target.value) || undefined })}
-                  className="dense-input w-full rounded"
+                  className="dense-input w-full rounded font-mono"
                 />
               </div>
               <div>
-                <label className="text-gray-500">I²t</label>
+                <label className="text-gray-500">I²t Curve</label>
                 <select
                   value={upstream.i2t ? 'on' : 'off'}
                   onChange={(e) => setUpstream({ ...upstream, i2t: e.target.value === 'on' })}
-                  className="dense-input w-full rounded"
+                  className="dense-input w-full rounded font-mono"
                 >
-                  <option value="off">OFF</option>
-                  <option value="on">ON</option>
+                  <option value="off">OFF (Flat)</option>
+                  <option value="on">ON (Inverse)</option>
                 </select>
               </div>
             </div>
           </div>
 
-          {/* Downstream Breaker */}
-          <div className="rounded-xl border border-gray-800 bg-gray-900/60 p-4 space-y-3">
+          {/* Downstream Breaker Card */}
+          <div className="rounded-xl border border-orange-500/20 bg-gray-900/60 p-4 space-y-3">
             <div className="flex items-center justify-between">
-              <h3 className="text-sm font-semibold text-orange-400 flex items-center gap-1.5">
-                <Shield size={14} />
-                {t('coordination.downstreamBreaker', 'Downstream Breaker')} ({downstream.inRating}A)
-              </h3>
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-orange-500" />
+                <h3 className="text-sm font-bold text-orange-400">
+                  Downstream ({downstreamFeederLabel})
+                </h3>
+              </div>
+              <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-orange-500/10 text-orange-300 border border-orange-500/20">
+                In = {downstream.inRating}A ({downstream.category || 'MCCB'})
+              </span>
             </div>
+
+            <p className="text-[11px] text-gray-400 truncate" title={downstream.model}>
+              {downstream.model || 'Standard Trip Unit'}
+            </p>
+
             <div className="grid grid-cols-2 gap-2 text-xs">
               <div>
-                <label className="text-gray-500">Ir (A)</label>
+                <label className="text-gray-500 flex justify-between">
+                  <span>Ir (A)</span>
+                  <span className="text-gray-400 font-mono">{(downstream.ir / downstream.inRating).toFixed(2)}x</span>
+                </label>
                 <input
                   type="number"
                   value={downstream.ir}
                   onChange={(e) => setDownstream({ ...downstream, ir: parseFloat(e.target.value) || 0 })}
-                  className="dense-input w-full rounded"
+                  className="dense-input w-full rounded font-mono"
                 />
               </div>
               <div>
@@ -270,16 +737,19 @@ export default function CoordinationPage() {
                   step="0.5"
                   value={downstream.tr}
                   onChange={(e) => setDownstream({ ...downstream, tr: parseFloat(e.target.value) || 0 })}
-                  className="dense-input w-full rounded"
+                  className="dense-input w-full rounded font-mono"
                 />
               </div>
               <div>
-                <label className="text-gray-500">Isd (A)</label>
+                <label className="text-gray-500 flex justify-between">
+                  <span>Isd (A)</span>
+                  <span className="text-gray-400 font-mono">{downstream.isd ? `${(downstream.isd / downstream.ir).toFixed(1)}x` : '—'}</span>
+                </label>
                 <input
                   type="number"
                   value={downstream.isd ?? ''}
                   onChange={(e) => setDownstream({ ...downstream, isd: parseFloat(e.target.value) || undefined })}
-                  className="dense-input w-full rounded"
+                  className="dense-input w-full rounded font-mono"
                 />
               </div>
               <div>
@@ -289,7 +759,7 @@ export default function CoordinationPage() {
                   step="0.01"
                   value={downstream.tsd ?? ''}
                   onChange={(e) => setDownstream({ ...downstream, tsd: parseFloat(e.target.value) || undefined })}
-                  className="dense-input w-full rounded"
+                  className="dense-input w-full rounded font-mono"
                 />
               </div>
               <div>
@@ -298,248 +768,251 @@ export default function CoordinationPage() {
                   type="number"
                   value={downstream.ii ?? ''}
                   onChange={(e) => setDownstream({ ...downstream, ii: parseFloat(e.target.value) || undefined })}
-                  className="dense-input w-full rounded"
+                  className="dense-input w-full rounded font-mono"
                 />
               </div>
               <div>
-                <label className="text-gray-500">I²t</label>
+                <label className="text-gray-500">I²t Curve</label>
                 <select
                   value={downstream.i2t ? 'on' : 'off'}
                   onChange={(e) => setDownstream({ ...downstream, i2t: e.target.value === 'on' })}
-                  className="dense-input w-full rounded"
+                  className="dense-input w-full rounded font-mono"
                 >
-                  <option value="off">OFF</option>
-                  <option value="on">ON</option>
+                  <option value="off">OFF (Flat)</option>
+                  <option value="on">ON (Inverse)</option>
                 </select>
               </div>
             </div>
           </div>
 
-          {/* Fault Current */}
-          <div className="rounded-xl border border-gray-800 bg-gray-900/60 p-4 space-y-2">
-            <h3 className="text-sm font-semibold text-gray-400">{t('coordination.faultParameters', 'Fault Parameters')}</h3>
-            <div>
-              <label className="text-xs text-gray-500">{t('coordination.availableFaultCurrent', 'Available Fault Current (A)')}</label>
-              <input
-                type="number"
-                value={faultCurrent}
-                onChange={(e) => setFaultCurrent(parseInt(e.target.value) || 25000)}
-                className="dense-input w-full rounded"
-              />
+          {/* Fault & Cable Card */}
+          <div className="rounded-xl border border-gray-800 bg-gray-900/60 p-4 space-y-3">
+            <h3 className="text-sm font-semibold text-gray-300 flex items-center justify-between">
+              <span>Cable & Fault Parameters</span>
+              <span
+                className={`text-[10px] font-bold px-2 py-0.5 rounded ${
+                  result.cableDamageOk ? 'bg-green-500/10 text-green-400 border border-green-500/20' : 'bg-red-500/10 text-red-400 border border-red-500/20'
+                }`}
+              >
+                {result.cableDamageOk ? '✓ Cable Protected' : '✗ Thermal Damage Risk'}
+              </span>
+            </h3>
+
+            <div className="grid grid-cols-2 gap-2 text-xs">
+              <div>
+                <label className="text-gray-500">Cable Size (mm²)</label>
+                <input
+                  type="number"
+                  value={cableSize}
+                  onChange={(e) => setCableSize(parseFloat(e.target.value) || 10)}
+                  className="dense-input w-full rounded font-mono"
+                />
+              </div>
+              <div>
+                <label className="text-gray-500">Fault Isc (A)</label>
+                <input
+                  type="number"
+                  value={faultCurrent}
+                  onChange={(e) => setFaultCurrent(parseInt(e.target.value) || 15000)}
+                  className="dense-input w-full rounded font-mono"
+                />
+              </div>
             </div>
+
             {result.overlapDetails && (
-              <p className="text-xs text-gray-400 mt-2">{result.overlapDetails}</p>
+              <p className="text-xs text-gray-400 leading-relaxed italic bg-gray-950/50 p-2.5 rounded-lg border border-gray-800">
+                {result.overlapDetails}
+              </p>
             )}
           </div>
         </div>
 
-        {/* Right: TCC Chart */}
-        <div className="lg:col-span-2 rounded-xl border border-gray-800 bg-gray-900/60 p-4">
-          <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">
-            {t('coordination.tccTitle', 'Time-Current Characteristic (TCC) — Log-Log Scale')}
-          </h3>
-          <div className="bg-gray-950 rounded-lg border border-gray-800 p-2 overflow-x-auto">
-            <svg viewBox={`0 0 ${svgWidth} ${svgHeight}`} width="100%" xmlns="http://www.w3.org/2000/svg">
-              {/* Plot area background */}
-              <rect x={plotLeft} y={plotTop} width={plotWidth} height={plotHeight} fill="#0a0f1a" stroke="#1f2937" strokeWidth="1" />
+        {/* Right Panel: TCC Chart & Recommendations */}
+        <div className="lg:col-span-2 space-y-4">
+          {/* Recommendations Banner (Shown when non-selective) */}
+          {result.status !== 'FULL' && (
+            <div className="rounded-xl border border-orange-500/30 bg-orange-950/20 p-4 space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Sparkles size={18} className="text-orange-400" />
+                  <h3 className="text-sm font-bold text-orange-300">
+                    Alternative Breaker & Coordination Solutions
+                  </h3>
+                </div>
+                <button
+                  onClick={applyAutoTune}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold shadow-md transition-all"
+                >
+                  <Zap size={13} />
+                  Auto-Tune for Full Selectivity
+                </button>
+              </div>
 
-              {/* Horizontal grid lines (time) */}
-              {timeGridLines.map((t) => {
-                const y = mapY(t);
-                if (y < plotTop || y > plotTop + plotHeight) return null;
-                return (
-                  <g key={`t-${t}`}>
-                    <line x1={plotLeft} y1={y} x2={plotLeft + plotWidth} y2={y} stroke="#1f2937" strokeWidth="0.5" />
-                    <text x={plotLeft - 5} y={y + 3} textAnchor="end" fill="#6b7280" fontSize="8" fontFamily="monospace">
-                      {t >= 1 ? t : t.toFixed(2)}
-                    </text>
-                  </g>
-                );
-              })}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                {alternativeSuggestions.slice(0, 2).map((sug) => (
+                  <div key={sug.id} className="p-3 rounded-lg bg-gray-900/90 border border-gray-800 flex flex-col justify-between gap-2 hover:border-orange-500/30 transition-all">
+                    <div className="space-y-1">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-orange-500/10 text-orange-400 border border-orange-500/20">
+                          {sug.badge}
+                        </span>
+                        <span className="text-[10px] font-bold text-green-400">✓ FULL</span>
+                      </div>
+                      <p className="text-xs font-semibold text-gray-200">{sug.title}</p>
+                      <p className="text-[11px] text-gray-400 leading-snug">{sug.description}</p>
+                    </div>
+                    <button
+                      disabled={Boolean(applyingId)}
+                      onClick={() => handleApplySuggestion(sug)}
+                      className="w-full px-2.5 py-1.5 rounded-lg bg-orange-500 hover:bg-orange-600 active:scale-95 disabled:opacity-50 text-white font-bold text-xs shadow-md transition-all flex items-center justify-center gap-1.5"
+                    >
+                      <Zap size={12} className={applyingId === sug.id ? "animate-spin" : ""} />
+                      <span>{applyingId === sug.id ? "Saving to Project..." : sug.actionText || "Apply & Save to Project"}</span>
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
-              {/* Vertical grid lines (current) */}
-              {currentGridLines.map((i) => {
-                const x = mapX(i);
-                if (x < plotLeft || x > plotLeft + plotWidth) return null;
-                return (
-                  <g key={`i-${i}`}>
-                    <line x1={x} y1={plotTop} x2={x} y2={plotTop + plotHeight} stroke="#1f2937" strokeWidth="0.5" />
-                    <text x={x} y={plotTop + plotHeight + 14} textAnchor="middle" fill="#6b7280" fontSize="8" fontFamily="monospace">
-                      {i >= 1000 ? `${i / 1000}k` : i}
-                    </text>
-                  </g>
-                );
-              })}
+          {/* TCC SVG Chart */}
+          <div className="rounded-xl border border-gray-800 bg-gray-900/60 p-4 space-y-3">
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wider">
+                {t('coordination.tccTitle', 'Time-Current Characteristic (TCC) — Log-Log Scale')}
+              </h3>
+              <div className="text-xs text-gray-400 font-mono">
+                IEC 60947-2 &bull; IEC 60898 &bull; IEC 60364-5-54
+              </div>
+            </div>
 
-              {/* Axis labels */}
-              <text x={plotLeft + plotWidth / 2} y={svgHeight - 8} textAnchor="middle" fill="#9ca3af" fontSize="10">
-                {t('coordination.currentAmperes', 'Current (Amperes)')}
-              </text>
-              <text
-                x="15"
-                y={plotTop + plotHeight / 2}
-                textAnchor="middle"
-                fill="#9ca3af"
-                fontSize="10"
-                transform={`rotate(-90, 15, ${plotTop + plotHeight / 2})`}
-              >
-                {t('coordination.timeSeconds', 'Time (Seconds)')}
-              </text>
+            <div className="bg-gray-950 rounded-xl border border-gray-800 p-2 overflow-x-auto flex justify-center">
+              <svg viewBox={`0 0 ${svgWidth} ${svgHeight}`} width="100%" className="select-none font-mono text-[9px]">
+                {/* Plot background */}
+                <rect
+                  x={plotLeft}
+                  y={plotTop}
+                  width={plotWidth}
+                  height={plotHeight}
+                  fill="#0a0e17"
+                  stroke="#1f2937"
+                  strokeWidth="1"
+                />
 
-              {/* Cable Damage Curve */}
-              {cableDamageCurve.length > 0 && (
+                {/* Grid lines - Current (X) */}
+                {currentGridLines.map((iVal) => {
+                  const x = mapX(iVal);
+                  return (
+                    <g key={`grid-x-${iVal}`}>
+                      <line
+                        x1={x}
+                        y1={plotTop}
+                        x2={x}
+                        y2={plotTop + plotHeight}
+                        stroke="#1e293b"
+                        strokeDasharray="2,2"
+                      />
+                      <text x={x} y={plotTop + plotHeight + 16} fill="#64748b" textAnchor="middle">
+                        {iVal >= 1000 ? `${iVal / 1000}k` : iVal}
+                      </text>
+                    </g>
+                  );
+                })}
+
+                {/* Grid lines - Time (Y) */}
+                {timeGridLines.map((tVal) => {
+                  const y = mapY(tVal);
+                  return (
+                    <g key={`grid-y-${tVal}`}>
+                      <line
+                        x1={plotLeft}
+                        y1={y}
+                        x2={plotLeft + plotWidth}
+                        y2={y}
+                        stroke="#1e293b"
+                        strokeDasharray="2,2"
+                      />
+                      <text x={plotLeft - 8} y={y + 3} fill="#64748b" textAnchor="end">
+                        {tVal >= 60 ? `${tVal / 60}m` : `${tVal}s`}
+                      </text>
+                    </g>
+                  );
+                })}
+
+                {/* Axis Labels */}
+                <text
+                  x={plotLeft + plotWidth / 2}
+                  y={plotTop + plotHeight + 35}
+                  fill="#94a3b8"
+                  textAnchor="middle"
+                  className="font-sans text-[10px] font-semibold tracking-wider"
+                >
+                  {t('coordination.currentAmperes', 'Current (Amperes) — Logarithmic Scale')}
+                </text>
+
+                {/* Cable Damage Curve (Purple/Red Dashed) */}
                 <path
                   d={toPath(cableDamageCurve)}
                   fill="none"
-                  stroke="#a855f7"
-                  strokeWidth="1.5"
-                  strokeDasharray="6,3"
-                  opacity="0.6"
+                  stroke="#ef4444"
+                  strokeWidth="2"
+                  strokeDasharray="4,4"
                 />
-              )}
 
-              {/* Fault current line */}
-              <line
-                x1={mapX(faultCurrent)}
-                y1={plotTop}
-                x2={mapX(faultCurrent)}
-                y2={plotTop + plotHeight}
-                stroke="#ef4444"
-                strokeWidth="1"
-                strokeDasharray="4,4"
-                opacity="0.6"
-              />
-              <text
-                x={mapX(faultCurrent)}
-                y={plotTop - 5}
-                textAnchor="middle"
-                fill="#ef4444"
-                fontSize="8"
-                fontFamily="monospace"
-              >
-                If={faultCurrent >= 1000 ? `${faultCurrent / 1000}kA` : `${faultCurrent}A`}
-              </text>
+                {/* Upstream Curve (Blue) */}
+                <path
+                  d={toPath(upstreamCurve)}
+                  fill="none"
+                  stroke="#38bdf8"
+                  strokeWidth="2.5"
+                />
 
-              {/* Upstream curve */}
-              <path d={toPath(upstreamCurve)} fill="none" stroke="#3b82f6" strokeWidth="2" />
+                {/* Downstream Curve (Orange) */}
+                <path
+                  d={toPath(downstreamCurve)}
+                  fill="none"
+                  stroke="#f97316"
+                  strokeWidth="2.5"
+                />
 
-              {/* Downstream curve */}
-              <path d={toPath(downstreamCurve)} fill="none" stroke="#f97316" strokeWidth="2" />
+                {/* Fault Current Line (Red) */}
+                <line
+                  x1={mapX(faultCurrent)}
+                  y1={plotTop}
+                  x2={mapX(faultCurrent)}
+                  y2={plotTop + plotHeight}
+                  stroke="#dc2626"
+                  strokeWidth="1.5"
+                  strokeDasharray="3,3"
+                />
+                <text
+                  x={mapX(faultCurrent) + 4}
+                  y={plotTop + 14}
+                  fill="#ef4444"
+                  className="font-bold text-[9px]"
+                >
+                  Isc: {(faultCurrent / 1000).toFixed(1)}kA
+                </text>
+              </svg>
+            </div>
 
-              {/* Legend */}
-              <g transform={`translate(${plotLeft + 10}, ${plotTop + 10})`}>
-                <rect x="0" y="0" width="180" height="70" fill="#111827" fillOpacity="0.8" stroke="#1f2937" rx="4" />
-                <line x1="8" y1="15" x2="28" y2="15" stroke="#3b82f6" strokeWidth="2" />
-                <text x="34" y="18" fill="#93c5fd" fontSize="9">Upstream ({upstream.inRating}A)</text>
-                <line x1="8" y1="32" x2="28" y2="32" stroke="#f97316" strokeWidth="2" />
-                <text x="34" y="35" fill="#fdba74" fontSize="9">Downstream ({downstream.inRating}A)</text>
-                <line x1="8" y1="49" x2="28" y2="49" stroke="#a855f7" strokeWidth="1.5" strokeDasharray="4,2" />
-                <text x="34" y="52" fill="#c4b5fd" fontSize="9">Cable Damage</text>
-              </g>
-            </svg>
+            {/* Legend & Stats */}
+            <div className="flex flex-wrap items-center justify-between gap-3 text-xs bg-gray-950/40 border border-gray-800 p-3 rounded-xl">
+              <div className="flex items-center gap-2">
+                <span className="w-3 h-0.5 bg-[#38bdf8] inline-block"></span>
+                <span className="text-gray-300 font-medium">Upstream ({upstream.model || `${upstream.inRating}A`})</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="w-3 h-0.5 bg-[#f97316] inline-block"></span>
+                <span className="text-gray-300 font-medium">Downstream ({downstream.model || `${downstream.inRating}A`})</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="w-3 h-0.5 bg-[#ef4444] inline-block border-b border-dashed border-red-500"></span>
+                <span className="text-gray-400">Cable Damage ({cableSize} mm² {cableInsulation})</span>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-    </div>
-  );
-}
-
-function BreakerSettingsForm({
-  settings,
-  onChange,
-}: {
-  settings: BreakerCurveSettings;
-  onChange: (s: BreakerCurveSettings) => void;
-}) {
-  return (
-    <div className="rounded-lg border border-gray-700 bg-gray-800/50 p-3 space-y-2">
-      <div className="grid grid-cols-2 gap-2 text-xs">
-        <div>
-          <label className="text-gray-500">In (A)</label>
-          <input
-            type="number"
-            value={settings.inRating}
-            onChange={(e) => onChange({ ...settings, inRating: parseFloat(e.target.value) || 0 })}
-            className="dense-input w-full rounded"
-          />
-        </div>
-        <div>
-          <label className="text-gray-500">Ir (A)</label>
-          <input
-            type="number"
-            value={settings.ir}
-            onChange={(e) => onChange({ ...settings, ir: parseFloat(e.target.value) || 0 })}
-            className="dense-input w-full rounded"
-          />
-        </div>
-        <div>
-          <label className="text-gray-500">tr (s)</label>
-          <input
-            type="number"
-            step="0.1"
-            value={settings.tr}
-            onChange={(e) => onChange({ ...settings, tr: parseFloat(e.target.value) || 0 })}
-            className="dense-input w-full rounded"
-          />
-        </div>
-        <div>
-          <label className="text-gray-500">Isd (A)</label>
-          <input
-            type="number"
-            value={settings.isd ?? ''}
-            onChange={(e) => onChange({ ...settings, isd: parseFloat(e.target.value) || undefined })}
-            className="dense-input w-full rounded"
-          />
-        </div>
-        <div>
-          <label className="text-gray-500">tsd (s)</label>
-          <input
-            type="number"
-            step="0.01"
-            value={settings.tsd ?? ''}
-            onChange={(e) => onChange({ ...settings, tsd: parseFloat(e.target.value) || undefined })}
-            className="dense-input w-full rounded"
-          />
-        </div>
-        <div>
-          <label className="text-gray-500">Ii (A)</label>
-          <input
-            type="number"
-            value={settings.ii ?? ''}
-            onChange={(e) => onChange({ ...settings, ii: parseFloat(e.target.value) || undefined })}
-            className="dense-input w-full rounded"
-          />
-        </div>
-        <div>
-          <label className="text-gray-500">Ig (A)</label>
-          <input
-            type="number"
-            value={settings.ig ?? ''}
-            onChange={(e) => onChange({ ...settings, ig: parseFloat(e.target.value) || undefined })}
-            className="dense-input w-full rounded"
-          />
-        </div>
-        <div>
-          <label className="text-gray-500">tg (s)</label>
-          <input
-            type="number"
-            step="0.01"
-            value={settings.tg ?? ''}
-            onChange={(e) => onChange({ ...settings, tg: parseFloat(e.target.value) || undefined })}
-            className="dense-input w-full rounded"
-          />
-        </div>
-      </div>
-      <div className="flex items-center gap-2">
-        <label className="text-xs text-gray-500">I²t:</label>
-        <button
-          onClick={() => onChange({ ...settings, i2t: !settings.i2t })}
-          className={`px-2 py-0.5 rounded text-xs font-semibold transition-colors ${
-            settings.i2t ? 'bg-orange-600 text-white' : 'bg-gray-700 text-gray-400'
-          }`}
-        >
-          {settings.i2t ? 'ON' : 'OFF'}
-        </button>
       </div>
     </div>
   );

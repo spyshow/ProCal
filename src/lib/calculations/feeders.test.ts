@@ -30,7 +30,7 @@ function item(overrides: Partial<FloorItem> = {}): FloorItem {
   return {
     id: 'i1', name: 'Apt A', type: 'APARTMENT',
     calculatedConnectedLoad: 5, calculatedMaxDemand: 2, calculatedCurrent: 12,
-    breakerSize: '16A', cableSize: '', voltageDrop: 0.1,
+    breakerSize: '', cableSize: '', voltageDrop: 0.1,
     ...overrides,
   };
 }
@@ -307,5 +307,33 @@ describe('regression: three-phase classification', () => {
     const smdb = mdbFeeders.find((f) => f.type === 'SMDB');
     expect(smdb).toBeDefined();
     expect(smdb!.cableSize).toBe(185);
+  });
+
+  it('respects saved riserBreakerSize from the database for SMDB override', () => {
+    const findBreaker = createFindBreaker(equipment, {}, 'ABB');
+    const bldg = building({
+      floorDesigns: [{
+        id: 'f1', floorNumber: 1, hasFloorSubPanels: true,
+        riserBreakerSize: '160A',
+        items: [item({ calculatedCurrent: 20 })],
+      }],
+    });
+    const { mdbFeeders } = computeFeeders(bldg, baseProject, findBreaker);
+    const smdb = mdbFeeders.find((f) => f.type === 'SMDB');
+    expect(smdb).toBeDefined();
+    expect(smdb!.breakerSize).toBe(160);
+    expect(smdb!.breakerModel).toContain('T4');
+  });
+
+  it('respects saved item.breakerSize override for branch circuit', () => {
+    const findBreaker = createFindBreaker(equipment, {}, 'ABB');
+    const bldg = building({
+      floorDesigns: [{
+        id: 'f1', floorNumber: 1, hasFloorSubPanels: false,
+        items: [item({ calculatedCurrent: 20, breakerSize: '63A' })],
+      }],
+    });
+    const { mdbFeeders } = computeFeeders(bldg, baseProject, findBreaker);
+    expect(mdbFeeders[0].breakerSize).toBe(63);
   });
 });

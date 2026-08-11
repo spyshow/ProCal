@@ -27,6 +27,7 @@ export async function PATCH(
     const updateData: Record<string, string | number | null | undefined> = {};
     if (body.cableLength !== undefined) updateData.cableLength = body.cableLength;
     if (body.cableSize !== undefined) updateData.cableSize = body.cableSize;
+    if (body.breakerSize !== undefined) updateData.breakerSize = body.breakerSize;
     if (body.installMethod !== undefined) updateData.installMethod = body.installMethod;
     if (body.cableInsulation !== undefined) updateData.cableInsulation = body.cableInsulation;
     if (body.ambientTemp !== undefined) updateData.ambientTemp = body.ambientTemp;

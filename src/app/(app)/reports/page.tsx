@@ -1,4 +1,5 @@
 'use client';
+/* eslint-disable react-hooks/set-state-in-effect, @typescript-eslint/no-explicit-any */
 
 import { useEffect, useState, useRef } from 'react';
 import { useReactToPrint } from 'react-to-print';
@@ -8,12 +9,12 @@ import { PageSkeleton } from '@/components/ui/skeleton';
 import {
   FileText,
   FileDown,
-  Printer,
   Table,
   Building2,
-  HelpCircle,
 } from 'lucide-react';
 import { phaseBalance } from '@/lib/calculations/phaseBalance';
+import { sizeTransformer } from '@/lib/calculations/loads';
+import { calculateShortCircuitCurrent, getTypicalImpedance } from '@/lib/calculations/shortCircuit';
 import CoverPage from '@/components/report/CoverPage';
 import ReportHeader from '@/components/report/ReportHeader';
 import BOMSchedule from '@/components/report/BOMSchedule';
@@ -25,7 +26,7 @@ import type { Project, ReportTab } from '@/types';
 
 export default function ReportsPage() {
   const { selectedProjectId, selectedProject, loading: contextLoading, preferredManufacturer } = useProject();
-  const { t, isRtl } = useTranslation();
+  const { t } = useTranslation();
   const [project, setProject] = useState<Project | null>(selectedProject);
   const [loading, setLoading] = useState(!selectedProject);
   const [activeTab, setActiveTab] = useState<ReportTab>('summary');
@@ -155,6 +156,64 @@ export default function ReportsPage() {
                 <td className="border p-2 text-center">{totalApts}</td>
                 <td className="border p-2 text-right font-mono">{totalDemand.toFixed(1)}</td>
                 <td className="border p-2 text-right font-mono text-orange-600">{mainCurrent.toFixed(0)}</td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+
+      <h3 className="font-bold border-b pb-1 mt-4">Short-Circuit &amp; Earthing Analysis</h3>
+      <table className="w-full text-sm border-collapse">
+        <thead>
+          <tr className="bg-gray-100">
+            <th className="border p-2 text-left">Building</th>
+            <th className="border p-2 text-center">Earthing System</th>
+            <th className="border p-2 text-center">Transformer</th>
+            <th className="border p-2 text-right">3Φ Isc (kA)</th>
+            <th className="border p-2 text-right">2Φ Isc (kA)</th>
+            <th className="border p-2 text-right">P-N / Earth Isc (kA)</th>
+            <th className="border p-2 text-left">Protection &amp; Earthing Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          {project.buildings.map((b) => {
+            const allItems = [
+              ...b.floorDesigns.flatMap((fd) => fd.items),
+              ...(b.buildingLoads ?? []),
+            ];
+            const balance = phaseBalance(allItems as any, project as any);
+            const demandKva = balance.totalKw / (project.powerFactor || 0.85);
+            const transformerKva = project.transformerSize || sizeTransformer(demandKva);
+            const earthingSystem = b.earthingSystem || 'TN-S';
+            const sc = calculateShortCircuitCurrent({
+              ratedPower: transformerKva,
+              voltagePrimary: 11000,
+              voltageSecondary: project.voltage,
+              impedancePercent: getTypicalImpedance(transformerKva),
+              earthingSystem,
+            });
+
+            return (
+              <tr key={b.id} className="hover:bg-gray-50">
+                <td className="border p-2 font-semibold">{b.name}</td>
+                <td className="border p-2 text-center font-mono font-bold">
+                  <span className="px-2 py-0.5 rounded bg-gray-100 border text-xs">
+                    {earthingSystem}
+                  </span>
+                </td>
+                <td className="border p-2 text-center font-mono">{transformerKva} kVA</td>
+                <td className="border p-2 text-right font-mono text-red-600 font-bold">{sc.threePhaseIsc.toFixed(2)}</td>
+                <td className="border p-2 text-right font-mono text-yellow-600">{sc.twoPhaseIsc.toFixed(2)}</td>
+                <td className="border p-2 text-right font-mono text-blue-600 font-bold">
+                  {sc.itFirstFault ? '0.00' : sc.phaseToNeutralIsc.toFixed(2)}
+                </td>
+                <td className="border p-2 text-xs text-gray-600">
+                  {sc.itFirstFault
+                    ? 'Negligible on 1st fault; IMD insulation monitoring required'
+                    : earthingSystem.toUpperCase() === 'TT'
+                    ? 'Restricted by Z_earth (0.5Ω); RCD protection mandatory'
+                    : 'Solid ground (low impedance loop; rapid magnetic trip)'}
+                </td>
               </tr>
             );
           })}

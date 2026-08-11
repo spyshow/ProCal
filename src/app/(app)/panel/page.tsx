@@ -1,5 +1,5 @@
 'use client';
-/* eslint-disable react-hooks/set-state-in-effect, react-hooks/exhaustive-deps, @typescript-eslint/no-unused-vars */
+/* eslint-disable react-hooks/set-state-in-effect, @typescript-eslint/no-unused-vars */
 
 import { useEffect, useState, useCallback } from 'react';
 import { useProject } from '@/context/ProjectContext';
@@ -18,6 +18,7 @@ import { calculateThreePhaseCurrent, sizeTransformer } from '@/lib/calculations/
 import { sizeCableAndBreaker } from '@/lib/calculations/cables';
 import { CABLE_CATALOG } from '@/lib/calculations/cablesData';
 import { computeFeeders, createFindBreaker, type EquipmentItem, type DefaultFamilies } from '@/lib/calculations/feeders';
+import { calculateShortCircuitCurrent, getTypicalImpedance } from '@/lib/calculations/shortCircuit';
 import type { Project } from '@/types';
 
 export default function PanelDesignerPage() {
@@ -164,6 +165,17 @@ export default function PanelDesignerPage() {
   const neutralCable = CABLE_CATALOG.find((c) => c.size === neutralSize) ?? mainCable;
   const neutralCables = Math.ceil(neutralCurrent / (neutralCable.copperXlpe3Ph || 1));
 
+  // Earthing & Short Circuit calculations
+  const earthingSystem = bldg.earthingSystem || 'TN-S';
+  const effectiveTransformerKva = project.transformerSize || transformerSize || 500;
+  const shortCircuit = calculateShortCircuitCurrent({
+    ratedPower: effectiveTransformerKva,
+    voltagePrimary: 11000,
+    voltageSecondary: project.voltage,
+    impedancePercent: getTypicalImpedance(effectiveTransformerKva),
+    earthingSystem,
+  });
+
   return (
     <div className="p-6 space-y-6 max-w-7xl mx-auto">
       <div className="flex items-center justify-between">
@@ -267,6 +279,84 @@ export default function PanelDesignerPage() {
             </p>
             <p className="text-[10px] text-gray-500">{t('panel.phasePE', '3-Phase + N + PE')}</p>
           </div>
+        </div>
+      </div>
+
+      {/* Short Circuit & Earthing Analysis */}
+      <div className="rounded-xl border border-gray-800 bg-gray-900/60 p-5 space-y-4">
+        <div className="flex items-center justify-between">
+          <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider flex items-center gap-2">
+            <Shield size={14} className="text-orange-500" />
+            {t('panel.shortCircuitAnalysis', 'Short-Circuit & Earthing Analysis')}
+          </h2>
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-gray-400">Earthing System:</span>
+            <span className="px-2 py-0.5 rounded text-xs font-mono font-bold bg-orange-500/20 text-orange-400 border border-orange-500/30">
+              {earthingSystem}
+            </span>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+          <div className="rounded-lg border border-gray-800 bg-gray-800/30 p-3">
+            <p className="text-[10px] text-gray-500 uppercase">3-Phase Isc (Icu Req)</p>
+            <p className="text-lg font-bold text-red-400 font-mono">{shortCircuit.threePhaseIsc.toFixed(2)} kA</p>
+            <p className="text-[10px] text-gray-500">Symmetric RMS</p>
+          </div>
+          <div className="rounded-lg border border-gray-800 bg-gray-800/30 p-3">
+            <p className="text-[10px] text-gray-500 uppercase">Line-to-Line Isc</p>
+            <p className="text-lg font-bold text-yellow-400 font-mono">{shortCircuit.twoPhaseIsc.toFixed(2)} kA</p>
+            <p className="text-[10px] text-gray-500">Phase-to-Phase (2Φ)</p>
+          </div>
+          <div className="rounded-lg border border-gray-800 bg-gray-800/30 p-3">
+            <p className="text-[10px] text-gray-500 uppercase">Phase-to-Earth / Neutral</p>
+            <p className="text-lg font-bold text-blue-400 font-mono">
+              {shortCircuit.itFirstFault ? '0.00 kA' : `${shortCircuit.phaseToNeutralIsc.toFixed(2)} kA`}
+            </p>
+            <p className="text-[10px] text-gray-500">
+              {shortCircuit.itFirstFault
+                ? '1st Fault (Floating)'
+                : earthingSystem.toUpperCase() === 'TT'
+                ? 'TT Loop Limited'
+                : 'Solid Ground'}
+            </p>
+          </div>
+          <div className="rounded-lg border border-gray-800 bg-gray-800/30 p-3">
+            <p className="text-[10px] text-gray-500 uppercase">Peak Current (Ip)</p>
+            <p className="text-lg font-bold text-purple-400 font-mono">{shortCircuit.peakCurrent.toFixed(2)} kA</p>
+            <p className="text-[10px] text-gray-500">Mechanical Stress</p>
+          </div>
+          <div className="rounded-lg border border-gray-800 bg-gray-800/30 p-3">
+            <p className="text-[10px] text-gray-500 uppercase">Transformer Impedance</p>
+            <p className="text-lg font-bold text-gray-300 font-mono">{(shortCircuit.transformerZ * 1000).toFixed(2)} mΩ</p>
+            <p className="text-[10px] text-gray-500">Fault MVA: {shortCircuit.faultMVA.toFixed(1)}</p>
+          </div>
+        </div>
+
+        {/* Earthing Explanation Banner */}
+        <div className="rounded-lg p-3 text-xs leading-relaxed border bg-gray-950/60 border-gray-800">
+          {shortCircuit.itFirstFault ? (
+            <p className="text-amber-300 flex items-start gap-2">
+              <AlertTriangle size={15} className="shrink-0 mt-0.5 text-amber-400" />
+              <span>
+                <strong>IT Earthing System Notice:</strong> Single phase-to-earth fault current is negligible (0 kA) because the transformer neutral is isolated from ground. An Insulation Monitoring Device (IMD) is required to detect first faults. A double line-to-earth fault behaves as a phase-to-phase short circuit ({shortCircuit.twoPhaseIsc.toFixed(2)} kA).
+              </span>
+            </p>
+          ) : earthingSystem.toUpperCase() === 'TT' ? (
+            <p className="text-blue-300 flex items-start gap-2">
+              <Shield size={15} className="shrink-0 mt-0.5 text-blue-400" />
+              <span>
+                <strong>TT Earthing System Notice:</strong> Earth-fault loop impedance (Z_earth = {shortCircuit.earthFaultImpedanceOhms ?? 0.5} Ω) restricts phase-to-earth fault current to {shortCircuit.phaseToNeutralIsc.toFixed(2)} kA (significantly lower than 3-phase fault level). Residual Current Devices (RCDs) are mandatory to ensure protection under high fault loop impedance.
+              </span>
+            </p>
+          ) : (
+            <p className="text-gray-400 flex items-start gap-2">
+              <Shield size={15} className="shrink-0 mt-0.5 text-green-400" />
+              <span>
+                <strong>{earthingSystem} Earthing System:</strong> Solidly grounded transformer neutral provides a low-impedance path (I_sc, P-N = {shortCircuit.phaseToNeutralIsc.toFixed(2)} kA ≈ 3-Phase Isc), guaranteeing rapid instantaneous magnetic tripping of circuit breakers.
+              </span>
+            </p>
+          )}
         </div>
       </div>
 

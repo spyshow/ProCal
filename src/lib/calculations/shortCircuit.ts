@@ -8,11 +8,15 @@
 
 import { assertPositive, assertNonNegative } from "./validate";
 
+export type EarthingSystem = 'TN-S' | 'TN-C' | 'TN-C-S' | 'TT' | 'IT';
+
 export interface TransformerParameters {
   ratedPower: number;     // kVA
   voltagePrimary: number; // V (Line-to-Line)
   voltageSecondary: number; // V (Line-to-Line)
   impedancePercent: number; // % (typical: 4-6% for distribution transformers)
+  earthingSystem?: string; // e.g. 'TN-S' | 'TN-C' | 'TN-C-S' | 'TT' | 'IT' (default: 'TN-S')
+  earthFaultImpedanceOhms?: number; // Earth-fault loop impedance in Ohms (for TT system, default: 0.5)
 }
 
 export interface ShortCircuitResult {
@@ -23,6 +27,9 @@ export interface ShortCircuitResult {
   transformerZ: number;   // Ohms - Transformer impedance
   sourceZ: number;        // Ohms - Total source impedance
   faultMVA: number;       // MVA - Fault level at transformer secondary
+  earthingSystem: string; // Earthing system used (e.g. 'TN-S', 'TN-C', 'TT', 'IT')
+  itFirstFault: boolean;  // true if IT system 1st fault (negligible current)
+  earthFaultImpedanceOhms?: number; // Earth-fault loop impedance in Ohms (if applicable)
 }
 
 /**
@@ -71,8 +78,9 @@ export function calculateTransformerImpedance(
  * - Infinite bus at primary (utility source impedance = 0)
  * - Transformer is the sole current-limiting impedance
  * - Cable impedance from transformer to fault point is negligible (worst case)
+ * - Earth-fault current accounts for earthing system (TN-S/TN-C solid ground, TT loop impedance, IT isolated)
  * 
- * @param transformer - Transformer specifications
+ * @param transformer - Transformer specifications and earthing configuration
  * @returns Short-circuit current calculations
  */
 export function calculateShortCircuitCurrent(
@@ -82,12 +90,17 @@ export function calculateShortCircuitCurrent(
   assertPositive('voltagePrimary', transformer.voltagePrimary);
   assertPositive('voltageSecondary', transformer.voltageSecondary);
   assertPositive('impedancePercent', transformer.impedancePercent);
+  if (transformer.earthFaultImpedanceOhms !== undefined) {
+    assertNonNegative('earthFaultImpedanceOhms', transformer.earthFaultImpedanceOhms);
+  }
 
   const {
     ratedPower,
     voltageSecondary,
     impedancePercent,
   } = transformer;
+
+  const earthingSystem = transformer.earthingSystem?.trim().toUpperCase() || 'TN-S';
 
   // Calculate transformer impedance in ohms
   const transformerZ = calculateTransformerImpedance(
@@ -110,9 +123,6 @@ export function calculateShortCircuitCurrent(
   // Phase-to-phase short-circuit current (typically 0.866 * three-phase)
   const twoPhaseIsc = threePhaseIsc * 0.866;
 
-  // Phase-to-neutral short-circuit current (for grounded systems)
-  const phaseToNeutralIsc = threePhaseIsc * 1.0; // Equal to three-phase for solidly grounded
-
   // Peak short-circuit current (for mechanical stress calculations)
   // Typical factor: 2.5 * RMS for HV, 2.0 * RMS for LV
   const peakFactor = voltageSecondary <= 1000 ? 2.0 : 2.5;
@@ -120,6 +130,29 @@ export function calculateShortCircuitCurrent(
 
   // Fault level in MVA
   const faultMVA = (Math.sqrt(3) * voltageSecondary * threePhaseIsc * 1000) / 1e6;
+
+  // Line-to-Neutral voltage (V)
+  const voltageLN = voltageSecondary / Math.sqrt(3);
+
+  let phaseToNeutralIsc: number;
+  let itFirstFault = false;
+  let earthFaultImpedanceOhms: number | undefined;
+
+  if (earthingSystem === 'IT') {
+    // For IT: phase-to-neutral fault current is negligible on first fault (isolated/impedance ground)
+    phaseToNeutralIsc = 0;
+    itFirstFault = true;
+  } else if (earthingSystem === 'TT') {
+    // For TT: earth-fault loop impedance (default 0.5 Ω) is in series with fault path
+    earthFaultImpedanceOhms = transformer.earthFaultImpedanceOhms ?? 0.5;
+    const totalFaultZ = transformerZ + earthFaultImpedanceOhms;
+    phaseToNeutralIsc = totalFaultZ > 0 ? (voltageLN / totalFaultZ) / 1000 : 0;
+    itFirstFault = false;
+  } else {
+    // TN-S, TN-C, TN-C-S (solidly grounded): phaseToNeutralIsc ≈ threePhaseIsc
+    phaseToNeutralIsc = threePhaseIsc * 1.0;
+    itFirstFault = false;
+  }
 
   return {
     threePhaseIsc: parseFloat(threePhaseIsc.toFixed(2)),
@@ -129,6 +162,9 @@ export function calculateShortCircuitCurrent(
     transformerZ: parseFloat(transformerZ.toFixed(4)),
     sourceZ: parseFloat(sourceZ.toFixed(4)),
     faultMVA: parseFloat(faultMVA.toFixed(2)),
+    earthingSystem,
+    itFirstFault,
+    ...(earthFaultImpedanceOhms !== undefined ? { earthFaultImpedanceOhms } : {}),
   };
 }
 

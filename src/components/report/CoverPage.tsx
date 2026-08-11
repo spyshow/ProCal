@@ -1,4 +1,5 @@
 'use client';
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { phaseBalance } from '@/lib/calculations/phaseBalance';
 import { sizeTransformer } from '@/lib/calculations/loads';
@@ -145,7 +146,9 @@ export default function CoverPage({
                 <tr key={bldg.id} className={idx % 2 === 0 ? 'bg-white' : 'bg-slate-50/80'}>
                   <td className="p-1.5 border-r border-slate-200 font-bold text-slate-900">{bldg.name}</td>
                   <td className="p-1.5 border-r border-slate-200">{bldg.floors} Floors</td>
-                  <td className="p-1.5 border-r border-slate-200">{bldg.floorDesigns?.length || 0} Sub-Panels</td>
+                  <td className="p-1.5 border-r border-slate-200">
+                    {bldg.floorDesigns?.length || 0} Panels · <span className="font-mono font-semibold text-amber-700">{bldg.earthingSystem || 'TN-S'}</span>
+                  </td>
                   <td className="p-1.5 border-r border-slate-200 font-mono text-[10px] text-slate-700">
                     Rising Main Busbar Trunking (800A)
                   </td>

@@ -74,6 +74,8 @@ export interface BuildingLoad {
   assignedPhase?: number | null;
 }
 
+export type EarthingSystem = 'TN-S' | 'TN-C' | 'TN-C-S' | 'TT' | 'IT';
+
 export interface Building {
   id: string;
   name: string;

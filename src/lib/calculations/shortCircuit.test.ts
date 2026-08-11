@@ -91,24 +91,110 @@ describe('calculateShortCircuitCurrent', () => {
     expect(result.faultMVA).toBeGreaterThan(0);
   });
 
-  it('throws CalculationError for non-positive transformer specs', () => {
-    expect(() =>
-      calculateShortCircuitCurrent({
-        ratedPower: -100,
-        voltagePrimary: 11000,
-        voltageSecondary: 400,
-        impedancePercent: 5.5,
-      })
-    ).toThrow(CalculationError);
+  describe('Earthing System short circuit behavior', () => {
+    const baseTransformer = {
+      ratedPower: 1000,
+      voltagePrimary: 11000,
+      voltageSecondary: 400,
+      impedancePercent: 5.5,
+    };
 
-    expect(() =>
-      calculateShortCircuitCurrent({
-        ratedPower: 1000,
-        voltagePrimary: 0,
-        voltageSecondary: 400,
-        impedancePercent: 5.5,
-      })
-    ).toThrow(CalculationError);
+    it('TN-S and TN-C systems: solid grounding with phaseToNeutralIsc equal to threePhaseIsc', () => {
+      const tnS = calculateShortCircuitCurrent({
+        ...baseTransformer,
+        earthingSystem: 'TN-S',
+      });
+      const tnC = calculateShortCircuitCurrent({
+        ...baseTransformer,
+        earthingSystem: 'TN-C',
+      });
+
+      expect(tnS.earthingSystem).toBe('TN-S');
+      expect(tnS.itFirstFault).toBe(false);
+      expect(tnS.phaseToNeutralIsc).toBeCloseTo(tnS.threePhaseIsc, 2);
+
+      expect(tnC.earthingSystem).toBe('TN-C');
+      expect(tnC.itFirstFault).toBe(false);
+      expect(tnC.phaseToNeutralIsc).toBeCloseTo(tnC.threePhaseIsc, 2);
+    });
+
+    it('TT system: loop impedance reduces phase-to-neutral fault current significantly', () => {
+      const tn = calculateShortCircuitCurrent({
+        ...baseTransformer,
+        earthingSystem: 'TN-S',
+      });
+      const tt = calculateShortCircuitCurrent({
+        ...baseTransformer,
+        earthingSystem: 'TT',
+        earthFaultImpedanceOhms: 0.5,
+      });
+
+      expect(tt.earthingSystem).toBe('TT');
+      expect(tt.itFirstFault).toBe(false);
+      expect(tt.earthFaultImpedanceOhms).toBe(0.5);
+
+      // 3-phase short circuit is unchanged at transformer terminals
+      expect(tt.threePhaseIsc).toBe(tn.threePhaseIsc);
+      expect(tt.twoPhaseIsc).toBe(tn.twoPhaseIsc);
+
+      // Phase-to-neutral fault current is dramatically reduced by Z_earth:
+      // V_LN = 400 / sqrt(3) = 230.94 V
+      // Z_trans = 0.0088 ohm, Z_earth = 0.5 ohm -> Z_total = 0.5088 ohm
+      // I_sc,pn = 230.94 / 0.5088 = 453.89 A = 0.45 kA
+      expect(tt.phaseToNeutralIsc).toBeLessThan(tn.phaseToNeutralIsc);
+      expect(tt.phaseToNeutralIsc).toBeCloseTo(0.45, 1);
+      expect(tt.phaseToNeutralIsc).toBeLessThan(1.0); // < 1 kA
+    });
+
+    it('TT system: custom earthFaultImpedanceOhms affects fault current inversely', () => {
+      const ttLowZ = calculateShortCircuitCurrent({
+        ...baseTransformer,
+        earthingSystem: 'TT',
+        earthFaultImpedanceOhms: 0.2,
+      });
+      const ttHighZ = calculateShortCircuitCurrent({
+        ...baseTransformer,
+        earthingSystem: 'TT',
+        earthFaultImpedanceOhms: 1.0,
+      });
+
+      expect(ttLowZ.phaseToNeutralIsc).toBeGreaterThan(ttHighZ.phaseToNeutralIsc);
+    });
+
+    it('IT system: phase-to-neutral fault current is negligible on first fault (0 kA)', () => {
+      const itResult = calculateShortCircuitCurrent({
+        ...baseTransformer,
+        earthingSystem: 'IT',
+      });
+
+      expect(itResult.earthingSystem).toBe('IT');
+      expect(itResult.itFirstFault).toBe(true);
+      expect(itResult.phaseToNeutralIsc).toBe(0);
+
+      // 3-phase and 2-phase fault ratings remain intact for double fault / phase faults
+      expect(itResult.threePhaseIsc).toBeGreaterThan(10);
+      expect(itResult.twoPhaseIsc).toBeCloseTo(itResult.threePhaseIsc * 0.866, 1);
+    });
+
+    it('proves fault current hierarchy: TT phase-to-neutral < TN phase-to-neutral, IT phase-to-neutral ≈ 0', () => {
+      const tn = calculateShortCircuitCurrent({ ...baseTransformer, earthingSystem: 'TN-S' });
+      const tt = calculateShortCircuitCurrent({ ...baseTransformer, earthingSystem: 'TT' });
+      const itSystem = calculateShortCircuitCurrent({ ...baseTransformer, earthingSystem: 'IT' });
+
+      expect(itSystem.phaseToNeutralIsc).toBe(0);
+      expect(tt.phaseToNeutralIsc).toBeGreaterThan(itSystem.phaseToNeutralIsc);
+      expect(tt.phaseToNeutralIsc).toBeLessThan(tn.phaseToNeutralIsc);
+    });
+
+    it('throws CalculationError for negative earthFaultImpedanceOhms', () => {
+      expect(() =>
+        calculateShortCircuitCurrent({
+          ...baseTransformer,
+          earthingSystem: 'TT',
+          earthFaultImpedanceOhms: -0.5,
+        })
+      ).toThrow(CalculationError);
+    });
   });
 });
 

@@ -6,6 +6,12 @@ import { useProject } from '@/context/ProjectContext';
 import { usePathname, useRouter } from 'next/navigation';
 import { recalculateCable } from '@/lib/sld/cable-editor';
 import { cablePatchUrl, upsizeBody, fieldEditBody } from '@/lib/sld/cablePersist';
+import {
+  parseMm2,
+  getItemCableLength,
+  getBuildingLoadCableLength,
+  getRiserCableLength,
+} from '@/lib/calculations/cables';
 import { isThreePhaseForItem } from '@/lib/calculations/feeders';
 import { phaseBalance } from '@/lib/calculations/phaseBalance';
 import MethodSelector from '@/components/MethodSelector';
@@ -34,13 +40,15 @@ interface CableEntry {
   changed: boolean;
   method: string;
   insulation: 'PVC' | 'XLPE';
+  ambientTemp: number;
+  groupingCount: number;
   ampacity: number;
   kind: 'floor' | 'building' | 'sdb';
 }
 
 export default function CableSchedulePage() {
   const { selectedProjectId, selectedProject, loading: contextLoading } = useProject();
-  const { t, isRtl } = useTranslation();
+  const { t } = useTranslation();
   const pathname = usePathname();
   const router = useRouter();
   const [project, setProject] = useState<Project | null>(selectedProject);
@@ -57,6 +65,20 @@ export default function CableSchedulePage() {
   const [defaultInsulation, setDefaultInsulation] = useState<'PVC' | 'XLPE'>(() => {
     if (typeof window !== 'undefined') return (localStorage.getItem('procal-default-insulation') as 'PVC' | 'XLPE') || 'XLPE';
     return 'XLPE';
+  });
+  const [defaultAmbientTemp, setDefaultAmbientTemp] = useState<number>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('procal-default-ambient-temp');
+      if (saved) return parseFloat(saved) || 30;
+    }
+    return 30;
+  });
+  const [defaultGroupingCount, setDefaultGroupingCount] = useState<number>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('procal-default-grouping-count');
+      if (saved) return parseInt(saved) || 1;
+    }
+    return 1;
   });
   const [showNavDialog, setShowNavDialog] = useState(false);
   const pendingNavigation = useRef<string | null>(null);
@@ -154,11 +176,13 @@ export default function CableSchedulePage() {
           const letter = String.fromCharCode(97 + idx);
           const loadTag = `F${fd.floorNumber}-${letter.toUpperCase()}`;
           const cableTag = `Wf${fd.floorNumber}${letter}`;
-          const cableSizeNum = parseFloat(item.cableSize) || 4;
+          const cableSizeNum = parseMm2(item.cableSize) ?? 4;
           const isThreePhase = isThreePhaseForItem(item);
-          const length = (item as any).cableLength || 10 + (fd.floorNumber - 1) * 5;
-          const method = (item as any).installMethod || 'C';
-          const insulation = (item as any).cableInsulation || 'XLPE';
+          const length = getItemCableLength(item, fd.floorNumber);
+          const method = (item as any).installMethod || defaultMethod;
+          const insulation = (item as any).cableInsulation || defaultInsulation;
+          const ambientTemp = (item as any).ambientTemp ?? project.ambientTemp ?? defaultAmbientTemp;
+          const groupingCount = (item as any).groupingCount ?? project.groupingCount ?? defaultGroupingCount;
           const rawPhase = (item as any).assignedPhase ?? null;
           const resolvedPhase = rawPhase ?? phaseById.get(item.id) ?? 1;
           const phaseCurrent: [number, number, number] = isThreePhase
@@ -178,6 +202,8 @@ export default function CableSchedulePage() {
             maxVoltageDropPercent: limits.power,
             method,
             insulation,
+            ambientTemp,
+            groupingCount,
           });
 
           cableList.push({
@@ -200,6 +226,8 @@ export default function CableSchedulePage() {
             changed: result.changed,
             method,
             insulation,
+            ambientTemp,
+            groupingCount,
             ampacity: result.ampacity,
             kind: 'floor',
           });
@@ -215,15 +243,17 @@ export default function CableSchedulePage() {
         const letter = String.fromCharCode(97 + idx);
         const loadTag = `BL-${letter.toUpperCase()} ${lib.name}`;
         const cableTag = `Wbl${letter}`;
-        const cableSizeNum = parseFloat(bl.cableSize || '') || 4;
+        const cableSizeNum = parseMm2(bl.cableSize) ?? 4;
         const isThreePhase = lib.phase === 3;
         const totalKw = lib.power * bl.quantity;
         const current = isThreePhase
           ? totalKw / (Math.sqrt(3) * (lib.voltage / 1000) * lib.powerFactor)
           : totalKw / ((lib.voltage / 1000) * lib.powerFactor);
-        const length = bl.cableLength || 10;
-        const method = bl.installMethod || 'C';
-        const insulation = (bl.cableInsulation as 'PVC' | 'XLPE') || 'XLPE';
+        const length = getBuildingLoadCableLength(bl);
+        const method = bl.installMethod || defaultMethod;
+        const insulation = (bl.cableInsulation as 'PVC' | 'XLPE') || defaultInsulation;
+        const ambientTemp = bl.ambientTemp ?? project.ambientTemp ?? defaultAmbientTemp;
+        const groupingCount = bl.groupingCount ?? project.groupingCount ?? defaultGroupingCount;
         const rawPhase = (bl as any).assignedPhase ?? null;
         const resolvedPhase = rawPhase ?? blPhaseById.get(bl.id) ?? 1;
         const phaseCurrent: [number, number, number] = isThreePhase
@@ -243,6 +273,8 @@ export default function CableSchedulePage() {
           maxVoltageDropPercent: limits.power,
           method,
           insulation,
+          ambientTemp,
+          groupingCount,
         });
 
         cableList.push({
@@ -265,6 +297,8 @@ export default function CableSchedulePage() {
           changed: result.changed,
           method,
           insulation,
+          ambientTemp,
+          groupingCount,
           ampacity: result.ampacity,
           kind: 'building',
         });
@@ -275,10 +309,12 @@ export default function CableSchedulePage() {
         if (!fd.hasFloorSubPanels) continue;
         const floorDemand = fd.items.reduce((s, item) => s + item.calculatedMaxDemand, 0);
         const floorCurrent = floorDemand / (Math.sqrt(3) * (project.voltage / 1000) * project.powerFactor);
-        const cableSizeNum = parseFloat(fd.riserCableSize || '') || 120;
-        const length = fd.riserCableLength || 10;
-        const sdbMethod = fd.riserInstallMethod || 'C';
-        const sdbInsulation = (fd.riserCableInsulation as 'PVC' | 'XLPE') || 'XLPE';
+        const cableSizeNum = parseMm2(fd.riserCableSize) ?? 120;
+        const length = getRiserCableLength(fd);
+        const sdbMethod = fd.riserInstallMethod || defaultMethod;
+        const sdbInsulation = (fd.riserCableInsulation as 'PVC' | 'XLPE') || defaultInsulation;
+        const ambientTemp = fd.riserAmbientTemp ?? project.ambientTemp ?? defaultAmbientTemp;
+        const groupingCount = fd.riserGroupingCount ?? project.groupingCount ?? defaultGroupingCount;
 
         const result = recalculateCable({
           current: floorCurrent,
@@ -290,6 +326,8 @@ export default function CableSchedulePage() {
           maxVoltageDropPercent: limits.power,
           method: sdbMethod,
           insulation: sdbInsulation,
+          ambientTemp,
+          groupingCount,
         });
 
         cableList.push({
@@ -312,13 +350,15 @@ export default function CableSchedulePage() {
           changed: result.changed,
           method: sdbMethod,
           insulation: sdbInsulation,
+          ambientTemp,
+          groupingCount,
           ampacity: result.ampacity,
           kind: 'sdb',
         });
       }
     }
     setCables(cableList);
-  }, [project, selectedBuilding]);
+  }, [project, selectedBuilding, defaultAmbientTemp, defaultGroupingCount, defaultInsulation, defaultMethod]);
 
   const updateCableField = (id: string, field: string, value: any) => {
     const savedLimits = localStorage.getItem('procal-vd-limits');
@@ -327,33 +367,42 @@ export default function CableSchedulePage() {
     setCables(prev => prev.map(c => {
       if (c.id !== id) return c;
       const updated = { ...c, [field]: value };
+      const newLength = field === 'length' ? value : c.length;
+      const newMethod = field === 'method' ? value : c.method;
+      const newInsulation = field === 'insulation' ? value : c.insulation;
+      const newAmbientTemp = field === 'ambientTemp' ? value : c.ambientTemp;
+      const newGroupingCount = field === 'groupingCount' ? value : c.groupingCount;
 
       const result = recalculateCable({
         current: c.current,
         isThreePhase: c.isThreePhase,
-        lengthMeters: field === 'length' ? value : c.length,
+        lengthMeters: newLength,
         existingCableSize: c.cableSize,
         powerFactor: project?.powerFactor || 0.85,
         systemVoltage: project?.voltage === 400 ? 400 : 230,
         maxVoltageDropPercent: limits.power,
-        method: field === 'method' ? value : c.method,
-        insulation: field === 'insulation' ? value : c.insulation,
+        method: newMethod,
+        insulation: newInsulation,
+        ambientTemp: newAmbientTemp,
+        groupingCount: newGroupingCount,
       });
 
       // Persist to database (fire and forget). Routing + field-name mapping is
       // centralized in cablePersist — SDB lives on FloorDesign with riser* names,
-      // floor/building use cableLength/installMethod/cableInsulation.
+      // floor/building use cableLength/installMethod/cableInsulation/ambientTemp/groupingCount.
       fetch(cablePatchUrl(c.kind, id), {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(fieldEditBody(c.kind, field as 'length' | 'method' | 'insulation', value)),
+        body: JSON.stringify(fieldEditBody(c.kind, field as any, value)),
       }).catch(err => console.error('Failed to save:', err));
 
       return {
         ...updated,
-        length: field === 'length' ? value : c.length,
-        method: field === 'method' ? value : c.method,
-        insulation: field === 'insulation' ? value : c.insulation,
+        length: newLength,
+        method: newMethod,
+        insulation: newInsulation,
+        ambientTemp: newAmbientTemp,
+        groupingCount: newGroupingCount,
         newCableSize: result.cableSize,
         newVD: result.voltageDropPercent,
         changed: result.changed,
@@ -377,6 +426,8 @@ export default function CableSchedulePage() {
         maxVoltageDropPercent: limits.power,
         method: c.method,
         insulation: c.insulation,
+        ambientTemp: c.ambientTemp,
+        groupingCount: c.groupingCount,
       });
       return {
         ...c,
@@ -430,6 +481,8 @@ export default function CableSchedulePage() {
             maxVoltageDropPercent: limits.power,
             method: c.method,
             insulation: c.insulation,
+            ambientTemp: c.ambientTemp,
+            groupingCount: c.groupingCount,
           });
           return {
             ...c,
@@ -473,13 +526,27 @@ export default function CableSchedulePage() {
 
     try {
       // Save all cables to database first
-      await Promise.all(cables.map(c =>
-        fetch(c.kind === 'building' ? `/api/building-loads/${c.id}` : `/api/floor-items/${c.id}`, {
+      await Promise.all(cables.map(c => {
+        const url = cablePatchUrl(c.kind, c.id);
+        const body = c.kind === 'sdb'
+          ? {
+              riserInstallMethod: defaultMethod,
+              riserCableInsulation: defaultInsulation,
+              riserAmbientTemp: defaultAmbientTemp,
+              riserGroupingCount: defaultGroupingCount,
+            }
+          : {
+              installMethod: defaultMethod,
+              cableInsulation: defaultInsulation,
+              ambientTemp: defaultAmbientTemp,
+              groupingCount: defaultGroupingCount,
+            };
+        return fetch(url, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ installMethod: defaultMethod, cableInsulation: defaultInsulation }),
-        })
-      ));
+          body: JSON.stringify(body),
+        });
+      }));
 
       // Then update local state
       setCables(prev => prev.map(c => {
@@ -493,11 +560,15 @@ export default function CableSchedulePage() {
           maxVoltageDropPercent: limits.power,
           method: defaultMethod,
           insulation: defaultInsulation,
+          ambientTemp: defaultAmbientTemp,
+          groupingCount: defaultGroupingCount,
         });
         return {
           ...c,
           method: defaultMethod,
           insulation: defaultInsulation,
+          ambientTemp: defaultAmbientTemp,
+          groupingCount: defaultGroupingCount,
           newCableSize: result.cableSize,
           newVD: result.voltageDropPercent,
           changed: result.changed,
@@ -613,7 +684,7 @@ export default function CableSchedulePage() {
       {showSettings && (
         <div data-tour="cable-derating" className="rounded-xl border border-orange-500/30 bg-gray-900/60 p-4 space-y-4">
           <h3 className="text-sm font-bold text-orange-400">{t('cableSchedule.defaultSettings', 'Default Settings')}</h3>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div>
               <label className="block text-xs text-slate-400 mb-1">{t('cables.installationMethod', 'Default Installation Method')}</label>
               <MethodSelector
@@ -637,6 +708,38 @@ export default function CableSchedulePage() {
               >
                 <option value="XLPE">XLPE (90°C)</option>
                 <option value="PVC">PVC (70°C)</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs text-slate-400 mb-1">{t('cables.ambientTemp', 'Default Ambient Temp')}</label>
+              <select
+                value={defaultAmbientTemp}
+                onChange={(e) => {
+                  const v = parseFloat(e.target.value) || 30;
+                  setDefaultAmbientTemp(v);
+                  localStorage.setItem('procal-default-ambient-temp', String(v));
+                }}
+                className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white"
+              >
+                {[10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60].map((temp) => (
+                  <option key={temp} value={temp}>{temp}°C</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs text-slate-400 mb-1">{t('cables.groupingCount', 'Default Grouping')}</label>
+              <select
+                value={defaultGroupingCount}
+                onChange={(e) => {
+                  const v = parseInt(e.target.value) || 1;
+                  setDefaultGroupingCount(v);
+                  localStorage.setItem('procal-default-grouping-count', String(v));
+                }}
+                className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white"
+              >
+                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 12, 16, 20].map((num) => (
+                  <option key={num} value={num}>{num} {num === 1 ? 'circuit' : 'circuits'}</option>
+                ))}
               </select>
             </div>
           </div>
@@ -726,6 +829,8 @@ export default function CableSchedulePage() {
                     <th className="text-center">{t('cableSchedule.size', 'SIZE (MM²)')}</th>
                     <th className="text-center">{t('cableSchedule.method', 'METHOD')}</th>
                     <th className="text-center">{t('cableSchedule.insulation', 'INSULATION')}</th>
+                    <th className="text-center">{t('cableSchedule.ambientTemp', 'TEMP (°C)')}</th>
+                    <th className="text-center">{t('cableSchedule.groupingCount', 'GROUP')}</th>
                     <th className="text-center">{t('cableSchedule.ampacity', 'AMPACITY (A)')}</th>
                     <th className="text-end" style={{ width: '100px' }}>{t('cableSchedule.length', 'LENGTH (M)')}</th>
                     <th className="text-center">{t('cableSchedule.newCable', 'NEW CABLE')}</th>
@@ -759,6 +864,28 @@ export default function CableSchedulePage() {
                         >
                           <option value="XLPE">XLPE</option>
                           <option value="PVC">PVC</option>
+                        </select>
+                      </td>
+                      <td className="text-center">
+                        <select
+                          value={c.ambientTemp}
+                          onChange={(e) => updateCableField(c.id, 'ambientTemp', parseFloat(e.target.value) || 30)}
+                          className="bg-gray-800 border border-gray-700 rounded px-1.5 py-0.5 text-[10px] text-white w-14"
+                        >
+                          {[10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60].map((temp) => (
+                            <option key={temp} value={temp}>{temp}°</option>
+                          ))}
+                        </select>
+                      </td>
+                      <td className="text-center">
+                        <select
+                          value={c.groupingCount}
+                          onChange={(e) => updateCableField(c.id, 'groupingCount', parseInt(e.target.value) || 1)}
+                          className="bg-gray-800 border border-gray-700 rounded px-1.5 py-0.5 text-[10px] text-white w-12"
+                        >
+                          {[1, 2, 3, 4, 5, 6, 7, 8, 9, 12, 16, 20].map((num) => (
+                            <option key={num} value={num}>{num}x</option>
+                          ))}
                         </select>
                       </td>
                       <td className="text-center font-mono text-blue-400">{c.ampacity}A</td>
@@ -803,9 +930,10 @@ export default function CableSchedulePage() {
 
       {/* Legend */}
       <div className="text-[10px] text-gray-600 space-y-1">
-        <p>{t('cableSchedule.legendTip', 'Edit cable lengths, method, and insulation — values save automatically. Click "Recalculate All" to refresh.')}</p>
+        <p>{t('cableSchedule.legendTip', 'Edit cable lengths, method, insulation, ambient temperature, and grouping count — values save automatically. Click "Recalculate All" to refresh.')}</p>
         <p>{t('cableSchedule.legendMethod', 'Method: B1/B2 = in conduit, C = clipped directly, E = spaced, F = on tray, G = on ladder')}</p>
         <p>{t('cableSchedule.legendInsulation', 'Insulation: XLPE rated 90°C, PVC rated 70°C. XLPE allows higher ampacity.')}</p>
+        <p>{t('cableSchedule.legendDerating', 'Derating: Ambient temp derates above 30°C. Grouping factor derates parallel runs in conduits/trays per IEC 60364-5-52.')}</p>
         <p>{t('cableSchedule.legendLimits', 'IEC 60364-5-52 limits: 3% lighting, 5% power. UP = cable upsized to meet VD limit.')}</p>
       </div>
 

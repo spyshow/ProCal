@@ -2,8 +2,11 @@
  * Sizing calculations for connected loads, max demands, and phase currents.
  */
 
+import { assertNonNegative, assertPositive, CalculationError } from "./validate";
+
 // IEC 60439 / standard diversity factors for residential apartments
 export function getApartmentDiversityFactor(count: number): number {
+  assertNonNegative('count', count);
   if (count <= 1) return 1.0;
   if (count <= 4) return 0.8;
   if (count <= 9) return 0.7;
@@ -20,7 +23,9 @@ export function calculateThreePhaseCurrent(
   powerKva: number,
   voltageLineToLine: number = 400
 ): number {
-  if (powerKva <= 0) return 0;
+  assertNonNegative('powerKva', powerKva);
+  assertPositive('voltageLineToLine', voltageLineToLine);
+  if (powerKva === 0) return 0;
   // I = S / (sqrt(3) * V_L-L)
   return parseFloat((powerKva / (Math.sqrt(3) * (voltageLineToLine / 1000))).toFixed(2));
 }
@@ -32,7 +37,9 @@ export function calculateSinglePhaseCurrent(
   powerKva: number,
   voltageLineToNeutral: number = 230
 ): number {
-  if (powerKva <= 0) return 0;
+  assertNonNegative('powerKva', powerKva);
+  assertPositive('voltageLineToNeutral', voltageLineToNeutral);
+  if (powerKva === 0) return 0;
   // I = S / V_L-N
   return parseFloat((powerKva / (voltageLineToNeutral / 1000)).toFixed(2));
 }
@@ -51,6 +58,13 @@ export function sizeTransformer(
   safetyMargin: number = 1.2,
   perPhaseKva?: [number, number, number]
 ): number {
+  assertNonNegative('demandKva', demandKva);
+  if (typeof safetyMargin !== 'number' || Number.isNaN(safetyMargin) || !Number.isFinite(safetyMargin) || safetyMargin < 1) {
+    throw new CalculationError(`safetyMargin must be >= 1, received ${safetyMargin}`);
+  }
+  if (perPhaseKva) {
+    perPhaseKva.forEach((k, idx) => assertNonNegative(`perPhaseKva[${idx}]`, k));
+  }
   const effectiveDemand = perPhaseKva
     ? Math.max(...perPhaseKva) * 3   // max phase × 3 = minimum 3-phase kVA
     : demandKva;
@@ -71,6 +85,13 @@ export function sizeGenerator(
   startingFactor: number = 6.0, // typical starting current ratio
   safetyMargin: number = 1.1
 ): number {
+  assertNonNegative('essentialDemandKva', essentialDemandKva);
+  assertNonNegative('largestMotorKva', largestMotorKva);
+  assertPositive('startingFactor', startingFactor);
+  if (typeof safetyMargin !== 'number' || Number.isNaN(safetyMargin) || !Number.isFinite(safetyMargin) || safetyMargin < 1) {
+    throw new CalculationError(`safetyMargin must be >= 1, received ${safetyMargin}`);
+  }
+
   // Generator must handle continuous essential loads + starting surge of largest motor
   // S_gen >= (S_essential - S_largest_motor) + (S_largest_motor * startingFactor)
   const motorStartingKva = largestMotorKva * startingFactor;

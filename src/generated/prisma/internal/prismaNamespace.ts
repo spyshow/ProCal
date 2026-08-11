@@ -1470,6 +1470,8 @@ export const ProjectScalarFieldEnum = {
   calculationStandard: 'calculationStandard',
   maxVoltageDropLighting: 'maxVoltageDropLighting',
   maxVoltageDropPower: 'maxVoltageDropPower',
+  ambientTemp: 'ambientTemp',
+  groupingCount: 'groupingCount',
   userId: 'userId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -1507,6 +1509,8 @@ export const BuildingLoadScalarFieldEnum = {
   cableLength: 'cableLength',
   installMethod: 'installMethod',
   cableInsulation: 'cableInsulation',
+  ambientTemp: 'ambientTemp',
+  groupingCount: 'groupingCount',
   assignedPhase: 'assignedPhase',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -1569,6 +1573,8 @@ export const FloorDesignScalarFieldEnum = {
   riserCableSize: 'riserCableSize',
   riserInstallMethod: 'riserInstallMethod',
   riserCableInsulation: 'riserCableInsulation',
+  riserAmbientTemp: 'riserAmbientTemp',
+  riserGroupingCount: 'riserGroupingCount',
   buildingId: 'buildingId'
 } as const
 
@@ -1591,6 +1597,8 @@ export const FloorItemScalarFieldEnum = {
   voltageDrop: 'voltageDrop',
   installMethod: 'installMethod',
   cableInsulation: 'cableInsulation',
+  ambientTemp: 'ambientTemp',
+  groupingCount: 'groupingCount',
   assignedPhase: 'assignedPhase'
 } as const
 

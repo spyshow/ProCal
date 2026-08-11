@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { sizeCableAndBreaker, calculateVoltageDrop, STANDARD_BREAKERS } from './cables';
+import { CalculationError } from './validate';
 
 describe('sizeCableAndBreaker', () => {
   it('sizes cable for 30A single-phase load', () => {
@@ -65,6 +66,44 @@ describe('sizeCableAndBreaker', () => {
     // More cables in group should require larger cable
     expect(result5.cableSize).toBeGreaterThanOrEqual(result1.cableSize);
   });
+
+  it('throws CalculationError for invalid sizing parameters', () => {
+    expect(() =>
+      sizeCableAndBreaker(-1, false, {
+        material: 'copper',
+        insulation: 'XLPE',
+        ambientTemp: 30,
+        groupingCount: 1,
+      })
+    ).toThrow(CalculationError);
+
+    expect(() =>
+      sizeCableAndBreaker(30, false, {
+        material: 'copper',
+        insulation: 'XLPE',
+        ambientTemp: 5,
+        groupingCount: 1,
+      })
+    ).toThrow(CalculationError);
+
+    expect(() =>
+      sizeCableAndBreaker(30, false, {
+        material: 'copper',
+        insulation: 'XLPE',
+        ambientTemp: 65,
+        groupingCount: 1,
+      })
+    ).toThrow(CalculationError);
+
+    expect(() =>
+      sizeCableAndBreaker(30, false, {
+        material: 'copper',
+        insulation: 'XLPE',
+        ambientTemp: 30,
+        groupingCount: 0,
+      })
+    ).toThrow(CalculationError);
+  });
 });
 
 describe('calculateVoltageDrop', () => {
@@ -84,6 +123,22 @@ describe('calculateVoltageDrop', () => {
     const large = calculateVoltageDrop(100, 50, 35, 0.85, true, 400);
     const small = calculateVoltageDrop(100, 50, 10, 0.85, true, 400);
     expect(small.dropPercent).toBeGreaterThan(large.dropPercent);
+  });
+
+  it('clamps powerFactor to [0.1, 1.0] without throwing', () => {
+    const resultHigh = calculateVoltageDrop(100, 50, 35, 1.5, true, 400);
+    const resultOne = calculateVoltageDrop(100, 50, 35, 1.0, true, 400);
+    expect(resultHigh.dropPercent).toBe(resultOne.dropPercent);
+  });
+
+  it('throws CalculationError for negative current or non-positive length, cableSize, or voltage', () => {
+    expect(() => calculateVoltageDrop(-1, 50, 35, 0.85, true, 400)).toThrow(CalculationError);
+    expect(() => calculateVoltageDrop(100, 0, 35, 0.85, true, 400)).toThrow(CalculationError);
+    expect(() => calculateVoltageDrop(100, -10, 35, 0.85, true, 400)).toThrow(CalculationError);
+    expect(() => calculateVoltageDrop(100, 50, 0, 0.85, true, 400)).toThrow(CalculationError);
+    expect(() => calculateVoltageDrop(100, 50, -35, 0.85, true, 400)).toThrow(CalculationError);
+    expect(() => calculateVoltageDrop(100, 50, 35, 0.85, true, 0)).toThrow(CalculationError);
+    expect(() => calculateVoltageDrop(100, 50, 35, 0.85, true, -400)).toThrow(CalculationError);
   });
 });
 

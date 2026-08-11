@@ -70,6 +70,8 @@ model Project {
   calculationStandard   String              @default("IEC") // "IEC" | "NEMA"
   maxVoltageDropLighting Float              @default(3) // % — IEC 60364-5-52 for lighting
   maxVoltageDropPower    Float              @default(5) // % — IEC 60364-5-52 for power
+  ambientTemp           Float?              @default(30) // °C — default ambient temperature
+  groupingCount         Int?                @default(1)  // default number of grouped circuits
   userId                String
   user                  User                @relation(fields: [userId], references: [id], onDelete: Cascade)
   buildings             Building[]
@@ -110,6 +112,8 @@ model BuildingLoad {
   cableLength       Float?
   installMethod     String?
   cableInsulation   String?
+  ambientTemp       Float?           @default(30)
+  groupingCount     Int?             @default(1)
   // Per-phase balancing: which phase (1=L1, 2=L2, 3=L3) a single-phase building
   // load is assigned to. null = unassigned → phaseBalance computes the greedy
   // LPT assignment on-read (stable order). Only meaningful for 1-phase loads;
@@ -171,6 +175,8 @@ model FloorDesign {
   riserCableSize      String?     // e.g., "120 mm²" — riser cable size (only for hasFloorSubPanels=true)
   riserInstallMethod   String?    @default("C")   // IEC 60364-5-52: B1, B2, C, E, F, G (riser cable, SDB only)
   riserCableInsulation String?    @default("XLPE") // "PVC" or "XLPE" (riser cable, SDB only)
+  riserAmbientTemp    Float?      @default(30)    // °C (riser cable, SDB only)
+  riserGroupingCount  Int?        @default(1)     // grouping (riser cable, SDB only)
   buildingId          String
   building            Building    @relation(fields: [buildingId], references: [id], onDelete: Cascade)
   items               FloorItem[]
@@ -195,6 +201,8 @@ model FloorItem {
   voltageDrop             Float?
   installMethod           String? @default("C") // IEC 60364-5-52: B1, B2, C, E, F, G
   cableInsulation         String? @default("XLPE") // "PVC" or "XLPE"
+  ambientTemp             Float?  @default(30) // °C
+  groupingCount           Int?    @default(1)
   // Per-phase balancing: which phase (1=L1, 2=L2, 3=L3) a single-phase floor
   // item is assigned to. null = unassigned → phaseBalance computes the greedy
   // LPT assignment on-read (stable order floorNumber→createdAt→id). Only

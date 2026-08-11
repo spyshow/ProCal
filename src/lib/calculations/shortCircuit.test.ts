@@ -6,6 +6,7 @@ import {
   getTypicalImpedance,
   TRANSFORMER_IMPEDANCE,
 } from './shortCircuit';
+import { CalculationError } from './validate';
 
 describe('calculateTransformerImpedance', () => {
   it('calculates impedance for 1000kVA transformer at 400V', () => {
@@ -25,6 +26,12 @@ describe('calculateTransformerImpedance', () => {
     const highV = calculateTransformerImpedance(1000, 400, 5.5);
     const lowV = calculateTransformerImpedance(1000, 230, 5.5);
     expect(lowV).toBeLessThan(highV);
+  });
+
+  it('throws CalculationError for non-positive parameters', () => {
+    expect(() => calculateTransformerImpedance(-1, 400, 5.5)).toThrow(CalculationError);
+    expect(() => calculateTransformerImpedance(1000, 0, 5.5)).toThrow(CalculationError);
+    expect(() => calculateTransformerImpedance(1000, 400, -1)).toThrow(CalculationError);
   });
 });
 
@@ -83,6 +90,26 @@ describe('calculateShortCircuitCurrent', () => {
 
     expect(result.faultMVA).toBeGreaterThan(0);
   });
+
+  it('throws CalculationError for non-positive transformer specs', () => {
+    expect(() =>
+      calculateShortCircuitCurrent({
+        ratedPower: -100,
+        voltagePrimary: 11000,
+        voltageSecondary: 400,
+        impedancePercent: 5.5,
+      })
+    ).toThrow(CalculationError);
+
+    expect(() =>
+      calculateShortCircuitCurrent({
+        ratedPower: 1000,
+        voltagePrimary: 0,
+        voltageSecondary: 400,
+        impedancePercent: 5.5,
+      })
+    ).toThrow(CalculationError);
+  });
 });
 
 describe('calculateIscWithCable', () => {
@@ -116,6 +143,14 @@ describe('calculateIscWithCable', () => {
     const result = calculateIscWithCable(baseIsc, 0, 95, 400, true);
     expect(result).toBe(baseIsc);
   });
+
+  it('throws CalculationError for invalid parameters', () => {
+    expect(() => calculateIscWithCable(0, 50, 95, 400)).toThrow(CalculationError);
+    expect(() => calculateIscWithCable(-25, 50, 95, 400)).toThrow(CalculationError);
+    expect(() => calculateIscWithCable(25, -10, 95, 400)).toThrow(CalculationError);
+    expect(() => calculateIscWithCable(25, 50, -5, 400)).toThrow(CalculationError);
+    expect(() => calculateIscWithCable(25, 50, 95, 0)).toThrow(CalculationError);
+  });
 });
 
 describe('getTypicalImpedance', () => {
@@ -130,6 +165,11 @@ describe('getTypicalImpedance', () => {
 
   it('returns default for very large transformers', () => {
     expect(getTypicalImpedance(10000)).toBe(7.5);
+  });
+
+  it('throws CalculationError for non-positive power', () => {
+    expect(() => getTypicalImpedance(0)).toThrow(CalculationError);
+    expect(() => getTypicalImpedance(-500)).toThrow(CalculationError);
   });
 });
 

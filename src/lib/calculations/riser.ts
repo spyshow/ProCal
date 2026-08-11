@@ -19,18 +19,12 @@
  * (2·I·L path); only 3-phase feeders use √3·I·L at 400V. The page used to pass
  * 3-phase/400V for everything — that was the bulk of "ΔV not correct".
  */
-import { calculateVoltageDrop } from "./cables";
+import { calculateVoltageDrop, parseMm2 } from "./cables";
 import { phaseBalance } from "./phaseBalance";
 import { isThreePhaseForItem, pfForFloorItem } from "./feeders";
 import type { FloorDesign, FloorItem, Project } from "@/types";
 
-/** Parse a cable-size string ("120 mm²", "16") into a numeric mm². Returns null if unparseable. */
-export function parseMm2(value: string | null | undefined): number | null {
-  if (!value) return null;
-  const m = String(value).match(/(\d+(?:\.\d+)?)/);
-  const n = m ? parseFloat(m[1]) : NaN;
-  return Number.isFinite(n) && n > 0 ? n : null;
-}
+export { parseMm2 };
 
 export interface RiserFloorVd {
   /** True for SDB floors (a real vertical riser off the MDB bus). */
@@ -57,8 +51,11 @@ export interface RiserFloorVd {
   worstItemName: string | null;
 }
 
-/** Per-apartment branch ΔV %, using the item's own cable/length/phase/PF. null if no data. */
-function itemBranchVd(item: FloorItem, project: Project): number | null {
+/** Per-apartment branch ΔV, using the item's own cable/length/phase/PF. null if no data. */
+function itemBranchVd(
+  item: FloorItem,
+  project: Project
+): { dropVolts: number; dropPercent: number } | null {
   const len = item.cableLength;
   const size = parseMm2(item.cableSize);
   const current = item.calculatedCurrent;
@@ -72,7 +69,7 @@ function itemBranchVd(item: FloorItem, project: Project): number | null {
     pfForFloorItem(item, project),
     is3ph,
     itemVoltage
-  ).dropPercent;
+  );
 }
 
 /**
@@ -88,34 +85,38 @@ export function computeFloorRiserVd(fd: FloorDesign, project: Project): RiserFlo
   const riserCurrent = balance.maxPhaseCurrent;
 
   // Worst apartment-branch ΔV on the floor.
-  let worstBranch: number | null = null;
+  let worstBranch: { dropVolts: number; dropPercent: number } | null = null;
   let worstItemName: string | null = null;
   for (const item of fd.items) {
     const vd = itemBranchVd(item, project);
     if (vd == null) continue;
-    if (worstBranch == null || vd > worstBranch) {
+    if (worstBranch == null || vd.dropPercent > worstBranch.dropPercent) {
       worstBranch = vd;
       worstItemName = item.name;
     }
   }
-  const branchVdPercent = worstBranch ?? 0;
+  const branchVdPercent = worstBranch?.dropPercent ?? 0;
+  const branchDropVolts = worstBranch?.dropVolts ?? 0;
   const branchNoData = worstBranch == null;
 
   if (fd.hasFloorSubPanels) {
     const riserLen = fd.riserCableLength;
     const riserSize = parseMm2(fd.riserCableSize);
     const riserNoData = riserLen == null || riserLen <= 0 || riserSize == null || riserCurrent <= 0;
-    const riserVdPercent =
-      riserNoData ? 0
-        : calculateVoltageDrop(
-            riserCurrent,
-            riserLen!,
-            riserSize!,
-            project.powerFactor ?? 0.85,
-            true,
-            project.voltage
-          ).dropPercent;
-    const totalVdPercent = riserVdPercent + branchVdPercent;
+    const riserVd = riserNoData
+      ? { dropVolts: 0, dropPercent: 0 }
+      : calculateVoltageDrop(
+          riserCurrent,
+          riserLen!,
+          riserSize!,
+          project.powerFactor ?? 0.85,
+          true,
+          project.voltage
+        );
+    const riserVdPercent = riserVd.dropPercent;
+    const riserDropVolts = riserVd.dropVolts;
+    const totalDropVolts = riserDropVolts + branchDropVolts;
+    const totalVdPercent = project.voltage > 0 ? (totalDropVolts / project.voltage) * 100 : 0;
     return {
       hasRiser: true,
       riserVdPercent,

@@ -1,5 +1,6 @@
 import { CABLE_CATALOG, TEMP_DERATING, GROUP_DERATING, CableSpec } from "./cablesData";
 import { METHOD_AMPACITY_FACTORS } from "./installationMethods";
+import { assertNonNegative, assertPositive, assertInRange, assertOneOf, clampPowerFactor } from "./validate";
 
 export interface SizingResult {
   cableSize: number;
@@ -30,6 +31,15 @@ export function sizeCableAndBreaker(
     installMethod?: string;
   }
 ): SizingResult {
+  assertNonNegative('designCurrent', ib);
+  assertOneOf('material', options.material, ['copper', 'aluminum'] as const);
+  assertOneOf('insulation', options.insulation, ['PVC', 'XLPE'] as const);
+  assertInRange('ambientTemp', options.ambientTemp, 10, 60);
+  assertPositive('groupingCount', options.groupingCount);
+  if (options.neutralCurrent != null) {
+    assertNonNegative('neutralCurrent', options.neutralCurrent);
+  }
+
   const { material, insulation, ambientTemp, groupingCount, neutralCurrent, installMethod } = options;
 
   // 1. Select breaker size (In >= Ib)
@@ -144,13 +154,18 @@ export function calculateVoltageDrop(
   isThreePhase: boolean,
   systemVoltage: number // e.g. 400 for 3-phase, 230 for 1-phase
 ): { dropVolts: number; dropPercent: number } {
+  assertNonNegative('current', current);
+  assertPositive('lengthMeters', lengthMeters);
+  assertPositive('cableSizeSqMm', cableSizeSqMm);
+  assertPositive('systemVoltage', systemVoltage);
+
   // Find cable spec
   const spec = CABLE_CATALOG.find((c) => c.size === cableSizeSqMm) || CABLE_CATALOG[0];
   const R = spec.resistance;
   const X = spec.reactance;
 
   // cos(phi) and sin(phi)
-  const cosPhi = Math.max(0, Math.min(1, powerFactor));
+  const cosPhi = clampPowerFactor(powerFactor);
   const sinPhi = Math.sqrt(1 - cosPhi * cosPhi);
 
   // Impedance component
@@ -172,3 +187,47 @@ export function calculateVoltageDrop(
     dropPercent: parseFloat(dropPercent.toFixed(2)),
   };
 }
+
+/**
+ * Parse a cable-size string or number ("120 mm²", "16", 16) into a numeric mm².
+ * Returns null if unparseable or non-positive.
+ */
+export function parseMm2(value: string | number | null | undefined): number | null {
+  if (value == null) return null;
+  if (typeof value === 'number') return Number.isFinite(value) && value > 0 ? value : null;
+  const m = String(value).match(/(\d+(?:\.\d+)?)/);
+  const n = m ? parseFloat(m[1]) : NaN;
+  return Number.isFinite(n) && n > 0 ? n : null;
+}
+
+/**
+ * Single source of truth for an apartment/floor-item cable length in meters.
+ * Falls back to 10m + (floorNumber - 1) * 5m when null/undefined.
+ */
+export function getItemCableLength(
+  item: { cableLength?: number | null } | null | undefined,
+  floorNumber: number = 1
+): number {
+  return item?.cableLength ?? (10 + Math.max(0, floorNumber - 1) * 5);
+}
+
+/**
+ * Single source of truth for a building load cable length in meters.
+ * Falls back to 10m when null/undefined.
+ */
+export function getBuildingLoadCableLength(
+  load: { cableLength?: number | null } | null | undefined
+): number {
+  return load?.cableLength ?? 10;
+}
+
+/**
+ * Single source of truth for a riser cable length in meters.
+ * Falls back to 10m when null/undefined.
+ */
+export function getRiserCableLength(
+  fd: { riserCableLength?: number | null } | null | undefined
+): number {
+  return fd?.riserCableLength ?? 10;
+}
+

@@ -20,18 +20,24 @@ export function upsizeBody(newCableSize: number, kind: CableKind): Record<string
   return { cableSize: `${newCableSize}` };
 }
 
-/** Single-field edits (length/method/insulation) — PATCH body for updateCableField. */
+/** Single-field edits (length/method/insulation/ambientTemp/groupingCount) — PATCH body for updateCableField. */
 export function fieldEditBody(
   kind: CableKind,
-  field: 'length' | 'method' | 'insulation',
+  field: 'length' | 'method' | 'insulation' | 'ambientTemp' | 'groupingCount',
   value: string | number,
 ): Record<string, string | number> {
   if (kind === 'sdb') {
     if (field === 'length') return { riserCableLength: value };
     if (field === 'method') return { riserInstallMethod: value };
-    return { riserCableInsulation: value };
+    if (field === 'insulation') return { riserCableInsulation: value };
+    if (field === 'ambientTemp') return { riserAmbientTemp: value };
+    if (field === 'groupingCount') return { riserGroupingCount: value };
+    return {};
   }
   if (field === 'length') return { cableLength: value };
   if (field === 'method') return { installMethod: value };
-  return { cableInsulation: value };
+  if (field === 'insulation') return { cableInsulation: value };
+  if (field === 'ambientTemp') return { ambientTemp: value };
+  if (field === 'groupingCount') return { groupingCount: value };
+  return {};
 }

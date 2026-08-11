@@ -1,3 +1,5 @@
+import { assertNonNegative, assertPositive } from "./validate";
+
 export interface BreakerCurveSettings {
   inRating: number; // In (A)
   ir: number; // Long-time pickup (A)
@@ -19,7 +21,12 @@ export interface CurvePoint {
  * Calculates trip time (seconds) for a specific current (Amperes) based on breaker settings.
  */
 export function getTripTimeForCurrent(settings: BreakerCurveSettings, current: number): number {
-  if (current <= 0) return 10000;
+  assertNonNegative('current', current);
+  assertPositive('inRating', settings.inRating);
+  assertPositive('ir', settings.ir);
+  assertPositive('tr', settings.tr);
+
+  if (current === 0) return 10000;
   
   // 1. Long Time (L) overload region
   let t_L = 10000;
@@ -67,6 +74,10 @@ export function getTripTimeForCurrent(settings: BreakerCurveSettings, current: n
  * Currents range from 0.1 * Ir to 100 * In.
  */
 export function generateCurvePoints(settings: BreakerCurveSettings): CurvePoint[] {
+  assertPositive('inRating', settings.inRating);
+  assertPositive('ir', settings.ir);
+  assertPositive('tr', settings.tr);
+
   const points: CurvePoint[] = [];
   const startCurrent = Math.max(1, settings.ir * 0.5);
   const endCurrent = settings.inRating * 30;
@@ -108,6 +119,12 @@ export function verifyCoordination(
   availableFaultCurrentAmps: number,
   manufacturerPair: { upstreamMfg: string; downstreamMfg: string }
 ): CoordinationResult {
+  assertPositive('upstream inRating', upstream.inRating);
+  assertPositive('upstream ir', upstream.ir);
+  assertPositive('downstream inRating', downstream.inRating);
+  assertPositive('downstream ir', downstream.ir);
+  assertNonNegative('availableFaultCurrentAmps', availableFaultCurrentAmps);
+
   // 1. Overload Check: Upstream Ir must be larger than downstream Ir
   if (upstream.ir <= downstream.ir) {
     return {
@@ -189,6 +206,10 @@ export function recommendBreakerSettings(
   cableAmpacity: number,
   breakerIn: number
 ): BreakerCurveSettings {
+  assertNonNegative('loadCurrent', loadCurrent);
+  assertPositive('cableAmpacity', cableAmpacity);
+  assertPositive('breakerIn', breakerIn);
+
   // Ir must be >= loadCurrent and <= cableAmpacity
   // We recommend Ir closest to loadCurrent * 1.15, bounded by In and cableAmpacity
   const targetIr = Math.max(loadCurrent, Math.min(loadCurrent * 1.15, cableAmpacity));

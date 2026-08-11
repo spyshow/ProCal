@@ -29,21 +29,25 @@ describe('cable persistence dispatch', () => {
 
   describe('fieldEditBody', () => {
     const k: CableKind[] = ['floor', 'building', 'sdb'];
-    const fields = ['length', 'method', 'insulation'] as const;
+    const fields = ['length', 'method', 'insulation', 'ambientTemp', 'groupingCount'] as const;
     // The SDB field-name matrix differs per field — pin every cell.
-    it('SDB maps length→riserCableLength, method→riserInstallMethod, insulation→riserCableInsulation', () => {
-      const sdbBodies = fields.map((f) => fieldEditBody('sdb', f, f === 'length' ? 30 : 'E'));
+    it('SDB maps length→riserCableLength, method→riserInstallMethod, insulation→riserCableInsulation, ambientTemp→riserAmbientTemp, groupingCount→riserGroupingCount', () => {
+      const sdbBodies = fields.map((f) => fieldEditBody('sdb', f, f === 'length' ? 30 : f === 'ambientTemp' ? 45 : f === 'groupingCount' ? 3 : 'E'));
       expect(sdbBodies).toEqual([
         { riserCableLength: 30 },
         { riserInstallMethod: 'E' },
         { riserCableInsulation: 'E' },
+        { riserAmbientTemp: 45 },
+        { riserGroupingCount: 3 },
       ]);
     });
-    it('floor/building share cableLength/installMethod/cableInsulation keys', () => {
+    it('floor/building share cableLength/installMethod/cableInsulation/ambientTemp/groupingCount keys', () => {
       for (const kind of k.filter((x) => x !== 'sdb')) {
         expect(Object.keys(fieldEditBody(kind, 'length', 30))[0]).toBe('cableLength');
         expect(Object.keys(fieldEditBody(kind, 'method', 'C'))[0]).toBe('installMethod');
         expect(Object.keys(fieldEditBody(kind, 'insulation', 'XLPE'))[0]).toBe('cableInsulation');
+        expect(Object.keys(fieldEditBody(kind, 'ambientTemp', 40))[0]).toBe('ambientTemp');
+        expect(Object.keys(fieldEditBody(kind, 'groupingCount', 2))[0]).toBe('groupingCount');
       }
     });
   });

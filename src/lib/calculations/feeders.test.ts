@@ -30,7 +30,7 @@ function item(overrides: Partial<FloorItem> = {}): FloorItem {
   return {
     id: 'i1', name: 'Apt A', type: 'APARTMENT',
     calculatedConnectedLoad: 5, calculatedMaxDemand: 2, calculatedCurrent: 12,
-    breakerSize: '16A', cableSize: '4 mm²', voltageDrop: 0.1,
+    breakerSize: '16A', cableSize: '', voltageDrop: 0.1,
     ...overrides,
   };
 }
@@ -238,7 +238,7 @@ describe('regression: three-phase classification', () => {
     const { smdbFeeders } = computeFeeders(bldg, baseProject, findBreaker);
     const feeder = smdbFeeders(1)[0];
 
-    const expected = sizeCableAndBreaker(40, true, { material: 'copper', insulation: 'XLPE', ambientTemp: 30, groupingCount: 2 });
+    const expected = sizeCableAndBreaker(40, true, { material: 'copper', insulation: 'XLPE', ambientTemp: 30, groupingCount: 1 });
     expect(feeder.breakerSize).toBe(expected.breakerSize);
     expect(feeder.cableSize).toBe(expected.cableSize);
   });
@@ -259,8 +259,53 @@ describe('regression: three-phase classification', () => {
     const { mdbFeeders } = computeFeeders(bldg, baseProject, findBreaker);
     const feeder = mdbFeeders[0];
 
-    const expected = sizeCableAndBreaker(25, false, { material: 'copper', insulation: 'XLPE', ambientTemp: 30, groupingCount: 2 });
+    const expected = sizeCableAndBreaker(25, false, { material: 'copper', insulation: 'XLPE', ambientTemp: 30, groupingCount: 1 });
     expect(feeder.breakerSize).toBe(expected.breakerSize);
     expect(feeder.cableSize).toBe(expected.cableSize);
+  });
+
+  it('respects item and project ambientTemp and groupingCount overrides in feeder sizing', () => {
+    const findBreaker = createFindBreaker(equipment, {}, 'ABB');
+    const deratedItem = item({
+      calculatedCurrent: 25,
+      ambientTemp: 50,
+      groupingCount: 6,
+    });
+    const bldg = building({
+      floorDesigns: [{ id: 'f1', floorNumber: 1, hasFloorSubPanels: false, items: [deratedItem] }],
+    });
+    const { mdbFeeders } = computeFeeders(bldg, baseProject, findBreaker);
+    // At ambient=50°C and grouping=6, 25A load matches 32A MCB from catalog.
+    // 6mm² has derated ampacity 25.24A (< 32A), so cable sizes up to 10mm² (35.05A >= 32A).
+    expect(mdbFeeders[0].breakerSize).toBe(32);
+    expect(mdbFeeders[0].cableSize).toBe(10);
+  });
+
+  it('respects saved item.cableSize from the database as single source of truth', () => {
+    const findBreaker = createFindBreaker(equipment, {}, 'ABB');
+    const savedItem = item({
+      calculatedCurrent: 12,
+      cableSize: '16 mm²',
+    });
+    const bldg = building({
+      floorDesigns: [{ id: 'f1', floorNumber: 1, hasFloorSubPanels: false, items: [savedItem] }],
+    });
+    const { mdbFeeders } = computeFeeders(bldg, baseProject, findBreaker);
+    expect(mdbFeeders[0].cableSize).toBe(16);
+  });
+
+  it('respects saved riserCableSize from the database for SMDB as single source of truth', () => {
+    const findBreaker = createFindBreaker(equipment, {}, 'ABB');
+    const bldg = building({
+      floorDesigns: [{
+        id: 'f1', floorNumber: 1, hasFloorSubPanels: true,
+        riserCableSize: '185 mm²',
+        items: [item({ calculatedCurrent: 20 })],
+      }],
+    });
+    const { mdbFeeders } = computeFeeders(bldg, baseProject, findBreaker);
+    const smdb = mdbFeeders.find((f) => f.type === 'SMDB');
+    expect(smdb).toBeDefined();
+    expect(smdb!.cableSize).toBe(185);
   });
 });

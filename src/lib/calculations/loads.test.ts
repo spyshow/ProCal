@@ -6,6 +6,7 @@ import {
   sizeTransformer,
   sizeGenerator,
 } from './loads';
+import { CalculationError } from './validate';
 
 describe('getApartmentDiversityFactor', () => {
   it('returns 1.0 for 1 apartment', () => {
@@ -36,6 +37,10 @@ describe('getApartmentDiversityFactor', () => {
     expect(getApartmentDiversityFactor(20)).toBe(0.5);
     expect(getApartmentDiversityFactor(100)).toBe(0.5);
   });
+
+  it('throws CalculationError for negative count', () => {
+    expect(() => getApartmentDiversityFactor(-1)).toThrow(CalculationError);
+  });
 });
 
 describe('calculateThreePhaseCurrent', () => {
@@ -49,6 +54,12 @@ describe('calculateThreePhaseCurrent', () => {
     const current = calculateThreePhaseCurrent(250, 400);
     expect(current).toBeCloseTo(360.84, 0);
   });
+
+  it('throws CalculationError for negative power or non-positive voltage', () => {
+    expect(() => calculateThreePhaseCurrent(-1, 400)).toThrow(CalculationError);
+    expect(() => calculateThreePhaseCurrent(100, 0)).toThrow(CalculationError);
+    expect(() => calculateThreePhaseCurrent(100, -400)).toThrow(CalculationError);
+  });
 });
 
 describe('calculateSinglePhaseCurrent', () => {
@@ -56,6 +67,12 @@ describe('calculateSinglePhaseCurrent', () => {
     const current = calculateSinglePhaseCurrent(10, 230);
     // I = S / (V/1000) = 10 / 0.23 ≈ 43.48A
     expect(current).toBeCloseTo(43.48, 0);
+  });
+
+  it('throws CalculationError for negative power or non-positive voltage', () => {
+    expect(() => calculateSinglePhaseCurrent(-1, 230)).toThrow(CalculationError);
+    expect(() => calculateSinglePhaseCurrent(10, 0)).toThrow(CalculationError);
+    expect(() => calculateSinglePhaseCurrent(10, -230)).toThrow(CalculationError);
   });
 });
 
@@ -74,6 +91,12 @@ describe('sizeTransformer', () => {
     const size = sizeTransformer(100, 1.5);
     expect(size).toBeGreaterThanOrEqual(150);
   });
+
+  it('throws CalculationError for negative demand or invalid safety margin', () => {
+    expect(() => sizeTransformer(-1)).toThrow(CalculationError);
+    expect(() => sizeTransformer(100, 0.5)).toThrow(CalculationError);
+    expect(() => sizeTransformer(100, 1.2, [-10, 20, 20])).toThrow(CalculationError);
+  });
 });
 
 describe('sizeGenerator', () => {
@@ -85,5 +108,12 @@ describe('sizeGenerator', () => {
   it('accounts for motor starting surge', () => {
     const size = sizeGenerator(100, 100);
     expect(size).toBeGreaterThanOrEqual(100);
+  });
+
+  it('throws CalculationError for invalid parameters', () => {
+    expect(() => sizeGenerator(-1, 50)).toThrow(CalculationError);
+    expect(() => sizeGenerator(200, -10)).toThrow(CalculationError);
+    expect(() => sizeGenerator(200, 50, 0)).toThrow(CalculationError);
+    expect(() => sizeGenerator(200, 50, 6, 0.8)).toThrow(CalculationError);
   });
 });

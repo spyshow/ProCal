@@ -1,4 +1,4 @@
-import { sizeCableAndBreaker } from "./cables";
+import { sizeCableAndBreaker, parseMm2 } from "./cables";
 import { phaseBalance } from "./phaseBalance";
 import type { Building, BuildingLoad, FloorItem, PanelFeeder, Project } from "@/types";
 
@@ -347,12 +347,16 @@ function feederFromItem(
   resolvedPhase: number | null = null
 ): PanelFeeder {
   const isThreePhase = isThreePhaseForItem(item);
+  const insulation = (item.cableInsulation as "PVC" | "XLPE") ?? "XLPE";
+  const ambientTemp = item.ambientTemp ?? project.ambientTemp ?? 30;
+  const groupingCount = item.groupingCount ?? project.groupingCount ?? 1;
+  const installMethod = item.installMethod ?? undefined;
   const sizing = sizeCableAndBreaker(item.calculatedCurrent, isThreePhase, {
     material: "copper",
-    insulation: "XLPE",
-    ambientTemp: 30,
-    groupingCount: 2,
-    installMethod: item.installMethod ?? undefined,
+    insulation,
+    ambientTemp,
+    groupingCount,
+    installMethod,
   });
   const category = categoryForFloorItem(item);
   const poles: 1 | 3 = isThreePhase ? 3 : 1;
@@ -368,17 +372,19 @@ function feederFromItem(
     actualBreakerSize > sizing.breakerSize
       ? sizeCableAndBreaker(actualBreakerSize, isThreePhase, {
           material: "copper",
-          insulation: "XLPE",
-          ambientTemp: 30,
-          groupingCount: 2,
+          insulation,
+          ambientTemp,
+          groupingCount,
+          installMethod,
         })
       : sizing;
+  const effectiveCableSize = parseMm2(item.cableSize) ?? finalSizing.cableSize;
   return {
     name: `F${floorNumber} – ${item.name}`,
     type: item.type,
     current: item.calculatedCurrent,
     breakerSize: actualBreakerSize,
-    cableSize: finalSizing.cableSize,
+    cableSize: effectiveCableSize,
     breakerModel:
       match.model ??
       `${match.manufacturer ? match.manufacturer + " " : ""}${match.familyName ? match.familyName + " " : ""}${category} ${actualBreakerSize}`.trim(),
@@ -408,12 +414,16 @@ function feederFromBuildingLoad(
   resolvedPhase: number | null = null
 ): PanelFeeder | null {
   if (current <= 0) return null;
+  const insulation = (load.cableInsulation as "PVC" | "XLPE") ?? "XLPE";
+  const ambientTemp = load.ambientTemp ?? project.ambientTemp ?? 30;
+  const groupingCount = load.groupingCount ?? project.groupingCount ?? 1;
+  const installMethod = load.installMethod ?? undefined;
   const sizing = sizeCableAndBreaker(current, isThreePhase, {
     material: "copper",
-    insulation: "XLPE",
-    ambientTemp: 30,
-    groupingCount: 1,
-    installMethod: (load as any).installMethod ?? undefined,
+    insulation,
+    ambientTemp,
+    groupingCount,
+    installMethod,
   });
   const poles: 1 | 3 = isThreePhase ? 3 : 1;
   const match = findBreaker(sizing.breakerSize, "MCCB", poles);
@@ -422,17 +432,19 @@ function feederFromBuildingLoad(
     actualBreakerSize > sizing.breakerSize
       ? sizeCableAndBreaker(actualBreakerSize, isThreePhase, {
           material: "copper",
-          insulation: "XLPE",
-          ambientTemp: 30,
-          groupingCount: 1,
+          insulation,
+          ambientTemp,
+          groupingCount,
+          installMethod,
         })
       : sizing;
+  const effectiveCableSize = parseMm2(load.cableSize) ?? finalSizing.cableSize;
   return {
     name,
     type,
     current,
     breakerSize: actualBreakerSize,
-    cableSize: finalSizing.cableSize,
+    cableSize: effectiveCableSize,
     breakerModel:
       match.model ??
       `${match.manufacturer ? match.manufacturer + " " : ""}${match.familyName ? match.familyName + " " : ""}MCCB ${actualBreakerSize}`.trim(),
@@ -493,11 +505,16 @@ export function computeFeeders(
       const floorCurrent = floorBalance.maxPhaseCurrent;
       const riserIsThreePhase = true;
       const riserPoles: 1 | 3 = 3;
+      const riserInsulation = (fd.riserCableInsulation as "PVC" | "XLPE") ?? "XLPE";
+      const riserAmbientTemp = fd.riserAmbientTemp ?? project.ambientTemp ?? 30;
+      const riserGroupingCount = fd.riserGroupingCount ?? project.groupingCount ?? 1;
+      const riserInstallMethod = fd.riserInstallMethod ?? undefined;
       const sizing = sizeCableAndBreaker(floorCurrent, riserIsThreePhase, {
         material: "copper",
-        insulation: "XLPE",
-        ambientTemp: 30,
-        groupingCount: 2,
+        insulation: riserInsulation,
+        ambientTemp: riserAmbientTemp,
+        groupingCount: riserGroupingCount,
+        installMethod: riserInstallMethod,
       });
       const match = findBreaker(sizing.breakerSize, "MCCB", riserPoles);
       const actualBreakerSize = Math.max(sizing.breakerSize, match.ratedCurrent ?? 0);
@@ -505,17 +522,19 @@ export function computeFeeders(
         actualBreakerSize > sizing.breakerSize
           ? sizeCableAndBreaker(actualBreakerSize, riserIsThreePhase, {
               material: "copper",
-              insulation: "XLPE",
-              ambientTemp: 30,
-              groupingCount: 2,
+              insulation: riserInsulation,
+              ambientTemp: riserAmbientTemp,
+              groupingCount: riserGroupingCount,
+              installMethod: riserInstallMethod,
             })
           : sizing;
+      const effectiveRiserSize = parseMm2(fd.riserCableSize) ?? finalSizing.cableSize;
       mdbFeeders.push({
         name: `F${fd.floorNumber} – SMDB`,
         type: "SMDB",
         current: floorCurrent,
         breakerSize: actualBreakerSize,
-        cableSize: finalSizing.cableSize,
+        cableSize: effectiveRiserSize,
         breakerModel:
           match.model ??
           `${match.manufacturer ?? ""} MCCB ${actualBreakerSize}`.trim(),

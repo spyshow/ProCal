@@ -49,6 +49,8 @@ export async function PATCH(
         riserCableSize: data.riserCableSize ?? floor.riserCableSize,
         riserInstallMethod: data.riserInstallMethod ?? floor.riserInstallMethod,
         riserCableInsulation: data.riserCableInsulation ?? floor.riserCableInsulation,
+        riserAmbientTemp: data.riserAmbientTemp ?? floor.riserAmbientTemp,
+        riserGroupingCount: data.riserGroupingCount ?? floor.riserGroupingCount,
       },
     });
 

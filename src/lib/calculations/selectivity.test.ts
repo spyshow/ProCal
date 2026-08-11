@@ -5,6 +5,7 @@ import {
   verifyCoordination,
   recommendBreakerSettings,
 } from './selectivity';
+import { CalculationError } from './validate';
 
 describe('getTripTimeForCurrent', () => {
   const settings = {
@@ -39,6 +40,12 @@ describe('getTripTimeForCurrent', () => {
     const time = getTripTimeForCurrent(settings, 700);
     expect(time).toBeLessThan(1);
     expect(time).toBeGreaterThanOrEqual(0.02);
+  });
+
+  it('throws CalculationError for negative current or invalid settings', () => {
+    expect(() => getTripTimeForCurrent(settings, -1)).toThrow(CalculationError);
+    expect(() => getTripTimeForCurrent({ ...settings, inRating: 0 }, 100)).toThrow(CalculationError);
+    expect(() => getTripTimeForCurrent({ ...settings, ir: -10 }, 100)).toThrow(CalculationError);
   });
 });
 
@@ -81,6 +88,11 @@ describe('generateCurvePoints', () => {
       expect(point.time).toBeLessThanOrEqual(10000);
     }
   });
+
+  it('throws CalculationError for invalid settings', () => {
+    expect(() => generateCurvePoints({ inRating: 0, ir: 128, tr: 12 })).toThrow(CalculationError);
+    expect(() => generateCurvePoints({ inRating: 160, ir: -1, tr: 12 })).toThrow(CalculationError);
+  });
 });
 
 describe('verifyCoordination', () => {
@@ -111,6 +123,12 @@ describe('verifyCoordination', () => {
     const result = verifyCoordination(upstream, downstream, 10000, { upstreamMfg: 'ABB', downstreamMfg: 'SCHNEIDER' });
     expect(result.cascadingSupported).toBe(false);
   });
+
+  it('throws CalculationError for negative fault current', () => {
+    const upstream = { inRating: 630, ir: 500, tr: 12 };
+    const downstream = { inRating: 100, ir: 80, tr: 12 };
+    expect(() => verifyCoordination(upstream, downstream, -100, { upstreamMfg: 'ABB', downstreamMfg: 'ABB' })).toThrow(CalculationError);
+  });
 });
 
 describe('recommendBreakerSettings', () => {
@@ -131,5 +149,11 @@ describe('recommendBreakerSettings', () => {
   it('generates Isd as multiple of Ir', () => {
     const settings = recommendBreakerSettings(100, 150, 160);
     expect(settings.isd).toBe(settings.ir * 5);
+  });
+
+  it('throws CalculationError for invalid inputs', () => {
+    expect(() => recommendBreakerSettings(-10, 150, 160)).toThrow(CalculationError);
+    expect(() => recommendBreakerSettings(100, 0, 160)).toThrow(CalculationError);
+    expect(() => recommendBreakerSettings(100, 150, 0)).toThrow(CalculationError);
   });
 });

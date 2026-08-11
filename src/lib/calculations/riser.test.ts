@@ -193,8 +193,6 @@ describe('Riser Diagram Voltage Drop Calculations', () => {
       // - Final circuits: 3%
 
       const maxTotalVD = 4; // %
-      const maxSubMainVD = 1; // %
-      const maxFinalVD = 3; // %
 
       // Example: 6-floor building with 100A per floor
       const floors = 6;
@@ -267,16 +265,39 @@ describe('Riser Diagram Voltage Drop Calculations', () => {
       expect(balance.maxPhaseCurrent).toBe(20);                 // one apt, NOT 40 (lumped)
       expect(r.riserCurrent).toBe(balance.maxPhaseCurrent);      // imbalance-aware, per eng-review
 
-      const riserExpected = calculateVoltageDrop(20, 25, 120, 0.85, true, 400).dropPercent;
-      const branchExpected = calculateVoltageDrop(20, 10, 16, 0.85, false, V230).dropPercent;
-      expect(r.riserVdPercent).toBe(riserExpected);
-      expect(r.branchVdPercent).toBe(branchExpected);
-      expect(r.totalVdPercent).toBeCloseTo(riserExpected + branchExpected, 5);
+      const riserVd = calculateVoltageDrop(20, 25, 120, 0.85, true, 400);
+      const branchVd = calculateVoltageDrop(20, 10, 16, 0.85, false, V230);
+      expect(r.riserVdPercent).toBe(riserVd.dropPercent);
+      expect(r.branchVdPercent).toBe(branchVd.dropPercent);
+      const expectedTotal = ((riserVd.dropVolts + branchVd.dropVolts) / proj.voltage) * 100;
+      expect(r.totalVdPercent).toBeCloseTo(expectedTotal, 5);
       expect(r.hasRiser).toBe(true);
 
       // And maxPhaseCurrent sizing yields a SMALLER riser ΔV than the lumped path would.
       const lumpedRiser = calculateVoltageDrop(40, 25, 120, 0.85, true, 400).dropPercent;
       expect(r.riserVdPercent).toBeLessThan(lumpedRiser);
+    });
+
+    it('1-phase branch: proves old percentage addition was dimensionally inconsistent with absolute volts', () => {
+      // 1-phase branch has drop calculated at 230V, riser at 400V.
+      const a = apt({ id: 'a', name: 'A', cableLength: 50, calculatedCurrent: 30 });
+      const fd = floor({
+        hasFloorSubPanels: true,
+        riserCableLength: 30,
+        riserCableSize: '70 mm²',
+        items: [a],
+      });
+      const r = computeFloorRiserVd(fd, proj);
+      const naivePercentSum = r.riserVdPercent + r.branchVdPercent;
+      // totalVdPercent computed from absolute volts must NOT equal the naive percentage sum
+      expect(r.totalVdPercent).not.toBeCloseTo(naivePercentSum, 1);
+      // Because branch is at 230V, its percentage relative to 400V base is smaller by factor of ~√3
+      expect(r.totalVdPercent).toBeLessThan(naivePercentSum);
+
+      const riserVd = calculateVoltageDrop(30, 30, 70, 0.85, true, 400);
+      const branchVd = calculateVoltageDrop(30, 50, 16, 0.85, false, V230);
+      const expectedTotal = ((riserVd.dropVolts + branchVd.dropVolts) / proj.voltage) * 100;
+      expect(r.totalVdPercent).toBeCloseTo(expectedTotal, 5);
     });
   });
 

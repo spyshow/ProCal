@@ -30,6 +30,8 @@ export async function PATCH(
     if (body.cableSize !== undefined) updateData.cableSize = body.cableSize;
     if (body.installMethod !== undefined) updateData.installMethod = body.installMethod;
     if (body.cableInsulation !== undefined) updateData.cableInsulation = body.cableInsulation;
+    if (body.ambientTemp !== undefined) updateData.ambientTemp = body.ambientTemp;
+    if (body.groupingCount !== undefined) updateData.groupingCount = body.groupingCount;
     if (body.assignedPhase !== undefined) {
       const ap = body.assignedPhase;
       updateData.assignedPhase = ap === null || ap === '' ? null : Math.max(1, Math.min(3, parseInt(ap)));

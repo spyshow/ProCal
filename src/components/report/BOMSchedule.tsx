@@ -1,5 +1,4 @@
-'use client';
-
+import { parseMm2, getItemCableLength, getBuildingLoadCableLength } from '@/lib/calculations/cables';
 import type { FloorItem, Project } from '@/types';
 
 export interface BOMScheduleProps {
@@ -53,7 +52,7 @@ export default function BOMSchedule({ project, buildingId, showHeader = true }: 
         breakerSize: (bl as any).breakerSize || '32A',
         cableSize: bl.cableSize || '4 mm²',
         voltageDrop: 0,
-        cableLength: bl.cableLength || 10,
+        cableLength: getBuildingLoadCableLength(bl),
         floor: 0,
         building: b.name,
       });
@@ -62,16 +61,15 @@ export default function BOMSchedule({ project, buildingId, showHeader = true }: 
 
   const cableBOM: Record<number, BOMItem> = {};
   const breakerBOM: Record<number, BreakerBOMItem> = {};
-  const cableLengthFallback = (floor: number) => 10 + (floor - 1) * 5;
 
   for (const item of allItems) {
-    const sizeNum = parseFloat(item.cableSize) || 4;
+    const sizeNum = parseMm2(item.cableSize) ?? 4;
     const sizeLabel = `${sizeNum} mm²`;
 
     if (!cableBOM[sizeNum]) {
       cableBOM[sizeNum] = { sizeNum, sizeLabel, length: 0, count: 0 };
     }
-    cableBOM[sizeNum].length += item.cableLength ?? cableLengthFallback(item.floor);
+    cableBOM[sizeNum].length += getItemCableLength(item, item.floor);
     cableBOM[sizeNum].count += 1;
 
     const breakerAmps = parseFloat(String(item.breakerSize).replace(/[^0-9.]/g, '')) || 16;

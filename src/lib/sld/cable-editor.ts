@@ -1,8 +1,8 @@
 import { calculateVoltageDrop } from '@/lib/calculations/cables';
-import { CABLE_CATALOG } from '@/lib/calculations/cablesData';
+import { CABLE_CATALOG, TEMP_DERATING, GROUP_DERATING } from '@/lib/calculations/cablesData';
 import { getAmpacity } from '@/lib/calculations/installationMethods';
 
-interface CableEditorInput {
+export interface CableEditorInput {
   current: number;
   isThreePhase: boolean;
   lengthMeters: number;
@@ -12,9 +12,11 @@ interface CableEditorInput {
   maxVoltageDropPercent: number;
   method?: string;
   insulation?: 'PVC' | 'XLPE';
+  ambientTemp?: number;
+  groupingCount?: number;
 }
 
-interface CableEditorResult {
+export interface CableEditorResult {
   cableSize: number;
   breakerSize: number;
   voltageDropPercent: number;
@@ -41,23 +43,29 @@ export function recalculateCable(input: CableEditorInput): CableEditorResult {
     maxVoltageDropPercent,
     method = 'C',
     insulation = 'XLPE',
+    ambientTemp = 30,
+    groupingCount = 1,
   } = input;
 
   const breakerSize = findBreakerSize(current);
+  const tempFactor = (TEMP_DERATING[insulation] && TEMP_DERATING[insulation][ambientTemp]) ?? 1.0;
+  const groupFactor = GROUP_DERATING[groupingCount] ?? 1.0;
+  const totalDerating = tempFactor * groupFactor;
 
-  // Find the smallest cable that meets both VD and ampacity requirements
+  // Find the smallest cable that meets both VD and derated ampacity requirements
   let optimalCable = CABLE_CATALOG[CABLE_CATALOG.length - 1];
   let optimalVD = { dropPercent: 0, dropVolts: 0 };
   let optimalAmpacity = 0;
 
   for (const cable of CABLE_CATALOG) {
     const vd = calculateVoltageDrop(current, lengthMeters, cable.size, powerFactor, isThreePhase, systemVoltage);
-    const ampacity = getAmpacity(cable.size, method, insulation, isThreePhase);
+    const baseAmpacity = getAmpacity(cable.size, method, insulation, isThreePhase);
+    const deratedAmpacity = baseAmpacity * totalDerating;
 
-    if (vd.dropPercent <= maxVoltageDropPercent && ampacity >= breakerSize) {
+    if (vd.dropPercent <= maxVoltageDropPercent && deratedAmpacity >= breakerSize) {
       optimalCable = cable;
       optimalVD = vd;
-      optimalAmpacity = ampacity;
+      optimalAmpacity = deratedAmpacity;
       break;
     }
   }
@@ -67,7 +75,8 @@ export function recalculateCable(input: CableEditorInput): CableEditorResult {
     const largest = CABLE_CATALOG[CABLE_CATALOG.length - 1];
     optimalCable = largest;
     optimalVD = calculateVoltageDrop(current, lengthMeters, largest.size, powerFactor, isThreePhase, systemVoltage);
-    optimalAmpacity = getAmpacity(largest.size, method, insulation, isThreePhase);
+    const baseAmpacity = getAmpacity(largest.size, method, insulation, isThreePhase);
+    optimalAmpacity = baseAmpacity * totalDerating;
   }
 
   return {
@@ -76,6 +85,6 @@ export function recalculateCable(input: CableEditorInput): CableEditorResult {
     voltageDropPercent: optimalVD.dropPercent,
     voltageDropVolts: optimalVD.dropVolts,
     changed: optimalCable.size !== existingCableSize,
-    ampacity: optimalAmpacity,
+    ampacity: Math.round(optimalAmpacity * 10) / 10,
   };
 }

@@ -6,6 +6,8 @@
  * - IEC 60076 (Power transformers)
  */
 
+import { assertPositive, assertNonNegative } from "./validate";
+
 export interface TransformerParameters {
   ratedPower: number;     // kVA
   voltagePrimary: number; // V (Line-to-Line)
@@ -53,6 +55,10 @@ export function calculateTransformerImpedance(
   voltageSecondary: number,
   impedancePercent: number
 ): number {
+  assertPositive('ratedPowerKva', ratedPowerKva);
+  assertPositive('voltageSecondary', voltageSecondary);
+  assertPositive('impedancePercent', impedancePercent);
+
   const ratedPowerMva = ratedPowerKva / 1000;
   const baseImpedance = (voltageSecondary * voltageSecondary) / (ratedPowerMva * 1e6);
   return baseImpedance * (impedancePercent / 100);
@@ -72,6 +78,11 @@ export function calculateTransformerImpedance(
 export function calculateShortCircuitCurrent(
   transformer: TransformerParameters
 ): ShortCircuitResult {
+  assertPositive('ratedPower', transformer.ratedPower);
+  assertPositive('voltagePrimary', transformer.voltagePrimary);
+  assertPositive('voltageSecondary', transformer.voltageSecondary);
+  assertPositive('impedancePercent', transformer.impedancePercent);
+
   const {
     ratedPower,
     voltageSecondary,
@@ -138,7 +149,12 @@ export function calculateIscWithCable(
   voltage: number,
   isCopper: boolean = true
 ): number {
-  if (cableLengthM <= 0 || cableSizeMm2 <= 0) {
+  assertPositive('transformerIsc', transformerIsc);
+  assertNonNegative('cableLengthM', cableLengthM);
+  assertNonNegative('cableSizeMm2', cableSizeMm2);
+  assertPositive('voltage', voltage);
+
+  if (cableLengthM === 0 || cableSizeMm2 === 0) {
     return transformerIsc;
   }
 
@@ -178,6 +194,8 @@ export function calculateIscWithCable(
  * @returns Impedance percentage (default 5% if rating not found)
  */
 export function getTypicalImpedance(ratedPowerKva: number): number {
+  assertPositive('ratedPowerKva', ratedPowerKva);
+
   // Find closest rating
   const ratings = Object.keys(TRANSFORMER_IMPEDANCE).map(Number).sort((a, b) => a - b);
   

@@ -1,4 +1,9 @@
-import { calculateVoltageDrop } from "@/lib/calculations/cables";
+import {
+  calculateVoltageDrop,
+  parseMm2,
+  getItemCableLength,
+  getBuildingLoadCableLength,
+} from "@/lib/calculations/cables";
 import { computeFeeders, type EquipmentItem, type FindBreaker } from "@/lib/calculations/feeders";
 import type { FloorItem, Project } from "@/types";
 import type {
@@ -35,9 +40,9 @@ export function aggregateBOM(project: Project): BOMResult {
   for (const bldg of project.buildings) {
     for (const fd of bldg.floorDesigns) {
       for (const item of fd.items) {
-        const cableSize = parseFloat(item.cableSize) || 4;
+        const cableSize = parseMm2(item.cableSize) ?? 4;
         const breakerAmps = parseBreakerAmps(item.breakerSize);
-        const length = item.cableLength ?? 10 + (fd.floorNumber - 1) * 5;
+        const length = getItemCableLength(item, fd.floorNumber);
 
         const cableEntry = cableMap.get(cableSize) ?? { size: cableSize, length: 0, count: 0 };
         cableEntry.length += length;
@@ -48,6 +53,20 @@ export function aggregateBOM(project: Project): BOMResult {
         breakerEntry.count += 1;
         breakerMap.set(breakerAmps, breakerEntry);
       }
+    }
+    for (const bl of bldg.buildingLoads ?? []) {
+      const cableSize = parseMm2(bl.cableSize) ?? 4;
+      const breakerAmps = parseBreakerAmps((bl as unknown as { breakerSize?: string }).breakerSize || '32A');
+      const length = getBuildingLoadCableLength(bl);
+
+      const cableEntry = cableMap.get(cableSize) ?? { size: cableSize, length: 0, count: 0 };
+      cableEntry.length += length;
+      cableEntry.count += 1;
+      cableMap.set(cableSize, cableEntry);
+
+      const breakerEntry = breakerMap.get(breakerAmps) ?? { rating: breakerAmps, count: 0 };
+      breakerEntry.count += 1;
+      breakerMap.set(breakerAmps, breakerEntry);
     }
   }
 
@@ -159,7 +178,7 @@ export function aggregateCableRows(project: Project): CableRow[] {
           phase: phases,
           current: item.calculatedCurrent,
           breakerAmps: parseBreakerAmps(item.breakerSize),
-          cableMm2: parseFloat(item.cableSize) || 4,
+          cableMm2: parseMm2(item.cableSize) ?? 4,
           method: (item.installMethod as string | undefined) || 'C',
           insulation: (item.cableInsulation as 'PVC' | 'XLPE' | undefined) || 'XLPE',
         });

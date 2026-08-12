@@ -20,6 +20,7 @@ import { CABLE_CATALOG } from '@/lib/calculations/cablesData';
 import { computeFeeders, createFindBreaker, type EquipmentItem, type DefaultFamilies } from '@/lib/calculations/feeders';
 import { calculateShortCircuitCurrent, getTypicalImpedance } from '@/lib/calculations/shortCircuit';
 import type { Project } from '@/types';
+import WorkflowStepper from '@/components/layout/WorkflowStepper';
 
 export default function PanelDesignerPage() {
   const { selectedProjectId, selectedProject, loading: contextLoading, preferredManufacturer } = useProject();
@@ -86,7 +87,7 @@ export default function PanelDesignerPage() {
 
   const findBreaker = createFindBreaker(equipment, defaultFamilies, preferredManufacturer);
 
-  if (loading || (!project && (contextLoading || selectedProjectId))) {
+  if (!project && (loading || contextLoading || selectedProjectId)) {
     return <PageSkeleton titleWidth="w-60" rowCount={7} />;
   }
 
@@ -178,6 +179,8 @@ export default function PanelDesignerPage() {
 
   return (
     <div className="p-6 space-y-6 max-w-7xl mx-auto">
+      {/* Workflow Stepper: Step 5 */}
+      <WorkflowStepper currentStep={5} />
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-white flex items-center gap-2">

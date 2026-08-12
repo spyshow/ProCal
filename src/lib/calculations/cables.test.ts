@@ -1,5 +1,12 @@
 import { describe, it, expect } from 'vitest';
-import { sizeCableAndBreaker, calculateVoltageDrop, STANDARD_BREAKERS } from './cables';
+import {
+  sizeCableAndBreaker,
+  calculateVoltageDrop,
+  STANDARD_BREAKERS,
+  evaluateCableProtection,
+  parseCableSize,
+  formatCableSize,
+} from './cables';
 import { CalculationError } from './validate';
 
 describe('sizeCableAndBreaker', () => {
@@ -157,5 +164,87 @@ describe('STANDARD_BREAKERS', () => {
     for (let i = 1; i < STANDARD_BREAKERS.length; i++) {
       expect(STANDARD_BREAKERS[i]).toBeGreaterThan(STANDARD_BREAKERS[i - 1]);
     }
+  });
+});
+
+describe('parseCableSize and formatCableSize', () => {
+  it('parses numbers and single string representations', () => {
+    expect(parseCableSize(16)).toEqual({ size: 16, runs: 1, formatted: '16 mm²' });
+    expect(parseCableSize('240 mm²')).toEqual({ size: 240, runs: 1, formatted: '240 mm²' });
+    expect(parseCableSize('300')).toEqual({ size: 300, runs: 1, formatted: '300 mm²' });
+    expect(parseCableSize(null)).toBeNull();
+  });
+
+  it('parses parallel runs notation (2 × 240 mm², 2x300, etc.)', () => {
+    expect(parseCableSize('2 × 240 mm²')).toEqual({ size: 240, runs: 2, formatted: '2 × 240 mm²' });
+    expect(parseCableSize('2x300')).toEqual({ size: 300, runs: 2, formatted: '2 × 300 mm²' });
+    expect(parseCableSize('3*(4x185)')).toEqual({ size: 185, runs: 3, formatted: '3 × 185 mm²' });
+    expect(parseCableSize('4 * 120 mm2')).toEqual({ size: 120, runs: 4, formatted: '4 × 120 mm²' });
+  });
+
+  it('formats single and multi-run cables accurately', () => {
+    expect(formatCableSize(300, 1)).toBe('300 mm²');
+    expect(formatCableSize(240, 2)).toBe('2 × 240 mm²');
+    expect(formatCableSize(185, 3)).toBe('3 × 185 mm²');
+  });
+});
+
+describe('Parallel multi-conductor sizing in sizeCableAndBreaker', () => {
+  it('sizes parallel cables for 900A load exceeding maxCableSize 300mm²', () => {
+    const result = sizeCableAndBreaker(900, true, {
+      material: 'copper',
+      insulation: 'XLPE',
+      ambientTemp: 30,
+      groupingCount: 1,
+      maxCableSize: 300,
+    });
+
+    expect(result.parallelRuns).toBeGreaterThanOrEqual(2);
+    expect(result.cableSize).toBeLessThanOrEqual(300);
+    expect(result.deratedAmpacity).toBeGreaterThanOrEqual(900);
+    expect(result.formattedCableSize).toContain('×');
+  });
+
+  it('honors maxCableSize threshold (e.g. 185 mm²)', () => {
+    const result = sizeCableAndBreaker(500, true, {
+      material: 'copper',
+      insulation: 'XLPE',
+      ambientTemp: 30,
+      groupingCount: 1,
+      maxCableSize: 185,
+    });
+
+    expect(result.cableSize).toBeLessThanOrEqual(185);
+    expect(result.parallelRuns).toBeGreaterThanOrEqual(2);
+    expect(result.deratedAmpacity).toBeGreaterThanOrEqual(500);
+  });
+});
+
+describe('evaluateCableProtection with parallel runs', () => {
+  it('recognizes 2 × 240 mm² as safe for 800A load', () => {
+    const evalResult = evaluateCableProtection('2 × 240 mm²', 800, true, {
+      insulation: 'XLPE',
+      ambientTemp: 30,
+      groupingCount: 1,
+    });
+
+    // 240mm² single has ~464A. 2 runs = ~928A, which safely protects 800A
+    expect(evalResult.parallelRuns).toBe(2);
+    expect(evalResult.cableMm2).toBe(240);
+    expect(evalResult.deratedAmpacity).toBeGreaterThanOrEqual(800);
+    expect(evalResult.isUnderProtected).toBe(false);
+  });
+
+  it('recommends multi-conductor parallel runs when breaker exceeds 300 mm² single capacity', () => {
+    const evalResult = evaluateCableProtection(300, 900, true, {
+      insulation: 'XLPE',
+      ambientTemp: 30,
+      groupingCount: 1,
+      maxCableSize: 300,
+    });
+
+    expect(evalResult.isUnderProtected).toBe(true);
+    expect(evalResult.recommendedParallelRuns).toBeGreaterThanOrEqual(2);
+    expect(evalResult.recommendedCableSizeFormatted).toContain('×');
   });
 });

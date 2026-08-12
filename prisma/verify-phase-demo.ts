@@ -35,6 +35,7 @@ function stubFinder(): FindBreaker {
     familyName: null,
     ratedCurrent: null,
     fallback: false,
+    fallbackType: 'SAME_FAMILY',
   });
 }
 

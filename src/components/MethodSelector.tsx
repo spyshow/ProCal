@@ -112,9 +112,10 @@ export const INSTALLATION_METHODS: InstallationMethodOption[] = [
 interface MethodSelectorProps {
   value: string;
   onChange: (methodId: string) => void;
+  compact?: boolean;
 }
 
-export default function MethodSelector({ value, onChange }: MethodSelectorProps) {
+export default function MethodSelector({ value, onChange, compact }: MethodSelectorProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [position, setPosition] = useState({ top: 0, left: 0 });
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -168,14 +169,19 @@ export default function MethodSelector({ value, onChange }: MethodSelectorProps)
           updatePosition();
           setIsOpen(!isOpen);
         }}
-        className="flex items-center gap-2 bg-slate-900/90 border border-slate-700/80 rounded-lg px-2.5 py-1.5 text-xs text-white hover:border-orange-500/50 transition-all duration-150 shadow-sm"
+        className={cn(
+          "flex items-center bg-slate-900/90 border border-slate-700/80 rounded hover:border-orange-500/50 transition-all duration-150 shadow-sm",
+          compact
+            ? "gap-1 px-1.5 py-0.5 text-[10px]"
+            : "gap-2 px-2.5 py-1.5 text-xs rounded-lg"
+        )}
       >
         <div
-          className="w-8 h-6 flex-shrink-0"
+          className={cn("flex-shrink-0", compact ? "w-4 h-3.5" : "w-8 h-6")}
           dangerouslySetInnerHTML={{ __html: selected.svg }}
         />
         <span className="font-mono font-bold text-orange-400">{selected.code}</span>
-        <ChevronDown size={12} className={cn("transition-transform text-slate-400", isOpen && "rotate-180 text-orange-400")} />
+        <ChevronDown size={compact ? 10 : 12} className={cn("transition-transform text-slate-400", isOpen && "rotate-180 text-orange-400")} />
       </button>
 
       {isOpen && createPortal(

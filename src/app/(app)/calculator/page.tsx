@@ -1,5 +1,5 @@
 'use client';
-/* eslint-disable react-hooks/set-state-in-effect, @typescript-eslint/no-unused-vars */
+/* eslint-disable react-hooks/set-state-in-effect, @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any */
 
 import { useEffect, useState, useCallback, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
@@ -26,6 +26,7 @@ import { PageSkeleton } from '@/components/ui/skeleton';
 import type { FloorItem, FloorDesign, Building, Project } from '@/types';
 import { phaseBalance } from '@/lib/calculations/phaseBalance';
 import { MotionIcon } from '@/components/MotionIcon';
+import WorkflowStepper from '@/components/layout/WorkflowStepper';
 
 export default function CalculatorPage() {
   return (
@@ -38,7 +39,7 @@ export default function CalculatorPage() {
 function CalculatorContent() {
   const searchParams = useSearchParams();
   const focusFloorId = searchParams.get('floor');
-  const { selectedProjectId, selectedProject, loading: contextLoading } = useProject();
+  const { selectedProjectId, selectedProject, loading: contextLoading, refreshProject } = useProject();
   const { t, isRtl } = useTranslation();
 
   const [project, setProject] = useState<Project | null>(selectedProject);
@@ -70,16 +71,10 @@ function CalculatorContent() {
       setLoading(false);
       return;
     }
-    if (selectedProject?.id === selectedProjectId) {
-      setProject(selectedProject);
-      if (!selectedBuilding && selectedProject.buildings.length > 0) {
-        setSelectedBuilding(selectedProject.buildings[0].id);
-      }
-      setLoading(false);
-      return;
-    }
+    setLoading(true);
     try {
-      const res = await fetch(`/api/projects/${selectedProjectId}`);
+      await refreshProject();
+      const res = await fetch(`/api/projects/${selectedProjectId}?t=${Date.now()}`);
       if (res.ok) {
         const data = await res.json();
         setProject(data);
@@ -92,7 +87,7 @@ function CalculatorContent() {
     } finally {
       setLoading(false);
     }
-  }, [selectedProjectId, selectedProject, selectedBuilding]);
+  }, [selectedProjectId, refreshProject, selectedBuilding]);
 
   useEffect(() => {
     if (!selectedProject || selectedProject.id !== selectedProjectId) {
@@ -178,7 +173,7 @@ function CalculatorContent() {
     loadProject();
   };
 
-  if (loading || (!project && (contextLoading || selectedProjectId))) {
+  if (!project && (loading || contextLoading || selectedProjectId)) {
     return <PageSkeleton titleWidth="w-64" rowCount={8} />;
   }
 
@@ -243,6 +238,9 @@ function CalculatorContent() {
 
   return (
     <div className="p-6 space-y-5 max-w-7xl mx-auto">
+      {/* Workflow Stepper: Step 1 */}
+      <WorkflowStepper currentStep={1} />
+
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>

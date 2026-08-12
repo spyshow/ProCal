@@ -16,10 +16,11 @@ import {
   XCircle,
   ShieldCheck,
   Sparkles,
+  Zap,
 } from 'lucide-react';
 import { computeFeeders, createFindBreaker, type EquipmentItem, type DefaultFamilies } from '@/lib/calculations/feeders';
 import TccPlotModal from '@/components/coordination/TccPlotModal';
-import type { Project, PanelFeeder, BreakerAlternativeSuggestion } from '@/types';
+import type { Project, PanelFeeder, BreakerAlternativeSuggestion, FallbackType, GenericBreakerSpec } from '@/types';
 
 interface BreakerFamilyOption {
   id: string;
@@ -27,6 +28,8 @@ interface BreakerFamilyOption {
   category: string;
   name: string;
 }
+
+import WorkflowStepper from '@/components/layout/WorkflowStepper';
 
 interface BreakerEntry {
   id: string;
@@ -38,10 +41,18 @@ interface BreakerEntry {
   current: number;
   breakerSize: number;
   cableSize: number;
+  parallelRuns?: number;
+  formattedCableSize?: string;
+  cableIz?: number;
+  isUnderProtected?: boolean;
+  recommendedCableSize?: number;
+  recommendedCableSizeFormatted?: string;
   breakerModel: string;
   manufacturer: string | null;
   familyName: string | null;
   fallback: boolean;
+  fallbackType?: FallbackType;
+  genericSpec?: GenericBreakerSpec;
   isThreePhase: boolean;
   parentFeederName?: string | null;
   faultCurrentKa?: number;
@@ -68,6 +79,7 @@ export default function BreakerSchedulePage() {
   const [selectedBuilding, setSelectedBuilding] = useState<string>('all');
   const [selectedFeederForModal, setSelectedFeederForModal] = useState<BreakerEntry | null>(null);
   const [applyingSuggestionId, setApplyingSuggestionId] = useState<string | null>(null);
+  const [autoSizingId, setAutoSizingId] = useState<string | null>(null);
   const [defaults, setDefaults] = useState<DefaultFamilies>(() => ({
     ACB: selectedProject?.defaultAcbFamilyId ?? undefined,
     MCCB: selectedProject?.defaultMccbFamilyId ?? undefined,
@@ -177,7 +189,7 @@ export default function BreakerSchedulePage() {
     saveDefaults(next);
   };
 
-  if (loading || (!project && (contextLoading || selectedProjectId))) {
+  if (!project && (loading || contextLoading || selectedProjectId)) {
     return <PageSkeleton titleWidth="w-60" rowCount={6} />;
   }
 
@@ -191,6 +203,26 @@ export default function BreakerSchedulePage() {
   }
 
   const findBreaker = createFindBreaker(equipment, defaults, preferredManufacturer);
+
+  const resolveBreakerDisplayName = (savedModel: string | undefined | null, feederModel: string): string => {
+    if (!savedModel) return feederModel;
+    const trimmedSaved = savedModel.trim();
+    if (/^(?:ACB|MCCB|MCB)\s+\d+A?$/i.test(trimmedSaved)) {
+      return feederModel || savedModel;
+    }
+    const bareTripUnitMatch = trimmedSaved.match(/^(?:ACB|MCCB|MCB)\s+\d+A?\s+(.+)$/i);
+    if (bareTripUnitMatch && feederModel) {
+      const tripUnit = bareTripUnitMatch[1];
+      if (/MicroLogic\s*[\d.]+\s*[a-zA-Z]*/i.test(feederModel)) {
+        return feederModel.replace(/MicroLogic\s*[\d.]+\s*[a-zA-Z]*/i, tripUnit);
+      }
+      if (/Ekip\s*[\w\s]+/i.test(feederModel)) {
+        return feederModel.replace(/Ekip\s*[\w\s]+/i, tripUnit);
+      }
+      return `${feederModel} ${tripUnit}`.trim();
+    }
+    return savedModel;
+  };
 
   const breakers: BreakerEntry[] = [];
   for (const bldg of project.buildings) {
@@ -211,6 +243,7 @@ export default function BreakerSchedulePage() {
 
     for (const f of mdbFeeders) {
       const saved = findSavedBreakerSetting(f);
+      const effectiveModel = resolveBreakerDisplayName(saved?.model, f.breakerModel);
       breakers.push({
         id: `${bldg.id}-mdb-${breakers.length}`,
         name: f.name,
@@ -221,17 +254,25 @@ export default function BreakerSchedulePage() {
         current: f.current,
         breakerSize: f.breakerSize,
         cableSize: f.cableSize,
-        breakerModel: saved?.model || f.breakerModel,
+        parallelRuns: f.parallelRuns,
+        formattedCableSize: f.formattedCableSize,
+        cableIz: f.cableIz,
+        isUnderProtected: f.isUnderProtected,
+        recommendedCableSize: f.recommendedCableSize,
+        recommendedCableSizeFormatted: f.recommendedCableSizeFormatted,
+        breakerModel: effectiveModel,
         manufacturer: f.manufacturer,
         familyName: f.familyName,
         fallback: f.fallback,
+        fallbackType: f.fallbackType,
+        genericSpec: f.genericSpec,
         isThreePhase: f.isThreePhase,
         parentFeederName: f.parentFeederName,
         faultCurrentKa: f.faultCurrentKa,
         selectivityStatus: saved ? 'FULL' : f.selectivityStatus,
         selectivityLimitA: f.selectivityLimitA,
         cableDamageOk: f.cableDamageOk,
-        selectivityReason: saved ? `Full electronic LSI selectivity (${saved.model})` : f.selectivityReason,
+        selectivityReason: saved ? `Full electronic LSI selectivity (${effectiveModel})` : f.selectivityReason,
         suggestedAlternative: saved ? null : f.suggestedAlternative,
         alternativeSuggestions: saved ? [] : f.alternativeSuggestions,
         itemId: f.itemId,
@@ -243,6 +284,7 @@ export default function BreakerSchedulePage() {
     for (const floorNumber of smdbFloorNumbers) {
       for (const f of smdbFeeders(floorNumber)) {
         const saved = findSavedBreakerSetting(f);
+        const effectiveModel = resolveBreakerDisplayName(saved?.model, f.breakerModel);
         breakers.push({
           id: `${bldg.id}-smdb-${breakers.length}`,
           name: f.name,
@@ -253,17 +295,25 @@ export default function BreakerSchedulePage() {
           current: f.current,
           breakerSize: f.breakerSize,
           cableSize: f.cableSize,
-          breakerModel: saved?.model || f.breakerModel,
+          parallelRuns: f.parallelRuns,
+          formattedCableSize: f.formattedCableSize,
+          cableIz: f.cableIz,
+          isUnderProtected: f.isUnderProtected,
+          recommendedCableSize: f.recommendedCableSize,
+          recommendedCableSizeFormatted: f.recommendedCableSizeFormatted,
+          breakerModel: effectiveModel,
           manufacturer: f.manufacturer,
           familyName: f.familyName,
           fallback: f.fallback,
+          fallbackType: f.fallbackType,
+          genericSpec: f.genericSpec,
           isThreePhase: f.isThreePhase,
           parentFeederName: f.parentFeederName,
           faultCurrentKa: f.faultCurrentKa,
           selectivityStatus: saved ? 'FULL' : f.selectivityStatus,
           selectivityLimitA: f.selectivityLimitA,
           cableDamageOk: f.cableDamageOk,
-          selectivityReason: saved ? `Full electronic LSI selectivity (${saved.model})` : f.selectivityReason,
+          selectivityReason: saved ? `Full electronic LSI selectivity (${effectiveModel})` : f.selectivityReason,
           suggestedAlternative: saved ? null : f.suggestedAlternative,
           alternativeSuggestions: saved ? [] : f.alternativeSuggestions,
           itemId: f.itemId,
@@ -345,37 +395,65 @@ export default function BreakerSchedulePage() {
           });
         }
       } else if (sug.type === 'DOWNSTREAM_RESIZE') {
-        let itemId = selectedFeederForModal.itemId;
-        if (!itemId && bldg) {
-          for (const fd of bldg.floorDesigns ?? []) {
-            for (const it of fd.items ?? []) {
-              if (
-                `F${fd.floorNumber} – ${it.name}` === selectedFeederForModal.name ||
-                `F${fd.floorNumber} - ${it.name}` === selectedFeederForModal.name ||
-                it.name === selectedFeederForModal.name
-              ) {
-                itemId = it.id;
-                break;
-              }
-            }
-            if (itemId) break;
+        const isSmdb = selectedFeederForModal.type === 'SMDB' || selectedFeederForModal.name.includes('SMDB');
+        if (isSmdb) {
+          let floorDesignId = selectedFeederForModal.floorDesignId;
+          if (!floorDesignId && bldg) {
+            const floorMatch = selectedFeederForModal.name.match(/F(\d+)/i);
+            const floorNum = floorMatch ? parseInt(floorMatch[1], 10) : selectedFeederForModal.floor;
+            const fd = (bldg.floorDesigns ?? []).find((f) => f.floorNumber === floorNum);
+            floorDesignId = fd?.id;
           }
-        }
-        if (itemId) {
-          await fetch(`/api/floor-items/${itemId}`, {
+          if (floorDesignId) {
+            await fetch(`/api/floors/${floorDesignId}`, {
+              method: 'PATCH',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ riserBreakerSize: `${sug.suggestedFrameSize}A` }),
+            });
+          }
+        } else if (selectedFeederForModal.buildingLoadId) {
+          await fetch(`/api/building-loads/${selectedFeederForModal.buildingLoadId}`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ breakerSize: `${sug.suggestedFrameSize}A` }),
           });
+        } else {
+          let itemId = selectedFeederForModal.itemId;
+          if (!itemId && bldg) {
+            for (const fd of bldg.floorDesigns ?? []) {
+              for (const it of fd.items ?? []) {
+                if (
+                  `F${fd.floorNumber} – ${it.name}` === selectedFeederForModal.name ||
+                  `F${fd.floorNumber} - ${it.name}` === selectedFeederForModal.name ||
+                  it.name === selectedFeederForModal.name
+                ) {
+                  itemId = it.id;
+                  break;
+                }
+              }
+              if (itemId) break;
+            }
+          }
+          if (itemId) {
+            await fetch(`/api/floor-items/${itemId}`, {
+              method: 'PATCH',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ breakerSize: `${sug.suggestedFrameSize}A` }),
+            });
+          }
         }
       } else if (sug.type === 'SETTINGS_ADJUSTMENT' || sug.type === 'ELECTRONIC_TRIP_UNIT') {
         const stableBreakerId = `${project.id}-${selectedFeederForModal.name}`;
+        const fullModel = resolveBreakerDisplayName(
+          sug.suggestedModel || selectedFeederForModal.breakerModel,
+          selectedFeederForModal.breakerModel
+        );
         await fetch('/api/breaker-settings', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             breakerId: stableBreakerId,
-            model: sug.suggestedModel || selectedFeederForModal.breakerModel,
+            model: fullModel,
             manufacturer: selectedFeederForModal.manufacturer || 'Schneider',
             frameSize: `${selectedFeederForModal.breakerSize}A`,
             ir: selectedFeederForModal.current,
@@ -406,8 +484,81 @@ export default function BreakerSchedulePage() {
     }
   };
 
+  const handleAutoSizeCable = async (b: BreakerEntry) => {
+    const targetCableStr = b.recommendedCableSizeFormatted || (b.recommendedCableSize ? `${b.recommendedCableSize} mm²` : null);
+    if (!targetCableStr || !project) return;
+    try {
+      setAutoSizingId(b.id);
+      const bldg = project.buildings.find((bg) => bg.id === b.buildingId);
+
+      if (b.type === 'SMDB' || b.name.includes('SMDB')) {
+        let floorDesignId = b.floorDesignId;
+        if (!floorDesignId && bldg) {
+          const floorMatch = b.name.match(/F(\d+)/i);
+          const floorNum = floorMatch ? parseInt(floorMatch[1], 10) : b.floor;
+          const fd = (bldg.floorDesigns ?? []).find((f) => f.floorNumber === floorNum);
+          floorDesignId = fd?.id;
+        }
+        if (floorDesignId) {
+          await fetch(`/api/floors/${floorDesignId}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ riserCableSize: targetCableStr }),
+          });
+        }
+      } else if (b.buildingLoadId) {
+        await fetch(`/api/building-loads/${b.buildingLoadId}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ cableSize: targetCableStr }),
+        });
+      } else {
+        let itemId = b.itemId;
+        if (!itemId && bldg) {
+          for (const fd of bldg.floorDesigns ?? []) {
+            for (const it of fd.items ?? []) {
+              if (
+                `F${fd.floorNumber} – ${it.name}` === b.name ||
+                `F${fd.floorNumber} - ${it.name}` === b.name ||
+                it.name === b.name
+              ) {
+                itemId = it.id;
+                break;
+              }
+            }
+            if (itemId) break;
+          }
+        }
+        if (itemId) {
+          await fetch(`/api/floor-items/${itemId}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ cableSize: targetCableStr }),
+          });
+        }
+      }
+
+      await refreshProject();
+      const res = await fetch(`/api/projects/${project.id}?t=${Date.now()}`, {
+        cache: 'no-store',
+        headers: { 'Cache-Control': 'no-cache' },
+      });
+      if (res.ok) {
+        const updated = await res.json();
+        setProject(updated);
+      }
+    } catch (err) {
+      console.error('Error auto-sizing cable:', err);
+    } finally {
+      setAutoSizingId(null);
+    }
+  };
+
   return (
     <div className="p-6 space-y-5 max-w-7xl mx-auto">
+      {/* Workflow Stepper: Step 2 */}
+      <WorkflowStepper currentStep={2} />
+
       <div data-tour="breaker-header" className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-white flex items-center gap-2">
@@ -535,16 +686,37 @@ export default function BreakerSchedulePage() {
                     <td className="text-end font-mono">{b.current.toFixed(1)}</td>
                     <td className="text-center font-mono text-blue-400 font-bold">{b.breakerSize}A</td>
                     <td className="text-xs text-gray-300">
-                      <span className="flex items-center gap-1">
-                        {b.breakerModel}
-                        {b.fallback && (
-                          <span title={`No ${b.familyName ?? 'selected'} model ≥ ${b.current.toFixed(1)}A; used fallback.`}>
-                            <AlertTriangle size={12} className="text-yellow-500" />
-                          </span>
-                        )}
-                      </span>
+                      <div className="flex flex-col gap-0.5">
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <span className="font-medium">{b.breakerModel}</span>
+                          {b.fallbackType === 'OTHER_FAMILY' && (
+                            <span
+                              className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-blue-500/10 text-blue-400 border border-blue-500/20"
+                              title={`Rating ${b.breakerSize}A not available in selected family; sourced from ${b.familyName ?? 'other family'}.`}
+                            >
+                              Other Family: {b.familyName}
+                            </span>
+                          )}
+                          {b.fallbackType === 'OTHER_BRAND' && (
+                            <span
+                              className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20"
+                              title={`Rating ${b.breakerSize}A not available in preferred brand; cross-brand fallback to ${b.manufacturer}.`}
+                            >
+                              Alt Brand: {b.manufacturer}
+                            </span>
+                          )}
+                          {b.fallbackType === 'GENERIC_SPEC' && (
+                            <span
+                              className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-purple-500/10 text-purple-300 border border-purple-500/20"
+                              title={b.genericSpec?.procurementNotes ?? `Generic ${b.breakerSize}A specification for purchasing`}
+                            >
+                              Generic Spec
+                            </span>
+                          )}
+                        </div>
+                      </div>
                     </td>
-                    <td className="text-center font-mono text-green-400">{b.cableSize}</td>
+                    <td className="text-center font-mono text-green-400 font-semibold">{b.formattedCableSize || `${b.cableSize} mm²`}</td>
                     <td className="text-end font-mono text-gray-300">
                       {b.faultCurrentKa ? b.faultCurrentKa.toFixed(2) : '—'}
                     </td>
@@ -582,13 +754,33 @@ export default function BreakerSchedulePage() {
                       </div>
                     </td>
                     <td className="text-center">
-                      {b.cableDamageOk !== false ? (
-                        <span className="text-green-400 font-semibold text-[11px]" title="Cable thermal withstand exceeds breaker clearing time">
-                          ✓ Safe
+                      {b.isUnderProtected ? (
+                        <div className="flex flex-col items-center gap-1">
+                          <span
+                            className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20"
+                            title={`Derated Cable Continuous Capacity Iz (${b.cableIz}A) is less than Breaker Rating In (${b.breakerSize}A). Risk of cable thermal overload.`}
+                          >
+                            <AlertTriangle size={10} /> Iz ({b.cableIz}A) &lt; In ({b.breakerSize}A)
+                          </span>
+                          {(b.recommendedCableSizeFormatted || b.recommendedCableSize) && (
+                            <button
+                              onClick={() => handleAutoSizeCable(b)}
+                              disabled={autoSizingId === b.id}
+                              className="flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold bg-orange-500 hover:bg-orange-600 active:scale-95 text-white shadow-sm transition-all"
+                              title={`Auto-upsize cable to ${b.recommendedCableSizeFormatted || `${b.recommendedCableSize} mm²`} to satisfy Iz >= In`}
+                            >
+                              <Zap size={10} className={autoSizingId === b.id ? "animate-spin" : ""} />
+                              <span>{autoSizingId === b.id ? "Sizing..." : `Auto-Size to ${b.recommendedCableSizeFormatted || `${b.recommendedCableSize} mm²`}`}</span>
+                            </button>
+                          )}
+                        </div>
+                      ) : b.cableDamageOk === false ? (
+                        <span className="text-red-400 font-semibold text-[11px]" title="Breaker curve intersects cable damage curve under fault current">
+                          ✗ Short-Circuit Damage Risk
                         </span>
                       ) : (
-                        <span className="text-red-400 font-semibold text-[11px]" title="Breaker curve intersects cable damage curve under fault current">
-                          ✗ Unprotected
+                        <span className="text-green-400 font-semibold text-[11px]" title={`Cable continuous capacity Iz (${b.cableIz}A) >= Breaker In (${b.breakerSize}A) and safe under short-circuit.`}>
+                          ✓ Safe {b.cableIz ? `(Iz ${b.cableIz}A)` : ''}
                         </span>
                       )}
                     </td>

@@ -64,6 +64,7 @@ export interface BuildingLoad {
   loadLibraryItemId: string | null;
   loadLibraryItem: LoadLibraryItem | null;
   quantity: number;
+  breakerSize?: string | null;
   cableSize?: string | null;
   cableLength?: number | null;
   installMethod?: string | null;
@@ -156,6 +157,18 @@ export interface LoadLibraryItem {
   notes: string | null;
 }
 
+export type FallbackType = 'SAME_FAMILY' | 'OTHER_FAMILY' | 'OTHER_BRAND' | 'GENERIC_SPEC';
+
+export interface GenericBreakerSpec {
+  ratingAmps: number;
+  category: 'ACB' | 'MCCB' | 'MCB';
+  poles: number;
+  requiredIcuKa: number;
+  tripUnitType: string;
+  standard: string;
+  procurementNotes?: string;
+}
+
 export interface PanelFeeder {
   name: string;
   type: string;
@@ -166,6 +179,8 @@ export interface PanelFeeder {
   manufacturer: string | null;
   familyName: string | null;
   fallback: boolean;
+  fallbackType?: FallbackType;
+  genericSpec?: GenericBreakerSpec;
   isThreePhase: boolean;
   // Per-phase balancing fields (T4/T6). For 1-phase items, assignedPhase is the
   // resolved L1/L2/L3 phase (1/2/3). For SMDB risers, phaseCurrent/phaseKw reflect
@@ -184,6 +199,12 @@ export interface PanelFeeder {
   selectivityStatus?: 'FULL' | 'PARTIAL' | 'NONE' | null;
   selectivityLimitA?: number | null;
   cableDamageOk?: boolean;
+  cableIz?: number;
+  isUnderProtected?: boolean;
+  parallelRuns?: number;
+  formattedCableSize?: string;
+  recommendedCableSize?: number;
+  recommendedCableSizeFormatted?: string;
   selectivityReason?: string | null;
   suggestedAlternative?: string | null;
   alternativeSuggestions?: BreakerAlternativeSuggestion[];
@@ -200,6 +221,8 @@ export interface BreakerAlternativeSuggestion {
   description: string;
   suggestedModel?: string;
   suggestedFrameSize?: number;
+  fallbackType?: FallbackType;
+  genericSpec?: GenericBreakerSpec;
   suggestedSettings?: { ir?: number; tr?: number; isd?: number; tsd?: number; ii?: number };
   expectedSelectivity: 'FULL' | 'PARTIAL';
   expectedLimitKa?: number;

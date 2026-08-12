@@ -86,6 +86,7 @@ export default function SLDPage() {
   // Selected Component for Right Inspector
   const [selectedComponent, setSelectedComponent] = useState<ComponentProperty | null>(null);
   const [showDsl, setShowDsl] = useState(false);
+  const [isPrintingAll, setIsPrintingAll] = useState(false);
   const svgContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -495,8 +496,6 @@ export default function SLDPage() {
     };
     img.src = url;
   };
-
-  const [isPrintingAll, setIsPrintingAll] = useState(false);
 
   const projectMetrics = useMemo(() => {
     if (!project || !project.buildings) return { totalPower: 0, totalCurrent: 0, totalCircuits: 0, totalFloors: 0 };

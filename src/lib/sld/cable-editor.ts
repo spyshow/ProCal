@@ -1,12 +1,13 @@
-import { calculateVoltageDrop } from '@/lib/calculations/cables';
-import { CABLE_CATALOG, TEMP_DERATING, GROUP_DERATING } from '@/lib/calculations/cablesData';
+import { calculateVoltageDrop, parseCableSize, formatCableSize } from '@/lib/calculations/cables';
+import { CABLE_CATALOG, TEMP_DERATING, GROUP_DERATING, CableSpec } from '@/lib/calculations/cablesData';
 import { getAmpacity } from '@/lib/calculations/installationMethods';
 
 export interface CableEditorInput {
   current: number;
   isThreePhase: boolean;
   lengthMeters: number;
-  existingCableSize: number;
+  existingCableSize: number | string;
+  existingRuns?: number;
   powerFactor: number;
   systemVoltage: number;
   maxVoltageDropPercent: number;
@@ -14,15 +15,21 @@ export interface CableEditorInput {
   insulation?: 'PVC' | 'XLPE';
   ambientTemp?: number;
   groupingCount?: number;
+  maxCableSize?: number;
+  targetRuns?: number;
 }
 
 export interface CableEditorResult {
   cableSize: number;
+  parallelRuns: number;
+  formattedCableSize: string;
   breakerSize: number;
   voltageDropPercent: number;
   voltageDropVolts: number;
   changed: boolean;
   ampacity: number;
+  singleAmpacity: number;
+  isOverloaded: boolean;
 }
 
 // Standard breaker ratings (Amperes)
@@ -45,46 +52,146 @@ export function recalculateCable(input: CableEditorInput): CableEditorResult {
     insulation = 'XLPE',
     ambientTemp = 30,
     groupingCount = 1,
+    maxCableSize = 300,
+    targetRuns,
   } = input;
 
+  const existingParsed = parseCableSize(existingCableSize) ?? {
+    size: typeof existingCableSize === 'number' ? existingCableSize : 16,
+    runs: input.existingRuns ?? 1,
+    formatted: typeof existingCableSize === 'number' ? `${existingCableSize} mm²` : String(existingCableSize),
+  };
+
+  const currentRuns = targetRuns ?? input.existingRuns ?? existingParsed.runs ?? 1;
   const breakerSize = findBreakerSize(current);
   const tempFactor = (TEMP_DERATING[insulation] && TEMP_DERATING[insulation][ambientTemp]) ?? 1.0;
   const groupFactor = GROUP_DERATING[groupingCount] ?? 1.0;
   const totalDerating = tempFactor * groupFactor;
 
-  // Find the smallest cable that meets both VD and derated ampacity requirements
-  let optimalCable = CABLE_CATALOG[CABLE_CATALOG.length - 1];
-  let optimalVD = { dropPercent: 0, dropVolts: 0 };
-  let optimalAmpacity = 0;
+  // 1. Calculate continuous carrying capacity & VD of the current installed cable
+  const installedBaseAmpacity = getAmpacity(existingParsed.size, method, insulation, isThreePhase);
+  const installedSingleAmpacity = installedBaseAmpacity * totalDerating;
+  const installedTotalAmpacity = installedSingleAmpacity * currentRuns;
+  const installedVD = calculateVoltageDrop(current, lengthMeters, existingParsed.size, powerFactor, isThreePhase, systemVoltage, currentRuns);
 
-  for (const cable of CABLE_CATALOG) {
-    const vd = calculateVoltageDrop(current, lengthMeters, cable.size, powerFactor, isThreePhase, systemVoltage);
-    const baseAmpacity = getAmpacity(cable.size, method, insulation, isThreePhase);
-    const deratedAmpacity = baseAmpacity * totalDerating;
+  const availableCatalog = CABLE_CATALOG.filter((c) => c.size <= maxCableSize);
+  const catalogToUse = availableCatalog.length > 0 ? availableCatalog : CABLE_CATALOG;
 
-    if (vd.dropPercent <= maxVoltageDropPercent && deratedAmpacity >= breakerSize) {
-      optimalCable = cable;
-      optimalVD = vd;
-      optimalAmpacity = deratedAmpacity;
-      break;
+  // Check if current installed cable is already compliant (Iz >= current and VD <= limit)
+  const isInstalledCompliant =
+    installedTotalAmpacity >= current &&
+    installedVD.dropPercent <= maxVoltageDropPercent;
+
+  let optimalCable: CableSpec = CABLE_CATALOG.find((c) => c.size === existingParsed.size) ?? catalogToUse[catalogToUse.length - 1];
+  let optimalRuns = currentRuns;
+  let optimalVD = installedVD;
+  let optimalSingleAmpacity = installedSingleAmpacity;
+  let optimalTotalAmpacity = installedTotalAmpacity;
+  let needsChange = false;
+
+  if (targetRuns && targetRuns !== existingParsed.runs) {
+    // User explicitly requested a specific run count
+    optimalRuns = targetRuns;
+    let foundTarget = false;
+    for (const cable of catalogToUse) {
+      const vd = calculateVoltageDrop(current, lengthMeters, cable.size, powerFactor, isThreePhase, systemVoltage, optimalRuns);
+      const baseAmpacity = getAmpacity(cable.size, method, insulation, isThreePhase);
+      const singleDerated = baseAmpacity * totalDerating;
+      const totalDerated = singleDerated * optimalRuns;
+
+      if (vd.dropPercent <= maxVoltageDropPercent && totalDerated >= current) {
+        optimalCable = cable;
+        optimalVD = vd;
+        optimalSingleAmpacity = singleDerated;
+        optimalTotalAmpacity = totalDerated;
+        foundTarget = true;
+        break;
+      }
+    }
+    if (!foundTarget) {
+      // Pick largest in catalog with targetRuns
+      const largest = catalogToUse[catalogToUse.length - 1];
+      const baseAmpacity = getAmpacity(largest.size, method, insulation, isThreePhase);
+      const singleDerated = baseAmpacity * totalDerating;
+      optimalCable = largest;
+      optimalVD = calculateVoltageDrop(current, lengthMeters, largest.size, powerFactor, isThreePhase, systemVoltage, optimalRuns);
+      optimalSingleAmpacity = singleDerated;
+      optimalTotalAmpacity = singleDerated * optimalRuns;
+    }
+    needsChange = optimalCable.size !== existingParsed.size || optimalRuns !== existingParsed.runs;
+  } else if (!isInstalledCompliant) {
+    // Current cable is under-sized or exceeds VD limit: find minimum upsize
+    needsChange = true;
+    let found = false;
+
+    // Pass 1: Try single conductor (runs = 1) up to maxCableSize
+    for (const cable of catalogToUse) {
+      const vd = calculateVoltageDrop(current, lengthMeters, cable.size, powerFactor, isThreePhase, systemVoltage, 1);
+      const baseAmpacity = getAmpacity(cable.size, method, insulation, isThreePhase);
+      const singleDerated = baseAmpacity * totalDerating;
+
+      if (vd.dropPercent <= maxVoltageDropPercent && singleDerated >= current) {
+        optimalCable = cable;
+        optimalRuns = 1;
+        optimalVD = vd;
+        optimalSingleAmpacity = singleDerated;
+        optimalTotalAmpacity = singleDerated;
+        found = true;
+        break;
+      }
+    }
+
+    // Pass 2: If single conductor cannot carry current, test parallel runs (N = 2, 3, 4, 5, 6)
+    // Minimum runs prioritized first (e.g. prefer 2 runs over 3 runs)
+    if (!found) {
+      for (let runs = 2; runs <= 6; runs++) {
+        for (const cable of catalogToUse) {
+          const vd = calculateVoltageDrop(current, lengthMeters, cable.size, powerFactor, isThreePhase, systemVoltage, runs);
+          const baseAmpacity = getAmpacity(cable.size, method, insulation, isThreePhase);
+          const singleDerated = baseAmpacity * totalDerating;
+          const totalDerated = singleDerated * runs;
+
+          if (vd.dropPercent <= maxVoltageDropPercent && totalDerated >= current) {
+            optimalCable = cable;
+            optimalRuns = runs;
+            optimalVD = vd;
+            optimalSingleAmpacity = singleDerated;
+            optimalTotalAmpacity = totalDerated;
+            found = true;
+            break;
+          }
+        }
+        if (found) break;
+      }
+    }
+
+    // Fallback: If no candidate satisfies both VD & ampacity, pick largest available
+    if (!found) {
+      const largest = catalogToUse[catalogToUse.length - 1];
+      const baseAmpacity = getAmpacity(largest.size, method, insulation, isThreePhase);
+      const singleDerated = baseAmpacity * totalDerating;
+      const requiredRuns = Math.max(1, Math.ceil(current / (singleDerated > 0 ? singleDerated : 1)));
+      optimalRuns = requiredRuns;
+      optimalCable = largest;
+      optimalVD = calculateVoltageDrop(current, lengthMeters, largest.size, powerFactor, isThreePhase, systemVoltage, optimalRuns);
+      optimalSingleAmpacity = singleDerated;
+      optimalTotalAmpacity = singleDerated * optimalRuns;
     }
   }
 
-  // If no cable found, use the largest
-  if (optimalAmpacity === 0) {
-    const largest = CABLE_CATALOG[CABLE_CATALOG.length - 1];
-    optimalCable = largest;
-    optimalVD = calculateVoltageDrop(current, lengthMeters, largest.size, powerFactor, isThreePhase, systemVoltage);
-    const baseAmpacity = getAmpacity(largest.size, method, insulation, isThreePhase);
-    optimalAmpacity = baseAmpacity * totalDerating;
-  }
+  const roundedAmpacity = Math.round(optimalTotalAmpacity * 10) / 10;
+  const isOverloaded = roundedAmpacity < current;
 
   return {
     cableSize: optimalCable.size,
+    parallelRuns: optimalRuns,
+    formattedCableSize: formatCableSize(optimalCable.size, optimalRuns),
     breakerSize,
     voltageDropPercent: optimalVD.dropPercent,
     voltageDropVolts: optimalVD.dropVolts,
-    changed: optimalCable.size !== existingCableSize,
-    ampacity: Math.round(optimalAmpacity * 10) / 10,
+    changed: needsChange,
+    ampacity: roundedAmpacity,
+    singleAmpacity: Math.round(optimalSingleAmpacity * 10) / 10,
+    isOverloaded,
   };
 }

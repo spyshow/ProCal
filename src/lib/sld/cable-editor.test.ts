@@ -123,4 +123,78 @@ describe('Cable recalculation', () => {
     expect(result.changed).toBe(true);
     expect(result.cableSize).toBeGreaterThan(4);
   });
+
+  it('correctly calculates 2x 300mm2 ampacity (944A = 2x472A) for 902.1A load and marks compliant', () => {
+    const result = recalculateCable({
+      current: 902.1,
+      isThreePhase: true,
+      lengthMeters: 50,
+      existingCableSize: '2 × 300 mm²',
+      existingRuns: 2,
+      powerFactor: 0.85,
+      systemVoltage: 400,
+      maxVoltageDropPercent: 5,
+      method: 'F',
+      insulation: 'PVC',
+      ambientTemp: 30,
+      groupingCount: 1,
+      maxCableSize: 300,
+    });
+
+    expect(result.singleAmpacity).toBe(472);
+    expect(result.ampacity).toBe(944); // 2 * 472 = 944A
+    expect(result.isOverloaded).toBe(false); // 944 >= 902.1
+    expect(result.changed).toBe(false); // already safe, no upsize needed
+  });
+
+  it('selects 3x 150mm2 when targetRuns is 3, yielding ampacity 915A (3x305A)', () => {
+    const result = recalculateCable({
+      current: 902.1,
+      isThreePhase: true,
+      lengthMeters: 50,
+      existingCableSize: '2 × 300 mm²',
+      existingRuns: 2,
+      powerFactor: 0.85,
+      systemVoltage: 400,
+      maxVoltageDropPercent: 5,
+      method: 'F',
+      insulation: 'PVC',
+      ambientTemp: 30,
+      groupingCount: 1,
+      maxCableSize: 300,
+      targetRuns: 3,
+    });
+
+    expect(result.parallelRuns).toBe(3);
+    expect(result.cableSize).toBe(150);
+    expect(result.singleAmpacity).toBe(305);
+    expect(result.ampacity).toBe(915); // 3 * 305 = 915A >= 902.1A
+    expect(result.formattedCableSize).toBe('3 × 150 mm²');
+  });
+
+  it('re-evaluates to 2x 300mm2 (944A) when user switches targetRuns from 3 to 2', () => {
+    const result = recalculateCable({
+      current: 902.1,
+      isThreePhase: true,
+      lengthMeters: 50,
+      existingCableSize: '3 × 185 mm²',
+      existingRuns: 3,
+      powerFactor: 0.85,
+      systemVoltage: 400,
+      maxVoltageDropPercent: 5,
+      method: 'F',
+      insulation: 'PVC',
+      ambientTemp: 30,
+      groupingCount: 1,
+      maxCableSize: 300,
+      targetRuns: 2,
+    });
+
+    expect(result.parallelRuns).toBe(2);
+    expect(result.cableSize).toBe(300);
+    expect(result.singleAmpacity).toBe(472);
+    expect(result.ampacity).toBe(944); // 2 * 472 = 944A
+    expect(result.formattedCableSize).toBe('2 × 300 mm²');
+    expect(result.isOverloaded).toBe(false);
+  });
 });

@@ -196,6 +196,33 @@ html[dir="rtl"] .font-mono {
   border-bottom: 1px solid rgba(31, 41, 55, 0.6);
 }
 
+/* Modern Engineering Cable Schedule Table */
+.cable-schedule-table {
+  width: 100%;
+  table-layout: auto;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.cable-schedule-table th {
+  padding: 10px 12px;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #94a3b8;
+  border-bottom: 1px solid #334155;
+  background-color: rgba(15, 23, 42, 0.9);
+  white-space: nowrap;
+}
+
+.cable-schedule-table td {
+  padding: 8px 12px;
+  font-size: 0.75rem;
+  border-bottom: 1px solid rgba(51, 65, 85, 0.4);
+  vertical-align: middle;
+}
+
 .dense-input {
   padding: 4px 8px;
   font-size: 0.8125rem;

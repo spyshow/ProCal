@@ -170,6 +170,7 @@ export const BuildingLoadScalarFieldEnum = {
   buildingId: 'buildingId',
   loadLibraryItemId: 'loadLibraryItemId',
   quantity: 'quantity',
+  breakerSize: 'breakerSize',
   cableSize: 'cableSize',
   cableLength: 'cableLength',
   installMethod: 'installMethod',

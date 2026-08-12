@@ -16,6 +16,7 @@ import { calculateThreePhaseCurrent, sizeTransformer } from '@/lib/calculations/
 import { computeFloorRiserVd, type RiserFloorVd } from '@/lib/calculations/riser';
 import { PageSkeleton } from '@/components/ui/skeleton';
 import type { FloorDesign, Project } from '@/types';
+import WorkflowStepper from '@/components/layout/WorkflowStepper';
 
 // FloorDesign.riserCableSize is a string ("120 mm²"); the riser calc helper
 // returns it parsed to a numeric mm², so Omit both riser fields from the base
@@ -76,7 +77,7 @@ export default function RiserPage() {
     }
   }, [loadProject, selectedProject, selectedProjectId]);
 
-  if (loading || (!project && (contextLoading || selectedProjectId))) {
+  if (!project && (loading || contextLoading || selectedProjectId)) {
     return <PageSkeleton titleWidth="w-56" rowCount={6} />;
   }
 
@@ -183,6 +184,8 @@ export default function RiserPage() {
 
   return (
     <div className="p-6 space-y-4 max-w-7xl mx-auto">
+      {/* Workflow Stepper: Step 6 */}
+      <WorkflowStepper currentStep={6} />
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-white flex items-center gap-2">

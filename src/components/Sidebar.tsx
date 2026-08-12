@@ -37,19 +37,20 @@ interface NavItem {
   labelKey: string;
   href: string;
   icon: React.ElementType;
+  stepNumber?: number;
 }
 
 const NAV_ITEMS: NavItem[] = [
   { id: "dashboard",       labelKey: "nav.dashboard",       href: "/dashboard",        icon: LayoutDashboard },
   { id: "projects",        labelKey: "nav.projects",        href: "/projects",         icon: FolderOpen      },
-  { id: "calculator",      labelKey: "nav.calculator",      href: "/calculator",       icon: Zap             },
-  { id: "cableSchedule",   labelKey: "nav.cableSchedule",   href: "/cable-schedule",   icon: Cable           },
-  { id: "breakerSchedule", labelKey: "nav.breakerSchedule", href: "/breaker-schedule", icon: CircuitBoard   },
-  { id: "panelDesigner",   labelKey: "nav.panelDesigner",   href: "/panel",            icon: Cpu             },
-  { id: "riserDiagram",    labelKey: "nav.riserDiagram",    href: "/riser",            icon: GitBranch       },
-  { id: "coordination",    labelKey: "nav.coordination",    href: "/coordination",     icon: Shield          },
-  { id: "sldDesigner",     labelKey: "nav.sldDesigner",     href: "/sld",              icon: GitBranch       },
-  { id: "reports",         labelKey: "nav.reports",         href: "/reports",          icon: FileText        },
+  { id: "calculator",      labelKey: "nav.calculator",      href: "/calculator",       icon: Zap,             stepNumber: 1 },
+  { id: "breakerSchedule", labelKey: "nav.breakerSchedule", href: "/breaker-schedule", icon: CircuitBoard,   stepNumber: 2 },
+  { id: "coordination",    labelKey: "nav.coordination",    href: "/coordination",     icon: Shield,          stepNumber: 3 },
+  { id: "cableSchedule",   labelKey: "nav.cableSchedule",   href: "/cable-schedule",   icon: Cable,           stepNumber: 4 },
+  { id: "panelDesigner",   labelKey: "nav.panelDesigner",   href: "/panel",            icon: Cpu,             stepNumber: 5 },
+  { id: "riserDiagram",    labelKey: "nav.riserDiagram",    href: "/riser",            icon: GitBranch,       stepNumber: 6 },
+  { id: "sldDesigner",     labelKey: "nav.sldDesigner",     href: "/sld",              icon: GitBranch,       stepNumber: 7 },
+  { id: "reports",         labelKey: "nav.reports",         href: "/reports",          icon: FileText,        stepNumber: 8 },
   { id: "settings",        labelKey: "nav.settings",        href: "/settings",         icon: Settings        },
 ];
 
@@ -284,7 +285,7 @@ export default function Sidebar() {
             {t('common.actions', 'Navigation')}
           </p>
         )}
-        {NAV_ITEMS.map(({ id, labelKey, href, icon: Icon }) => {
+        {NAV_ITEMS.map(({ id, labelKey, href, icon: Icon, stepNumber }) => {
           const isActive = pathname === href || pathname.startsWith(`${href}/`);
           const tourKey = `tour-${href.replace("/", "")}`;
           const label = t(labelKey);
@@ -295,7 +296,7 @@ export default function Sidebar() {
               data-tour={tourKey}
               title={isCollapsed ? label : undefined}
               className={cn(
-                "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 outline-none",
+                "group flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 outline-none",
                 isCollapsed ? "justify-center px-0 py-2.5" : "",
                 isActive
                   ? isRtl
@@ -314,8 +315,18 @@ export default function Sidebar() {
                   isActive ? "text-orange-400" : "text-slate-500"
                 )}
               />
-              {!isCollapsed && <span className="truncate">{label}</span>}
-              {!isCollapsed && isActive && (
+              {!isCollapsed && <span className="truncate flex-1">{label}</span>}
+              {!isCollapsed && stepNumber && (
+                <span className={cn(
+                  "text-[10px] font-mono font-bold w-4 h-4 rounded flex items-center justify-center shrink-0 transition-colors",
+                  isActive
+                    ? "bg-orange-500/20 text-orange-300 border border-orange-500/40"
+                    : "bg-slate-800/80 text-slate-500 group-hover:text-slate-300 group-hover:bg-slate-800"
+                )}>
+                  {stepNumber}
+                </span>
+              )}
+              {!isCollapsed && isActive && !stepNumber && (
                 <span className={cn(
                   "w-1.5 h-1.5 rounded-full bg-orange-500 shadow-[0_0_8px_rgba(234,88,12,0.9)] flex-shrink-0",
                   isRtl ? "mr-auto" : "ml-auto"

@@ -79,39 +79,55 @@ describe('isThreePhaseForItem', () => {
 // createFindBreaker
 // ---------------------------------------------------------------------------
 
-describe('createFindBreaker', () => {
-  it('picks smallest MCCB from the default family', () => {
-    const findBreaker = createFindBreaker(equipment, { MCCB: 'f1' }, 'ABB');
+describe('createFindBreaker 4-tier catalog search', () => {
+  const multiMfgEquipment: EquipmentItem[] = [
+    ...equipment,
+    { id: 'sch1', category: 'MCCB', manufacturer: 'Schneider', familyId: 'f_sch', familyName: 'ComPacT NSX', series: 'NSX', model: 'NSX250', ratedCurrent: 250, poles: 3, breakingCapacity: 36, tripUnit: null, settingsJson: null },
+  ];
+
+  it('Tier 1: picks smallest MCCB from the default family (SAME_FAMILY)', () => {
+    const findBreaker = createFindBreaker(multiMfgEquipment, { MCCB: 'f1' }, 'ABB');
     const result = findBreaker(50, 'MCCB', 3, { familyId: 'f1' });
     expect(result.model).toContain('T2');
     expect(result.fallback).toBe(false);
+    expect(result.fallbackType).toBe('SAME_FAMILY');
   });
 
-  it('picks MCB by pole count for single-phase apartment', () => {
-    const findBreaker = createFindBreaker(equipment, {}, 'ABB');
-    const result = findBreaker(20, 'MCB', 1);
-    expect(result.model).toContain('S201-C32');
-    expect(result.manufacturer).toBe('ABB');
-  });
-
-  it('picks 3P MCB for three-phase end load', () => {
-    const findBreaker = createFindBreaker(equipment, {}, 'ABB');
-    const result = findBreaker(25, 'MCB', 3);
-    expect(result.model).toContain('S203-C32');
-  });
-
-  it('falls back to manufacturer + category when family has no match', () => {
-    // family f2 has no MCCB rows in our fixture; fallback should pick ABB MCCB 63A
-    const findBreaker = createFindBreaker(equipment, { MCCB: 'f2' }, 'ABB');
+  it('Tier 2: falls back to same manufacturer other family (OTHER_FAMILY)', () => {
+    // family f2 (Emax) has no MCCB rows; should fall back to Tmax (ABB)
+    const findBreaker = createFindBreaker(multiMfgEquipment, { MCCB: 'f2' }, 'ABB');
     const result = findBreaker(50, 'MCCB', 3);
     expect(result.model).toContain('T2');
     expect(result.fallback).toBe(true);
+    expect(result.fallbackType).toBe('OTHER_FAMILY');
   });
 
-  it('returns null model when nothing matches', () => {
-    const findBreaker = createFindBreaker([], {}, 'ABB');
-    const result = findBreaker(50, 'MCCB', 3);
-    expect(result.model).toBeNull();
+  it('Tier 3: falls back to other brand in catalog when preferred brand has no rating (OTHER_BRAND)', () => {
+    // ABB has no 250A MCCB in fixture; Schneider has 250A
+    const findBreaker = createFindBreaker(multiMfgEquipment, { MCCB: 'f1' }, 'ABB');
+    const result = findBreaker(200, 'MCCB', 3);
+    expect(result.model).toContain('Schneider');
+    expect(result.fallback).toBe(true);
+    expect(result.fallbackType).toBe('OTHER_BRAND');
+  });
+
+  it('Tier 4: generates rich generic engineering spec when no catalog model matches (GENERIC_SPEC)', () => {
+    const findBreaker = createFindBreaker(multiMfgEquipment, {}, 'ABB');
+    const result = findBreaker(5000, 'ACB', 3);
+    expect(result.fallback).toBe(true);
+    expect(result.fallbackType).toBe('GENERIC_SPEC');
+    expect(result.model).toContain('Generic ACB 5000A 3P (50kA)');
+    expect(result.genericSpec).toBeDefined();
+    expect(result.genericSpec?.requiredIcuKa).toBe(50);
+    expect(result.genericSpec?.standard).toBe('IEC 60947-2');
+    expect(result.genericSpec?.tripUnitType).toContain('Electronic LSI');
+  });
+
+  it('picks MCB by pole count for single-phase apartment', () => {
+    const findBreaker = createFindBreaker(multiMfgEquipment, {}, 'ABB');
+    const result = findBreaker(20, 'MCB', 1);
+    expect(result.model).toContain('S201-C32');
+    expect(result.manufacturer).toBe('ABB');
   });
 });
 
@@ -209,15 +225,17 @@ describe('computeFeeders', () => {
     expect(ac.breakerSize).toBeLessThan(100);
   });
 
-  it('empty equipment → fallback model, no crash', () => {
+  it('empty equipment → generic specification model, fallbackType: GENERIC_SPEC', () => {
     const findBreaker = createFindBreaker([], {}, 'ABB');
     const bldg = building({
       floorDesigns: [{ id: 'f1', floorNumber: 1, hasFloorSubPanels: false, items: [item({ calculatedCurrent: 40 })] }],
     });
     const { mdbFeeders } = computeFeeders(bldg, baseProject, findBreaker);
     expect(mdbFeeders).toHaveLength(1);
-    expect(mdbFeeders[0].breakerModel).toMatch(/^MCB \d+$/);
-    expect(mdbFeeders[0].fallback).toBe(false);
+    expect(mdbFeeders[0].breakerModel).toContain('Generic MCB');
+    expect(mdbFeeders[0].fallback).toBe(true);
+    expect(mdbFeeders[0].fallbackType).toBe('GENERIC_SPEC');
+    expect(mdbFeeders[0].genericSpec).toBeDefined();
   });
 });
 
@@ -335,5 +353,21 @@ describe('regression: three-phase classification', () => {
     });
     const { mdbFeeders } = computeFeeders(bldg, baseProject, findBreaker);
     expect(mdbFeeders[0].breakerSize).toBe(63);
+  });
+
+  it('respects exact manual item.breakerSize (e.g. 200A) even if smallest catalog frame is larger (250A)', () => {
+    const schEquipment: EquipmentItem[] = [
+      { id: 'sch1', category: 'MCCB', manufacturer: 'Schneider', familyId: 'f_sch', familyName: 'ComPacT NSX', series: 'ComPacT NSX250', model: 'NSX250N 250A MicroLogic 2.2', ratedCurrent: 250, poles: 3, breakingCapacity: 50, tripUnit: null, settingsJson: null },
+    ];
+    const findBreaker = createFindBreaker(schEquipment, { MCCB: 'f_sch' }, 'Schneider');
+    const bldg = building({
+      floorDesigns: [{
+        id: 'f5', floorNumber: 5, hasFloorSubPanels: false,
+        items: [item({ name: 'Parking', type: 'SERVICE_PANEL', calculatedCurrent: 135.8, breakerSize: '200A' })],
+      }],
+    });
+    const { mdbFeeders } = computeFeeders(bldg, { ...baseProject, preferredManufacturer: 'Schneider' }, findBreaker);
+    expect(mdbFeeders[0].breakerSize).toBe(200);
+    expect(mdbFeeders[0].breakerModel).toBe('Schneider ComPacT NSX250 NSX250N 200A MicroLogic 2.2');
   });
 });

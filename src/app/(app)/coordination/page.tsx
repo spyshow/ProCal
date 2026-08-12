@@ -18,6 +18,7 @@ import {
   Activity,
   ArrowRight,
 } from 'lucide-react';
+import WorkflowStepper from '@/components/layout/WorkflowStepper';
 import {
   generateCurvePoints,
   generateCableDamageCurve,
@@ -146,6 +147,26 @@ export default function CoordinationPage() {
     [equipment, defaults, project?.preferredManufacturer]
   );
 
+  const resolveBreakerDisplayName = (savedModel: string | undefined | null, feederModel: string): string => {
+    if (!savedModel) return feederModel;
+    const trimmedSaved = savedModel.trim();
+    if (/^(?:ACB|MCCB|MCB)\s+\d+A?$/i.test(trimmedSaved)) {
+      return feederModel || savedModel;
+    }
+    const bareTripUnitMatch = trimmedSaved.match(/^(?:ACB|MCCB|MCB)\s+\d+A?\s+(.+)$/i);
+    if (bareTripUnitMatch && feederModel) {
+      const tripUnit = bareTripUnitMatch[1];
+      if (/MicroLogic\s*[\d.]+\s*[a-zA-Z]*/i.test(feederModel)) {
+        return feederModel.replace(/MicroLogic\s*[\d.]+\s*[a-zA-Z]*/i, tripUnit);
+      }
+      if (/Ekip\s*[\w\s]+/i.test(feederModel)) {
+        return feederModel.replace(/Ekip\s*[\w\s]+/i, tripUnit);
+      }
+      return `${feederModel} ${tripUnit}`.trim();
+    }
+    return savedModel;
+  };
+
   // Compute all real project feeders
   const allProjectFeeders = useMemo(() => {
     if (!project || project.buildings.length === 0) return [];
@@ -164,11 +185,12 @@ export default function CoordinationPage() {
 
       for (const f of mdbFeeders) {
         const saved = findSavedBreakerSetting(f);
+        const effectiveModel = resolveBreakerDisplayName(saved?.model, f.breakerModel);
         list.push({
           ...f,
-          breakerModel: saved?.model || f.breakerModel,
+          breakerModel: effectiveModel,
           selectivityStatus: saved ? 'FULL' : f.selectivityStatus,
-          selectivityReason: saved ? `Full electronic LSI selectivity (${saved.model})` : f.selectivityReason,
+          selectivityReason: saved ? `Full electronic LSI selectivity (${effectiveModel})` : f.selectivityReason,
           suggestedAlternative: saved ? null : f.suggestedAlternative,
           alternativeSuggestions: saved ? [] : f.alternativeSuggestions,
           buildingId: bldg.id,
@@ -180,11 +202,12 @@ export default function CoordinationPage() {
       for (const floorNumber of smdbFloorNumbers) {
         for (const f of smdbFeeders(floorNumber)) {
           const saved = findSavedBreakerSetting(f);
+          const effectiveModel = resolveBreakerDisplayName(saved?.model, f.breakerModel);
           list.push({
             ...f,
-            breakerModel: saved?.model || f.breakerModel,
+            breakerModel: effectiveModel,
             selectivityStatus: saved ? 'FULL' : f.selectivityStatus,
-            selectivityReason: saved ? `Full electronic LSI selectivity (${saved.model})` : f.selectivityReason,
+            selectivityReason: saved ? `Full electronic LSI selectivity (${effectiveModel})` : f.selectivityReason,
             suggestedAlternative: saved ? null : f.suggestedAlternative,
             alternativeSuggestions: saved ? [] : f.alternativeSuggestions,
             buildingId: bldg.id,
@@ -422,37 +445,65 @@ export default function CoordinationPage() {
           });
         }
       } else if (sug.type === 'DOWNSTREAM_RESIZE') {
-        let itemId = selectedFeeder.itemId;
-        if (!itemId && bldg) {
-          for (const fd of bldg.floorDesigns ?? []) {
-            for (const it of fd.items ?? []) {
-              if (
-                `F${fd.floorNumber} – ${it.name}` === selectedFeeder.name ||
-                `F${fd.floorNumber} - ${it.name}` === selectedFeeder.name ||
-                it.name === selectedFeeder.name
-              ) {
-                itemId = it.id;
-                break;
-              }
-            }
-            if (itemId) break;
+        const isSmdb = selectedFeeder.type === 'SMDB' || selectedFeeder.name.includes('SMDB');
+        if (isSmdb) {
+          let floorDesignId = selectedFeeder.floorDesignId;
+          if (!floorDesignId && bldg) {
+            const floorMatch = selectedFeeder.name.match(/F(\d+)/i);
+            const floorNum = floorMatch ? parseInt(floorMatch[1], 10) : selectedFeeder.floor;
+            const fd = (bldg.floorDesigns ?? []).find((f) => f.floorNumber === floorNum);
+            floorDesignId = fd?.id;
           }
-        }
-        if (itemId) {
-          await fetch(`/api/floor-items/${itemId}`, {
+          if (floorDesignId) {
+            await fetch(`/api/floors/${floorDesignId}`, {
+              method: 'PATCH',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ riserBreakerSize: `${sug.suggestedFrameSize}A` }),
+            });
+          }
+        } else if (selectedFeeder.buildingLoadId) {
+          await fetch(`/api/building-loads/${selectedFeeder.buildingLoadId}`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ breakerSize: `${sug.suggestedFrameSize}A` }),
           });
+        } else {
+          let itemId = selectedFeeder.itemId;
+          if (!itemId && bldg) {
+            for (const fd of bldg.floorDesigns ?? []) {
+              for (const it of fd.items ?? []) {
+                if (
+                  `F${fd.floorNumber} – ${it.name}` === selectedFeeder.name ||
+                  `F${fd.floorNumber} - ${it.name}` === selectedFeeder.name ||
+                  it.name === selectedFeeder.name
+                ) {
+                  itemId = it.id;
+                  break;
+                }
+              }
+              if (itemId) break;
+            }
+          }
+          if (itemId) {
+            await fetch(`/api/floor-items/${itemId}`, {
+              method: 'PATCH',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ breakerSize: `${sug.suggestedFrameSize}A` }),
+            });
+          }
         }
       } else if (sug.type === 'SETTINGS_ADJUSTMENT' || sug.type === 'ELECTRONIC_TRIP_UNIT') {
         const stableBreakerId = `${project.id}-${selectedFeeder.name}`;
+        const fullModel = resolveBreakerDisplayName(
+          sug.suggestedModel || selectedFeeder.breakerModel,
+          selectedFeeder.breakerModel
+        );
         await fetch('/api/breaker-settings', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             breakerId: stableBreakerId,
-            model: sug.suggestedModel || selectedFeeder.breakerModel,
+            model: fullModel,
             manufacturer: selectedFeeder.manufacturer || 'Schneider',
             frameSize: `${selectedFeeder.breakerSize}A`,
             ir: selectedFeeder.current,
@@ -514,6 +565,9 @@ export default function CoordinationPage() {
 
   return (
     <div className="p-6 space-y-5 max-w-7xl mx-auto">
+      {/* Workflow Stepper: Step 3 */}
+      <WorkflowStepper currentStep={3} />
+
       {/* Header & Mode Switcher */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
@@ -860,6 +914,27 @@ export default function CoordinationPage() {
                       </div>
                       <p className="text-xs font-semibold text-gray-200">{sug.title}</p>
                       <p className="text-[11px] text-gray-400 leading-snug">{sug.description}</p>
+                      {sug.suggestedModel && (
+                        <div className="flex items-center gap-1.5 text-[11px] font-mono text-blue-400 pt-0.5 flex-wrap">
+                          <Zap size={11} className="text-blue-400 shrink-0" />
+                          <span>{sug.suggestedModel}</span>
+                          {sug.fallbackType === 'OTHER_FAMILY' && (
+                            <span className="text-[9px] font-sans font-semibold px-1 py-0.2 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                              Other Family
+                            </span>
+                          )}
+                          {sug.fallbackType === 'OTHER_BRAND' && (
+                            <span className="text-[9px] font-sans font-semibold px-1 py-0.2 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20">
+                              Alt Brand
+                            </span>
+                          )}
+                          {sug.fallbackType === 'GENERIC_SPEC' && (
+                            <span className="text-[9px] font-sans font-semibold px-1 py-0.2 rounded bg-purple-500/10 text-purple-300 border border-purple-500/20">
+                              Generic Spec
+                            </span>
+                          )}
+                        </div>
+                      )}
                     </div>
                     <button
                       disabled={Boolean(applyingId)}

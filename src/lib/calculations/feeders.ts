@@ -1,9 +1,17 @@
-import { sizeCableAndBreaker, parseMm2, getItemCableLength, getBuildingLoadCableLength } from "./cables";
+import {
+  sizeCableAndBreaker,
+  parseMm2,
+  parseCableSize,
+  formatCableSize,
+  getItemCableLength,
+  getBuildingLoadCableLength,
+  evaluateCableProtection,
+} from "./cables";
 import { phaseBalance } from "./phaseBalance";
 import { calculateShortCircuitCurrent, calculateIscWithCable, getTypicalImpedance } from "./shortCircuit";
 import { verifyCoordination, suggestAlternativeBreaker, type BreakerCurveSettings } from "./selectivity";
 import { calculateThreePhaseCurrent, sizeTransformer } from "./loads";
-import type { Building, BuildingLoad, FloorItem, PanelFeeder, Project } from "@/types";
+import type { Building, BuildingLoad, FloorItem, PanelFeeder, Project, FallbackType, GenericBreakerSpec } from "@/types";
 
 /**
  * Equipment catalog entry — a breaker/MCCB/ACB model from /api/equipment.
@@ -34,6 +42,8 @@ export interface FoundBreaker {
   familyName: string | null;
   ratedCurrent: number | null;
   fallback: boolean;
+  fallbackType: FallbackType;
+  genericSpec?: GenericBreakerSpec;
 }
 
 /**
@@ -171,7 +181,8 @@ export interface DefaultFamilies {
 /**
  * Returns the smallest equipment entry whose ratedCurrent >= the breaker size,
  * filtered by category and poles. When a default family is provided, prefer
- * models from that family; otherwise fall back to the preferred manufacturer.
+ * models from that family; otherwise fall back across same-brand families,
+ * other brands, and finally generic specifications.
  */
 export type FindBreaker = (
   currentRating: number,
@@ -186,17 +197,20 @@ export type FindBreaker = (
 /**
  * Build a model display string from matched equipment.
  */
-function formatBreakerModel(item: EquipmentItem): string {
+function formatBreakerModel(item: EquipmentItem, targetRating?: number): string {
+  if (targetRating && targetRating < item.ratedCurrent) {
+    const replaced = item.model.replace(new RegExp(`\\b${item.ratedCurrent}A?\\b`, 'i'), `${targetRating}A`);
+    return `${item.manufacturer} ${item.series} ${replaced}`;
+  }
   return `${item.manufacturer} ${item.series} ${item.model}`;
 }
 
 /**
- * Find the smallest matching breaker model.
- * 1. Try the selected family (if any) matching category and poles.
- * 2. Fall back to the family's manufacturer + category + poles before trying
- *    the global preferred manufacturer. This keeps a Schneider family from
- *    jumping to ABB just because the sidebar preference is still ABB.
- * 3. Last resort: any row matching category + poles.
+ * Find the smallest matching breaker model using a 4-tier search pipeline:
+ * 1. Tier 1: Search the specific selected Family (SAME_FAMILY)
+ * 2. Tier 2: Search other families of the same brand (OTHER_FAMILY)
+ * 3. Tier 3: Search other active brands in the catalog (OTHER_BRAND)
+ * 4. Tier 4: Generate a detailed generic engineering specification (GENERIC_SPEC)
  */
 export function createFindBreaker(
   equipment: EquipmentItem[],
@@ -212,105 +226,186 @@ export function createFindBreaker(
     const familyManufacturer = familyItem?.manufacturer;
     const familyName = familyItem?.familyName;
 
-    // Helper to attempt finding a matching EquipmentItem for a category & familyId
-    const attemptCategoryMatch = (
-      cat: "ACB" | "MCCB" | "MCB",
-      famId?: string
-    ): { item: EquipmentItem; fallback: boolean } | null => {
-      // For MCB, 1-phase strictly matches 1P/2P (poles <= 2).
-      // For MCCB/ACB (or escalated categories), 3P breakers can also be used for 1-phase heavy feeders.
-      const matchPoles = (e: EquipmentItem) => {
-        if (cat === "MCB") {
-          return poles === 1 ? e.poles <= 2 : e.poles === 3;
-        }
-        return poles === 1 ? e.poles <= 3 : e.poles === 3;
-      };
-
-      // 1. Specified family
-      if (famId) {
-        const familyMatch = equipment
-          .filter(
-            (e) =>
-              e.familyId === famId &&
-              e.category === cat &&
-              matchPoles(e) &&
-              e.ratedCurrent >= currentRating
-          )
-          .sort((a, b) => a.ratedCurrent - b.ratedCurrent)[0];
-
-        if (familyMatch) {
-          return { item: familyMatch, fallback: cat !== category || famId !== requestedFamilyId };
-        }
+    const matchPoles = (e: EquipmentItem, cat: "ACB" | "MCCB" | "MCB") => {
+      if (cat === "MCB") {
+        return poles === 1 ? e.poles <= 2 : e.poles === 3;
       }
-
-      // 2. Manufacturer match (family's manufacturer, option manufacturer, or preferred manufacturer)
-      const mfg =
-        options.manufacturer ??
-        familyManufacturer ??
-        (preferredManufacturer && preferredManufacturer !== "MIXED" ? preferredManufacturer : undefined);
-
-      if (mfg) {
-        const mfgMatch = equipment
-          .filter(
-            (e) =>
-              e.category === cat &&
-              e.manufacturer.toUpperCase() === mfg.toUpperCase() &&
-              matchPoles(e) &&
-              e.ratedCurrent >= currentRating
-          )
-          .sort((a, b) => a.ratedCurrent - b.ratedCurrent)[0];
-
-        if (mfgMatch) {
-          return { item: mfgMatch, fallback: true };
-        }
-      }
-
-      // 3. Any match in category
-      const anyMatch = equipment
-        .filter(
-          (e) => e.category === cat && matchPoles(e) && e.ratedCurrent >= currentRating
-        )
-        .sort((a, b) => a.ratedCurrent - b.ratedCurrent)[0];
-
-      if (anyMatch) {
-        return { item: anyMatch, fallback: true };
-      }
-
-      return null;
+      return poles === 1 ? e.poles <= 3 : e.poles === 3;
     };
 
-    // Step A: Attempt match in requested category
-    let result = attemptCategoryMatch(category, requestedFamilyId);
+    const findInSubset = (
+      items: EquipmentItem[],
+      cat: "ACB" | "MCCB" | "MCB"
+    ): EquipmentItem | null => {
+      return (
+        items
+          .filter(
+            (e) =>
+              e.category === cat &&
+              matchPoles(e, cat) &&
+              e.ratedCurrent >= currentRating
+          )
+          .sort((a, b) => a.ratedCurrent - b.ratedCurrent)[0] || null
+      );
+    };
 
-    // Step B: If requested category is MCB and rating > 63A (MCBs max out at 63A), fallback to MCCB category
-    if (!result && category === "MCB" && currentRating > 63) {
-      const mccbFamilyId = defaultFamilies?.MCCB;
-      result = attemptCategoryMatch("MCCB", mccbFamilyId);
+    // Categories to attempt if rating exceeds or falls below standard category limits
+    const categoriesToAttempt: ("ACB" | "MCCB" | "MCB")[] = [category];
+    if (category === "MCB" && currentRating > 63) {
+      categoriesToAttempt.push("MCCB");
+    }
+    if (category === "MCCB" && currentRating <= 63) {
+      categoriesToAttempt.push("MCB");
+    }
+    if ((category === "MCB" || category === "MCCB") && currentRating > 630) {
+      categoriesToAttempt.push("ACB");
     }
 
-    // Step C: If still no match and category is MCCB and rating > 630A, fallback to ACB category
-    if (!result && category === "MCCB" && currentRating > 630) {
-      const acbFamilyId = defaultFamilies?.ACB;
-      result = attemptCategoryMatch("ACB", acbFamilyId);
+    const preferredBrand = (
+      options.manufacturer ??
+      familyManufacturer ??
+      (preferredManufacturer && preferredManufacturer !== "MIXED" ? preferredManufacturer : undefined)
+    )?.toUpperCase();
+
+    // -----------------------------------------------------------------
+    // Tier 1: Search the specific selected Family (SAME_FAMILY)
+    // -----------------------------------------------------------------
+    let tier1Match: EquipmentItem | null = null;
+    if (requestedFamilyId) {
+      for (const cat of categoriesToAttempt) {
+        const match = findInSubset(
+          equipment.filter((e) => e.familyId === requestedFamilyId),
+          cat
+        );
+        if (match) {
+          tier1Match = match;
+          break;
+        }
+      }
     }
 
-    if (result) {
+    if (tier1Match && tier1Match.ratedCurrent === currentRating) {
       return {
-        model: formatBreakerModel(result.item),
-        manufacturer: result.item.manufacturer,
-        familyName: result.item.familyName,
-        ratedCurrent: result.item.ratedCurrent,
-        fallback: result.fallback,
+        model: formatBreakerModel(tier1Match, currentRating),
+        manufacturer: tier1Match.manufacturer,
+        familyName: tier1Match.familyName,
+        ratedCurrent: tier1Match.ratedCurrent,
+        fallback: false,
+        fallbackType: 'SAME_FAMILY',
       };
     }
 
-    // Step D: Fallback if NO equipment entry exists in DB for this rating
+    // -----------------------------------------------------------------
+    // Tier 2: Search other families of the SAME BRAND (OTHER_FAMILY)
+    // -----------------------------------------------------------------
+    let tier2Match: EquipmentItem | null = null;
+    if (preferredBrand) {
+      for (const cat of categoriesToAttempt) {
+        const match = findInSubset(
+          equipment.filter(
+            (e) =>
+              e.manufacturer.toUpperCase() === preferredBrand &&
+              (!requestedFamilyId || e.familyId !== requestedFamilyId)
+          ),
+          cat
+        );
+        if (match) {
+          tier2Match = match;
+          break;
+        }
+      }
+    }
+
+    if (tier1Match) {
+      // If Tier 2 has a significantly closer rating to what was requested (e.g. 50A vs 100A), prefer Tier 2
+      if (tier2Match && tier2Match.ratedCurrent < tier1Match.ratedCurrent) {
+        return {
+          model: formatBreakerModel(tier2Match, currentRating),
+          manufacturer: tier2Match.manufacturer,
+          familyName: tier2Match.familyName,
+          ratedCurrent: tier2Match.ratedCurrent,
+          fallback: true,
+          fallbackType: 'OTHER_FAMILY',
+        };
+      }
+      return {
+        model: formatBreakerModel(tier1Match, currentRating),
+        manufacturer: tier1Match.manufacturer,
+        familyName: tier1Match.familyName,
+        ratedCurrent: tier1Match.ratedCurrent,
+        fallback: false,
+        fallbackType: 'SAME_FAMILY',
+      };
+    }
+
+    if (tier2Match) {
+      return {
+        model: formatBreakerModel(tier2Match, currentRating),
+        manufacturer: tier2Match.manufacturer,
+        familyName: tier2Match.familyName,
+        ratedCurrent: tier2Match.ratedCurrent,
+        fallback: true,
+        fallbackType: 'OTHER_FAMILY',
+      };
+    }
+
+    // -----------------------------------------------------------------
+    // Tier 3: Search OTHER BRANDS in the catalog (OTHER_BRAND)
+    // -----------------------------------------------------------------
+    for (const cat of categoriesToAttempt) {
+      const match = findInSubset(
+        equipment.filter(
+          (e) => !preferredBrand || e.manufacturer.toUpperCase() !== preferredBrand
+        ),
+        cat
+      );
+      if (match) {
+        return {
+          model: formatBreakerModel(match, currentRating),
+          manufacturer: match.manufacturer,
+          familyName: match.familyName,
+          ratedCurrent: match.ratedCurrent,
+          fallback: true,
+          fallbackType: 'OTHER_BRAND',
+        };
+      }
+    }
+
+    // -----------------------------------------------------------------
+    // Tier 4: Generic Engineering Specification (GENERIC_SPEC)
+    // -----------------------------------------------------------------
+    const effectiveCategory: 'ACB' | 'MCCB' | 'MCB' =
+      currentRating >= 630 ? 'ACB' : currentRating > 63 ? 'MCCB' : category;
+    const requiredIcu = effectiveCategory === 'ACB' ? 50 : effectiveCategory === 'MCCB' ? 36 : 10;
+    const tripUnitType =
+      effectiveCategory === 'ACB'
+        ? 'Electronic LSI / LSIG (Adjustable Ir, Isd, tsd, Ii)'
+        : effectiveCategory === 'MCCB'
+        ? currentRating >= 160
+          ? 'Electronic LSI (Adjustable Ir, Isd, tsd)'
+          : 'Thermal-Magnetic (Fixed / Adjustable TMD)'
+        : 'Thermal-Magnetic Type C (IEC 60898-1)';
+    const standard =
+      effectiveCategory === 'MCB' ? 'IEC 60898-1 / IEC 60947-2' : 'IEC 60947-2';
+
+    const genericSpec: GenericBreakerSpec = {
+      ratingAmps: currentRating,
+      category: effectiveCategory,
+      poles: poles === 1 ? (effectiveCategory === 'MCB' ? 1 : 3) : 3,
+      requiredIcuKa: requiredIcu,
+      tripUnitType,
+      standard,
+      procurementNotes: `Procure ${currentRating}A ${effectiveCategory} ${poles === 1 && effectiveCategory === 'MCB' ? '1P' : '3P'} breaker compliant with ${standard}, min Icu=${requiredIcu}kA, trip unit: ${tripUnitType}.`,
+    };
+
     return {
-      model: null,
-      manufacturer: familyManufacturer ?? null,
-      familyName: familyName ?? null,
-      ratedCurrent: null,
-      fallback: false,
+      model: `Generic ${effectiveCategory} ${currentRating}A ${poles === 1 && effectiveCategory === 'MCB' ? '1P' : '3P'} (${requiredIcu}kA)`,
+      manufacturer: null,
+      familyName: null,
+      ratedCurrent: currentRating,
+      fallback: true,
+      fallbackType: 'GENERIC_SPEC',
+      genericSpec,
     };
   };
 }
@@ -370,13 +465,11 @@ function feederFromItem(
   const category = categoryForFloorItem(item, targetBreaker);
   const poles: 1 | 3 = isThreePhase ? 3 : 1;
   const match = findBreaker(targetBreaker, category, poles);
-  // The selected model determines the real breaker rating. If the catalog's
-  // smallest model is larger than the design breaker size, size the cable to
-  // the actual model rating so breaker and cable stay consistent.
-  const actualBreakerSize = Math.max(
-    targetBreaker,
-    match.ratedCurrent ?? 0
-  );
+  // If the user specified an explicit breaker rating (e.g. 200A), honor that rating.
+  // Otherwise if auto-sizing, use the catalog frame if larger than the calculated breaker size.
+  const actualBreakerSize = manualBreaker && !isNaN(manualBreaker)
+    ? manualBreaker
+    : Math.max(targetBreaker, match.ratedCurrent ?? 0);
   const finalSizing =
     actualBreakerSize > sizing.breakerSize
       ? sizeCableAndBreaker(actualBreakerSize, isThreePhase, {
@@ -387,19 +480,36 @@ function feederFromItem(
           installMethod,
         })
       : sizing;
-  const effectiveCableSize = parseMm2(item.cableSize) ?? finalSizing.cableSize;
+  const parsedItemCable = parseCableSize(item.cableSize);
+  const effectiveCableSize = parsedItemCable?.size ?? finalSizing.cableSize;
+  const cableInputForEval = item.cableSize ?? finalSizing.formattedCableSize;
+  const protEval = evaluateCableProtection(cableInputForEval, actualBreakerSize, isThreePhase, {
+    insulation,
+    ambientTemp,
+    groupingCount,
+    installMethod,
+  });
+
   return {
     name: `F${floorNumber} – ${item.name}`,
     type: item.type,
     current: item.calculatedCurrent,
     breakerSize: actualBreakerSize,
     cableSize: effectiveCableSize,
+    parallelRuns: protEval.parallelRuns,
+    formattedCableSize: protEval.formattedCableSize,
+    cableIz: protEval.deratedAmpacity,
+    isUnderProtected: protEval.isUnderProtected,
+    recommendedCableSize: protEval.recommendedCableSizeMm2,
+    recommendedCableSizeFormatted: protEval.recommendedCableSizeFormatted,
     breakerModel:
       match.model ??
       `${match.manufacturer ? match.manufacturer + " " : ""}${match.familyName ? match.familyName + " " : ""}${category} ${actualBreakerSize}`.trim(),
     manufacturer: match.manufacturer,
     familyName: match.familyName,
     fallback: match.fallback,
+    fallbackType: match.fallbackType,
+    genericSpec: match.genericSpec,
     isThreePhase,
     assignedPhase: item.assignedPhase ?? null,
     itemId: item.id,
@@ -412,7 +522,7 @@ function feederFromItem(
  * Building-load feeder (elevator, water pump, fire pump, split AC, central AC).
  * These are mechanical loads sized from the attached LoadLibraryItem's power × quantity.
  * `current` and `isThreePhase` are computed by the caller from the library item so a
- * 1-phase library item stays 1-phase; routing is MCCB (building service loads).
+ * 1-phase library item stays 1-phase; routing is MCCB (or MCB for <=63A).
  */
 function feederFromBuildingLoad(
   name: string,
@@ -436,9 +546,14 @@ function feederFromBuildingLoad(
     groupingCount,
     installMethod,
   });
+  const manualBreaker = load.breakerSize ? parseInt(load.breakerSize.replace(/[^\d.]/g, ''), 10) : null;
+  const targetBreaker = manualBreaker && !isNaN(manualBreaker) ? manualBreaker : sizing.breakerSize;
+  const category: "ACB" | "MCCB" | "MCB" = targetBreaker >= 630 ? "ACB" : targetBreaker > 63 ? "MCCB" : "MCB";
   const poles: 1 | 3 = isThreePhase ? 3 : 1;
-  const match = findBreaker(sizing.breakerSize, "MCCB", poles);
-  const actualBreakerSize = Math.max(sizing.breakerSize, match.ratedCurrent ?? 0);
+  const match = findBreaker(targetBreaker, category, poles);
+  const actualBreakerSize = manualBreaker && !isNaN(manualBreaker)
+    ? manualBreaker
+    : Math.max(targetBreaker, match.ratedCurrent ?? 0);
   const finalSizing =
     actualBreakerSize > sizing.breakerSize
       ? sizeCableAndBreaker(actualBreakerSize, isThreePhase, {
@@ -449,19 +564,36 @@ function feederFromBuildingLoad(
           installMethod,
         })
       : sizing;
-  const effectiveCableSize = parseMm2(load.cableSize) ?? finalSizing.cableSize;
+  const parsedLoadCable = parseCableSize(load.cableSize);
+  const effectiveCableSize = parsedLoadCable?.size ?? finalSizing.cableSize;
+  const cableInputForEval = load.cableSize ?? finalSizing.formattedCableSize;
+  const protEval = evaluateCableProtection(cableInputForEval, actualBreakerSize, isThreePhase, {
+    insulation,
+    ambientTemp,
+    groupingCount,
+    installMethod,
+  });
+
   return {
     name,
     type,
     current,
     breakerSize: actualBreakerSize,
     cableSize: effectiveCableSize,
+    parallelRuns: protEval.parallelRuns,
+    formattedCableSize: protEval.formattedCableSize,
+    cableIz: protEval.deratedAmpacity,
+    isUnderProtected: protEval.isUnderProtected,
+    recommendedCableSize: protEval.recommendedCableSizeMm2,
+    recommendedCableSizeFormatted: protEval.recommendedCableSizeFormatted,
     breakerModel:
       match.model ??
-      `${match.manufacturer ? match.manufacturer + " " : ""}${match.familyName ? match.familyName + " " : ""}MCCB ${actualBreakerSize}`.trim(),
+      `${match.manufacturer ? match.manufacturer + " " : ""}${match.familyName ? match.familyName + " " : ""}${category} ${actualBreakerSize}`.trim(),
     manufacturer: match.manufacturer,
     familyName: match.familyName,
     fallback: match.fallback,
+    fallbackType: match.fallbackType,
+    genericSpec: match.genericSpec,
     isThreePhase,
     assignedPhase: load.assignedPhase ?? null,
     buildingLoadId: load.id,
@@ -532,7 +664,9 @@ export function computeFeeders(
       const targetRiserBreaker = manualRiserBreaker && !isNaN(manualRiserBreaker) ? manualRiserBreaker : sizing.breakerSize;
       const riserCategory = targetRiserBreaker >= 630 ? "ACB" : "MCCB";
       const match = findBreaker(targetRiserBreaker, riserCategory, riserPoles);
-      const actualBreakerSize = Math.max(targetRiserBreaker, match.ratedCurrent ?? 0);
+      const actualBreakerSize = manualRiserBreaker && !isNaN(manualRiserBreaker)
+        ? manualRiserBreaker
+        : Math.max(targetRiserBreaker, match.ratedCurrent ?? 0);
       const finalSizing =
         actualBreakerSize > sizing.breakerSize
           ? sizeCableAndBreaker(actualBreakerSize, riserIsThreePhase, {
@@ -543,19 +677,36 @@ export function computeFeeders(
               installMethod: riserInstallMethod,
             })
           : sizing;
-      const effectiveRiserSize = parseMm2(fd.riserCableSize) ?? finalSizing.cableSize;
+      const parsedRiserCable = parseCableSize(fd.riserCableSize);
+      const effectiveRiserSize = parsedRiserCable?.size ?? finalSizing.cableSize;
+      const cableInputForEval = fd.riserCableSize ?? finalSizing.formattedCableSize;
+      const riserProtEval = evaluateCableProtection(cableInputForEval, actualBreakerSize, riserIsThreePhase, {
+        insulation: riserInsulation,
+        ambientTemp: riserAmbientTemp,
+        groupingCount: riserGroupingCount,
+        installMethod: riserInstallMethod,
+      });
+
       mdbFeeders.push({
         name: `F${fd.floorNumber} – SMDB`,
         type: "SMDB",
         current: floorCurrent,
         breakerSize: actualBreakerSize,
         cableSize: effectiveRiserSize,
+        parallelRuns: riserProtEval.parallelRuns,
+        formattedCableSize: riserProtEval.formattedCableSize,
+        cableIz: riserProtEval.deratedAmpacity,
+        isUnderProtected: riserProtEval.isUnderProtected,
+        recommendedCableSize: riserProtEval.recommendedCableSizeMm2,
+        recommendedCableSizeFormatted: riserProtEval.recommendedCableSizeFormatted,
         breakerModel:
           match.model ??
           `${match.manufacturer ?? ""} ${riserCategory} ${actualBreakerSize}`.trim(),
         manufacturer: match.manufacturer,
         familyName: match.familyName,
         fallback: match.fallback,
+        fallbackType: match.fallbackType,
+        genericSpec: match.genericSpec,
         isThreePhase: riserIsThreePhase, // physical riser is always 3-phase off the MDB bus
         floorDesignId: fd.id,
         // Per-phase balance fields for the MDB schedule columns (T6).

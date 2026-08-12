@@ -41,6 +41,7 @@ const findBreaker: FindBreaker = (currentRating, category) => {
       familyName: match.familyName,
       ratedCurrent: match.ratedCurrent,
       fallback: false,
+      fallbackType: 'SAME_FAMILY',
     };
   }
   return {
@@ -49,6 +50,7 @@ const findBreaker: FindBreaker = (currentRating, category) => {
     familyName: null,
     ratedCurrent: null,
     fallback: true,
+    fallbackType: 'GENERIC_SPEC',
   };
 };
 
@@ -58,6 +60,7 @@ const noBreaker: FindBreaker = () => ({
   familyName: null,
   ratedCurrent: null,
   fallback: true,
+  fallbackType: 'GENERIC_SPEC',
 });
 
 const baseProject: Project = {

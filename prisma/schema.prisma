@@ -108,6 +108,7 @@ model BuildingLoad {
   loadLibraryItemId String?
   loadLibraryItem   LoadLibraryItem? @relation(fields: [loadLibraryItemId], references: [id], onDelete: SetNull)
   quantity          Int              @default(1)
+  breakerSize       String?
   cableSize         String?
   cableLength       Float?
   installMethod     String?

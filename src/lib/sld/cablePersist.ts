@@ -15,9 +15,10 @@ export function cablePatchUrl(kind: CableKind, id: string): string {
 }
 
 /** One cable "size upsize" — PATCH body for applyChanges. */
-export function upsizeBody(newCableSize: number, kind: CableKind): Record<string, string> {
-  if (kind === 'sdb') return { riserCableSize: `${newCableSize}` };
-  return { cableSize: `${newCableSize}` };
+export function upsizeBody(newCableSize: number | string, kind: CableKind): Record<string, string> {
+  const sizeStr = typeof newCableSize === 'number' ? `${newCableSize}` : newCableSize;
+  if (kind === 'sdb') return { riserCableSize: sizeStr };
+  return { cableSize: sizeStr };
 }
 
 /** Single-field edits (length/method/insulation/ambientTemp/groupingCount) — PATCH body for updateCableField. */

@@ -20,10 +20,12 @@ describe('cable persistence dispatch', () => {
   describe('upsizeBody', () => {
     it('uses riserCableSize for SDB', () => {
       expect(upsizeBody(240, 'sdb')).toEqual({ riserCableSize: '240' });
+      expect(upsizeBody('2 × 240 mm²', 'sdb')).toEqual({ riserCableSize: '2 × 240 mm²' });
     });
     it('uses cableSize for floor and building', () => {
       expect(upsizeBody(16, 'floor')).toEqual({ cableSize: '16' });
       expect(upsizeBody(25, 'building')).toEqual({ cableSize: '25' });
+      expect(upsizeBody('2 × 240 mm²', 'building')).toEqual({ cableSize: '2 × 240 mm²' });
     });
   });
 

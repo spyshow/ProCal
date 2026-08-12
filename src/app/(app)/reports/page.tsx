@@ -23,6 +23,7 @@ import CableSchedule from '@/components/report/CableSchedule';
 import BreakerSchedule from '@/components/report/BreakerSchedule';
 import VDSchedule from '@/components/report/VDSchedule';
 import type { Project, ReportTab } from '@/types';
+import WorkflowStepper from '@/components/layout/WorkflowStepper';
 
 export default function ReportsPage() {
   const { selectedProjectId, selectedProject, loading: contextLoading, preferredManufacturer } = useProject();
@@ -85,7 +86,7 @@ export default function ReportsPage() {
     documentTitle: project?.name ? `${project.name} - Report` : 'Report',
   });
 
-  if (loading || (!project && (contextLoading || selectedProjectId))) {
+  if (!project && (loading || contextLoading || selectedProjectId)) {
     return <PageSkeleton titleWidth="w-56" rowCount={6} />;
   }
 
@@ -266,6 +267,11 @@ export default function ReportsPage() {
 
   return (
     <div className="p-6 space-y-5 max-w-7xl mx-auto print:p-0 print:w-full print:max-w-none print:m-0">
+      {/* Workflow Stepper: Step 8 */}
+      <div className="print:hidden">
+        <WorkflowStepper currentStep={8} />
+      </div>
+
       <div className="flex items-center justify-between print:hidden">
         <div>
           <h1 className="text-2xl font-bold text-white flex items-center gap-2">

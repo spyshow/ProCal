@@ -245,9 +245,30 @@ export default function TccPlotModal({
                       </div>
                       <p className="text-xs text-gray-400 leading-relaxed">{sug.description}</p>
                       {sug.suggestedModel && (
-                        <div className="flex items-center gap-2 text-xs font-mono text-blue-400 pt-0.5">
+                        <div className="flex items-center gap-2 text-xs font-mono text-blue-400 pt-0.5 flex-wrap">
                           <Zap size={12} className="text-blue-400 shrink-0" />
                           <span>Suggested Model: <strong>{sug.suggestedModel}</strong></span>
+                          {sug.fallbackType === 'OTHER_FAMILY' && (
+                            <span className="text-[10px] font-sans font-semibold px-1.5 py-0.5 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                              Catalog Fallback
+                            </span>
+                          )}
+                          {sug.fallbackType === 'OTHER_BRAND' && (
+                            <span className="text-[10px] font-sans font-semibold px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20">
+                              Cross-Brand
+                            </span>
+                          )}
+                          {sug.fallbackType === 'GENERIC_SPEC' && (
+                            <span className="text-[10px] font-sans font-semibold px-1.5 py-0.5 rounded bg-purple-500/10 text-purple-300 border border-purple-500/20" title={sug.genericSpec?.procurementNotes}>
+                              Generic Spec
+                            </span>
+                          )}
+                        </div>
+                      )}
+                      {sug.genericSpec?.procurementNotes && (
+                        <div className="text-[11px] text-gray-400 bg-gray-950/60 p-2 rounded border border-gray-800 font-sans mt-1">
+                          <strong className="text-gray-300">Procurement Spec: </strong>
+                          {sug.genericSpec.procurementNotes}
                         </div>
                       )}
                     </div>

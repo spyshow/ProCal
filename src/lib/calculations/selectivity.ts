@@ -1,3 +1,4 @@
+import { parseCableSize } from "./cables";
 import { assertNonNegative, assertPositive } from "./validate";
 
 export interface CurvePoint {
@@ -244,12 +245,14 @@ export function generateCurvePoints(settings: BreakerCurveSettings): CurvePoint[
  * - Aluminum + PVC (70°C): k = 95
  */
 export function calculateCableWithstandTime(
-  cableSizeMm2: number,
+  cableInput: number | string,
   currentAmps: number,
   material: 'copper' | 'aluminum' = 'copper',
   insulation: 'PVC' | 'XLPE' = 'XLPE'
 ): number {
-  assertPositive('cableSizeMm2', cableSizeMm2);
+  const parsed = typeof cableInput === 'string' ? parseCableSize(cableInput) : null;
+  const effectiveArea = parsed ? parsed.size * parsed.runs : (typeof cableInput === 'number' ? cableInput : 16);
+  assertPositive('cableSizeMm2', effectiveArea);
   assertNonNegative('currentAmps', currentAmps);
 
   if (currentAmps <= 0) return 10000;
@@ -258,7 +261,7 @@ export function calculateCableWithstandTime(
     ? (insulation === 'XLPE' ? 176 : 143)
     : (insulation === 'XLPE' ? 116 : 95);
 
-  const t = Math.pow((k * cableSizeMm2) / currentAmps, 2);
+  const t = Math.pow((k * effectiveArea) / currentAmps, 2);
   return Math.max(0.001, Math.min(10000, t));
 }
 
@@ -266,12 +269,10 @@ export function calculateCableWithstandTime(
  * Generates coordinate points for plotting cable thermal damage curve.
  */
 export function generateCableDamageCurve(
-  cableSizeMm2: number,
+  cableInput: number | string,
   material: 'copper' | 'aluminum' = 'copper',
   insulation: 'PVC' | 'XLPE' = 'XLPE'
 ): CurvePoint[] {
-  assertPositive('cableSizeMm2', cableSizeMm2);
-
   const points: CurvePoint[] = [];
   const minI = 50;
   const maxI = 50000;
@@ -282,7 +283,7 @@ export function generateCableDamageCurve(
 
   for (let i = 0; i <= steps; i++) {
     const current = Math.pow(10, logMin + i * step);
-    const time = calculateCableWithstandTime(cableSizeMm2, current, material, insulation);
+    const time = calculateCableWithstandTime(cableInput, current, material, insulation);
     if (time >= 0.01 && time <= 10000) {
       points.push({
         current: parseFloat(current.toFixed(1)),
@@ -299,13 +300,15 @@ export function generateCableDamageCurve(
  * cable thermal damage under fault currents up to the prospective short circuit.
  */
 export function checkCableProtection(
-  cableSizeMm2: number,
+  cableInput: number | string,
   downstream: BreakerCurveSettings,
   availableFaultCurrentAmps: number,
   material: 'copper' | 'aluminum' = 'copper',
   insulation: 'PVC' | 'XLPE' = 'XLPE'
 ): boolean {
-  if (cableSizeMm2 <= 0 || availableFaultCurrentAmps <= 0) return true;
+  const parsed = typeof cableInput === 'string' ? parseCableSize(cableInput) : null;
+  const effectiveArea = parsed ? parsed.size * parsed.runs : (typeof cableInput === 'number' ? cableInput : 16);
+  if (effectiveArea <= 0 || availableFaultCurrentAmps <= 0) return true;
 
   // Test across critical fault points: 5x In, 10x In, 20x In, and available fault current
   const testPoints = [
@@ -317,7 +320,7 @@ export function checkCableProtection(
 
   for (const current of testPoints) {
     const tripTime = getTripTimeForCurrent(downstream, current);
-    const withstandTime = calculateCableWithstandTime(cableSizeMm2, current, material, insulation);
+    const withstandTime = calculateCableWithstandTime(cableInput, current, material, insulation);
 
     // If breaker trip time exceeds cable withstand time, cable will overheat
     if (tripTime > withstandTime) {
@@ -584,19 +587,8 @@ export interface SuggestAlternativeOptions {
   preferredManufacturer?: string;
 }
 
-export interface BreakerAlternativeSuggestion {
-  id: string;
-  type: 'UPSTREAM_UPGRADE' | 'DOWNSTREAM_RESIZE' | 'ELECTRONIC_TRIP_UNIT' | 'SETTINGS_ADJUSTMENT' | 'DIRECT_MDB_FEED';
-  badge: string;
-  title: string;
-  description: string;
-  suggestedModel?: string;
-  suggestedFrameSize?: number;
-  suggestedSettings?: Partial<BreakerCurveSettings>;
-  expectedSelectivity: 'FULL' | 'PARTIAL';
-  expectedLimitKa?: number;
-  actionText?: string;
-}
+export type { BreakerAlternativeSuggestion, FallbackType, GenericBreakerSpec } from "@/types";
+import type { BreakerAlternativeSuggestion, FallbackType, GenericBreakerSpec } from "@/types";
 
 const STANDARD_BREAKER_SIZES = [
   16, 20, 25, 32, 40, 50, 63, 80, 100, 125, 160, 200, 250, 320, 400, 630, 800, 1000, 1250, 1600, 2000, 2500, 3200, 4000
@@ -628,13 +620,18 @@ export function suggestAlternativeBreaker(
     Math.max(250, upstream.inRating * 2);
 
   let suggestedUpstreamModel = `${targetUpstreamSize}A Electronic LSI Breaker`;
+  let upstreamFallbackType: FallbackType = 'GENERIC_SPEC';
+  let upstreamGenericSpec: GenericBreakerSpec | undefined;
+
   if (isSchneider) {
+    upstreamFallbackType = 'SAME_FAMILY';
     if (targetUpstreamSize <= 630) {
       suggestedUpstreamModel = `Schneider ComPacT NSX${targetUpstreamSize} ${targetUpstreamSize}A MicroLogic 2.3`;
     } else {
       suggestedUpstreamModel = `Schneider MasterPact MTZ1 ${targetUpstreamSize}A MicroLogic 5.0 X`;
     }
   } else if (isAbb) {
+    upstreamFallbackType = 'SAME_FAMILY';
     if (targetUpstreamSize <= 250) {
       suggestedUpstreamModel = `ABB Tmax XT4 ${targetUpstreamSize}A Ekip Dip LSI`;
     } else if (targetUpstreamSize <= 630) {
@@ -642,6 +639,16 @@ export function suggestAlternativeBreaker(
     } else {
       suggestedUpstreamModel = `ABB Emax 2 E1.2 ${targetUpstreamSize}A Ekip Touch`;
     }
+  } else {
+    upstreamGenericSpec = {
+      ratingAmps: targetUpstreamSize,
+      category: targetUpstreamSize >= 630 ? 'ACB' : 'MCCB',
+      poles: 3,
+      requiredIcuKa: targetUpstreamSize >= 630 ? 50 : 36,
+      tripUnitType: 'Electronic LSI (Adjustable Ir, Isd, tsd, Ii)',
+      standard: 'IEC 60947-2',
+      procurementNotes: `Procure ${targetUpstreamSize}A ${targetUpstreamSize >= 630 ? 'ACB' : 'MCCB'} 3P breaker with electronic LSI trip unit and min Icu=${targetUpstreamSize >= 630 ? 50 : 36}kA.`,
+    };
   }
 
   suggestions.push({
@@ -652,6 +659,8 @@ export function suggestAlternativeBreaker(
     description: `Current grading requires Upstream Ir ≥ 1.6× Downstream Ir (${downstream.ir.toFixed(1)}A). Upgrading upstream to ${targetUpstreamSize}A provides the required margin (ratio: ${(targetUpstreamSize / downstream.ir).toFixed(2)}x) and achieves FULL discrimination.`,
     suggestedModel: suggestedUpstreamModel,
     suggestedFrameSize: targetUpstreamSize,
+    fallbackType: upstreamFallbackType,
+    genericSpec: upstreamGenericSpec,
     expectedSelectivity: 'FULL',
     actionText: `Select ${targetUpstreamSize}A Upstream Breaker`,
   });
@@ -673,10 +682,34 @@ export function suggestAlternativeBreaker(
   const optimalDownstreamSize = STANDARD_BREAKER_SIZES.find((s) => s >= loadCurrent * 1.25);
   if (optimalDownstreamSize && optimalDownstreamSize < downstream.inRating) {
     let suggestedDownstreamModel = `${optimalDownstreamSize}A LSI Breaker`;
+    let downFallbackType: FallbackType = 'GENERIC_SPEC';
+    let downGenericSpec: GenericBreakerSpec | undefined;
+
     if (isSchneider) {
-      suggestedDownstreamModel = `Schneider ComPacT NSX${optimalDownstreamSize} ${optimalDownstreamSize}A MicroLogic 2.2`;
+      downFallbackType = 'SAME_FAMILY';
+      if (optimalDownstreamSize <= 63) {
+        suggestedDownstreamModel = `Schneider Acti9 iC60N ${optimalDownstreamSize}A 3P Curve C`;
+      } else {
+        const frame = optimalDownstreamSize <= 100 ? '100' : optimalDownstreamSize <= 160 ? '160' : optimalDownstreamSize <= 250 ? '250' : optimalDownstreamSize <= 400 ? '400' : '630';
+        suggestedDownstreamModel = `Schneider ComPacT NSX${frame} ${optimalDownstreamSize}A MicroLogic 2.2`;
+      }
     } else if (isAbb) {
-      suggestedDownstreamModel = `ABB Tmax XT${optimalDownstreamSize <= 250 ? '4' : '5'} ${optimalDownstreamSize}A Ekip Dip`;
+      downFallbackType = 'SAME_FAMILY';
+      if (optimalDownstreamSize <= 63) {
+        suggestedDownstreamModel = `ABB System pro M compact S203-C${optimalDownstreamSize}`;
+      } else {
+        suggestedDownstreamModel = `ABB Tmax XT${optimalDownstreamSize <= 250 ? '4' : '5'} ${optimalDownstreamSize}A Ekip Dip`;
+      }
+    } else {
+      downGenericSpec = {
+        ratingAmps: optimalDownstreamSize,
+        category: optimalDownstreamSize >= 630 ? 'ACB' : optimalDownstreamSize > 63 ? 'MCCB' : 'MCB',
+        poles: downstream.category === 'MCB' ? 1 : 3,
+        requiredIcuKa: optimalDownstreamSize > 63 ? 36 : 10,
+        tripUnitType: optimalDownstreamSize > 63 ? 'Electronic LSI / TMD' : 'Thermal-Magnetic Type C',
+        standard: optimalDownstreamSize > 63 ? 'IEC 60947-2' : 'IEC 60898-1',
+        procurementNotes: `Procure ${optimalDownstreamSize}A breaker compliant with standard specifications.`,
+      };
     }
 
     suggestions.push({
@@ -687,6 +720,8 @@ export function suggestAlternativeBreaker(
       description: `Downstream frame (${downstream.inRating}A) is oversized for the design current (${loadCurrent.toFixed(1)}A). Reducing to ${optimalDownstreamSize}A restores current grading against upstream ${upstream.inRating}A.`,
       suggestedModel: suggestedDownstreamModel,
       suggestedFrameSize: optimalDownstreamSize,
+      fallbackType: downFallbackType,
+      genericSpec: downGenericSpec,
       expectedSelectivity: upstream.ir >= optimalDownstreamSize * 1.6 ? 'FULL' : 'PARTIAL',
       actionText: `Set downstream to ${optimalDownstreamSize}A`,
     });
@@ -712,11 +747,25 @@ export function suggestAlternativeBreaker(
   if (downstream.category === 'MCCB') {
     const tripUnitName = isSchneider ? 'MicroLogic 5.2 E' : 'Ekip Touch LSI';
     const currentModel = downstream.model || '';
-    const upgradedModel = currentModel.includes('MicroLogic')
-      ? currentModel.replace(/MicroLogic\s*[\d.]+\s*[a-zA-Z]*/i, tripUnitName)
-      : currentModel.includes('Ekip')
-      ? currentModel.replace(/Ekip\s*[\w\s]+/i, tripUnitName)
-      : `${currentModel ? currentModel + ' ' : ''}${tripUnitName}`.trim();
+    let upgradedModel = '';
+
+    if (currentModel && !/^(?:ACB|MCCB|MCB)\s+\d+A?$/i.test(currentModel.trim())) {
+      if (currentModel.includes('MicroLogic')) {
+        upgradedModel = currentModel.replace(/MicroLogic\s*[\d.]+\s*[a-zA-Z]*/i, tripUnitName);
+      } else if (currentModel.includes('Ekip')) {
+        upgradedModel = currentModel.replace(/Ekip\s*[\w\s]+/i, tripUnitName);
+      } else {
+        upgradedModel = `${currentModel} ${tripUnitName}`.trim();
+      }
+    } else {
+      if (isSchneider) {
+        upgradedModel = `Schneider ComPacT NSX${downstream.inRating} NSX${downstream.inRating}N ${downstream.inRating}A ${tripUnitName}`;
+      } else if (isAbb) {
+        upgradedModel = `ABB Tmax XT${downstream.inRating <= 250 ? '4' : '5'} ${downstream.inRating}A ${tripUnitName}`;
+      } else {
+        upgradedModel = `Generic MCCB ${downstream.inRating}A 3P (${tripUnitName})`;
+      }
+    }
 
     suggestions.push({
       id: 'sug-trip-unit',

@@ -803,17 +803,19 @@ export function computeFeeders(
   const mainCategory = mainSizing.breakerSize < 630 ? 'MCCB' : 'ACB';
   const mainMatch = findBreaker(mainSizing.breakerSize, mainCategory, 3);
   const mainBreakerSize = Math.max(mainSizing.breakerSize, mainMatch.ratedCurrent ?? 0);
+  const mainBreakerIn = Math.max(16, mainBreakerSize);
+  const mainIr = Math.max(16, mainIncomerCurrent > 0 ? mainIncomerCurrent : mainBreakerIn);
 
   const mainIncomerSettings: BreakerCurveSettings = {
-    inRating: mainBreakerSize,
-    ir: mainIncomerCurrent,
+    inRating: mainBreakerIn,
+    ir: mainIr,
     tr: 12,
-    isd: mainBreakerSize * 4,
+    isd: mainBreakerIn * 4,
     tsd: 0.3,
-    ii: mainBreakerSize * 10,
-    category: mainBreakerSize >= 630 ? 'ACB' : 'MCCB',
+    ii: mainBreakerIn * 10,
+    category: mainBreakerIn >= 630 ? 'ACB' : 'MCCB',
     manufacturer: mainMatch.manufacturer ?? project.preferredManufacturer ?? 'ABB',
-    model: mainMatch.model ?? `Main ${mainCategory} ${mainBreakerSize}`,
+    model: mainMatch.model ?? `Main ${mainCategory} ${mainBreakerIn}`,
   };
 
   // 3. Process MDB Feeders against Main Incomer
@@ -848,13 +850,16 @@ export function computeFeeders(
     const terminalIscKa = calculateIscWithCable(transformerIscKa, cableLength, f.cableSize, feederVoltage, true);
     f.faultCurrentKa = terminalIscKa;
 
+    const dsInRating = Math.max(6, f.breakerSize || 10);
+    const dsIr = Math.max(6, f.current > 0 ? f.current : dsInRating);
+
     const downstreamSettings: BreakerCurveSettings = {
-      inRating: f.breakerSize,
-      ir: f.current,
+      inRating: dsInRating,
+      ir: dsIr,
       tr: 12,
-      isd: f.isThreePhase ? f.breakerSize * 4 : undefined,
+      isd: f.isThreePhase ? dsInRating * 4 : undefined,
       tsd: f.isThreePhase ? 0.1 : undefined,
-      ii: f.isThreePhase ? f.breakerSize * 10 : f.breakerSize * 5,
+      ii: f.isThreePhase ? dsInRating * 10 : dsInRating * 5,
       category: f.type === 'SMDB' || f.type === 'SERVICE_PANEL' || f.type === 'PUMP_PANEL' || f.type === 'ELEVATOR_PANEL' ? 'MCCB' : 'MCB',
       manufacturer: f.manufacturer ?? project.preferredManufacturer ?? 'ABB',
       model: f.breakerModel,
@@ -910,13 +915,16 @@ export function computeFeeders(
     const smdbRiserFeeder = mdbFeeders.find((f) => f.name === `F${floorNumber} – SMDB`);
     const smdbFaultIsc = smdbRiserFeeder?.faultCurrentKa ?? transformerIscKa;
 
+    const riserInRating = Math.max(16, smdbRiserFeeder?.breakerSize ?? 160);
+    const riserIr = Math.max(16, (smdbRiserFeeder?.current && smdbRiserFeeder.current > 0) ? smdbRiserFeeder.current : riserInRating);
+
     const smdbRiserSettings: BreakerCurveSettings = {
-      inRating: smdbRiserFeeder?.breakerSize ?? 160,
-      ir: smdbRiserFeeder?.current ?? 100,
+      inRating: riserInRating,
+      ir: riserIr,
       tr: 12,
-      isd: (smdbRiserFeeder?.breakerSize ?? 160) * 4,
+      isd: riserInRating * 4,
       tsd: 0.1,
-      ii: (smdbRiserFeeder?.breakerSize ?? 160) * 10,
+      ii: riserInRating * 10,
       category: 'MCCB',
       manufacturer: smdbRiserFeeder?.manufacturer ?? project.preferredManufacturer ?? 'ABB',
       model: smdbRiserFeeder?.breakerModel,
@@ -940,13 +948,16 @@ export function computeFeeders(
       const branchFaultIsc = calculateIscWithCable(smdbFaultIsc, branchLength, feeder.cableSize, branchVoltage, true);
       feeder.faultCurrentKa = branchFaultIsc;
 
+      const branchInRating = Math.max(6, feeder.breakerSize || 10);
+      const branchIr = Math.max(6, feeder.current > 0 ? feeder.current : branchInRating);
+
       const branchSettings: BreakerCurveSettings = {
-        inRating: feeder.breakerSize,
-        ir: feeder.current,
+        inRating: branchInRating,
+        ir: branchIr,
         tr: 12,
-        isd: feeder.isThreePhase ? feeder.breakerSize * 4 : undefined,
+        isd: feeder.isThreePhase ? branchInRating * 4 : undefined,
         tsd: feeder.isThreePhase ? 0.05 : undefined,
-        ii: feeder.isThreePhase ? feeder.breakerSize * 10 : feeder.breakerSize * 5,
+        ii: feeder.isThreePhase ? branchInRating * 10 : branchInRating * 5,
         category: feeder.type === 'PUMP_PANEL' || feeder.type === 'SERVICE_PANEL' ? 'MCCB' : 'MCB',
         manufacturer: feeder.manufacturer ?? project.preferredManufacturer ?? 'ABB',
         model: feeder.breakerModel,

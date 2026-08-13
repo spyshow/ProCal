@@ -139,8 +139,9 @@ export default function CableSchedulePage() {
   useEffect(() => {
     if (selectedProject && selectedProject.id === selectedProjectId) {
       setProject(selectedProject);
-      if (!selectedBuilding && selectedProject.buildings.length > 0) {
-        setSelectedBuilding(selectedProject.buildings[0].id);
+      // If a specific building was selected that doesn't exist in the project, reset to all buildings (null)
+      if (selectedBuilding && !selectedProject.buildings.some(b => b.id === selectedBuilding)) {
+        setSelectedBuilding(null);
       }
       setLoading(false);
     }
@@ -158,7 +159,9 @@ export default function CableSchedulePage() {
       if (res.ok) {
         const data = await res.json();
         setProject(data);
-        if (!selectedBuilding && data.buildings.length > 0) setSelectedBuilding(data.buildings[0].id);
+        if (selectedBuilding && !data.buildings.some((b: any) => b.id === selectedBuilding)) {
+          setSelectedBuilding(null);
+        }
       }
     } catch (err) { console.error(err); } finally { setLoading(false); }
   }, [selectedProjectId, refreshProject, selectedBuilding]);
@@ -703,12 +706,11 @@ export default function CableSchedulePage() {
 
   const cablesByFloor = cables.reduce((acc, cable) => {
     let key: string;
-    if (cable.kind === 'building') {
-      key = 'Building Loads';
-    } else if (cable.kind === 'sdb') {
-      key = 'SDBs';
+    const subKey = cable.kind === 'building' ? 'Building Loads' : cable.kind === 'sdb' ? 'SDBs' : `Floor ${cable.floor}`;
+    if (!selectedBuilding && project.buildings.length > 1) {
+      key = `${cable.building} — ${subKey}`;
     } else {
-      key = `Floor ${cable.floor}`;
+      key = subKey;
     }
     if (!acc[key]) acc[key] = [];
     acc[key].push(cable);
@@ -716,11 +718,28 @@ export default function CableSchedulePage() {
   }, {} as Record<string, CableEntry[]>);
 
   const floorKeys = Object.keys(cablesByFloor).sort((a, b) => {
+    if (!selectedBuilding && project.buildings.length > 1) {
+      const [bldgA, subA] = a.split(' — ');
+      const [bldgB, subB] = b.split(' — ');
+      if (bldgA !== bldgB) {
+        const idxA = project.buildings.findIndex((b) => b.name === bldgA);
+        const idxB = project.buildings.findIndex((b) => b.name === bldgB);
+        return idxA - idxB;
+      }
+      if (subA === 'Building Loads') return -1;
+      if (subB === 'Building Loads') return 1;
+      if (subA === 'SDBs') return -1;
+      if (subB === 'SDBs') return 1;
+      const numA = parseInt(subA?.replace('Floor ', '') || '0', 10);
+      const numB = parseInt(subB?.replace('Floor ', '') || '0', 10);
+      return numA - numB;
+    }
+
     if (a === 'Building Loads') return -1;
     if (b === 'Building Loads') return 1;
-    if (a === 'SDBs') return 0;
-    if (b === 'SDBs') return 0;
-    return parseInt(a.replace('Floor ', '')) - parseInt(b.replace('Floor ', ''));
+    if (a === 'SDBs') return -1;
+    if (b === 'SDBs') return 1;
+    return parseInt(a.replace('Floor ', ''), 10) - parseInt(b.replace('Floor ', ''), 10);
   });
 
   return (

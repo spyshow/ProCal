@@ -555,8 +555,10 @@ export function recommendBreakerSettings(
   assertPositive('cableAmpacity', cableAmpacity);
   assertPositive('breakerIn', breakerIn);
 
-  const targetIr = Math.max(loadCurrent, Math.min(loadCurrent * 1.15, cableAmpacity));
-  const ir = parseFloat(Math.min(breakerIn, targetIr).toFixed(1));
+  const targetIr = loadCurrent > 0
+    ? Math.max(loadCurrent, Math.min(loadCurrent * 1.15, cableAmpacity))
+    : breakerIn;
+  const ir = parseFloat(Math.max(1, Math.min(breakerIn, targetIr)).toFixed(1));
   const tr = 12;
 
   const isd = parseFloat((ir * 5).toFixed(1));

@@ -370,4 +370,16 @@ describe('regression: three-phase classification', () => {
     expect(mdbFeeders[0].breakerSize).toBe(200);
     expect(mdbFeeders[0].breakerModel).toBe('Schneider ComPacT NSX250 NSX250N 200A MicroLogic 2.2');
   });
+
+  it('handles floors with zero current without throwing CalculationError for ir=0', () => {
+    const findBreaker = createFindBreaker(equipment, {}, 'ABB');
+    const bldg = building({
+      floorDesigns: [{
+        id: 'f1', floorNumber: 1, hasFloorSubPanels: true,
+        riserBreakerSize: '160A',
+        items: [], // empty floor
+      }],
+    });
+    expect(() => computeFeeders(bldg, baseProject, findBreaker)).not.toThrow();
+  });
 });

@@ -9301,32 +9301,6 @@
       "norm_label": "paged"
     },
     {
-      "label": "CableEntry",
-      "file_type": "code",
-      "source_file": "src/app/(app)/cable-schedule/page.tsx",
-      "source_location": "L26",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_app_app_cable_schedule_page_cableentry",
-      "community": 174,
-      "community_name": "cable-schedule/page.tsx",
-      "norm_label": "cableentry"
-    },
-    {
-      "label": "CableKind",
-      "file_type": "code",
-      "source_file": "src/lib/sld/cablePersist.ts",
-      "source_location": "L8",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_lib_sld_cablepersist_cablekind",
-      "community": 174,
-      "community_name": "cable-schedule/page.tsx",
-      "norm_label": "cablekind"
-    },
-    {
       "label": "PrintOptions",
       "file_type": "code",
       "source_file": "src/types/print-js.d.ts",
@@ -11368,6 +11342,19 @@
       "norm_label": "stringwithaggregatesfilter"
     },
     {
+      "label": "CableEntry",
+      "file_type": "code",
+      "source_file": "src/app/(app)/cable-schedule/page.tsx",
+      "source_location": "L26",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_app_app_cable_schedule_page_cableentry",
+      "community": 24,
+      "community_name": "cables.ts",
+      "norm_label": "cableentry"
+    },
+    {
       "label": "CableProtectionEvaluation",
       "file_type": "code",
       "source_file": "src/lib/calculations/cables.ts",
@@ -11407,19 +11394,6 @@
       "norm_label": "cablespec"
     },
     {
-      "label": "phaseBalance",
-      "file_type": "code",
-      "source_file": "src/lib/calculations/phaseBalance.ts",
-      "source_location": "L133",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_lib_calculations_phasebalance_phasebalance",
-      "community": 24,
-      "community_name": "cables.ts",
-      "norm_label": "phasebalance"
-    },
-    {
       "label": "CableEditorInput",
       "file_type": "code",
       "source_file": "src/lib/sld/cable-editor.ts",
@@ -11446,30 +11420,17 @@
       "norm_label": "cableeditorresult"
     },
     {
-      "label": "FloorDesign",
+      "label": "CableKind",
       "file_type": "code",
-      "source_file": "src/types/index.ts",
-      "source_location": "L47",
+      "source_file": "src/lib/sld/cablePersist.ts",
+      "source_location": "L8",
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
-      "id": "src_types_index_floordesign",
+      "id": "src_lib_sld_cablepersist_cablekind",
       "community": 24,
       "community_name": "cables.ts",
-      "norm_label": "floordesign"
-    },
-    {
-      "label": "FloorItem",
-      "file_type": "code",
-      "source_file": "src/types/index.ts",
-      "source_location": "L21",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_types_index_flooritem",
-      "community": 24,
-      "community_name": "cables.ts",
-      "norm_label": "flooritem"
+      "norm_label": "cablekind"
     },
     {
       "label": "ProjectSummary",
@@ -11741,7 +11702,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_shortcircuit_earthingsystem",
       "community": 29,
-      "community_name": "computeFeeders",
+      "community_name": "sizeCableAndBreaker",
       "norm_label": "earthingsystem"
     },
     {
@@ -11754,7 +11715,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_shortcircuit_shortcircuitresult",
       "community": 29,
-      "community_name": "computeFeeders",
+      "community_name": "sizeCableAndBreaker",
       "norm_label": "shortcircuitresult"
     },
     {
@@ -11767,7 +11728,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_shortcircuit_transformerparameters",
       "community": 29,
-      "community_name": "computeFeeders",
+      "community_name": "sizeCableAndBreaker",
       "norm_label": "transformerparameters"
     },
     {
@@ -11780,7 +11741,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_validate_calculationerror",
       "community": 29,
-      "community_name": "computeFeeders",
+      "community_name": "sizeCableAndBreaker",
       "norm_label": "calculationerror"
     },
     {
@@ -13539,19 +13500,6 @@
       "norm_label": "acsizingrule"
     },
     {
-      "label": "BreakerEntry",
-      "file_type": "code",
-      "source_file": "src/app/(app)/breaker-schedule/page.tsx",
-      "source_location": "L36",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_app_app_breaker_schedule_page_breakerentry",
-      "community": 34,
-      "community_name": "types/index.ts",
-      "norm_label": "breakerentry"
-    },
-    {
       "label": "BOMScheduleProps",
       "file_type": "code",
       "source_file": "src/components/report/BOMSchedule.tsx",
@@ -13563,19 +13511,6 @@
       "community": 34,
       "community_name": "types/index.ts",
       "norm_label": "bomscheduleprops"
-    },
-    {
-      "label": "BreakerBOMItem",
-      "file_type": "code",
-      "source_file": "src/components/report/BOMSchedule.tsx",
-      "source_location": "L22",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_components_report_bomschedule_breakerbomitem",
-      "community": 34,
-      "community_name": "types/index.ts",
-      "norm_label": "breakerbomitem"
     },
     {
       "label": "CableBOMItem",
@@ -13773,19 +13708,6 @@
       "norm_label": "findbreaker"
     },
     {
-      "label": "FoundBreaker",
-      "file_type": "code",
-      "source_file": "src/lib/calculations/feeders.ts",
-      "source_location": "L39",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_lib_calculations_feeders_foundbreaker",
-      "community": 34,
-      "community_name": "types/index.ts",
-      "norm_label": "foundbreaker"
-    },
-    {
       "label": "ApartmentRoom",
       "file_type": "code",
       "source_file": "src/types/index.ts",
@@ -13825,6 +13747,19 @@
       "norm_label": "assignedphase"
     },
     {
+      "label": "Building",
+      "file_type": "code",
+      "source_file": "src/types/index.ts",
+      "source_location": "L82",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_types_index_building",
+      "community": 34,
+      "community_name": "types/index.ts",
+      "norm_label": "building"
+    },
+    {
       "label": "EarthingSystem",
       "file_type": "code",
       "source_file": "src/types/index.ts",
@@ -13836,32 +13771,6 @@
       "community": 34,
       "community_name": "types/index.ts",
       "norm_label": "earthingsystem"
-    },
-    {
-      "label": "FallbackType",
-      "file_type": "code",
-      "source_file": "src/types/index.ts",
-      "source_location": "L160",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_types_index_fallbacktype",
-      "community": 34,
-      "community_name": "types/index.ts",
-      "norm_label": "fallbacktype"
-    },
-    {
-      "label": "GenericBreakerSpec",
-      "file_type": "code",
-      "source_file": "src/types/index.ts",
-      "source_location": "L162",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_types_index_genericbreakerspec",
-      "community": 34,
-      "community_name": "types/index.ts",
-      "norm_label": "genericbreakerspec"
     },
     {
       "label": "Project",
@@ -13890,6 +13799,19 @@
       "norm_label": "reporttab"
     },
     {
+      "label": "ProjectFeederItem",
+      "file_type": "code",
+      "source_file": "src/app/(app)/coordination/page.tsx",
+      "source_location": "L38",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_app_app_coordination_page_projectfeederitem",
+      "community": 35,
+      "community_name": "selectivity.ts",
+      "norm_label": "projectfeederitem"
+    },
+    {
       "label": "SelectivityStatus",
       "file_type": "code",
       "source_file": "src/app/(app)/coordination/page.tsx",
@@ -13914,6 +13836,19 @@
       "community": 35,
       "community_name": "selectivity.ts",
       "norm_label": "tccplotmodalprops"
+    },
+    {
+      "label": "ComputeFeedersResult",
+      "file_type": "code",
+      "source_file": "src/lib/calculations/feeders.ts",
+      "source_location": "L620",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_lib_calculations_feeders_computefeedersresult",
+      "community": 35,
+      "community_name": "selectivity.ts",
+      "norm_label": "computefeedersresult"
     },
     {
       "label": "BreakerCurveSettings",
@@ -14020,6 +13955,19 @@
       "norm_label": "breakeralternativesuggestion"
     },
     {
+      "label": "PanelFeeder",
+      "file_type": "code",
+      "source_file": "src/types/index.ts",
+      "source_location": "L172",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_types_index_panelfeeder",
+      "community": 35,
+      "community_name": "selectivity.ts",
+      "norm_label": "panelfeeder"
+    },
+    {
       "label": "TestPersistence",
       "file_type": "code",
       "source_file": ".agents/skills/ui-ux-pro-max/scripts/tests/test_core.py",
@@ -14044,6 +13992,71 @@
       "community": 38,
       "community_name": "html-token-validator.py",
       "norm_label": "validationresult"
+    },
+    {
+      "label": "BreakerEntry",
+      "file_type": "code",
+      "source_file": "src/app/(app)/breaker-schedule/page.tsx",
+      "source_location": "L36",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_app_app_breaker_schedule_page_breakerentry",
+      "community": 39,
+      "community_name": "verify-phase-demo.ts",
+      "norm_label": "breakerentry"
+    },
+    {
+      "label": "BreakerBOMItem",
+      "file_type": "code",
+      "source_file": "src/components/report/BOMSchedule.tsx",
+      "source_location": "L22",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_components_report_bomschedule_breakerbomitem",
+      "community": 39,
+      "community_name": "verify-phase-demo.ts",
+      "norm_label": "breakerbomitem"
+    },
+    {
+      "label": "FoundBreaker",
+      "file_type": "code",
+      "source_file": "src/lib/calculations/feeders.ts",
+      "source_location": "L39",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_lib_calculations_feeders_foundbreaker",
+      "community": 39,
+      "community_name": "verify-phase-demo.ts",
+      "norm_label": "foundbreaker"
+    },
+    {
+      "label": "FallbackType",
+      "file_type": "code",
+      "source_file": "src/types/index.ts",
+      "source_location": "L160",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_types_index_fallbacktype",
+      "community": 39,
+      "community_name": "verify-phase-demo.ts",
+      "norm_label": "fallbacktype"
+    },
+    {
+      "label": "GenericBreakerSpec",
+      "file_type": "code",
+      "source_file": "src/types/index.ts",
+      "source_location": "L162",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_types_index_genericbreakerspec",
+      "community": 39,
+      "community_name": "verify-phase-demo.ts",
+      "norm_label": "genericbreakerspec"
     },
     {
       "label": "AggregateBuilding",
@@ -15526,19 +15539,6 @@
       "community": 40,
       "community_name": "aggregates.ts",
       "norm_label": "voltagedroprow"
-    },
-    {
-      "label": "Building",
-      "file_type": "code",
-      "source_file": "src/types/index.ts",
-      "source_location": "L82",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_types_index_building",
-      "community": 40,
-      "community_name": "aggregates.ts",
-      "norm_label": "building"
     },
     {
       "label": "Cat",
@@ -17426,32 +17426,6 @@
       "norm_label": "prismaclient"
     },
     {
-      "label": "ProjectFeederItem",
-      "file_type": "code",
-      "source_file": "src/app/(app)/coordination/page.tsx",
-      "source_location": "L38",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_app_app_coordination_page_projectfeederitem",
-      "community": 51,
-      "community_name": "feeders.ts",
-      "norm_label": "projectfeederitem"
-    },
-    {
-      "label": "ComputeFeedersResult",
-      "file_type": "code",
-      "source_file": "src/lib/calculations/feeders.ts",
-      "source_location": "L620",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_lib_calculations_feeders_computefeedersresult",
-      "community": 51,
-      "community_name": "feeders.ts",
-      "norm_label": "computefeedersresult"
-    },
-    {
       "label": "NeutralAccum",
       "file_type": "code",
       "source_file": "src/lib/calculations/phaseBalance.ts",
@@ -17463,6 +17437,19 @@
       "community": 51,
       "community_name": "feeders.ts",
       "norm_label": "neutralaccum"
+    },
+    {
+      "label": "phaseBalance",
+      "file_type": "code",
+      "source_file": "src/lib/calculations/phaseBalance.ts",
+      "source_location": "L133",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_lib_calculations_phasebalance_phasebalance",
+      "community": 51,
+      "community_name": "feeders.ts",
+      "norm_label": "phasebalance"
     },
     {
       "label": "PhaseIdx",
@@ -17517,6 +17504,32 @@
       "norm_label": "calculationstandard"
     },
     {
+      "label": "FloorDesign",
+      "file_type": "code",
+      "source_file": "src/types/index.ts",
+      "source_location": "L47",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_types_index_floordesign",
+      "community": 51,
+      "community_name": "feeders.ts",
+      "norm_label": "floordesign"
+    },
+    {
+      "label": "FloorItem",
+      "file_type": "code",
+      "source_file": "src/types/index.ts",
+      "source_location": "L21",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_types_index_flooritem",
+      "community": 51,
+      "community_name": "feeders.ts",
+      "norm_label": "flooritem"
+    },
+    {
       "label": "LoadLibraryItem",
       "file_type": "code",
       "source_file": "src/types/index.ts",
@@ -17528,19 +17541,6 @@
       "community": 51,
       "community_name": "feeders.ts",
       "norm_label": "loadlibraryitem"
-    },
-    {
-      "label": "PanelFeeder",
-      "file_type": "code",
-      "source_file": "src/types/index.ts",
-      "source_location": "L172",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_types_index_panelfeeder",
-      "community": 51,
-      "community_name": "feeders.ts",
-      "norm_label": "panelfeeder"
     },
     {
       "label": "SendResult",
@@ -24333,78 +24333,6 @@
       "norm_label": "main()"
     },
     {
-      "label": "CableSchedulePage()",
-      "file_type": "code",
-      "source_file": "src/app/(app)/cable-schedule/page.tsx",
-      "source_location": "L58",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_app_app_cable_schedule_page_cableschedulepage",
-      "community": 174,
-      "community_name": "cable-schedule/page.tsx",
-      "norm_label": "cableschedulepage()"
-    },
-    {
-      "label": "getBuildingLoadCableLength()",
-      "file_type": "code",
-      "source_file": "src/lib/calculations/cables.ts",
-      "source_location": "L326",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_lib_calculations_cables_getbuildingloadcablelength",
-      "community": 174,
-      "community_name": "cable-schedule/page.tsx",
-      "norm_label": "getbuildingloadcablelength()"
-    },
-    {
-      "label": "getRiserCableLength()",
-      "file_type": "code",
-      "source_file": "src/lib/calculations/cables.ts",
-      "source_location": "L336",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_lib_calculations_cables_getrisercablelength",
-      "community": 174,
-      "community_name": "cable-schedule/page.tsx",
-      "norm_label": "getrisercablelength()"
-    },
-    {
-      "label": "cablePatchUrl()",
-      "file_type": "code",
-      "source_file": "src/lib/sld/cablePersist.ts",
-      "source_location": "L11",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_lib_sld_cablepersist_cablepatchurl",
-      "community": 174,
-      "community_name": "cable-schedule/page.tsx",
-      "norm_label": "cablepatchurl()"
-    },
-    {
-      "label": "fieldEditBody()",
-      "file_type": "code",
-      "source_file": "src/lib/sld/cablePersist.ts",
-      "source_location": "L25",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_lib_sld_cablepersist_fieldeditbody",
-      "community": 174,
-      "community_name": "cable-schedule/page.tsx",
-      "norm_label": "fieldeditbody()"
-    },
-    {
-      "label": "upsizeBody()",
-      "file_type": "code",
-      "source_file": "src/lib/sld/cablePersist.ts",
-      "source_location": "L18",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_lib_sld_cablepersist_upsizebody",
-      "community": 174,
-      "community_name": "cable-schedule/page.tsx",
-      "norm_label": "upsizebody()"
-    },
-    {
       "label": "calculateCurrent()",
       "file_type": "code",
       "source_file": "src/lib/calculations/current.test.ts",
@@ -25269,6 +25197,18 @@
       "norm_label": "main()"
     },
     {
+      "label": "CableSchedulePage()",
+      "file_type": "code",
+      "source_file": "src/app/(app)/cable-schedule/page.tsx",
+      "source_location": "L58",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_app_app_cable_schedule_page_cableschedulepage",
+      "community": 24,
+      "community_name": "cables.ts",
+      "norm_label": "cableschedulepage()"
+    },
+    {
       "label": "calculateCableAmpacity()",
       "file_type": "code",
       "source_file": "src/lib/calculations/cables.ts",
@@ -25279,18 +25219,6 @@
       "community": 24,
       "community_name": "cables.ts",
       "norm_label": "calculatecableampacity()"
-    },
-    {
-      "label": "calculateVoltageDrop()",
-      "file_type": "code",
-      "source_file": "src/lib/calculations/cables.ts",
-      "source_location": "L257",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_lib_calculations_cables_calculatevoltagedrop",
-      "community": 24,
-      "community_name": "cables.ts",
-      "norm_label": "calculatevoltagedrop()"
     },
     {
       "label": "evaluateCableProtection()",
@@ -25317,6 +25245,18 @@
       "norm_label": "formatcablesize()"
     },
     {
+      "label": "getRiserCableLength()",
+      "file_type": "code",
+      "source_file": "src/lib/calculations/cables.ts",
+      "source_location": "L336",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_lib_calculations_cables_getrisercablelength",
+      "community": 24,
+      "community_name": "cables.ts",
+      "norm_label": "getrisercablelength()"
+    },
+    {
       "label": "parseCableSize()",
       "file_type": "code",
       "source_file": "src/lib/calculations/cables.ts",
@@ -25327,18 +25267,6 @@
       "community": 24,
       "community_name": "cables.ts",
       "norm_label": "parsecablesize()"
-    },
-    {
-      "label": "parseMm2()",
-      "file_type": "code",
-      "source_file": "src/lib/calculations/cables.ts",
-      "source_location": "L306",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_lib_calculations_cables_parsemm2",
-      "community": 24,
-      "community_name": "cables.ts",
-      "norm_label": "parsemm2()"
     },
     {
       "label": "feederFromBuildingLoad()",
@@ -25353,18 +25281,6 @@
       "norm_label": "feederfrombuildingload()"
     },
     {
-      "label": "pfForFloorItem()",
-      "file_type": "code",
-      "source_file": "src/lib/calculations/feeders.ts",
-      "source_location": "L117",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_lib_calculations_feeders_pfforflooritem",
-      "community": 24,
-      "community_name": "cables.ts",
-      "norm_label": "pfforflooritem()"
-    },
-    {
       "label": "getAmpacity()",
       "file_type": "code",
       "source_file": "src/lib/calculations/installationMethods.ts",
@@ -25375,66 +25291,6 @@
       "community": 24,
       "community_name": "cables.ts",
       "norm_label": "getampacity()"
-    },
-    {
-      "label": "createGoldenBuilding()",
-      "file_type": "code",
-      "source_file": "src/lib/calculations/integration.test.ts",
-      "source_location": "L88",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_lib_calculations_integration_test_creategoldenbuilding",
-      "community": 24,
-      "community_name": "cables.ts",
-      "norm_label": "creategoldenbuilding()"
-    },
-    {
-      "label": "computeFloorRiserVd()",
-      "file_type": "code",
-      "source_file": "src/lib/calculations/riser.ts",
-      "source_location": "L83",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_lib_calculations_riser_computefloorriservd",
-      "community": 24,
-      "community_name": "cables.ts",
-      "norm_label": "computefloorriservd()"
-    },
-    {
-      "label": "itemBranchVd()",
-      "file_type": "code",
-      "source_file": "src/lib/calculations/riser.ts",
-      "source_location": "L55",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_lib_calculations_riser_itembranchvd",
-      "community": 24,
-      "community_name": "cables.ts",
-      "norm_label": "itembranchvd()"
-    },
-    {
-      "label": "apt()",
-      "file_type": "code",
-      "source_file": "src/lib/calculations/riser.test.ts",
-      "source_location": "L16",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_lib_calculations_riser_test_apt",
-      "community": 24,
-      "community_name": "cables.ts",
-      "norm_label": "apt()"
-    },
-    {
-      "label": "floor()",
-      "file_type": "code",
-      "source_file": "src/lib/calculations/riser.test.ts",
-      "source_location": "L25",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_lib_calculations_riser_test_floor",
-      "community": 24,
-      "community_name": "cables.ts",
-      "norm_label": "floor()"
     },
     {
       "label": "findBreakerSize()",
@@ -25459,6 +25315,54 @@
       "community": 24,
       "community_name": "cables.ts",
       "norm_label": "recalculatecable()"
+    },
+    {
+      "label": "cablePatchUrl()",
+      "file_type": "code",
+      "source_file": "src/lib/sld/cablePersist.ts",
+      "source_location": "L11",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_lib_sld_cablepersist_cablepatchurl",
+      "community": 24,
+      "community_name": "cables.ts",
+      "norm_label": "cablepatchurl()"
+    },
+    {
+      "label": "fieldEditBody()",
+      "file_type": "code",
+      "source_file": "src/lib/sld/cablePersist.ts",
+      "source_location": "L25",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_lib_sld_cablepersist_fieldeditbody",
+      "community": 24,
+      "community_name": "cables.ts",
+      "norm_label": "fieldeditbody()"
+    },
+    {
+      "label": "upsizeBody()",
+      "file_type": "code",
+      "source_file": "src/lib/sld/cablePersist.ts",
+      "source_location": "L18",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_lib_sld_cablepersist_upsizebody",
+      "community": 24,
+      "community_name": "cables.ts",
+      "norm_label": "upsizebody()"
+    },
+    {
+      "label": ".test_add_components_already_installed()",
+      "file_type": "code",
+      "source_file": ".agents/skills/ui-styling/scripts/tests/test_shadcn_add.py",
+      "source_location": "L111",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "agents_skills_ui_styling_scripts_tests_test_shadcn_add_testshadcninstaller_test_add_components_already_installed",
+      "community": 242,
+      "community_name": ".test_add_components_already_installed",
+      "norm_label": ".test_add_components_already_installed()"
     },
     {
       "label": ".test_check_shadcn_config_exists()",
@@ -25893,18 +25797,6 @@
       "norm_label": "projectspage()"
     },
     {
-      "label": "ReportsPage()",
-      "file_type": "code",
-      "source_file": "src/app/(app)/reports/page.tsx",
-      "source_location": "L28",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_app_app_reports_page_reportspage",
-      "community": 28,
-      "community_name": "useTranslation",
-      "norm_label": "reportspage()"
-    },
-    {
       "label": "Home()",
       "file_type": "code",
       "source_file": "src/app/page.tsx",
@@ -26069,7 +25961,7 @@
       "_origin": "ast",
       "id": "scripts_seed_mall_project_main",
       "community": 29,
-      "community_name": "computeFeeders",
+      "community_name": "sizeCableAndBreaker",
       "norm_label": "main()"
     },
     {
@@ -26081,7 +25973,7 @@
       "_origin": "ast",
       "id": "scripts_seed_mall_project_main_createtower",
       "community": 29,
-      "community_name": "computeFeeders",
+      "community_name": "sizeCableAndBreaker",
       "norm_label": "createtower()"
     },
     {
@@ -26093,7 +25985,7 @@
       "_origin": "ast",
       "id": "src_app_api_buildings_id_recalculate_route_post",
       "community": 29,
-      "community_name": "computeFeeders",
+      "community_name": "sizeCableAndBreaker",
       "norm_label": "post()"
     },
     {
@@ -26105,7 +25997,7 @@
       "_origin": "ast",
       "id": "src_app_api_floors_id_recalculate_route_post",
       "community": 29,
-      "community_name": "computeFeeders",
+      "community_name": "sizeCableAndBreaker",
       "norm_label": "post()"
     },
     {
@@ -26117,8 +26009,20 @@
       "_origin": "ast",
       "id": "src_app_app_panel_page_paneldesignerpage",
       "community": 29,
-      "community_name": "computeFeeders",
+      "community_name": "sizeCableAndBreaker",
       "norm_label": "paneldesignerpage()"
+    },
+    {
+      "label": "ReportsPage()",
+      "file_type": "code",
+      "source_file": "src/app/(app)/reports/page.tsx",
+      "source_location": "L28",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_app_app_reports_page_reportspage",
+      "community": 29,
+      "community_name": "sizeCableAndBreaker",
+      "norm_label": "reportspage()"
     },
     {
       "label": "RiserPage()",
@@ -26129,7 +26033,7 @@
       "_origin": "ast",
       "id": "src_app_app_riser_page_riserpage",
       "community": 29,
-      "community_name": "computeFeeders",
+      "community_name": "sizeCableAndBreaker",
       "norm_label": "riserpage()"
     },
     {
@@ -26141,20 +26045,8 @@
       "_origin": "ast",
       "id": "src_lib_calculations_cables_sizecableandbreaker",
       "community": 29,
-      "community_name": "computeFeeders",
+      "community_name": "sizeCableAndBreaker",
       "norm_label": "sizecableandbreaker()"
-    },
-    {
-      "label": "computeFeeders()",
-      "file_type": "code",
-      "source_file": "src/lib/calculations/feeders.ts",
-      "source_location": "L645",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_lib_calculations_feeders_computefeeders",
-      "community": 29,
-      "community_name": "computeFeeders",
-      "norm_label": "computefeeders()"
     },
     {
       "label": "calculateSinglePhaseCurrent()",
@@ -26165,7 +26057,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_loads_calculatesinglephasecurrent",
       "community": 29,
-      "community_name": "computeFeeders",
+      "community_name": "sizeCableAndBreaker",
       "norm_label": "calculatesinglephasecurrent()"
     },
     {
@@ -26177,7 +26069,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_loads_calculatethreephasecurrent",
       "community": 29,
-      "community_name": "computeFeeders",
+      "community_name": "sizeCableAndBreaker",
       "norm_label": "calculatethreephasecurrent()"
     },
     {
@@ -26189,7 +26081,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_loads_getapartmentdiversityfactor",
       "community": 29,
-      "community_name": "computeFeeders",
+      "community_name": "sizeCableAndBreaker",
       "norm_label": "getapartmentdiversityfactor()"
     },
     {
@@ -26201,7 +26093,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_loads_sizegenerator",
       "community": 29,
-      "community_name": "computeFeeders",
+      "community_name": "sizeCableAndBreaker",
       "norm_label": "sizegenerator()"
     },
     {
@@ -26213,7 +26105,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_loads_sizetransformer",
       "community": 29,
-      "community_name": "computeFeeders",
+      "community_name": "sizeCableAndBreaker",
       "norm_label": "sizetransformer()"
     },
     {
@@ -26225,7 +26117,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_shortcircuit_calculateiscwithcable",
       "community": 29,
-      "community_name": "computeFeeders",
+      "community_name": "sizeCableAndBreaker",
       "norm_label": "calculateiscwithcable()"
     },
     {
@@ -26237,7 +26129,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_shortcircuit_calculateshortcircuitcurrent",
       "community": 29,
-      "community_name": "computeFeeders",
+      "community_name": "sizeCableAndBreaker",
       "norm_label": "calculateshortcircuitcurrent()"
     },
     {
@@ -26249,7 +26141,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_shortcircuit_calculatetransformerimpedance",
       "community": 29,
-      "community_name": "computeFeeders",
+      "community_name": "sizeCableAndBreaker",
       "norm_label": "calculatetransformerimpedance()"
     },
     {
@@ -26261,7 +26153,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_shortcircuit_gettypicalimpedance",
       "community": 29,
-      "community_name": "computeFeeders",
+      "community_name": "sizeCableAndBreaker",
       "norm_label": "gettypicalimpedance()"
     },
     {
@@ -26273,7 +26165,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_validate_assertinrange",
       "community": 29,
-      "community_name": "computeFeeders",
+      "community_name": "sizeCableAndBreaker",
       "norm_label": "assertinrange()"
     },
     {
@@ -26285,7 +26177,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_validate_assertnonnegative",
       "community": 29,
-      "community_name": "computeFeeders",
+      "community_name": "sizeCableAndBreaker",
       "norm_label": "assertnonnegative()"
     },
     {
@@ -26297,7 +26189,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_validate_assertoneof",
       "community": 29,
-      "community_name": "computeFeeders",
+      "community_name": "sizeCableAndBreaker",
       "norm_label": "assertoneof()"
     },
     {
@@ -26309,7 +26201,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_validate_calculationerror_constructor",
       "community": 29,
-      "community_name": "computeFeeders",
+      "community_name": "sizeCableAndBreaker",
       "norm_label": ".constructor()"
     },
     {
@@ -26321,7 +26213,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_validate_clamppowerfactor",
       "community": 29,
-      "community_name": "computeFeeders",
+      "community_name": "sizeCableAndBreaker",
       "norm_label": "clamppowerfactor()"
     },
     {
@@ -26760,7 +26652,7 @@
       "label": "LoadLibrary()",
       "file_type": "code",
       "source_file": "src/app/(app)/projects/[id]/page.tsx",
-      "source_location": "L1147",
+      "source_location": "L1134",
       "_callable": true,
       "_origin": "ast",
       "id": "src_app_app_projects_id_page_loadlibrary",
@@ -26803,18 +26695,6 @@
       "community": 307,
       "community_name": "catalog/route.ts",
       "norm_label": "get()"
-    },
-    {
-      "label": ".test_add_components_no_components()",
-      "file_type": "code",
-      "source_file": ".agents/skills/ui-styling/scripts/tests/test_shadcn_add.py",
-      "source_location": "L95",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "agents_skills_ui_styling_scripts_tests_test_shadcn_add_testshadcninstaller_test_add_components_no_components",
-      "community": 309,
-      "community_name": ".test_add_components_no_components",
-      "norm_label": ".test_add_components_no_components()"
     },
     {
       "label": "LayoutInner()",
@@ -27237,6 +27117,18 @@
       "norm_label": "vdschedule()"
     },
     {
+      "label": "getBuildingLoadCableLength()",
+      "file_type": "code",
+      "source_file": "src/lib/calculations/cables.ts",
+      "source_location": "L326",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_lib_calculations_cables_getbuildingloadcablelength",
+      "community": 34,
+      "community_name": "types/index.ts",
+      "norm_label": "getbuildingloadcablelength()"
+    },
+    {
       "label": "getItemCableLength()",
       "file_type": "code",
       "source_file": "src/lib/calculations/cables.ts",
@@ -27249,6 +27141,18 @@
       "norm_label": "getitemcablelength()"
     },
     {
+      "label": "computeFeeders()",
+      "file_type": "code",
+      "source_file": "src/lib/calculations/feeders.ts",
+      "source_location": "L645",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_lib_calculations_feeders_computefeeders",
+      "community": 34,
+      "community_name": "types/index.ts",
+      "norm_label": "computefeeders()"
+    },
+    {
       "label": "createFindBreaker()",
       "file_type": "code",
       "source_file": "src/lib/calculations/feeders.ts",
@@ -27259,18 +27163,6 @@
       "community": 34,
       "community_name": "types/index.ts",
       "norm_label": "createfindbreaker()"
-    },
-    {
-      "label": "isThreePhaseForItem()",
-      "file_type": "code",
-      "source_file": "src/lib/calculations/feeders.ts",
-      "source_location": "L61",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_lib_calculations_feeders_isthreephaseforitem",
-      "community": 34,
-      "community_name": "types/index.ts",
-      "norm_label": "isthreephaseforitem()"
     },
     {
       "label": "building()",
@@ -27295,6 +27187,18 @@
       "community": 34,
       "community_name": "types/index.ts",
       "norm_label": "item()"
+    },
+    {
+      "label": "aggregateBOM()",
+      "file_type": "code",
+      "source_file": "src/lib/reports/aggregates.ts",
+      "source_location": "L36",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_lib_reports_aggregates_aggregatebom",
+      "community": 34,
+      "community_name": "types/index.ts",
+      "norm_label": "aggregatebom()"
     },
     {
       "label": "CoordinationPage()",
@@ -27585,18 +27489,6 @@
       "norm_label": "persist_design_system()"
     },
     {
-      "label": "_resolve_dial()",
-      "file_type": "code",
-      "source_file": ".agents/skills/ui-ux-pro-max/scripts/design_system.py",
-      "source_location": "L69",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "agents_skills_ui_ux_pro_max_scripts_design_system_resolve_dial",
-      "community": 36,
-      "community_name": "design_system.py",
-      "norm_label": "_resolve_dial()"
-    },
-    {
       "label": "safe_slug()",
       "file_type": "code",
       "source_file": ".agents/skills/ui-ux-pro-max/scripts/design_system.py",
@@ -27859,18 +27751,6 @@
       "community": 39,
       "community_name": "verify-phase-demo.ts",
       "norm_label": "stubfinder()"
-    },
-    {
-      "label": "aggregateBOM()",
-      "file_type": "code",
-      "source_file": "src/lib/reports/aggregates.ts",
-      "source_location": "L36",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_lib_reports_aggregates_aggregatebom",
-      "community": 40,
-      "community_name": "aggregates.ts",
-      "norm_label": "aggregatebom()"
     },
     {
       "label": "aggregateBreakerRows()",
@@ -28581,6 +28461,18 @@
       "norm_label": "._select_best_match()"
     },
     {
+      "label": "_resolve_dial()",
+      "file_type": "code",
+      "source_file": ".agents/skills/ui-ux-pro-max/scripts/design_system.py",
+      "source_location": "L69",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "agents_skills_ui_ux_pro_max_scripts_design_system_resolve_dial",
+      "community": 49,
+      "community_name": "DesignSystemGenerator",
+      "norm_label": "_resolve_dial()"
+    },
+    {
       "label": ".test_known_category_matches_exactly()",
       "file_type": "code",
       "source_file": ".agents/skills/ui-ux-pro-max/scripts/tests/test_core.py",
@@ -28857,6 +28749,30 @@
       "norm_label": ".user()"
     },
     {
+      "label": "calculateVoltageDrop()",
+      "file_type": "code",
+      "source_file": "src/lib/calculations/cables.ts",
+      "source_location": "L257",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_lib_calculations_cables_calculatevoltagedrop",
+      "community": 51,
+      "community_name": "feeders.ts",
+      "norm_label": "calculatevoltagedrop()"
+    },
+    {
+      "label": "parseMm2()",
+      "file_type": "code",
+      "source_file": "src/lib/calculations/cables.ts",
+      "source_location": "L306",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_lib_calculations_cables_parsemm2",
+      "community": 51,
+      "community_name": "feeders.ts",
+      "norm_label": "parsemm2()"
+    },
+    {
       "label": "categoryForFloorItem()",
       "file_type": "code",
       "source_file": "src/lib/calculations/feeders.ts",
@@ -28917,6 +28833,18 @@
       "norm_label": "isthreephaseforbuildingload()"
     },
     {
+      "label": "isThreePhaseForItem()",
+      "file_type": "code",
+      "source_file": "src/lib/calculations/feeders.ts",
+      "source_location": "L61",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_lib_calculations_feeders_isthreephaseforitem",
+      "community": 51,
+      "community_name": "feeders.ts",
+      "norm_label": "isthreephaseforitem()"
+    },
+    {
       "label": "oneItemPhaseFields()",
       "file_type": "code",
       "source_file": "src/lib/calculations/feeders.ts",
@@ -28951,6 +28879,30 @@
       "community": 51,
       "community_name": "feeders.ts",
       "norm_label": "pfangleforitem()"
+    },
+    {
+      "label": "pfForFloorItem()",
+      "file_type": "code",
+      "source_file": "src/lib/calculations/feeders.ts",
+      "source_location": "L117",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_lib_calculations_feeders_pfforflooritem",
+      "community": 51,
+      "community_name": "feeders.ts",
+      "norm_label": "pfforflooritem()"
+    },
+    {
+      "label": "createGoldenBuilding()",
+      "file_type": "code",
+      "source_file": "src/lib/calculations/integration.test.ts",
+      "source_location": "L88",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_lib_calculations_integration_test_creategoldenbuilding",
+      "community": 51,
+      "community_name": "feeders.ts",
+      "norm_label": "creategoldenbuilding()"
     },
     {
       "label": "compute()",
@@ -29179,6 +29131,54 @@
       "community": 51,
       "community_name": "feeders.ts",
       "norm_label": "projectfixture()"
+    },
+    {
+      "label": "computeFloorRiserVd()",
+      "file_type": "code",
+      "source_file": "src/lib/calculations/riser.ts",
+      "source_location": "L83",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_lib_calculations_riser_computefloorriservd",
+      "community": 51,
+      "community_name": "feeders.ts",
+      "norm_label": "computefloorriservd()"
+    },
+    {
+      "label": "itemBranchVd()",
+      "file_type": "code",
+      "source_file": "src/lib/calculations/riser.ts",
+      "source_location": "L55",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_lib_calculations_riser_itembranchvd",
+      "community": 51,
+      "community_name": "feeders.ts",
+      "norm_label": "itembranchvd()"
+    },
+    {
+      "label": "apt()",
+      "file_type": "code",
+      "source_file": "src/lib/calculations/riser.test.ts",
+      "source_location": "L16",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_lib_calculations_riser_test_apt",
+      "community": 51,
+      "community_name": "feeders.ts",
+      "norm_label": "apt()"
+    },
+    {
+      "label": "floor()",
+      "file_type": "code",
+      "source_file": "src/lib/calculations/riser.test.ts",
+      "source_location": "L25",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_lib_calculations_riser_test_floor",
+      "community": 51,
+      "community_name": "feeders.ts",
+      "norm_label": "floor()"
     },
     {
       "label": "_e()",
@@ -33141,16 +33141,16 @@
       "norm_label": "main()"
     },
     {
-      "label": ".test_add_components_already_installed()",
+      "label": ".test_add_components_no_components()",
       "file_type": "code",
       "source_file": ".agents/skills/ui-styling/scripts/tests/test_shadcn_add.py",
-      "source_location": "L111",
+      "source_location": "L95",
       "_callable": true,
       "_origin": "ast",
-      "id": "agents_skills_ui_styling_scripts_tests_test_shadcn_add_testshadcninstaller_test_add_components_already_installed",
+      "id": "agents_skills_ui_styling_scripts_tests_test_shadcn_add_testshadcninstaller_test_add_components_no_components",
       "community": 85,
       "community_name": "ShadcnInstaller",
-      "norm_label": ".test_add_components_already_installed()"
+      "norm_label": ".test_add_components_no_components()"
     },
     {
       "label": ".test_get_installed_components_no_config()",
@@ -36230,59 +36230,59 @@
       "norm_label": "variants"
     },
     {
+      "label": "lg",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L56",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_fontsize_lg",
+      "community": 129,
+      "community_name": "lg",
+      "norm_label": "lg"
+    },
+    {
       "label": "$type",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L97",
+      "source_location": "L56",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_border_type",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_lg_type",
       "community": 129,
-      "community_name": "$type",
+      "community_name": "lg",
       "norm_label": "$type"
     },
     {
       "label": "$value",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L97",
+      "source_location": "L56",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_border_value",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_lg_value",
       "community": 129,
-      "community_name": "$type",
+      "community_name": "lg",
       "norm_label": "$value"
     },
     {
-      "label": "border",
+      "label": "lg",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L125",
+      "source_location": "L67",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_card_border",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_radius_lg",
       "community": 129,
-      "community_name": "$type",
-      "norm_label": "border"
+      "community_name": "lg",
+      "norm_label": "lg"
     },
     {
-      "label": "border",
+      "label": "lg",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L97",
+      "source_location": "L76",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_color_border",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_shadow_lg",
       "community": 129,
-      "community_name": "$type",
-      "norm_label": "border"
-    },
-    {
-      "label": "border",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L117",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_input_border",
-      "community": 129,
-      "community_name": "$type",
-      "norm_label": "border"
+      "community_name": "lg",
+      "norm_label": "lg"
     },
     {
       "label": "ApartmentRoom.ts",
@@ -36351,59 +36351,48 @@
       "norm_label": "$value"
     },
     {
-      "label": "lg",
+      "label": "padding-y",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L56",
+      "source_location": "L111",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_fontsize_lg",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_button_padding_y",
       "community": 131,
-      "community_name": "lg",
-      "norm_label": "lg"
+      "community_name": "padding-y",
+      "norm_label": "padding-y"
+    },
+    {
+      "label": "padding-y",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L120",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_input_padding_y",
+      "community": 131,
+      "community_name": "padding-y",
+      "norm_label": "padding-y"
     },
     {
       "label": "$type",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L56",
+      "source_location": "L111",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_lg_type",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_padding_y_type",
       "community": 131,
-      "community_name": "lg",
+      "community_name": "padding-y",
       "norm_label": "$type"
     },
     {
       "label": "$value",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L56",
+      "source_location": "L111",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_lg_value",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_padding_y_value",
       "community": 131,
-      "community_name": "lg",
+      "community_name": "padding-y",
       "norm_label": "$value"
-    },
-    {
-      "label": "lg",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L67",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_radius_lg",
-      "community": 131,
-      "community_name": "lg",
-      "norm_label": "lg"
-    },
-    {
-      "label": "lg",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L76",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_shadow_lg",
-      "community": 131,
-      "community_name": "lg",
-      "norm_label": "lg"
     },
     {
       "label": "sm",
@@ -38353,48 +38342,37 @@
       "norm_label": "findmany"
     },
     {
-      "label": "padding-y",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L111",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_button_padding_y",
-      "community": 161,
-      "community_name": "padding-y",
-      "norm_label": "padding-y"
-    },
-    {
-      "label": "padding-y",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L120",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_input_padding_y",
-      "community": 161,
-      "community_name": "padding-y",
-      "norm_label": "padding-y"
-    },
-    {
       "label": "$type",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L111",
+      "source_location": "L50",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_padding_y_type",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_16_type",
       "community": 161,
-      "community_name": "padding-y",
+      "community_name": "16",
       "norm_label": "$type"
     },
     {
       "label": "$value",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L111",
+      "source_location": "L50",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_padding_y_value",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_16_value",
       "community": 161,
-      "community_name": "padding-y",
+      "community_name": "16",
       "norm_label": "$value"
+    },
+    {
+      "label": "16",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L50",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_spacing_16",
+      "community": 161,
+      "community_name": "16",
+      "norm_label": "16"
     },
     {
       "label": "states-and-variants.md",
@@ -38716,102 +38694,102 @@
       "norm_label": "none"
     },
     {
-      "label": "destructive-foreground",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L96",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_color_destructive_foreground",
-      "community": 164,
-      "community_name": "destructive-foreground",
-      "norm_label": "destructive-foreground"
-    },
-    {
       "label": "$type",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L96",
+      "source_location": "L41",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_destructive_foreground_type",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_1_type",
       "community": 164,
-      "community_name": "destructive-foreground",
+      "community_name": "1",
       "norm_label": "$type"
     },
     {
       "label": "$value",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L96",
+      "source_location": "L41",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_destructive_foreground_value",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_1_value",
       "community": 164,
-      "community_name": "destructive-foreground",
+      "community_name": "1",
       "norm_label": "$value"
     },
     {
-      "label": "muted",
+      "label": "1",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L93",
+      "source_location": "L41",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_color_muted",
-      "community": 165,
-      "community_name": "muted",
-      "norm_label": "muted"
+      "id": "agents_skills_design_system_templates_design_tokens_starter_spacing_1",
+      "community": 164,
+      "community_name": "1",
+      "norm_label": "1"
     },
     {
       "label": "$type",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L93",
+      "source_location": "L43",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_muted_type",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_3_type",
       "community": 165,
-      "community_name": "muted",
+      "community_name": "3",
       "norm_label": "$type"
     },
     {
       "label": "$value",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L93",
+      "source_location": "L43",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_muted_value",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_3_value",
       "community": 165,
-      "community_name": "muted",
+      "community_name": "3",
       "norm_label": "$value"
     },
     {
-      "label": "primary-foreground",
+      "label": "3",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L90",
+      "source_location": "L43",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_color_primary_foreground",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_spacing_3",
+      "community": 165,
+      "community_name": "3",
+      "norm_label": "3"
+    },
+    {
+      "label": "destructive",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L95",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_color_destructive",
       "community": 166,
-      "community_name": "primary-foreground",
-      "norm_label": "primary-foreground"
+      "community_name": "destructive",
+      "norm_label": "destructive"
     },
     {
       "label": "$type",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L90",
+      "source_location": "L95",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_primary_foreground_type",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_destructive_type",
       "community": 166,
-      "community_name": "primary-foreground",
+      "community_name": "destructive",
       "norm_label": "$type"
     },
     {
       "label": "$value",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L90",
+      "source_location": "L95",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_primary_foreground_value",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_destructive_value",
       "community": 166,
-      "community_name": "primary-foreground",
+      "community_name": "destructive",
       "norm_label": "$value"
     },
     {
@@ -38848,36 +38826,36 @@
       "norm_label": "$value"
     },
     {
-      "label": "secondary-foreground",
+      "label": "foreground",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L92",
+      "source_location": "L87",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_color_secondary_foreground",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_color_foreground",
       "community": 168,
-      "community_name": "secondary-foreground",
-      "norm_label": "secondary-foreground"
+      "community_name": "foreground",
+      "norm_label": "foreground"
     },
     {
       "label": "$type",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L92",
+      "source_location": "L87",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_secondary_foreground_type",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_foreground_type",
       "community": 168,
-      "community_name": "secondary-foreground",
+      "community_name": "foreground",
       "norm_label": "$type"
     },
     {
       "label": "$value",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L92",
+      "source_location": "L87",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_secondary_foreground_value",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_foreground_value",
       "community": 168,
-      "community_name": "secondary-foreground",
+      "community_name": "foreground",
       "norm_label": "$value"
     },
     {
@@ -39277,37 +39255,37 @@
       "norm_label": "pool"
     },
     {
-      "label": "cable-schedule/page.tsx",
+      "label": "muted-foreground",
       "file_type": "code",
-      "source_file": "src/app/(app)/cable-schedule/page.tsx",
-      "source_location": "L1",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L94",
       "_origin": "ast",
-      "id": "src_app_app_cable_schedule_page",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_color_muted_foreground",
       "community": 174,
-      "community_name": "cable-schedule/page.tsx",
-      "norm_label": "cable-schedule/page.tsx"
+      "community_name": "muted-foreground",
+      "norm_label": "muted-foreground"
     },
     {
-      "label": "cablePersist.ts",
+      "label": "$type",
       "file_type": "code",
-      "source_file": "src/lib/sld/cablePersist.ts",
-      "source_location": "L1",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L94",
       "_origin": "ast",
-      "id": "src_lib_sld_cablepersist",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_muted_foreground_type",
       "community": 174,
-      "community_name": "cable-schedule/page.tsx",
-      "norm_label": "cablepersist.ts"
+      "community_name": "muted-foreground",
+      "norm_label": "$type"
     },
     {
-      "label": "cablePersist.test.ts",
+      "label": "$value",
       "file_type": "code",
-      "source_file": "src/lib/sld/cablePersist.test.ts",
-      "source_location": "L1",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L94",
       "_origin": "ast",
-      "id": "src_lib_sld_cablepersist_test",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_muted_foreground_value",
       "community": 174,
-      "community_name": "cable-schedule/page.tsx",
-      "norm_label": "cablepersist.test.ts"
+      "community_name": "muted-foreground",
+      "norm_label": "$value"
     },
     {
       "label": "current.test.ts",
@@ -39937,37 +39915,37 @@
       "norm_label": "test getting installed components when files exist."
     },
     {
+      "label": "primary-hover",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L89",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_color_primary_hover",
+      "community": 187,
+      "community_name": "primary-hover",
+      "norm_label": "primary-hover"
+    },
+    {
       "label": "$type",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L50",
+      "source_location": "L89",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_16_type",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_primary_hover_type",
       "community": 187,
-      "community_name": "16",
+      "community_name": "primary-hover",
       "norm_label": "$type"
     },
     {
       "label": "$value",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L50",
+      "source_location": "L89",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_16_value",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_primary_hover_value",
       "community": 187,
-      "community_name": "16",
+      "community_name": "primary-hover",
       "norm_label": "$value"
-    },
-    {
-      "label": "16",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L50",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_spacing_16",
-      "community": 187,
-      "community_name": "16",
-      "norm_label": "16"
     },
     {
       "label": "Test adding custom fonts.",
@@ -41771,6 +41749,17 @@
       "norm_label": "verify-mall-project.ts"
     },
     {
+      "label": "cable-schedule/page.tsx",
+      "file_type": "code",
+      "source_file": "src/app/(app)/cable-schedule/page.tsx",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_app_app_cable_schedule_page",
+      "community": 24,
+      "community_name": "cables.ts",
+      "norm_label": "cable-schedule/page.tsx"
+    },
+    {
       "label": "cables.ts",
       "file_type": "code",
       "source_file": "src/lib/calculations/cables.ts",
@@ -41859,83 +41848,6 @@
       "norm_label": "method_ampacity_factors"
     },
     {
-      "label": "integration.test.ts",
-      "file_type": "code",
-      "source_file": "src/lib/calculations/integration.test.ts",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "src_lib_calculations_integration_test",
-      "community": 24,
-      "community_name": "cables.ts",
-      "norm_label": "integration.test.ts"
-    },
-    {
-      "label": "equipment",
-      "file_type": "code",
-      "source_file": "src/lib/calculations/integration.test.ts",
-      "source_location": "L14",
-      "_origin": "ast",
-      "id": "src_lib_calculations_integration_test_equipment",
-      "community": 24,
-      "community_name": "cables.ts",
-      "norm_label": "equipment"
-    },
-    {
-      "label": "findBreaker",
-      "file_type": "code",
-      "source_file": "src/lib/calculations/integration.test.ts",
-      "source_location": "L58",
-      "_origin": "ast",
-      "id": "src_lib_calculations_integration_test_findbreaker",
-      "community": 24,
-      "community_name": "cables.ts",
-      "norm_label": "findbreaker"
-    },
-    {
-      "label": "project",
-      "file_type": "code",
-      "source_file": "src/lib/calculations/integration.test.ts",
-      "source_location": "L64",
-      "_origin": "ast",
-      "id": "src_lib_calculations_integration_test_project",
-      "community": 24,
-      "community_name": "cables.ts",
-      "norm_label": "project"
-    },
-    {
-      "label": "riser.ts",
-      "file_type": "code",
-      "source_file": "src/lib/calculations/riser.ts",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "src_lib_calculations_riser",
-      "community": 24,
-      "community_name": "cables.ts",
-      "norm_label": "riser.ts"
-    },
-    {
-      "label": "riser.test.ts",
-      "file_type": "code",
-      "source_file": "src/lib/calculations/riser.test.ts",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "src_lib_calculations_riser_test",
-      "community": 24,
-      "community_name": "cables.ts",
-      "norm_label": "riser.test.ts"
-    },
-    {
-      "label": "proj",
-      "file_type": "code",
-      "source_file": "src/lib/calculations/riser.test.ts",
-      "source_location": "L9",
-      "_origin": "ast",
-      "id": "src_lib_calculations_riser_test_proj",
-      "community": 24,
-      "community_name": "cables.ts",
-      "norm_label": "proj"
-    },
-    {
       "label": "cable-editor.ts",
       "file_type": "code",
       "source_file": "src/lib/sld/cable-editor.ts",
@@ -41967,6 +41879,28 @@
       "community": 24,
       "community_name": "cables.ts",
       "norm_label": "cable-editor.test.ts"
+    },
+    {
+      "label": "cablePersist.ts",
+      "file_type": "code",
+      "source_file": "src/lib/sld/cablePersist.ts",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_lib_sld_cablepersist",
+      "community": 24,
+      "community_name": "cables.ts",
+      "norm_label": "cablepersist.ts"
+    },
+    {
+      "label": "cablePersist.test.ts",
+      "file_type": "code",
+      "source_file": "src/lib/sld/cablePersist.test.ts",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_lib_sld_cablepersist_test",
+      "community": 24,
+      "community_name": "cables.ts",
+      "norm_label": "cablepersist.test.ts"
     },
     {
       "label": "@types/three",
@@ -42013,37 +41947,15 @@
       "norm_label": "zod"
     },
     {
-      "label": "$type",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L43",
+      "label": "Test adding components that are already installed.",
+      "file_type": "rationale",
+      "source_file": ".agents/skills/ui-styling/scripts/tests/test_shadcn_add.py",
+      "source_location": "L112",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_3_type",
+      "id": "agents_skills_ui_styling_scripts_tests_test_shadcn_add_rationale_112",
       "community": 242,
-      "community_name": "3",
-      "norm_label": "$type"
-    },
-    {
-      "label": "$value",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L43",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_3_value",
-      "community": 242,
-      "community_name": "3",
-      "norm_label": "$value"
-    },
-    {
-      "label": "3",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L43",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_spacing_3",
-      "community": 242,
-      "community_name": "3",
-      "norm_label": "3"
+      "community_name": ".test_add_components_already_installed",
+      "norm_label": "test adding components that are already installed."
     },
     {
       "label": "tailwindcss",
@@ -42090,58 +42002,58 @@
       "norm_label": "@tailwindcss/postcss"
     },
     {
-      "label": "@testing-library/dom",
+      "label": "eslint-config-next",
       "file_type": "code",
       "source_file": "package.json",
-      "source_location": "L57",
+      "source_location": "L68",
       "_origin": "ast",
-      "id": "package_devdependencies_testing_library_dom",
+      "id": "package_devdependencies_eslint_config_next",
       "community": 245,
-      "community_name": "@testing-library/dom",
-      "norm_label": "@testing-library/dom"
+      "community_name": "eslint-config-next",
+      "norm_label": "eslint-config-next"
     },
     {
-      "label": "@testing-library/dom",
+      "label": "eslint-config-next",
       "file_type": "concept",
       "source_file": "package.json",
-      "source_location": "L57",
+      "source_location": "L68",
       "_origin": "ast",
-      "id": "testing_library_dom",
+      "id": "eslint_config_next",
       "community": 245,
-      "community_name": "@testing-library/dom",
-      "norm_label": "@testing-library/dom"
+      "community_name": "eslint-config-next",
+      "norm_label": "eslint-config-next"
     },
     {
-      "label": "destructive",
+      "label": "primary",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L95",
+      "source_location": "L88",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_color_destructive",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_color_primary",
       "community": 246,
-      "community_name": "destructive",
-      "norm_label": "destructive"
+      "community_name": "primary",
+      "norm_label": "primary"
     },
     {
       "label": "$type",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L95",
+      "source_location": "L88",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_destructive_type",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_primary_type",
       "community": 246,
-      "community_name": "destructive",
+      "community_name": "primary",
       "norm_label": "$type"
     },
     {
       "label": "$value",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L95",
+      "source_location": "L88",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_destructive_value",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_primary_value",
       "community": 246,
-      "community_name": "destructive",
+      "community_name": "primary",
       "norm_label": "$value"
     },
     {
@@ -44121,7 +44033,7 @@
       "_origin": "ast",
       "id": "src_app_api_buildings_id_recalculate_route",
       "community": 29,
-      "community_name": "computeFeeders",
+      "community_name": "sizeCableAndBreaker",
       "norm_label": "buildings/[id]/recalculate/route.ts"
     },
     {
@@ -44132,7 +44044,7 @@
       "_origin": "ast",
       "id": "src_app_api_floors_id_recalculate_route",
       "community": 29,
-      "community_name": "computeFeeders",
+      "community_name": "sizeCableAndBreaker",
       "norm_label": "floors/[id]/recalculate/route.ts"
     },
     {
@@ -44143,7 +44055,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_loads",
       "community": 29,
-      "community_name": "computeFeeders",
+      "community_name": "sizeCableAndBreaker",
       "norm_label": "loads.ts"
     },
     {
@@ -44154,7 +44066,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_loads_standard_generators",
       "community": 29,
-      "community_name": "computeFeeders",
+      "community_name": "sizeCableAndBreaker",
       "norm_label": "standard_generators"
     },
     {
@@ -44165,7 +44077,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_loads_standard_transformers",
       "community": 29,
-      "community_name": "computeFeeders",
+      "community_name": "sizeCableAndBreaker",
       "norm_label": "standard_transformers"
     },
     {
@@ -44176,7 +44088,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_loads_test",
       "community": 29,
-      "community_name": "computeFeeders",
+      "community_name": "sizeCableAndBreaker",
       "norm_label": "loads.test.ts"
     },
     {
@@ -44187,7 +44099,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_shortcircuit",
       "community": 29,
-      "community_name": "computeFeeders",
+      "community_name": "sizeCableAndBreaker",
       "norm_label": "shortcircuit.ts"
     },
     {
@@ -44198,7 +44110,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_shortcircuit_test",
       "community": 29,
-      "community_name": "computeFeeders",
+      "community_name": "sizeCableAndBreaker",
       "norm_label": "shortcircuit.test.ts"
     },
     {
@@ -44209,7 +44121,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_shortcircuit_transformer_impedance",
       "community": 29,
-      "community_name": "computeFeeders",
+      "community_name": "sizeCableAndBreaker",
       "norm_label": "transformer_impedance"
     },
     {
@@ -44220,7 +44132,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_validate",
       "community": 29,
-      "community_name": "computeFeeders",
+      "community_name": "sizeCableAndBreaker",
       "norm_label": "validate.ts"
     },
     {
@@ -44231,7 +44143,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_validate_test",
       "community": 29,
-      "community_name": "computeFeeders",
+      "community_name": "sizeCableAndBreaker",
       "norm_label": "validate.test.ts"
     },
     {
@@ -45247,48 +45159,26 @@
       "norm_label": "headers"
     },
     {
-      "label": "$type",
+      "label": "tsx",
       "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L41",
+      "source_file": "package.json",
+      "source_location": "L72",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_1_type",
+      "id": "package_devdependencies_tsx",
       "community": 308,
-      "community_name": "1",
-      "norm_label": "$type"
+      "community_name": "tsx",
+      "norm_label": "tsx"
     },
     {
-      "label": "$value",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L41",
+      "label": "tsx",
+      "file_type": "concept",
+      "source_file": "package.json",
+      "source_location": "L72",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_1_value",
+      "id": "tsx",
       "community": 308,
-      "community_name": "1",
-      "norm_label": "$value"
-    },
-    {
-      "label": "1",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L41",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_spacing_1",
-      "community": 308,
-      "community_name": "1",
-      "norm_label": "1"
-    },
-    {
-      "label": "Test adding components with empty list.",
-      "file_type": "rationale",
-      "source_file": ".agents/skills/ui-styling/scripts/tests/test_shadcn_add.py",
-      "source_location": "L96",
-      "_origin": "ast",
-      "id": "agents_skills_ui_styling_scripts_tests_test_shadcn_add_rationale_96",
-      "community": 309,
-      "community_name": ".test_add_components_no_components",
-      "norm_label": "test adding components with empty list."
+      "community_name": "tsx",
+      "norm_label": "tsx"
     },
     {
       "label": "AppLayoutContainer.tsx",
@@ -45368,48 +45258,26 @@
       "norm_label": "eslint"
     },
     {
-      "label": "@types/bcryptjs",
+      "label": "@types/nodemailer",
       "file_type": "code",
       "source_file": "package.json",
-      "source_location": "L60",
+      "source_location": "L63",
       "_origin": "ast",
-      "id": "package_devdependencies_types_bcryptjs",
+      "id": "package_devdependencies_types_nodemailer",
       "community": 311,
-      "community_name": "@types/bcryptjs",
-      "norm_label": "@types/bcryptjs"
+      "community_name": "@types/nodemailer",
+      "norm_label": "@types/nodemailer"
     },
     {
-      "label": "@types/bcryptjs",
+      "label": "@types/nodemailer",
       "file_type": "concept",
       "source_file": "package.json",
-      "source_location": "L60",
+      "source_location": "L63",
       "_origin": "ast",
-      "id": "types_bcryptjs",
+      "id": "types_nodemailer",
       "community": 311,
-      "community_name": "@types/bcryptjs",
-      "norm_label": "@types/bcryptjs"
-    },
-    {
-      "label": "@vitejs/plugin-react",
-      "file_type": "code",
-      "source_file": "package.json",
-      "source_location": "L66",
-      "_origin": "ast",
-      "id": "package_devdependencies_vitejs_plugin_react",
-      "community": 312,
-      "community_name": "@vitejs/plugin-react",
-      "norm_label": "@vitejs/plugin-react"
-    },
-    {
-      "label": "@vitejs/plugin-react",
-      "file_type": "concept",
-      "source_file": "package.json",
-      "source_location": "L66",
-      "_origin": "ast",
-      "id": "vitejs_plugin_react",
-      "community": 312,
-      "community_name": "@vitejs/plugin-react",
-      "norm_label": "@vitejs/plugin-react"
+      "community_name": "@types/nodemailer",
+      "norm_label": "@types/nodemailer"
     },
     {
       "label": "Test adding colors multiple times.",
@@ -46015,17 +45883,6 @@
       "community": 36,
       "community_name": "design_system.py",
       "norm_label": "format design system as markdown."
-    },
-    {
-      "label": "Bucket a 1-10 dial value into its tier config. Returns None if value is None.",
-      "file_type": "rationale",
-      "source_file": ".agents/skills/ui-ux-pro-max/scripts/design_system.py",
-      "source_location": "L70",
-      "_origin": "ast",
-      "id": "agents_skills_ui_ux_pro_max_scripts_design_system_rationale_70",
-      "community": 36,
-      "community_name": "design_system.py",
-      "norm_label": "bucket a 1-10 dial value into its tier config. returns none if value is none."
     },
     {
       "label": "Main entry point for design system generation. Args: query: Search query (e.g.,\u2026",
@@ -48195,6 +48052,17 @@
       "norm_label": "generate complete design system recommendation. variance/motion/density are..."
     },
     {
+      "label": "Bucket a 1-10 dial value into its tier config. Returns None if value is None.",
+      "file_type": "rationale",
+      "source_file": ".agents/skills/ui-ux-pro-max/scripts/design_system.py",
+      "source_location": "L70",
+      "_origin": "ast",
+      "id": "agents_skills_ui_ux_pro_max_scripts_design_system_rationale_70",
+      "community": 49,
+      "community_name": "DesignSystemGenerator",
+      "norm_label": "bucket a 1-10 dial value into its tier config. returns none if value is none."
+    },
+    {
       "label": "LoadLibraryItem.ts",
       "file_type": "code",
       "source_file": "src/generated/prisma/models/LoadLibraryItem.ts",
@@ -48215,6 +48083,50 @@
       "community": 51,
       "community_name": "feeders.ts",
       "norm_label": "feeders.ts"
+    },
+    {
+      "label": "integration.test.ts",
+      "file_type": "code",
+      "source_file": "src/lib/calculations/integration.test.ts",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_lib_calculations_integration_test",
+      "community": 51,
+      "community_name": "feeders.ts",
+      "norm_label": "integration.test.ts"
+    },
+    {
+      "label": "equipment",
+      "file_type": "code",
+      "source_file": "src/lib/calculations/integration.test.ts",
+      "source_location": "L14",
+      "_origin": "ast",
+      "id": "src_lib_calculations_integration_test_equipment",
+      "community": 51,
+      "community_name": "feeders.ts",
+      "norm_label": "equipment"
+    },
+    {
+      "label": "findBreaker",
+      "file_type": "code",
+      "source_file": "src/lib/calculations/integration.test.ts",
+      "source_location": "L58",
+      "_origin": "ast",
+      "id": "src_lib_calculations_integration_test_findbreaker",
+      "community": 51,
+      "community_name": "feeders.ts",
+      "norm_label": "findbreaker"
+    },
+    {
+      "label": "project",
+      "file_type": "code",
+      "source_file": "src/lib/calculations/integration.test.ts",
+      "source_location": "L64",
+      "_origin": "ast",
+      "id": "src_lib_calculations_integration_test_project",
+      "community": 51,
+      "community_name": "feeders.ts",
+      "norm_label": "project"
     },
     {
       "label": "phaseBalance.ts",
@@ -48259,6 +48171,39 @@
       "community": 51,
       "community_name": "feeders.ts",
       "norm_label": "unbalance_limit_pct"
+    },
+    {
+      "label": "riser.ts",
+      "file_type": "code",
+      "source_file": "src/lib/calculations/riser.ts",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_lib_calculations_riser",
+      "community": 51,
+      "community_name": "feeders.ts",
+      "norm_label": "riser.ts"
+    },
+    {
+      "label": "riser.test.ts",
+      "file_type": "code",
+      "source_file": "src/lib/calculations/riser.test.ts",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_lib_calculations_riser_test",
+      "community": 51,
+      "community_name": "feeders.ts",
+      "norm_label": "riser.test.ts"
+    },
+    {
+      "label": "proj",
+      "file_type": "code",
+      "source_file": "src/lib/calculations/riser.test.ts",
+      "source_location": "L9",
+      "_origin": "ast",
+      "id": "src_lib_calculations_riser_test_proj",
+      "community": 51,
+      "community_name": "feeders.ts",
+      "norm_label": "proj"
     },
     {
       "label": "generate-slide.py",
@@ -48503,48 +48448,37 @@
       "norm_label": "background"
     },
     {
-      "label": "foreground",
+      "label": "destructive-foreground",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L87",
+      "source_location": "L96",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_color_foreground",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_color_destructive_foreground",
       "community": 54,
       "community_name": "color",
-      "norm_label": "foreground"
+      "norm_label": "destructive-foreground"
     },
     {
-      "label": "muted-foreground",
+      "label": "muted",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L94",
+      "source_location": "L93",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_color_muted_foreground",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_color_muted",
       "community": 54,
       "community_name": "color",
-      "norm_label": "muted-foreground"
+      "norm_label": "muted"
     },
     {
-      "label": "primary",
+      "label": "primary-foreground",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L88",
+      "source_location": "L90",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_color_primary",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_color_primary_foreground",
       "community": 54,
       "community_name": "color",
-      "norm_label": "primary"
-    },
-    {
-      "label": "primary-hover",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L89",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_color_primary_hover",
-      "community": 54,
-      "community_name": "color",
-      "norm_label": "primary-hover"
+      "norm_label": "primary-foreground"
     },
     {
       "label": "secondary",
@@ -48558,12 +48492,23 @@
       "norm_label": "secondary"
     },
     {
+      "label": "secondary-foreground",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L92",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_color_secondary_foreground",
+      "community": 54,
+      "community_name": "color",
+      "norm_label": "secondary-foreground"
+    },
+    {
       "label": "$type",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L87",
+      "source_location": "L96",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_foreground_type",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_destructive_foreground_type",
       "community": 54,
       "community_name": "color",
       "norm_label": "$type"
@@ -48572,9 +48517,9 @@
       "label": "$value",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L87",
+      "source_location": "L96",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_foreground_value",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_destructive_foreground_value",
       "community": 54,
       "community_name": "color",
       "norm_label": "$value"
@@ -48583,9 +48528,9 @@
       "label": "$type",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L94",
+      "source_location": "L93",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_muted_foreground_type",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_muted_type",
       "community": 54,
       "community_name": "color",
       "norm_label": "$type"
@@ -48594,9 +48539,9 @@
       "label": "$value",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L94",
+      "source_location": "L93",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_muted_foreground_value",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_muted_value",
       "community": 54,
       "community_name": "color",
       "norm_label": "$value"
@@ -48605,9 +48550,9 @@
       "label": "$type",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L89",
+      "source_location": "L90",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_primary_hover_type",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_primary_foreground_type",
       "community": 54,
       "community_name": "color",
       "norm_label": "$type"
@@ -48616,9 +48561,9 @@
       "label": "$value",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L89",
+      "source_location": "L90",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_primary_hover_value",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_primary_foreground_value",
       "community": 54,
       "community_name": "color",
       "norm_label": "$value"
@@ -48627,9 +48572,9 @@
       "label": "$type",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L88",
+      "source_location": "L92",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_primary_type",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_secondary_foreground_type",
       "community": 54,
       "community_name": "color",
       "norm_label": "$type"
@@ -48638,9 +48583,9 @@
       "label": "$value",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L88",
+      "source_location": "L92",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_primary_value",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_secondary_foreground_value",
       "community": 54,
       "community_name": "color",
       "norm_label": "$value"
@@ -50131,6 +50076,28 @@
       "norm_label": "$value"
     },
     {
+      "label": "$type",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L97",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_border_type",
+      "community": 83,
+      "community_name": "card",
+      "norm_label": "$type"
+    },
+    {
+      "label": "$value",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L97",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_border_value",
+      "community": 83,
+      "community_name": "card",
+      "norm_label": "$value"
+    },
+    {
       "label": "bg",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
@@ -50151,6 +50118,17 @@
       "community": 83,
       "community_name": "card",
       "norm_label": "bg"
+    },
+    {
+      "label": "border",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L125",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_card_border",
+      "community": 83,
+      "community_name": "card",
+      "norm_label": "border"
     },
     {
       "label": "padding",
@@ -50175,6 +50153,17 @@
       "norm_label": "shadow"
     },
     {
+      "label": "border",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L97",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_color_border",
+      "community": 83,
+      "community_name": "card",
+      "norm_label": "border"
+    },
+    {
       "label": "card",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
@@ -50195,6 +50184,17 @@
       "community": 83,
       "community_name": "card",
       "norm_label": "bg"
+    },
+    {
+      "label": "border",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L117",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_input_border",
+      "community": 83,
+      "community_name": "card",
+      "norm_label": "border"
     },
     {
       "label": "$type",
@@ -50329,17 +50329,6 @@
       "norm_label": "tests for shadcn_add.py"
     },
     {
-      "label": "Test adding components that are already installed.",
-      "file_type": "rationale",
-      "source_file": ".agents/skills/ui-styling/scripts/tests/test_shadcn_add.py",
-      "source_location": "L112",
-      "_origin": "ast",
-      "id": "agents_skills_ui_styling_scripts_tests_test_shadcn_add_rationale_112",
-      "community": 85,
-      "community_name": "ShadcnInstaller",
-      "norm_label": "test adding components that are already installed."
-    },
-    {
       "label": "Test listing installed components when they exist.",
       "file_type": "rationale",
       "source_file": ".agents/skills/ui-styling/scripts/tests/test_shadcn_add.py",
@@ -50360,6 +50349,17 @@
       "community": 85,
       "community_name": "ShadcnInstaller",
       "norm_label": "test getting installed components without config."
+    },
+    {
+      "label": "Test adding components with empty list.",
+      "file_type": "rationale",
+      "source_file": ".agents/skills/ui-styling/scripts/tests/test_shadcn_add.py",
+      "source_location": "L96",
+      "_origin": "ast",
+      "id": "agents_skills_ui_styling_scripts_tests_test_shadcn_add_rationale_96",
+      "community": 85,
+      "community_name": "ShadcnInstaller",
+      "norm_label": "test adding components with empty list."
     },
     {
       "label": "Add all available shadcn/ui components. Args: overwrite: If True, overwrite\u2026",
@@ -51374,15 +51374,15 @@
       "norm_label": "devdependencies"
     },
     {
-      "label": "eslint-config-next",
+      "label": "@testing-library/dom",
       "file_type": "code",
       "source_file": "package.json",
-      "source_location": "L68",
+      "source_location": "L57",
       "_origin": "ast",
-      "id": "package_devdependencies_eslint_config_next",
+      "id": "package_devdependencies_testing_library_dom",
       "community": 95,
       "community_name": "devDependencies",
-      "norm_label": "eslint-config-next"
+      "norm_label": "@testing-library/dom"
     },
     {
       "label": "@testing-library/jest-dom",
@@ -51396,26 +51396,26 @@
       "norm_label": "@testing-library/jest-dom"
     },
     {
-      "label": "tsx",
+      "label": "@types/bcryptjs",
       "file_type": "code",
       "source_file": "package.json",
-      "source_location": "L72",
+      "source_location": "L60",
       "_origin": "ast",
-      "id": "package_devdependencies_tsx",
+      "id": "package_devdependencies_types_bcryptjs",
       "community": 95,
       "community_name": "devDependencies",
-      "norm_label": "tsx"
+      "norm_label": "@types/bcryptjs"
     },
     {
-      "label": "@types/nodemailer",
+      "label": "@vitejs/plugin-react",
       "file_type": "code",
       "source_file": "package.json",
-      "source_location": "L63",
+      "source_location": "L66",
       "_origin": "ast",
-      "id": "package_devdependencies_types_nodemailer",
+      "id": "package_devdependencies_vitejs_plugin_react",
       "community": 95,
       "community_name": "devDependencies",
-      "norm_label": "@types/nodemailer"
+      "norm_label": "@vitejs/plugin-react"
     },
     {
       "label": "vitest",
@@ -51429,15 +51429,15 @@
       "norm_label": "vitest"
     },
     {
-      "label": "eslint-config-next",
+      "label": "@testing-library/dom",
       "file_type": "concept",
       "source_file": "package.json",
-      "source_location": "L68",
+      "source_location": "L57",
       "_origin": "ast",
-      "id": "eslint_config_next",
+      "id": "testing_library_dom",
       "community": 95,
       "community_name": "devDependencies",
-      "norm_label": "eslint-config-next"
+      "norm_label": "@testing-library/dom"
     },
     {
       "label": "@testing-library/jest-dom",
@@ -51451,26 +51451,26 @@
       "norm_label": "@testing-library/jest-dom"
     },
     {
-      "label": "tsx",
+      "label": "@types/bcryptjs",
       "file_type": "concept",
       "source_file": "package.json",
-      "source_location": "L72",
+      "source_location": "L60",
       "_origin": "ast",
-      "id": "tsx",
+      "id": "types_bcryptjs",
       "community": 95,
       "community_name": "devDependencies",
-      "norm_label": "tsx"
+      "norm_label": "@types/bcryptjs"
     },
     {
-      "label": "@types/nodemailer",
+      "label": "@vitejs/plugin-react",
       "file_type": "concept",
       "source_file": "package.json",
-      "source_location": "L63",
+      "source_location": "L66",
       "_origin": "ast",
-      "id": "types_nodemailer",
+      "id": "vitejs_plugin_react",
       "community": 95,
       "community_name": "devDependencies",
-      "norm_label": "@types/nodemailer"
+      "norm_label": "@vitejs/plugin-react"
     },
     {
       "label": "vitest",
@@ -60092,7 +60092,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/app/(app)/coordination/page.tsx",
-      "source_location": "L308",
+      "source_location": "L332",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_app_app_coordination_page_coordinationpage",
@@ -60104,7 +60104,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/app/(app)/coordination/page.tsx",
-      "source_location": "L313",
+      "source_location": "L351",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_app_app_coordination_page_coordinationpage",
@@ -60116,7 +60116,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/app/(app)/coordination/page.tsx",
-      "source_location": "L320",
+      "source_location": "L361",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_app_app_coordination_page_coordinationpage",
@@ -60128,7 +60128,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/app/(app)/coordination/page.tsx",
-      "source_location": "L335",
+      "source_location": "L387",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_app_app_coordination_page_coordinationpage",
@@ -93823,7 +93823,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/app/(app)/projects/[id]/page.tsx",
-      "source_location": "L1147",
+      "source_location": "L1134",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_app_app_projects_id_page",
@@ -124390,7 +124390,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "src/app/(app)/projects/[id]/page.tsx",
-      "source_location": "L510",
+      "source_location": "L505",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_app_app_projects_id_page_projectdetailpage",
@@ -126751,5 +126751,5 @@
       "source_file": "public/slides/slide_load_calc.webp"
     }
   ],
-  "built_at_commit": "65bf4016d8a35b69cb86b98b68c03a2ba67854e6"
+  "built_at_commit": "fcf58eb0da087fe6811c1c055e3d7a05c837dfa7"
 }

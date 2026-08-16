@@ -257,88 +257,185 @@ export default function CoordinationPage() {
     );
 
     const mfg = feeder.manufacturer || project?.preferredManufacturer || 'Schneider';
-    const isSchneider = mfg.toUpperCase().includes('SCHNEIDER');
 
-    // Upstream breaker
-    const upIn = upstreamFeeder?.breakerSize ?? (feeder.breakerSize >= 400 ? 630 : 400);
-    const upIr = upstreamFeeder?.current ?? upIn * 0.8;
-    const upCat: 'ACB' | 'MCCB' = upIn >= 630 ? 'ACB' : 'MCCB';
-    const upModel = upstreamFeeder?.breakerModel ?? `${mfg} ${upCat} ${upIn}A`;
+    // 1. Resolve Upstream Breaker
+    const bldg = project?.buildings.find((b) => b.id === feeder.buildingId);
+    let computedMainIncomer: BreakerCurveSettings | null = null;
+    if (bldg && project) {
+      const computed = computeFeeders(bldg, project, findBreaker);
+      computedMainIncomer = computed.mainIncomerSettings;
+    }
 
-    setUpstream({
-      inRating: upIn,
-      ir: parseFloat(upIr.toFixed(1)),
-      tr: 12,
-      isd: upIn * 4,
-      tsd: 0.3,
-      i2t: false,
-      ii: upIn * 10,
-      category: upCat,
-      manufacturer: mfg,
-      model: upModel,
-    });
-    setUpstreamFeederLabel(parentName);
+    if (parentName === 'Main Incomer' && computedMainIncomer) {
+      const saved = breakerSettings.find(
+        (s) => s.breakerId === `${project?.id}-main-incomer` || s.breakerId === 'Main Incomer'
+      );
+      const effectiveIn = saved ? (parseInt(saved.frameSize) || computedMainIncomer.inRating) : computedMainIncomer.inRating;
+      const effectiveIr = saved?.ir ?? computedMainIncomer.ir;
+      const effectiveCategory: 'ACB' | 'MCCB' = effectiveIn >= 630 ? 'ACB' : 'MCCB';
+      const effectiveModel = saved?.model ?? computedMainIncomer.model;
 
-    // Downstream breaker
-    const downIn = feeder.breakerSize;
-    const downIr = feeder.current;
+      setUpstream({
+        inRating: effectiveIn,
+        ir: parseFloat(effectiveIr.toFixed(1)),
+        tr: saved?.tr ?? computedMainIncomer.tr ?? 12,
+        isd: saved?.isd ?? computedMainIncomer.isd ?? (effectiveIn * 4),
+        tsd: saved?.tsd ?? computedMainIncomer.tsd ?? 0.3,
+        i2t: saved?.i2t ?? computedMainIncomer.i2t ?? false,
+        ii: saved?.ii ?? computedMainIncomer.ii ?? (effectiveIn * 10),
+        category: effectiveCategory,
+        manufacturer: saved?.manufacturer ?? computedMainIncomer.manufacturer,
+        model: effectiveModel,
+      });
+      setUpstreamFeederLabel('Main Incomer');
+    } else {
+      const upstreamFeeder = allProjectFeeders.find(
+        (f) => f.name === parentName && f.buildingId === feeder.buildingId
+      );
+      const savedUp = upstreamFeeder
+        ? breakerSettings.find((s) => s.breakerId === `${project?.id}-${upstreamFeeder.name}` || s.breakerId === upstreamFeeder.name)
+        : null;
+
+      const rawUpIn = savedUp ? parseInt(savedUp.frameSize) : upstreamFeeder?.breakerSize ?? (feeder.breakerSize >= 400 ? 630 : 400);
+      const upIn = Math.max(1, rawUpIn || 400);
+      const rawUpIr = savedUp?.ir ?? upstreamFeeder?.current ?? upIn * 0.8;
+      const upIr = Math.max(0.5, (rawUpIr && rawUpIr > 0) ? rawUpIr : upIn * 0.8);
+      const upCat: 'ACB' | 'MCCB' = upIn >= 630 ? 'ACB' : 'MCCB';
+      const upModel = savedUp?.model ?? upstreamFeeder?.breakerModel ?? `${mfg} ${upCat} ${upIn}A`;
+
+      setUpstream({
+        inRating: upIn,
+        ir: parseFloat(upIr.toFixed(1)),
+        tr: savedUp?.tr ?? 12,
+        isd: savedUp?.isd ?? (upIn * 4),
+        tsd: savedUp?.tsd ?? 0.3,
+        i2t: savedUp?.i2t ?? false,
+        ii: savedUp?.ii ?? (upIn * 10),
+        category: upCat,
+        manufacturer: savedUp?.manufacturer ?? mfg,
+        model: upModel,
+      });
+      setUpstreamFeederLabel(parentName);
+    }
+
+    // 2. Resolve Downstream Breaker
+    const savedDown = breakerSettings.find(
+      (s) => s.breakerId === `${project?.id}-${feeder.name}` || s.breakerId === feeder.name || (feeder.itemId && s.breakerId === feeder.itemId)
+    );
+
+    const rawDownIn = savedDown ? parseInt(savedDown.frameSize) : feeder.breakerSize;
+    const downIn = Math.max(1, rawDownIn || 16);
+    const rawDownIr = savedDown?.ir ?? feeder.current;
+    const downIr = Math.max(0.5, (rawDownIr && rawDownIr > 0) ? rawDownIr : downIn * 0.8);
     const downCat: 'MCB' | 'MCCB' = feeder.type === 'APARTMENT' ? 'MCB' : 'MCCB';
-    const downModel = feeder.breakerModel;
+    const downModel = savedDown?.model ?? feeder.breakerModel;
 
     setDownstream({
       inRating: downIn,
       ir: parseFloat(downIr.toFixed(1)),
-      tr: 12,
-      isd: downCat === 'MCCB' ? downIn * 4 : undefined,
-      tsd: downCat === 'MCCB' ? 0.05 : undefined,
-      ii: downIn * (downCat === 'MCB' ? 5 : 10),
+      tr: savedDown?.tr ?? 12,
+      isd: savedDown?.isd ?? (downCat === 'MCCB' ? downIn * 4 : undefined),
+      tsd: savedDown?.tsd ?? (downCat === 'MCCB' ? 0.05 : undefined),
+      ii: savedDown?.ii ?? (downIn * (downCat === 'MCB' ? 5 : 10)),
       category: downCat,
-      manufacturer: mfg,
+      manufacturer: savedDown?.manufacturer ?? mfg,
       model: downModel,
       curveType: 'C',
     });
     setDownstreamFeederLabel(feeder.name);
 
     // Cable & Fault
-    setCableSize(feeder.cableSize || 16);
-    setFaultCurrent((feeder.faultCurrentKa ? feeder.faultCurrentKa : 15) * 1000);
-  }, [selectedFeederName, selectedBuildingId, allProjectFeeders, mode, project?.preferredManufacturer]);
+    setCableSize(Math.max(1.5, feeder.cableSize || 16));
+    setFaultCurrent((feeder.faultCurrentKa && feeder.faultCurrentKa > 0 ? feeder.faultCurrentKa : 15) * 1000);
+  }, [selectedFeederName, selectedBuildingId, allProjectFeeders, mode, project?.preferredManufacturer, project, findBreaker, breakerSettings]);
+
+  // Safe normalized breaker settings for mathematical calculations
+  const safeUpstream = useMemo<BreakerCurveSettings>(() => {
+    const inRating = Math.max(1, upstream.inRating || 16);
+    const ir = Math.max(0.1, upstream.ir > 0 ? upstream.ir : inRating * 0.8);
+    const tr = Math.max(0.1, upstream.tr > 0 ? upstream.tr : 12);
+    return { ...upstream, inRating, ir, tr };
+  }, [upstream]);
+
+  const safeDownstream = useMemo<BreakerCurveSettings>(() => {
+    const inRating = Math.max(1, downstream.inRating || 16);
+    const ir = Math.max(0.1, downstream.ir > 0 ? downstream.ir : inRating * 0.8);
+    const tr = Math.max(0.1, downstream.tr > 0 ? downstream.tr : 12);
+    return { ...downstream, inRating, ir, tr };
+  }, [downstream]);
+
+  const safeCableSize = Math.max(1.5, cableSize || 16);
+  const safeFaultCurrent = Math.max(100, faultCurrent || 10000);
 
   // Generate curve data
-  const upstreamCurve = useMemo(() => generateCurvePoints(upstream), [upstream]);
-  const downstreamCurve = useMemo(() => generateCurvePoints(downstream), [downstream]);
+  const upstreamCurve = useMemo(() => {
+    try {
+      return generateCurvePoints(safeUpstream);
+    } catch (err) {
+      console.warn('Failed to generate upstream curve:', err);
+      return [];
+    }
+  }, [safeUpstream]);
+
+  const downstreamCurve = useMemo(() => {
+    try {
+      return generateCurvePoints(safeDownstream);
+    } catch (err) {
+      console.warn('Failed to generate downstream curve:', err);
+      return [];
+    }
+  }, [safeDownstream]);
 
   // Cable damage curve
-  const cableDamageCurve = useMemo(
-    () => generateCableDamageCurve(cableSize, cableMaterial, cableInsulation),
-    [cableSize, cableMaterial, cableInsulation]
-  );
+  const cableDamageCurve = useMemo(() => {
+    try {
+      return generateCableDamageCurve(safeCableSize, cableMaterial, cableInsulation);
+    } catch (err) {
+      console.warn('Failed to generate cable damage curve:', err);
+      return [];
+    }
+  }, [safeCableSize, cableMaterial, cableInsulation]);
 
   // Live coordination check
-  const result: CoordinationResult = useMemo(
-    () =>
-      verifyCoordination(upstream, downstream, faultCurrent, {
-        cableSizeMm2: cableSize,
+  const result: CoordinationResult = useMemo(() => {
+    try {
+      return verifyCoordination(safeUpstream, safeDownstream, safeFaultCurrent, {
+        cableSizeMm2: safeCableSize,
         cableMaterial,
         cableInsulation,
         manufacturerPair: {
-          upstreamMfg: upstream.manufacturer ?? 'ABB',
-          downstreamMfg: downstream.manufacturer ?? 'ABB',
+          upstreamMfg: safeUpstream.manufacturer ?? 'ABB',
+          downstreamMfg: safeDownstream.manufacturer ?? 'ABB',
         },
-      }),
-    [upstream, downstream, faultCurrent, cableSize, cableMaterial, cableInsulation]
-  );
+      });
+    } catch (err) {
+      console.warn('Coordination check calculation error:', err);
+      return {
+        status: 'NONE',
+        cascadingSupported: false,
+        cableDamageOk: false,
+        currentGradingOk: false,
+        timeGradingOk: false,
+        overlapDetails: 'Coordination parameters incomplete or zero load current',
+      };
+    }
+  }, [safeUpstream, safeDownstream, safeFaultCurrent, safeCableSize, cableMaterial, cableInsulation]);
 
   // Alternative suggestions when selectivity is not full
   const alternativeSuggestions: BreakerAlternativeSuggestion[] = useMemo(() => {
     if (result.status === 'FULL') return [];
-    return suggestAlternativeBreaker(upstream, downstream, faultCurrent, {
-      downstreamLoadCurrent: downstream.ir,
-      cableSizeMm2: cableSize,
-      parentFeederName: upstreamFeederLabel,
-      preferredManufacturer: project?.preferredManufacturer,
-    });
-  }, [result.status, upstream, downstream, faultCurrent, cableSize, upstreamFeederLabel, project?.preferredManufacturer]);
+    try {
+      return suggestAlternativeBreaker(safeUpstream, safeDownstream, safeFaultCurrent, {
+        downstreamLoadCurrent: safeDownstream.ir,
+        cableSizeMm2: safeCableSize,
+        parentFeederName: upstreamFeederLabel,
+        preferredManufacturer: project?.preferredManufacturer,
+      });
+    } catch (err) {
+      console.warn('Alternative breaker suggestion calculation error:', err);
+      return [];
+    }
+  }, [result.status, safeUpstream, safeDownstream, safeFaultCurrent, safeCableSize, upstreamFeederLabel, project?.preferredManufacturer]);
 
   const STATUS_CONFIG: Record<SelectivityStatus, { color: string; bg: string; border: string; icon: typeof CheckCircle; label: string }> = {
     FULL: {
@@ -370,8 +467,10 @@ export default function CoordinationPage() {
   // Apply one-click auto-tuning to achieve full selectivity
   const applyAutoTune = () => {
     // 1. Grade upstream Ir to at least 1.6x downstream Ir
-    const targetUpstreamIr = Math.max(upstream.inRating * 0.8, downstream.ir * 1.6);
-    const updatedUpstreamIn = upstream.inRating < targetUpstreamIr ? Math.ceil(targetUpstreamIr / 100) * 100 : upstream.inRating;
+    const validDownIr = Math.max(0.5, downstream.ir);
+    const validUpIn = Math.max(16, upstream.inRating);
+    const targetUpstreamIr = Math.max(validUpIn * 0.8, validDownIr * 1.6);
+    const updatedUpstreamIn = validUpIn < targetUpstreamIr ? Math.ceil(targetUpstreamIr / 100) * 100 : validUpIn;
 
     setUpstream((prev) => ({
       ...prev,
@@ -385,8 +484,8 @@ export default function CoordinationPage() {
     setDownstream((prev) => ({
       ...prev,
       tsd: prev.category === 'MCCB' ? 0.05 : undefined,
-      isd: prev.ir * 4,
-      ii: prev.inRating * 8,
+      isd: Math.max(0.1, prev.ir) * 4,
+      ii: Math.max(1, prev.inRating) * 8,
     }));
   };
 

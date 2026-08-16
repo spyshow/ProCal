@@ -624,6 +624,8 @@ export interface ComputeFeedersResult {
   smdbFeeders: (floorNumber: number) => PanelFeeder[];
   /** Floor numbers that have sub-panels — drives the SMDB floor selector. */
   smdbFloorNumbers: number[];
+  /** Sized main incomer breaker curve settings for this building. */
+  mainIncomerSettings: BreakerCurveSettings;
 }
 
 /**
@@ -1027,5 +1029,5 @@ export function computeFeeders(
     });
   };
 
-  return { mdbFeeders, smdbFeeders, smdbFloorNumbers };
+  return { mdbFeeders, smdbFeeders, smdbFloorNumbers, mainIncomerSettings };
 }

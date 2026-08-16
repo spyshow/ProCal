@@ -1,11 +1,11 @@
 # Graph Report - ProCal  (2026-08-16)
 
 ## Corpus Check
-- 353 files · ~471,924 words
+- 353 files · ~472,018 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 4485 nodes · 6338 edges · 305 communities (173 shown, 132 thin omitted)
+- 4485 nodes · 6338 edges · 306 communities (174 shown, 132 thin omitted)
 - Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 48 edges (avg confidence: 0.73)
 - Token cost: 0 input · 0 output
 
@@ -131,7 +131,7 @@
 - Logo Usage Rules
 - Prisma__BreakerFamilyClient
 - Claude Project Guidelines
-- test_core.py
+- detect_domain
 - _select_palette_for_mode
 - Prisma__ApartmentTemplateClient
 - Prisma__BuildingClient
@@ -152,7 +152,7 @@
 - leads/page.tsx
 - admin/page.tsx
 - me/route.ts
-- change-password/route.ts
+- padding-y
 - profile/route.ts
 - Prisma__ApartmentRoomClient
 - Prisma__ContactRequestClient
@@ -178,12 +178,12 @@
 - sm
 - login/route.ts
 - States and Variants
-- none
-- $type
+- md
+- upload/route.ts
 - 16
-- 1
+- 2
 - ring
-- destructive-foreground
+- 5
 - .__init__
 - .temp_project
 - SLD Panel Designer Implementation Plan
@@ -201,7 +201,7 @@
 - templates/[id]/route.ts
 - .test_get_installed_components_empty
 - .test_get_installed_components_with_files
-- primary-foreground
+- destructive
 - .test_add_fonts
 - .test_recommend_plugins
 - .test_recommend_plugins_nextjs
@@ -256,7 +256,7 @@
 - three
 - @types/three
 - zod
-- secondary-foreground
+- foreground
 - tailwindcss
 - @tailwindcss/postcss
 - eslint-config-next
@@ -291,7 +291,7 @@
 - Tailwind Integration
 - update.md
 - Token Architecture
-- 3
+- muted-foreground
 - Primitive Tokens
 - Core Visual Elements
 - feedback/page.tsx
@@ -300,7 +300,7 @@
 - 8
 - Brand Guidelines Template
 - .test_add_components_no_config
-- primary
+- primary-hover
 - @testing-library/dom
 - page.test.tsx
 - react-i18next
@@ -334,7 +334,6 @@
   research/riser-diagram-purpose/findings/F1-research.md → docs/reference-calc-engine.md
 
 ## Import Cycles
-- 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/FloorDesign.ts -> src/generated/prisma/internal/prismaNamespace.ts`
 - 3-file cycle: `src/generated/prisma/commonInputTypes.ts -> src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/commonInputTypes.ts`
 - 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/ApartmentRoom.ts -> src/generated/prisma/internal/prismaNamespace.ts`
 - 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/ApartmentTemplate.ts -> src/generated/prisma/internal/prismaNamespace.ts`
@@ -344,6 +343,7 @@
 - 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/BuildingLoad.ts -> src/generated/prisma/internal/prismaNamespace.ts`
 - 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/ContactRequest.ts -> src/generated/prisma/internal/prismaNamespace.ts`
 - 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/EquipmentCatalog.ts -> src/generated/prisma/internal/prismaNamespace.ts`
+- 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/FloorDesign.ts -> src/generated/prisma/internal/prismaNamespace.ts`
 - 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/FloorItem.ts -> src/generated/prisma/internal/prismaNamespace.ts`
 - 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/LoadLibraryItem.ts -> src/generated/prisma/internal/prismaNamespace.ts`
 - 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/Project.ts -> src/generated/prisma/internal/prismaNamespace.ts`
@@ -366,7 +366,7 @@
 - **Phase Balancing & Neutral Accounting Pipeline** — docs_explanation_phase_balancing_total_angle_neutral, docs_explanation_phase_balancing_current_unbalance_proxy, docs_explanation_phase_balancing_greedy_assignment_on_read, docs_reference_calc_engine_calc_engine_reference, uploads_3phase_pdh_course_e336, uploads_en50160_en_50160_standard [INFERRED 0.95]
 - **ProCal Core Engineering Workflow Feature Slides** — public_slides_slide_load_calc, public_slides_slide_cable_sizing, public_slides_slide_sld_diagram, public_slides_slide_breaker_schedule, public_slides_slide_pdf_reports [INFERRED 0.95]
 
-## Communities (305 total, 132 thin omitted)
+## Communities (306 total, 132 thin omitted)
 
 ### Community 0 - "Project.ts"
 Cohesion: 0.01
@@ -437,8 +437,8 @@ Cohesion: 0.05
 Nodes (53): $type, $value, $type, $value, $type, $value, $type, $value (+45 more)
 
 ### Community 17 - "getSessionUser"
-Cohesion: 0.08
-Nodes (35): AdminLayout(), GET(), DELETE(), PUT(), GET(), POST(), DELETE(), PATCH() (+27 more)
+Cohesion: 0.09
+Nodes (35): AdminLayout(), POST(), mocks, post(), GET(), DELETE(), PUT(), GET() (+27 more)
 
 ### Community 18 - "search"
 Cohesion: 0.07
@@ -513,8 +513,8 @@ Cohesion: 0.15
 Nodes (28): CoordinationPage(), ProjectFeederItem, SelectivityStatus, TccPlotModal(), TccPlotModalProps, ComputeFeedersResult, DefaultFamilies, BreakerCurveSettings (+20 more)
 
 ### Community 36 - "design_system.py"
-Cohesion: 0.13
-Nodes (20): ansi_ljust(), _detect_page_type(), format_ascii_box(), format_master_md(), format_page_override_md(), _generate_intelligent_overrides(), hex_to_ansi(), persist_design_system() (+12 more)
+Cohesion: 0.11
+Nodes (25): ansi_ljust(), _detect_page_type(), format_ascii_box(), format_markdown(), format_master_md(), format_page_override_md(), generate_design_system(), _generate_intelligent_overrides() (+17 more)
 
 ### Community 37 - "compilerOptions"
 Cohesion: 0.07
@@ -582,7 +582,7 @@ Nodes (14): GET(), POST(), create, findFirst, mocks, post(), POST(), create (+6 
 
 ### Community 54 - "color"
 Cohesion: 0.11
-Nodes (19): $type, $value, background, destructive, foreground, muted-foreground, primary-hover, secondary (+11 more)
+Nodes (19): $type, $value, background, destructive-foreground, primary, primary-foreground, secondary, secondary-foreground (+11 more)
 
 ### Community 55 - "test_design_system_mode.py"
 Cohesion: 0.16
@@ -645,8 +645,8 @@ Cohesion: 0.24
 Nodes (11): extensions, formatReport(), fs, getFiles(), main(), parseArgs(), path, patterns (+3 more)
 
 ### Community 83 - "card"
-Cohesion: 0.20
-Nodes (12): $type, $value, bg, bg, padding, shadow, card, bg (+4 more)
+Cohesion: 0.15
+Nodes (17): $type, $value, $type, $value, bg, bg, border, padding (+9 more)
 
 ### Community 84 - "phaseBalance.ts"
 Cohesion: 0.16
@@ -753,8 +753,8 @@ Cohesion: 0.14
 Nodes (13): Art Direction Styles (Top 10), Banner Design - Multi-Format Creative Banner System, Banner Size Quick Reference, Design Rules, Prerequisites, Security, Step 1: Gather Requirements (AskUserQuestion), Step 2: Research & Art Direction (+5 more)
 
 ### Community 111 - "input"
-Cohesion: 0.20
-Nodes (12): padding-x, padding-y, input, $type, $value, focus-ring, padding-x, padding-y (+4 more)
+Cohesion: 0.29
+Nodes (8): padding-x, input, $type, $value, focus-ring, padding-x, $type, $value
 
 ### Community 112 - "scripts"
 Cohesion: 0.25
@@ -768,9 +768,9 @@ Nodes (28): Absolute Don'ts, Approved Backgrounds, Before Using Logo, Clear Spac
 Cohesion: 0.29
 Nodes (7): Next.js Breaking Changes Agent Rules, Next.js Version Breaking Changes Guard, Claude Project Guidelines, Diataxis Documentation Structure, Frontend Design Stack Guidelines, gstack Workflow & Skills Suite, Pure-TS Calculation Drift Prevention
 
-### Community 116 - "test_core.py"
-Cohesion: 0.19
-Nodes (8): detect_domain(), Auto-detect the most relevant domain from query. Matches are weighted by…, format_markdown(), generate_design_system(), Format design system as markdown., Main entry point for design system generation. Args: query: Search query (e.g.,…, TestDomainDetection, TestPersistence
+### Community 116 - "detect_domain"
+Cohesion: 0.43
+Nodes (3): detect_domain(), Auto-detect the most relevant domain from query. Matches are weighted by…, TestDomainDetection
 
 ### Community 117 - "_select_palette_for_mode"
 Cohesion: 0.43
@@ -820,9 +820,9 @@ Nodes (3): Lead, LeadUser, StatusFilter
 Cohesion: 0.36
 Nodes (6): GET(), PATCH(), PUT(), getMe(), mocks, patchMe()
 
-### Community 137 - "change-password/route.ts"
-Cohesion: 0.50
-Nodes (3): POST(), mocks, post()
+### Community 137 - "padding-y"
+Cohesion: 0.67
+Nodes (4): padding-y, padding-y, $type, $value
 
 ### Community 138 - "profile/route.ts"
 Cohesion: 0.43
@@ -888,29 +888,29 @@ Nodes (3): POST(), POST(), signJWT()
 Cohesion: 0.08
 Nodes (24): Accessibility, Accessibility Requirements, ARIA States, Color Contrast, Color Variants, Disabled States, Error Messages, Error States (+16 more)
 
-### Community 163 - "none"
+### Community 163 - "md"
 Cohesion: 0.67
-Nodes (4): $type, $value, none, none
+Nodes (4): $type, $value, md, md
 
-### Community 164 - "$type"
-Cohesion: 0.60
-Nodes (5): $type, $value, border, border, border
+### Community 164 - "upload/route.ts"
+Cohesion: 0.50
+Nodes (3): ALLOWED_TYPES, POST(), UPLOAD_DIR
 
 ### Community 165 - "16"
 Cohesion: 0.67
 Nodes (3): $type, $value, 16
 
-### Community 166 - "1"
+### Community 166 - "2"
 Cohesion: 0.67
-Nodes (3): $type, $value, 1
+Nodes (3): $type, $value, 2
 
 ### Community 167 - "ring"
 Cohesion: 0.67
 Nodes (3): ring, $type, $value
 
-### Community 168 - "destructive-foreground"
+### Community 168 - "5"
 Cohesion: 0.67
-Nodes (3): destructive-foreground, $type, $value
+Nodes (3): $type, $value, 5
 
 ### Community 171 - "SLD Panel Designer Implementation Plan"
 Cohesion: 0.67
@@ -928,9 +928,9 @@ Nodes (22): Best Practices, Chart.js Integration, Command, Component Spec Patter
 Cohesion: 0.28
 Nodes (7): DELETE(), GET(), PUT(), RoomInput, POST(), RoomInput, getCountryDefaults()
 
-### Community 187 - "primary-foreground"
+### Community 187 - "destructive"
 Cohesion: 0.67
-Nodes (3): primary-foreground, $type, $value
+Nodes (3): destructive, $type, $value
 
 ### Community 207 - "Brand Consistency Checklist"
 Cohesion: 0.11
@@ -940,9 +940,9 @@ Nodes (17): Audit Frequency, Brand Consistency Checklist, Channel Audit, Collate
 Cohesion: 0.11
 Nodes (17): Accent, Applying Semantic Tokens, Background & Foreground, Border & Ring, Color Semantics, Dark Mode Overrides, Destructive, Interactive States (+9 more)
 
-### Community 242 - "secondary-foreground"
+### Community 242 - "foreground"
 Cohesion: 0.67
-Nodes (3): secondary-foreground, $type, $value
+Nodes (3): foreground, $type, $value
 
 ### Community 282 - "Design Principles"
 Cohesion: 0.12
@@ -968,9 +968,9 @@ Nodes (12): Color Presets, Examples, Files Modified, Important, Overview, Skills
 Cohesion: 0.15
 Nodes (12): Categories, Dark Mode, File Organization, Layer 1: Primitive Tokens, Layer 2: Semantic Tokens, Layer 3: Component Tokens, Layer Overview, Migration from Flat Tokens (+4 more)
 
-### Community 288 - "3"
+### Community 288 - "muted-foreground"
 Cohesion: 0.67
-Nodes (3): $type, $value, 3
+Nodes (3): muted-foreground, $type, $value
 
 ### Community 289 - "Primitive Tokens"
 Cohesion: 0.17
@@ -1000,9 +1000,9 @@ Nodes (3): $type, $value, 8
 Cohesion: 0.40
 Nodes (4): Brand Guidelines Template, Document Structure, Extractable Fields, Usage
 
-### Community 297 - "primary"
+### Community 297 - "primary-hover"
 Cohesion: 0.67
-Nodes (3): primary, $type, $value
+Nodes (3): primary-hover, $type, $value
 
 ### Community 300 - "page.test.tsx"
 Cohesion: 0.25

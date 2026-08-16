@@ -533,20 +533,20 @@ export default function PanelDesignerPage() {
               const lines = wrapSvgLines(`${mainSizing.breakerSize}A ${mainBreakerModel}`, 24, 2);
               return (
                 <g>
-                  <rect x="70" y="90" width="150" height="46" fill="#1f2937" stroke="#f97316" strokeWidth="1.5" rx="3" />
-                  <text x="145" y="105" textAnchor="middle" fill="#f97316" fontSize="9.5" fontWeight="600">
+                  <rect x="60" y="90" width="155" height="48" fill="#1f2937" stroke="#f97316" strokeWidth="1.5" rx="3" />
+                  <text x="137.5" y="105" textAnchor="middle" fill="#f97316" fontSize="9.5" fontWeight="600">
                     {t('panel.incomerBadge', 'INCOMER (ACB)')}
                   </text>
                   {lines.length === 1 ? (
-                    <text x="145" y="122" textAnchor="middle" fill="#fdba74" fontSize="8" fontWeight="500">
+                    <text x="137.5" y="122" textAnchor="middle" fill="#fdba74" fontSize="8" fontWeight="500">
                       {lines[0]}
                     </text>
                   ) : (
                     <>
-                      <text x="145" y="118" textAnchor="middle" fill="#fdba74" fontSize="7.5" fontWeight="500">
+                      <text x="137.5" y="118" textAnchor="middle" fill="#fdba74" fontSize="7.5" fontWeight="500">
                         {lines[0]}
                       </text>
-                      <text x="145" y="128" textAnchor="middle" fill="#fed7aa" fontSize="7">
+                      <text x="137.5" y="128" textAnchor="middle" fill="#fed7aa" fontSize="7">
                         {lines[1]}
                       </text>
                     </>
@@ -555,30 +555,63 @@ export default function PanelDesignerPage() {
               );
             })()}
 
-            {/* SPD (Neutral Auxiliary Device) */}
-            <rect x="235" y="90" width="75" height="46" fill="#111827" stroke="#475569" strokeWidth="1" rx="3" />
-            <text x="272" y="108" textAnchor="middle" fill="#e2e8f0" fontSize="9" fontWeight="600">SPD</text>
-            <text x="272" y="123" textAnchor="middle" fill="#64748b" fontSize="8">{t('panel.surgeProtection', 'Type 1+2')}</text>
+            {/* SPD (Neutral Auxiliary Device with Wrapped Subtitle) */}
+            {(() => {
+              const spdText = t('panel.surgeProtection', 'Type 1+2');
+              const lines = wrapSvgLines(spdText, 13, 2);
+              return (
+                <g>
+                  <rect x="245" y="90" width="85" height="48" fill="#111827" stroke="#475569" strokeWidth="1" rx="3" />
+                  <text x="287.5" y="105" textAnchor="middle" fill="#e2e8f0" fontSize="9" fontWeight="600">SPD</text>
+                  {lines.length === 1 ? (
+                    <text x="287.5" y="123" textAnchor="middle" fill="#64748b" fontSize="7.5">
+                      {lines[0]}
+                    </text>
+                  ) : (
+                    <>
+                      <text x="287.5" y="118" textAnchor="middle" fill="#64748b" fontSize="7">
+                        {lines[0]}
+                      </text>
+                      <text x="287.5" y="128" textAnchor="middle" fill="#64748b" fontSize="6.5">
+                        {lines[1]}
+                      </text>
+                    </>
+                  )}
+                </g>
+              );
+            })()}
 
             {/* Meter (Neutral Auxiliary Device) */}
-            <rect x="325" y="90" width="95" height="46" fill="#111827" stroke="#475569" strokeWidth="1" rx="3" />
-            <text x="372" y="108" textAnchor="middle" fill="#e2e8f0" fontSize="9" fontWeight="600">{t('panel.metering', 'POWER METER')}</text>
-            <text x="372" y="123" textAnchor="middle" fill="#64748b" fontSize="8">kWh / kVA / PF</text>
+            {(() => {
+              const meterTitle = t('panel.metering', 'POWER METER');
+              const titleLines = wrapSvgLines(meterTitle, 14, 2);
+              return (
+                <g>
+                  <rect x="340" y="90" width="100" height="48" fill="#111827" stroke="#475569" strokeWidth="1" rx="3" />
+                  <text x="390" y="105" textAnchor="middle" fill="#e2e8f0" fontSize="8.5" fontWeight="600">
+                    {titleLines[0] || 'POWER METER'}
+                  </text>
+                  <text x="390" y="123" textAnchor="middle" fill="#64748b" fontSize="7.5">
+                    kWh / kVA / PF
+                  </text>
+                </g>
+              );
+            })()}
 
             {/* CTs (Neutral Auxiliary Device) */}
-            <rect x="435" y="90" width="65" height="46" fill="#111827" stroke="#475569" strokeWidth="1" rx="3" />
-            <text x="467" y="108" textAnchor="middle" fill="#e2e8f0" fontSize="9" fontWeight="600">CTs</text>
-            <text x="467" y="123" textAnchor="middle" fill="#64748b" fontSize="8">{t('panel.ratioTbd', 'Ratio TBD')}</text>
+            <rect x="450" y="90" width="65" height="48" fill="#111827" stroke="#475569" strokeWidth="1" rx="3" />
+            <text x="482.5" y="106" textAnchor="middle" fill="#e2e8f0" fontSize="9" fontWeight="600">CTs</text>
+            <text x="482.5" y="123" textAnchor="middle" fill="#64748b" fontSize="7.5">{t('panel.ratioTbd', 'Ratio TBD')}</text>
 
             {/* Phase Lamps (Neutral Auxiliary Device) */}
-            <rect x="515" y="90" width="65" height="46" fill="#111827" stroke="#475569" strokeWidth="1" rx="3" />
-            <text x="547" y="108" textAnchor="middle" fill="#e2e8f0" fontSize="9" fontWeight="600">L1 L2 L3</text>
-            <text x="547" y="123" textAnchor="middle" fill="#64748b" fontSize="8">{t('panel.indicators', 'Indicators')}</text>
+            <rect x="525" y="90" width="75" height="48" fill="#111827" stroke="#475569" strokeWidth="1" rx="3" />
+            <text x="562.5" y="106" textAnchor="middle" fill="#e2e8f0" fontSize="9" fontWeight="600">L1 L2 L3</text>
+            <text x="562.5" y="123" textAnchor="middle" fill="#64748b" fontSize="7.5">{t('panel.indicators', 'Indicators')}</text>
 
             {/* Spare (Neutral Auxiliary Device) */}
-            <rect x="595" y="90" width="95" height="46" fill="#111827" stroke="#334155" strokeWidth="1" rx="3" strokeDasharray="4" />
-            <text x="642" y="108" textAnchor="middle" fill="#64748b" fontSize="9">{t('panel.spareWays', 'SPARE')}</text>
-            <text x="642" y="123" textAnchor="middle" fill="#475569" fontSize="8">{t('panel.expansion', 'Expansion')}</text>
+            <rect x="610" y="90" width="130" height="48" fill="#111827" stroke="#334155" strokeWidth="1" rx="3" strokeDasharray="4" />
+            <text x="675" y="106" textAnchor="middle" fill="#64748b" fontSize="9">{t('panel.spareWays', 'SPARE WAYS')}</text>
+            <text x="675" y="123" textAnchor="middle" fill="#475569" fontSize="7.5">{t('panel.expansion', 'Expansion')}</text>
 
             {/* Feeders */}
             {activeFeeders.map((feeder, i) => {
@@ -592,35 +625,35 @@ export default function PanelDesignerPage() {
                 <g key={feeder.name + i}>
                   {/* Feeder connection line from busbar */}
                   <line x1="230" y1={78} x2="230" y2={y + 18} stroke="#374151" strokeWidth="1" />
-                  <line x1="230" y1={y + 18} x2="70" y2={y + 18} stroke="#374151" strokeWidth="1" />
+                  <line x1="230" y1={y + 18} x2="60" y2={y + 18} stroke="#374151" strokeWidth="1" />
 
                   {/* Feeder breaker box (Color-coded by Breaker Technology: ACB / MCCB / MCB) */}
-                  <rect x="70" y={y} width="160" height="36" fill="#1f2937" stroke={theme.stroke} strokeWidth="1" rx="3" />
+                  <rect x="60" y={y} width="160" height="36" fill="#1f2937" stroke={theme.stroke} strokeWidth="1" rx="3" />
                   
                   {/* Breaker Model (Wrapped) */}
                   {lines.length === 1 ? (
-                    <text x="150" y={y + 15} textAnchor="middle" fill={theme.text} fontSize="7.5" fontWeight="600">
+                    <text x="140" y={y + 15} textAnchor="middle" fill={theme.text} fontSize="7.5" fontWeight="600">
                       {lines[0]}
                     </text>
                   ) : (
                     <>
-                      <text x="150" y={y + 13} textAnchor="middle" fill={theme.text} fontSize="7.5" fontWeight="600">
+                      <text x="140" y={y + 13} textAnchor="middle" fill={theme.text} fontSize="7.5" fontWeight="600">
                         {lines[0]}
                       </text>
-                      <text x="150" y={y + 22} textAnchor="middle" fill={theme.text} fontSize="7" fontWeight="500">
+                      <text x="140" y={y + 22} textAnchor="middle" fill={theme.text} fontSize="7" fontWeight="500">
                         {lines[1]}
                       </text>
                     </>
                   )}
 
                   {/* Feeder Name */}
-                  <text x="150" y={lines.length === 1 ? y + 27 : y + 31} textAnchor="middle" fill="#9ca3af" fontSize="6.5">
+                  <text x="140" y={lines.length === 1 ? y + 27 : y + 31} textAnchor="middle" fill="#9ca3af" fontSize="6.5">
                     {feeder.name}
                   </text>
 
                   {/* Cable line & size */}
-                  <line x1="230" y1={y + 18} x2="440" y2={y + 18} stroke="#475569" strokeWidth="1" opacity="0.6" />
-                  <text x="335" y={y + 13} textAnchor="middle" fill="#9ca3af" fontSize="7.5">
+                  <line x1="220" y1={y + 18} x2="440" y2={y + 18} stroke="#475569" strokeWidth="1" opacity="0.6" />
+                  <text x="330" y={y + 13} textAnchor="middle" fill="#9ca3af" fontSize="7.5">
                     {feeder.cableSize} mm²
                   </text>
 

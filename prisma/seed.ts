@@ -166,7 +166,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 42,
       tripUnit: "PXR20 LSI",
-      datasheetUrl: "https://www.eaton.com/content/dam/eaton/products/low-voltage-power-distribution-control-systems/circuit-breakers/izmx-series/izmx-series-technical-brochure-br013001en.pdf",
+      datasheetUrl: "https://www.eaton.com/explore/c/air-circuit-breakers",
       settingsJson: JSON.stringify({
         Icw: 42,
         Ics: 42,
@@ -187,7 +187,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 42,
       tripUnit: "PXR20 LSI",
-      datasheetUrl: "https://www.eaton.com/content/dam/eaton/products/low-voltage-power-distribution-control-systems/circuit-breakers/izmx-series/izmx-series-technical-brochure-br013001en.pdf",
+      datasheetUrl: "https://www.eaton.com/explore/c/air-circuit-breakers",
       settingsJson: JSON.stringify({
         Icw: 42,
         Ics: 42,
@@ -208,7 +208,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 42,
       tripUnit: "PXR20 LSI",
-      datasheetUrl: "https://www.eaton.com/content/dam/eaton/products/low-voltage-power-distribution-control-systems/circuit-breakers/izmx-series/izmx-series-technical-brochure-br013001en.pdf",
+      datasheetUrl: "https://www.eaton.com/explore/c/air-circuit-breakers",
       settingsJson: JSON.stringify({
         Icw: 42,
         Ics: 42,
@@ -229,7 +229,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 66,
       tripUnit: "PXR25 LSIG",
-      datasheetUrl: "https://www.eaton.com/content/dam/eaton/products/low-voltage-power-distribution-control-systems/circuit-breakers/izmx-series/izmx-series-technical-brochure-br013001en.pdf",
+      datasheetUrl: "https://www.eaton.com/explore/c/air-circuit-breakers",
       settingsJson: JSON.stringify({
         Icw: 66,
         Ics: 66,
@@ -635,7 +635,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 25,
       tripUnit: "TMD (Thermal Magnetic)",
-      datasheetUrl: "https://www.eaton.com/content/dam/eaton/products/low-voltage-power-distribution-control-systems/circuit-breakers/nzm-series/nzm-technical-catalog-ca013003en.pdf",
+      datasheetUrl: "https://www.eaton.com/explore/c/molded-case-circuit-breakers",
       settingsJson: JSON.stringify({ Ics: 25, standard: "IEC 60947-2", category: "A", curveType: "TM", thermal: { range: "0.8..1.0xIn (32..40A)", defaultIr: 40 }, magnetic: { range: "8..10xIn fixed (320..400A)", defaultIm: 400 } }),
     },
     {
@@ -647,7 +647,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 25,
       tripUnit: "TMD",
-      datasheetUrl: "https://www.eaton.com/content/dam/eaton/products/low-voltage-power-distribution-control-systems/circuit-breakers/nzm-series/nzm-technical-catalog-ca013003en.pdf",
+      datasheetUrl: "https://www.eaton.com/explore/c/molded-case-circuit-breakers",
       settingsJson: JSON.stringify({ Ics: 25, standard: "IEC 60947-2", category: "A", curveType: "TM", thermal: { range: "0.8..1.0xIn (50..63A)", defaultIr: 63 }, magnetic: { range: "6..10xIn fixed (380..630A)", defaultIm: 630 } }),
     },
     {
@@ -659,7 +659,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 25,
       tripUnit: "TMD",
-      datasheetUrl: "https://www.eaton.com/content/dam/eaton/products/low-voltage-power-distribution-control-systems/circuit-breakers/nzm-series/nzm-technical-catalog-ca013003en.pdf",
+      datasheetUrl: "https://www.eaton.com/explore/c/molded-case-circuit-breakers",
       settingsJson: JSON.stringify({ Ics: 25, standard: "IEC 60947-2", category: "A", curveType: "TM", thermal: { range: "0.8..1.0xIn (80..100A)", defaultIr: 100 }, magnetic: { range: "6..10xIn (600..1000A)", defaultIm: 1000 } }),
     },
     {
@@ -671,7 +671,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 50,
       tripUnit: "Electronic VE (LSI)",
-      datasheetUrl: "https://www.eaton.com/content/dam/eaton/products/low-voltage-power-distribution-control-systems/circuit-breakers/nzm-series/nzm-technical-catalog-ca013003en.pdf",
+      datasheetUrl: "https://www.eaton.com/explore/c/molded-case-circuit-breakers",
       settingsJson: JSON.stringify({ Ics: 50, standard: "IEC 60947-2", category: "A", curveType: "LSI", L: { range: "0.5..1.0xIn (80..160A)", delay: "2..14s", defaultIr: 160, defaultTr: 10 }, S: { range: "2..10xIr (320..1600A)", delay: "0.05..0.3s", i2t: true, defaultIsd: 800, defaultTsd: 0.1 }, I: { range: "2..12xIn (320..1920A)", defaultIi: 1600 } }),
     },
     {
@@ -683,7 +683,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 50,
       tripUnit: "Electronic VE (LSI)",
-      datasheetUrl: "https://www.eaton.com/content/dam/eaton/products/low-voltage-power-distribution-control-systems/circuit-breakers/nzm-series/nzm-technical-catalog-ca013003en.pdf",
+      datasheetUrl: "https://www.eaton.com/explore/c/molded-case-circuit-breakers",
       settingsJson: JSON.stringify({ Ics: 50, standard: "IEC 60947-2", category: "A", curveType: "LSI", L: { range: "0.5..1.0xIn (125..250A)", delay: "2..14s", defaultIr: 250, defaultTr: 10 }, S: { range: "2..10xIr (500..2500A)", delay: "0.05..0.3s", i2t: true, defaultIsd: 1250, defaultTsd: 0.1 }, I: { range: "2..12xIn (500..3000A)", defaultIi: 2500 } }),
     },
     {
@@ -695,7 +695,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 50,
       tripUnit: "Electronic AE (LSI)",
-      datasheetUrl: "https://www.eaton.com/content/dam/eaton/products/low-voltage-power-distribution-control-systems/circuit-breakers/nzm-series/nzm-technical-catalog-ca013003en.pdf",
+      datasheetUrl: "https://www.eaton.com/explore/c/molded-case-circuit-breakers",
       settingsJson: JSON.stringify({ Ics: 50, standard: "IEC 60947-2", category: "A", curveType: "LSI", L: { range: "0.5..1.0xIn (200..400A)", delay: "2..14s", defaultIr: 400, defaultTr: 10 }, S: { range: "2..10xIr (800..4000A)", delay: "0.05..0.3s", i2t: true, defaultIsd: 2000, defaultTsd: 0.1 }, I: { range: "2..12xIn (800..4800A)", defaultIi: 4000 } }),
     },
     {
@@ -707,7 +707,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 50,
       tripUnit: "Electronic VE (LSI)",
-      datasheetUrl: "https://www.eaton.com/content/dam/eaton/products/low-voltage-power-distribution-control-systems/circuit-breakers/nzm-series/nzm-technical-catalog-ca013003en.pdf",
+      datasheetUrl: "https://www.eaton.com/explore/c/molded-case-circuit-breakers",
       settingsJson: JSON.stringify({ Ics: 50, standard: "IEC 60947-2", category: "A", curveType: "LSI", L: { range: "0.5..1.0xIn (315..630A)", delay: "2..14s", defaultIr: 630, defaultTr: 10 }, S: { range: "2..10xIr (1260..6300A)", delay: "0.05..0.3s", i2t: true, defaultIsd: 3150, defaultTsd: 0.1 }, I: { range: "2..12xIn (1260..7560A)", defaultIi: 6300 } }),
     },
 
@@ -1259,7 +1259,7 @@ async function main() {
       poles: 1,
       breakingCapacity: 10,
       tripUnit: "C-Curve",
-      datasheetUrl: "https://www.eaton.com/content/dam/eaton/products/electrical-circuit-protection/circuit-breakers/faz-mcb/faz-datasheet.pdf",
+      datasheetUrl: "https://www.eaton.com/explore/c/miniature-circuit-breakers",
       settingsJson: JSON.stringify({ curveType: "C", thermalPickup: "1.13..1.45xIn", magneticPickup: "5..10xIn (50..100A)", Icn: 10, Icu: 15, Ics: 7.5, energyClass: 3, letThroughI2t: 18000, standard: "IEC/EN 60898-1 / IEC/EN 60947-2" }),
     },
     {
@@ -1271,7 +1271,7 @@ async function main() {
       poles: 1,
       breakingCapacity: 10,
       tripUnit: "C-Curve",
-      datasheetUrl: "https://www.eaton.com/content/dam/eaton/products/electrical-circuit-protection/circuit-breakers/faz-mcb/faz-datasheet.pdf",
+      datasheetUrl: "https://www.eaton.com/explore/c/miniature-circuit-breakers",
       settingsJson: JSON.stringify({ curveType: "C", thermalPickup: "1.13..1.45xIn", magneticPickup: "5..10xIn (80..160A)", Icn: 10, Icu: 15, Ics: 7.5, energyClass: 3, letThroughI2t: 28000, standard: "IEC/EN 60898-1 / IEC/EN 60947-2" }),
     },
     {
@@ -1283,7 +1283,7 @@ async function main() {
       poles: 1,
       breakingCapacity: 10,
       tripUnit: "C-Curve",
-      datasheetUrl: "https://www.eaton.com/content/dam/eaton/products/electrical-circuit-protection/circuit-breakers/faz-mcb/faz-datasheet.pdf",
+      datasheetUrl: "https://www.eaton.com/explore/c/miniature-circuit-breakers",
       settingsJson: JSON.stringify({ curveType: "C", thermalPickup: "1.13..1.45xIn", magneticPickup: "5..10xIn (100..200A)", Icn: 10, Icu: 15, Ics: 7.5, energyClass: 3, letThroughI2t: 36000, standard: "IEC/EN 60898-1 / IEC/EN 60947-2" }),
     },
     {
@@ -1295,7 +1295,7 @@ async function main() {
       poles: 1,
       breakingCapacity: 10,
       tripUnit: "C-Curve",
-      datasheetUrl: "https://www.eaton.com/content/dam/eaton/products/electrical-circuit-protection/circuit-breakers/faz-mcb/faz-datasheet.pdf",
+      datasheetUrl: "https://www.eaton.com/explore/c/miniature-circuit-breakers",
       settingsJson: JSON.stringify({ curveType: "C", thermalPickup: "1.13..1.45xIn", magneticPickup: "5..10xIn (160..320A)", Icn: 10, Icu: 15, Ics: 7.5, energyClass: 3, letThroughI2t: 64000, standard: "IEC/EN 60898-1 / IEC/EN 60947-2" }),
     },
     {
@@ -1307,7 +1307,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 10,
       tripUnit: "C-Curve",
-      datasheetUrl: "https://www.eaton.com/content/dam/eaton/products/electrical-circuit-protection/circuit-breakers/faz-mcb/faz-datasheet.pdf",
+      datasheetUrl: "https://www.eaton.com/explore/c/miniature-circuit-breakers",
       settingsJson: JSON.stringify({ curveType: "C", thermalPickup: "1.13..1.45xIn", magneticPickup: "5..10xIn (50..100A)", Icn: 10, Icu: 15, Ics: 7.5, energyClass: 3, letThroughI2t: 18000, standard: "IEC/EN 60898-1 / IEC/EN 60947-2" }),
     },
     {
@@ -1319,7 +1319,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 10,
       tripUnit: "C-Curve",
-      datasheetUrl: "https://www.eaton.com/content/dam/eaton/products/electrical-circuit-protection/circuit-breakers/faz-mcb/faz-datasheet.pdf",
+      datasheetUrl: "https://www.eaton.com/explore/c/miniature-circuit-breakers",
       settingsJson: JSON.stringify({ curveType: "C", thermalPickup: "1.13..1.45xIn", magneticPickup: "5..10xIn (80..160A)", Icn: 10, Icu: 15, Ics: 7.5, energyClass: 3, letThroughI2t: 28000, standard: "IEC/EN 60898-1 / IEC/EN 60947-2" }),
     },
     {
@@ -1331,7 +1331,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 10,
       tripUnit: "C-Curve",
-      datasheetUrl: "https://www.eaton.com/content/dam/eaton/products/electrical-circuit-protection/circuit-breakers/faz-mcb/faz-datasheet.pdf",
+      datasheetUrl: "https://www.eaton.com/explore/c/miniature-circuit-breakers",
       settingsJson: JSON.stringify({ curveType: "C", thermalPickup: "1.13..1.45xIn", magneticPickup: "5..10xIn (100..200A)", Icn: 10, Icu: 15, Ics: 7.5, energyClass: 3, letThroughI2t: 36000, standard: "IEC/EN 60898-1 / IEC/EN 60947-2" }),
     },
     {
@@ -1343,7 +1343,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 10,
       tripUnit: "C-Curve",
-      datasheetUrl: "https://www.eaton.com/content/dam/eaton/products/electrical-circuit-protection/circuit-breakers/faz-mcb/faz-datasheet.pdf",
+      datasheetUrl: "https://www.eaton.com/explore/c/miniature-circuit-breakers",
       settingsJson: JSON.stringify({ curveType: "C", thermalPickup: "1.13..1.45xIn", magneticPickup: "5..10xIn (125..250A)", Icn: 10, Icu: 15, Ics: 7.5, energyClass: 3, letThroughI2t: 50000, standard: "IEC/EN 60898-1 / IEC/EN 60947-2" }),
     },
     {
@@ -1355,7 +1355,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 10,
       tripUnit: "C-Curve",
-      datasheetUrl: "https://www.eaton.com/content/dam/eaton/products/electrical-circuit-protection/circuit-breakers/faz-mcb/faz-datasheet.pdf",
+      datasheetUrl: "https://www.eaton.com/explore/c/miniature-circuit-breakers",
       settingsJson: JSON.stringify({ curveType: "C", thermalPickup: "1.13..1.45xIn", magneticPickup: "5..10xIn (160..320A)", Icn: 10, Icu: 15, Ics: 7.5, energyClass: 3, letThroughI2t: 64000, standard: "IEC/EN 60898-1 / IEC/EN 60947-2" }),
     },
     {
@@ -1367,7 +1367,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 10,
       tripUnit: "C-Curve",
-      datasheetUrl: "https://www.eaton.com/content/dam/eaton/products/electrical-circuit-protection/circuit-breakers/faz-mcb/faz-datasheet.pdf",
+      datasheetUrl: "https://www.eaton.com/explore/c/miniature-circuit-breakers",
       settingsJson: JSON.stringify({ curveType: "C", thermalPickup: "1.13..1.45xIn", magneticPickup: "5..10xIn (200..400A)", Icn: 10, Icu: 15, Ics: 7.5, energyClass: 3, letThroughI2t: 75000, standard: "IEC/EN 60898-1 / IEC/EN 60947-2" }),
     },
     {
@@ -1379,7 +1379,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 10,
       tripUnit: "C-Curve",
-      datasheetUrl: "https://www.eaton.com/content/dam/eaton/products/electrical-circuit-protection/circuit-breakers/faz-mcb/faz-datasheet.pdf",
+      datasheetUrl: "https://www.eaton.com/explore/c/miniature-circuit-breakers",
       settingsJson: JSON.stringify({ curveType: "C", thermalPickup: "1.13..1.45xIn", magneticPickup: "5..10xIn (315..630A)", Icn: 10, Icu: 15, Ics: 7.5, energyClass: 3, letThroughI2t: 84000, standard: "IEC/EN 60898-1 / IEC/EN 60947-2" }),
     },
 
@@ -1875,7 +1875,7 @@ async function main() {
       poles: 2,
       breakingCapacity: 10,
       tripUnit: "Type AC 30mA",
-      datasheetUrl: "https://www.eaton.com/content/dam/eaton/products/electrical-circuit-protection/rccb/frcm-datasheet.pdf",
+      datasheetUrl: "https://www.eaton.com/explore/c/circuit-breakers",
       settingsJson: JSON.stringify({ sensitivity: "30mA", type: "AC", standard: "IEC/EN 61008-1" }),
     },
     {
@@ -1887,7 +1887,7 @@ async function main() {
       poles: 4,
       breakingCapacity: 10,
       tripUnit: "Type A 30mA",
-      datasheetUrl: "https://www.eaton.com/content/dam/eaton/products/electrical-circuit-protection/rccb/frcm-datasheet.pdf",
+      datasheetUrl: "https://www.eaton.com/explore/c/circuit-breakers",
       settingsJson: JSON.stringify({ sensitivity: "30mA", type: "A", standard: "IEC/EN 61008-1" }),
     },
     {
@@ -1899,7 +1899,7 @@ async function main() {
       poles: 4,
       breakingCapacity: 10,
       tripUnit: "Type A 30mA",
-      datasheetUrl: "https://www.eaton.com/content/dam/eaton/products/electrical-circuit-protection/rccb/frcm-datasheet.pdf",
+      datasheetUrl: "https://www.eaton.com/explore/c/circuit-breakers",
       settingsJson: JSON.stringify({ sensitivity: "30mA", type: "A", standard: "IEC/EN 61008-1" }),
     },
     {
@@ -2071,7 +2071,7 @@ async function main() {
       poles: 2,
       breakingCapacity: 10,
       tripUnit: "C-Curve / 30mA",
-      datasheetUrl: "https://www.eaton.com/content/dam/eaton/products/electrical-circuit-protection/rcbo/pknm-datasheet.pdf",
+      datasheetUrl: "https://www.eaton.com/explore/c/circuit-breakers",
       settingsJson: JSON.stringify({ curveType: "C", sensitivity: "30mA", standard: "IEC/EN 61009-1" }),
     },
     {
@@ -2147,7 +2147,7 @@ async function main() {
       poles: 4,
       breakingCapacity: 40,
       tripUnit: "Type 2",
-      datasheetUrl: "https://www.eaton.com/content/dam/eaton/products/electrical-circuit-protection/surge-protection/spc-t2-datasheet.pdf",
+      datasheetUrl: "https://www.eaton.com/explore/c/surge-protection",
       settingsJson: JSON.stringify({ type: "Type 2", Up: "1.4kV", Imax: "40kA", In: "20kA", standard: "IEC 61643-11" }),
     },
     {
@@ -2271,7 +2271,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 0,
       tripUnit: "230V Coil",
-      datasheetUrl: "https://www.eaton.com/content/dam/eaton/products/industrial-control-systems/contactors-relays/dilm-technical-catalog.pdf",
+      datasheetUrl: "https://www.eaton.com/explore/c/contactors",
       settingsJson: JSON.stringify({ coilVoltage: "230V AC", utilizationCategory: "AC-3", ratedPower: "4kW at 400V", standard: "IEC 60947-4-1" }),
     },
     {
@@ -2283,7 +2283,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 0,
       tripUnit: "230V Coil",
-      datasheetUrl: "https://www.eaton.com/content/dam/eaton/products/industrial-control-systems/contactors-relays/dilm-technical-catalog.pdf",
+      datasheetUrl: "https://www.eaton.com/explore/c/contactors",
       settingsJson: JSON.stringify({ coilVoltage: "230V AC", utilizationCategory: "AC-3", ratedPower: "7.5kW at 400V", standard: "IEC 60947-4-1" }),
     },
     {
@@ -2383,7 +2383,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 0,
       tripUnit: "Thermal Overload",
-      datasheetUrl: "https://www.eaton.com/content/dam/eaton/products/industrial-control-systems/contactors-relays/zb-relays-datasheet.pdf",
+      datasheetUrl: "https://www.eaton.com/explore/c/contactors",
       settingsJson: JSON.stringify({ settingRange: "6..10A", tripClass: "10", standard: "IEC 60947-4-1" }),
     },
     {
@@ -2459,7 +2459,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 0,
       tripUnit: "Class 0.5S",
-      datasheetUrl: "https://www.eaton.com/content/dam/eaton/products/energy-management-power-monitoring/power-meters/em20-datasheet.pdf",
+      datasheetUrl: "https://www.eaton.com/explore/c/power-and-energy-meters",
       settingsJson: JSON.stringify({ accuracyClass: "0.5S", protocol: "Modbus RTU", measurement: "V, I, P, Q, S, PF, THD, kWh", standard: "IEC 61557-12" }),
     },
     {

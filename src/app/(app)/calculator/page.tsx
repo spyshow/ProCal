@@ -495,7 +495,7 @@ function CalculatorContent() {
                         <tr>
                           <th className="text-start">{t('common.type', 'Type')}</th>
                           <th className="text-start">{t('common.name', 'Name')}</th>
-                          <th className="text-center">{t('calculator.rebalance', 'Phase')}</th>
+                          <th className="text-center">{t('calculator.phase', 'Phase')}</th>
                           <th className="text-center">{t('calculator.assigned', 'Assigned')}</th>
                           <th className="text-end">{t('calculator.loadKw', 'Load (kW)')}</th>
                           <th className="text-end">{t('calculator.demandKw', 'Demand (kW)')}</th>

@@ -267,6 +267,8 @@
     "totalKw": "Gesamt (kW)",
     "unbalance": "Schieflast",
     "neutral": "Neutralleiter N",
+    "phase": "Phase",
+    "rebalance": "Neu ausbalancieren",
     "recalculateNeeded": "Neuberechnung erforderlich",
     "recalculateAllFloors": "Alle Etagen neu berechnen",
     "internalImbalanceWarning": "Interne 3Φ-Schieflast der Wohnungen nicht modelliert",

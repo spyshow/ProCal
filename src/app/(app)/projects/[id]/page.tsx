@@ -240,11 +240,6 @@ export default function ProjectDetailPage() {
     loadProject();
   };
 
-  const handleRebalanceBuildingLoads = async (buildingId: string) => {
-    await fetch(`/api/buildings/${buildingId}/rebalance`, { method: 'POST' });
-    loadProject();
-  };
-
   // Template CRUD
   const [showNewTemplate, setShowNewTemplate] = useState(false);
   const [templateName, setTemplateName] = useState('');
@@ -596,14 +591,6 @@ export default function ProjectDetailPage() {
                       <p className="text-sm font-semibold text-gray-200">{bldg.name}</p>
                       <p className="text-xs text-gray-500">
                         {bldg.floors} {t('projects.floorsCount', 'floors')} · {bldg.serviceFloors} {t('projects.serviceFloors', 'service')} · {totalApts} {t('projects.apartments', 'apartments')} · {bldg.buildingLoads?.length || 0} {t('projects.loadLibrary', 'building loads')}
-                        {bldg.buildingLoads && bldg.buildingLoads.length > 0 && (
-                          <button
-                            onClick={(e) => { e.stopPropagation(); handleRebalanceBuildingLoads(bldg.id); }}
-                            className="ml-2 text-[10px] px-2 py-0.5 rounded bg-gray-800 hover:bg-gray-700 text-gray-400 hover:text-orange-400 transition-colors"
-                          >
-                            {t('calculator.rebalance', 'Re-balance')}
-                          </button>
-                        )}
                       </p>
                     </div>
                     <div className="flex items-center gap-1">

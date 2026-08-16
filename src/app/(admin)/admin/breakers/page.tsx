@@ -673,20 +673,15 @@ export default function AdminBreakersPage() {
                       <td className="text-gray-400">{b.tripUnit ?? '—'}</td>
                       <td className="text-left">{renderSelectivityBadge(b)}</td>
                       <td className="text-center">
-                        {b.datasheetUrl ? (
-                          <a
-                            href={b.datasheetUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1 text-orange-400 hover:text-orange-300 text-[11px]"
-                            title="Open official manufacturer datasheet"
-                          >
-                            <ExternalLink size={12} />
-                            Doc
-                          </a>
-                        ) : (
-                          <span className="text-gray-600">—</span>
-                        )}
+                        <button
+                          type="button"
+                          onClick={() => setInspectSettingsBreaker(b)}
+                          className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-orange-950/40 border border-orange-800/50 text-orange-400 hover:bg-orange-900/60 hover:text-orange-300 text-[11px] font-medium transition-colors"
+                          title="Open full interactive technical datasheet"
+                        >
+                          <FileText size={12} />
+                          Datasheet
+                        </button>
                       </td>
                       <td className="text-center">
                         <div className="flex items-center justify-center gap-2">
@@ -732,8 +727,8 @@ export default function AdminBreakersPage() {
                 <tr>
                   <th className="text-left">Manufacturer</th>
                   <th className="text-left">Category</th>
-                  <th className="text-left">Name</th>
-                  <th className="text-right">Catalog Items</th>
+                  <th className="text-left">Family Name</th>
+                  <th className="text-right">Items</th>
                   <th className="text-center">Actions</th>
                 </tr>
               </thead>
@@ -748,16 +743,20 @@ export default function AdminBreakersPage() {
                 ) : families.length === 0 ? (
                   <tr>
                     <td colSpan={5} className="text-center py-8 text-gray-500">
-                      No breaker families defined yet.
+                      No breaker families found.
                     </td>
                   </tr>
                 ) : (
                   families.map((f) => (
                     <tr key={f.id} className="hover:bg-gray-800/30">
                       <td className="text-gray-300 font-semibold">{f.manufacturer}</td>
-                      <td className="text-gray-300">{f.category}</td>
+                      <td className="text-gray-300">
+                        <span className="px-1.5 py-0.5 rounded text-[10px] font-mono bg-gray-800 text-gray-300 border border-gray-700">
+                          {f.category}
+                        </span>
+                      </td>
                       <td className="text-gray-200 font-medium">{f.name}</td>
-                      <td className="text-right font-mono text-blue-400">{f.catalogItemCount ?? 0}</td>
+                      <td className="text-right font-mono text-gray-400">{f.catalogItemCount ?? '—'}</td>
                       <td className="text-center">
                         <div className="flex items-center justify-center gap-2">
                           <button
@@ -785,58 +784,250 @@ export default function AdminBreakersPage() {
         </>
       )}
 
-      {/* Selectivity Settings Inspector Modal */}
-      {inspectSettingsBreaker && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 animate-in fade-in-0">
-          <div className="w-full max-w-xl rounded-xl border border-gray-700 bg-gray-900 p-6 space-y-4 shadow-2xl">
-            <div className="flex items-center justify-between border-b border-gray-800 pb-3">
-              <div>
-                <h3 className="text-base font-bold text-white flex items-center gap-2">
-                  <Sliders className="w-4 h-4 text-orange-400" />
-                  Selectivity & Protection Dials
-                </h3>
-                <p className="text-xs text-gray-400 mt-0.5">
-                  {inspectSettingsBreaker.manufacturer} {inspectSettingsBreaker.model} ({inspectSettingsBreaker.ratedCurrent}A)
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={() => setInspectSettingsBreaker(null)}
-                className="text-gray-400 hover:text-white p-1 rounded-md hover:bg-gray-800"
-              >
-                <X size={16} />
-              </button>
-            </div>
+      {/* Interactive Technical Datasheet & Specification Modal */}
+      {inspectSettingsBreaker && (() => {
+        let parsed: any = {};
+        try {
+          parsed = JSON.parse(inspectSettingsBreaker.settingsJson || '{}');
+        } catch {
+          parsed = {};
+        }
 
-            <div className="space-y-3 max-h-[400px] overflow-y-auto custom-scrollbar">
-              <pre className="bg-gray-950 p-3 rounded-lg border border-gray-800 text-xs font-mono text-emerald-400 overflow-x-auto">
-                {JSON.stringify(JSON.parse(inspectSettingsBreaker.settingsJson || '{}'), null, 2)}
-              </pre>
-            </div>
+        const googleSearchUrl = `https://www.google.com/search?q=${encodeURIComponent(`${inspectSettingsBreaker.manufacturer} ${inspectSettingsBreaker.model} technical datasheet pdf manual`)}`;
+        const rsSearchUrl = `https://uk.rs-online.com/web/c/?searchTerm=${encodeURIComponent(`${inspectSettingsBreaker.manufacturer} ${inspectSettingsBreaker.series}`)}`;
 
-            <div className="flex justify-between items-center pt-2 border-t border-gray-800">
-              {inspectSettingsBreaker.datasheetUrl && (
-                <a
-                  href={inspectSettingsBreaker.datasheetUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 text-xs text-orange-400 hover:underline"
+        return (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4 animate-in fade-in-0">
+            <div className="w-full max-w-2xl rounded-2xl border border-gray-700 bg-gray-900 p-6 space-y-5 shadow-2xl max-h-[90vh] overflow-y-auto custom-scrollbar">
+              
+              {/* Header */}
+              <div className="flex items-start justify-between border-b border-gray-800 pb-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-orange-500/10 border border-orange-500/30 flex items-center justify-center text-orange-400">
+                    <FileText className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-orange-950/80 text-orange-400 border border-orange-800/60">
+                        {inspectSettingsBreaker.category}
+                      </span>
+                      <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                        {inspectSettingsBreaker.manufacturer}
+                      </span>
+                    </div>
+                    <h3 className="text-lg font-bold text-white mt-0.5">
+                      {inspectSettingsBreaker.series} — {inspectSettingsBreaker.model}
+                    </h3>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setInspectSettingsBreaker(null)}
+                  className="text-gray-400 hover:text-white p-1.5 rounded-lg hover:bg-gray-800 transition-colors"
                 >
-                  <ExternalLink size={13} />
-                  Open Official Manufacturer Datasheet
-                </a>
-              )}
-              <button
-                type="button"
-                onClick={() => setInspectSettingsBreaker(null)}
-                className="px-4 py-1.5 rounded-lg bg-gray-800 text-gray-300 hover:bg-gray-700 text-xs font-medium ml-auto"
-              >
-                Close
-              </button>
+                  <X size={18} />
+                </button>
+              </div>
+
+              {/* Quick Specs Grid */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                <div className="p-2.5 rounded-xl bg-gray-950/70 border border-gray-800">
+                  <span className="text-[10px] uppercase tracking-wide text-gray-500 block">Rated Current (In)</span>
+                  <span className="text-sm font-bold font-mono text-blue-400">{inspectSettingsBreaker.ratedCurrent} A</span>
+                </div>
+                <div className="p-2.5 rounded-xl bg-gray-950/70 border border-gray-800">
+                  <span className="text-[10px] uppercase tracking-wide text-gray-500 block">Breaking Capacity (Icu)</span>
+                  <span className="text-sm font-bold font-mono text-emerald-400">{inspectSettingsBreaker.breakingCapacity} kA</span>
+                </div>
+                <div className="p-2.5 rounded-xl bg-gray-950/70 border border-gray-800">
+                  <span className="text-[10px] uppercase tracking-wide text-gray-500 block">Number of Poles</span>
+                  <span className="text-sm font-bold font-mono text-gray-200">{inspectSettingsBreaker.poles} Pole(s)</span>
+                </div>
+                <div className="p-2.5 rounded-xl bg-gray-950/70 border border-gray-800">
+                  <span className="text-[10px] uppercase tracking-wide text-gray-500 block">Service Ics / Icw</span>
+                  <span className="text-sm font-bold font-mono text-amber-400">
+                    {parsed.Icw ? `Icw: ${parsed.Icw}kA` : parsed.Ics ? `Ics: ${parsed.Ics}kA` : '100% Icu'}
+                  </span>
+                </div>
+              </div>
+
+              {/* Tripping & Coordination Parameters */}
+              <div className="space-y-3">
+                <h4 className="text-xs font-bold uppercase tracking-wider text-gray-400 flex items-center gap-1.5">
+                  <Sliders className="w-3.5 h-3.5 text-orange-400" />
+                  Tripping & Selectivity Dials
+                </h4>
+
+                {/* LSI / LSIG Electronic Trip Unit */}
+                {(parsed.L || parsed.S || parsed.I) ? (
+                  <div className="rounded-xl border border-gray-800 bg-gray-950/80 overflow-hidden divide-y divide-gray-800/60 text-xs">
+                    {parsed.L && (
+                      <div className="p-3 grid grid-cols-1 sm:grid-cols-3 gap-2 items-center">
+                        <div className="font-semibold text-blue-400 flex items-center gap-1.5">
+                          <span className="w-5 h-5 rounded-full bg-blue-950 text-blue-300 flex items-center justify-center text-[10px] font-bold">L</span>
+                          Long-Time Overload (Ir)
+                        </div>
+                        <div className="text-gray-300 font-mono text-[11px] sm:col-span-2">
+                          Pickup: <span className="text-white font-semibold">{parsed.L.range}</span> · Delay tr: <span className="text-white">{parsed.L.delay ?? 'Fixed'}</span>
+                          {parsed.L.defaultIr && <span className="text-gray-400 block text-[10px] mt-0.5">Default: Ir = {parsed.L.defaultIr}A, tr = {parsed.L.defaultTr ?? 10}s</span>}
+                        </div>
+                      </div>
+                    )}
+                    {parsed.S && (
+                      <div className="p-3 grid grid-cols-1 sm:grid-cols-3 gap-2 items-center">
+                        <div className="font-semibold text-amber-400 flex items-center gap-1.5">
+                          <span className="w-5 h-5 rounded-full bg-amber-950 text-amber-300 flex items-center justify-center text-[10px] font-bold">S</span>
+                          Short-Time Fault (Isd)
+                        </div>
+                        <div className="text-gray-300 font-mono text-[11px] sm:col-span-2">
+                          Pickup: <span className="text-white font-semibold">{parsed.S.range}</span> · Delay tsd: <span className="text-white">{parsed.S.delay ?? '0.1s'}</span> · I²t: <span className="text-emerald-400 font-semibold">{parsed.S.i2t ? 'ON/OFF' : 'OFF'}</span>
+                          {parsed.S.defaultIsd && <span className="text-gray-400 block text-[10px] mt-0.5">Default: Isd = {parsed.S.defaultIsd}A, tsd = {parsed.S.defaultTsd ?? 0.1}s</span>}
+                        </div>
+                      </div>
+                    )}
+                    {parsed.I && (
+                      <div className="p-3 grid grid-cols-1 sm:grid-cols-3 gap-2 items-center">
+                        <div className="font-semibold text-red-400 flex items-center gap-1.5">
+                          <span className="w-5 h-5 rounded-full bg-red-950 text-red-300 flex items-center justify-center text-[10px] font-bold">I</span>
+                          Instantaneous (Ii)
+                        </div>
+                        <div className="text-gray-300 font-mono text-[11px] sm:col-span-2">
+                          Pickup: <span className="text-white font-semibold">{parsed.I.range}</span>
+                          {parsed.I.defaultIi && <span className="text-gray-400 block text-[10px] mt-0.5">Default: Ii = {parsed.I.defaultIi}A {parsed.I.off ? '(Can be switched OFF for full selectivity)' : ''}</span>}
+                        </div>
+                      </div>
+                    )}
+                    {parsed.G && (
+                      <div className="p-3 grid grid-cols-1 sm:grid-cols-3 gap-2 items-center">
+                        <div className="font-semibold text-emerald-400 flex items-center gap-1.5">
+                          <span className="w-5 h-5 rounded-full bg-emerald-950 text-emerald-300 flex items-center justify-center text-[10px] font-bold">G</span>
+                          Ground Fault (Ig)
+                        </div>
+                        <div className="text-gray-300 font-mono text-[11px] sm:col-span-2">
+                          Pickup: <span className="text-white font-semibold">{parsed.G.range}</span> · Delay tg: <span className="text-white">{parsed.G.delay}</span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ) : parsed.thermal ? (
+                  /* Thermal-Magnetic TMD */
+                  <div className="rounded-xl border border-gray-800 bg-gray-950/80 p-3.5 space-y-2 text-xs font-mono">
+                    <div className="flex justify-between items-center text-gray-300">
+                      <span className="text-gray-400">Thermal Adjustment (Ir):</span>
+                      <span className="text-white font-semibold">{parsed.thermal.range} (Default: {parsed.thermal.defaultIr}A)</span>
+                    </div>
+                    <div className="flex justify-between items-center text-gray-300">
+                      <span className="text-gray-400">Magnetic Pickup (Im):</span>
+                      <span className="text-white font-semibold">{parsed.magnetic?.range} (Default: {parsed.magnetic?.defaultIm}A)</span>
+                    </div>
+                    <div className="text-[11px] text-gray-500 pt-1 border-t border-gray-800">
+                      Category {parsed.category || 'A'} · Standard: {parsed.standard || 'IEC 60947-2'}
+                    </div>
+                  </div>
+                ) : (
+                  /* MCB / Modular / Device Details */
+                  <div className="rounded-xl border border-gray-800 bg-gray-950/80 p-3.5 space-y-2 text-xs font-mono">
+                    {parsed.curveType && (
+                      <div className="flex justify-between items-center text-gray-300">
+                        <span className="text-gray-400">Characteristic Curve:</span>
+                        <span className="text-orange-400 font-bold">{parsed.curveType}-Curve</span>
+                      </div>
+                    )}
+                    {parsed.magneticPickup && (
+                      <div className="flex justify-between items-center text-gray-300">
+                        <span className="text-gray-400">Magnetic Pickup:</span>
+                        <span className="text-white">{parsed.magneticPickup}</span>
+                      </div>
+                    )}
+                    {parsed.letThroughI2t && (
+                      <div className="flex justify-between items-center text-gray-300">
+                        <span className="text-gray-400">Let-Through Energy (I²t):</span>
+                        <span className="text-emerald-400 font-bold">≤ {parsed.letThroughI2t.toLocaleString()} A²s (Energy Class 3)</span>
+                      </div>
+                    )}
+                    {parsed.sensitivity && (
+                      <div className="flex justify-between items-center text-gray-300">
+                        <span className="text-gray-400">Residual Current Sensitivity:</span>
+                        <span className="text-amber-400 font-bold">{parsed.sensitivity} (Type {parsed.type || 'A'})</span>
+                      </div>
+                    )}
+                    {parsed.coilVoltage && (
+                      <div className="flex justify-between items-center text-gray-300">
+                        <span className="text-gray-400">Control Coil / Rating:</span>
+                        <span className="text-blue-400 font-bold">{parsed.coilVoltage} · {parsed.utilizationCategory} ({parsed.ratedPower})</span>
+                      </div>
+                    )}
+                    {parsed.settingRange && (
+                      <div className="flex justify-between items-center text-gray-300">
+                        <span className="text-gray-400">Overload Range:</span>
+                        <span className="text-white">{parsed.settingRange} (Trip Class {parsed.tripClass || '10'})</span>
+                      </div>
+                    )}
+                    {parsed.accuracyClass && (
+                      <div className="flex justify-between items-center text-gray-300">
+                        <span className="text-gray-400">Metering Accuracy:</span>
+                        <span className="text-emerald-400 font-bold">Class {parsed.accuracyClass} ({parsed.protocol})</span>
+                      </div>
+                    )}
+                    <div className="text-[11px] text-gray-500 pt-1 border-t border-gray-800">
+                      Governing Standard: {parsed.standard || 'IEC 60947 / IEC 60898'}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Free Document Downloads & Mirrors */}
+              <div className="space-y-2 pt-2 border-t border-gray-800">
+                <span className="text-[10px] uppercase tracking-wide text-gray-500 block font-semibold">
+                  Free Datasheet & Document Mirrors
+                </span>
+                <div className="flex flex-wrap gap-2">
+                  {inspectSettingsBreaker.datasheetUrl && (
+                    <a
+                      href={inspectSettingsBreaker.datasheetUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-xs font-semibold shadow transition-all"
+                    >
+                      <Download size={13} />
+                      Direct PDF / Primary Datasheet
+                    </a>
+                  )}
+                  <a
+                    href={googleSearchUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-200 text-xs font-medium border border-gray-700 transition-all"
+                  >
+                    <ExternalLink size={13} className="text-blue-400" />
+                    Google PDF Search
+                  </a>
+                  <a
+                    href={rsSearchUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-200 text-xs font-medium border border-gray-700 transition-all"
+                  >
+                    <ExternalLink size={13} className="text-red-400" />
+                    RS Components Mirror
+                  </a>
+                </div>
+              </div>
+
+              {/* Close Button */}
+              <div className="flex justify-end pt-2">
+                <button
+                  type="button"
+                  onClick={() => setInspectSettingsBreaker(null)}
+                  className="px-5 py-2 rounded-xl bg-gray-800 text-gray-200 hover:bg-gray-700 text-xs font-semibold transition-colors"
+                >
+                  Close Specification Sheet
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
 
       {/* Breaker Modal */}
       {showBreakerModal && (

@@ -94,15 +94,15 @@ export default function RiserPage() {
   const sortedFloors = [...bldg.floorDesigns].sort((a, b) => a.floorNumber - b.floorNumber);
 
   // Layout constants
-  const floorHeight = 100;
-  const headerHeight = 140;
-  const footerHeight = 100;
-  const mdbHeight = 70;
-  const svgHeight = sortedFloors.length * floorHeight + headerHeight + footerHeight + mdbHeight + 30;
+  const floorHeight = 110;
+  const headerHeight = 100;
+  const footerHeight = 220;
+  const mdbHeight = 72;
+  const svgHeight = sortedFloors.length * floorHeight + headerHeight + footerHeight + mdbHeight + 40;
   const svgWidth = 1100;
 
   // Riser vertical position for the main bus
-  const busX = 500;
+  const busX = 460;
 
   // Calculate total building load for MDB and transformer sizing
   // Use same formulas as panel designer for consistency
@@ -135,8 +135,8 @@ export default function RiserPage() {
     groupingCount: 1,
   });
 
-  // Transformer sizing using same function as panel designer
-  const transformerKva = project.transformerSize || sizeTransformer(totalDemandKva, 1.2);
+  // Transformer sizing: use building-specific rating if set, or auto-size for this building's demand
+  const transformerKva = bldg.transformer || (project.buildings.length === 1 && project.transformerSize ? project.transformerSize : null) || sizeTransformer(totalDemandKva, 1.2);
   const transformerImpedance = 5; // Default 5% if not stored
 
   // Per-floor riser ΔV via the shared helper (pure, tested) — see
@@ -270,29 +270,49 @@ export default function RiserPage() {
               {project.voltage}V · {project.powerFactor} PF · {bldg.earthingSystem || '—'} · {sortedFloors.length} {t('calculator.floorsCount', 'Floors')} · {project.calculationStandard || 'IEC'}
             </text>
 
+            {/* Supply Feeder Cable: Transformer → MDB */}
+            <line
+              x1={busX}
+              y1={svgHeight - 147}
+              x2={busX}
+              y2={svgHeight - footerHeight - 40}
+              stroke="#f97316"
+              strokeWidth="2.5"
+            />
+            <circle cx={busX} cy={svgHeight - footerHeight - 40} r="3" fill="#f97316" />
+            <text
+              x={busX + 8}
+              y={(svgHeight - 147 + (svgHeight - footerHeight - 40)) / 2 + 3}
+              fill="#6b7280"
+              fontSize="8"
+              fontFamily="monospace"
+            >
+              LV Incomer
+            </text>
+
             {/* Transformer symbol at bottom */}
-            <g transform={`translate(${busX - 60}, ${svgHeight - footerHeight + 10})`}>
-              <circle cx="30" cy="30" r="25" fill="none" stroke="#f97316" strokeWidth="2" />
-              <circle cx="30" cy="30" r="25" fill="none" stroke="#f97316" strokeWidth="2" transform="translate(30,0)" />
-              <text x="30" y="35" textAnchor="middle" fill="#f97316" fontSize="11" fontWeight="600">TR</text>
-              <text x="30" y="65" textAnchor="middle" fill="#e5e7eb" fontSize="10" fontWeight="600">
+            <g transform={`translate(${busX}, ${svgHeight - 125})`}>
+              <circle cx="-14" cy="0" r="22" fill="none" stroke="#f97316" strokeWidth="2" />
+              <circle cx="14" cy="0" r="22" fill="none" stroke="#f97316" strokeWidth="2" />
+              <text x="0" y="4" textAnchor="middle" fill="#f97316" fontSize="10.5" fontWeight="600">TR</text>
+              <text x="0" y="34" textAnchor="middle" fill="#e5e7eb" fontSize="11" fontWeight="700">
                 {transformerKva} kVA
               </text>
-              <text x="30" y="80" textAnchor="middle" fill="#9ca3af" fontSize="9">
+              <text x="0" y="48" textAnchor="middle" fill="#9ca3af" fontSize="9">
                 {project.voltage}V · {transformerImpedance}% Z
               </text>
             </g>
 
             {/* MDB Block */}
-            <g transform={`translate(${busX - 90}, ${svgHeight - footerHeight - mdbHeight - 40})`}>
-              <rect x="0" y="0" width="180" height={mdbHeight} fill="#1f2937" stroke="#f97316" strokeWidth="2" rx="4" />
-              <text x="90" y="20" textAnchor="middle" fill="#f97316" fontSize="12" fontWeight="700">
+            <g transform={`translate(${busX - 100}, ${svgHeight - footerHeight - mdbHeight - 40})`}>
+              <rect x="0" y="0" width="200" height={mdbHeight} fill="#1f2937" stroke="#f97316" strokeWidth="2" rx="4" />
+              <text x="100" y="20" textAnchor="middle" fill="#f97316" fontSize="12" fontWeight="700">
                 {t('sld.mdb', 'MDB — Main Distribution Board')}
               </text>
-              <text x="90" y="38" textAnchor="middle" fill="#e5e7eb" fontSize="10" fontWeight="600">
+              <text x="100" y="38" textAnchor="middle" fill="#e5e7eb" fontSize="10" fontWeight="600">
                 {mdbSizing.breakerSize}A MCCB · {totalDemandKva.toFixed(1)} kVA
               </text>
-              <text x="90" y="54" textAnchor="middle" fill="#9ca3af" fontSize="9">
+              <text x="100" y="54" textAnchor="middle" fill="#9ca3af" fontSize="9">
                 {totalCurrent.toFixed(0)}A · {mdbSizing.cableSize}mm²
               </text>
             </g>
@@ -323,65 +343,22 @@ export default function RiserPage() {
                   {/* Floor level line */}
                   <line
                     x1="60"
-                    y1={y + floorHeight / 2}
+                    y1={cy}
                     x2={svgWidth - 60}
-                    y2={y + floorHeight / 2}
+                    y2={cy}
                     stroke="#1f2937"
                     strokeWidth="1"
                     strokeDasharray="4"
                   />
 
                   {/* Floor label */}
-                  <rect x="60" y={y + floorHeight / 2 - 14} width="70" height="28" fill="#1f2937" stroke="#374151" strokeWidth="1" rx="3" />
-                  <text x="95" y={y + floorHeight / 2 + 4} textAnchor="middle" fill="#f97316" fontSize="10" fontWeight="700">
+                  <rect x="60" y={cy - 14} width="70" height="28" fill="#1f2937" stroke="#374151" strokeWidth="1" rx="3" />
+                  <text x="95" y={cy + 4} textAnchor="middle" fill="#f97316" fontSize="10" fontWeight="700">
                     {t('riser.floor', 'FL')} {fd.floorNumber}
                   </text>
 
-                  {/* SDB Block — placed RIGHT of the main bus, on the orange riser.
-                      (Only for hasFloorSubPanels floors.) */}
-                  {fd.hasFloorSubPanels && (
-                    <g transform={`translate(540, ${cy - 20})`}>
-                      <rect x="0" y="0" width="120" height="40" fill="#1f2937" stroke="#374151" strokeWidth="1" rx="3" />
-                      <text x="60" y="11" textAnchor="middle" fill="#9ca3af" fontSize="9" fontWeight="600">
-                        SDB-{fd.floorNumber}
-                      </text>
-                      <text x="60" y="22" textAnchor="middle" fill="#6b7280" fontSize="7">
-                        {fd.floorDemand.toFixed(1)}kW · {fd.floorKva.toFixed(1)}kVA · DF{fd.diversityPct.toFixed(0)}%
-                      </text>
-                      <text x="60" y="33" textAnchor="middle" fill="#6b7280" fontSize="7">
-                        {fd.riserNoData
-                          ? `no riser data · ${fd.floorCurrent.toFixed(0)}A`
-                          : `${fd.riserCableSize}mm² · L=${fd.riserCableLength?.toFixed(0)}m · ${fd.floorCurrent.toFixed(0)}A`}
-                      </text>
-                    </g>
-                  )}
-
-                  {/* Bus tap */}
-                  <circle cx={busX} cy={cy} r="4" fill="#f97316" />
-
-                  {/* Orange riser: MDB bus → SDB. SDB floors only. */}
-                  {fd.hasFloorSubPanels && (
-                    <line x1={busX} y1={cy} x2={540} y2={cy} stroke="#f97316" strokeWidth="2" />
-                  )}
-
-                  {/* Cable info on the riser (SDB) / branch count (direct). */}
-                  <text
-                    x={(busX + (fd.hasFloorSubPanels ? 540 : 676)) / 2}
-                    y={cy - 8}
-                    textAnchor="middle"
-                    fill="#6b7280"
-                    fontSize="7"
-                    fontFamily="monospace"
-                  >
-                    {fd.hasRiser
-                      ? fd.riserNoData
-                        ? 'no riser data'
-                        : `${fd.riserCableSize ?? '—'}mm² ${fd.riserCableInsulation || 'XLPE'} · ${fd.riserCableLength?.toFixed(0) ?? '—'}m`
-                      : `${fd.items.length} ${t('cableSchedule.circuits', 'apt feeders')}`}
-                  </text>
-
                   {/* Voltage Drop Indicator (transformer→furthest load = total ΔV) */}
-                  <g transform={`translate(300, ${cy - 12})`}>
+                  <g transform={`translate(200, ${cy - 12})`}>
                     <rect
                       x="0"
                       y="0"
@@ -415,12 +392,54 @@ export default function RiserPage() {
                     </text>
                   </g>
 
+                  {/* Bus tap dot */}
+                  <circle cx={busX} cy={cy} r="4" fill="#f97316" />
+
+                  {/* Orange riser: MDB bus → SDB. SDB floors only. */}
+                  {fd.hasFloorSubPanels && (
+                    <line x1={busX} y1={cy} x2={570} y2={cy} stroke="#f97316" strokeWidth="2" />
+                  )}
+
+                  {/* Cable info on the riser (SDB) / branch count (direct). Positioned cleanly in the 110px gap. */}
+                  <text
+                    x={fd.hasFloorSubPanels ? 515 : (busX + 730) / 2}
+                    y={cy - 8}
+                    textAnchor="middle"
+                    fill="#9ca3af"
+                    fontSize="7.5"
+                    fontFamily="monospace"
+                  >
+                    {fd.hasRiser
+                      ? fd.riserNoData
+                        ? 'no riser data'
+                        : `${fd.riserCableSize ?? '—'}mm² ${fd.riserCableInsulation || 'XLPE'} · ${fd.riserCableLength?.toFixed(0) ?? '—'}m`
+                      : `${fd.items.length} ${t('cableSchedule.circuits', 'apt feeders')}`}
+                  </text>
+
+                  {/* SDB Block — placed RIGHT of the main bus, on the orange riser. */}
+                  {fd.hasFloorSubPanels && (
+                    <g transform={`translate(570, ${cy - 20})`}>
+                      <rect x="0" y="0" width="130" height="40" fill="#1f2937" stroke="#374151" strokeWidth="1" rx="3" />
+                      <text x="65" y="11" textAnchor="middle" fill="#9ca3af" fontSize="9" fontWeight="600">
+                        SDB-{fd.floorNumber}
+                      </text>
+                      <text x="65" y="22" textAnchor="middle" fill="#6b7280" fontSize="7">
+                        {fd.floorDemand.toFixed(1)}kW · {fd.floorKva.toFixed(1)}kVA · DF{fd.diversityPct.toFixed(0)}%
+                      </text>
+                      <text x="65" y="33" textAnchor="middle" fill="#6b7280" fontSize="7">
+                        {fd.riserNoData
+                          ? `no riser data · ${fd.floorCurrent.toFixed(0)}A`
+                          : `${fd.riserCableSize}mm² · L=${fd.riserCableLength?.toFixed(0)}m · ${fd.floorCurrent.toFixed(0)}A`}
+                      </text>
+                    </g>
+                  )}
+
                   {/* Downstream blue feeder rail: board → vertical rail → apartments.
-                      SDB floors: rail starts at the SDB's right edge (660).
-                      Direct floors: rail starts right at the bus tap (no riser. */}
+                      SDB floors: rail starts at the SDB's right edge (700).
+                      Direct floors: rail starts right at the bus tap. */}
                   {(() => {
-                    const railX = 676;
-                    const boardEdgeX = fd.hasFloorSubPanels ? 660 : busX;
+                    const railX = 730;
+                    const boardEdgeX = fd.hasFloorSubPanels ? 700 : busX;
                     const N = Math.min(fd.items.length, 4);
                     if (N === 0) return null;
                     const firstCY = cy + (0 - (N - 1) / 2) * 26;
@@ -440,22 +459,22 @@ export default function RiserPage() {
                         {/* apartment nodes tap off the rail, stacked vertically */}
                         {fd.items.slice(0, 4).map((item, fi) => {
                           const nodeCY = cy + (fi - (N - 1) / 2) * 26;
-                          const aptLeft = 684;
+                          const aptLeft = 740;
                           return (
                             <g key={fi}>
                               <line x1={railX} y1={nodeCY} x2={aptLeft} y2={nodeCY} stroke="#3b82f6" strokeWidth="1.5" />
-                              <rect x={aptLeft} y={nodeCY - 11} width="96" height="22" fill="#1f2937" stroke="#3b82f6" strokeWidth="1" rx="3" />
-                              <text x={aptLeft + 48} y={nodeCY - 1} textAnchor="middle" fill="#e5e7eb" fontSize="7" fontWeight="600">
+                              <rect x={aptLeft} y={nodeCY - 11} width="105" height="22" fill="#1f2937" stroke="#3b82f6" strokeWidth="1" rx="3" />
+                              <text x={aptLeft + 52.5} y={nodeCY - 1} textAnchor="middle" fill="#e5e7eb" fontSize="7.5" fontWeight="600">
                                 {item.name}
                               </text>
-                              <text x={aptLeft + 48} y={nodeCY + 8} textAnchor="middle" fill="#6b7280" fontSize="6">
+                              <text x={aptLeft + 52.5} y={nodeCY + 8} textAnchor="middle" fill="#6b7280" fontSize="6.5">
                                 {item.cableSize} · {(item.calculatedMaxDemand || 0).toFixed(1)}kW
                               </text>
                             </g>
                           );
                         })}
                         {fd.items.length > 4 && (
-                          <text x={684 + 48} y={cy + (3 - (N - 1) / 2) * 26 + 16} textAnchor="middle" fill="#6b7280" fontSize="7">
+                          <text x={740 + 52.5} y={cy + (3 - (N - 1) / 2) * 26 + 16} textAnchor="middle" fill="#6b7280" fontSize="7">
                             +{fd.items.length - 4} more
                           </text>
                         )}
@@ -467,17 +486,17 @@ export default function RiserPage() {
             })}
 
             {/* Legend */}
-            <g transform={`translate(60, ${svgHeight - 25})`}>
+            <g transform={`translate(60, ${svgHeight - 20})`}>
               <text x="0" y="0" fill="#9ca3af" fontSize="9" fontWeight="600">{t('sld.legend', 'Legend')} (total ΔV, transformer→furthest load):</text>
-              <line x1="320" y1="0" x2="340" y2="0" stroke="#60a5fa" strokeWidth="2" />
-              <text x="345" y="4" fill="#6b7280" fontSize="8">Normal ({'<'}3.2%)</text>
-              <line x1="430" y1="0" x2="450" y2="0" stroke="#eab308" strokeWidth="2" />
-              <text x="455" y="4" fill="#6b7280" fontSize="8">Warning</text>
-              <line x1="540" y1="0" x2="560" y2="0" stroke="#ef4444" strokeWidth="2" />
-              <text x="565" y="4" fill="#6b7280" fontSize="8">Danger ({'>'}4%)</text>
-              <line x1="650" y1="0" x2="670" y2="0" stroke="#6b7280" strokeWidth="2" strokeDasharray="3" />
-              <text x="675" y="4" fill="#6b7280" fontSize="8">no data</text>
-              <text x="760" y="4" fill="#6b7280" fontSize="8">| IEC 60364: Sub-main {'<'}1%, Final {'<'}3%, Total {'<'}4%</text>
+              <line x1="310" y1="0" x2="330" y2="0" stroke="#60a5fa" strokeWidth="2" />
+              <text x="335" y="3" fill="#6b7280" fontSize="8">Normal ({'<'}3.2%)</text>
+              <line x1="415" y1="0" x2="435" y2="0" stroke="#eab308" strokeWidth="2" />
+              <text x="440" y="3" fill="#6b7280" fontSize="8">Warning</text>
+              <line x1="515" y1="0" x2="535" y2="0" stroke="#ef4444" strokeWidth="2" />
+              <text x="540" y="3" fill="#6b7280" fontSize="8">Danger ({'>'}4%)</text>
+              <line x1="620" y1="0" x2="640" y2="0" stroke="#6b7280" strokeWidth="2" strokeDasharray="3" />
+              <text x="645" y="3" fill="#6b7280" fontSize="8">no data</text>
+              <text x="710" y="3" fill="#6b7280" fontSize="8">| IEC 60364: Sub-main {'<'}1%, Final {'<'}3%, Total {'<'}4%</text>
             </g>
           </svg>
         </div>

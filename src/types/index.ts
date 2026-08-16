@@ -211,6 +211,9 @@ export interface PanelFeeder {
   itemId?: string;
   floorDesignId?: string;
   buildingLoadId?: string;
+  baseBreakerSize?: number;
+  isBreakerUpsized?: boolean;
+  upsizeReason?: string;
 }
 
 export interface BreakerAlternativeSuggestion {

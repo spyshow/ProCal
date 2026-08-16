@@ -490,11 +490,19 @@ function feederFromItem(
     installMethod,
   });
 
+  const isBreakerUpsized = actualBreakerSize > sizing.breakerSize;
+  const upsizeReason = isBreakerUpsized
+    ? `Sized to ${actualBreakerSize}A (exceeds minimal ${sizing.breakerSize}A rating): Selected catalog frame rating for ${item.calculatedCurrent.toFixed(1)}A load.`
+    : undefined;
+
   return {
     name: `F${floorNumber} – ${item.name}`,
     type: item.type,
     current: item.calculatedCurrent,
     breakerSize: actualBreakerSize,
+    baseBreakerSize: sizing.breakerSize,
+    isBreakerUpsized,
+    upsizeReason,
     cableSize: effectiveCableSize,
     parallelRuns: protEval.parallelRuns,
     formattedCableSize: protEval.formattedCableSize,
@@ -574,11 +582,19 @@ function feederFromBuildingLoad(
     installMethod,
   });
 
+  const isBreakerUpsized = actualBreakerSize > sizing.breakerSize;
+  const upsizeReason = isBreakerUpsized
+    ? `Sized to ${actualBreakerSize}A (exceeds minimal ${sizing.breakerSize}A rating): Selected catalog frame rating with electronic trip unit protection for ${current.toFixed(1)}A design current.`
+    : undefined;
+
   return {
     name,
     type,
     current,
     breakerSize: actualBreakerSize,
+    baseBreakerSize: sizing.breakerSize,
+    isBreakerUpsized,
+    upsizeReason,
     cableSize: effectiveCableSize,
     parallelRuns: protEval.parallelRuns,
     formattedCableSize: protEval.formattedCableSize,
@@ -687,11 +703,19 @@ export function computeFeeders(
         installMethod: riserInstallMethod,
       });
 
+      const isBreakerUpsized = actualBreakerSize > sizing.breakerSize;
+      const upsizeReason = isBreakerUpsized
+        ? `Sized to ${actualBreakerSize}A (exceeds minimal ${sizing.breakerSize}A rating): Upsized for SMDB sub-panel selectivity grading (IEC 60947-2 ≥1.6× downstream branch MCBs) and electronic trip unit frame sizing, with dial Ir tuned to protect the ${floorCurrent.toFixed(1)}A load.`
+        : undefined;
+
       mdbFeeders.push({
         name: `F${fd.floorNumber} – SMDB`,
         type: "SMDB",
         current: floorCurrent,
         breakerSize: actualBreakerSize,
+        baseBreakerSize: sizing.breakerSize,
+        isBreakerUpsized,
+        upsizeReason,
         cableSize: effectiveRiserSize,
         parallelRuns: riserProtEval.parallelRuns,
         formattedCableSize: riserProtEval.formattedCableSize,

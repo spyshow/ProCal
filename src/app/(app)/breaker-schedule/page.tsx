@@ -16,10 +16,12 @@ import {
   XCircle,
   ShieldCheck,
   Sparkles,
-  Zap,
+  BookOpen,
 } from 'lucide-react';
 import { computeFeeders, createFindBreaker, type EquipmentItem, type DefaultFamilies } from '@/lib/calculations/feeders';
 import TccPlotModal from '@/components/coordination/TccPlotModal';
+import { BreakerSizingGuideModal } from '@/components/breaker/BreakerSizingGuideModal';
+import InfoTooltip from '@/components/InfoTooltip';
 import type { Project, PanelFeeder, BreakerAlternativeSuggestion, FallbackType, GenericBreakerSpec } from '@/types';
 
 interface BreakerFamilyOption {
@@ -65,6 +67,9 @@ interface BreakerEntry {
   itemId?: string;
   floorDesignId?: string;
   buildingLoadId?: string;
+  baseBreakerSize?: number;
+  isBreakerUpsized?: boolean;
+  upsizeReason?: string;
 }
 
 export default function BreakerSchedulePage() {
@@ -79,7 +84,7 @@ export default function BreakerSchedulePage() {
   const [selectedBuilding, setSelectedBuilding] = useState<string>('all');
   const [selectedFeederForModal, setSelectedFeederForModal] = useState<BreakerEntry | null>(null);
   const [applyingSuggestionId, setApplyingSuggestionId] = useState<string | null>(null);
-  const [autoSizingId, setAutoSizingId] = useState<string | null>(null);
+  const [showSizingGuide, setShowSizingGuide] = useState(false);
   const [defaults, setDefaults] = useState<DefaultFamilies>(() => ({
     ACB: selectedProject?.defaultAcbFamilyId ?? undefined,
     MCCB: selectedProject?.defaultMccbFamilyId ?? undefined,
@@ -253,6 +258,9 @@ export default function BreakerSchedulePage() {
         buildingName: bldg.name,
         current: f.current,
         breakerSize: f.breakerSize,
+        baseBreakerSize: f.baseBreakerSize,
+        isBreakerUpsized: f.isBreakerUpsized,
+        upsizeReason: f.upsizeReason,
         cableSize: f.cableSize,
         parallelRuns: f.parallelRuns,
         formattedCableSize: f.formattedCableSize,
@@ -294,6 +302,9 @@ export default function BreakerSchedulePage() {
           buildingName: bldg.name,
           current: f.current,
           breakerSize: f.breakerSize,
+          baseBreakerSize: f.baseBreakerSize,
+          isBreakerUpsized: f.isBreakerUpsized,
+          upsizeReason: f.upsizeReason,
           cableSize: f.cableSize,
           parallelRuns: f.parallelRuns,
           formattedCableSize: f.formattedCableSize,
@@ -484,76 +495,6 @@ export default function BreakerSchedulePage() {
     }
   };
 
-  const handleAutoSizeCable = async (b: BreakerEntry) => {
-    const targetCableStr = b.recommendedCableSizeFormatted || (b.recommendedCableSize ? `${b.recommendedCableSize} mm²` : null);
-    if (!targetCableStr || !project) return;
-    try {
-      setAutoSizingId(b.id);
-      const bldg = project.buildings.find((bg) => bg.id === b.buildingId);
-
-      if (b.type === 'SMDB' || b.name.includes('SMDB')) {
-        let floorDesignId = b.floorDesignId;
-        if (!floorDesignId && bldg) {
-          const floorMatch = b.name.match(/F(\d+)/i);
-          const floorNum = floorMatch ? parseInt(floorMatch[1], 10) : b.floor;
-          const fd = (bldg.floorDesigns ?? []).find((f) => f.floorNumber === floorNum);
-          floorDesignId = fd?.id;
-        }
-        if (floorDesignId) {
-          await fetch(`/api/floors/${floorDesignId}`, {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ riserCableSize: targetCableStr }),
-          });
-        }
-      } else if (b.buildingLoadId) {
-        await fetch(`/api/building-loads/${b.buildingLoadId}`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ cableSize: targetCableStr }),
-        });
-      } else {
-        let itemId = b.itemId;
-        if (!itemId && bldg) {
-          for (const fd of bldg.floorDesigns ?? []) {
-            for (const it of fd.items ?? []) {
-              if (
-                `F${fd.floorNumber} – ${it.name}` === b.name ||
-                `F${fd.floorNumber} - ${it.name}` === b.name ||
-                it.name === b.name
-              ) {
-                itemId = it.id;
-                break;
-              }
-            }
-            if (itemId) break;
-          }
-        }
-        if (itemId) {
-          await fetch(`/api/floor-items/${itemId}`, {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ cableSize: targetCableStr }),
-          });
-        }
-      }
-
-      await refreshProject();
-      const res = await fetch(`/api/projects/${project.id}?t=${Date.now()}`, {
-        cache: 'no-store',
-        headers: { 'Cache-Control': 'no-cache' },
-      });
-      if (res.ok) {
-        const updated = await res.json();
-        setProject(updated);
-      }
-    } catch (err) {
-      console.error('Error auto-sizing cable:', err);
-    } finally {
-      setAutoSizingId(null);
-    }
-  };
-
   return (
     <div className="p-6 space-y-5 max-w-7xl mx-auto">
       {/* Workflow Stepper: Step 2 */}
@@ -567,13 +508,23 @@ export default function BreakerSchedulePage() {
           </h1>
           <p className="text-sm text-gray-400 mt-1">{project.name} &mdash; {t('breakerSchedule.subtitle', 'Protection hierarchy, trip curves, and selectivity')}</p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
+          {/* Engineering Sizing & Selectivity Guide */}
+          <button
+            data-tour="breaker-guide-btn"
+            onClick={() => setShowSizingGuide(true)}
+            className="flex items-center gap-2 px-3.5 py-2 rounded-lg bg-orange-500/10 border border-orange-500/30 text-orange-400 hover:bg-orange-500/20 hover:border-orange-500/50 text-xs font-semibold shadow-sm transition-all shrink-0"
+            title="Breaker Sizing & Selectivity Principles Guide"
+          >
+            <BookOpen size={15} className="text-orange-400" />
+            {t('breakerGuide.buttonLabel', 'Sizing Guide')}
+          </button>
           {/* Page Tour Button */}
           <button
             onClick={() => {
               window.dispatchEvent(new CustomEvent('trigger-procal-breaker-schedule-tour'));
             }}
-            className="flex items-center gap-2 px-3.5 py-2 rounded-lg bg-orange-600/20 border border-orange-500/30 text-orange-300 hover:bg-orange-600/30 hover:border-orange-500/50 text-xs font-semibold shadow-sm transition-all shrink-0"
+            className="flex items-center gap-2 px-3.5 py-2 rounded-lg bg-slate-800 border border-slate-700 text-slate-300 hover:bg-slate-700 hover:text-white text-xs font-semibold shadow-sm transition-all shrink-0"
             title="Interactive Breaker Schedule Tour"
           >
             <HelpCircle size={15} className="text-orange-400" />
@@ -593,12 +544,12 @@ export default function BreakerSchedulePage() {
 
       {/* Default Breaker Families */}
       <div data-tour="breaker-family-select" className="rounded-xl border border-gray-800 bg-gray-900/40 p-4">
-        <h2 className="text-sm font-bold text-orange-400 mb-3 uppercase tracking-wide">{t('breakers.subtitle', 'Default Breaker Families')}</h2>
+        <h2 className="text-sm font-bold text-orange-400 mb-3 uppercase tracking-wide">{t('breakers.defaultFamilies', 'Default Breaker Families')}</h2>
         <div className="space-y-4">
           {[
-            { key: 'ACB' as const, label: t('panel.incomer', 'Main Incomer'), description: 'ACB / main breaker / transformer secondary' },
-            { key: 'MCCB' as const, label: t('panel.outgoingFeeders', 'Feeders & Sub-panels'), description: 'MCCB — mechanical loads, SMDB feeders, risers' },
-            { key: 'MCB' as const, label: t('breakers.deviceTag', 'Final Distribution'), description: 'MCB — apartments, small shops, lighting' },
+            { key: 'ACB' as const, label: t('breakers.mainIncomer', 'Main Incomer'), description: t('breakers.acbDesc', 'ACB / main breaker / transformer secondary') },
+            { key: 'MCCB' as const, label: t('breakers.feedersSubPanels', 'Feeders & Sub-panels'), description: t('breakers.mccbDesc', 'MCCB — mechanical loads, SMDB feeders, risers') },
+            { key: 'MCB' as const, label: t('breakers.finalDistribution', 'Final Distribution'), description: t('breakers.mcbDesc', 'MCB — apartments, small shops, lighting') },
           ].map(({ key, label, description }) => (
             <div key={key} className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6 pb-4 border-b border-gray-800 last:border-0 last:pb-0">
               <div className="sm:w-64">
@@ -613,7 +564,7 @@ export default function BreakerSchedulePage() {
                   disabled={saving}
                   className="w-full bg-gray-800 border border-gray-700 rounded-md px-3 py-2 text-sm text-gray-200 focus:border-orange-500 focus:outline-none disabled:opacity-50"
                 >
-                  <option value="">Use preferred manufacturer fallback</option>
+                  <option value="">{t('breakers.useDefaultManufacturer', 'Use preferred manufacturer fallback')}</option>
                   {familyOptionsFor(key).map((f) => (
                     <option key={f.id} value={f.id}>
                       {f.manufacturer} — {f.name}
@@ -668,12 +619,26 @@ export default function BreakerSchedulePage() {
                   <th className="text-start">Upstream Parent</th>
                   <th className="text-center">{t('calculator.floor', 'Floor')}</th>
                   <th className="text-end">{t('cableSchedule.current', 'Current (A)')}</th>
-                  <th className="text-center">{t('breakers.frameSize', 'Breaker (A)')}</th>
+                  <th className="text-center">
+                    <div className="flex items-center justify-center gap-1">
+                      <span>{t('breakers.frameSize', 'Breaker (A)')}</span>
+                      <InfoTooltip
+                        label={t('breakers.frameSize', 'Breaker (A)')}
+                        helper={t('breakerGuide.tooltipBreaker', 'Breaker rating (In). Sized for continuous load (In >= 1.25x Ib) and selectivity grading (In >= 1.6x downstream MCB for SMDB risers).')}
+                      />
+                    </div>
+                  </th>
                   <th className="text-start">{t('breakerSchedule.title', 'Breaker Model')}</th>
-                  <th className="text-center">{t('cableSchedule.size', 'Cable (mm²)')}</th>
                   <th className="text-end">Isc (kA)</th>
-                  <th className="text-center">Selectivity</th>
-                  <th className="text-center">Cable Protection</th>
+                  <th data-tour="breaker-selectivity-col" className="text-center">
+                    <div className="flex items-center justify-center gap-1">
+                      <span>Selectivity</span>
+                      <InfoTooltip
+                        label="Protection Selectivity"
+                        helper={t('breakerGuide.tooltipSelectivity', 'IEC 60947-2 discrimination. FULL indicates upstream and downstream trip curves will not overlap under branch short-circuit faults.')}
+                      />
+                    </div>
+                  </th>
                   <th className="text-center">TCC Plot</th>
                 </tr>
               </thead>
@@ -684,7 +649,21 @@ export default function BreakerSchedulePage() {
                     <td className="text-gray-400 text-xs font-mono">{b.parentFeederName ?? 'Main Incomer'}</td>
                     <td className="text-center font-mono text-orange-400">F{b.floor}</td>
                     <td className="text-end font-mono">{b.current.toFixed(1)}</td>
-                    <td className="text-center font-mono text-blue-400 font-bold">{b.breakerSize}A</td>
+                    <td className="text-center font-mono text-blue-400 font-bold">
+                      {b.isBreakerUpsized ? (
+                        <span
+                          className="inline-block border-b border-dashed border-blue-400/80 cursor-help hover:text-blue-300 hover:border-blue-300 transition-colors pb-0.5"
+                          title={
+                            b.upsizeReason ??
+                            `Sized to ${b.breakerSize}A (exceeds base load rating ${b.baseBreakerSize ?? Math.ceil(b.current)}A): Upsized for selectivity grading (IEC 60947-2 ≥1.6× downstream MCBs) and electronic trip unit frame sizing, with dial Ir tuned to protect the ${b.current.toFixed(1)}A load.`
+                          }
+                        >
+                          {b.breakerSize}A
+                        </span>
+                      ) : (
+                        <span>{b.breakerSize}A</span>
+                      )}
+                    </td>
                     <td className="text-xs text-gray-300">
                       <div className="flex flex-col gap-0.5">
                         <div className="flex items-center gap-1.5 flex-wrap">
@@ -716,7 +695,6 @@ export default function BreakerSchedulePage() {
                         </div>
                       </div>
                     </td>
-                    <td className="text-center font-mono text-green-400 font-semibold">{b.formattedCableSize || `${b.cableSize} mm²`}</td>
                     <td className="text-end font-mono text-gray-300">
                       {b.faultCurrentKa ? b.faultCurrentKa.toFixed(2) : '—'}
                     </td>
@@ -752,37 +730,6 @@ export default function BreakerSchedulePage() {
                           </button>
                         )}
                       </div>
-                    </td>
-                    <td className="text-center">
-                      {b.isUnderProtected ? (
-                        <div className="flex flex-col items-center gap-1">
-                          <span
-                            className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20"
-                            title={`Derated Cable Continuous Capacity Iz (${b.cableIz}A) is less than Breaker Rating In (${b.breakerSize}A). Risk of cable thermal overload.`}
-                          >
-                            <AlertTriangle size={10} /> Iz ({b.cableIz}A) &lt; In ({b.breakerSize}A)
-                          </span>
-                          {(b.recommendedCableSizeFormatted || b.recommendedCableSize) && (
-                            <button
-                              onClick={() => handleAutoSizeCable(b)}
-                              disabled={autoSizingId === b.id}
-                              className="flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold bg-orange-500 hover:bg-orange-600 active:scale-95 text-white shadow-sm transition-all"
-                              title={`Auto-upsize cable to ${b.recommendedCableSizeFormatted || `${b.recommendedCableSize} mm²`} to satisfy Iz >= In`}
-                            >
-                              <Zap size={10} className={autoSizingId === b.id ? "animate-spin" : ""} />
-                              <span>{autoSizingId === b.id ? "Sizing..." : `Auto-Size to ${b.recommendedCableSizeFormatted || `${b.recommendedCableSize} mm²`}`}</span>
-                            </button>
-                          )}
-                        </div>
-                      ) : b.cableDamageOk === false ? (
-                        <span className="text-red-400 font-semibold text-[11px]" title="Breaker curve intersects cable damage curve under fault current">
-                          ✗ Short-Circuit Damage Risk
-                        </span>
-                      ) : (
-                        <span className="text-green-400 font-semibold text-[11px]" title={`Cable continuous capacity Iz (${b.cableIz}A) >= Breaker In (${b.breakerSize}A) and safe under short-circuit.`}>
-                          ✓ Safe {b.cableIz ? `(Iz ${b.cableIz}A)` : ''}
-                        </span>
-                      )}
                     </td>
                     <td className="text-center">
                       <button
@@ -863,6 +810,13 @@ export default function BreakerSchedulePage() {
           />
         );
       })()}
+
+      {/* Sizing & Selectivity Principles Guide Modal */}
+      <BreakerSizingGuideModal
+        isOpen={showSizingGuide}
+        onClose={() => setShowSizingGuide(false)}
+        onStartTour={() => window.dispatchEvent(new CustomEvent('trigger-procal-breaker-schedule-tour'))}
+      />
     </div>
   );
 }

@@ -494,10 +494,10 @@ export default function ProjectDetailPage() {
 
           <div className="flex gap-2">
             <button onClick={handleSaveProject} className="px-4 py-2 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-sm font-semibold">
-              Save
+              {t('common.save', 'Save')}
             </button>
             <button onClick={() => setEditingProject(false)} className="px-4 py-2 rounded-lg bg-gray-800 text-gray-300 text-sm">
-              Cancel
+              {t('common.cancel', 'Cancel')}
             </button>
           </div>
         </div>
@@ -506,9 +506,9 @@ export default function ProjectDetailPage() {
       {/* Tabs */}
       <div className="flex gap-1 border-b border-gray-800">
         {[
-          { key: 'buildings' as const, label: 'Buildings', icon: Building2 },
-          { key: 'templates' as const, label: 'Apartment Templates', icon: Home },
-          { key: 'loads' as const, label: 'Load Library', icon: Zap },
+          { key: 'buildings' as const, label: t('projects.buildings', 'Buildings'), icon: Building2 },
+          { key: 'templates' as const, label: t('projects.apartmentTemplates', 'Apartment Templates'), icon: Home },
+          { key: 'loads' as const, label: t('projects.loadLibrary', 'Load Library'), icon: Zap },
         ].map(({ key, label, icon: Icon }) => (
           <button
             key={key}
@@ -534,43 +534,43 @@ export default function ProjectDetailPage() {
               className="flex items-center gap-2 px-3 py-2 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-sm font-semibold"
             >
               <Plus size={14} />
-              Add Building
+              {t('projects.addBuilding', 'Add Building')}
             </button>
           </div>
 
           {showNewBuilding && (
             <form onSubmit={handleNewBuilding} className="rounded-xl border border-gray-800 bg-gray-900/60 p-4 space-y-3">
-              <h4 className="text-sm font-semibold text-gray-300">New Building</h4>
+              <h4 className="text-sm font-semibold text-gray-300">{t('projects.newBuilding', 'New Building')}</h4>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                 <div>
-                  <label className="block text-xs text-gray-400 mb-1">Name *</label>
+                  <label className="block text-xs text-gray-400 mb-1">{t('projects.buildingName', 'Building Name')} *</label>
                   <input name="name" required className="dense-input w-full rounded" placeholder="Tower A" />
                 </div>
                 <div>
-                  <label className="block text-xs text-gray-400 mb-1">Floors *</label>
+                  <label className="block text-xs text-gray-400 mb-1">{t('projects.floorsCount', 'Floors')} *</label>
                   <input name="floors" type="number" required defaultValue="10" className="dense-input w-full rounded" />
                 </div>
                 <div>
-                  <label className="block text-xs text-gray-400 mb-1">Service Floors</label>
+                  <label className="block text-xs text-gray-400 mb-1">{t('projects.serviceFloors', 'Service Floors')}</label>
                   <input name="serviceFloors" type="number" defaultValue="0" className="dense-input w-full rounded" />
                 </div>
                 <div>
-                  <label className="block text-xs text-gray-400 mb-1">Apartments/Floor</label>
+                  <label className="block text-xs text-gray-400 mb-1">{t('projects.apartmentsPerFloor', 'Apartments/Floor')}</label>
                   <input name="apartmentsPerFloor" type="number" defaultValue="4" className="dense-input w-full rounded" />
                 </div>
                 <div className="flex items-end gap-4">
                   <label className="flex items-center gap-2 text-xs text-gray-400">
                     <input name="lightningProtection" type="checkbox" className="accent-orange-500" />
-                    Lightning
+                    {t('projects.lightningProtection', 'Lightning Protection')}
                   </label>
                 </div>
               </div>
               <div className="flex gap-2">
                 <button type="submit" className="px-4 py-2 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-sm font-semibold">
-                  Create Building
+                  {t('projects.createBuilding', 'Create Building')}
                 </button>
                 <button type="button" onClick={() => setShowNewBuilding(false)} className="px-4 py-2 rounded-lg bg-gray-800 text-gray-300 text-sm">
-                  Cancel
+                  {t('common.cancel', 'Cancel')}
                 </button>
               </div>
             </form>
@@ -578,7 +578,7 @@ export default function ProjectDetailPage() {
 
           {project.buildings.length === 0 ? (
             <div className="text-center py-12 text-gray-500 text-sm rounded-xl border border-gray-800 bg-gray-900/40">
-              No buildings added yet
+              {t('projects.noBuildings', 'No buildings added yet')}
             </div>
           ) : (
             project.buildings.map((bldg) => {
@@ -595,13 +595,13 @@ export default function ProjectDetailPage() {
                     <div className="flex-1">
                       <p className="text-sm font-semibold text-gray-200">{bldg.name}</p>
                       <p className="text-xs text-gray-500">
-                        {bldg.floors} floors · {bldg.serviceFloors} service · {totalApts} apartments · {bldg.buildingLoads?.length || 0} building loads
+                        {bldg.floors} {t('projects.floorsCount', 'floors')} · {bldg.serviceFloors} {t('projects.serviceFloors', 'service')} · {totalApts} {t('projects.apartments', 'apartments')} · {bldg.buildingLoads?.length || 0} {t('projects.loadLibrary', 'building loads')}
                         {bldg.buildingLoads && bldg.buildingLoads.length > 0 && (
                           <button
                             onClick={(e) => { e.stopPropagation(); handleRebalanceBuildingLoads(bldg.id); }}
                             className="ml-2 text-[10px] px-2 py-0.5 rounded bg-gray-800 hover:bg-gray-700 text-gray-400 hover:text-orange-400 transition-colors"
                           >
-                            Re-balance
+                            {t('calculator.rebalance', 'Re-balance')}
                           </button>
                         )}
                       </p>
@@ -610,14 +610,14 @@ export default function ProjectDetailPage() {
                       <button
                         onClick={(e) => { e.stopPropagation(); startEditBuilding(bldg); }}
                         className="p-1.5 rounded-lg text-gray-600 hover:text-orange-400 hover:bg-orange-500/10"
-                        title="Edit building"
+                        title={t('common.edit', 'Edit building')}
                       >
                         <Pencil size={14} />
                       </button>
                       <button
                         onClick={(e) => { e.stopPropagation(); handleDeleteBuilding(bldg.id); }}
                         className="p-1.5 rounded-lg text-gray-600 hover:text-red-400 hover:bg-red-500/10"
-                        title="Delete building"
+                        title={t('common.delete', 'Delete building')}
                       >
                         <Trash2 size={14} />
                       </button>
@@ -626,7 +626,7 @@ export default function ProjectDetailPage() {
 
                   {expanded && (
                     <div className="border-t border-gray-800 p-4 space-y-3 bg-gray-900/20">
-                      <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Floor Designs</h4>
+                      <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider">{t('projects.floorDesigns', 'Floor Designs')}</h4>
                       {bldg.floorDesigns.length === 0 ? (
                         <p className="text-xs text-gray-600">No floor designs</p>
                       ) : (

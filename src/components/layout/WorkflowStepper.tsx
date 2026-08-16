@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useTranslation } from '@/i18n';
 import {
   Zap,
   Cpu,
@@ -12,27 +13,102 @@ import {
   FileText,
   Check,
   ChevronRight,
+  ChevronLeft,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export interface WorkflowStep {
   step: number;
   id: string;
-  name: string;
-  shortName: string;
+  nameKey: string;
+  defaultName: string;
+  shortNameKey: string;
+  defaultShortName: string;
   href: string;
   icon: React.ElementType;
 }
 
 export const WORKFLOW_STEPS: WorkflowStep[] = [
-  { step: 1, id: 'calculator', name: 'Loads & Demand', shortName: 'Loads', href: '/calculator', icon: Zap },
-  { step: 2, id: 'breaker-schedule', name: 'Circuit Breakers', shortName: 'Breakers', href: '/breaker-schedule', icon: CircuitBoard },
-  { step: 3, id: 'coordination', name: 'Selectivity & TCC', shortName: 'Coordination', href: '/coordination', icon: Shield },
-  { step: 4, id: 'cable-schedule', name: 'Cable Sizing', shortName: 'Cables', href: '/cable-schedule', icon: Cable },
-  { step: 5, id: 'panel', name: 'Distribution & MDB', shortName: 'Panels', href: '/panel', icon: Cpu },
-  { step: 6, id: 'riser', name: 'Riser System', shortName: 'Risers', href: '/riser', icon: GitBranch },
-  { step: 7, id: 'sld', name: 'SLD Schematic', shortName: 'SLD', href: '/sld', icon: GitBranch },
-  { step: 8, id: 'reports', name: 'Reports & BOM', shortName: 'Reports', href: '/reports', icon: FileText },
+  {
+    step: 1,
+    id: 'calculator',
+    nameKey: 'workflow.loadsDemand',
+    defaultName: 'Loads & Demand',
+    shortNameKey: 'workflow.short.loads',
+    defaultShortName: 'Loads',
+    href: '/calculator',
+    icon: Zap,
+  },
+  {
+    step: 2,
+    id: 'breaker-schedule',
+    nameKey: 'workflow.circuitBreakers',
+    defaultName: 'Circuit Breakers',
+    shortNameKey: 'workflow.short.breakers',
+    defaultShortName: 'Breakers',
+    href: '/breaker-schedule',
+    icon: CircuitBoard,
+  },
+  {
+    step: 3,
+    id: 'coordination',
+    nameKey: 'workflow.selectivityTcc',
+    defaultName: 'Selectivity & TCC',
+    shortNameKey: 'workflow.short.coordination',
+    defaultShortName: 'Coordination',
+    href: '/coordination',
+    icon: Shield,
+  },
+  {
+    step: 4,
+    id: 'cable-schedule',
+    nameKey: 'workflow.cableSizing',
+    defaultName: 'Cable Sizing',
+    shortNameKey: 'workflow.short.cables',
+    defaultShortName: 'Cables',
+    href: '/cable-schedule',
+    icon: Cable,
+  },
+  {
+    step: 5,
+    id: 'panel',
+    nameKey: 'workflow.distributionMdb',
+    defaultName: 'Distribution & MDB',
+    shortNameKey: 'workflow.short.panels',
+    defaultShortName: 'Panels',
+    href: '/panel',
+    icon: Cpu,
+  },
+  {
+    step: 6,
+    id: 'riser',
+    nameKey: 'workflow.riserSystem',
+    defaultName: 'Riser System',
+    shortNameKey: 'workflow.short.risers',
+    defaultShortName: 'Risers',
+    href: '/riser',
+    icon: GitBranch,
+  },
+  {
+    step: 7,
+    id: 'sld',
+    nameKey: 'workflow.sldSchematic',
+    defaultName: 'SLD Schematic',
+    shortNameKey: 'workflow.short.sld',
+    defaultShortName: 'SLD',
+    href: '/sld',
+    icon: GitBranch,
+  },
+  {
+    step: 8,
+    id: 'reports',
+    nameKey: 'workflow.reportsBom',
+    defaultName: 'Reports & BOM',
+    shortNameKey: 'workflow.short.reports',
+    defaultShortName: 'Reports',
+    href: '/reports',
+    icon: FileText,
+  },
 ];
 
 export interface WorkflowStepperProps {
@@ -42,11 +118,14 @@ export interface WorkflowStepperProps {
 
 export default function WorkflowStepper({ currentStep, className }: WorkflowStepperProps) {
   const pathname = usePathname();
+  const { t, isRtl } = useTranslation();
 
   const activeIndex =
     currentStep != null
       ? currentStep - 1
       : WORKFLOW_STEPS.findIndex((s) => pathname === s.href || pathname.startsWith(`${s.href}/`));
+
+  const StepChevron = isRtl ? ChevronLeft : ChevronRight;
 
   return (
     <div
@@ -59,6 +138,9 @@ export default function WorkflowStepper({ currentStep, className }: WorkflowStep
         {WORKFLOW_STEPS.map((step, idx) => {
           const isActive = idx === activeIndex;
           const isCompleted = activeIndex >= 0 && idx < activeIndex;
+          const name = t(step.nameKey, step.defaultName);
+          const shortName = t(step.shortNameKey, step.defaultShortName);
+          const stepPrefix = t('workflow.step', 'Step');
 
           return (
             <div key={step.id} className="flex items-center gap-2 shrink-0">
@@ -72,7 +154,7 @@ export default function WorkflowStepper({ currentStep, className }: WorkflowStep
                     ? 'bg-gray-950/60 border border-gray-800/80 text-gray-300 hover:border-gray-700 hover:text-white'
                     : 'text-gray-500 hover:text-gray-300 hover:bg-gray-800/40 border border-transparent'
                 )}
-                title={`Step ${step.step}: ${step.name}`}
+                title={`${stepPrefix} ${step.step}: ${name}`}
               >
                 <span
                   className={cn(
@@ -89,16 +171,16 @@ export default function WorkflowStepper({ currentStep, className }: WorkflowStep
 
                 <div className="flex flex-col">
                   <span className="hidden sm:inline whitespace-nowrap text-[11px] font-medium leading-tight">
-                    {step.name}
+                    {name}
                   </span>
                   <span className="sm:hidden whitespace-nowrap text-[11px] font-medium leading-tight">
-                    {step.shortName}
+                    {shortName}
                   </span>
                 </div>
               </Link>
 
               {idx < WORKFLOW_STEPS.length - 1 && (
-                <ChevronRight size={13} className="text-gray-700 shrink-0 select-none" />
+                <StepChevron size={13} className="text-gray-700 shrink-0 select-none" />
               )}
             </div>
           );

@@ -46,7 +46,29 @@
     "breakerModel": "Schaltermodell",
     "total": "GESAMT",
     "open": "Öffnen",
-    "totalLoad": "Gesamtlast"
+    "totalLoad": "Gesamtlast",
+    "apartments": "Wohnungen"
+  },
+  "workflow": {
+    "step": "Schritt",
+    "loadsDemand": "Lasten & Bedarf",
+    "circuitBreakers": "Leistungsschalter",
+    "selectivityTcc": "Selektivität & TCC",
+    "cableSizing": "Kabeldimensionierung",
+    "distributionMdb": "Verteilung & MDB",
+    "riserSystem": "Steigleitungssystem",
+    "sldSchematic": "SLD-Schaltplan",
+    "reportsBom": "Berichte & Stückliste",
+    "short": {
+      "loads": "Lasten",
+      "breakers": "Schalter",
+      "coordination": "Koordination",
+      "cables": "Kabel",
+      "panels": "Schalttafeln",
+      "risers": "Steige",
+      "sld": "SLD",
+      "reports": "Berichte"
+    }
   },
   "nav": {
     "dashboard": "Übersicht",
@@ -178,8 +200,13 @@
     "subtitle": "Projektportfolio, Lastverteilung und elektrische Netzinfrastruktur",
     "activeProjects": "Aktive Projekte",
     "totalBuildings": "Gebäude",
+    "totalApartments": "Wohnungen",
     "totalConnectedLoad": "Gesamte Anschlussleistung",
     "totalMaxDemand": "Maximaler Leistungsbedarf",
+    "loadItems": "Lastelemente",
+    "schneiderMode": "Schneider-Modus",
+    "abbMode": "ABB-Modus",
+    "multiVendorMode": "Multi-Vendor-Modus",
     "transformerSize": "Transformator-Bemessung",
     "generatorSize": "Notstromgenerator-Bemessung",
     "recentProjects": "Aktuelle Projekte",
@@ -213,6 +240,19 @@
     "deleteConfirm": "Möchten Sie dieses Projekt wirklich löschen? Alle zugehörigen Gebäude, Etagen und Berechnungen werden dauerhaft entfernt.",
     "selectProjectPrompt": "Bitte wählen Sie ein Projekt aus oder erstellen Sie ein neues.",
     "buildings": "Gebäude",
+    "apartmentTemplates": "Wohnungsvorlagen",
+    "loadLibrary": "Lastbibliothek",
+    "projectSettings": "Projekteinstellungen",
+    "addBuilding": "Gebäude hinzufügen",
+    "newBuilding": "Neues Gebäude",
+    "buildingName": "Gebäudename",
+    "floorsCount": "Etagen",
+    "serviceFloors": "Techniketagen",
+    "apartmentsPerFloor": "Wohnungen / Etage",
+    "lightningProtection": "Blitzschutz",
+    "createBuilding": "Gebäude erstellen",
+    "noBuildings": "Noch keine Gebäude hinzugefügt",
+    "floorDesigns": "Etagenentwürfe",
     "apartments": "Wohnungen / Einheiten",
     "totalDemand": "Max. Gesamtbedarf",
     "voltage": "Nennspannung"
@@ -264,7 +304,15 @@
     "series": "Baureihe / Familie",
     "fullSelectivity": "Vollselektivität",
     "partialSelectivity": "Teilselektivität",
-    "noSelectivity": "Keine Selektivität"
+    "noSelectivity": "Keine Selektivität",
+    "defaultFamilies": "Standard-Schalterfamilien",
+    "mainIncomer": "Haupteinspeisung (Incomer)",
+    "feedersSubPanels": "Abgänge & Unterverteiler",
+    "finalDistribution": "Endstromkreise & Endverteilung",
+    "acbDesc": "ACB / Hauptschalter / Transformator-Sekundärseite",
+    "mccbDesc": "MCCB — mechanische Lasten, UV-Einspeisungen, Steigleitungen",
+    "mcbDesc": "MCB / LS-Schalter — Wohnungen, Gewerbe, Beleuchtung",
+    "useDefaultManufacturer": "Standard des bevorzugten Herstellers verwenden"
   },
   "panel": {
     "title": "Hauptverteilung (HV / MDB)",
@@ -401,6 +449,18 @@
     "ltrDesc": "Links-nach-Rechts (LTR) • Inter Sans",
     "account": "Konto & Sicherheit",
     "accountInfo": "Kontoinformationen",
+    "profile": "Profildetails",
+    "profileSubtitle": "Aktualisieren Sie Ihre persönlichen Daten und Ihre Kontakt-E-Mail-Adresse.",
+    "fullName": "Vollständiger Name",
+    "fullNamePlaceholder": "Geben Sie Ihren vollständigen Namen ein",
+    "emailAddress": "E-Mail-Adresse",
+    "emailPlaceholder": "name@beispiel.de",
+    "saveProfile": "Änderungen speichern",
+    "savingProfile": "Wird gespeichert…",
+    "profileUpdateSuccess": "Profil erfolgreich aktualisiert",
+    "profileUpdateError": "Fehler beim Aktualisieren des Profils",
+    "invalidEmail": "Bitte geben Sie eine gültige E-Mail-Adresse ein.",
+    "nameRequired": "Vollständiger Name ist erforderlich.",
     "changePassword": "Passwort ändern",
     "changePasswordSubtitle": "Schützen Sie Ihr Konto mit einem sicheren, starken Passwort.",
     "currentPassword": "Aktuelles Passwort",
@@ -572,7 +632,22 @@
     "breakerTable": {
       "title": "Schutzgeräte-Tabelle",
       "subtitle": "Bemessungsströme & Schaltvermögen",
-      "content": "Prüfen Sie Bemessungsströme (In), Polanzahlen (1P/3P/4P), Kurzschluss-Schaltvermögen (Icu) und Auslöserparameter."
+      "content": "Prüfen Sie Bemessungsströme (In), Betriebsstrom (Ib), Kurzschluss-Schaltvermögen (Icu) und elektronische Auslöser (MicroLogic / Ekip)."
+    },
+    "breakerSelectivity": {
+      "title": "Selektivitätsabstufung & 1,6x-Regel",
+      "subtitle": "Kaskadierte Stromausfälle verhindern",
+      "content": "Um volle Selektivität zu erzielen (z. B. 125A Leistungsschalter für 76,5A UV-Steigeleitung), hält der vorgeordnete MCCB ein Bemessungsverhältnis von mindestens 1,6x zu nachgeordneten 63A MCBs ein."
+    },
+    "breakerProtection": {
+      "title": "Thermischer Kabelschutz (Ib ≤ In ≤ Iz)",
+      "subtitle": "Koordination nach DIN VDE / IEC 60364-5-52",
+      "content": "ProCal stellt sicher, dass die reduzierte Kabelbelastbarkeit (Iz) größer als der Schalter-Nennstrom (In) ist, um Leiter vor Überlast und Kurzschlusserwärmung zu schützen."
+    },
+    "breakerGuide": {
+      "title": "Planungsleitfaden für Schutzgeräte & Selektivität",
+      "subtitle": "Normative Grundlagen & Auslegung",
+      "content": "Klicken Sie jederzeit auf 'Auslegungsleitfaden', um Erklärungen zu UV-Schaltern, elektronischen Auslösern (Ir) und Selektivitätsberechnungen zu öffnen."
     },
     "sldHeader": {
       "title": "Einpoliger Schaltplan (SLD Workstation)",
@@ -710,6 +785,31 @@
       "r4Title": "Benötigen Sie Hilfe?",
       "r4Link": "Ingenieurteam kontaktieren"
     }
+  },
+  "breakerGuide": {
+    "title": "Planungsleitfaden für Schutzgeräte & Selektivität",
+    "subtitle": "Schutzprinzipien nach IEC 60947-2 & IEC 60364-5-52",
+    "buttonLabel": "Auslegungsleitfaden",
+    "caseStudyTitle": "Häufige Frage: Warum wählt das System einen 125A-Schalter für eine 76,5A-Last (z. B. F4 – SMDB)?",
+    "caseStudyText": "Für Unterverteilungen (SMDB) wählt ProCal Kompaktleistungsschalter (MCCB) mit elektronischen Auslösern, die sowohl Dauerlastsicherheit als auch volle Selektivität (IEC 60947-2) gewährleisten. Ein 125A-Schalter für die Steigeleitung stellt eine lückenlose Selektivität gegenüber nachgeordneten 63A-Abgängen sicher und schützt 35 mm² XLPE-Kabel (Iz = 147A >= 125A).",
+    "rule1Title": "1. Funktion von UV-Steigeleitungen & MCCBs",
+    "rule1Text": "Steigeleitungen von der HV zu Unterverteilungen erfordern 3-polige MCCBs mit hohem Schaltvermögen (z. B. 50kA) und elektronischen Auslösern (MicroLogic 2.2 / Ekip Dip).",
+    "rule2Title": "2. Selektivitätsabstufung & 1,6x-Regel",
+    "rule2Text": "Für volle Selektivität muss der Nennstrom In mindestens das 1,6-fache des größten nachgeschalteten LSS betragen (63A × 1,6 = 100,8A → erfordert 125A). Ein 80A-Schalter würde bei Stromkreiskurzschlüssen die gesamte Etage abschalten.",
+    "rule3Title": "3. Dauerlastzuschlag (1,25x-Regel)",
+    "rule3Text": "Für dauerbetriebene Unterverteiler wird ein Sicherheitsfaktor von 1,25 angewendet (76,5A × 1,25 = 95,6A). Die nächstgrößeren Standard-MCCB-Nennströme sind 100A und 125A.",
+    "rule4Title": "4. Elektronische Auslöser (Ir-Einstellung)",
+    "rule4Text": "Bei elektronischen Auslösern (MicroLogic 2.2 / Ekip Dip) ist die Baugröße 125A/160A, während der Überlast-Einstellregler Ir (0,4–1,0 × In) exakt auf den Betriebsstrom 76,5A justiert werden kann.",
+    "cableCoordTitle": "Kabelkoordinationsbedingung nach IEC 60364-5-52",
+    "designCurrent": "Bemessungsbetriebsstrom (Ib)",
+    "breakerRating": "Schalter-Nennstrom (In)",
+    "cableAmpacity": "Kabelstrombelastbarkeit (Iz - 35mm²)",
+    "cableCoordExplain": "Da Iz (147A) größer als In (125A) ist, ist das 35 mm² XLPE-Kupferkabel vollständig gegen thermische Überlastung und Kurzschlussschäden geschützt.",
+    "startTourBtn": "Interaktive Führung starten",
+    "closeBtn": "Verstanden",
+    "tooltipBreaker": "Schalter-Bemessungsstrom (In). Ausgelegt für Dauerlast (In >= 1,25x Ib) und Selektivitätsabstufung (In >= 1,6x zu nachgeordneten LSS).",
+    "tooltipSelectivity": "Selektivität nach IEC 60947-2. FULL bedeutet, dass die Auslösekennlinien bei nachgeordneten Kurzschlüssen nicht überlappen.",
+    "tooltipProtection": "Kabelschutz nach IEC 60364-5-52: Bedingung Ib <= In <= Iz. Stellt sicher, dass die Kabelstrombelastbarkeit Iz mindestens so groß wie In ist."
   }
 }
 

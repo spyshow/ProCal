@@ -20,7 +20,6 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 
 interface ProjectSummary {
   id: string;
@@ -35,7 +34,7 @@ interface ProjectSummary {
 }
 
 export default function DashboardPage() {
-  const { selectedProject, preferredManufacturer } = useProject();
+  const { selectedProject } = useProject();
   const { t, isRtl } = useTranslation();
   const [projects, setProjects] = useState<ProjectSummary[]>([]);
   const [loading, setLoading] = useState(true);
@@ -77,14 +76,14 @@ export default function DashboardPage() {
       bg: 'bg-sky-500/10 border-sky-500/30',
     },
     {
-      label: t('projects.buildingsCount', 'Apartments'),
+      label: t('dashboard.totalApartments', 'Apartments'),
       value: totalApartments,
       icon: Plug,
       color: 'text-emerald-400',
       bg: 'bg-emerald-500/10 border-emerald-500/30',
     },
     {
-      label: t('common.connectedLoad', 'Load Items'),
+      label: t('dashboard.loadItems', 'Load Items'),
       value: projects.reduce((sum, p) => sum + (p.loadLibraryItems?.length ?? 0), 0),
       icon: Zap,
       color: 'text-amber-400',
@@ -96,7 +95,7 @@ export default function DashboardPage() {
     { label: t('nav.projects', 'Projects'), href: '/projects', icon: FolderOpen, desc: t('projects.subtitle', 'Create and manage projects') },
     { label: t('nav.calculator', 'Load Calculator'), href: '/calculator', icon: Zap, desc: t('calculator.subtitle', 'Add loads and size cables') },
     { label: t('nav.panelDesigner', 'Panel Designer'), href: '/panel', icon: Cpu, desc: t('panel.subtitle', 'Design MDB/SMDB layouts') },
-    { label: t('nav.riserDiagram', 'Riser Diagram'), href: '/riser', icon: GitBranch, desc: t('nav.riserDiagram', 'Visual vertical riser') },
+    { label: t('nav.riserDiagram', 'Riser Diagram'), href: '/riser', icon: GitBranch, desc: t('riser.subtitle', 'Visual vertical riser') },
     { label: t('nav.coordination', 'Coordination'), href: '/coordination', icon: Shield, desc: t('breakers.subtitle', 'TCC selectivity curves') },
     { label: t('nav.reports', 'Reports'), href: '/reports', icon: FileText, desc: t('reports.subtitle', 'BOM and schedules') },
   ];
@@ -106,12 +105,7 @@ export default function DashboardPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-6">
         <div>
-          <div className="flex items-center gap-3">
-            <h1 className="text-3xl font-extrabold text-white tracking-tight">{t('dashboard.title', 'Dashboard')}</h1>
-            <Badge variant="glow">
-              {preferredManufacturer || 'Multi-Vendor'} Mode
-            </Badge>
-          </div>
+          <h1 className="text-3xl font-extrabold text-white tracking-tight">{t('dashboard.title', 'Dashboard')}</h1>
           <p className="text-sm text-slate-400 mt-1">
             {t('dashboard.subtitle', 'Electrical Load Calculation & Switchboard Design Center')}
           </p>

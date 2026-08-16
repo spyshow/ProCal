@@ -45,7 +45,29 @@
     "breakerModel": "Breaker Model",
     "total": "TOTAL",
     "open": "Open",
-    "totalLoad": "Total Load"
+    "totalLoad": "Total Load",
+    "apartments": "Apartments"
+  },
+  "workflow": {
+    "step": "Step",
+    "loadsDemand": "Loads & Demand",
+    "circuitBreakers": "Circuit Breakers",
+    "selectivityTcc": "Selectivity & TCC",
+    "cableSizing": "Cable Sizing",
+    "distributionMdb": "Distribution & MDB",
+    "riserSystem": "Riser System",
+    "sldSchematic": "SLD Schematic",
+    "reportsBom": "Reports & BOM",
+    "short": {
+      "loads": "Loads",
+      "breakers": "Breakers",
+      "coordination": "Coordination",
+      "cables": "Cables",
+      "panels": "Panels",
+      "risers": "Risers",
+      "sld": "SLD",
+      "reports": "Reports"
+    }
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -169,8 +191,13 @@
     "subtitle": "Overview of building projects, load balance, and electrical distribution network design",
     "activeProjects": "Active Projects",
     "totalBuildings": "Buildings",
+    "totalApartments": "Apartments",
     "totalConnectedLoad": "Total Connected Load",
     "totalMaxDemand": "Total Max Demand",
+    "loadItems": "Load Items",
+    "schneiderMode": "Schneider Mode",
+    "abbMode": "ABB Mode",
+    "multiVendorMode": "Multi-Vendor Mode",
     "transformerSize": "Transformer Sizing",
     "generatorSize": "Generator Sizing",
     "recentProjects": "Recent Projects",
@@ -198,6 +225,21 @@
     "country": "Country *",
     "created": "Created",
     "buildingsCount": "buildings",
+    "apartments": "Apartments",
+    "buildings": "Buildings",
+    "apartmentTemplates": "Apartment Templates",
+    "loadLibrary": "Load Library",
+    "projectSettings": "Project Settings",
+    "addBuilding": "Add Building",
+    "newBuilding": "New Building",
+    "buildingName": "Building Name",
+    "floorsCount": "Floors",
+    "serviceFloors": "Service Floors",
+    "apartmentsPerFloor": "Apartments/Floor",
+    "lightningProtection": "Lightning Protection",
+    "createBuilding": "Create Building",
+    "noBuildings": "No buildings added yet",
+    "floorDesigns": "Floor Designs",
     "openProject": "Open Project",
     "deleteConfirm": "Delete this project and all its data?",
     "selectProjectPrompt": "Please select or create a project to continue.",
@@ -211,6 +253,7 @@
     "subtitle": "Apartment loads & phase balancing",
     "building": "Building",
     "floor": "Floor",
+    "apartments": "Apartments",
     "roomType": "Room Type",
     "area": "Area (m²)",
     "density": "Density (VA/m²)",
@@ -282,7 +325,15 @@
     "series": "Series / Family",
     "fullSelectivity": "Full Selectivity",
     "partialSelectivity": "Partial Selectivity",
-    "noSelectivity": "No Selectivity"
+    "noSelectivity": "No Selectivity",
+    "defaultFamilies": "Default Breaker Families",
+    "mainIncomer": "Main Incomer",
+    "feedersSubPanels": "Feeders & Sub-panels",
+    "finalDistribution": "Final Distribution",
+    "acbDesc": "ACB / main breaker / transformer secondary",
+    "mccbDesc": "MCCB — mechanical loads, SMDB feeders, risers",
+    "mcbDesc": "MCB — apartments, small shops, lighting",
+    "useDefaultManufacturer": "Use preferred manufacturer fallback"
   },
   "panel": {
     "title": "Panel Designer (MDB)",
@@ -427,6 +478,18 @@
     "ltrDesc": "Left-to-Right (LTR) • Inter Sans",
     "account": "Account & Security",
     "accountInfo": "Account Information",
+    "profile": "Profile Details",
+    "profileSubtitle": "Update your personal details and contact email address.",
+    "fullName": "Full Name",
+    "fullNamePlaceholder": "Enter your full name",
+    "emailAddress": "Email Address",
+    "emailPlaceholder": "name@example.com",
+    "saveProfile": "Save Changes",
+    "savingProfile": "Saving…",
+    "profileUpdateSuccess": "Profile updated successfully",
+    "profileUpdateError": "Failed to update profile",
+    "invalidEmail": "Please enter a valid email address.",
+    "nameRequired": "Full name is required.",
     "changePassword": "Change Password",
     "changePasswordSubtitle": "Ensure your account is protected with a strong, secure password.",
     "currentPassword": "Current Password",
@@ -573,7 +636,22 @@
     "breakerTable": {
       "title": "Distribution Circuit Breaker Table",
       "subtitle": "Trip Ratings & Breaking Capacity",
-      "content": "Inspect nominal trip ratings (In), pole configurations (1P/3P/4P), breaking capacities (Icu), and trip unit parameters."
+      "content": "Inspect nominal trip ratings (In), design currents (Ib), breaking capacities (Icu), and electronic trip units (MicroLogic / Ekip)."
+    },
+    "breakerSelectivity": {
+      "title": "Selectivity Grading & 1.6x Rule",
+      "subtitle": "Prevent Cascading Blackouts",
+      "content": "To achieve FULL discrimination (e.g. 125A breaker for 76.5A SMDB load), upstream MCCBs maintain a >=1.6x rating ratio over downstream 63A MCBs, preventing nuisance floor outages."
+    },
+    "breakerProtection": {
+      "title": "Cable Thermal Protection (Ib ≤ In ≤ Iz)",
+      "subtitle": "IEC 60364-5-52 Coordination",
+      "content": "ProCal validates that derated cable ampacity (Iz) is greater than breaker rating (In), protecting cables against thermal overload and short circuits."
+    },
+    "breakerGuide": {
+      "title": "Engineering Guide & Sizing Rules",
+      "subtitle": "Detailed Electrical Standards & Explanations",
+      "content": "Click the 'Sizing Guide' button anytime to open the complete reference on SMDB sizing, electronic trip unit setting (Ir), and selectivity grading."
     },
     "sldHeader": {
       "title": "Single Line Diagram (SLD) Workstation",
@@ -733,6 +811,31 @@
       "r4Title": "Need Custom Help?",
       "r4Link": "Contact Engineering Team"
     }
+  },
+  "breakerGuide": {
+    "title": "Breaker Sizing & Selectivity Engineering Guide",
+    "subtitle": "IEC 60947-2 & IEC 60364-5-52 Protection Principles",
+    "buttonLabel": "Sizing Guide",
+    "caseStudyTitle": "Frequently Asked: Why choose a 125A breaker for a 76.5A load (e.g. F4 – SMDB)?",
+    "caseStudyText": "For Sub-Main Distribution Boards (SMDB), ProCal selects molded case circuit breakers (MCCB) with electronic trip units sized to satisfy both continuous load safety and upstream-to-downstream selectivity grading (IEC 60947-2). Sizing an SMDB riser at 125A ensures full discrimination against downstream 63A branch breakers, prevents nuisance floor blackouts, and protects 35 mm² cables (Iz = 147A >= 125A).",
+    "rule1Title": "1. Sub-Panel (SMDB) Feeder Role & MCCBs",
+    "rule1Text": "Riser feeders from the MDB to floor SMDB sub-panels require 3-pole MCCBs with high breaking capacity (e.g. 50kA) and electronic trip units (MicroLogic 2.2 / Ekip Dip) to handle potential short-circuit fault levels.",
+    "rule2Title": "2. Selectivity & 1.6x Discrimination Rule",
+    "rule2Text": "To achieve FULL Selectivity, the upstream breaker rating In must maintain a grading ratio of at least 1.6x against the largest downstream MCB (63A × 1.6 = 100.8A → requires 125A). An 80A breaker would cause cascading trips on branch faults.",
+    "rule3Title": "3. Continuous Load Headroom (1.25x Rule)",
+    "rule3Text": "Sub-distribution feeders serving continuous multi-circuit loads apply a 1.25 safety factor (76.5A × 1.25 = 95.6A). Standard industrial MCCB ratings above 95.6A in this frame line are 100A and 125A.",
+    "rule4Title": "4. Electronic Trip Units (Ir Dial Adjustment)",
+    "rule4Text": "With electronic trip units (MicroLogic 2.2 / Ekip Dip), the physical frame is 125A/160A, while the adjustable overload pickup dial Ir (0.4–1.0 × In) can be tuned to protect the exact 76.5A operational current.",
+    "cableCoordTitle": "IEC 60364-5-52 Cable Coordination Condition",
+    "designCurrent": "Design Current (Ib)",
+    "breakerRating": "Breaker Rating (In)",
+    "cableAmpacity": "Cable Capacity (Iz - 35mm²)",
+    "cableCoordExplain": "Because Iz (147A) is greater than In (125A), the 35 mm² XLPE copper cable is 100% protected against continuous thermal overload and short-circuit thermal damage.",
+    "startTourBtn": "Launch Interactive Tour",
+    "closeBtn": "Got it",
+    "tooltipBreaker": "Breaker rating (In). Sized for continuous load (In >= 1.25x Ib) and selectivity grading (In >= 1.6x downstream MCB for SMDB risers).",
+    "tooltipSelectivity": "IEC 60947-2 discrimination. FULL indicates upstream and downstream trip curves will not overlap under branch short-circuit faults.",
+    "tooltipProtection": "IEC 60364-5-52 coordination: Ib <= In <= Iz. Verifies derated cable ampacity (Iz) is equal to or greater than breaker rating (In)."
   }
 }
 

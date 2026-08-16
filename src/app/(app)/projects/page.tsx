@@ -281,11 +281,6 @@ export default function ProjectsPage() {
                   {proj.client || '—'} · {proj.location || '—'} · {proj.buildings.length} {t('calculator.buildingsCount', 'buildings')}
                 </p>
               </div>
-              <div className="text-xs text-gray-500 flex-shrink-0">
-                <span className="inline-block px-2 py-0.5 rounded bg-gray-800 text-gray-400 font-mono">
-                  {proj.preferredManufacturer}
-                </span>
-              </div>
               <button
                 onClick={() => handleSelect(proj.id)}
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gray-800 hover:bg-orange-600/20 text-sm text-gray-300 hover:text-orange-300 transition-colors"

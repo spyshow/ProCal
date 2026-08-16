@@ -7,6 +7,7 @@ type User = {
   id: string;
   username: string;
   name: string;
+  email: string | null;
   role: string;
   credits: number;
   disabled: boolean;
@@ -14,7 +15,7 @@ type User = {
   _count: { projects: number };
 };
 
-const EMPTY_CREATE = { username: "", name: "", password: "", role: "USER", credits: 0 };
+const EMPTY_CREATE = { username: "", name: "", email: "", password: "", role: "USER", credits: 0 };
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
@@ -55,7 +56,7 @@ export default function AdminUsersPage() {
 
   // Edit modal
   const [editUser, setEditUser] = useState<User | null>(null);
-  const [editForm, setEditForm] = useState({ role: "USER", credits: 0, disabled: false });
+  const [editForm, setEditForm] = useState({ name: "", email: "", role: "USER", credits: 0, disabled: false });
   const [saving, setSaving] = useState(false);
 
   async function load(q = "") {
@@ -71,7 +72,7 @@ export default function AdminUsersPage() {
 
   function openEdit(u: User) {
     setEditUser(u);
-    setEditForm({ role: u.role, credits: u.credits, disabled: u.disabled });
+    setEditForm({ name: u.name, email: u.email || "", role: u.role, credits: u.credits, disabled: u.disabled });
   }
 
   async function submitCreate(e: React.FormEvent) {
@@ -110,7 +111,8 @@ export default function AdminUsersPage() {
       setUsers((prev) => prev.map((u) => (u.id === editUser.id ? { ...u, ...updated } : u)));
       setEditUser(null);
     } else {
-      setError(`Update failed (${res.status})`);
+      const body = await res.json().catch(() => ({}));
+      setError(body.error || `Update failed (${res.status})`);
     }
     setSaving(false);
   }
@@ -137,7 +139,7 @@ export default function AdminUsersPage() {
 
       <input
         type="search"
-        placeholder="Search by username or name…"
+        placeholder="Search by username, name, or email…"
         value={search}
         onChange={(e) => { setSearch(e.target.value); load(e.target.value); }}
         className="w-full max-w-sm rounded-lg border border-gray-700 bg-gray-900 px-3 py-2 text-sm text-gray-200 placeholder-gray-500 focus:outline-none focus:border-orange-500"
@@ -150,7 +152,7 @@ export default function AdminUsersPage() {
           <table className="w-full text-sm text-gray-300">
             <thead className="bg-gray-900/60 text-gray-400 text-xs uppercase">
               <tr>
-                {["User", "Role", "Credits", "Projects", "Status", ""].map((h) => (
+                {["User", "Email", "Role", "Credits", "Projects", "Status", ""].map((h) => (
                   <th key={h} className="px-4 py-3 text-left font-medium">{h}</th>
                 ))}
               </tr>
@@ -160,7 +162,10 @@ export default function AdminUsersPage() {
                 <tr key={u.id} className={u.disabled ? "opacity-50" : ""}>
                   <td className="px-4 py-3">
                     <div className="font-medium text-gray-200">{u.name}</div>
-                    <div className="text-xs text-gray-500">{u.username}</div>
+                    <div className="text-xs text-gray-500">@{u.username}</div>
+                  </td>
+                  <td className="px-4 py-3 text-gray-300 font-mono text-xs">
+                    {u.email || <span className="text-gray-600 italic">No email</span>}
                   </td>
                   <td className="px-4 py-3">
                     <span className={`rounded px-2 py-0.5 text-xs font-medium ${u.role === "ADMIN" ? "bg-orange-500/20 text-orange-400" : "bg-gray-800 text-gray-400"}`}>
@@ -197,6 +202,10 @@ export default function AdminUsersPage() {
               <input required className={INPUT} placeholder="e.g. John Smith" value={createForm.name}
                 onChange={(e) => setCreateForm({ ...createForm, name: e.target.value })} />
             </Field>
+            <Field label="Email Address">
+              <input type="email" className={INPUT} placeholder="e.g. jsmith@example.com" value={createForm.email}
+                onChange={(e) => setCreateForm({ ...createForm, email: e.target.value })} />
+            </Field>
             <Field label="Password (min 6 characters)">
               <input required type="password" className={INPUT} placeholder="••••••" value={createForm.password}
                 onChange={(e) => setCreateForm({ ...createForm, password: e.target.value })} />
@@ -229,6 +238,14 @@ export default function AdminUsersPage() {
       {editUser && (
         <Modal title={`Edit — ${editUser.name}`} onClose={() => setEditUser(null)}>
           <form onSubmit={submitEdit} className="space-y-4">
+            <Field label="Full Name">
+              <input required className={INPUT} value={editForm.name}
+                onChange={(e) => setEditForm({ ...editForm, name: e.target.value })} />
+            </Field>
+            <Field label="Email Address">
+              <input type="email" className={INPUT} placeholder="e.g. name@example.com" value={editForm.email}
+                onChange={(e) => setEditForm({ ...editForm, email: e.target.value })} />
+            </Field>
             <Field label="Role">
               <select className={SELECT} value={editForm.role}
                 onChange={(e) => setEditForm({ ...editForm, role: e.target.value })}>
@@ -263,3 +280,4 @@ export default function AdminUsersPage() {
     </div>
   );
 }
+

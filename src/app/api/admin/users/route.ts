@@ -8,7 +8,7 @@ export async function POST(request: Request) {
     const gate = await requireAdmin();
     if (gate instanceof NextResponse) return gate;
 
-    const { username, password, name, role, credits } = await request.json();
+    const { username, password, name, email, role, credits } = await request.json();
 
     if (!username || !password || !name) {
       return NextResponse.json({ error: "Username, password, and name are required" }, { status: 400 });
@@ -18,6 +18,14 @@ export async function POST(request: Request) {
     }
     if (password.length < 6) {
       return NextResponse.json({ error: "Password must be at least 6 characters" }, { status: 400 });
+    }
+
+    let emailTrim: string | null = null;
+    if (email !== undefined && email !== null && String(email).trim().length > 0) {
+      emailTrim = String(email).trim();
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailTrim)) {
+        return NextResponse.json({ error: "A valid email is required" }, { status: 400 });
+      }
     }
 
     const existing = await db.user.findUnique({ where: { username } });
@@ -30,12 +38,13 @@ export async function POST(request: Request) {
       data: {
         username,
         name,
+        email: emailTrim,
         passwordHash,
         role: role === "ADMIN" ? "ADMIN" : "USER",
         credits: Number.isInteger(credits) && credits >= 0 ? credits : 0,
       },
       select: {
-        id: true, username: true, name: true, role: true, credits: true, disabled: true,
+        id: true, username: true, name: true, email: true, role: true, credits: true, disabled: true,
         createdAt: true, _count: { select: { projects: true } },
       },
     });
@@ -57,12 +66,19 @@ export async function GET(request: Request) {
 
     const users = await db.user.findMany({
       where: search
-        ? { OR: [{ username: { contains: search } }, { name: { contains: search } }] }
+        ? {
+            OR: [
+              { username: { contains: search } },
+              { name: { contains: search } },
+              { email: { contains: search } },
+            ],
+          }
         : undefined,
       select: {
         id: true,
         username: true,
         name: true,
+        email: true,
         role: true,
         credits: true,
         disabled: true,

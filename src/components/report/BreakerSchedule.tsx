@@ -19,6 +19,9 @@ interface BreakerRow {
   buildingName: string;
   current: number;
   breakerSize: number;
+  baseBreakerSize?: number;
+  isBreakerUpsized?: boolean;
+  upsizeReason?: string;
   cableSize: number;
   breakerModel: string;
   isThreePhase: boolean;
@@ -94,6 +97,9 @@ export default function BreakerSchedule({
         buildingName: bldg.name,
         current: f.current,
         breakerSize: f.breakerSize,
+        baseBreakerSize: f.baseBreakerSize,
+        isBreakerUpsized: f.isBreakerUpsized,
+        upsizeReason: f.upsizeReason,
         cableSize: f.cableSize,
         breakerModel: f.breakerModel,
         isThreePhase: f.type !== 'APARTMENT',
@@ -115,6 +121,9 @@ export default function BreakerSchedule({
           buildingName: bldg.name,
           current: f.current,
           breakerSize: f.breakerSize,
+          baseBreakerSize: f.baseBreakerSize,
+          isBreakerUpsized: f.isBreakerUpsized,
+          upsizeReason: f.upsizeReason,
           cableSize: f.cableSize,
           breakerModel: f.breakerModel,
           isThreePhase: f.type !== 'APARTMENT',
@@ -169,7 +178,21 @@ export default function BreakerSchedule({
                   <td className="border p-1.5 text-gray-600 font-mono">{b.parentFeederName ?? 'Main Incomer'}</td>
                   <td className="border p-1.5 text-center font-mono text-orange-600">F{b.floor}</td>
                   <td className="border p-1.5 text-right font-mono">{b.current.toFixed(1)}</td>
-                  <td className="border p-1.5 text-center font-mono text-blue-600 font-bold">{b.breakerSize}A</td>
+                  <td className="border p-1.5 text-center font-mono text-blue-600 font-bold">
+                    {b.isBreakerUpsized ? (
+                      <span
+                        className="border-b border-dashed border-blue-600 cursor-help"
+                        title={
+                          b.upsizeReason ??
+                          `Sized to ${b.breakerSize}A (exceeds base load rating ${b.baseBreakerSize ?? Math.ceil(b.current)}A): Upsized for selectivity grading and electronic trip unit sizing.`
+                        }
+                      >
+                        {b.breakerSize}A
+                      </span>
+                    ) : (
+                      `${b.breakerSize}A`
+                    )}
+                  </td>
                   <td className="border p-1.5 text-xs text-gray-600">{b.breakerModel}</td>
                   <td className="border p-1.5 text-center font-mono text-green-600">{b.cableSize}</td>
                   <td className="border p-1.5 text-right font-mono">{b.faultCurrentKa ? b.faultCurrentKa.toFixed(2) : '—'}</td>

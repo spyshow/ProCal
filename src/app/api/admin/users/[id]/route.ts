@@ -12,10 +12,12 @@ export async function PATCH(
 
     const { id } = await params;
     const body = await request.json();
-    const { role, credits, disabled } = body as {
+    const { role, credits, disabled, email, name } = body as {
       role?: string;
       credits?: number;
       disabled?: boolean;
+      email?: string | null;
+      name?: string;
     };
 
     // OV-δ: harden the grant PATCH to match its POST sibling (admin/users/
@@ -34,6 +36,26 @@ export async function PATCH(
     if (role !== undefined) data.role = role;
     if (credits !== undefined) data.credits = credits;
     if (disabled !== undefined) data.disabled = disabled;
+    if (name !== undefined) {
+      if (typeof name !== "string" || name.trim().length === 0) {
+        return NextResponse.json({ error: "Name cannot be empty" }, { status: 400 });
+      }
+      data.name = name.trim();
+    }
+    if (email !== undefined) {
+      if (email === null || email === "") {
+        data.email = null;
+      } else {
+        if (typeof email !== "string") {
+          return NextResponse.json({ error: "Email must be a string" }, { status: 400 });
+        }
+        const emailTrim = email.trim();
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailTrim)) {
+          return NextResponse.json({ error: "A valid email is required" }, { status: 400 });
+        }
+        data.email = emailTrim;
+      }
+    }
 
     if (Object.keys(data).length === 0) {
       return NextResponse.json({ error: "Nothing to update" }, { status: 400 });
@@ -42,7 +64,7 @@ export async function PATCH(
     const user = await db.user.update({
       where: { id },
       data,
-      select: { id: true, username: true, name: true, role: true, credits: true, disabled: true },
+      select: { id: true, username: true, name: true, email: true, role: true, credits: true, disabled: true },
     });
 
     return NextResponse.json(user);

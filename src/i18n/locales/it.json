@@ -47,7 +47,29 @@
     "breakerModel": "Modello Interruttore",
     "total": "TOTALE",
     "open": "Apri",
-    "totalLoad": "Carico Totale"
+    "totalLoad": "Carico Totale",
+    "apartments": "Appartamenti"
+  },
+  "workflow": {
+    "step": "Passo",
+    "loadsDemand": "Carichi e Domanda",
+    "circuitBreakers": "Interruttori",
+    "selectivityTcc": "Selettività e TCC",
+    "cableSizing": "Dimensionamento Cavi",
+    "distributionMdb": "Distribuzione e QG",
+    "riserSystem": "Sistema Montanti",
+    "sldSchematic": "Schema Unifilare",
+    "reportsBom": "Report e Distinta",
+    "short": {
+      "loads": "Carichi",
+      "breakers": "Interruttori",
+      "coordination": "Coordinamento",
+      "cables": "Cavi",
+      "panels": "Quadri",
+      "risers": "Montanti",
+      "sld": "SLD",
+      "reports": "Report"
+    }
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -179,8 +201,13 @@
     "subtitle": "Panoramica progetti, bilanciamento carichi e infrastruttura di distribuzione elettrica",
     "activeProjects": "Progetti Attivi",
     "totalBuildings": "Edifici",
+    "totalApartments": "Appartamenti",
     "totalConnectedLoad": "Potenza Installata Totale",
     "totalMaxDemand": "Potenza Massima Richiesta",
+    "loadItems": "Elementi di Carico",
+    "schneiderMode": "Modalità Schneider",
+    "abbMode": "Modalità ABB",
+    "multiVendorMode": "Modalità Multi-Vendor",
     "transformerSize": "Dimensionamento Trasformatore",
     "generatorSize": "Dimensionamento Gruppo Elettrogeno",
     "recentProjects": "Progetti Recenti",
@@ -214,6 +241,19 @@
     "deleteConfirm": "Sei sicuro di voler eliminare questo progetto? Tutti gli edifici, i piani e i calcoli associati verranno rimossi definitivamente.",
     "selectProjectPrompt": "Seleziona un progetto esistente o creane uno nuovo.",
     "buildings": "Edifici",
+    "apartmentTemplates": "Modelli Appartamento",
+    "loadLibrary": "Libreria Carichi",
+    "projectSettings": "Impostazioni Progetto",
+    "addBuilding": "Aggiungi Edificio",
+    "newBuilding": "Nuovo Edificio",
+    "buildingName": "Nome Edificio",
+    "floorsCount": "Piani",
+    "serviceFloors": "Piani Servizio",
+    "apartmentsPerFloor": "Appartamenti / Piano",
+    "lightningProtection": "Protezione Scariche Atmosferiche",
+    "createBuilding": "Crea Edificio",
+    "noBuildings": "Nessun edificio aggiunto finora",
+    "floorDesigns": "Schemi Piani",
     "apartments": "Unità / Appartamenti",
     "totalDemand": "Potenza Max Richiesta",
     "voltage": "Tensione Nominale"
@@ -265,7 +305,15 @@
     "series": "Famiglia / Serie",
     "fullSelectivity": "Selettività Totale",
     "partialSelectivity": "Selettività Parziale",
-    "noSelectivity": "Nessuna Selettività"
+    "noSelectivity": "Nessuna Selettività",
+    "defaultFamilies": "Famiglie Interruttori Predefinite",
+    "mainIncomer": "Interruttore Generale (Incomer)",
+    "feedersSubPanels": "Alimentatori & Quadri Secondari",
+    "finalDistribution": "Distribuzione Finale & Circuiti Terminali",
+    "acbDesc": "ACB / interruttore generale / secondario trasformatore",
+    "mccbDesc": "MCCB — carichi meccanici, alimentatori QSD, montanti",
+    "mcbDesc": "MCB — appartamenti, utenze commerciali, illuminazione",
+    "useDefaultManufacturer": "Usa opzione predefinita del costruttore"
   },
   "panel": {
     "title": "Quadro Generale di Bassa Tensione (QGBT / MDB)",
@@ -402,6 +450,18 @@
     "ltrDesc": "Sinistra-a-Destra (LTR) • Inter Sans",
     "account": "Account & Sicurezza",
     "accountInfo": "Informazioni Account",
+    "profile": "Dettagli Profilo",
+    "profileSubtitle": "Aggiorna i tuoi dati personali e l'indirizzo email di contatto.",
+    "fullName": "Nome Completo",
+    "fullNamePlaceholder": "Inserisci il tuo nome completo",
+    "emailAddress": "Indirizzo Email",
+    "emailPlaceholder": "nome@esempio.it",
+    "saveProfile": "Salva Modifiche",
+    "savingProfile": "Salvataggio…",
+    "profileUpdateSuccess": "Profilo aggiornato con successo",
+    "profileUpdateError": "Impossibile aggiornare il profilo",
+    "invalidEmail": "Inserisci un indirizzo email valido.",
+    "nameRequired": "Il nome completo è obbligatorio.",
     "changePassword": "Modifica Password",
     "changePasswordSubtitle": "Proteggi il tuo account impostando una password sicura e complessa.",
     "currentPassword": "Password Attuale",
@@ -573,7 +633,22 @@
     "breakerTable": {
       "title": "Tabella Apparecchi di Manovra e Protezione",
       "subtitle": "Taglie, Poli & Potere di Interruzione",
-      "content": "Controlla correnti nominali (In), numero di poli (1P/3P/4P), potere di interruzione (Icu) e parametri di sgancio."
+      "content": "Controlla correnti nominali (In), correnti di progetto (Ib), potere di interruzione (Icu) e sganciatori elettronici (MicroLogic / Ekip)."
+    },
+    "breakerSelectivity": {
+      "title": "Graduazione della Selettività & Regola 1,6x",
+      "subtitle": "Prevenzione di Blackout a Cascata",
+      "content": "Per ottenere la piena selettività (es. interruttore da 125A per montante SMDB da 76,5A), l'MCCB a monte mantiene un rapporto di taglia di almeno 1,6x rispetto agli MCB da 63A a valle, evitando disalimentazioni totali di piano."
+    },
+    "breakerProtection": {
+      "title": "Protezione Termica del Cavo (Ib ≤ In ≤ Iz)",
+      "subtitle": "Coordinamento CEI / IEC 60364-5-52",
+      "content": "ProCal verifica che la portata corretta del cavo (Iz) sia maggiore o uguale alla taglia dell'interruttore (In), proteggendo le condutture da sovraccarico e riscaldamento da corto circuito."
+    },
+    "breakerGuide": {
+      "title": "Guida Ingegneristica al Dimensionamento e Selettività",
+      "subtitle": "Normative & Principi di Calcolo",
+      "content": "Clicca sul pulsante 'Guida Scelta' in qualsiasi momento per consultare spiegazioni su sottoquadri SMDB, sganciatori elettronici (Ir) e criteri di selettività."
     },
     "sldHeader": {
       "title": "Schema Unifilare Generale (SLD Workstation)",
@@ -711,6 +786,31 @@
       "r4Title": "Hai bisogno di assistenza?",
       "r4Link": "Contatta il team di ingegneria"
     }
+  },
+  "breakerGuide": {
+    "title": "Guida al Dimensionamento e Coordinamento Protezioni",
+    "subtitle": "Principi di Protezione secondo IEC 60947-2 & IEC 60364-5-52",
+    "buttonLabel": "Guida Scelta",
+    "caseStudyTitle": "Domanda Frequente: Perché il sistema sceglie un interruttore da 125A per un carico da 76,5A (es. F4 – SMDB)?",
+    "caseStudyText": "Per i sottoquadri di piano (SMDB), ProCal seleziona interruttori scatolati (MCCB) con sganciatori elettronici dimensionati per soddisfare i requisiti di carico continuo e la selettività totale (IEC 60947-2). La taglia da 125A assicura la selettività rispetto agli interruttori di partenza da 63A a valle, previene blackout generali di piano e garantisce la protezione dei cavi da 35 mm² (Iz = 147A >= 125A).",
+    "rule1Title": "1. Ruolo dei Montanti SMDB & Interruttori MCCB",
+    "rule1Text": "I montanti dal QGBT ai sottoquadri SMDB richiedono interruttori scatolati 3P con elevato potere di interruzione (es. 50kA) e sganciatori elettronici (MicroLogic 2.2 / Ekip Dip).",
+    "rule2Title": "2. Graduazione della Selettività & Regola 1,6x",
+    "rule2Text": "Per ottenere la piena selettività, la corrente nominale In a monte deve essere almeno 1,6 volte la corrente nominale dell'interruttore più grande a valle (63A × 1,6 = 100,8A → richiede 125A). Un interruttore da 80A causerebbe scatti intempestivi dell'intero piano.",
+    "rule3Title": "3. Margine per Carichi Continui (Regola 1,25x)",
+    "rule3Text": "Per i sottoquadri con servizio continuo si applica un fattore di sicurezza di 1,25 (76,5A × 1,25 = 95,6A). Le taglie standard industriali superiori a 95,6A per questa gamma sono 100A e 125A.",
+    "rule4Title": "4. Sganciatori Elettronici (Regolazione Soglia Ir)",
+    "rule4Text": "Negli sganciatori elettronici (MicroLogic 2.2 / Ekip Dip), la taglia fisica del telaio è 125A/160A, mentre il selettore di sovraccarico Ir (0,4–1,0 × In) viene tarato con precisione sulla corrente di esercizio effettiva di 76,5A.",
+    "cableCoordTitle": "Condizione di Coordinamento Cavo secondo IEC 60364-5-52",
+    "designCurrent": "Corrente di Progetto (Ib)",
+    "breakerRating": "Corrente Nominale Interruttore (In)",
+    "cableAmpacity": "Portata del Cavo (Iz - 35mm²)",
+    "cableCoordExplain": "Essendo Iz (147A) maggiore di In (125A), il cavo in rame da 35 mm² con isolamento XLPE è protetto al 100% dal sovraccarico termico continuo e dai cortocircuiti.",
+    "startTourBtn": "Avvia Tour Interattivo",
+    "closeBtn": "Ho capito",
+    "tooltipBreaker": "Corrente nominale (In). Calcolata per carichi continui (In >= 1,25x Ib) e selettività rispetto alle partenze (In >= 1,6x).",
+    "tooltipSelectivity": "Selettività secondo IEC 60947-2. FULL indica assenza di sovrapposizione tra curve di intervento in caso di guasto a valle.",
+    "tooltipProtection": "Protezione termica cavo secondo IEC 60364-5-52: Condizione Ib <= In <= Iz. Verifica che la portata Iz sia maggiore o uguale alla taglia In."
   }
 }
 

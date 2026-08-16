@@ -13,6 +13,7 @@ import {
   Eye,
   EyeOff,
   User,
+  Mail,
   Lock,
   CheckCircle2,
   AlertCircle,
@@ -25,13 +26,27 @@ type SettingsTab = 'engineering' | 'company' | 'language' | 'account';
 
 export default function SettingsPage() {
   const { t, language, setLanguage, isRtl } = useTranslation();
-  const { user: currentUser } = useUser();
+  const { user: currentUser, refreshUser } = useUser();
   const [settings, setSettings] = useState<Record<string, CountryConfig>>({});
   const [selectedCountry, setSelectedCountry] = useState('Syria');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [activeTab, setActiveTab] = useState<SettingsTab>('engineering');
+
+  // Profile change state
+  const [profileName, setProfileName] = useState(currentUser?.name || '');
+  const [profileEmail, setProfileEmail] = useState(currentUser?.email || '');
+  const [profileUpdating, setProfileUpdating] = useState(false);
+  const [profileMessage, setProfileMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
+  // Sync profile fields when currentUser changes
+  useEffect(() => {
+    if (currentUser) {
+      setProfileName(currentUser.name || '');
+      setProfileEmail(currentUser.email || '');
+    }
+  }, [currentUser]);
 
   // Password change state
   const [currentPassword, setCurrentPassword] = useState('');
@@ -146,6 +161,63 @@ export default function SettingsPage() {
       setMessage({ type: 'error', text: t('settings.saveError', 'Failed to save') });
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleUpdateProfile = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setProfileMessage(null);
+
+    const trimmedName = profileName.trim();
+    const trimmedEmail = profileEmail.trim();
+
+    if (!trimmedName) {
+      setProfileMessage({
+        type: 'error',
+        text: t('settings.nameRequired', 'Full name is required.'),
+      });
+      return;
+    }
+
+    if (!trimmedEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail)) {
+      setProfileMessage({
+        type: 'error',
+        text: t('settings.invalidEmail', 'Please enter a valid email address.'),
+      });
+      return;
+    }
+
+    setProfileUpdating(true);
+    try {
+      const res = await fetch('/api/auth/me', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: trimmedName,
+          email: trimmedEmail,
+        }),
+      });
+
+      const data = await res.json().catch(() => ({}));
+      if (res.ok && data.success) {
+        await refreshUser();
+        setProfileMessage({
+          type: 'success',
+          text: t('settings.profileUpdateSuccess', 'Profile updated successfully'),
+        });
+      } else {
+        setProfileMessage({
+          type: 'error',
+          text: data.error || t('settings.profileUpdateError', 'Failed to update profile'),
+        });
+      }
+    } catch {
+      setProfileMessage({
+        type: 'error',
+        text: t('settings.profileUpdateError', 'Failed to update profile'),
+      });
+    } finally {
+      setProfileUpdating(false);
     }
   };
 
@@ -689,10 +761,10 @@ export default function SettingsPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-3 border-t border-gray-800/80 text-sm">
               <div>
                 <span className="block text-[11px] font-medium uppercase tracking-wider text-gray-500 mb-0.5">
-                  {t('auth.email', 'Email Address')}
+                  {t('auth.username', 'Username')}
                 </span>
-                <span className="text-gray-200 font-medium truncate block">
-                  {currentUser?.email || '—'}
+                <span className="text-gray-200 font-medium truncate block font-mono text-xs">
+                  @{currentUser?.username ?? "—"}
                 </span>
               </div>
               <div>
@@ -705,6 +777,93 @@ export default function SettingsPage() {
                 </span>
               </div>
             </div>
+          </div>
+
+          {/* Edit Profile & Email Card */}
+          <div className="rounded-xl border border-gray-800 bg-gray-900/40 p-6 space-y-5">
+            <div>
+              <h2 className="text-base font-semibold text-white flex items-center gap-2">
+                <User size={18} className="text-orange-400" />
+                {t('settings.profile', 'Profile Details')}
+              </h2>
+              <p className="text-xs text-gray-400 mt-1">
+                {t('settings.profileSubtitle', 'Update your personal details and contact email address.')}
+              </p>
+            </div>
+
+            {/* Profile Feedback Message */}
+            {profileMessage && (
+              <div
+                className={`p-3.5 rounded-xl text-sm flex items-start gap-2.5 ${
+                  profileMessage.type === 'success'
+                    ? 'bg-emerald-500/10 border border-emerald-500/20 text-emerald-400'
+                    : 'bg-rose-500/10 border border-rose-500/20 text-rose-400'
+                }`}
+              >
+                {profileMessage.type === 'success' ? (
+                  <CheckCircle2 size={18} className="shrink-0 mt-0.5" />
+                ) : (
+                  <AlertCircle size={18} className="shrink-0 mt-0.5" />
+                )}
+                <span>{profileMessage.text}</span>
+              </div>
+            )}
+
+            <form onSubmit={handleUpdateProfile} className="space-y-4">
+              {/* Full Name */}
+              <div>
+                <label className="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-1.5">
+                  {t('settings.fullName', 'Full Name')}
+                </label>
+                <input
+                  type="text"
+                  value={profileName}
+                  onChange={(e) => setProfileName(e.target.value)}
+                  placeholder={t('settings.fullNamePlaceholder', 'Enter your full name')}
+                  className="w-full bg-slate-900/90 border border-slate-700 hover:border-slate-600 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 text-white rounded-xl px-4 py-2.5 text-sm font-medium outline-none transition-all"
+                  required
+                />
+              </div>
+
+              {/* Email Address */}
+              <div>
+                <label className="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-1.5">
+                  {t('settings.emailAddress', 'Email Address')}
+                </label>
+                <div className="relative">
+                  <input
+                    type="email"
+                    value={profileEmail}
+                    onChange={(e) => setProfileEmail(e.target.value)}
+                    placeholder={t('settings.emailPlaceholder', 'name@example.com')}
+                    className="w-full bg-slate-900/90 border border-slate-700 hover:border-slate-600 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 text-white rounded-xl px-4 py-2.5 text-sm font-medium outline-none transition-all pe-10"
+                    required
+                  />
+                  <div className="absolute inset-y-0 end-0 pe-3.5 flex items-center pointer-events-none text-gray-400">
+                    <Mail size={16} />
+                  </div>
+                </div>
+              </div>
+
+              {/* Submit Button */}
+              <div className="flex justify-end pt-2">
+                <button
+                  type="submit"
+                  disabled={
+                    profileUpdating ||
+                    !profileName.trim() ||
+                    !profileEmail.trim() ||
+                    (profileName === (currentUser?.name || '') && profileEmail === (currentUser?.email || ''))
+                  }
+                  className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-orange-600 hover:bg-orange-500 active:scale-[0.99] text-white text-sm font-semibold shadow-lg shadow-orange-600/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-150 cursor-pointer"
+                >
+                  <Save size={15} />
+                  {profileUpdating
+                    ? t('settings.savingProfile', 'Saving…')
+                    : t('settings.saveProfile', 'Save Changes')}
+                </button>
+              </div>
+            </form>
           </div>
 
           {/* Change Password Card */}

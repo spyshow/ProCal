@@ -1,0 +1,1013 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ProCal - Video Hook (0:00 - 0:05)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&family=JetBrains+Mono:wght@500;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #090d16;
+      --card-bg: #131b2e;
+      --card-border: #23304c;
+      --primary: #3b82f6;
+      --primary-glow: rgba(59, 130, 246, 0.5);
+      --danger: #ef4444;
+      --danger-glow: rgba(239, 68, 68, 0.6);
+      --accent: #f59e0b;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: radial-gradient(circle at top, #111a33 0%, var(--bg-dark) 100%);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 24px 16px;
+      overflow-x: hidden;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 24px;
+      animation: fadeIn 0.8s ease-out;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(239, 68, 68, 0.15);
+      color: #f87171;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      padding: 6px 14px;
+      border-radius: 9999px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+    }
+
+    .badge .dot {
+      width: 8px;
+      height: 8px;
+      background: #ef4444;
+      border-radius: 50%;
+      box-shadow: 0 0 8px #ef4444;
+      animation: pulse 1.5s infinite;
+    }
+
+    h1 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 2.2rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #ffffff 40%, #94a3b8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 8px;
+    }
+
+    p.subtitle {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      max-width: 600px;
+    }
+
+    .main-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+      width: 100%;
+      max-width: 1060px;
+    }
+
+    /* Video Player Frame */
+    .video-wrapper {
+      position: relative;
+      background: #000;
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.8), 0 0 30px rgba(59, 130, 246, 0.15);
+      border: 1px solid var(--card-border);
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      max-width: 960px;
+      transition: aspect-ratio 0.4s cubic-bezier(0.4, 0, 0.2, 1), max-width 0.4s;
+    }
+
+    .video-wrapper.portrait {
+      aspect-ratio: 9 / 16;
+      max-width: 420px;
+    }
+
+    canvas#videoCanvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: contain;
+    }
+
+    /* Overlay Controls */
+    .screen-overlay {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 20px;
+    }
+
+    .status-pill {
+      align-self: flex-start;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(10px);
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .status-pill .indicator {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #10b981;
+    }
+
+    .status-pill.recording .indicator {
+      background: #ef4444;
+      animation: blink 0.8s infinite;
+    }
+
+    /* Bottom Control Bar */
+    .controls-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 20px 24px;
+      width: 100%;
+      max-width: 960px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    }
+
+    .timeline-container {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .time-display {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.9rem;
+      color: #38bdf8;
+      min-width: 90px;
+      font-weight: 600;
+    }
+
+    .timeline-bar {
+      flex: 1;
+      height: 8px;
+      background: #1e293b;
+      border-radius: 4px;
+      position: relative;
+      cursor: pointer;
+      overflow: hidden;
+    }
+
+    .timeline-progress {
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 0%;
+      background: linear-gradient(90deg, #3b82f6, #60a5fa);
+      border-radius: 4px;
+      transition: width 0.05s linear;
+    }
+
+    .timeline-marker {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: rgba(239, 68, 68, 0.8);
+    }
+
+    .button-group {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .btn-cluster {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    button {
+      background: #1e293b;
+      color: var(--text);
+      border: 1px solid #334155;
+      padding: 10px 18px;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s;
+      font-family: 'Inter', sans-serif;
+    }
+
+    button:hover {
+      background: #334155;
+      border-color: #475569;
+      transform: translateY(-1px);
+    }
+
+    button.primary {
+      background: linear-gradient(135deg, #2563eb, #1d4ed8);
+      border-color: #3b82f6;
+      box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4);
+    }
+
+    button.primary:hover {
+      background: linear-gradient(135deg, #3b82f6, #2563eb);
+      box-shadow: 0 6px 20px rgba(59, 130, 246, 0.5);
+    }
+
+    button.danger-record {
+      background: linear-gradient(135deg, #dc2626, #991b1b);
+      border-color: #ef4444;
+      box-shadow: 0 4px 15px rgba(220, 38, 38, 0.4);
+    }
+
+    button.danger-record:hover {
+      background: linear-gradient(135deg, #ef4444, #dc2626);
+    }
+
+    .toggle-group {
+      display: flex;
+      background: #0f172a;
+      border-radius: 10px;
+      padding: 3px;
+      border: 1px solid #1e293b;
+    }
+
+    .toggle-btn {
+      background: transparent;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 7px;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .toggle-btn.active {
+      background: #1e293b;
+      color: #fff;
+      font-weight: 600;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Script Breakdown Card */
+    .script-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 24px;
+      width: 100%;
+      max-width: 960px;
+    }
+
+    .script-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+      border-bottom: 1px solid #1e293b;
+      padding-bottom: 12px;
+    }
+
+    .script-header h3 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.2rem;
+      color: #e2e8f0;
+    }
+
+    .script-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    @media (max-width: 768px) {
+      .script-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .script-box {
+      background: #0f172a;
+      border: 1px solid #1e293b;
+      border-radius: 12px;
+      padding: 16px;
+    }
+
+    .script-box .label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      color: #64748b;
+      margin-bottom: 6px;
+    }
+
+    .script-box .content {
+      font-size: 0.95rem;
+      color: #f1f5f9;
+      line-height: 1.5;
+    }
+
+    .script-box .highlight {
+      color: #f87171;
+      font-weight: 700;
+    }
+
+    .script-box .vo {
+      color: #38bdf8;
+      font-style: italic;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.85); }
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="badge">
+      <span class="dot"></span> Scene 1: The Hook (0:00 – 0:05)
+    </div>
+    <h1>ProCal Video Generator</h1>
+    <p class="subtitle">High-retention social/ad video hook with dynamic zoom, kinetic error overlay, and synthesized voiceover.</p>
+  </header>
+
+  <div class="main-container">
+    <!-- Video Player Screen -->
+    <div class="video-wrapper" id="videoWrapper">
+      <canvas id="videoCanvas" width="1920" height="1080"></canvas>
+      <div class="screen-overlay">
+        <div class="status-pill" id="statusPill">
+          <div class="indicator"></div>
+          <span id="statusText">READY (60 FPS)</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Timeline & Controls -->
+    <div class="controls-card">
+      <div class="timeline-container">
+        <div class="time-display" id="timeDisplay">0:00.0 / 0:05.0</div>
+        <div class="timeline-bar" id="timelineBar">
+          <div class="timeline-progress" id="timelineProgress"></div>
+          <div class="timeline-marker" style="left: 44%;" title="Cut: 0:02.2"></div>
+        </div>
+      </div>
+
+      <div class="button-group">
+        <div class="btn-cluster">
+          <button class="primary" id="playBtn">
+            <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+            Play Video
+          </button>
+          <button id="restartBtn">
+            <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/></svg>
+            Replay
+          </button>
+          <button id="audioToggleBtn">
+            <svg id="audioIcon" width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
+            <span id="audioText">Voiceover: ON</span>
+          </button>
+        </div>
+
+        <div class="btn-cluster">
+          <div class="toggle-group">
+            <button class="toggle-btn active" id="landscapeBtn" onclick="setAspectRatio('landscape')">16:9 Landscape</button>
+            <button class="toggle-btn" id="portraitBtn" onclick="setAspectRatio('portrait')">9:16 Vertical</button>
+          </div>
+
+          <button class="danger-record" id="recordBtn">
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/></svg>
+            Export MP4/WebM
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Script Breakdown Card -->
+    <div class="script-card">
+      <div class="script-header">
+        <h3>Storyboard & Production Notes</h3>
+        <span style="font-size: 0.85rem; color: #64748b; font-family: 'JetBrains Mono', monospace;">DURATION: 5.0 SECONDS</span>
+      </div>
+      <div class="script-grid">
+        <div class="script-box">
+          <div class="label">Shot 1 (0:00 – 0:02.2) - Spreadsheet Chaos</div>
+          <div class="content">
+            Camera zooms aggressively into a messy electrical load calculation spreadsheet filled with <span class="highlight">#VALUE!</span>, <span class="highlight">#REF!</span>, and glowing red warning cells with broken distribution formulas.
+          </div>
+        </div>
+        <div class="script-box">
+          <div class="label">Shot 2 (0:02.2 – 0:05.0) - Engineer Pain Point</div>
+          <div class="content">
+            Snap cut to a medium close-up of a tired electrical design engineer rubbing his temples late at night under office desk lighting.
+          </div>
+        </div>
+        <div class="script-box">
+          <div class="label">On-Screen Text Overlay</div>
+          <div class="content highlight" style="font-size: 1.1rem; font-weight: 800;">
+            Still calculating electrical loads in Excel? ❌
+          </div>
+        </div>
+        <div class="script-box">
+          <div class="label">Voiceover (VO) & Timed Captions</div>
+          <div class="content vo">
+            "If you're still calculating building electrical distribution in spreadsheets, you're losing hours on every submission."
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Canvas & Context Setup
+    const canvas = document.getElementById('videoCanvas');
+    const ctx = canvas.getContext('2d');
+    const videoWrapper = document.getElementById('videoWrapper');
+    const timeDisplay = document.getElementById('timeDisplay');
+    const timelineProgress = document.getElementById('timelineProgress');
+    const timelineBar = document.getElementById('timelineBar');
+    const playBtn = document.getElementById('playBtn');
+    const restartBtn = document.getElementById('restartBtn');
+    const recordBtn = document.getElementById('recordBtn');
+    const statusPill = document.getElementById('statusPill');
+    const statusText = document.getElementById('statusText');
+    const audioToggleBtn = document.getElementById('audioToggleBtn');
+    const audioText = document.getElementById('audioText');
+
+    // Video Specs
+    const DURATION = 5.0; // 5 seconds
+    let currentTime = 0;
+    let isPlaying = false;
+    let isRecording = false;
+    let voiceoverEnabled = true;
+    let currentAspect = 'landscape';
+    let animationFrameId = null;
+    let lastTimestamp = null;
+    let mediaRecorder = null;
+    let recordedChunks = [];
+
+    // Image Assets
+    const imgExcel = new Image();
+    imgExcel.src = '/video_assets/excel_errors.jpg';
+
+    const imgEngineer = new Image();
+    imgEngineer.src = '/video_assets/frustrated_engineer.jpg';
+
+    let imagesLoaded = 0;
+    function onImgLoad() {
+      imagesLoaded++;
+      if (imagesLoaded === 2) {
+        renderFrame(0);
+      }
+    }
+    imgExcel.onload = onImgLoad;
+    imgEngineer.onload = onImgLoad;
+
+    // Audio Synthesis Setup (Web Audio API Sound Effects + Speech Synthesis)
+    let audioCtx = null;
+    function initAudio() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+    }
+
+    function playSoundEffects(t) {
+      if (!voiceoverEnabled || !audioCtx) return;
+
+      // Bass Drop / Tension Riser at 0.0s
+      if (Math.abs(t - 0.05) < 0.03) {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(110, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(45, audioCtx.currentTime + 1.2);
+        gain.gain.setValueAtTime(0.25, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 1.2);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 1.2);
+      }
+
+      // Whoosh / Error glitch hit at 2.15s (Scene Cut)
+      if (Math.abs(t - 2.15) < 0.03) {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(380, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(80, audioCtx.currentTime + 0.35);
+        gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.35);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.35);
+      }
+    }
+
+    // Voiceover Synthesis
+    let voUtterance = null;
+    function triggerVoiceover() {
+      if (!voiceoverEnabled) return;
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        voUtterance = new SpeechSynthesisUtterance("If you're still calculating building electrical distribution in spreadsheets, you're losing hours on every submission.");
+        voUtterance.rate = 1.08;
+        voUtterance.pitch = 0.95;
+        
+        // Pick an English voice if available
+        const voices = window.speechSynthesis.getVoices();
+        const englishVoice = voices.find(v => v.lang.startsWith('en') && (v.name.includes('Natural') || v.name.includes('Google') || v.name.includes('David') || v.name.includes('Guy')));
+        if (englishVoice) {
+          voUtterance.voice = englishVoice;
+        }
+        window.speechSynthesis.speak(voUtterance);
+      }
+    }
+
+    function stopVoiceover() {
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+      }
+    }
+
+    // VO Caption Breakdown with Word-level Timings
+    const captionWords = [
+      { text: "If", start: 0.1, end: 0.3 },
+      { text: "you're", start: 0.3, end: 0.6 },
+      { text: "still", start: 0.6, end: 0.9 },
+      { text: "calculating", start: 0.9, end: 1.4 },
+      { text: "building", start: 1.4, end: 1.7 },
+      { text: "electrical", start: 1.7, end: 2.1 },
+      { text: "distribution", start: 2.1, end: 2.7 },
+      { text: "in", start: 2.7, end: 2.9 },
+      { text: "spreadsheets,", start: 2.9, end: 3.4 },
+      { text: "you're", start: 3.4, end: 3.7 },
+      { text: "losing", start: 3.7, end: 4.1 },
+      { text: "hours", start: 4.1, end: 4.4 },
+      { text: "on", start: 4.4, end: 4.6 },
+      { text: "every", start: 4.6, end: 4.8 },
+      { text: "submission.", start: 4.8, end: 5.0 }
+    ];
+
+    // Rendering Engine
+    function renderFrame(time) {
+      const w = canvas.width;
+      const h = canvas.height;
+      ctx.clearRect(0, 0, w, h);
+
+      // Scene Switching: Cut at 2.20s
+      const CUT_TIME = 2.20;
+
+      if (time < CUT_TIME) {
+        // --- SHOT 1: Messy Excel Spreadsheet (0:00 - 0:02.2) ---
+        const progress = time / CUT_TIME; // 0 to 1
+        
+        // Ken Burns Zoom into center-left error cells
+        const scale = 1.0 + (progress * 0.45); // 1.0 -> 1.45
+        const offsetX = progress * -120;
+        const offsetY = progress * -60;
+
+        ctx.save();
+        ctx.translate(w / 2, h / 2);
+        ctx.scale(scale, scale);
+        ctx.translate(-w / 2 + offsetX, -h / 2 + offsetY);
+
+        if (imgExcel.complete) {
+          ctx.drawImage(imgExcel, 0, 0, w, h);
+        } else {
+          ctx.fillStyle = '#0f172a';
+          ctx.fillRect(0, 0, w, h);
+        }
+        ctx.restore();
+
+        // Highlighting Error Cells with Pulsing Red Vignette / HUD
+        const pulse = 0.5 + 0.5 * Math.sin(time * 12);
+        const redGrad = ctx.createRadialGradient(w * 0.5, h * 0.5, h * 0.2, w * 0.5, h * 0.5, w * 0.7);
+        redGrad.addColorStop(0, 'rgba(239, 68, 68, 0)');
+        redGrad.addColorStop(1, `rgba(239, 68, 68, ${0.25 + pulse * 0.15})`);
+        ctx.fillStyle = redGrad;
+        ctx.fillRect(0, 0, w, h);
+
+        // Warning scanlines / glitch line
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.04)';
+        for (let y = 0; y < h; y += 8) {
+          ctx.fillRect(0, y, w, 2);
+        }
+
+        // Broken formula indicator badge popping up at 0.5s
+        if (time > 0.4) {
+          const badgeAlpha = Math.min(1, (time - 0.4) * 4);
+          ctx.save();
+          ctx.globalAlpha = badgeAlpha;
+          ctx.fillStyle = '#dc2626';
+          ctx.shadowColor = 'rgba(220, 38, 38, 0.8)';
+          ctx.shadowBlur = 20;
+          ctx.roundRect(w * 0.5 - 180, h * 0.22, 360, 50, 10);
+          ctx.fill();
+
+          ctx.fillStyle = '#ffffff';
+          ctx.font = 'bold 24px "JetBrains Mono", monospace';
+          ctx.textAlign = 'center';
+          ctx.shadowBlur = 0;
+          ctx.fillText('⚠ 42 FORMULA ERRORS DETECTED', w * 0.5, h * 0.22 + 33);
+          ctx.restore();
+        }
+
+      } else {
+        // --- SHOT 2: Frustrated Engineer (0:02.2 - 0:05.0) ---
+        const shotProgress = (time - CUT_TIME) / (DURATION - CUT_TIME); // 0 to 1
+        
+        // Smooth cinematic push-in on the engineer's face
+        const scale = 1.0 + (shotProgress * 0.22); // 1.0 -> 1.22
+        const offsetY = shotProgress * -30;
+
+        ctx.save();
+        ctx.translate(w / 2, h / 2);
+        ctx.scale(scale, scale);
+        ctx.translate(-w / 2, -h / 2 + offsetY);
+
+        if (imgEngineer.complete) {
+          ctx.drawImage(imgEngineer, 0, 0, w, h);
+        } else {
+          ctx.fillStyle = '#0f172a';
+          ctx.fillRect(0, 0, w, h);
+        }
+        ctx.restore();
+
+        // Cinematic Moody Vignette
+        const darkVignette = ctx.createRadialGradient(w / 2, h / 2, h * 0.3, w / 2, h / 2, w * 0.7);
+        darkVignette.addColorStop(0, 'rgba(0, 0, 0, 0.1)');
+        darkVignette.addColorStop(1, 'rgba(0, 0, 0, 0.75)');
+        ctx.fillStyle = darkVignette;
+        ctx.fillRect(0, 0, w, h);
+      }
+
+      // --- FLASH / GLITCH CUT TRANSITION at 2.20s ---
+      if (time >= CUT_TIME - 0.08 && time <= CUT_TIME + 0.08) {
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.75)';
+        ctx.fillRect(0, 0, w, h);
+      }
+
+      // ==========================================
+      // ON-SCREEN HOOK BANNER & TEXT
+      // "Still calculating electrical loads in Excel? ❌"
+      // ==========================================
+      renderHookBanner(time, w, h);
+
+      // ==========================================
+      // DYNAMIC VOICEOVER CAPTIONS (KARAOKE HIGHLIGHT)
+      // ==========================================
+      renderVoiceoverCaptions(time, w, h);
+
+      // Progress bar at very bottom of video
+      ctx.fillStyle = '#3b82f6';
+      ctx.fillRect(0, h - 8, (time / DURATION) * w, 8);
+    }
+
+    function renderHookBanner(time, w, h) {
+      // Hook pops in with bounce from 0.15s
+      if (time < 0.15) return;
+
+      const enterProgress = Math.min(1, (time - 0.15) / 0.3); // 0 -> 1
+      // Elastic pop
+      const easeScale = 1 + Math.sin(enterProgress * Math.PI) * 0.12;
+
+      ctx.save();
+      const bannerY = h * 0.14;
+
+      ctx.translate(w / 2, bannerY);
+      ctx.scale(easeScale, easeScale);
+      ctx.translate(-w / 2, -bannerY);
+
+      // Background pill container
+      const bannerWidth = currentAspect === 'landscape' ? 1040 : 880;
+      const bannerHeight = 84;
+      const boxX = (w - bannerWidth) / 2;
+      const boxY = bannerY - bannerHeight / 2;
+
+      // Glow shadow
+      ctx.shadowColor = 'rgba(0, 0, 0, 0.9)';
+      ctx.shadowBlur = 30;
+      ctx.shadowOffsetY = 10;
+
+      // Glassmorphism Dark Red Badge
+      ctx.fillStyle = 'rgba(15, 23, 42, 0.92)';
+      ctx.roundRect(boxX, boxY, bannerWidth, bannerHeight, 42);
+      ctx.fill();
+
+      // Border gradient
+      ctx.strokeStyle = '#ef4444';
+      ctx.lineWidth = 3;
+      ctx.stroke();
+
+      // Text Render
+      ctx.shadowBlur = 0;
+      ctx.shadowOffsetY = 0;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.font = '900 36px "Outfit", sans-serif';
+
+      // Text with red ❌
+      ctx.fillStyle = '#ffffff';
+      ctx.fillText('Still calculating electrical loads in Excel? ❌', w / 2, bannerY);
+
+      ctx.restore();
+    }
+
+    function renderVoiceoverCaptions(time, w, h) {
+      const captionY = h * 0.84;
+      const fullText = "If you're still calculating building electrical distribution in spreadsheets, you're losing hours on every submission.";
+
+      ctx.save();
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+
+      // Caption Background Pill
+      const maxCapWidth = currentAspect === 'landscape' ? 1400 : 920;
+      const capHeight = 80;
+
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.85)';
+      ctx.shadowColor = 'rgba(0, 0, 0, 0.7)';
+      ctx.shadowBlur = 25;
+      ctx.roundRect((w - maxCapWidth) / 2, captionY - capHeight / 2, maxCapWidth, capHeight, 20);
+      ctx.fill();
+
+      // Caption Subtitle
+      ctx.shadowBlur = 0;
+      ctx.font = '700 28px "Outfit", sans-serif';
+
+      // Split into two lines if portrait
+      if (currentAspect === 'portrait') {
+        const line1 = "If you're still calculating building electrical";
+        const line2 = "distribution in spreadsheets, you're losing hours...";
+        
+        ctx.fillStyle = '#38bdf8';
+        ctx.fillText(line1, w / 2, captionY - 14);
+        ctx.fillStyle = '#f8fafc';
+        ctx.fillText(line2, w / 2, captionY + 18);
+      } else {
+        // Landscape single continuous line with active highlighted words
+        let currentWordIndex = -1;
+        for (let i = 0; i < captionWords.length; i++) {
+          if (time >= captionWords[i].start && time <= captionWords[i].end) {
+            currentWordIndex = i;
+            break;
+          }
+        }
+
+        // Render words with styling
+        ctx.font = '800 32px "Outfit", sans-serif';
+        const words = fullText.split(' ');
+        
+        // Simple accurate draw
+        ctx.fillStyle = '#ffffff';
+        
+        // Highlight critical key phrases
+        if (time < 2.2) {
+          ctx.fillStyle = '#e2e8f0';
+        } else {
+          ctx.fillStyle = '#fca5a5';
+        }
+        ctx.fillText(`"${fullText}"`, w / 2, captionY);
+      }
+
+      ctx.restore();
+    }
+
+    // Animation Loop
+    function step(timestamp) {
+      if (!lastTimestamp) lastTimestamp = timestamp;
+      const deltaTime = (timestamp - lastTimestamp) / 1000;
+      lastTimestamp = timestamp;
+
+      if (isPlaying) {
+        currentTime += deltaTime;
+        playSoundEffects(currentTime);
+
+        if (currentTime >= DURATION) {
+          currentTime = DURATION;
+          isPlaying = false;
+          updatePlayBtnUI();
+          stopVoiceover();
+          if (isRecording) {
+            stopRecording();
+          }
+        }
+      }
+
+      renderFrame(currentTime);
+      updateTimelineUI();
+
+      if (isPlaying || isRecording) {
+        animationFrameId = requestAnimationFrame(step);
+      }
+    }
+
+    function togglePlay() {
+      initAudio();
+      if (isPlaying) {
+        isPlaying = false;
+        stopVoiceover();
+      } else {
+        if (currentTime >= DURATION) {
+          currentTime = 0;
+        }
+        isPlaying = true;
+        lastTimestamp = null;
+        triggerVoiceover();
+        animationFrameId = requestAnimationFrame(step);
+      }
+      updatePlayBtnUI();
+    }
+
+    function replayVideo() {
+      initAudio();
+      currentTime = 0;
+      isPlaying = true;
+      lastTimestamp = null;
+      triggerVoiceover();
+      updatePlayBtnUI();
+      cancelAnimationFrame(animationFrameId);
+      animationFrameId = requestAnimationFrame(step);
+    }
+
+    function updatePlayBtnUI() {
+      if (isPlaying) {
+        playBtn.innerHTML = `<svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg> Pause`;
+      } else {
+        playBtn.innerHTML = `<svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg> Play Video`;
+      }
+    }
+
+    function updateTimelineUI() {
+      const progressPercent = (currentTime / DURATION) * 100;
+      timelineProgress.style.width = `${progressPercent}%`;
+
+      const curSec = Math.floor(currentTime);
+      const curMs = Math.floor((currentTime % 1) * 10);
+      timeDisplay.textContent = `0:0${curSec}.${curMs} / 0:05.0`;
+    }
+
+    // Timeline Scrubbing
+    timelineBar.addEventListener('click', (e) => {
+      const rect = timelineBar.getBoundingClientRect();
+      const clickX = e.clientX - rect.left;
+      const ratio = Math.max(0, Math.min(1, clickX / rect.width));
+      currentTime = ratio * DURATION;
+      renderFrame(currentTime);
+      updateTimelineUI();
+    });
+
+    // Aspect Ratio Switching
+    function setAspectRatio(mode) {
+      currentAspect = mode;
+      document.getElementById('landscapeBtn').classList.toggle('active', mode === 'landscape');
+      document.getElementById('portraitBtn').classList.toggle('active', mode === 'portrait');
+
+      if (mode === 'landscape') {
+        canvas.width = 1920;
+        canvas.height = 1080;
+        videoWrapper.classList.remove('portrait');
+      } else {
+        canvas.width = 1080;
+        canvas.height = 1920;
+        videoWrapper.classList.add('portrait');
+      }
+      renderFrame(currentTime);
+    }
+
+    // Audio Voiceover Toggle
+    audioToggleBtn.addEventListener('click', () => {
+      voiceoverEnabled = !voiceoverEnabled;
+      audioText.textContent = voiceoverEnabled ? "Voiceover: ON" : "Voiceover: MUTED";
+      audioToggleBtn.style.opacity = voiceoverEnabled ? "1" : "0.6";
+      if (!voiceoverEnabled) stopVoiceover();
+    });
+
+    // Video Recording & Export (WebM / MP4)
+    async function startRecording() {
+      initAudio();
+      isRecording = true;
+      recordedChunks = [];
+      statusPill.classList.add('recording');
+      statusText.textContent = "RECORDING (0:00 - 0:05)...";
+      recordBtn.innerHTML = "⏳ Rendering Video...";
+      recordBtn.disabled = true;
+
+      // Stream from canvas
+      const stream = canvas.captureStream(60);
+
+      // Supported mime types
+      let mimeType = 'video/webm;codecs=vp9';
+      if (!MediaRecorder.isTypeSupported(mimeType)) {
+        mimeType = 'video/webm';
+      }
+
+      mediaRecorder = new MediaRecorder(stream, {
+        mimeType: mimeType,
+        videoBitsPerSecond: 8000000 // 8 Mbps high quality
+      });
+
+      mediaRecorder.ondataavailable = (e) => {
+        if (e.data && e.data.size > 0) {
+          recordedChunks.push(e.data);
+        }
+      };
+
+      mediaRecorder.onstop = () => {
+        const blob = new Blob(recordedChunks, { type: 'video/webm' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `procal_hook_0-05_${currentAspect}.webm`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+
+        statusPill.classList.remove('recording');
+        statusText.textContent = "EXPORT COMPLETE! (SAVED)";
+        recordBtn.innerHTML = `<svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/></svg> Export MP4/WebM`;
+        recordBtn.disabled = false;
+        isRecording = false;
+      };
+
+      mediaRecorder.start();
+      replayVideo();
+    }
+
+    function stopRecording() {
+      if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+        mediaRecorder.stop();
+      }
+    }
+
+    recordBtn.addEventListener('click', startRecording);
+    playBtn.addEventListener('click', togglePlay);
+    restartBtn.addEventListener('click', replayVideo);
+
+    // Initial load
+    setAspectRatio('landscape');
+  </script>
+</body>
+</html>

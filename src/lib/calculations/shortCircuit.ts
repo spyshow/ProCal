@@ -170,12 +170,16 @@ export function calculateShortCircuitCurrent(
 
 /**
  * Calculates short-circuit current with cable impedance considered.
- * 
+ *
  * @param transformerIsc - Three-phase Isc at transformer terminals (kA)
  * @param cableLengthM - Cable length in meters
  * @param cableSizeMm2 - Cable cross-section in mm²
  * @param voltage - System voltage (Line-to-Line) in V
  * @param isCopper - true for copper, false for aluminum
+ * @param isSinglePhase - true for a line-to-neutral fault: uses Uo = V/√3 and
+ *   the loop impedance (source + go + return conductor, 2× cable impedance)
+ * @param insulation - Cable insulation, selects the operating-temperature
+ *   resistance factor: XLPE 90 °C → ×1.28, PVC 70 °C → ×1.20
  * @returns Adjusted short-circuit current including cable impedance
  */
 export function calculateIscWithCable(
@@ -183,13 +187,17 @@ export function calculateIscWithCable(
   cableLengthM: number,
   cableSizeMm2: number,
   voltage: number,
-  isCopper: boolean = true
+  isCopper: boolean = true,
+  isSinglePhase: boolean = false,
+  insulation: 'PVC' | 'XLPE' = 'XLPE'
 ): number {
   assertPositive('transformerIsc', transformerIsc);
   assertNonNegative('cableLengthM', cableLengthM);
   assertNonNegative('cableSizeMm2', cableSizeMm2);
   assertPositive('voltage', voltage);
 
+  // At the terminals an L-N fault equals the 3-phase value (Z1 = Z2 = Z0),
+  // so both fault types collapse to transformerIsc when there is no cable.
   if (cableLengthM === 0 || cableSizeMm2 === 0) {
     return transformerIsc;
   }
@@ -197,8 +205,10 @@ export function calculateIscWithCable(
   // Cable resistance at 20°C (Ohms/mm²·m)
   const R20 = isCopper ? 0.0172 : 0.0283;
 
-  // Temperature correction factor (assuming 90°C operating temperature)
-  const tempFactor = isCopper ? 1.28 : 1.28;
+  // Temperature correction factor: R(T) = R20 × (1 + α·(T − 20)), α ≈ 0.004 /K.
+  // XLPE operates at 90 °C → 1.28; PVC at 70 °C → 1.20 (lower resistance,
+  // so a PVC fault current is higher than the old fixed 90 °C factor implied).
+  const tempFactor = insulation === 'PVC' ? 1.2 : 1.28;
 
   // Cable resistance
   const Rcable = (R20 * tempFactor * cableLengthM) / cableSizeMm2;
@@ -206,19 +216,19 @@ export function calculateIscWithCable(
   // Cable reactance (typical value: 0.08 mΩ/m for LV cables)
   const Xcable = 0.00008 * cableLengthM;
 
-  // Total cable impedance
+  // Total cable impedance (one conductor)
   const Zcable = Math.sqrt(Rcable * Rcable + Xcable * Xcable);
 
-  // Transformer impedance
+  // Transformer per-phase impedance, derived from the 3-phase terminal Isc
   const Ztransformer = (voltage / (Math.sqrt(3) * transformerIsc * 1000));
 
-  // Total impedance
-  const Ztotal = Ztransformer + Zcable;
-
-  // Adjusted short-circuit current
-  const adjustedIsc = Ztotal > 0
-    ? (voltage / (Math.sqrt(3) * Ztotal)) / 1000
-    : 0;
+  const adjustedIsc = isSinglePhase
+    ? // L-N fault: phase voltage over the loop impedance — the fault current
+      // flows out through the phase conductor and back through the neutral,
+      // so the cable contributes twice (go + return).
+      ((voltage / Math.sqrt(3)) / (Ztransformer + 2 * Zcable)) / 1000
+    : // 3-phase fault: line-to-line voltage over √3 · (source + one phase conductor)
+      ((voltage / (Math.sqrt(3) * (Ztransformer + Zcable)))) / 1000;
 
   return parseFloat(adjustedIsc.toFixed(2));
 }
@@ -232,15 +242,20 @@ export function calculateIscWithCable(
 export function getTypicalImpedance(ratedPowerKva: number): number {
   assertPositive('ratedPowerKva', ratedPowerKva);
 
-  // Find closest rating
+  // Nearest standard rating; ties resolve to the lower rating. Between-rating
+  // values round DOWN on purpose: the old round-up picked the next-higher
+  // rating's %Z, which for the actual (smaller) transformer understated the
+  // fault current — the non-conservative direction for Icu/breaker checks.
   const ratings = Object.keys(TRANSFORMER_IMPEDANCE).map(Number).sort((a, b) => a - b);
-  
+
+  let best = ratings[0];
+  let bestDiff = Math.abs(best - ratedPowerKva);
   for (const rating of ratings) {
-    if (rating >= ratedPowerKva) {
-      return TRANSFORMER_IMPEDANCE[rating];
+    const diff = Math.abs(rating - ratedPowerKva);
+    if (diff < bestDiff || (diff === bestDiff && rating < best)) {
+      best = rating;
+      bestDiff = diff;
     }
   }
-  
-  // Default for larger transformers
-  return 7.5;
+  return TRANSFORMER_IMPEDANCE[best];
 }

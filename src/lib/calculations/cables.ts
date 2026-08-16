@@ -1,5 +1,5 @@
-import { CABLE_CATALOG, TEMP_DERATING, GROUP_DERATING, CableSpec } from "./cablesData";
-import { METHOD_AMPACITY_FACTORS } from "./installationMethods";
+import { CABLE_CATALOG, temperatureDeratingFactor, groupingDeratingFactor, CableSpec } from "./cablesData";
+import { METHOD_AMPACITY_FACTORS, resolveReferenceMethod } from "./installationMethods";
 import { assertNonNegative, assertPositive, assertInRange, assertOneOf, clampPowerFactor } from "./validate";
 
 export interface SizingResult {
@@ -102,9 +102,9 @@ export function sizeCableAndBreaker(
   const breakerSize = options.manualBreakerRating ?? (STANDARD_BREAKERS.find((rating) => rating >= ib) || STANDARD_BREAKERS[STANDARD_BREAKERS.length - 1]);
 
   // 2. Calculate derating factors
-  const tempFactor = (TEMP_DERATING[insulation] && TEMP_DERATING[insulation][ambientTemp]) ?? 1.0;
-  const groupFactor = GROUP_DERATING[groupingCount] ?? 0.5;
-  const installFactor = (installMethod ? METHOD_AMPACITY_FACTORS[installMethod] : undefined) ?? 1.0;
+  const tempFactor = temperatureDeratingFactor(insulation, ambientTemp);
+  const groupFactor = groupingDeratingFactor(groupingCount);
+  const installFactor = (installMethod ? METHOD_AMPACITY_FACTORS[resolveReferenceMethod(installMethod)] : undefined) ?? 1.0;
   const totalDerating = tempFactor * groupFactor * installFactor;
 
   // Available catalog subset up to maxCableSize
@@ -331,12 +331,15 @@ export function getBuildingLoadCableLength(
 
 /**
  * Single source of truth for a riser cable length in meters.
- * Falls back to 10m when null/undefined.
+ * Falls back to 10m + (floorNumber - 1) * 3.5m (typical 3.5m floor-to-floor
+ * rise) when null/undefined — same structure as getItemCableLength so floor 1
+ * is the 10m baseline and each higher floor adds one rise.
  */
 export function getRiserCableLength(
-  fd: { riserCableLength?: number | null } | null | undefined
+  fd: { riserCableLength?: number | null } | null | undefined,
+  floorNumber: number = 1
 ): number {
-  return fd?.riserCableLength ?? 10;
+  return fd?.riserCableLength ?? (10 + Math.max(0, floorNumber - 1) * 3.5);
 }
 
 export interface CableProtectionEvaluation {
@@ -395,7 +398,10 @@ export function calculateCableAmpacity(
     }
   }
 
-  const spec = CABLE_CATALOG.find((c) => c.size >= cableSize) ?? CABLE_CATALOG[CABLE_CATALOG.length - 1];
+  // Conservative: evaluate the largest standard size that does not exceed the
+  // declared size. Rounding UP made a non-standard 18 mm² cable claim 25 mm²
+  // ampacity, so evaluateCableProtection missed under-protected cables.
+  const spec = CABLE_CATALOG.filter((c) => c.size <= cableSize).pop() ?? CABLE_CATALOG[0];
   let singleNominal = 0;
   if (material === "copper") {
     if (isThreePhase) {
@@ -407,9 +413,9 @@ export function calculateCableAmpacity(
     singleNominal = spec.alXlpe3Ph;
   }
 
-  const tempFactor = (TEMP_DERATING[insulation] && TEMP_DERATING[insulation][ambientTemp]) ?? 1.0;
-  const groupFactor = GROUP_DERATING[groupingCount] ?? 0.5;
-  const installFactor = (installMethod ? METHOD_AMPACITY_FACTORS[installMethod] : undefined) ?? 1.0;
+  const tempFactor = temperatureDeratingFactor(insulation, ambientTemp);
+  const groupFactor = groupingDeratingFactor(groupingCount);
+  const installFactor = (installMethod ? METHOD_AMPACITY_FACTORS[resolveReferenceMethod(installMethod)] : undefined) ?? 1.0;
   const totalDerating = tempFactor * groupFactor * installFactor;
 
   const singleDerated = Math.round(singleNominal * totalDerating * 10) / 10;

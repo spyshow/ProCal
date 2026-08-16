@@ -3,8 +3,9 @@ import { computeFeeders, createFindBreaker, isThreePhaseForItem, pfForFloorItem,
 import { phaseBalance } from './phaseBalance';
 import { computeFloorRiserVd } from './riser';
 import { calculateVoltageDrop, parseMm2 } from './cables';
-import { CABLE_CATALOG, TEMP_DERATING, GROUP_DERATING } from './cablesData';
+import { CABLE_CATALOG, temperatureDeratingFactor, groupingDeratingFactor } from './cablesData';
 import { METHOD_AMPACITY_FACTORS } from './installationMethods';
+import { calculateThreePhaseCurrent } from './loads';
 import type { Building, FloorDesign, FloorItem, Project } from '@/types';
 
 // ---------------------------------------------------------------------------
@@ -419,8 +420,8 @@ describe('Golden Path Cross-Module Integration Test', () => {
 
       const ambientTemp = project.ambientTemp ?? 30;
       const groupingCount = project.groupingCount ?? 1;
-      const tempFactor = (TEMP_DERATING['XLPE'] && TEMP_DERATING['XLPE'][ambientTemp]) ?? 1.0;
-      const groupFactor = GROUP_DERATING[groupingCount] ?? 1.0;
+      const tempFactor = temperatureDeratingFactor('XLPE', ambientTemp);
+      const groupFactor = groupingDeratingFactor(groupingCount);
       const installFactor = METHOD_AMPACITY_FACTORS['C'] ?? 1.0;
       const totalDerating = tempFactor * groupFactor * installFactor;
 
@@ -456,8 +457,202 @@ describe('Golden Path Cross-Module Integration Test', () => {
       }
     }
 
+    // -------------------------------------------------------------------------
+    // Assertion 6: Main incomer demand includes building loads.
+    // Regression guard: BuildingLoads used to contribute 0 kW to the overall
+    // (mixed) balance, collapsing the main incomer Ir to the 16 A clamp.
+    // -------------------------------------------------------------------------
+    const expectedTotalKw =
+      building.floorDesigns.reduce(
+        (s, fd) => s + fd.items.reduce((si, it) => si + it.calculatedMaxDemand, 0),
+        0
+      ) +
+      building.buildingLoads.reduce(
+        (s, bl) => s + (bl.loadLibraryItem?.power ?? 0) * bl.quantity,
+        0
+      );
+    const expectedMainIr = calculateThreePhaseCurrent(
+      expectedTotalKw / (project.powerFactor || 0.85),
+      project.voltage
+    );
+    expect(result.mainIncomerSettings.ir).toBeCloseTo(expectedMainIr, 1);
+
     const elapsed = performance.now() - startTime;
     // Execution must complete well under 2 seconds (typically < 50ms)
     expect(elapsed).toBeLessThan(2000);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Icu Breaking-Capacity Verification (IEC 60947-2: Icu >= prospective Isc)
+// ---------------------------------------------------------------------------
+
+describe('Icu breaking-capacity verification', () => {
+  const mcbLow: EquipmentItem = {
+    id: 'x-32-low', category: 'MCB', manufacturer: 'ABB', familyId: 'mcb-fam', familyName: 'S200',
+    series: 'S200', model: 'S203-C32', ratedCurrent: 32, poles: 3, breakingCapacity: 6,
+    tripUnit: null, settingsJson: null,
+  };
+  const mcbHigh: EquipmentItem = {
+    id: 'x-32-high', category: 'MCB', manufacturer: 'SCHNEIDER', familyId: 'se-fam', familyName: 'Acti9',
+    series: 'Acti9', model: 'iC60N C32', ratedCurrent: 32, poles: 3, breakingCapacity: 10,
+    tripUnit: null, settingsJson: null,
+  };
+  // 2-pole variant: 1-phase feeders search with poles = 1, which matches poles <= 2.
+  const mcbHighDp: EquipmentItem = {
+    id: 'x-32-high-dp', category: 'MCB', manufacturer: 'SCHNEIDER', familyId: 'se-fam', familyName: 'Acti9',
+    series: 'Acti9', model: 'iDPN C32', ratedCurrent: 32, poles: 2, breakingCapacity: 10,
+    tripUnit: null, settingsJson: null,
+  };
+  // Device with NO recorded breaking capacity — the case that used to dead-end
+  // enforceFeederIcu: it flagged icuOk = false without ever retrying the catalog
+  // for a compliant device, unlike an explicitly insufficient Icu.
+  const mcbNullIcu: EquipmentItem = {
+    id: 'x-32-null', category: 'MCB', manufacturer: 'ABB', familyId: 'mcb-fam', familyName: 'S200',
+    series: 'S200', model: 'S201-C32-N', ratedCurrent: 32, poles: 1, breakingCapacity: null,
+    tripUnit: null, settingsJson: null,
+  };
+
+  it('prefers a compliant device when requiredIcuKa is given', () => {
+    const find = createFindBreaker([mcbLow, mcbHigh], undefined, 'ABB');
+    const unrestricted = find(30, 'MCB', 3);
+    expect(unrestricted.breakingCapacity).toBe(6);
+
+    const compliant = find(30, 'MCB', 3, { requiredIcuKa: 8 });
+    expect(compliant.ratedCurrent).toBe(32);
+    expect(compliant.breakingCapacity).toBeGreaterThanOrEqual(8);
+  });
+
+  it('keeps the shortfall visible when no compliant device exists', () => {
+    const find = createFindBreaker([mcbLow], undefined, 'ABB');
+    const match = find(30, 'MCB', 3, { requiredIcuKa: 25 });
+    expect(match.ratedCurrent).toBe(32);
+    expect(match.breakingCapacity).toBe(6); // still below the required 25 kA
+  });
+
+  it('generic spec self-requires the prospective fault level', () => {
+    const find = createFindBreaker([], undefined, 'ABB');
+    const match = find(30, 'MCB', 3, { requiredIcuKa: 15 });
+    expect(match.fallbackType).toBe('GENERIC_SPEC');
+    expect(match.breakingCapacity).toBeNull();
+    expect(match.genericSpec!.requiredIcuKa).toBeGreaterThanOrEqual(15);
+  });
+
+  const icuProject: Project = { ...project, id: 'proj-icu', transformerSize: 500 };
+
+  function createIcuBuilding(): Building {
+    return {
+      id: 'bldg-icu',
+      name: 'Icu Test Building',
+      floors: 1,
+      serviceFloors: 0,
+      apartmentsPerFloor: 1,
+      supplyVoltage: '400',
+      earthingSystem: 'TN-S',
+      lightningProtection: false,
+      floorDesigns: [
+        {
+          id: 'fd-icu-1',
+          floorNumber: 1,
+          hasFloorSubPanels: false,
+          items: [
+            {
+              id: 'icu-apt-1',
+              name: 'Apt 101',
+              type: 'APARTMENT',
+              calculatedConnectedLoad: 5,
+              calculatedMaxDemand: 4,
+              calculatedCurrent: 20,
+              breakerSize: '32A',
+              cableSize: '10 mm²',
+              cableLength: 3, // short run keeps the terminal fault in the (6, 10] kA window
+              voltageDrop: 0.3,
+              apartmentTemplate: { id: 't1', name: '1-Bed', phases: 1, rooms: [], createdAt: '', updatedAt: '' },
+            },
+          ],
+        },
+      ],
+      buildingLoads: [],
+    } as Building;
+  }
+
+  it('upgrades a feeder device to a compliant Icu when one exists in the catalog', () => {
+    const findWithHighMcb = createFindBreaker(
+      [...equipment, mcbHighDp],
+      { MCB: 'mcb-fam', MCCB: 'mccb-fam', ACB: 'acb-fam' },
+      'ABB'
+    );
+    const result = computeFeeders(createIcuBuilding(), icuProject, findWithHighMcb);
+    expect(result.mainIncomerIcuOk).toBe(true);
+
+    const feeder = result.mdbFeeders.find((f) => f.name === 'F1 – Apt 101')!;
+    // Precondition: the fault at this feeder sits between the 6 kA and 10 kA devices
+    expect(feeder.faultCurrentKa!).toBeGreaterThan(6);
+    expect(feeder.faultCurrentKa!).toBeLessThanOrEqual(10);
+
+    expect(feeder.icuOk).toBe(true);
+    expect(feeder.breakingCapacityKa).toBe(10);
+    expect(feeder.manufacturer).toBe('SCHNEIDER');
+  });
+
+  it('flags icuOk false when no compliant device exists in the catalog', () => {
+    const result = computeFeeders(createIcuBuilding(), icuProject, findBreaker);
+    const feeder = result.mdbFeeders.find((f) => f.name === 'F1 – Apt 101')!;
+    expect(feeder.faultCurrentKa!).toBeGreaterThan(6);
+
+    expect(feeder.icuOk).toBe(false);
+    expect(feeder.breakingCapacityKa).toBe(6);
+    expect(feeder.manufacturer).toBe('ABB'); // original device kept, shortfall surfaced
+  });
+
+  it('retries the catalog and upgrades when the selected device has no recorded Icu', () => {
+    const findWithNullIcu = createFindBreaker([mcbNullIcu, mcbHighDp], { MCB: 'mcb-fam' }, 'ABB');
+
+    // Precondition: without an Icu filter, sizing selects the null-Icu device
+    // (the default-family match), not the compliant Schneider backup.
+    const sizingMatch = findWithNullIcu(32, 'MCB', 1);
+    expect(sizingMatch.model).toContain('S201-C32-N');
+    expect(sizingMatch.breakingCapacity).toBeNull();
+
+    const result = computeFeeders(createIcuBuilding(), icuProject, findWithNullIcu);
+    const feeder = result.mdbFeeders.find((f) => f.name === 'F1 – Apt 101')!;
+    expect(feeder.faultCurrentKa!).toBeGreaterThan(6);
+    expect(feeder.faultCurrentKa!).toBeLessThanOrEqual(10);
+
+    // Null Icu must not dead-end the check: the catalog retry finds the
+    // compliant device and upgrades the feeder to it.
+    expect(feeder.icuOk).toBe(true);
+    expect(feeder.breakingCapacityKa).toBe(10);
+    expect(feeder.manufacturer).toBe('SCHNEIDER');
+    expect(feeder.fallbackType).toBe('OTHER_BRAND');
+  });
+
+  it('keeps the shortfall visible when the only same-rating device has no recorded Icu', () => {
+    const findWithNullIcu = createFindBreaker([mcbNullIcu], { MCB: 'mcb-fam' }, 'ABB');
+    const result = computeFeeders(createIcuBuilding(), icuProject, findWithNullIcu);
+    const feeder = result.mdbFeeders.find((f) => f.name === 'F1 – Apt 101')!;
+
+    expect(feeder.faultCurrentKa!).toBeGreaterThan(6);
+
+    // No compliant device anywhere: original kept and the shortfall surfaced,
+    // exactly like the insufficient-but-recorded Icu case.
+    expect(feeder.icuOk).toBe(false);
+    expect(feeder.breakingCapacityKa).toBeNull();
+    expect(feeder.manufacturer).toBe('ABB');
+    expect(feeder.breakerModel).toContain('S201-C32-N');
+  });
+
+  it('reports a boolean icuOk for every feeder on the golden building', () => {
+    const result = computeFeeders(createGoldenBuilding(), project, findBreaker);
+    for (const f of result.mdbFeeders) {
+      expect(typeof f.icuOk).toBe('boolean');
+      if (f.icuOk && f.breakingCapacityKa != null) {
+        expect(f.breakingCapacityKa).toBeGreaterThanOrEqual(f.faultCurrentKa!);
+      }
+      if (f.icuOk === false) {
+        expect(f.breakingCapacityKa!).toBeLessThan(f.faultCurrentKa!);
+      }
+    }
+    expect(typeof result.mainIncomerIcuOk).toBe('boolean');
   });
 });

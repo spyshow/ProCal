@@ -11,6 +11,7 @@ import {
   verifyCoordination,
   recommendBreakerSettings,
   suggestAlternativeBreaker,
+  type BreakerCurveSettings,
 } from './selectivity';
 import { CalculationError } from './validate';
 
@@ -53,6 +54,63 @@ describe('getTripTimeForCurrent', () => {
     expect(() => getTripTimeForCurrent(settings, -1)).toThrow(CalculationError);
     expect(() => getTripTimeForCurrent({ ...settings, inRating: 0 }, 100)).toThrow(CalculationError);
     expect(() => getTripTimeForCurrent({ ...settings, ir: -10 }, 100)).toThrow(CalculationError);
+  });
+});
+
+describe('getTripTimeForCurrent — MCB uses IEC 60898 curve (not parametric LSI)', () => {
+  const mcb = (curveType?: 'B' | 'C' | 'D'): BreakerCurveSettings => ({
+    inRating: 32,
+    ir: 25,
+    tr: 12,
+    ii: 320,
+    category: 'MCB',
+    curveType,
+  });
+
+  it('matches the plotted IEC curve exactly (verdict/plot consistency)', () => {
+    const curve = generateMcbCurve(32, 'C');
+    for (const I of [30, 46.4, 64, 96, 160, 256, 320, 800]) {
+      expect(getTripTimeForCurrent(mcb('C'), I))
+        .toBeCloseTo(interpolateTripTime(curve, I), 6);
+    }
+  });
+
+  it('does not trip below 1.05×In and trips within IEC bounds at 1.45×In', () => {
+    const s = mcb('C');
+    expect(getTripTimeForCurrent(s, 32)).toBe(10000);
+    expect(getTripTimeForCurrent(s, 32 * 1.05)).toBe(10000);
+    expect(getTripTimeForCurrent(s, 32 * 1.45)).toBeLessThanOrEqual(60);
+    expect(getTripTimeForCurrent(s, 32 * 1.45)).toBeGreaterThan(1);
+  });
+
+  it('trips magnetically inside the Curve C band (5×–10×In)', () => {
+    const s = mcb('C');
+    expect(getTripTimeForCurrent(s, 32 * 5)).toBeLessThanOrEqual(0.05);
+    expect(getTripTimeForCurrent(s, 32 * 10)).toBeLessThanOrEqual(0.02);
+  });
+
+  it('honors Curve B (magnetic from 3×In) and Curve D (magnetic from 10×In)', () => {
+    expect(getTripTimeForCurrent(mcb('B'), 32 * 3)).toBeLessThanOrEqual(0.05);
+    // Curve D must NOT trip magnetically at 5×In
+    expect(getTripTimeForCurrent(mcb('D'), 32 * 5)).toBeGreaterThan(0.05);
+    expect(getTripTimeForCurrent(mcb('D'), 32 * 10)).toBeLessThanOrEqual(0.05);
+  });
+
+  it('explicit curveData still wins over the generated MCB curve', () => {
+    const custom: BreakerCurveSettings = {
+      ...mcb('C'),
+      curveData: [
+        { current: 100, time: 5 },
+        { current: 1000, time: 0.1 },
+      ],
+    };
+    expect(getTripTimeForCurrent(custom, 100)).toBe(5);
+  });
+
+  it('non-MCB settings without curveData still use the parametric LSI model', () => {
+    const lsi: BreakerCurveSettings = { inRating: 32, ir: 32, tr: 12, category: 'MCCB' };
+    // t = tr·36/((I/Ir)²−1) at 2×Ir = 12·36/3 = 144s
+    expect(getTripTimeForCurrent(lsi, 64)).toBeCloseTo(144, 1);
   });
 });
 
@@ -149,6 +207,55 @@ describe('Cable Thermal Withstand (IEC 60364-5-54)', () => {
     // Severely undersized cable (0.5 mm²) at 25kA -> breaker does not protect in time
     const unsafe = checkCableProtection(0.5, breaker, 25000, 'copper', 'PVC');
     expect(unsafe).toBe(false);
+  });
+
+  it('parallel runs multiply the total copper area (numeric and string agree)', () => {
+    // t = (k·S/I)², so 4 runs of 16 mm² = 64 mm² total and 16× the
+    // withstand time of a single 16 mm² run.
+    const at20kA = calculateCableWithstandTime(16, 20000, 'copper', 'XLPE');
+    const fourRuns = calculateCableWithstandTime(16, 20000, 'copper', 'XLPE', 4);
+    const asString = calculateCableWithstandTime('4 × 16 mm²', 20000, 'copper', 'XLPE');
+    const single64 = calculateCableWithstandTime(64, 20000, 'copper', 'XLPE');
+
+    expect(fourRuns).toBe(single64);        // numeric size × runs == total area
+    expect(asString).toBe(fourRuns);        // string parse path agrees
+    expect(fourRuns).toBeCloseTo(at20kA * 16, 6);
+  });
+
+  it('regression: a parallel-run set passes the withstand check a single run fails', () => {
+    // Slow long-time breaker: every test point (5×–20×In and the 20 kA fault)
+    // trips in the L region in seconds, so the cable's adiabatic withstand is
+    // the limiting factor — exactly where ignoring parallel runs used to
+    // false-flag a parallel set as unprotected.
+    const breaker: BreakerCurveSettings = {
+      inRating: 630,
+      ir: 480,
+      tr: 12,
+      category: 'MCCB',
+    };
+
+    // Single 16 mm²: withstand ≈ 0.02 s at 20 kA ≪ breaker trip ≈ 0.25 s.
+    expect(checkCableProtection(16, breaker, 20000, 'copper', 'XLPE')).toBe(false);
+
+    // 4 × 16 mm² (64 mm² total): withstand ≈ 0.32 s clears every test point.
+    // The numeric size + runs must behave like the parsed "4 × 16 mm²" string.
+    expect(checkCableProtection(16, breaker, 20000, 'copper', 'XLPE', 4)).toBe(true);
+    expect(checkCableProtection('4 × 16 mm²', breaker, 20000, 'copper', 'XLPE')).toBe(true);
+  });
+
+  it('verifyCoordination threads cableRuns into the cable-damage verdict', () => {
+    const upstream: BreakerCurveSettings = {
+      inRating: 1000, ir: 800, tr: 12, isd: 4000, tsd: 0.3, ii: 10000, category: 'ACB',
+    };
+    const downstream: BreakerCurveSettings = {
+      inRating: 630, ir: 480, tr: 12, category: 'MCCB',
+    };
+
+    const singleRun = verifyCoordination(upstream, downstream, 20000, { cableSizeMm2: 16 });
+    const parallel = verifyCoordination(upstream, downstream, 20000, { cableSizeMm2: 16, cableRuns: 4 });
+
+    expect(singleRun.cableDamageOk).toBe(false);
+    expect(parallel.cableDamageOk).toBe(true);
   });
 });
 
@@ -253,6 +360,37 @@ describe('verifyCoordination (4-Phase Protection Engine)', () => {
     const upstream = { inRating: 630, ir: 500, tr: 12 };
     const downstream = { inRating: 100, ir: 80, tr: 12 };
     expect(() => verifyCoordination(upstream, downstream, -100, { upstreamMfg: 'ABB', downstreamMfg: 'ABB' })).toThrow(CalculationError);
+  });
+
+  it('MCCB vs MCB: verdict computed on the IEC MCB curve (mixed brands, no tested table)', () => {
+    // SMDB riser MCCB 160A vs 32A Curve-C MCB branch — as built by computeFeeders.
+    const upstream = {
+      inRating: 160, ir: 128, tr: 12, isd: 640, tsd: 0.1, ii: 1600,
+      category: 'MCCB' as const, manufacturer: 'ABB',
+    };
+    const downstream = {
+      inRating: 32, ir: 20, tr: 12, ii: 320,
+      category: 'MCB' as const, curveType: 'C' as const, manufacturer: 'SCHNEIDER',
+    };
+    const result = verifyCoordination(upstream, downstream, 800, {
+      cableSizeMm2: 4,
+      cableMaterial: 'copper',
+      cableInsulation: 'XLPE',
+    });
+    expect(result.currentGradingOk).toBe(true);
+    // On the IEC 60898 curve the MCB is magnetic (≤40 ms) at 10×In = 320 A,
+    // so the time margin vs the MCCB is huge; the old parametric model gave
+    // ~1.7 s there.
+    expect(result.timeGradingOk).toBe(true);
+    // The first real crossover is the upstream instantaneous (~1.6 kA), not
+    // inside the MCB overload band. The old model intersected at the MCCB's
+    // isd (640 A) because the parametric MCB was still ~0.4 s slow there —
+    // that flipped this 800 A case to PARTIAL.
+    expect(result.status).toBe('FULL');
+    expect(result.limitCurrent!).toBeGreaterThanOrEqual(1500);
+    // MCB magnetic trip (≤40 ms) protects the 4 mm² cable at every test
+    // point up to the 800 A fault level.
+    expect(result.cableDamageOk).toBe(true);
   });
 });
 

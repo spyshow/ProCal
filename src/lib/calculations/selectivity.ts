@@ -103,10 +103,18 @@ export function getTripTimeForCurrent(
 
   if (current <= 0) return 10000;
 
-  // If curveData points are pre-loaded (e.g. from MCB generator or manufacturer catalog),
-  // use piecewise log-log interpolation for highest precision
-  if (settings.curveData && settings.curveData.length > 1) {
-    return interpolateTripTime(settings.curveData, current);
+  // Resolve the effective TCC. MCBs always evaluate on the IEC 60898
+  // thermal/magnetic characteristic — the parametric LSI model below is for
+  // electronic trip units and mis-models MCBs by orders of magnitude in the
+  // 1.45×–10×In band. Mirrors the MCB branch in generateCurvePoints so the
+  // plotted curve and the coordination verdict use the same model.
+  let curve = settings.curveData;
+  if ((!curve || curve.length <= 1) && settings.category === 'MCB') {
+    const curveType = settings.curveType === 'B' || settings.curveType === 'D' ? settings.curveType : 'C';
+    curve = generateMcbCurve(settings.inRating, curveType);
+  }
+  if (curve && curve.length > 1) {
+    return interpolateTripTime(curve, current);
   }
 
   // 1. Long Time (L) Overload Region (IEC standard inverse equation)
@@ -248,10 +256,15 @@ export function calculateCableWithstandTime(
   cableInput: number | string,
   currentAmps: number,
   material: 'copper' | 'aluminum' = 'copper',
-  insulation: 'PVC' | 'XLPE' = 'XLPE'
+  insulation: 'PVC' | 'XLPE' = 'XLPE',
+  parallelRuns: number = 1
 ): number {
   const parsed = typeof cableInput === 'string' ? parseCableSize(cableInput) : null;
-  const effectiveArea = parsed ? parsed.size * parsed.runs : (typeof cableInput === 'number' ? cableInput : 16);
+  // Total copper area across parallel conductors: a numeric per-run size gets
+  // multiplied by the run count, matching the string path ("2 × 240" = 480 mm²).
+  const runs = parsed ? parsed.runs : Math.max(1, parallelRuns);
+  const perRunArea = parsed ? parsed.size : (typeof cableInput === 'number' ? cableInput : 16);
+  const effectiveArea = perRunArea * runs;
   assertPositive('cableSizeMm2', effectiveArea);
   assertNonNegative('currentAmps', currentAmps);
 
@@ -304,10 +317,13 @@ export function checkCableProtection(
   downstream: BreakerCurveSettings,
   availableFaultCurrentAmps: number,
   material: 'copper' | 'aluminum' = 'copper',
-  insulation: 'PVC' | 'XLPE' = 'XLPE'
+  insulation: 'PVC' | 'XLPE' = 'XLPE',
+  parallelRuns: number = 1
 ): boolean {
   const parsed = typeof cableInput === 'string' ? parseCableSize(cableInput) : null;
-  const effectiveArea = parsed ? parsed.size * parsed.runs : (typeof cableInput === 'number' ? cableInput : 16);
+  const runs = parsed ? parsed.runs : Math.max(1, parallelRuns);
+  const perRunArea = parsed ? parsed.size : (typeof cableInput === 'number' ? cableInput : 16);
+  const effectiveArea = perRunArea * runs;
   if (effectiveArea <= 0 || availableFaultCurrentAmps <= 0) return true;
 
   // Test across critical fault points: 5x In, 10x In, 20x In, and available fault current
@@ -320,7 +336,7 @@ export function checkCableProtection(
 
   for (const current of testPoints) {
     const tripTime = getTripTimeForCurrent(downstream, current);
-    const withstandTime = calculateCableWithstandTime(cableInput, current, material, insulation);
+    const withstandTime = calculateCableWithstandTime(cableInput, current, material, insulation, runs);
 
     // If breaker trip time exceeds cable withstand time, cable will overheat
     if (tripTime > withstandTime) {
@@ -388,6 +404,8 @@ export interface VerifyCoordinationOptions {
   cableSizeMm2?: number;
   cableMaterial?: 'copper' | 'aluminum';
   cableInsulation?: 'PVC' | 'XLPE';
+  /** Parallel runs of the cable; thermal withstand uses total area = size × runs. */
+  cableRuns?: number;
   manufacturerPair?: { upstreamMfg: string; downstreamMfg: string };
 }
 
@@ -419,6 +437,7 @@ export function verifyCoordination(
   const cableSizeMm2 = opts.cableSizeMm2 ?? 10;
   const cableMaterial = opts.cableMaterial ?? 'copper';
   const cableInsulation = opts.cableInsulation ?? 'XLPE';
+  const cableRuns = opts.cableRuns ?? 1;
   const manufacturerPair = opts.manufacturerPair ?? {
     upstreamMfg: upstream.manufacturer ?? 'ABB',
     downstreamMfg: downstream.manufacturer ?? 'ABB',
@@ -438,7 +457,7 @@ export function verifyCoordination(
       timeGradingOk: false,
       overlapDetails: "Upstream overload setting (Ir) is less than or equal to downstream (Ir).",
       cascadingSupported: false,
-      cableDamageOk: checkCableProtection(cableSizeMm2, downstream, availableFaultCurrentAmps, cableMaterial, cableInsulation),
+      cableDamageOk: checkCableProtection(cableSizeMm2, downstream, availableFaultCurrentAmps, cableMaterial, cableInsulation, cableRuns),
     };
   }
 
@@ -450,8 +469,9 @@ export function verifyCoordination(
   const upCategory = upstream.category ?? (upstream.inRating >= 630 ? 'ACB' : 'MCCB');
   const downCategory = downstream.category ?? (downstream.inRating <= 63 ? 'MCB' : 'MCCB');
 
-  // Time margin: 0.3s for MCCB->MCCB, 0.1s for MCCB->MCB
-  const requiredMargin = upCategory === 'MCCB' && downCategory === 'MCB' ? 0.1 : 0.25;
+  // Time margin: 0.3s for MCCB->MCCB / ACB->MCCB, 0.1s for MCCB->MCB
+  // (IEC 60947-2 discrimination margin; matches the docstring above).
+  const requiredMargin = upCategory === 'MCCB' && downCategory === 'MCB' ? 0.1 : 0.3;
   const timeGradingOk = t_up_test >= t_down_test + requiredMargin;
 
   // Phase 3: Energy Selectivity & Tested Manufacturer Tables
@@ -526,15 +546,21 @@ export function verifyCoordination(
     downstream,
     availableFaultCurrentAmps,
     cableMaterial,
-    cableInsulation
+    cableInsulation,
+    cableRuns
   );
 
   return {
     status,
     limitCurrent,
     overlapDetails,
-    cascadingSupported: sameMfg,
-    cascadingIcu: sameMfg ? 36 : undefined,
+    // Cascading (back-up protection) is only defensible where a tested
+    // selectivity/cascading limit exists for the same-manufacturer pair —
+    // not as a blanket constant.
+    cascadingSupported: testedLimitAmps !== null,
+    cascadingIcu: testedLimitAmps !== null
+      ? parseFloat((testedLimitAmps / 1000).toFixed(1))
+      : undefined,
     cableDamageOk,
     energySelectivityApplied,
     currentGradingOk,

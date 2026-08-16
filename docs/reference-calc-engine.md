@@ -187,7 +187,7 @@ export function computeFeeders(building: Building, project: Project, findBreaker
 export const TRANSFORMER_IMPEDANCE: Record<number, number>;  // kVA → % (ANSI/IEEE C57.12)
 export function calculateTransformerImpedance(ratedPowerKva: number, voltageSecondary: number, impedancePercent: number): number;
 export function calculateShortCircuitCurrent(transformer: TransformerParameters): ShortCircuitResult;
-export function calculateIscWithCable(transformerIsc: number, cableLengthM: number, cableSizeMm2: number, voltage: number, isCopper?: boolean): number;
+export function calculateIscWithCable(transformerIsc: number, cableLengthM: number, cableSizeMm2: number, voltage: number, isCopper?: boolean, isSinglePhase?: boolean, insulation?: 'PVC' | 'XLPE'): number;
 export function getTypicalImpedance(ratedPowerKva: number): number;
 ```
 
@@ -197,7 +197,7 @@ export function getTypicalImpedance(ratedPowerKva: number): number;
   - `phaseToNeutralIsc` — `× 1.0` (solidly grounded ≈ 3-phase).
   - `peakCurrent` — `× 2.0` for LV (≤1000 V), `× 2.5` for HV (mechanical stress).
   - `faultMVA`, `transformerZ`, `sourceZ`.
-- **`calculateIscWithCable`** — adds cable R (20 °C Cu 0.0172 / Al 0.0283 Ω·mm²/m, ×1.28 temp factor at 90 °C) and X (0.08 mΩ/m) to the transformer impedance for a fault at the cable's far end. No-op if length/size ≤ 0.
+- **`calculateIscWithCable`** — adds cable R (20 °C Cu 0.0172 / Al 0.0283 Ω·mm²/m, ×1.28 temp factor for XLPE at 90 °C / ×1.20 for PVC at 70 °C) and X (0.08 mΩ/m) to the transformer impedance for a fault at the cable's far end. No-op if length/size ≤ 0.
 - **`getTypicalImpedance`** — looks up the closest `TRANSFORMER_IMPEDANCE` rating (4.0% → 7.5%), default `7.5` for larger-than-tabulated.
 
 ## selectivity.ts — TCC curves + coordination
@@ -229,7 +229,7 @@ export function recommendBreakerSettings(loadCurrent: number, cableAmpacity: num
   - **NONE** — overlap at low current (`≤ downstream.ir·1.5`, overload settings too close), or upstream `Ir ≤ downstream.Ir`.
   - **PARTIAL** — selective up to `limitCurrent`; above it both trip.
   - **FULL** — overlap only occurs above the available fault current (practically selective).
-  - **Cascading** — supported when upstream and downstream are the **same manufacturer**; `cascadingIcu = 36 kA` enhanced breaking capacity.
+  - **Cascading** — supported only when a tested manufacturer selectivity/cascading limit applies to the same-manufacturer pair; `cascadingIcu` = that tested limit (kA), not a blanket constant.
 - **`recommendBreakerSettings`** — `Ir` ≈ `min(In, max(Ib, 1.15·Ib))` bounded by cable ampacity, `Tr=12 s`, `Isd=5·Ir`, `Tsd=0.1 s`, `Ii=10·In`, `Ig=0.4·In`, `Tg=0.1 s`.
 
 ## riser.ts — per-floor riser voltage drop

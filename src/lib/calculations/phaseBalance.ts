@@ -21,10 +21,12 @@
  *  - Unbalance is a CURRENT-unbalance % proxy (max−min)/avg, NOT VUF/LVUR
  *    (both are voltage-based; ProCal computes currents). calculationStandard
  *    selects the LIMIT + label only.
- *  - Greedy phase assignment is computed ON-READ for null assignedPhase (stable
- *    order: floorNumber → createdAt → id, LPT within). No UI backfill event —
- *    every entry point (calculator, reports, computeFeeders) gets correct
- *    numbers; newly-added null items are assigned on the next read.
+ *  - Greedy phase assignment is computed ON-READ for null assignedPhase
+ *    (round-robin to the least-loaded phase, in input array order — callers
+ *    iterate floors → items deterministically, so results are stable across
+ *    reads). No UI backfill event — every entry point (calculator, reports,
+ *    computeFeeders) gets correct numbers; newly-added null items are assigned
+ *    on the next read.
  *  - Neutral sizing guard = fundamental 2× max-phase only (PDH §5C). Triplen
  *    3× branch dropped — no harmonic data stored.
  *  - 3-phase apartment templates: kW/3 balanced split, flagged
@@ -74,8 +76,6 @@ const NEUTRAL_FUNDAMENTAL_FACTOR = 2;
 
 /** A load reduced to what the per-phase math needs. */
 interface PhaseLoad {
-  /** Stable sort key — floorNumber, then createdAt, then id. */
-  sortKey: string;
   /** Item identity, for round-tripping assignedPhase back to the caller. */
   id: string;
   /** 1 = single-phase (sits on one phase), 3 = three-phase (splits across all). */
@@ -123,15 +123,15 @@ export interface PhaseBalance {
 /**
  * Compute the per-phase balance for a board.
  *
- * @param items    floor items OR building loads on this board (mixed call sites
- *                 pass one kind; pass floorItems or buildingLoads, not both).
+ * @param items    floor items and/or building loads on this board. Mixed
+ *                 arrays are supported; the kind is detected per item.
  * @param project  the project (PF source for apartments/manual; calculationStandard).
  * @param buildingPhaseMap  optional map of item ID → phase from building-level
  *                          balance. When provided, auto-assignment uses these
  *                          pre-computed phases instead of round-robin.
  */
 export function phaseBalance(
-  items: FloorItem[] | BuildingLoad[],
+  items: (FloorItem | BuildingLoad)[],
   project: Project,
   buildingPhaseMap?: Map<string, number>
 ): PhaseBalance {
@@ -144,17 +144,16 @@ export function phaseBalance(
 // ---------------------------------------------------------------------------
 
 function normalize(
-  items: FloorItem[] | BuildingLoad[],
+  items: (FloorItem | BuildingLoad)[],
   project: Project
 ): PhaseLoad[] {
-  // Detect kind: FloorItem has `type`, BuildingLoad has `buildingId`.
-  const isFloorItems = items.length > 0 && "type" in (items[0] as FloorItem);
-  if (items.length === 0) return [];
-
-  if (isFloorItems) {
-    return (items as FloorItem[]).map((item) => fromFloorItem(item, project));
-  }
-  return (items as BuildingLoad[]).map((load) => fromBuildingLoad(load));
+  // Kind is detected per item (FloorItem carries `type`; BuildingLoad does not)
+  // so mixed boards — e.g. computeFeeders' overall balance — never route a
+  // BuildingLoad through fromFloorItem, which would read its missing
+  // calculatedCurrent/calculatedMaxDemand as zero and drop the load entirely.
+  return items.map((item) =>
+    "type" in item ? fromFloorItem(item, project) : fromBuildingLoad(item)
+  );
 }
 
 function fromFloorItem(item: FloorItem, project: Project): PhaseLoad {
@@ -168,7 +167,6 @@ function fromFloorItem(item: FloorItem, project: Project): PhaseLoad {
   const kw = item.calculatedMaxDemand ?? 0;
   const angle = pfAngleForItem(item, project);
   return {
-    sortKey: sortKeyFloorItem(item),
     id: item.id,
     phaseCount,
     current,
@@ -195,7 +193,6 @@ function fromBuildingLoad(load: BuildingLoad): PhaseLoad {
       ? totalKw / (Math.sqrt(3) * voltageKv * pf)
       : totalKw / (voltageKv * pf);
   return {
-    sortKey: sortKeyBuildingLoad(load),
     id: load.id,
     phaseCount,
     current,
@@ -206,21 +203,6 @@ function fromBuildingLoad(load: BuildingLoad): PhaseLoad {
     // declared so; no apartment-internal-imbalance caveat.
     internalImbalanceNotModeled: false,
   };
-}
-
-// Stable sort keys: floorNumber → createdAt → id. (eng-review §D7/D12)
-function sortKeyFloorItem(item: FloorItem): string {
-  // FloorItem has no floorNumber/createdAt on the TS type; fall back to id.
-  // When threaded through computeFeeders the items are already per-floor, so
-  // floor-level ordering is handled by the caller; id is the stable tiebreak.
-  return padId(item.id);
-}
-function sortKeyBuildingLoad(load: BuildingLoad): string {
-  return padId(load.id);
-}
-/** Pad a uuid-ish id so lexical sort is stable. */
-function padId(id: string): string {
-  return id;
 }
 
 // ---------------------------------------------------------------------------

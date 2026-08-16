@@ -1,10 +1,9 @@
 import {
   sizeCableAndBreaker,
-  parseMm2,
   parseCableSize,
-  formatCableSize,
   getItemCableLength,
   getBuildingLoadCableLength,
+  getRiserCableLength,
   evaluateCableProtection,
 } from "./cables";
 import { phaseBalance } from "./phaseBalance";
@@ -28,7 +27,10 @@ export interface EquipmentItem {
   model: string;
   ratedCurrent: number;
   poles: number;
-  breakingCapacity: number;
+  /** Icu in kA. Null when the catalog entry has no recorded breaking capacity
+   *  (missing spreadsheet column / legacy row) — treated as "cannot prove
+   *  compliance" until a compliant device is found for the required fault. */
+  breakingCapacity: number | null;
   tripUnit: string | null;
   settingsJson: string | null;
 }
@@ -41,6 +43,8 @@ export interface FoundBreaker {
   manufacturer: string | null;
   familyName: string | null;
   ratedCurrent: number | null;
+  /** Icu in kA of the matched catalog device; null for generic specs. */
+  breakingCapacity?: number | null;
   fallback: boolean;
   fallbackType: FallbackType;
   genericSpec?: GenericBreakerSpec;
@@ -157,7 +161,7 @@ function oneItemPhaseFields(
     resolvedPhase && resolvedPhase >= 1 && resolvedPhase <= 3
       ? ({ ...item, assignedPhase: resolvedPhase } as FloorItem | BuildingLoad)
       : item;
-  const b = phaseBalance([withPhase] as FloorItem[] & BuildingLoad[], project);
+  const b = phaseBalance([withPhase], project);
   return {
     phaseCurrent: b.phaseCurrent,
     phaseKw: b.phaseKw,
@@ -191,6 +195,9 @@ export type FindBreaker = (
   options?: {
     familyId?: string;
     manufacturer?: string; // fallback manufacturer when familyId is omitted
+    /** Prospective fault current (kA) at the device location; catalog
+     *  candidates with Icu below it are skipped when a compliant one exists. */
+    requiredIcuKa?: number;
   }
 ) => FoundBreaker;
 
@@ -224,7 +231,6 @@ export function createFindBreaker(
       : undefined;
 
     const familyManufacturer = familyItem?.manufacturer;
-    const familyName = familyItem?.familyName;
 
     const matchPoles = (e: EquipmentItem, cat: "ACB" | "MCCB" | "MCB") => {
       if (cat === "MCB") {
@@ -235,7 +241,8 @@ export function createFindBreaker(
 
     const findInSubset = (
       items: EquipmentItem[],
-      cat: "ACB" | "MCCB" | "MCB"
+      cat: "ACB" | "MCCB" | "MCB",
+      requiredIcu?: number
     ): EquipmentItem | null => {
       return (
         items
@@ -243,7 +250,11 @@ export function createFindBreaker(
             (e) =>
               e.category === cat &&
               matchPoles(e, cat) &&
-              e.ratedCurrent >= currentRating
+              e.ratedCurrent >= currentRating &&
+              // A null Icu cannot prove compliance, so it is skipped when a
+              // required fault level is given (matches the `?? 0` semantics of
+              // the old `undefined >= n` comparison).
+              (requiredIcu === undefined || (e.breakingCapacity ?? 0) >= requiredIcu)
           )
           .sort((a, b) => a.ratedCurrent - b.ratedCurrent)[0] || null
       );
@@ -267,116 +278,145 @@ export function createFindBreaker(
       (preferredManufacturer && preferredManufacturer !== "MIXED" ? preferredManufacturer : undefined)
     )?.toUpperCase();
 
-    // -----------------------------------------------------------------
-    // Tier 1: Search the specific selected Family (SAME_FAMILY)
-    // -----------------------------------------------------------------
-    let tier1Match: EquipmentItem | null = null;
-    if (requestedFamilyId) {
-      for (const cat of categoriesToAttempt) {
-        const match = findInSubset(
-          equipment.filter((e) => e.familyId === requestedFamilyId),
-          cat
-        );
-        if (match) {
-          tier1Match = match;
-          break;
+    // Tiers 1–3 over the equipment catalog. When requiredIcu is given, only
+    // devices whose breaking capacity covers it are considered.
+    const searchCatalog = (requiredIcu?: number): FoundBreaker | null => {
+      // ---------------------------------------------------------------
+      // Tier 1: Search the specific selected Family (SAME_FAMILY)
+      // ---------------------------------------------------------------
+      let tier1Match: EquipmentItem | null = null;
+      if (requestedFamilyId) {
+        for (const cat of categoriesToAttempt) {
+          const match = findInSubset(
+            equipment.filter((e) => e.familyId === requestedFamilyId),
+            cat,
+            requiredIcu
+          );
+          if (match) {
+            tier1Match = match;
+            break;
+          }
         }
       }
-    }
 
-    if (tier1Match && tier1Match.ratedCurrent === currentRating) {
-      return {
-        model: formatBreakerModel(tier1Match, currentRating),
-        manufacturer: tier1Match.manufacturer,
-        familyName: tier1Match.familyName,
-        ratedCurrent: tier1Match.ratedCurrent,
-        fallback: false,
-        fallbackType: 'SAME_FAMILY',
-      };
-    }
+      if (tier1Match && tier1Match.ratedCurrent === currentRating) {
+        return {
+          model: formatBreakerModel(tier1Match, currentRating),
+          manufacturer: tier1Match.manufacturer,
+          familyName: tier1Match.familyName,
+          ratedCurrent: tier1Match.ratedCurrent,
+          breakingCapacity: tier1Match.breakingCapacity ?? null,
+          fallback: false,
+          fallbackType: 'SAME_FAMILY',
+        };
+      }
 
-    // -----------------------------------------------------------------
-    // Tier 2: Search other families of the SAME BRAND (OTHER_FAMILY)
-    // -----------------------------------------------------------------
-    let tier2Match: EquipmentItem | null = null;
-    if (preferredBrand) {
-      for (const cat of categoriesToAttempt) {
-        const match = findInSubset(
-          equipment.filter(
-            (e) =>
-              e.manufacturer.toUpperCase() === preferredBrand &&
-              (!requestedFamilyId || e.familyId !== requestedFamilyId)
-          ),
-          cat
-        );
-        if (match) {
-          tier2Match = match;
-          break;
+      // ---------------------------------------------------------------
+      // Tier 2: Search other families of the SAME BRAND (OTHER_FAMILY)
+      // ---------------------------------------------------------------
+      let tier2Match: EquipmentItem | null = null;
+      if (preferredBrand) {
+        for (const cat of categoriesToAttempt) {
+          const match = findInSubset(
+            equipment.filter(
+              (e) =>
+                e.manufacturer.toUpperCase() === preferredBrand &&
+                (!requestedFamilyId || e.familyId !== requestedFamilyId)
+            ),
+            cat,
+            requiredIcu
+          );
+          if (match) {
+            tier2Match = match;
+            break;
+          }
         }
       }
-    }
 
-    if (tier1Match) {
-      // If Tier 2 has a significantly closer rating to what was requested (e.g. 50A vs 100A), prefer Tier 2
-      if (tier2Match && tier2Match.ratedCurrent < tier1Match.ratedCurrent) {
+      if (tier1Match) {
+        // If Tier 2 has a significantly closer rating to what was requested (e.g. 50A vs 100A), prefer Tier 2
+        if (tier2Match && tier2Match.ratedCurrent < tier1Match.ratedCurrent) {
+          return {
+            model: formatBreakerModel(tier2Match, currentRating),
+            manufacturer: tier2Match.manufacturer,
+            familyName: tier2Match.familyName,
+            ratedCurrent: tier2Match.ratedCurrent,
+            breakingCapacity: tier2Match.breakingCapacity ?? null,
+            fallback: true,
+            fallbackType: 'OTHER_FAMILY',
+          };
+        }
+        return {
+          model: formatBreakerModel(tier1Match, currentRating),
+          manufacturer: tier1Match.manufacturer,
+          familyName: tier1Match.familyName,
+          ratedCurrent: tier1Match.ratedCurrent,
+          breakingCapacity: tier1Match.breakingCapacity ?? null,
+          fallback: false,
+          fallbackType: 'SAME_FAMILY',
+        };
+      }
+
+      if (tier2Match) {
         return {
           model: formatBreakerModel(tier2Match, currentRating),
           manufacturer: tier2Match.manufacturer,
           familyName: tier2Match.familyName,
           ratedCurrent: tier2Match.ratedCurrent,
+          breakingCapacity: tier2Match.breakingCapacity ?? null,
           fallback: true,
           fallbackType: 'OTHER_FAMILY',
         };
       }
-      return {
-        model: formatBreakerModel(tier1Match, currentRating),
-        manufacturer: tier1Match.manufacturer,
-        familyName: tier1Match.familyName,
-        ratedCurrent: tier1Match.ratedCurrent,
-        fallback: false,
-        fallbackType: 'SAME_FAMILY',
-      };
-    }
 
-    if (tier2Match) {
-      return {
-        model: formatBreakerModel(tier2Match, currentRating),
-        manufacturer: tier2Match.manufacturer,
-        familyName: tier2Match.familyName,
-        ratedCurrent: tier2Match.ratedCurrent,
-        fallback: true,
-        fallbackType: 'OTHER_FAMILY',
-      };
-    }
-
-    // -----------------------------------------------------------------
-    // Tier 3: Search OTHER BRANDS in the catalog (OTHER_BRAND)
-    // -----------------------------------------------------------------
-    for (const cat of categoriesToAttempt) {
-      const match = findInSubset(
-        equipment.filter(
-          (e) => !preferredBrand || e.manufacturer.toUpperCase() !== preferredBrand
-        ),
-        cat
-      );
-      if (match) {
-        return {
-          model: formatBreakerModel(match, currentRating),
-          manufacturer: match.manufacturer,
-          familyName: match.familyName,
-          ratedCurrent: match.ratedCurrent,
-          fallback: true,
-          fallbackType: 'OTHER_BRAND',
-        };
+      // ---------------------------------------------------------------
+      // Tier 3: Search OTHER BRANDS in the catalog (OTHER_BRAND)
+      // ---------------------------------------------------------------
+      for (const cat of categoriesToAttempt) {
+        const match = findInSubset(
+          equipment.filter(
+            (e) => !preferredBrand || e.manufacturer.toUpperCase() !== preferredBrand
+          ),
+          cat,
+          requiredIcu
+        );
+        if (match) {
+          return {
+            model: formatBreakerModel(match, currentRating),
+            manufacturer: match.manufacturer,
+            familyName: match.familyName,
+            ratedCurrent: match.ratedCurrent,
+            breakingCapacity: match.breakingCapacity ?? null,
+            fallback: true,
+            fallbackType: 'OTHER_BRAND',
+          };
+        }
       }
-    }
+
+      return null;
+    };
+
+    // When a prospective fault current is given, prefer catalog devices whose
+    // Icu covers it; only fall back to a lower-Icu device when nothing
+    // compliant exists, so the shortfall stays visible for icuOk reporting.
+    const requiredIcuKa =
+      options.requiredIcuKa !== undefined && options.requiredIcuKa > 0
+        ? options.requiredIcuKa
+        : undefined;
+    const catalogMatch =
+      (requiredIcuKa !== undefined ? searchCatalog(requiredIcuKa) : null) ??
+      searchCatalog();
+    if (catalogMatch) return catalogMatch;
 
     // -----------------------------------------------------------------
     // Tier 4: Generic Engineering Specification (GENERIC_SPEC)
     // -----------------------------------------------------------------
     const effectiveCategory: 'ACB' | 'MCCB' | 'MCB' =
       currentRating >= 630 ? 'ACB' : currentRating > 63 ? 'MCCB' : category;
-    const requiredIcu = effectiveCategory === 'ACB' ? 50 : effectiveCategory === 'MCCB' ? 36 : 10;
+    const requiredIcu = Math.max(
+      effectiveCategory === 'ACB' ? 50 : effectiveCategory === 'MCCB' ? 36 : 10,
+      Math.ceil(requiredIcuKa ?? 0)
+    );
     const tripUnitType =
       effectiveCategory === 'ACB'
         ? 'Electronic LSI / LSIG (Adjustable Ir, Isd, tsd, Ii)'
@@ -403,6 +443,7 @@ export function createFindBreaker(
       manufacturer: null,
       familyName: null,
       ratedCurrent: currentRating,
+      breakingCapacity: null,
       fallback: true,
       fallbackType: 'GENERIC_SPEC',
       genericSpec,
@@ -518,6 +559,7 @@ function feederFromItem(
     fallback: match.fallback,
     fallbackType: match.fallbackType,
     genericSpec: match.genericSpec,
+    breakingCapacityKa: match.breakingCapacity ?? null,
     isThreePhase,
     assignedPhase: item.assignedPhase ?? null,
     itemId: item.id,
@@ -610,6 +652,7 @@ function feederFromBuildingLoad(
     fallback: match.fallback,
     fallbackType: match.fallbackType,
     genericSpec: match.genericSpec,
+    breakingCapacityKa: match.breakingCapacity ?? null,
     isThreePhase,
     assignedPhase: load.assignedPhase ?? null,
     buildingLoadId: load.id,
@@ -626,6 +669,8 @@ export interface ComputeFeedersResult {
   smdbFloorNumbers: number[];
   /** Sized main incomer breaker curve settings for this building. */
   mainIncomerSettings: BreakerCurveSettings;
+  /** Whether the main incomer's Icu covers the transformer-terminal fault current. */
+  mainIncomerIcuOk: boolean;
 }
 
 /**
@@ -677,6 +722,9 @@ export function computeFeeders(
         ambientTemp: riserAmbientTemp,
         groupingCount: riserGroupingCount,
         installMethod: riserInstallMethod,
+        // Feed the floor's vector neutral current so an unbalanced floor keeps
+        // the full-size neutral instead of the default S/2 reduction.
+        neutralCurrent: floorBalance.neutralCurrent,
       });
       const manualRiserBreaker = fd.riserBreakerSize ? parseInt(fd.riserBreakerSize.replace(/[^\d.]/g, ''), 10) : null;
       const targetRiserBreaker = manualRiserBreaker && !isNaN(manualRiserBreaker) ? manualRiserBreaker : sizing.breakerSize;
@@ -693,6 +741,7 @@ export function computeFeeders(
               ambientTemp: riserAmbientTemp,
               groupingCount: riserGroupingCount,
               installMethod: riserInstallMethod,
+              neutralCurrent: floorBalance.neutralCurrent,
             })
           : sizing;
       const parsedRiserCable = parseCableSize(fd.riserCableSize);
@@ -733,6 +782,7 @@ export function computeFeeders(
         fallback: match.fallback,
         fallbackType: match.fallbackType,
         genericSpec: match.genericSpec,
+        breakingCapacityKa: match.breakingCapacity ?? null,
         isThreePhase: riserIsThreePhase, // physical riser is always 3-phase off the MDB bus
         floorDesignId: fd.id,
         // Per-phase balance fields for the MDB schedule columns (T6).
@@ -804,7 +854,7 @@ export function computeFeeders(
     ...building.floorDesigns.flatMap((fd) => fd.items),
     ...(building.buildingLoads ?? []),
   ];
-  const overallBalance = phaseBalance(allItems as unknown as FloorItem[], project);
+  const overallBalance = phaseBalance(allItems, project);
   const totalDemandKva = overallBalance.totalKw / (project.powerFactor || 0.85);
   const transformerSizeKva = project.transformerSize || sizeTransformer(totalDemandKva, 1.2) || 500;
 
@@ -825,12 +875,23 @@ export function computeFeeders(
     insulation: 'XLPE',
     ambientTemp: project.ambientTemp ?? 30,
     groupingCount: 1,
+    // Whole-building vector neutral current (imbalance-aware), so the MDB
+    // incomer neutral is kept full-size when the board is unbalanced.
+    neutralCurrent: overallBalance.neutralCurrent,
   });
   const mainCategory = mainSizing.breakerSize < 630 ? 'MCCB' : 'ACB';
-  const mainMatch = findBreaker(mainSizing.breakerSize, mainCategory, 3);
+  const mainMatch = findBreaker(mainSizing.breakerSize, mainCategory, 3, {
+    requiredIcuKa: transformerIscKa,
+  });
   const mainBreakerSize = Math.max(mainSizing.breakerSize, mainMatch.ratedCurrent ?? 0);
   const mainBreakerIn = Math.max(16, mainBreakerSize);
-  const mainIr = Math.max(16, mainIncomerCurrent > 0 ? mainIncomerCurrent : mainBreakerIn);
+  const mainIr = Math.max(16, Math.min(mainIncomerCurrent > 0 ? mainIncomerCurrent : mainBreakerIn, mainBreakerIn));
+
+  // A generic spec self-requires the fault level, so it counts as compliant.
+  const mainIncomerIcuOk =
+    mainMatch.breakingCapacity != null
+      ? mainMatch.breakingCapacity >= transformerIscKa
+      : mainMatch.fallbackType === 'GENERIC_SPEC';
 
   const mainIncomerSettings: BreakerCurveSettings = {
     inRating: mainBreakerIn,
@@ -844,6 +905,54 @@ export function computeFeeders(
     model: mainMatch.model ?? `Main ${mainCategory} ${mainBreakerIn}`,
   };
 
+  // Verifies a feeder breaker's breaking capacity against the prospective fault
+  // current at its location (Icu >= Isc per IEC 60947-2). When the selected
+  // device has no recorded Icu or its Icu is below the fault level, retries the
+  // catalog for a compliant device at the same rating; if none exists the
+  // original device is kept and icuOk is set false so the UI can flag it.
+  const categoryForFeeder = (f: PanelFeeder): "ACB" | "MCCB" | "MCB" =>
+    f.breakerSize >= 630
+      ? "ACB"
+      : f.breakerSize > 63 ||
+          ["SMDB", "SERVICE_PANEL", "PUMP_PANEL", "ELEVATOR_PANEL"].includes(f.type)
+        ? "MCCB"
+        : "MCB";
+
+  const enforceFeederIcu = (f: PanelFeeder, faultKa: number): void => {
+    f.faultCurrentKa = faultKa;
+    if (f.breakingCapacityKa != null && f.breakingCapacityKa >= faultKa) {
+      f.icuOk = true;
+      return;
+    }
+    // A generic spec self-requires the fault level, so it counts as compliant
+    // without needing a catalog Icu.
+    if (f.fallbackType === 'GENERIC_SPEC') {
+      f.icuOk = true;
+      return;
+    }
+    // Missing or insufficient Icu: retry the catalog for a compliant device at
+    // the same rating. When none exists the original device is kept and icuOk
+    // is set false so the UI can flag it.
+    const upgrade = findBreaker(
+      f.breakerSize,
+      categoryForFeeder(f),
+      f.isThreePhase ? 3 : 1,
+      { requiredIcuKa: faultKa, manufacturer: f.manufacturer ?? undefined }
+    );
+    if ((upgrade.breakingCapacity ?? 0) >= faultKa || upgrade.fallbackType === 'GENERIC_SPEC') {
+      f.breakerModel = upgrade.model ?? f.breakerModel;
+      f.manufacturer = upgrade.manufacturer;
+      f.familyName = upgrade.familyName;
+      f.fallback = upgrade.fallback;
+      f.fallbackType = upgrade.fallbackType;
+      f.genericSpec = upgrade.genericSpec;
+      f.breakingCapacityKa = upgrade.breakingCapacity ?? null;
+      f.icuOk = true;
+    } else {
+      f.icuOk = false;
+    }
+  };
+
   // 3. Process MDB Feeders against Main Incomer
   for (const f of mdbFeeders) {
     f.parentFeederName = 'Main Incomer';
@@ -854,7 +963,7 @@ export function computeFeeders(
 
     if (f.type === 'SMDB') {
       const matchFloor = building.floorDesigns.find((fd) => `F${fd.floorNumber} – SMDB` === f.name);
-      cableLength = matchFloor?.riserCableLength ?? (10 + (matchFloor?.floorNumber ?? 1) * 3.5);
+      cableLength = getRiserCableLength(matchFloor, matchFloor?.floorNumber ?? 1);
       cableInsulation = (matchFloor?.riserCableInsulation as 'PVC' | 'XLPE') || 'XLPE';
     } else {
       const matchBl = (building.buildingLoads ?? []).find((bl) => bl.loadLibraryItem?.name === f.name || bl.loadLibraryItem?.category === f.type);
@@ -872,12 +981,13 @@ export function computeFeeders(
       }
     }
 
-    const feederVoltage = f.isThreePhase ? project.voltage : project.voltage / Math.sqrt(3);
-    const terminalIscKa = calculateIscWithCable(transformerIscKa, cableLength, f.cableSize, feederVoltage, true);
-    f.faultCurrentKa = terminalIscKa;
+    const terminalIscKa = calculateIscWithCable(transformerIscKa, cableLength, f.cableSize, project.voltage, true, !f.isThreePhase, cableInsulation);
+    enforceFeederIcu(f, terminalIscKa);
 
     const dsInRating = Math.max(6, f.breakerSize || 10);
-    const dsIr = Math.max(6, f.current > 0 ? f.current : dsInRating);
+    // Ir cannot exceed the frame rating In: a manual breaker set below the
+    // load current must not produce an invalid Ir > In trip setting.
+    const dsIr = Math.max(6, Math.min(f.current > 0 ? f.current : dsInRating, dsInRating));
 
     const downstreamSettings: BreakerCurveSettings = {
       inRating: dsInRating,
@@ -885,7 +995,9 @@ export function computeFeeders(
       tr: 12,
       isd: f.isThreePhase ? dsInRating * 4 : undefined,
       tsd: f.isThreePhase ? 0.1 : undefined,
-      ii: f.isThreePhase ? dsInRating * 10 : dsInRating * 5,
+      // Instantaneous pickup aligned with the IEC 60898 C-curve upper band
+      // (10×In) for both 1-phase and 3-phase branch MCBs.
+      ii: dsInRating * 10,
       category: f.type === 'SMDB' || f.type === 'SERVICE_PANEL' || f.type === 'PUMP_PANEL' || f.type === 'ELEVATOR_PANEL' ? 'MCCB' : 'MCB',
       manufacturer: f.manufacturer ?? project.preferredManufacturer ?? 'ABB',
       model: f.breakerModel,
@@ -899,6 +1011,7 @@ export function computeFeeders(
         cableSizeMm2: f.cableSize,
         cableMaterial: 'copper',
         cableInsulation,
+        cableRuns: f.parallelRuns,
         manufacturerPair: {
           upstreamMfg: mainIncomerSettings.manufacturer ?? 'ABB',
           downstreamMfg: downstreamSettings.manufacturer ?? 'ABB',
@@ -942,7 +1055,10 @@ export function computeFeeders(
     const smdbFaultIsc = smdbRiserFeeder?.faultCurrentKa ?? transformerIscKa;
 
     const riserInRating = Math.max(16, smdbRiserFeeder?.breakerSize ?? 160);
-    const riserIr = Math.max(16, (smdbRiserFeeder?.current && smdbRiserFeeder.current > 0) ? smdbRiserFeeder.current : riserInRating);
+    const riserIr = Math.max(16, Math.min(
+      (smdbRiserFeeder?.current && smdbRiserFeeder.current > 0) ? smdbRiserFeeder.current : riserInRating,
+      riserInRating
+    ));
 
     const smdbRiserSettings: BreakerCurveSettings = {
       inRating: riserInRating,
@@ -970,12 +1086,11 @@ export function computeFeeders(
 
       const branchLength = getItemCableLength(item, floorNumber);
       const branchInsulation = (item.cableInsulation as 'PVC' | 'XLPE') || 'XLPE';
-      const branchVoltage = feeder.isThreePhase ? project.voltage : project.voltage / Math.sqrt(3);
-      const branchFaultIsc = calculateIscWithCable(smdbFaultIsc, branchLength, feeder.cableSize, branchVoltage, true);
-      feeder.faultCurrentKa = branchFaultIsc;
+      const branchFaultIsc = calculateIscWithCable(smdbFaultIsc, branchLength, feeder.cableSize, project.voltage, true, !feeder.isThreePhase, branchInsulation);
+      enforceFeederIcu(feeder, branchFaultIsc);
 
       const branchInRating = Math.max(6, feeder.breakerSize || 10);
-      const branchIr = Math.max(6, feeder.current > 0 ? feeder.current : branchInRating);
+      const branchIr = Math.max(6, Math.min(feeder.current > 0 ? feeder.current : branchInRating, branchInRating));
 
       const branchSettings: BreakerCurveSettings = {
         inRating: branchInRating,
@@ -983,7 +1098,9 @@ export function computeFeeders(
         tr: 12,
         isd: feeder.isThreePhase ? branchInRating * 4 : undefined,
         tsd: feeder.isThreePhase ? 0.05 : undefined,
-        ii: feeder.isThreePhase ? branchInRating * 10 : branchInRating * 5,
+        // Instantaneous pickup aligned with the IEC 60898 C-curve upper band
+        // (10×In) for both 1-phase and 3-phase branch MCBs.
+        ii: branchInRating * 10,
         category: feeder.type === 'PUMP_PANEL' || feeder.type === 'SERVICE_PANEL' ? 'MCCB' : 'MCB',
         manufacturer: feeder.manufacturer ?? project.preferredManufacturer ?? 'ABB',
         model: feeder.breakerModel,
@@ -997,6 +1114,7 @@ export function computeFeeders(
           cableSizeMm2: feeder.cableSize,
           cableMaterial: 'copper',
           cableInsulation: branchInsulation,
+          cableRuns: feeder.parallelRuns,
           manufacturerPair: {
             upstreamMfg: smdbRiserSettings.manufacturer ?? 'ABB',
             downstreamMfg: branchSettings.manufacturer ?? 'ABB',
@@ -1029,5 +1147,5 @@ export function computeFeeders(
     });
   };
 
-  return { mdbFeeders, smdbFeeders, smdbFloorNumbers, mainIncomerSettings };
+  return { mdbFeeders, smdbFeeders, smdbFloorNumbers, mainIncomerSettings, mainIncomerIcuOk };
 }

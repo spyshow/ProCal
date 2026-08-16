@@ -19,8 +19,112 @@ import { sizeCableAndBreaker } from '@/lib/calculations/cables';
 import { CABLE_CATALOG } from '@/lib/calculations/cablesData';
 import { computeFeeders, createFindBreaker, type EquipmentItem, type DefaultFamilies } from '@/lib/calculations/feeders';
 import { calculateShortCircuitCurrent, getTypicalImpedance } from '@/lib/calculations/shortCircuit';
-import type { Project } from '@/types';
+import type { Project, PanelFeeder } from '@/types';
 import WorkflowStepper from '@/components/layout/WorkflowStepper';
+
+function wrapSvgLines(text: string, maxCharsPerLine: number = 24, maxLines: number = 2): string[] {
+  if (!text) return [];
+  const words = text.trim().split(/\s+/);
+  const lines: string[] = [];
+  let currentLine = '';
+
+  for (const word of words) {
+    if (!currentLine) {
+      currentLine = word;
+    } else if ((currentLine + ' ' + word).length <= maxCharsPerLine) {
+      currentLine += ' ' + word;
+    } else {
+      lines.push(currentLine);
+      currentLine = word;
+      if (lines.length >= maxLines - 1) break;
+    }
+  }
+  if (currentLine && lines.length < maxLines) {
+    lines.push(currentLine);
+  }
+  return lines;
+}
+
+function getBreakerCategory(f: PanelFeeder): 'ACB' | 'MCCB' | 'MCB' {
+  const model = (f.breakerModel || '').toLowerCase();
+  const family = (f.familyName || '').toLowerCase();
+
+  // 1. Air Circuit Breakers (ACB)
+  if (
+    model.includes('masterpact') ||
+    model.includes('mtz') ||
+    model.includes('emax') ||
+    model.includes('3wl') ||
+    model.includes('acb') ||
+    family.includes('masterpact') ||
+    family.includes('emax') ||
+    family.includes('acb')
+  ) {
+    return 'ACB';
+  }
+
+  // 2. Miniature Circuit Breakers (MCB)
+  if (
+    model.includes('acti9') ||
+    model.includes('ic60') ||
+    model.includes('c60') ||
+    model.includes('s200') ||
+    model.includes('s201') ||
+    model.includes('s202') ||
+    model.includes('s203') ||
+    model.includes('5sy') ||
+    model.includes('mcb') ||
+    family.includes('acti9') ||
+    family.includes('mcb')
+  ) {
+    return 'MCB';
+  }
+
+  // 3. Molded Case Circuit Breakers (MCCB)
+  if (
+    model.includes('compact') ||
+    model.includes('nsx') ||
+    model.includes('tmax') ||
+    model.includes('xt') ||
+    model.includes('3va') ||
+    model.includes('mccb') ||
+    family.includes('compact') ||
+    family.includes('nsx') ||
+    family.includes('tmax') ||
+    family.includes('mccb')
+  ) {
+    return 'MCCB';
+  }
+
+  // 4. Rating-based fallback for generic specifications
+  if (f.breakerSize >= 800) return 'ACB';
+  if (f.breakerSize > 63) return 'MCCB';
+  return 'MCB';
+}
+
+const BREAKER_FAMILY_THEME: Record<'ACB' | 'MCCB' | 'MCB', { stroke: string; text: string; badgeBg: string; badgeBorder: string; badgeText: string }> = {
+  ACB: {
+    stroke: '#f97316',
+    text: '#fdba74',
+    badgeBg: 'rgba(249, 115, 22, 0.15)',
+    badgeBorder: '#f97316',
+    badgeText: '#f97316',
+  },
+  MCCB: {
+    stroke: '#38bdf8',
+    text: '#7dd3fc',
+    badgeBg: 'rgba(56, 189, 248, 0.15)',
+    badgeBorder: '#0284c7',
+    badgeText: '#38bdf8',
+  },
+  MCB: {
+    stroke: '#94a3b8',
+    text: '#e2e8f0',
+    badgeBg: 'rgba(148, 163, 184, 0.15)',
+    badgeBorder: '#64748b',
+    badgeText: '#cbd5e1',
+  },
+};
 
 export default function PanelDesignerPage() {
   const { selectedProjectId, selectedProject, loading: contextLoading, preferredManufacturer } = useProject();
@@ -364,16 +468,40 @@ export default function PanelDesignerPage() {
       </div>
 
       {/* Panel Visual Layout */}
-      <div className="rounded-xl border border-gray-800 bg-gray-900/60 p-5">
-        <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4 flex items-center gap-2">
-          <Cpu size={14} className="text-orange-500" />
-          {t('panel.outgoingFeeders', 'Panel Layout')} &mdash; {activeFeeders.length} {t('cableSchedule.circuits', 'Feeders')}
-        </h2>
+      <div className="rounded-xl border border-gray-800 bg-gray-900/60 p-5 space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider flex items-center gap-2">
+            <Cpu size={14} className="text-orange-500" />
+            {t('panel.outgoingFeeders', 'Panel Layout')} &mdash; {activeFeeders.length} {t('cableSchedule.circuits', 'Feeders')}
+          </h2>
+
+          {/* Breaker Family Legend */}
+          <div className="flex flex-wrap items-center gap-3 text-xs bg-gray-950/70 border border-gray-800/80 rounded-lg px-3 py-1.5">
+            <span className="text-gray-400 font-medium text-[11px]">Breakers:</span>
+            <span className="flex items-center gap-1 font-mono text-[10.5px] text-orange-400">
+              <span className="w-2 h-2 rounded-sm border border-orange-500 bg-orange-500/20 inline-block" />
+              ACB (Incomer)
+            </span>
+            <span className="flex items-center gap-1 font-mono text-[10.5px] text-sky-400">
+              <span className="w-2 h-2 rounded-sm border border-sky-400 bg-sky-500/20 inline-block" />
+              MCCB (Feeders)
+            </span>
+            <span className="flex items-center gap-1 font-mono text-[10.5px] text-slate-300">
+              <span className="w-2 h-2 rounded-sm border border-slate-400 bg-slate-500/20 inline-block" />
+              MCB (Sub-circuits)
+            </span>
+            <span className="text-gray-600">|</span>
+            <span className="flex items-center gap-1 text-[10.5px] text-gray-400">
+              <span className="w-2 h-2 rounded-sm border border-slate-600 bg-slate-700 inline-block" />
+              Instruments
+            </span>
+          </div>
+        </div>
 
         {/* SVG Panel Outline */}
         <div className="bg-gray-950 rounded-lg border border-gray-800 p-4 overflow-x-auto">
           <svg
-            viewBox={`0 0 800 ${Math.max(600, activeFeeders.length * 36 + 200)}`}
+            viewBox={`0 0 800 ${Math.max(600, activeFeeders.length * 44 + 220)}`}
             className="w-full"
             xmlns="http://www.w3.org/2000/svg"
           >
@@ -382,7 +510,7 @@ export default function PanelDesignerPage() {
               x="40"
               y="20"
               width="720"
-              height={activeFeeders.length * 36 + 160}
+              height={activeFeeders.length * 44 + 175}
               fill="none"
               stroke="#374151"
               strokeWidth="2"
@@ -400,70 +528,120 @@ export default function PanelDesignerPage() {
               {t('panel.mainBusbar', 'MAIN BUSBAR')} — {mainSizing.breakerSize}A — {t('panel.phasePE', '3Φ + N + PE')}
             </text>
 
-            {/* Main Incomer */}
-            <rect x="80" y="90" width="120" height="40" fill="#1f2937" stroke="#f97316" strokeWidth="1.5" rx="3" />
-            <text x="140" y="107" textAnchor="middle" fill="#f97316" fontSize="10" fontWeight="600">{t('panel.incomerBadge', 'INCOMER')}</text>
-            <text x="140" y="121" textAnchor="middle" fill="#9ca3af" fontSize="9">{mainSizing.breakerSize}A {mainBreakerModel}</text>
+            {/* Main Incomer (Prominently Highlighted in ACB Amber/Orange) */}
+            {(() => {
+              const lines = wrapSvgLines(`${mainSizing.breakerSize}A ${mainBreakerModel}`, 24, 2);
+              return (
+                <g>
+                  <rect x="70" y="90" width="150" height="46" fill="#1f2937" stroke="#f97316" strokeWidth="1.5" rx="3" />
+                  <text x="145" y="105" textAnchor="middle" fill="#f97316" fontSize="9.5" fontWeight="600">
+                    {t('panel.incomerBadge', 'INCOMER (ACB)')}
+                  </text>
+                  {lines.length === 1 ? (
+                    <text x="145" y="122" textAnchor="middle" fill="#fdba74" fontSize="8" fontWeight="500">
+                      {lines[0]}
+                    </text>
+                  ) : (
+                    <>
+                      <text x="145" y="118" textAnchor="middle" fill="#fdba74" fontSize="7.5" fontWeight="500">
+                        {lines[0]}
+                      </text>
+                      <text x="145" y="128" textAnchor="middle" fill="#fed7aa" fontSize="7">
+                        {lines[1]}
+                      </text>
+                    </>
+                  )}
+                </g>
+              );
+            })()}
 
-            {/* SPD */}
-            <rect x="240" y="90" width="80" height="40" fill="#1f2937" stroke="#22c55e" strokeWidth="1" rx="3" />
-            <text x="280" y="107" textAnchor="middle" fill="#22c55e" fontSize="9" fontWeight="600">SPD</text>
-            <text x="280" y="121" textAnchor="middle" fill="#6b7280" fontSize="8">{t('panel.surgeProtection', 'Type 1+2')}</text>
+            {/* SPD (Neutral Auxiliary Device) */}
+            <rect x="235" y="90" width="75" height="46" fill="#111827" stroke="#475569" strokeWidth="1" rx="3" />
+            <text x="272" y="108" textAnchor="middle" fill="#e2e8f0" fontSize="9" fontWeight="600">SPD</text>
+            <text x="272" y="123" textAnchor="middle" fill="#64748b" fontSize="8">{t('panel.surgeProtection', 'Type 1+2')}</text>
 
-            {/* Meter */}
-            <rect x="340" y="90" width="100" height="40" fill="#1f2937" stroke="#3b82f6" strokeWidth="1" rx="3" />
-            <text x="390" y="107" textAnchor="middle" fill="#3b82f6" fontSize="9" fontWeight="600">{t('panel.metering', 'POWER METER')}</text>
-            <text x="390" y="121" textAnchor="middle" fill="#6b7280" fontSize="8">kWh / kVA / PF</text>
+            {/* Meter (Neutral Auxiliary Device) */}
+            <rect x="325" y="90" width="95" height="46" fill="#111827" stroke="#475569" strokeWidth="1" rx="3" />
+            <text x="372" y="108" textAnchor="middle" fill="#e2e8f0" fontSize="9" fontWeight="600">{t('panel.metering', 'POWER METER')}</text>
+            <text x="372" y="123" textAnchor="middle" fill="#64748b" fontSize="8">kWh / kVA / PF</text>
 
-            {/* CTs */}
-            <rect x="460" y="90" width="60" height="40" fill="#1f2937" stroke="#a855f7" strokeWidth="1" rx="3" />
-            <text x="490" y="107" textAnchor="middle" fill="#a855f7" fontSize="9" fontWeight="600">CTs</text>
-            <text x="490" y="121" textAnchor="middle" fill="#6b7280" fontSize="8">{t('panel.ratioTbd', 'Ratio TBD')}</text>
+            {/* CTs (Neutral Auxiliary Device) */}
+            <rect x="435" y="90" width="65" height="46" fill="#111827" stroke="#475569" strokeWidth="1" rx="3" />
+            <text x="467" y="108" textAnchor="middle" fill="#e2e8f0" fontSize="9" fontWeight="600">CTs</text>
+            <text x="467" y="123" textAnchor="middle" fill="#64748b" fontSize="8">{t('panel.ratioTbd', 'Ratio TBD')}</text>
 
-            {/* Phase Lamps */}
-            <rect x="540" y="90" width="60" height="40" fill="#1f2937" stroke="#eab308" strokeWidth="1" rx="3" />
-            <text x="570" y="107" textAnchor="middle" fill="#eab308" fontSize="9" fontWeight="600">L1 L2 L3</text>
-            <text x="570" y="121" textAnchor="middle" fill="#6b7280" fontSize="8">{t('panel.indicators', 'Indicators')}</text>
+            {/* Phase Lamps (Neutral Auxiliary Device) */}
+            <rect x="515" y="90" width="65" height="46" fill="#111827" stroke="#475569" strokeWidth="1" rx="3" />
+            <text x="547" y="108" textAnchor="middle" fill="#e2e8f0" fontSize="9" fontWeight="600">L1 L2 L3</text>
+            <text x="547" y="123" textAnchor="middle" fill="#64748b" fontSize="8">{t('panel.indicators', 'Indicators')}</text>
 
-            {/* Spare */}
-            <rect x="620" y="90" width="100" height="40" fill="#1f2937" stroke="#4b5563" strokeWidth="1" rx="3" strokeDasharray="4" />
-            <text x="670" y="107" textAnchor="middle" fill="#6b7280" fontSize="9">{t('panel.spareWays', 'SPARE')}</text>
-            <text x="670" y="121" textAnchor="middle" fill="#4b5563" fontSize="8">{t('panel.expansion', 'Expansion')}</text>
+            {/* Spare (Neutral Auxiliary Device) */}
+            <rect x="595" y="90" width="95" height="46" fill="#111827" stroke="#334155" strokeWidth="1" rx="3" strokeDasharray="4" />
+            <text x="642" y="108" textAnchor="middle" fill="#64748b" fontSize="9">{t('panel.spareWays', 'SPARE')}</text>
+            <text x="642" y="123" textAnchor="middle" fill="#475569" fontSize="8">{t('panel.expansion', 'Expansion')}</text>
 
             {/* Feeders */}
             {activeFeeders.map((feeder, i) => {
-              const y = 150 + i * 36;
-              const isApartment = feeder.type === 'APARTMENT';
-              const color = isApartment ? '#f97316' : /pump/i.test(feeder.type) ? '#22c55e' : /elevator/i.test(feeder.type) ? '#3b82f6' : '#a855f7';
+              const y = 155 + i * 44;
+              const cat = getBreakerCategory(feeder);
+              const theme = BREAKER_FAMILY_THEME[cat];
+              const breakerLabel = `${feeder.breakerSize}A — ${feeder.breakerModel}`;
+              const lines = wrapSvgLines(breakerLabel, 26, 2);
 
               return (
                 <g key={feeder.name + i}>
                   {/* Feeder connection line from busbar */}
-                  <line x1="200" y1={78} x2="200" y2={y + 10} stroke="#374151" strokeWidth="1" />
-                  <line x1="200" y1={y + 10} x2="80" y2={y + 10} stroke="#374151" strokeWidth="1" />
+                  <line x1="230" y1={78} x2="230" y2={y + 18} stroke="#374151" strokeWidth="1" />
+                  <line x1="230" y1={y + 18} x2="70" y2={y + 18} stroke="#374151" strokeWidth="1" />
 
-                  {/* Feeder breaker */}
-                  <rect x="80" y={y} width="120" height="24" fill="#1f2937" stroke={color} strokeWidth="1" rx="2" />
-                  <text x="140" y={y + 10} textAnchor="middle" fill={color} fontSize="8" fontWeight="600">
-                    {feeder.breakerSize}A — {feeder.breakerModel}
-                  </text>
-                  <text x="140" y={y + 20} textAnchor="middle" fill="#6b7280" fontSize="7">
+                  {/* Feeder breaker box (Color-coded by Breaker Technology: ACB / MCCB / MCB) */}
+                  <rect x="70" y={y} width="160" height="36" fill="#1f2937" stroke={theme.stroke} strokeWidth="1" rx="3" />
+                  
+                  {/* Breaker Model (Wrapped) */}
+                  {lines.length === 1 ? (
+                    <text x="150" y={y + 15} textAnchor="middle" fill={theme.text} fontSize="7.5" fontWeight="600">
+                      {lines[0]}
+                    </text>
+                  ) : (
+                    <>
+                      <text x="150" y={y + 13} textAnchor="middle" fill={theme.text} fontSize="7.5" fontWeight="600">
+                        {lines[0]}
+                      </text>
+                      <text x="150" y={y + 22} textAnchor="middle" fill={theme.text} fontSize="7" fontWeight="500">
+                        {lines[1]}
+                      </text>
+                    </>
+                  )}
+
+                  {/* Feeder Name */}
+                  <text x="150" y={lines.length === 1 ? y + 27 : y + 31} textAnchor="middle" fill="#9ca3af" fontSize="6.5">
                     {feeder.name}
                   </text>
 
-                  {/* Cable */}
-                  <line x1="200" y1={y + 12} x2="340" y2={y + 12} stroke={color} strokeWidth="1" opacity="0.5" />
-                  <text x="270" y={y + 8} textAnchor="middle" fill="#6b7280" fontSize="7">
+                  {/* Cable line & size */}
+                  <line x1="230" y1={y + 18} x2="440" y2={y + 18} stroke="#475569" strokeWidth="1" opacity="0.6" />
+                  <text x="335" y={y + 13} textAnchor="middle" fill="#9ca3af" fontSize="7.5">
                     {feeder.cableSize} mm²
                   </text>
 
                   {/* Current */}
-                  <text x="350" y={y + 16} fill="#9ca3af" fontSize="8" fontFamily="monospace">
+                  <text x="460" y={y + 22} fill="#d1d5db" fontSize="8.5" fontFamily="monospace">
                     {feeder.current.toFixed(1)}A
                   </text>
 
-                  {/* Status indicator */}
-                  <circle cx="400" cy={y + 12} r="4" fill={color} opacity="0.6" />
+                  {/* Poles / Phase */}
+                  <text x="535" y={y + 22} fill="#9ca3af" fontSize="7.5" fontFamily="monospace">
+                    {feeder.isThreePhase ? '3P' : '1P'}{feeder.assignedPhase ? `-L${feeder.assignedPhase}` : ''}
+                  </text>
+
+                  {/* Breaker Category Badge & Feeder Service */}
+                  <rect x="595" y={y + 9} width="34" height="18" fill={theme.badgeBg} stroke={theme.badgeBorder} strokeWidth="0.8" rx="2" />
+                  <text x="612" y={y + 21} textAnchor="middle" fill={theme.badgeText} fontSize="7" fontWeight="700">
+                    {cat}
+                  </text>
+                  <text x="638" y={y + 22} fill="#94a3b8" fontSize="7.5">
+                    {feeder.type.replace('_', ' ')}
+                  </text>
                 </g>
               );
             })}
@@ -471,7 +649,7 @@ export default function PanelDesignerPage() {
             {/* Bottom label */}
             <text
               x="400"
-              y={activeFeeders.length * 36 + 175}
+              y={activeFeeders.length * 44 + 190}
               textAnchor="middle"
               fill="#4b5563"
               fontSize="10"

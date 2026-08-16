@@ -1,5 +1,5 @@
 import { calculateVoltageDrop, parseCableSize, formatCableSize } from '@/lib/calculations/cables';
-import { CABLE_CATALOG, TEMP_DERATING, GROUP_DERATING, CableSpec } from '@/lib/calculations/cablesData';
+import { CABLE_CATALOG, temperatureDeratingFactor, groupingDeratingFactor, CableSpec } from '@/lib/calculations/cablesData';
 import { getAmpacity } from '@/lib/calculations/installationMethods';
 
 export interface CableEditorInput {
@@ -64,8 +64,8 @@ export function recalculateCable(input: CableEditorInput): CableEditorResult {
 
   const currentRuns = targetRuns ?? input.existingRuns ?? existingParsed.runs ?? 1;
   const breakerSize = findBreakerSize(current);
-  const tempFactor = (TEMP_DERATING[insulation] && TEMP_DERATING[insulation][ambientTemp]) ?? 1.0;
-  const groupFactor = GROUP_DERATING[groupingCount] ?? 1.0;
+  const tempFactor = temperatureDeratingFactor(insulation, ambientTemp);
+  const groupFactor = groupingDeratingFactor(groupingCount);
   const totalDerating = tempFactor * groupFactor;
 
   // 1. Calculate continuous carrying capacity & VD of the current installed cable

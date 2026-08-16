@@ -4,13 +4,15 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
 import type { Project } from "@/types";
 
+export type PreferredManufacturer = "ABB" | "SCHNEIDER" | "EATON" | "SIEMENS" | "LEGRAND" | "ISKRA" | "MIXED";
+
 interface ProjectContextType {
   selectedProjectId: string | null;
   selectedProject: Project | null;
-  preferredManufacturer: "ABB" | "SCHNEIDER" | "MIXED";
+  preferredManufacturer: PreferredManufacturer;
   hasCompletedOnboarding: boolean;
   selectProject: (id: string | null) => void;
-  setManufacturer: (mfg: "ABB" | "SCHNEIDER" | "MIXED") => void;
+  setManufacturer: (mfg: PreferredManufacturer) => void;
   completeOnboarding: () => void;
   refreshProject: () => Promise<void>;
   loading: boolean;
@@ -21,14 +23,14 @@ const ProjectContext = createContext<ProjectContextType | undefined>(undefined);
 export function ProjectProvider({ children }: { children: React.ReactNode }) {
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
-  const [preferredManufacturer, setPreferredManufacturer] = useState<"ABB" | "SCHNEIDER" | "MIXED">("MIXED");
+  const [preferredManufacturer, setPreferredManufacturer] = useState<PreferredManufacturer>("MIXED");
   const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState<boolean>(false);
   const [loading, setLoading] = useState(false);
 
   // Load initial selection from localStorage
   useEffect(() => {
     const savedProjId = localStorage.getItem("selected_project_id");
-    const savedMfg = localStorage.getItem("preferred_manufacturer") as "ABB" | "SCHNEIDER" | "MIXED";
+    const savedMfg = localStorage.getItem("preferred_manufacturer") as PreferredManufacturer;
     const savedOnboarding = localStorage.getItem("has_completed_onboarding");
 
     if (savedProjId) setSelectedProjectId(savedProjId);
@@ -78,7 +80,7 @@ export function ProjectProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
-  const setManufacturer = useCallback((mfg: "ABB" | "SCHNEIDER" | "MIXED") => {
+  const setManufacturer = useCallback((mfg: PreferredManufacturer) => {
     setPreferredManufacturer(mfg);
     localStorage.setItem("preferred_manufacturer", mfg);
     // Optionally update in DB

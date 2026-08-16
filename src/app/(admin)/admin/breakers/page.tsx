@@ -15,6 +15,10 @@ import {
   CheckCircle,
   Loader2,
   ChevronDown,
+  ExternalLink,
+  Sliders,
+  FileText,
+  Info,
 } from 'lucide-react';
 
 // ---------------------------------------------------------------------------
@@ -71,7 +75,7 @@ type ImportStatus = { type: 'success' | 'error'; message: string } | null;
 // ---------------------------------------------------------------------------
 const CATEGORIES = ['ACB', 'MCCB', 'MCB', 'RCCB', 'RCBO', 'SPD', 'CONTACTOR', 'OVERLOAD', 'METER', 'CT'];
 const POLE_OPTIONS = [1, 2, 3, 4];
-const MANUFACTURERS = ['ABB', 'Schneider', 'Siemens', 'Legrand'];
+const MANUFACTURERS = ['ABB', 'Schneider', 'Eaton', 'Siemens', 'Legrand', 'Iskra'];
 
 const EMPTY_BREAKER_FORM: BreakerForm = {
   category: 'MCB',
@@ -92,34 +96,33 @@ const EMPTY_FAMILY_FORM: FamilyForm = {
   name: '',
 };
 
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-function classNames(...classes: Array<string | false | null | undefined>) {
+function classNames(...classes: (string | boolean | undefined | null)[]) {
   return classes.filter(Boolean).join(' ');
 }
 
-export default function BreakerLibraryPage() {
-  // ---------------------------------------------------------------------------
-  // State
-  // ---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
+// Component
+// ---------------------------------------------------------------------------
+export default function AdminBreakersPage() {
   const [activeTab, setActiveTab] = useState<ActiveTab>('breakers');
 
-  // Data
+  // Breakers state
   const [breakers, setBreakers] = useState<Breaker[]>([]);
-  const [families, setFamilies] = useState<BreakerFamily[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Filters
+  // Filter state
   const [search, setSearch] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('');
   const [manufacturerFilter, setManufacturerFilter] = useState('');
-  const [familyFilter, setFamilyFilter] = useState('');
   const [minCurrent, setMinCurrent] = useState('');
   const [maxCurrent, setMaxCurrent] = useState('');
 
-  // Modal / form
+  // Families state
+  const [families, setFamilies] = useState<BreakerFamily[]>([]);
+  const [loadingFamilies, setLoadingFamilies] = useState(false);
+
+  // Modals
   const [showBreakerModal, setShowBreakerModal] = useState(false);
   const [editingBreaker, setEditingBreaker] = useState<Breaker | null>(null);
   const [breakerForm, setBreakerForm] = useState<BreakerForm>(EMPTY_BREAKER_FORM);
@@ -130,84 +133,69 @@ export default function BreakerLibraryPage() {
   const [familyForm, setFamilyForm] = useState<FamilyForm>(EMPTY_FAMILY_FORM);
   const [savingFamily, setSavingFamily] = useState(false);
 
-  // Import / export
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  // Inspect settings modal
+  const [inspectSettingsBreaker, setInspectSettingsBreaker] = useState<Breaker | null>(null);
+
+  // Import state
   const [importing, setImporting] = useState(false);
   const [importStatus, setImportStatus] = useState<ImportStatus>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // ---------------------------------------------------------------------------
-  // Fetch
-  // ---------------------------------------------------------------------------
-  const buildQuery = useCallback(() => {
-    const params = new URLSearchParams();
-    if (search) params.set('search', search);
-    if (categoryFilter) params.set('category', categoryFilter);
-    if (manufacturerFilter) params.set('manufacturer', manufacturerFilter);
-    if (familyFilter) params.set('familyId', familyFilter);
-    if (minCurrent) params.set('minCurrent', minCurrent);
-    if (maxCurrent) params.set('maxCurrent', maxCurrent);
-    return params.toString();
-  }, [search, categoryFilter, manufacturerFilter, familyFilter, minCurrent, maxCurrent]);
-
-  const refreshBreakers = useCallback(async () => {
+  // -------------------------------------------------------------------------
+  // Fetch Breakers
+  // -------------------------------------------------------------------------
+  const fetchBreakers = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const qs = buildQuery();
-      const res = await fetch(`/api/admin/breakers${qs ? `?${qs}` : ''}`);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const params = new URLSearchParams();
+      if (search) params.set('search', search);
+      if (categoryFilter) params.set('category', categoryFilter);
+      if (manufacturerFilter) params.set('manufacturer', manufacturerFilter);
+      if (minCurrent) params.set('minCurrent', minCurrent);
+      if (maxCurrent) params.set('maxCurrent', maxCurrent);
+
+      const res = await fetch(`/api/admin/breakers?${params.toString()}`);
+      if (!res.ok) throw new Error('Failed to fetch equipment items');
       const data = await res.json();
-      setBreakers(Array.isArray(data) ? data : []);
-    } catch (err) {
-      setError('Failed to load breakers');
-      console.error(err);
+      setBreakers(data);
+    } catch (err: any) {
+      setError(err.message || 'Error fetching equipment');
     } finally {
       setLoading(false);
     }
-  }, [buildQuery]);
+  }, [search, categoryFilter, manufacturerFilter, minCurrent, maxCurrent]);
 
-  const refreshFamilies = useCallback(async () => {
+  useEffect(() => {
+    fetchBreakers();
+  }, [fetchBreakers]);
+
+  // -------------------------------------------------------------------------
+  // Fetch Families
+  // -------------------------------------------------------------------------
+  const fetchFamilies = useCallback(async () => {
+    setLoadingFamilies(true);
     try {
       const res = await fetch('/api/admin/breaker-families');
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      if (!res.ok) throw new Error('Failed to fetch breaker families');
       const data = await res.json();
-      setFamilies(Array.isArray(data) ? data : []);
-    } catch (err) {
+      setFamilies(data);
+    } catch (err: any) {
       console.error(err);
+    } finally {
+      setLoadingFamilies(false);
     }
   }, []);
 
-  // Load families once on mount (deferred so state updates happen outside the effect body).
   useEffect(() => {
-    let cancelled = false;
-    const id = setTimeout(() => {
-      fetch('/api/admin/breaker-families')
-        .then((res) => {
-          if (!res.ok) throw new Error(`HTTP ${res.status}`);
-          return res.json();
-        })
-        .then((data) => {
-          if (!cancelled) setFamilies(Array.isArray(data) ? data : []);
-        })
-        .catch((err) => console.error(err));
-    }, 0);
-    return () => {
-      clearTimeout(id);
-      cancelled = true;
-    };
-  }, []);
+    if (activeTab === 'families') {
+      fetchFamilies();
+    }
+  }, [activeTab, fetchFamilies]);
 
-  // Load breakers whenever filters change (deferred so state updates happen outside the effect body).
-  useEffect(() => {
-    const id = setTimeout(() => {
-      refreshBreakers();
-    }, 0);
-    return () => clearTimeout(id);
-  }, [refreshBreakers]);
-
-  // ---------------------------------------------------------------------------
+  // -------------------------------------------------------------------------
   // Breaker CRUD
-  // ---------------------------------------------------------------------------
+  // -------------------------------------------------------------------------
   const startCreateBreaker = () => {
     setEditingBreaker(null);
     setBreakerForm(EMPTY_BREAKER_FORM);
@@ -231,49 +219,62 @@ export default function BreakerLibraryPage() {
     setShowBreakerModal(true);
   };
 
-  const handleBreakerSubmit = async (e: FormEvent) => {
+  const handleSaveBreaker = async (e: FormEvent) => {
     e.preventDefault();
     setSavingBreaker(true);
     try {
       const payload = {
-        ...breakerForm,
-        ratedCurrent: parseFloat(breakerForm.ratedCurrent),
-        poles: parseInt(breakerForm.poles, 10),
-        breakingCapacity: parseFloat(breakerForm.breakingCapacity || '0'),
+        category: breakerForm.category,
+        manufacturer: breakerForm.manufacturer,
+        series: breakerForm.series,
+        model: breakerForm.model,
+        ratedCurrent: parseFloat(breakerForm.ratedCurrent) || 0,
+        poles: parseInt(breakerForm.poles, 10) || 3,
+        breakingCapacity: parseFloat(breakerForm.breakingCapacity) || 0,
+        tripUnit: breakerForm.tripUnit || null,
+        settingsJson: breakerForm.settingsJson ? breakerForm.settingsJson.trim() : null,
+        datasheetUrl: breakerForm.datasheetUrl || null,
       };
-      const url = editingBreaker ? `/api/admin/breakers/${editingBreaker.id}` : '/api/admin/breakers';
-      const method = editingBreaker ? 'PUT' : 'POST';
-      const res = await fetch(url, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+      if (editingBreaker) {
+        const res = await fetch(`/api/admin/breakers/${editingBreaker.id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        if (!res.ok) throw new Error('Failed to update equipment item');
+      } else {
+        const res = await fetch('/api/admin/breakers', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        if (!res.ok) throw new Error('Failed to create equipment item');
+      }
+
       setShowBreakerModal(false);
-      await Promise.all([refreshBreakers(), refreshFamilies()]);
-    } catch (err) {
-      alert('Failed to save breaker');
-      console.error(err);
+      fetchBreakers();
+    } catch (err: any) {
+      alert(err.message || 'Error saving equipment item');
     } finally {
       setSavingBreaker(false);
     }
   };
 
   const handleDeleteBreaker = async (id: string) => {
-    if (!confirm('Delete this breaker?')) return;
+    if (!confirm('Are you sure you want to delete this equipment item?')) return;
     try {
       const res = await fetch(`/api/admin/breakers/${id}`, { method: 'DELETE' });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      await Promise.all([refreshBreakers(), refreshFamilies()]);
-    } catch (err) {
-      alert('Failed to delete breaker');
-      console.error(err);
+      if (!res.ok) throw new Error('Failed to delete equipment item');
+      fetchBreakers();
+    } catch (err: any) {
+      alert(err.message || 'Error deleting equipment item');
     }
   };
 
-  // ---------------------------------------------------------------------------
+  // -------------------------------------------------------------------------
   // Family CRUD
-  // ---------------------------------------------------------------------------
+  // -------------------------------------------------------------------------
   const startCreateFamily = () => {
     setEditingFamily(null);
     setFamilyForm(EMPTY_FAMILY_FORM);
@@ -290,110 +291,168 @@ export default function BreakerLibraryPage() {
     setShowFamilyModal(true);
   };
 
-  const handleFamilySubmit = async (e: FormEvent) => {
+  const handleSaveFamily = async (e: FormEvent) => {
     e.preventDefault();
     setSavingFamily(true);
     try {
-      const url = editingFamily ? `/api/admin/breaker-families/${editingFamily.id}` : '/api/admin/breaker-families';
-      const method = editingFamily ? 'PUT' : 'POST';
-      const res = await fetch(url, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(familyForm),
-      });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      if (editingFamily) {
+        const res = await fetch(`/api/admin/breaker-families/${editingFamily.id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(familyForm),
+        });
+        if (!res.ok) throw new Error('Failed to update family');
+      } else {
+        const res = await fetch('/api/admin/breaker-families', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(familyForm),
+        });
+        if (!res.ok) throw new Error('Failed to create family');
+      }
+
       setShowFamilyModal(false);
-      await Promise.all([refreshFamilies(), refreshBreakers()]);
-    } catch (err) {
-      alert('Failed to save family');
-      console.error(err);
+      fetchFamilies();
+    } catch (err: any) {
+      alert(err.message || 'Error saving family');
     } finally {
       setSavingFamily(false);
     }
   };
 
   const handleDeleteFamily = async (id: string) => {
-    if (!confirm('Delete this family? Catalog items referencing it will keep working but lose the family link.')) return;
+    if (!confirm('Are you sure you want to delete this family?')) return;
     try {
       const res = await fetch(`/api/admin/breaker-families/${id}`, { method: 'DELETE' });
       if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        alert(data.error || 'Failed to delete family');
-        return;
+        const errData = await res.json();
+        throw new Error(errData.error || 'Failed to delete family');
       }
-      await Promise.all([refreshFamilies(), refreshBreakers()]);
-    } catch (err) {
-      alert('Failed to delete family');
-      console.error(err);
+      fetchFamilies();
+    } catch (err: any) {
+      alert(err.message || 'Error deleting family');
     }
   };
 
-  // ---------------------------------------------------------------------------
-  // Import / Export
-  // ---------------------------------------------------------------------------
+  // -------------------------------------------------------------------------
+  // CSV Import / Export
+  // -------------------------------------------------------------------------
   const handleExportTemplate = () => {
     window.location.href = '/api/admin/breakers/export/template';
   };
 
   const handleExportCatalog = () => {
-    const qs = buildQuery();
-    window.location.href = `/api/admin/breakers/export/catalog${qs ? `?${qs}` : ''}`;
+    const params = new URLSearchParams();
+    if (categoryFilter) params.set('category', categoryFilter);
+    if (manufacturerFilter) params.set('manufacturer', manufacturerFilter);
+    window.location.href = `/api/admin/breakers/export/catalog?${params.toString()}`;
   };
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
     setImporting(true);
     setImportStatus(null);
+
+    const formData = new FormData();
+    formData.append('file', file);
+
     try {
-      const formData = new FormData();
-      formData.append('file', file);
-      const res = await fetch('/api/admin/breakers/import', { method: 'POST', body: formData });
+      const res = await fetch('/api/admin/breakers/import', {
+        method: 'POST',
+        body: formData,
+      });
       const data = await res.json();
+
       if (!res.ok) {
-        setImportStatus({ type: 'error', message: data.error || 'Import failed' });
-      } else {
-        const { summary } = data;
-        const errors = [...(summary.validationErrors || []), ...(summary.upsertErrors || [])];
-        const base = `Imported ${summary.applied} of ${summary.validRows} valid rows (${summary.totalRows} total).`;
-        setImportStatus({
-          type: errors.length > 0 ? 'error' : 'success',
-          message: errors.length > 0 ? `${base} ${errors.length} errors. See console for details.` : base,
-        });
-        await Promise.all([refreshBreakers(), refreshFamilies()]);
+        throw new Error(data.error || 'Import failed');
       }
-    } catch (err) {
-      setImportStatus({ type: 'error', message: 'Import request failed' });
-      console.error(err);
+
+      setImportStatus({
+        type: 'success',
+        message: `Successfully imported ${data.importedCount} items (${data.createdCount} created, ${data.updatedCount} updated).`,
+      });
+      fetchBreakers();
+    } catch (err: any) {
+      setImportStatus({
+        type: 'error',
+        message: err.message || 'Error during CSV import',
+      });
     } finally {
       setImporting(false);
       if (fileInputRef.current) fileInputRef.current.value = '';
     }
   };
 
-  // ---------------------------------------------------------------------------
-  // Options
-  // ---------------------------------------------------------------------------
-  const availableFamilies = families.filter((f) => {
-    if (categoryFilter && f.category !== categoryFilter) return false;
-    if (manufacturerFilter && f.manufacturer.toUpperCase() !== manufacturerFilter.toUpperCase()) return false;
-    return true;
-  });
+  // -------------------------------------------------------------------------
+  // Helper to render concise selectivity badges
+  // -------------------------------------------------------------------------
+  const renderSelectivityBadge = (b: Breaker) => {
+    if (!b.settingsJson) {
+      return <span className="text-gray-500 italic text-[11px]">—</span>;
+    }
 
-  // ---------------------------------------------------------------------------
-  // Render
-  // ---------------------------------------------------------------------------
+    try {
+      const parsed = JSON.parse(b.settingsJson);
+      let summary = '';
+      if (parsed.Icw) {
+        summary = `Icw: ${parsed.Icw}kA · ${parsed.curveType || 'LSI'}`;
+      } else if (parsed.L && parsed.S) {
+        summary = `LSI Adj. (${parsed.L.range?.split(' ')[0] ?? '0.4-1.0In'})`;
+      } else if (parsed.thermal) {
+        summary = `TM Adj. (${parsed.thermal.range?.split(' ')[0] ?? '0.7-1.0In'})`;
+      } else if (parsed.curveType === 'C' || parsed.curveType === 'B' || parsed.curveType === 'D') {
+        summary = `${parsed.curveType}-Curve · Cl.3 (I²t ≤ ${Math.round((parsed.letThroughI2t ?? 0) / 1000)}k)`;
+      } else if (parsed.coilVoltage) {
+        summary = `${parsed.coilVoltage} · ${parsed.utilizationCategory ?? 'AC-3'}`;
+      } else if (parsed.accuracyClass) {
+        summary = `Cl. ${parsed.accuracyClass} · ${parsed.protocol ?? 'Modbus'}`;
+      } else if (parsed.type) {
+        summary = `${parsed.type} · Up ${parsed.Up ?? '1.4kV'}`;
+      } else {
+        summary = 'Configured';
+      }
+
+      return (
+        <button
+          type="button"
+          onClick={() => setInspectSettingsBreaker(b)}
+          className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-blue-950/60 border border-blue-800/60 text-blue-300 hover:bg-blue-900/60 hover:text-blue-200 transition-colors text-[11px] font-mono"
+          title="Click to view full selectivity dials & parameters"
+        >
+          <Sliders size={10} className="text-blue-400" />
+          <span className="truncate max-w-[140px]">{summary}</span>
+        </button>
+      );
+    } catch {
+      return (
+        <button
+          type="button"
+          onClick={() => setInspectSettingsBreaker(b)}
+          className="text-amber-400 hover:underline text-[11px]"
+        >
+          Custom JSON
+        </button>
+      );
+    }
+  };
+
   return (
-    <div className="p-6 max-w-7xl mx-auto space-y-5">
+    <div className="space-y-6 max-w-7xl mx-auto px-4 py-8">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-white flex items-center gap-2">
-            <Database size={22} className="text-orange-500" />
-            Breaker Library
+          <h1 className="text-2xl font-bold tracking-tight text-white flex items-center gap-2">
+            <Database className="w-6 h-6 text-orange-500" />
+            Equipment & Breaker Catalog
           </h1>
-          <p className="text-sm text-gray-400 mt-1">Manage breaker families and catalog items.</p>
+          <p className="text-sm text-gray-400 mt-1">
+            Manage circuit breakers, switchgear, selectivity parameters (Icw, LSI dials, I²t), and manufacturer families.
+          </p>
         </div>
+
+        {/* Actions */}
         <div className="flex flex-wrap items-center gap-2">
           <button
             onClick={handleExportTemplate}
@@ -449,8 +508,8 @@ export default function BreakerLibraryPage() {
       <div className="flex gap-1 border-b border-gray-800">
         {(
           [
-            { key: 'breakers', label: 'Breakers' },
-            { key: 'families', label: 'Families' },
+            { key: 'breakers', label: 'Breakers & Equipment' },
+            { key: 'families', label: 'Breaker Families' },
           ] as const
         ).map(({ key, label }) => (
           <button
@@ -478,106 +537,82 @@ export default function BreakerLibraryPage() {
                   setSearch('');
                   setCategoryFilter('');
                   setManufacturerFilter('');
-                  setFamilyFilter('');
                   setMinCurrent('');
                   setMaxCurrent('');
                 }}
-                className="ml-auto text-xs text-orange-400 hover:text-orange-300"
+                className="text-xs text-orange-400 hover:underline ml-auto"
               >
-                Clear
+                Reset Filters
               </button>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3">
-              <div className="lg:col-span-2">
-                <label className="block text-[10px] uppercase tracking-wide text-gray-500 mb-1">Search</label>
-                <div className="relative">
-                  <Search size={14} className="absolute left-2.5 top-2 text-gray-500" />
-                  <input
-                    type="text"
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                    placeholder="Model or series"
-                    className="dense-input w-full rounded pl-8"
-                  />
-                </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3">
+              {/* Search */}
+              <div className="relative">
+                <Search size={14} className="absolute left-3 top-2.5 text-gray-500" />
+                <input
+                  type="text"
+                  placeholder="Search model or series…"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  className="dense-input w-full pl-9 rounded"
+                />
               </div>
-              <div>
-                <label className="block text-[10px] uppercase tracking-wide text-gray-500 mb-1">Category</label>
-                <select
-                  value={categoryFilter}
-                  onChange={(e) => setCategoryFilter(e.target.value)}
-                  className="dense-input w-full rounded"
-                >
-                  <option value="">All</option>
-                  {CATEGORIES.map((c) => (
-                    <option key={c} value={c}>
-                      {c}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="block text-[10px] uppercase tracking-wide text-gray-500 mb-1">Manufacturer</label>
-                <select
-                  value={manufacturerFilter}
-                  onChange={(e) => setManufacturerFilter(e.target.value)}
-                  className="dense-input w-full rounded"
-                >
-                  <option value="">All</option>
-                  {MANUFACTURERS.map((m) => (
-                    <option key={m} value={m}>
-                      {m}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="block text-[10px] uppercase tracking-wide text-gray-500 mb-1">Family</label>
-                <div className="relative">
-                  <select
-                    value={familyFilter}
-                    onChange={(e) => setFamilyFilter(e.target.value)}
-                    className="dense-input w-full rounded appearance-none pr-8"
-                  >
-                    <option value="">All</option>
-                    {availableFamilies.map((f) => (
-                      <option key={f.id} value={f.id}>
-                        {f.manufacturer} — {f.name}
-                      </option>
-                    ))}
-                  </select>
-                  <ChevronDown size={14} className="absolute right-2.5 top-2 text-gray-500 pointer-events-none" />
-                </div>
-              </div>
-              <div className="flex gap-2">
-                <div className="flex-1">
-                  <label className="block text-[10px] uppercase tracking-wide text-gray-500 mb-1">Min A</label>
-                  <input
-                    type="number"
-                    value={minCurrent}
-                    onChange={(e) => setMinCurrent(e.target.value)}
-                    className="dense-input w-full rounded"
-                    min="0"
-                    step="any"
-                  />
-                </div>
-                <div className="flex-1">
-                  <label className="block text-[10px] uppercase tracking-wide text-gray-500 mb-1">Max A</label>
-                  <input
-                    type="number"
-                    value={maxCurrent}
-                    onChange={(e) => setMaxCurrent(e.target.value)}
-                    className="dense-input w-full rounded"
-                    min="0"
-                    step="any"
-                  />
-                </div>
-              </div>
+
+              {/* Category */}
+              <select
+                value={categoryFilter}
+                onChange={(e) => setCategoryFilter(e.target.value)}
+                className="dense-input w-full rounded"
+              >
+                <option value="">All Categories</option>
+                {CATEGORIES.map((c) => (
+                  <option key={c} value={c}>
+                    {c}
+                  </option>
+                ))}
+              </select>
+
+              {/* Manufacturer */}
+              <select
+                value={manufacturerFilter}
+                onChange={(e) => setManufacturerFilter(e.target.value)}
+                className="dense-input w-full rounded"
+              >
+                <option value="">All Manufacturers</option>
+                {MANUFACTURERS.map((m) => (
+                  <option key={m} value={m}>
+                    {m}
+                  </option>
+                ))}
+              </select>
+
+              {/* Min Current */}
+              <input
+                type="number"
+                placeholder="Min In (A)"
+                value={minCurrent}
+                onChange={(e) => setMinCurrent(e.target.value)}
+                className="dense-input w-full rounded"
+                min="0"
+              />
+
+              {/* Max Current */}
+              <input
+                type="number"
+                placeholder="Max In (A)"
+                value={maxCurrent}
+                onChange={(e) => setMaxCurrent(e.target.value)}
+                className="dense-input w-full rounded"
+                min="0"
+              />
             </div>
           </div>
 
-          {/* Toolbar */}
-          <div className="flex justify-end">
+          <div className="flex justify-between items-center">
+            <span className="text-xs text-gray-400">
+              Showing <span className="text-white font-semibold">{breakers.length}</span> items
+            </span>
             <button
               onClick={startCreateBreaker}
               className="flex items-center gap-2 px-4 py-2 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-sm font-semibold"
@@ -601,35 +636,58 @@ export default function BreakerLibraryPage() {
                   <th className="text-center">Poles</th>
                   <th className="text-right">Icu (kA)</th>
                   <th className="text-left">Trip</th>
+                  <th className="text-left">Selectivity & Settings</th>
+                  <th className="text-center">Datasheet</th>
                   <th className="text-center">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {loading ? (
                   <tr>
-                    <td colSpan={10} className="text-center py-8 text-gray-500">
+                    <td colSpan={12} className="text-center py-8 text-gray-500">
                       <Loader2 size={16} className="inline animate-spin mr-2" />
                       Loading…
                     </td>
                   </tr>
                 ) : breakers.length === 0 ? (
                   <tr>
-                    <td colSpan={10} className="text-center py-8 text-gray-500">
+                    <td colSpan={12} className="text-center py-8 text-gray-500">
                       No breakers match the filters.
                     </td>
                   </tr>
                 ) : (
                   breakers.map((b) => (
                     <tr key={b.id} className="hover:bg-gray-800/30">
-                      <td className="text-gray-300">{b.manufacturer}</td>
-                      <td className="text-gray-300">{b.category}</td>
-                      <td className="text-gray-300">{b.familyName ?? '—'}</td>
-                      <td className="text-gray-300">{b.series}</td>
+                      <td className="text-gray-300 font-semibold">{b.manufacturer}</td>
+                      <td className="text-gray-300">
+                        <span className="px-1.5 py-0.5 rounded text-[10px] font-mono bg-gray-800 text-gray-300 border border-gray-700">
+                          {b.category}
+                        </span>
+                      </td>
+                      <td className="text-gray-400">{b.familyName ?? '—'}</td>
+                      <td className="text-gray-400">{b.series}</td>
                       <td className="text-gray-200 font-medium">{b.model}</td>
-                      <td className="text-right font-mono text-blue-400">{b.ratedCurrent}</td>
+                      <td className="text-right font-mono text-blue-400 font-bold">{b.ratedCurrent}</td>
                       <td className="text-center font-mono">{b.poles}</td>
-                      <td className="text-right font-mono">{b.breakingCapacity}</td>
+                      <td className="text-right font-mono text-emerald-400">{b.breakingCapacity}</td>
                       <td className="text-gray-400">{b.tripUnit ?? '—'}</td>
+                      <td className="text-left">{renderSelectivityBadge(b)}</td>
+                      <td className="text-center">
+                        {b.datasheetUrl ? (
+                          <a
+                            href={b.datasheetUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1 text-orange-400 hover:text-orange-300 text-[11px]"
+                            title="Open official manufacturer datasheet"
+                          >
+                            <ExternalLink size={12} />
+                            Doc
+                          </a>
+                        ) : (
+                          <span className="text-gray-600">—</span>
+                        )}
+                      </td>
                       <td className="text-center">
                         <div className="flex items-center justify-center gap-2">
                           <button
@@ -680,16 +738,23 @@ export default function BreakerLibraryPage() {
                 </tr>
               </thead>
               <tbody>
-                {families.length === 0 ? (
+                {loadingFamilies ? (
                   <tr>
                     <td colSpan={5} className="text-center py-8 text-gray-500">
-                      No families found.
+                      <Loader2 size={16} className="inline animate-spin mr-2" />
+                      Loading…
+                    </td>
+                  </tr>
+                ) : families.length === 0 ? (
+                  <tr>
+                    <td colSpan={5} className="text-center py-8 text-gray-500">
+                      No breaker families defined yet.
                     </td>
                   </tr>
                 ) : (
                   families.map((f) => (
                     <tr key={f.id} className="hover:bg-gray-800/30">
-                      <td className="text-gray-300">{f.manufacturer}</td>
+                      <td className="text-gray-300 font-semibold">{f.manufacturer}</td>
                       <td className="text-gray-300">{f.category}</td>
                       <td className="text-gray-200 font-medium">{f.name}</td>
                       <td className="text-right font-mono text-blue-400">{f.catalogItemCount ?? 0}</td>
@@ -720,32 +785,90 @@ export default function BreakerLibraryPage() {
         </>
       )}
 
+      {/* Selectivity Settings Inspector Modal */}
+      {inspectSettingsBreaker && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 animate-in fade-in-0">
+          <div className="w-full max-w-xl rounded-xl border border-gray-700 bg-gray-900 p-6 space-y-4 shadow-2xl">
+            <div className="flex items-center justify-between border-b border-gray-800 pb-3">
+              <div>
+                <h3 className="text-base font-bold text-white flex items-center gap-2">
+                  <Sliders className="w-4 h-4 text-orange-400" />
+                  Selectivity & Protection Dials
+                </h3>
+                <p className="text-xs text-gray-400 mt-0.5">
+                  {inspectSettingsBreaker.manufacturer} {inspectSettingsBreaker.model} ({inspectSettingsBreaker.ratedCurrent}A)
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setInspectSettingsBreaker(null)}
+                className="text-gray-400 hover:text-white p-1 rounded-md hover:bg-gray-800"
+              >
+                <X size={16} />
+              </button>
+            </div>
+
+            <div className="space-y-3 max-h-[400px] overflow-y-auto custom-scrollbar">
+              <pre className="bg-gray-950 p-3 rounded-lg border border-gray-800 text-xs font-mono text-emerald-400 overflow-x-auto">
+                {JSON.stringify(JSON.parse(inspectSettingsBreaker.settingsJson || '{}'), null, 2)}
+              </pre>
+            </div>
+
+            <div className="flex justify-between items-center pt-2 border-t border-gray-800">
+              {inspectSettingsBreaker.datasheetUrl && (
+                <a
+                  href={inspectSettingsBreaker.datasheetUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 text-xs text-orange-400 hover:underline"
+                >
+                  <ExternalLink size={13} />
+                  Open Official Manufacturer Datasheet
+                </a>
+              )}
+              <button
+                type="button"
+                onClick={() => setInspectSettingsBreaker(null)}
+                className="px-4 py-1.5 rounded-lg bg-gray-800 text-gray-300 hover:bg-gray-700 text-xs font-medium ml-auto"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Breaker Modal */}
       {showBreakerModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
-          <div className="w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-xl border border-gray-700 bg-gray-900 p-6 space-y-4 shadow-2xl">
+          <div className="w-full max-w-2xl rounded-xl border border-gray-700 bg-gray-900 p-6 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto custom-scrollbar">
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-bold text-white">
                 {editingBreaker ? 'Edit Breaker' : 'Add Breaker'}
               </h2>
               <button
                 onClick={() => setShowBreakerModal(false)}
-                className="p-1 rounded hover:bg-gray-800 text-gray-400"
+                className="text-gray-400 hover:text-white"
               >
                 <X size={18} />
               </button>
             </div>
-            <form onSubmit={handleBreakerSubmit} className="space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+            <form onSubmit={handleSaveBreaker} className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-[10px] uppercase tracking-wide text-gray-500 mb-1">Manufacturer</label>
-                  <input
-                    type="text"
+                  <select
                     value={breakerForm.manufacturer}
                     onChange={(e) => setBreakerForm({ ...breakerForm, manufacturer: e.target.value })}
                     className="dense-input w-full rounded"
-                    required
-                  />
+                  >
+                    {MANUFACTURERS.map((m) => (
+                      <option key={m} value={m}>
+                        {m}
+                      </option>
+                    ))}
+                  </select>
                 </div>
                 <div>
                   <label className="block text-[10px] uppercase tracking-wide text-gray-500 mb-1">Category</label>
@@ -768,6 +891,7 @@ export default function BreakerLibraryPage() {
                     value={breakerForm.series}
                     onChange={(e) => setBreakerForm({ ...breakerForm, series: e.target.value })}
                     className="dense-input w-full rounded"
+                    placeholder="e.g. Tmax XT4, Acti9 iC60"
                     required
                   />
                 </div>
@@ -778,11 +902,12 @@ export default function BreakerLibraryPage() {
                     value={breakerForm.model}
                     onChange={(e) => setBreakerForm({ ...breakerForm, model: e.target.value })}
                     className="dense-input w-full rounded"
+                    placeholder="e.g. XT4N 250 Ekip LSI"
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-[10px] uppercase tracking-wide text-gray-500 mb-1">Rated Current (A)</label>
+                  <label className="block text-[10px] uppercase tracking-wide text-gray-500 mb-1">Rated Current (In, A)</label>
                   <input
                     type="number"
                     value={breakerForm.ratedCurrent}
@@ -808,7 +933,7 @@ export default function BreakerLibraryPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-[10px] uppercase tracking-wide text-gray-500 mb-1">Breaking Capacity (kA)</label>
+                  <label className="block text-[10px] uppercase tracking-wide text-gray-500 mb-1">Breaking Capacity (Icu, kA)</label>
                   <input
                     type="number"
                     value={breakerForm.breakingCapacity}
@@ -825,15 +950,71 @@ export default function BreakerLibraryPage() {
                     value={breakerForm.tripUnit}
                     onChange={(e) => setBreakerForm({ ...breakerForm, tripUnit: e.target.value })}
                     className="dense-input w-full rounded"
+                    placeholder="e.g. Ekip Dip LSI, MicroLogic 2.2, C-Curve"
                   />
                 </div>
                 <div className="sm:col-span-2">
-                  <label className="block text-[10px] uppercase tracking-wide text-gray-500 mb-1">Settings JSON</label>
+                  <div className="flex justify-between items-center mb-1">
+                    <label className="block text-[10px] uppercase tracking-wide text-gray-500">
+                      Selectivity Settings JSON (Icw, LSI dials, I²t)
+                    </label>
+                    <div className="flex gap-1">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const In = parseFloat(breakerForm.ratedCurrent) || 100;
+                          setBreakerForm({
+                            ...breakerForm,
+                            settingsJson: JSON.stringify(
+                              {
+                                Ics: parseFloat(breakerForm.breakingCapacity) || 36,
+                                standard: "IEC 60947-2",
+                                category: "A",
+                                curveType: "LSI",
+                                L: { range: "0.4..1.0xIn", delay: "3..12s", defaultIr: In, defaultTr: 12 },
+                                S: { range: "1.0..10xIn", delay: "0.05..0.4s", i2t: true, defaultIsd: In * 5, defaultTsd: 0.1 },
+                                I: { range: "1.5..15xIn", defaultIi: In * 10 },
+                              },
+                              null,
+                              2
+                            ),
+                          });
+                        }}
+                        className="text-[10px] px-1.5 py-0.5 rounded bg-gray-800 hover:bg-gray-700 text-orange-400"
+                      >
+                        + Template LSI
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const In = parseFloat(breakerForm.ratedCurrent) || 63;
+                          setBreakerForm({
+                            ...breakerForm,
+                            settingsJson: JSON.stringify(
+                              {
+                                Ics: parseFloat(breakerForm.breakingCapacity) || 36,
+                                standard: "IEC 60947-2",
+                                category: "A",
+                                curveType: "TM",
+                                thermal: { range: "0.7..1.0xIn", defaultIr: In },
+                                magnetic: { range: "10xIn fixed", defaultIm: In * 10 },
+                              },
+                              null,
+                              2
+                            ),
+                          });
+                        }}
+                        className="text-[10px] px-1.5 py-0.5 rounded bg-gray-800 hover:bg-gray-700 text-orange-400"
+                      >
+                        + Template TMD
+                      </button>
+                    </div>
+                  </div>
                   <textarea
                     value={breakerForm.settingsJson}
                     onChange={(e) => setBreakerForm({ ...breakerForm, settingsJson: e.target.value })}
-                    className="dense-input w-full rounded h-20"
-                    placeholder='{"L":{"range":"...","delay":"..."}}'
+                    className="dense-input w-full rounded h-28 font-mono text-xs text-emerald-400"
+                    placeholder='{"Icw": 42, "L": {"range": "0.4..1.0xIn"}, "S": {"range": "0.6..10xIn"}}'
                   />
                 </div>
                 <div className="sm:col-span-2">
@@ -843,6 +1024,7 @@ export default function BreakerLibraryPage() {
                     value={breakerForm.datasheetUrl}
                     onChange={(e) => setBreakerForm({ ...breakerForm, datasheetUrl: e.target.value })}
                     className="dense-input w-full rounded"
+                    placeholder="https://search.abb.com/... or https://www.se.com/..."
                   />
                 </div>
               </div>
@@ -878,21 +1060,26 @@ export default function BreakerLibraryPage() {
               </h2>
               <button
                 onClick={() => setShowFamilyModal(false)}
-                className="p-1 rounded hover:bg-gray-800 text-gray-400"
+                className="text-gray-400 hover:text-white"
               >
                 <X size={18} />
               </button>
             </div>
-            <form onSubmit={handleFamilySubmit} className="space-y-4">
+
+            <form onSubmit={handleSaveFamily} className="space-y-4">
               <div>
                 <label className="block text-[10px] uppercase tracking-wide text-gray-500 mb-1">Manufacturer</label>
-                <input
-                  type="text"
+                <select
                   value={familyForm.manufacturer}
                   onChange={(e) => setFamilyForm({ ...familyForm, manufacturer: e.target.value })}
                   className="dense-input w-full rounded"
-                  required
-                />
+                >
+                  {MANUFACTURERS.map((m) => (
+                    <option key={m} value={m}>
+                      {m}
+                    </option>
+                  ))}
+                </select>
               </div>
               <div>
                 <label className="block text-[10px] uppercase tracking-wide text-gray-500 mb-1">Category</label>
@@ -901,7 +1088,7 @@ export default function BreakerLibraryPage() {
                   onChange={(e) => setFamilyForm({ ...familyForm, category: e.target.value })}
                   className="dense-input w-full rounded"
                 >
-                  {['ACB', 'MCCB', 'MCB'].map((c) => (
+                  {CATEGORIES.map((c) => (
                     <option key={c} value={c}>
                       {c}
                     </option>
@@ -915,6 +1102,7 @@ export default function BreakerLibraryPage() {
                   value={familyForm.name}
                   onChange={(e) => setFamilyForm({ ...familyForm, name: e.target.value })}
                   className="dense-input w-full rounded"
+                  placeholder="e.g. ComPacT NSX, S200"
                   required
                 />
               </div>

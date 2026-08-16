@@ -255,7 +255,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 42,
       tripUnit: "ETU300 LSI",
-      datasheetUrl: "https://www.siemens.com/global/en/products/energy/low-voltage/components/sentron-air-circuit-breakers.html",
+      datasheetUrl: "https://mall.industry.siemens.com/mall/en/WW/Catalog/Products/10043806",
       settingsJson: JSON.stringify({
         Icw: 42,
         Ics: 42,
@@ -276,7 +276,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 55,
       tripUnit: "ETU600 LSI",
-      datasheetUrl: "https://www.siemens.com/global/en/products/energy/low-voltage/components/sentron-air-circuit-breakers.html",
+      datasheetUrl: "https://mall.industry.siemens.com/mall/en/WW/Catalog/Products/10043806",
       settingsJson: JSON.stringify({
         Icw: 55,
         Ics: 55,
@@ -297,7 +297,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 66,
       tripUnit: "ETU600 LSIG",
-      datasheetUrl: "https://www.siemens.com/global/en/products/energy/low-voltage/components/sentron-air-circuit-breakers.html",
+      datasheetUrl: "https://mall.industry.siemens.com/mall/en/WW/Catalog/Products/10043806",
       settingsJson: JSON.stringify({
         Icw: 66,
         Ics: 66,
@@ -391,7 +391,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 42,
       tripUnit: "ETU LSI",
-      datasheetUrl: "https://www.iskra.eu/en/Circuit-Breakers/Air-Circuit-Breakers/",
+      datasheetUrl: "https://www.iskra.eu/en/Low-Voltage-Switchgear/",
       settingsJson: JSON.stringify({
         Icw: 42,
         Ics: 42,
@@ -412,7 +412,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 50,
       tripUnit: "ETU LSI",
-      datasheetUrl: "https://www.iskra.eu/en/Circuit-Breakers/Air-Circuit-Breakers/",
+      datasheetUrl: "https://www.iskra.eu/en/Low-Voltage-Switchgear/",
       settingsJson: JSON.stringify({
         Icw: 50,
         Ics: 50,
@@ -433,7 +433,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 65,
       tripUnit: "ETU LSIG",
-      datasheetUrl: "https://www.iskra.eu/en/Circuit-Breakers/Air-Circuit-Breakers/",
+      datasheetUrl: "https://www.iskra.eu/en/Low-Voltage-Switchgear/",
       settingsJson: JSON.stringify({
         Icw: 65,
         Ics: 65,
@@ -1803,7 +1803,7 @@ async function main() {
       poles: 2,
       breakingCapacity: 6,
       tripUnit: "Type AC 30mA",
-      datasheetUrl: "https://search.abb.com/library/Download.aspx?DocumentID=2CDC420004S0201&LanguageCode=en&DocumentPartId=&Action=Launch",
+      datasheetUrl: "https://search.abb.com/library/Download.aspx?DocumentID=2CDC002157D0201&LanguageCode=en&DocumentPartId=&Action=Launch",
       settingsJson: JSON.stringify({ sensitivity: "30mA", type: "AC", standard: "IEC/EN 61008-1" }),
     },
     {
@@ -1815,7 +1815,7 @@ async function main() {
       poles: 4,
       breakingCapacity: 6,
       tripUnit: "Type AC 30mA",
-      datasheetUrl: "https://search.abb.com/library/Download.aspx?DocumentID=2CDC420004S0201&LanguageCode=en&DocumentPartId=&Action=Launch",
+      datasheetUrl: "https://search.abb.com/library/Download.aspx?DocumentID=2CDC002157D0201&LanguageCode=en&DocumentPartId=&Action=Launch",
       settingsJson: JSON.stringify({ sensitivity: "30mA", type: "AC", standard: "IEC/EN 61008-1" }),
     },
     {
@@ -1827,7 +1827,7 @@ async function main() {
       poles: 4,
       breakingCapacity: 6,
       tripUnit: "Type AC 30mA",
-      datasheetUrl: "https://search.abb.com/library/Download.aspx?DocumentID=2CDC420004S0201&LanguageCode=en&DocumentPartId=&Action=Launch",
+      datasheetUrl: "https://search.abb.com/library/Download.aspx?DocumentID=2CDC002157D0201&LanguageCode=en&DocumentPartId=&Action=Launch",
       settingsJson: JSON.stringify({ sensitivity: "30mA", type: "AC", standard: "IEC/EN 61008-1" }),
     },
     {
@@ -2023,7 +2023,7 @@ async function main() {
       poles: 2,
       breakingCapacity: 6,
       tripUnit: "C-Curve / 30mA",
-      datasheetUrl: "https://search.abb.com/library/Download.aspx?DocumentID=2CDC420005S0201&LanguageCode=en&DocumentPartId=&Action=Launch",
+      datasheetUrl: "https://search.abb.com/library/Download.aspx?DocumentID=2CDC002157D0201&LanguageCode=en&DocumentPartId=&Action=Launch",
       settingsJson: JSON.stringify({ curveType: "C", sensitivity: "30mA", standard: "IEC/EN 61009-1" }),
     },
     {
@@ -2035,7 +2035,7 @@ async function main() {
       poles: 2,
       breakingCapacity: 6,
       tripUnit: "C-Curve / 30mA",
-      datasheetUrl: "https://search.abb.com/library/Download.aspx?DocumentID=2CDC420005S0201&LanguageCode=en&DocumentPartId=&Action=Launch",
+      datasheetUrl: "https://search.abb.com/library/Download.aspx?DocumentID=2CDC002157D0201&LanguageCode=en&DocumentPartId=&Action=Launch",
       settingsJson: JSON.stringify({ curveType: "C", sensitivity: "30mA", standard: "IEC/EN 61009-1" }),
     },
     {
@@ -2107,7 +2107,7 @@ async function main() {
       poles: 2,
       breakingCapacity: 10,
       tripUnit: "C-Curve / 30mA",
-      datasheetUrl: "https://www.iskra.eu/en/Residual-Current-Circuit-Breakers-with-Overcurrent-Protection/",
+      datasheetUrl: "https://www.iskra.eu/en/Residual-Current-Circuit-Breakers/",
       settingsJson: JSON.stringify({ curveType: "C", sensitivity: "30mA", standard: "IEC/EN 61009-1" }),
     },
 
@@ -2123,7 +2123,7 @@ async function main() {
       poles: 4,
       breakingCapacity: 40,
       tripUnit: "Type 2",
-      datasheetUrl: "https://search.abb.com/library/Download.aspx?DocumentID=2CTC432001D0201&LanguageCode=en&DocumentPartId=&Action=Launch",
+      datasheetUrl: "https://www.abb.com/global/en/areas/electrification/low-voltage/earthing-lightning-surge-protection/surge-protection",
       settingsJson: JSON.stringify({ type: "Type 2", Up: "1.4kV", Imax: "40kA", In: "20kA", standard: "IEC 61643-11" }),
     },
     {
@@ -2183,7 +2183,7 @@ async function main() {
       poles: 4,
       breakingCapacity: 40,
       tripUnit: "Type 2",
-      datasheetUrl: "https://www.iskra.eu/en/Surge-Protective-Devices/",
+      datasheetUrl: "https://www.iskra.eu/en/Low-Voltage-Switchgear/",
       settingsJson: JSON.stringify({ type: "Type 2", Up: "1.4kV", Imax: "40kA", In: "20kA", standard: "IEC 61643-11" }),
     },
 
@@ -2359,7 +2359,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 0,
       tripUnit: "Thermal Overload",
-      datasheetUrl: "https://search.abb.com/library/Download.aspx?DocumentID=1SBC106001D0201&LanguageCode=en&DocumentPartId=&Action=Launch",
+      datasheetUrl: "https://search.abb.com/library/Download.aspx?DocumentID=1SBC100173C0201&LanguageCode=en&DocumentPartId=&Action=Launch",
       settingsJson: JSON.stringify({ settingRange: "7.6..10A", tripClass: "10", standard: "IEC 60947-4-1" }),
     },
     {
@@ -2419,7 +2419,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 0,
       tripUnit: "Thermal Overload",
-      datasheetUrl: "https://www.iskra.eu/en/Thermal-Overload-Relays/",
+      datasheetUrl: "https://www.iskra.eu/en/Contactors/",
       settingsJson: JSON.stringify({ settingRange: "6..10A", tripClass: "10", standard: "IEC 60947-4-1" }),
     },
 

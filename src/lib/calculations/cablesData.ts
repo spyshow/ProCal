@@ -76,3 +76,54 @@ export const GROUP_DERATING: Record<number, number> = {
   16: 0.41,
   20: 0.38,
 };
+
+/**
+ * Ambient-temperature correction factor, linearly interpolated between the
+ * tabulated 5 °C steps. Exact-key lookup alone silently returned 1.0 (no
+ * derating) for real-world ambients like 31–34 °C — non-conservative, since
+ * the factor only ever decreases as ambient rises above the 30 °C reference.
+ */
+export function temperatureDeratingFactor(
+  insulation: 'PVC' | 'XLPE',
+  ambientTemp: number
+): number {
+  const table = TEMP_DERATING[insulation];
+  if (!table) return 1.0;
+  const temps = Object.keys(table).map(Number).sort((a, b) => a - b);
+  if (temps.length === 0) return 1.0;
+  if (ambientTemp <= temps[0]) return table[temps[0]];
+  if (ambientTemp >= temps[temps.length - 1]) return table[temps[temps.length - 1]];
+  for (let i = 0; i < temps.length - 1; i++) {
+    const t1 = temps[i];
+    const t2 = temps[i + 1];
+    if (ambientTemp <= t2) {
+      const f1 = table[t1];
+      const f2 = table[t2];
+      return f1 + (f2 - f1) * ((ambientTemp - t1) / (t2 - t1));
+    }
+  }
+  return table[temps[temps.length - 1]];
+}
+
+/**
+ * Grouping correction factor, interpolated between tabulated circuit counts.
+ * The old `?? 0.5` fallback was non-monotonic (13–15 and 17–19 circuits got
+ * 0.5 while 12 → 0.45 and 16 → 0.41) and `?? 1.0` at other call sites meant
+ * no grouping derating at all for unlisted counts.
+ */
+export function groupingDeratingFactor(groupingCount: number): number {
+  const counts = Object.keys(GROUP_DERATING).map(Number).sort((a, b) => a - b);
+  if (counts.length === 0) return 1.0;
+  if (groupingCount <= counts[0]) return GROUP_DERATING[counts[0]];
+  if (groupingCount >= counts[counts.length - 1]) return GROUP_DERATING[counts[counts.length - 1]];
+  for (let i = 0; i < counts.length - 1; i++) {
+    const c1 = counts[i];
+    const c2 = counts[i + 1];
+    if (groupingCount <= c2) {
+      const f1 = GROUP_DERATING[c1];
+      const f2 = GROUP_DERATING[c2];
+      return f1 + (f2 - f1) * ((groupingCount - c1) / (c2 - c1));
+    }
+  }
+  return GROUP_DERATING[counts[counts.length - 1]];
+}

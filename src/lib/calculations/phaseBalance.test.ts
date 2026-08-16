@@ -524,4 +524,37 @@ describe('phaseBalance', () => {
     expect(b.internalImbalanceNotModeled).toBe(true);
     expect(b.assignments[0].phaseCount).toBe(3);
   });
+
+  // ==========================================================================
+  // Extra: mixed FloorItem + BuildingLoad boards (computeFeeders overall balance)
+  // ==========================================================================
+
+  it('normalizes mixed FloorItem + BuildingLoad boards per item (both orders)', () => {
+    const project = projectFixture({ powerFactor: 0.85 });
+    const apt = item('a1', 20, 4.6, 'APARTMENT', { assignedPhase: 1 });
+    const pump = buildingLoadFixture({
+      id: 'pump1',
+      power: 22,
+      voltage: 400,
+      phase: 3,
+      powerFactor: 0.85,
+      quantity: 1,
+    });
+    const pumpCurrent = 22 / (Math.sqrt(3) * 0.4 * 0.85);
+
+    for (const mixed of [
+      phaseBalance([apt, pump], project),
+      phaseBalance([pump, apt], project),
+    ]) {
+      // Both kinds contribute: first-element kind detection used to route the
+      // BuildingLoad through fromFloorItem and read its current/kW as zero.
+      expect(mixed.totalKw).toBeCloseTo(26.6, 6);
+      expect(mixed.phaseCurrent[0]).toBeCloseTo(20 + pumpCurrent, 6);
+      expect(mixed.phaseCurrent[1]).toBeCloseTo(pumpCurrent, 6);
+      expect(mixed.phaseCurrent[2]).toBeCloseTo(pumpCurrent, 6);
+      expect(mixed.assignments).toHaveLength(2);
+      expect(mixed.assignments.find((a) => a.id === 'pump1')?.phaseCount).toBe(3);
+      expect(mixed.assignments.find((a) => a.id === 'a1')?.phaseCount).toBe(1);
+    }
+  });
 });

@@ -237,6 +237,28 @@ describe('calculateIscWithCable', () => {
     expect(() => calculateIscWithCable(25, 50, -5, 400)).toThrow(CalculationError);
     expect(() => calculateIscWithCable(25, 50, 95, 0)).toThrow(CalculationError);
   });
+
+  it('single-phase fault uses the L-N loop model (Uo over source + go + return)', () => {
+    const baseIsc = 25;
+    const threePhase = calculateIscWithCable(baseIsc, 50, 95, 400, true, false);
+    const onePhase = calculateIscWithCable(baseIsc, 50, 95, 400, true, true);
+
+    // Closed-form: Uo = 230.94 V, Zt = 0.00924 Ω, Zcable = 0.01226 Ω/conductor
+    expect(threePhase).toBeCloseTo(10.74, 1);
+    expect(onePhase).toBeCloseTo(6.84, 1);
+    // The loop includes both conductors, so 1φ decays faster along the cable
+    expect(onePhase).toBeLessThan(threePhase);
+  });
+
+  it('single-phase fault equals the terminal Isc at zero cable length', () => {
+    expect(calculateIscWithCable(25, 0, 95, 400, true, true)).toBe(25);
+  });
+
+  it('single-phase fault decreases with cable length', () => {
+    const short = calculateIscWithCable(25, 20, 95, 400, true, true);
+    const long = calculateIscWithCable(25, 100, 95, 400, true, true);
+    expect(long).toBeLessThan(short);
+  });
 });
 
 describe('getTypicalImpedance', () => {

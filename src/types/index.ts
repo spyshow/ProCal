@@ -214,6 +214,10 @@ export interface PanelFeeder {
   baseBreakerSize?: number;
   isBreakerUpsized?: boolean;
   upsizeReason?: string;
+  // Breaking capacity (Icu, kA) of the selected device and whether it can
+  // interrupt the prospective fault current at its location (Ic >= Isc).
+  breakingCapacityKa?: number | null;
+  icuOk?: boolean;
 }
 
 export interface BreakerAlternativeSuggestion {

@@ -4,9 +4,11 @@ import {
   calculateVoltageDrop,
   STANDARD_BREAKERS,
   evaluateCableProtection,
+  calculateCableAmpacity,
   parseCableSize,
   formatCableSize,
 } from './cables';
+import { temperatureDeratingFactor, groupingDeratingFactor } from './cablesData';
 import { CalculationError } from './validate';
 
 describe('sizeCableAndBreaker', () => {
@@ -246,5 +248,84 @@ describe('evaluateCableProtection with parallel runs', () => {
     expect(evalResult.isUnderProtected).toBe(true);
     expect(evalResult.recommendedParallelRuns).toBeGreaterThanOrEqual(2);
     expect(evalResult.recommendedCableSizeFormatted).toContain('×');
+  });
+});
+
+describe('calculateCableAmpacity never rounds a size UP', () => {
+  it('evaluates a non-standard size at the largest standard size below it', () => {
+    const at16 = calculateCableAmpacity(16, true);
+    const at18 = calculateCableAmpacity(18, true);
+    const at25 = calculateCableAmpacity(25, true);
+
+    // 18 mm² is not a standard size: it must be judged as 16 mm², never 25 mm²
+    expect(at18.singleNominalAmpacity).toBe(at16.singleNominalAmpacity);
+    expect(at18.singleNominalAmpacity).toBeLessThan(at25.singleNominalAmpacity);
+  });
+
+  it('flags a non-standard 18 mm² cable as under-protected against a 100A breaker', () => {
+    // The old round-up evaluated 18 mm² as 25 mm² (~119 A) and reported safe.
+    const evalResult = evaluateCableProtection(18, 100, true, {
+      insulation: 'XLPE',
+      ambientTemp: 30,
+      groupingCount: 1,
+    });
+    expect(evalResult.isUnderProtected).toBe(true);
+    expect(evalResult.recommendedCableSizeMm2).toBeGreaterThanOrEqual(25);
+  });
+
+  it('below-catalog sizes are judged at the smallest catalog entry', () => {
+    const at1 = calculateCableAmpacity(1, true);
+    const at15 = calculateCableAmpacity(1.5, true);
+    expect(at1.singleNominalAmpacity).toBe(at15.singleNominalAmpacity);
+  });
+});
+
+describe('derating factors interpolate between table entries', () => {
+  it('temperature factor interpolates for non-tabulated ambients (XLPE)', () => {
+    expect(temperatureDeratingFactor('XLPE', 30)).toBe(1.0);
+    expect(temperatureDeratingFactor('XLPE', 35)).toBe(0.96);
+    // 32 °C sits 2/5 of the way from 30 (1.00) to 35 (0.96)
+    expect(temperatureDeratingFactor('XLPE', 32)).toBeCloseTo(0.984, 5);
+    // Never silently 1.0 above the 30 °C reference
+    expect(temperatureDeratingFactor('XLPE', 31)).toBeLessThan(1.0);
+    expect(temperatureDeratingFactor('XLPE', 34)).toBeLessThan(1.0);
+  });
+
+  it('temperature factor interpolates for PVC and clamps outside the table', () => {
+    // 42 °C: between 40 (0.87) and 45 (0.79) → 0.87 - 0.08×(2/5)
+    expect(temperatureDeratingFactor('PVC', 42)).toBeCloseTo(0.838, 5);
+    expect(temperatureDeratingFactor('PVC', 5)).toBe(1.22);
+    expect(temperatureDeratingFactor('PVC', 70)).toBe(0.5);
+  });
+
+  it('sizing responds to a non-tabulated ambient (32 °C)', () => {
+    const opts = {
+      material: 'copper' as const, insulation: 'XLPE' as const, groupingCount: 1,
+      manualBreakerRating: 96,
+    };
+    const at30 = sizeCableAndBreaker(96, true, { ...opts, ambientTemp: 30 });
+    const at32 = sizeCableAndBreaker(96, true, { ...opts, ambientTemp: 32 });
+    // 16 mm² XLPE (96 A) just covers In=96 A at 30 °C but not at 32 °C (×0.984)
+    expect(at30.cableSize).toBe(16);
+    expect(at32.tempFactor).toBeCloseTo(0.984, 5);
+    expect(at32.cableSize).toBe(25);
+  });
+
+  it('grouping factor is monotonic for non-tabulated circuit counts', () => {
+    expect(groupingDeratingFactor(9)).toBe(0.5);
+    expect(groupingDeratingFactor(12)).toBe(0.45);
+    expect(groupingDeratingFactor(16)).toBe(0.41);
+    expect(groupingDeratingFactor(20)).toBe(0.38);
+    // 10 circuits: 1/3 between 9 (0.5) and 12 (0.45)
+    expect(groupingDeratingFactor(10)).toBeCloseTo(0.483333, 5);
+    // Monotonic: old `?? 0.5` gave 13–15 and 17–19 MORE headroom than 12/16
+    let prev = groupingDeratingFactor(1);
+    for (let n = 2; n <= 25; n++) {
+      const f = groupingDeratingFactor(n);
+      expect(f).toBeLessThanOrEqual(prev);
+      prev = f;
+    }
+    expect(groupingDeratingFactor(25)).toBe(0.38);
+    expect(groupingDeratingFactor(0.5)).toBe(1.0);
   });
 });

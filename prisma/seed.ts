@@ -2626,7 +2626,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 0,
       tripUnit: "230V Coil",
-      datasheetUrl: "https://www.iskra.eu/f/docs/Contactors/Contactors-catalogue_Ver3_6.pdf",
+      datasheetUrl: "https://www.iskra.eu/f/docs/Contactors/Contactors-catalogue_Ver3_6_7_1.pdf",
       settingsJson: JSON.stringify({ coilVoltage: "230V AC", utilizationCategory: "AC-3", ratedPower: "4kW at 400V", standard: "IEC 60947-4-1" }),
     },
     {
@@ -2638,7 +2638,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 0,
       tripUnit: "230V Coil",
-      datasheetUrl: "https://www.iskra.eu/f/docs/Contactors/Contactors-catalogue_Ver3_6.pdf",
+      datasheetUrl: "https://www.iskra.eu/f/docs/Contactors/Contactors-catalogue_Ver3_6_7_1.pdf",
       settingsJson: JSON.stringify({ coilVoltage: "230V AC", utilizationCategory: "AC-3", ratedPower: "7.5kW at 400V", standard: "IEC 60947-4-1" }),
     },
     {
@@ -2650,7 +2650,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 0,
       tripUnit: "230V Coil",
-      datasheetUrl: "https://www.iskra.eu/f/docs/Contactors/Contactors-catalogue_Ver3_6.pdf",
+      datasheetUrl: "https://www.iskra.eu/f/docs/Contactors/Contactors-catalogue_Ver3_6_7_1.pdf",
       settingsJson: JSON.stringify({ coilVoltage: "230V AC", utilizationCategory: "AC-3", ratedPower: "15kW at 400V", standard: "IEC 60947-4-1" }),
     },
     {
@@ -2738,7 +2738,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 0,
       tripUnit: "Thermal Overload",
-      datasheetUrl: "https://www.iskra.eu/f/docs/Contactors/Contactors-catalogue_Ver3_6.pdf",
+      datasheetUrl: "https://www.iskra.eu/f/docs/Contactors/Contactors-catalogue_Ver3_6_7_1.pdf",
       settingsJson: JSON.stringify({ settingRange: "6..10A", tripClass: "10", standard: "IEC 60947-4-1" }),
     },
     {
@@ -2750,7 +2750,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 0,
       tripUnit: "Thermal Overload",
-      datasheetUrl: "https://www.iskra.eu/f/docs/Contactors/Contactors-catalogue_Ver3_6.pdf",
+      datasheetUrl: "https://www.iskra.eu/f/docs/Contactors/Contactors-catalogue_Ver3_6_7_1.pdf",
       settingsJson: JSON.stringify({ settingRange: "17..25A", tripClass: "10", standard: "IEC 60947-4-1" }),
     },
 

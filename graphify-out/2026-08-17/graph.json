@@ -23410,16 +23410,16 @@
       "norm_label": "patchme()"
     },
     {
-      "label": ".test_add_components_already_installed()",
+      "label": ".test_add_components_no_config()",
       "file_type": "code",
       "source_file": ".agents/skills/ui-styling/scripts/tests/test_shadcn_add.py",
-      "source_location": "L111",
+      "source_location": "L103",
       "_callable": true,
       "_origin": "ast",
-      "id": "agents_skills_ui_styling_scripts_tests_test_shadcn_add_testshadcninstaller_test_add_components_already_installed",
+      "id": "agents_skills_ui_styling_scripts_tests_test_shadcn_add_testshadcninstaller_test_add_components_no_config",
       "community": 137,
-      "community_name": ".test_add_components_already_installed",
-      "norm_label": ".test_add_components_already_installed()"
+      "community_name": ".test_add_components_no_config",
+      "norm_label": ".test_add_components_no_config()"
     },
     {
       "label": "handleUpdateProfile()",
@@ -27730,6 +27730,18 @@
       "norm_label": "persist_design_system()"
     },
     {
+      "label": "_resolve_dial()",
+      "file_type": "code",
+      "source_file": ".agents/skills/ui-ux-pro-max/scripts/design_system.py",
+      "source_location": "L69",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "agents_skills_ui_ux_pro_max_scripts_design_system_resolve_dial",
+      "community": 36,
+      "community_name": "design_system.py",
+      "norm_label": "_resolve_dial()"
+    },
+    {
       "label": "safe_slug()",
       "file_type": "code",
       "source_file": ".agents/skills/ui-ux-pro-max/scripts/design_system.py",
@@ -29000,18 +29012,6 @@
       "community": 49,
       "community_name": "DesignSystemGenerator",
       "norm_label": "._select_best_match()"
-    },
-    {
-      "label": "_resolve_dial()",
-      "file_type": "code",
-      "source_file": ".agents/skills/ui-ux-pro-max/scripts/design_system.py",
-      "source_location": "L69",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "agents_skills_ui_ux_pro_max_scripts_design_system_resolve_dial",
-      "community": 49,
-      "community_name": "DesignSystemGenerator",
-      "norm_label": "_resolve_dial()"
     },
     {
       "label": ".test_known_category_matches_exactly()",
@@ -33202,16 +33202,16 @@
       "norm_label": "main()"
     },
     {
-      "label": ".test_add_components_no_config()",
+      "label": ".test_add_components_already_installed()",
       "file_type": "code",
       "source_file": ".agents/skills/ui-styling/scripts/tests/test_shadcn_add.py",
-      "source_location": "L103",
+      "source_location": "L111",
       "_callable": true,
       "_origin": "ast",
-      "id": "agents_skills_ui_styling_scripts_tests_test_shadcn_add_testshadcninstaller_test_add_components_no_config",
+      "id": "agents_skills_ui_styling_scripts_tests_test_shadcn_add_testshadcninstaller_test_add_components_already_installed",
       "community": 85,
       "community_name": "ShadcnInstaller",
-      "norm_label": ".test_add_components_no_config()"
+      "norm_label": ".test_add_components_already_installed()"
     },
     {
       "label": ".test_get_installed_components_no_config()",
@@ -34677,9 +34677,9 @@
       "label": "$type",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L66",
+      "source_location": "L63",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_md_type",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_none_type",
       "community": 100,
       "community_name": "radius",
       "norm_label": "$type"
@@ -34688,9 +34688,9 @@
       "label": "$value",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L66",
+      "source_location": "L63",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_md_value",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_none_value",
       "community": 100,
       "community_name": "radius",
       "norm_label": "$value"
@@ -34751,15 +34751,15 @@
       "norm_label": "full"
     },
     {
-      "label": "md",
+      "label": "none",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L66",
+      "source_location": "L63",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_radius_md",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_radius_none",
       "community": 100,
       "community_name": "radius",
-      "norm_label": "md"
+      "norm_label": "none"
     },
     {
       "label": "default",
@@ -34773,15 +34773,15 @@
       "norm_label": "default"
     },
     {
-      "label": "md",
+      "label": "none",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L75",
+      "source_location": "L72",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_shadow_md",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_shadow_none",
       "community": 100,
       "community_name": "radius",
-      "norm_label": "md"
+      "norm_label": "none"
     },
     {
       "label": "fast",
@@ -36489,15 +36489,15 @@
       "norm_label": "mocks"
     },
     {
-      "label": "Test adding components that are already installed.",
+      "label": "Test adding components without shadcn config.",
       "file_type": "rationale",
       "source_file": ".agents/skills/ui-styling/scripts/tests/test_shadcn_add.py",
-      "source_location": "L112",
+      "source_location": "L104",
       "_origin": "ast",
-      "id": "agents_skills_ui_styling_scripts_tests_test_shadcn_add_rationale_112",
+      "id": "agents_skills_ui_styling_scripts_tests_test_shadcn_add_rationale_104",
       "community": 137,
-      "community_name": ".test_add_components_already_installed",
-      "norm_label": "test adding components that are already installed."
+      "community_name": ".test_add_components_no_config",
+      "norm_label": "test adding components without shadcn config."
     },
     {
       "label": "profile/route.ts",
@@ -38513,48 +38513,48 @@
       "norm_label": "500"
     },
     {
-      "label": "@types/bcryptjs",
+      "label": "tsx",
       "file_type": "code",
       "source_file": "package.json",
-      "source_location": "L60",
+      "source_location": "L72",
       "_origin": "ast",
-      "id": "package_devdependencies_types_bcryptjs",
+      "id": "package_devdependencies_tsx",
       "community": 160,
-      "community_name": "@types/bcryptjs",
-      "norm_label": "@types/bcryptjs"
+      "community_name": "tsx",
+      "norm_label": "tsx"
     },
     {
-      "label": "@types/bcryptjs",
+      "label": "tsx",
       "file_type": "concept",
       "source_file": "package.json",
-      "source_location": "L60",
+      "source_location": "L72",
       "_origin": "ast",
-      "id": "types_bcryptjs",
+      "id": "tsx",
       "community": 160,
-      "community_name": "@types/bcryptjs",
-      "norm_label": "@types/bcryptjs"
+      "community_name": "tsx",
+      "norm_label": "tsx"
     },
     {
-      "label": "@vitejs/plugin-react",
+      "label": "@types/nodemailer",
       "file_type": "code",
       "source_file": "package.json",
-      "source_location": "L66",
+      "source_location": "L63",
       "_origin": "ast",
-      "id": "package_devdependencies_vitejs_plugin_react",
+      "id": "package_devdependencies_types_nodemailer",
       "community": 161,
-      "community_name": "@vitejs/plugin-react",
-      "norm_label": "@vitejs/plugin-react"
+      "community_name": "@types/nodemailer",
+      "norm_label": "@types/nodemailer"
     },
     {
-      "label": "@vitejs/plugin-react",
+      "label": "@types/nodemailer",
       "file_type": "concept",
       "source_file": "package.json",
-      "source_location": "L66",
+      "source_location": "L63",
       "_origin": "ast",
-      "id": "vitejs_plugin_react",
+      "id": "types_nodemailer",
       "community": 161,
-      "community_name": "@vitejs/plugin-react",
-      "norm_label": "@vitejs/plugin-react"
+      "community_name": "@types/nodemailer",
+      "norm_label": "@types/nodemailer"
     },
     {
       "label": "states-and-variants.md",
@@ -46133,6 +46133,17 @@
       "norm_label": "format design system as markdown."
     },
     {
+      "label": "Bucket a 1-10 dial value into its tier config. Returns None if value is None.",
+      "file_type": "rationale",
+      "source_file": ".agents/skills/ui-ux-pro-max/scripts/design_system.py",
+      "source_location": "L70",
+      "_origin": "ast",
+      "id": "agents_skills_ui_ux_pro_max_scripts_design_system_rationale_70",
+      "community": 36,
+      "community_name": "design_system.py",
+      "norm_label": "bucket a 1-10 dial value into its tier config. returns none if value is none."
+    },
+    {
       "label": "Main entry point for design system generation. Args: query: Search query (e.g.,\u2026",
       "file_type": "rationale",
       "source_file": ".agents/skills/ui-ux-pro-max/scripts/design_system.py",
@@ -46895,45 +46906,45 @@
       "label": "$type",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L63",
+      "source_location": "L66",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_none_type",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_md_type",
       "community": 41,
-      "community_name": "none",
+      "community_name": "md",
       "norm_label": "$type"
     },
     {
       "label": "$value",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L63",
+      "source_location": "L66",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_none_value",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_md_value",
       "community": 41,
-      "community_name": "none",
+      "community_name": "md",
       "norm_label": "$value"
     },
     {
-      "label": "none",
+      "label": "md",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L63",
+      "source_location": "L66",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_radius_none",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_radius_md",
       "community": 41,
-      "community_name": "none",
-      "norm_label": "none"
+      "community_name": "md",
+      "norm_label": "md"
     },
     {
-      "label": "none",
+      "label": "md",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L72",
+      "source_location": "L75",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_shadow_none",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_shadow_md",
       "community": 41,
-      "community_name": "none",
-      "norm_label": "none"
+      "community_name": "md",
+      "norm_label": "md"
     },
     {
       "label": "MethodSelector.tsx",
@@ -48496,17 +48507,6 @@
       "community": 49,
       "community_name": "DesignSystemGenerator",
       "norm_label": "generate complete design system recommendation. variance/motion/density are..."
-    },
-    {
-      "label": "Bucket a 1-10 dial value into its tier config. Returns None if value is None.",
-      "file_type": "rationale",
-      "source_file": ".agents/skills/ui-ux-pro-max/scripts/design_system.py",
-      "source_location": "L70",
-      "_origin": "ast",
-      "id": "agents_skills_ui_ux_pro_max_scripts_design_system_rationale_70",
-      "community": 49,
-      "community_name": "DesignSystemGenerator",
-      "norm_label": "bucket a 1-10 dial value into its tier config. returns none if value is none."
     },
     {
       "label": "LoadLibraryItem.ts",
@@ -50456,15 +50456,15 @@
       "norm_label": "tests for shadcn_add.py"
     },
     {
-      "label": "Test adding components without shadcn config.",
+      "label": "Test adding components that are already installed.",
       "file_type": "rationale",
       "source_file": ".agents/skills/ui-styling/scripts/tests/test_shadcn_add.py",
-      "source_location": "L104",
+      "source_location": "L112",
       "_origin": "ast",
-      "id": "agents_skills_ui_styling_scripts_tests_test_shadcn_add_rationale_104",
+      "id": "agents_skills_ui_styling_scripts_tests_test_shadcn_add_rationale_112",
       "community": 85,
       "community_name": "ShadcnInstaller",
-      "norm_label": "test adding components without shadcn config."
+      "norm_label": "test adding components that are already installed."
     },
     {
       "label": "Test listing installed components when they exist.",
@@ -51523,26 +51523,26 @@
       "norm_label": "@testing-library/jest-dom"
     },
     {
-      "label": "tsx",
+      "label": "@types/bcryptjs",
       "file_type": "code",
       "source_file": "package.json",
-      "source_location": "L72",
+      "source_location": "L60",
       "_origin": "ast",
-      "id": "package_devdependencies_tsx",
+      "id": "package_devdependencies_types_bcryptjs",
       "community": 95,
       "community_name": "devDependencies",
-      "norm_label": "tsx"
+      "norm_label": "@types/bcryptjs"
     },
     {
-      "label": "@types/nodemailer",
+      "label": "@vitejs/plugin-react",
       "file_type": "code",
       "source_file": "package.json",
-      "source_location": "L63",
+      "source_location": "L66",
       "_origin": "ast",
-      "id": "package_devdependencies_types_nodemailer",
+      "id": "package_devdependencies_vitejs_plugin_react",
       "community": 95,
       "community_name": "devDependencies",
-      "norm_label": "@types/nodemailer"
+      "norm_label": "@vitejs/plugin-react"
     },
     {
       "label": "vitest",
@@ -51578,26 +51578,26 @@
       "norm_label": "@testing-library/jest-dom"
     },
     {
-      "label": "tsx",
+      "label": "@types/bcryptjs",
       "file_type": "concept",
       "source_file": "package.json",
-      "source_location": "L72",
+      "source_location": "L60",
       "_origin": "ast",
-      "id": "tsx",
+      "id": "types_bcryptjs",
       "community": 95,
       "community_name": "devDependencies",
-      "norm_label": "tsx"
+      "norm_label": "@types/bcryptjs"
     },
     {
-      "label": "@types/nodemailer",
+      "label": "@vitejs/plugin-react",
       "file_type": "concept",
       "source_file": "package.json",
-      "source_location": "L63",
+      "source_location": "L66",
       "_origin": "ast",
-      "id": "types_nodemailer",
+      "id": "vitejs_plugin_react",
       "community": 95,
       "community_name": "devDependencies",
-      "norm_label": "@types/nodemailer"
+      "norm_label": "@vitejs/plugin-react"
     },
     {
       "label": "vitest",
@@ -58586,7 +58586,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "prisma/seed.ts",
-      "source_location": "L2716",
+      "source_location": "L2792",
       "weight": 1.0,
       "_origin": "ast",
       "source": "prisma_seed_main",
@@ -58598,7 +58598,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "prisma/seed.ts",
-      "source_location": "L2739",
+      "source_location": "L2819",
       "weight": 1.0,
       "_origin": "ast",
       "source": "prisma_seed_main",
@@ -127360,5 +127360,5 @@
       "source_file": "public/slides/slide_load_calc.webp"
     }
   ],
-  "built_at_commit": "ad3a87533102eb780d43a43965a0c628180df91e"
+  "built_at_commit": "367d046d1eade99864a0f9e6fea8c266a99119ff"
 }

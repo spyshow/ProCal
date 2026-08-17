@@ -1636,13 +1636,88 @@ async function main() {
     },
 
     // =========================================================================
-    // Iskra MCBs - RI60 Series (IEC/EN 60898-1 & IEC/EN 60947-2)
+    // Iskra MCBs - RI50 (6kA), RI70 (10kA) & RI100 Series (IEC/EN 60898-1 & IEC/EN 60947-2)
     // =========================================================================
+    // --- RI50 Series (6 kA, IEC/EN 60898-1) ---
     {
       category: "MCB",
       manufacturer: "Iskra",
-      series: "RI60",
-      model: "RI60-C10 (1P)",
+      series: "RI50",
+      model: "RI51-C10 (1P)",
+      ratedCurrent: 10,
+      poles: 1,
+      breakingCapacity: 6,
+      tripUnit: "C-Curve",
+      datasheetUrl: "https://www.iskra.eu/en/Miniature-Circuit-Breakers/",
+      settingsJson: JSON.stringify({ curveType: "C", thermalPickup: "1.13..1.45xIn", magneticPickup: "5..10xIn (50..100A)", Icn: 6, Ics: 6, energyClass: 3, letThroughI2t: 15000, standard: "IEC/EN 60898-1" }),
+    },
+    {
+      category: "MCB",
+      manufacturer: "Iskra",
+      series: "RI50",
+      model: "RI51-C16 (1P)",
+      ratedCurrent: 16,
+      poles: 1,
+      breakingCapacity: 6,
+      tripUnit: "C-Curve",
+      datasheetUrl: "https://www.iskra.eu/en/Miniature-Circuit-Breakers/",
+      settingsJson: JSON.stringify({ curveType: "C", thermalPickup: "1.13..1.45xIn", magneticPickup: "5..10xIn (80..160A)", Icn: 6, Ics: 6, energyClass: 3, letThroughI2t: 22000, standard: "IEC/EN 60898-1" }),
+    },
+    {
+      category: "MCB",
+      manufacturer: "Iskra",
+      series: "RI50",
+      model: "RI51-C20 (1P)",
+      ratedCurrent: 20,
+      poles: 1,
+      breakingCapacity: 6,
+      tripUnit: "C-Curve",
+      datasheetUrl: "https://www.iskra.eu/en/Miniature-Circuit-Breakers/",
+      settingsJson: JSON.stringify({ curveType: "C", thermalPickup: "1.13..1.45xIn", magneticPickup: "5..10xIn (100..200A)", Icn: 6, Ics: 6, energyClass: 3, letThroughI2t: 30000, standard: "IEC/EN 60898-1" }),
+    },
+    {
+      category: "MCB",
+      manufacturer: "Iskra",
+      series: "RI50",
+      model: "RI51-C32 (1P)",
+      ratedCurrent: 32,
+      poles: 1,
+      breakingCapacity: 6,
+      tripUnit: "C-Curve",
+      datasheetUrl: "https://www.iskra.eu/en/Miniature-Circuit-Breakers/",
+      settingsJson: JSON.stringify({ curveType: "C", thermalPickup: "1.13..1.45xIn", magneticPickup: "5..10xIn (160..320A)", Icn: 6, Ics: 6, energyClass: 3, letThroughI2t: 52000, standard: "IEC/EN 60898-1" }),
+    },
+    {
+      category: "MCB",
+      manufacturer: "Iskra",
+      series: "RI50",
+      model: "RI53-C16 (3P)",
+      ratedCurrent: 16,
+      poles: 3,
+      breakingCapacity: 6,
+      tripUnit: "C-Curve",
+      datasheetUrl: "https://www.iskra.eu/en/Miniature-Circuit-Breakers/",
+      settingsJson: JSON.stringify({ curveType: "C", thermalPickup: "1.13..1.45xIn", magneticPickup: "5..10xIn (80..160A)", Icn: 6, Ics: 6, energyClass: 3, letThroughI2t: 22000, standard: "IEC/EN 60898-1" }),
+    },
+    {
+      category: "MCB",
+      manufacturer: "Iskra",
+      series: "RI50",
+      model: "RI53-C32 (3P)",
+      ratedCurrent: 32,
+      poles: 3,
+      breakingCapacity: 6,
+      tripUnit: "C-Curve",
+      datasheetUrl: "https://www.iskra.eu/en/Miniature-Circuit-Breakers/",
+      settingsJson: JSON.stringify({ curveType: "C", thermalPickup: "1.13..1.45xIn", magneticPickup: "5..10xIn (160..320A)", Icn: 6, Ics: 6, energyClass: 3, letThroughI2t: 52000, standard: "IEC/EN 60898-1" }),
+    },
+
+    // --- RI70 Series (10 kA, IEC/EN 60898-1 & IEC/EN 60947-2) ---
+    {
+      category: "MCB",
+      manufacturer: "Iskra",
+      series: "RI70",
+      model: "RI71-C10 (1P)",
       ratedCurrent: 10,
       poles: 1,
       breakingCapacity: 10,
@@ -1653,8 +1728,8 @@ async function main() {
     {
       category: "MCB",
       manufacturer: "Iskra",
-      series: "RI60",
-      model: "RI60-C16 (1P)",
+      series: "RI70",
+      model: "RI71-C16 (1P)",
       ratedCurrent: 16,
       poles: 1,
       breakingCapacity: 10,
@@ -1665,8 +1740,8 @@ async function main() {
     {
       category: "MCB",
       manufacturer: "Iskra",
-      series: "RI60",
-      model: "RI60-C20 (1P)",
+      series: "RI70",
+      model: "RI71-C20 (1P)",
       ratedCurrent: 20,
       poles: 1,
       breakingCapacity: 10,
@@ -1677,8 +1752,8 @@ async function main() {
     {
       category: "MCB",
       manufacturer: "Iskra",
-      series: "RI60",
-      model: "RI60-C25 (1P)",
+      series: "RI70",
+      model: "RI71-C25 (1P)",
       ratedCurrent: 25,
       poles: 1,
       breakingCapacity: 10,
@@ -1689,8 +1764,8 @@ async function main() {
     {
       category: "MCB",
       manufacturer: "Iskra",
-      series: "RI60",
-      model: "RI60-C32 (1P)",
+      series: "RI70",
+      model: "RI71-C32 (1P)",
       ratedCurrent: 32,
       poles: 1,
       breakingCapacity: 10,
@@ -1701,8 +1776,8 @@ async function main() {
     {
       category: "MCB",
       manufacturer: "Iskra",
-      series: "RI60",
-      model: "RI60-C40 (1P)",
+      series: "RI70",
+      model: "RI71-C40 (1P)",
       ratedCurrent: 40,
       poles: 1,
       breakingCapacity: 10,
@@ -1713,8 +1788,8 @@ async function main() {
     {
       category: "MCB",
       manufacturer: "Iskra",
-      series: "RI60",
-      model: "RI60-C63 (1P)",
+      series: "RI70",
+      model: "RI71-C63 (1P)",
       ratedCurrent: 63,
       poles: 1,
       breakingCapacity: 10,
@@ -1725,8 +1800,8 @@ async function main() {
     {
       category: "MCB",
       manufacturer: "Iskra",
-      series: "RI60",
-      model: "RI60-C10 (3P)",
+      series: "RI70",
+      model: "RI73-C10 (3P)",
       ratedCurrent: 10,
       poles: 3,
       breakingCapacity: 10,
@@ -1737,8 +1812,8 @@ async function main() {
     {
       category: "MCB",
       manufacturer: "Iskra",
-      series: "RI60",
-      model: "RI60-C16 (3P)",
+      series: "RI70",
+      model: "RI73-C16 (3P)",
       ratedCurrent: 16,
       poles: 3,
       breakingCapacity: 10,
@@ -1749,8 +1824,8 @@ async function main() {
     {
       category: "MCB",
       manufacturer: "Iskra",
-      series: "RI60",
-      model: "RI60-C20 (3P)",
+      series: "RI70",
+      model: "RI73-C20 (3P)",
       ratedCurrent: 20,
       poles: 3,
       breakingCapacity: 10,
@@ -1761,8 +1836,8 @@ async function main() {
     {
       category: "MCB",
       manufacturer: "Iskra",
-      series: "RI60",
-      model: "RI60-C25 (3P)",
+      series: "RI70",
+      model: "RI73-C25 (3P)",
       ratedCurrent: 25,
       poles: 3,
       breakingCapacity: 10,
@@ -1773,8 +1848,8 @@ async function main() {
     {
       category: "MCB",
       manufacturer: "Iskra",
-      series: "RI60",
-      model: "RI60-C32 (3P)",
+      series: "RI70",
+      model: "RI73-C32 (3P)",
       ratedCurrent: 32,
       poles: 3,
       breakingCapacity: 10,
@@ -1785,8 +1860,8 @@ async function main() {
     {
       category: "MCB",
       manufacturer: "Iskra",
-      series: "RI60",
-      model: "RI60-C40 (3P)",
+      series: "RI70",
+      model: "RI73-C40 (3P)",
       ratedCurrent: 40,
       poles: 3,
       breakingCapacity: 10,
@@ -1797,8 +1872,8 @@ async function main() {
     {
       category: "MCB",
       manufacturer: "Iskra",
-      series: "RI60",
-      model: "RI60-C63 (3P)",
+      series: "RI70",
+      model: "RI73-C63 (3P)",
       ratedCurrent: 63,
       poles: 3,
       breakingCapacity: 10,
@@ -1806,11 +1881,13 @@ async function main() {
       datasheetUrl: "https://www.iskra.eu/en/Miniature-Circuit-Breakers/",
       settingsJson: JSON.stringify({ curveType: "C", thermalPickup: "1.13..1.45xIn", magneticPickup: "5..10xIn (315..630A)", Icn: 10, Icu: 15, Ics: 7.5, energyClass: 3, letThroughI2t: 84000, standard: "IEC/EN 60898-1 / IEC/EN 60947-2" }),
     },
+
+    // --- RI100 Series (10 kA Heavy-Duty High-Amp, IEC/EN 60898-1 & IEC/EN 60947-2) ---
     {
       category: "MCB",
       manufacturer: "Iskra",
-      series: "RI120",
-      model: "RI120-C80 (3P)",
+      series: "RI100",
+      model: "RI103-C80 (3P)",
       ratedCurrent: 80,
       poles: 3,
       breakingCapacity: 10,
@@ -1821,8 +1898,8 @@ async function main() {
     {
       category: "MCB",
       manufacturer: "Iskra",
-      series: "RI120",
-      model: "RI120-C100 (3P)",
+      series: "RI100",
+      model: "RI103-C100 (3P)",
       ratedCurrent: 100,
       poles: 3,
       breakingCapacity: 10,
@@ -1833,8 +1910,8 @@ async function main() {
     {
       category: "MCB",
       manufacturer: "Iskra",
-      series: "RI120",
-      model: "RI120-C125 (3P)",
+      series: "RI100",
+      model: "RI103-C125 (3P)",
       ratedCurrent: 125,
       poles: 3,
       breakingCapacity: 10,
@@ -1845,7 +1922,6 @@ async function main() {
 
     // =========================================================================
     // Residual Current Circuit Breakers (RCCB)
-    // =========================================================================
     {
       category: "RCCB",
       manufacturer: "ABB",
@@ -2720,6 +2796,8 @@ async function main() {
     where: {
       OR: [
         { manufacturer: "Iskra", category: "ACB" },
+        { manufacturer: "Iskra", series: "RI60" },
+        { manufacturer: "Iskra", series: "RI120" },
         { manufacturer: "Iskra", series: "PROTEC" },
         { manufacturer: "Iskra", series: "TRM" },
       ],
@@ -2729,6 +2807,8 @@ async function main() {
     where: {
       OR: [
         { manufacturer: "Iskra", category: "ACB" },
+        { manufacturer: "Iskra", name: "RI60" },
+        { manufacturer: "Iskra", name: "RI120" },
         { manufacturer: "Iskra", name: "PROTEC" },
         { manufacturer: "Iskra", name: "TRM" },
       ],

@@ -31,7 +31,7 @@ import { createFindBreaker, type EquipmentItem } from '@/lib/calculations/feeder
 import WorkflowStepper from '@/components/layout/WorkflowStepper';
 
 export default function ReportsPage() {
-  const { selectedProjectId, selectedProject, loading: contextLoading, preferredManufacturer } = useProject();
+  const { selectedProjectId, selectedProject, loading: contextLoading, preferredManufacturer, refreshProject } = useProject();
   const { t } = useTranslation();
   const [project, setProject] = useState<Project | null>(selectedProject);
   const [loading, setLoading] = useState(!selectedProject);
@@ -96,6 +96,13 @@ export default function ReportsPage() {
       if (Array.isArray(data)) setRevisions(data);
     } catch { /* ignore */ }
   }, [project?.id]);
+
+  // After a restore the whole project state changed — reload the revisions list
+  // and the project itself so every schedule and the cover reflect the restore.
+  const handleRevisionsChanged = useCallback(async () => {
+    await loadRevisions();
+    await refreshProject();
+  }, [loadRevisions, refreshProject]);
 
   useEffect(() => {
     loadRevisions();
@@ -357,7 +364,7 @@ export default function ReportsPage() {
         </div>
       </div>
 
-      <RevisionsPanel projectId={project.id} open={showRevisions} onClose={() => setShowRevisions(false)} onChanged={loadRevisions} />
+      <RevisionsPanel projectId={project.id} open={showRevisions} onClose={() => setShowRevisions(false)} onChanged={handleRevisionsChanged} />
 
       {project.buildings.length > 1 && (
         <div className="flex gap-2 print:hidden">

@@ -1,8 +1,9 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { X, History, Loader2, Plus } from 'lucide-react';
+import { X, History, Loader2, Plus, RotateCcw, FileDiff } from 'lucide-react';
 import type { ProjectRevision } from '@/types';
+import RevisionDiffModal from '@/components/report/RevisionDiffModal';
 
 export interface RevisionsPanelProps {
   projectId: string;
@@ -16,6 +17,8 @@ export default function RevisionsPanel({ projectId, open, onClose, onChanged }: 
   const [revisions, setRevisions] = useState<ProjectRevision[]>([]);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [restoringId, setRestoringId] = useState<string | null>(null);
+  const [diffTarget, setDiffTarget] = useState<ProjectRevision | null>(null);
   const [description, setDescription] = useState('');
   const [error, setError] = useState('');
 
@@ -33,6 +36,17 @@ export default function RevisionsPanel({ projectId, open, onClose, onChanged }: 
   }, [open, projectId]);
 
   if (!open) return null;
+
+  if (diffTarget) {
+    return (
+      <RevisionDiffModal
+        projectId={projectId}
+        targetRevision={diffTarget}
+        revisions={revisions}
+        onClose={() => setDiffTarget(null)}
+      />
+    );
+  }
 
   const handleIssue = async () => {
     if (!description.trim()) return;
@@ -57,6 +71,42 @@ export default function RevisionsPanel({ projectId, open, onClose, onChanged }: 
       setError('Network error while issuing revision');
     } finally {
       setSaving(false);
+    }
+  };
+
+  const reload = async () => {
+    try {
+      const r = await fetch(`/api/projects/${projectId}/revisions?t=${Date.now()}`, { cache: 'no-store' });
+      const data = await r.json();
+      if (Array.isArray(data)) setRevisions(data);
+    } catch {
+      /* ignore — the issue/restore call already surfaced errors */
+    }
+  };
+
+  const handleRestore = async (r: ProjectRevision) => {
+    const confirmed = window.confirm(
+      `Restore the project to ${r.rev} (${r.description})?\n\n` +
+      `The current design will first be snapshotted as a new revision, so the restore can be undone.`
+    );
+    if (!confirmed) return;
+    setRestoringId(r.id);
+    setError('');
+    try {
+      const res = await fetch(`/api/projects/${projectId}/revisions/${r.id}/restore`, {
+        method: 'POST',
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        setError(err.error || 'Failed to restore revision');
+        return;
+      }
+      await reload(); // the auto pre-restore revision is now in the list
+      onChanged?.();
+    } catch {
+      setError('Network error while restoring revision');
+    } finally {
+      setRestoringId(null);
     }
   };
 
@@ -120,7 +170,8 @@ export default function RevisionsPanel({ projectId, open, onClose, onChanged }: 
                     <th className="py-1.5 pr-2">Rev</th>
                     <th className="py-1.5 pr-2">Date</th>
                     <th className="py-1.5 pr-2">Description</th>
-                    <th className="py-1.5">By</th>
+                    <th className="py-1.5 pr-2">By</th>
+                    <th className="py-1.5"></th>
                   </tr>
                 </thead>
                 <tbody>
@@ -131,7 +182,35 @@ export default function RevisionsPanel({ projectId, open, onClose, onChanged }: 
                         {new Date(r.createdAt).toLocaleDateString()}
                       </td>
                       <td className="py-2 pr-2 text-gray-300">{r.description}</td>
-                      <td className="py-2 text-gray-400">{r.createdByUsername}</td>
+                      <td className="py-2 pr-2 text-gray-400">{r.createdByUsername}</td>
+                      <td className="py-2 text-right">
+                        <div className="flex items-center justify-end gap-1.5">
+                          <button
+                            onClick={() => setDiffTarget(r)}
+                            disabled={restoringId === r.id || saving}
+                            title={`Preview what changed vs ${r.rev}`}
+                            aria-label={`Diff ${r.rev}`}
+                            className="flex items-center gap-1.5 rounded-md border border-gray-700 px-2 py-1 text-xs font-semibold text-gray-300 hover:border-sky-500 hover:text-sky-400 disabled:opacity-40"
+                          >
+                            <FileDiff size={12} />
+                            Diff
+                          </button>
+                          <button
+                            onClick={() => handleRestore(r)}
+                            disabled={restoringId === r.id || saving}
+                            title={`Restore the project to ${r.rev}`}
+                            aria-label={`Restore ${r.rev}`}
+                            className="flex items-center gap-1.5 rounded-md border border-gray-700 px-2 py-1 text-xs font-semibold text-gray-300 hover:border-orange-500 hover:text-orange-400 disabled:opacity-40"
+                          >
+                            {restoringId === r.id ? (
+                              <Loader2 size={12} className="animate-spin" />
+                            ) : (
+                              <RotateCcw size={12} />
+                            )}
+                            {restoringId === r.id ? 'Restoring…' : 'Restore'}
+                          </button>
+                        </div>
+                      </td>
                     </tr>
                   ))}
                 </tbody>

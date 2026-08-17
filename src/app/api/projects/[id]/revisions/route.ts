@@ -1,11 +1,8 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getSessionUser } from "@/lib/auth";
+import { PROJECT_SNAPSHOT_INCLUDE, REVISION_INCLUDE } from "@/lib/revisions";
 import type { ProjectRevision } from "@/types";
-
-const REVISION_INCLUDE = {
-  createdBy: { select: { username: true } },
-} as const;
 
 function toRevisionDto(
   r: {
@@ -88,25 +85,7 @@ export async function POST(
     // /api/projects/[id]) so the snapshot reproduces the issued report.
     const project = await db.project.findUnique({
       where: { id, userId: user.id },
-      include: {
-        buildings: {
-          include: {
-            floorDesigns: {
-              include: {
-                items: {
-                  include: {
-                    apartmentTemplate: { include: { rooms: true } },
-                    loadLibraryItem: true,
-                  },
-                },
-              },
-            },
-            buildingLoads: { include: { loadLibraryItem: true } },
-          },
-        },
-        apartmentTemplates: { include: { rooms: true } },
-        loadLibraryItems: true,
-      },
+      include: PROJECT_SNAPSHOT_INCLUDE,
     });
 
     if (!project) {

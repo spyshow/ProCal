@@ -671,6 +671,14 @@ export interface ComputeFeedersResult {
   mainIncomerSettings: BreakerCurveSettings;
   /** Whether the main incomer's Icu covers the transformer-terminal fault current. */
   mainIncomerIcuOk: boolean;
+  /** Per-run cross-section (mm²) of the incomer cable, re-sized to the catalog breaker frame. */
+  mainCableSize: number;
+  /** Parallel runs of the incomer cable. */
+  mainParallelRuns: number;
+  /** Derated ampacity (Iz) of the incomer cable — must be >= mainBreakerIn. */
+  mainCableIz: number;
+  /** Actual catalog breaker rating (In) of the main incomer. */
+  mainBreakerIn: number;
 }
 
 /**
@@ -870,15 +878,16 @@ export function computeFeeders(
 
   // 2. Main Incomer Breaker Sizing
   const mainIncomerCurrent = calculateThreePhaseCurrent(totalDemandKva, project.voltage);
-  const mainSizing = sizeCableAndBreaker(mainIncomerCurrent, true, {
-    material: 'copper',
-    insulation: 'XLPE',
+  const mainCableOptions = {
+    material: 'copper' as const,
+    insulation: 'XLPE' as const,
     ambientTemp: project.ambientTemp ?? 30,
     groupingCount: 1,
     // Whole-building vector neutral current (imbalance-aware), so the MDB
     // incomer neutral is kept full-size when the board is unbalanced.
     neutralCurrent: overallBalance.neutralCurrent,
-  });
+  };
+  const mainSizing = sizeCableAndBreaker(mainIncomerCurrent, true, mainCableOptions);
   const mainCategory = mainSizing.breakerSize < 630 ? 'MCCB' : 'ACB';
   const mainMatch = findBreaker(mainSizing.breakerSize, mainCategory, 3, {
     requiredIcuKa: transformerIscKa,
@@ -886,6 +895,17 @@ export function computeFeeders(
   const mainBreakerSize = Math.max(mainSizing.breakerSize, mainMatch.ratedCurrent ?? 0);
   const mainBreakerIn = Math.max(16, mainBreakerSize);
   const mainIr = Math.max(16, Math.min(mainIncomerCurrent > 0 ? mainIncomerCurrent : mainBreakerIn, mainBreakerIn));
+
+  // Re-size the incomer cable to the ACTUAL catalog breaker frame: the cable
+  // ampacity must cover the breaker rating (Ib <= In <= Iz per IEC 60364-5-52),
+  // and the catalog frame (mainBreakerIn) can exceed the load-based standard
+  // breaker after the match. Mirrors the finalSizing pattern used for
+  // item/riser/building-load feeders so an upsized incomer never ships with
+  // In > Iz.
+  const mainFinalSizing =
+    mainBreakerIn > mainSizing.breakerSize
+      ? sizeCableAndBreaker(mainBreakerIn, true, mainCableOptions)
+      : mainSizing;
 
   // A generic spec self-requires the fault level, so it counts as compliant.
   const mainIncomerIcuOk =
@@ -903,6 +923,9 @@ export function computeFeeders(
     category: mainBreakerIn >= 630 ? 'ACB' : 'MCCB',
     manufacturer: mainMatch.manufacturer ?? project.preferredManufacturer ?? 'ABB',
     model: mainMatch.model ?? `Main ${mainCategory} ${mainBreakerIn}`,
+    // A generic engineering spec has no tested selectivity/cascading data —
+    // gate the tested-manufacturer matrix on real catalog devices.
+    isGeneric: mainMatch.fallbackType === 'GENERIC_SPEC',
   };
 
   // Verifies a feeder breaker's breaking capacity against the prospective fault
@@ -981,7 +1004,7 @@ export function computeFeeders(
       }
     }
 
-    const terminalIscKa = calculateIscWithCable(transformerIscKa, cableLength, f.cableSize, project.voltage, true, !f.isThreePhase, cableInsulation);
+    const terminalIscKa = calculateIscWithCable(transformerIscKa, cableLength, f.cableSize, project.voltage, true, !f.isThreePhase, cableInsulation, f.parallelRuns);
     enforceFeederIcu(f, terminalIscKa);
 
     const dsInRating = Math.max(6, f.breakerSize || 10);
@@ -1001,6 +1024,7 @@ export function computeFeeders(
       category: f.type === 'SMDB' || f.type === 'SERVICE_PANEL' || f.type === 'PUMP_PANEL' || f.type === 'ELEVATOR_PANEL' ? 'MCCB' : 'MCB',
       manufacturer: f.manufacturer ?? project.preferredManufacturer ?? 'ABB',
       model: f.breakerModel,
+      isGeneric: f.fallbackType === 'GENERIC_SPEC',
     };
 
     const coord = verifyCoordination(
@@ -1020,7 +1044,8 @@ export function computeFeeders(
     );
 
     f.selectivityStatus = coord.status;
-    f.selectivityLimitA = coord.limitCurrent ? parseFloat((coord.limitCurrent / 1000).toFixed(2)) : null;
+    // Stored in kA (the field name carries the unit): coord.limitCurrent is Amperes.
+    f.selectivityLimitKa = coord.limitCurrent ? parseFloat((coord.limitCurrent / 1000).toFixed(2)) : null;
     f.cableDamageOk = coord.cableDamageOk;
     f.selectivityReason = coord.overlapDetails ?? (coord.status === 'FULL' ? 'Fully selective against Main Incomer' : 'Selectivity restricted');
 
@@ -1070,6 +1095,7 @@ export function computeFeeders(
       category: 'MCCB',
       manufacturer: smdbRiserFeeder?.manufacturer ?? project.preferredManufacturer ?? 'ABB',
       model: smdbRiserFeeder?.breakerModel,
+      isGeneric: smdbRiserFeeder?.fallbackType === 'GENERIC_SPEC',
     };
 
     // Resolve each item's phase from the floor balance so the SMDB outgoing
@@ -1086,7 +1112,7 @@ export function computeFeeders(
 
       const branchLength = getItemCableLength(item, floorNumber);
       const branchInsulation = (item.cableInsulation as 'PVC' | 'XLPE') || 'XLPE';
-      const branchFaultIsc = calculateIscWithCable(smdbFaultIsc, branchLength, feeder.cableSize, project.voltage, true, !feeder.isThreePhase, branchInsulation);
+      const branchFaultIsc = calculateIscWithCable(smdbFaultIsc, branchLength, feeder.cableSize, project.voltage, true, !feeder.isThreePhase, branchInsulation, feeder.parallelRuns);
       enforceFeederIcu(feeder, branchFaultIsc);
 
       const branchInRating = Math.max(6, feeder.breakerSize || 10);
@@ -1104,6 +1130,7 @@ export function computeFeeders(
         category: feeder.type === 'PUMP_PANEL' || feeder.type === 'SERVICE_PANEL' ? 'MCCB' : 'MCB',
         manufacturer: feeder.manufacturer ?? project.preferredManufacturer ?? 'ABB',
         model: feeder.breakerModel,
+        isGeneric: feeder.fallbackType === 'GENERIC_SPEC',
       };
 
       const coord = verifyCoordination(
@@ -1123,7 +1150,8 @@ export function computeFeeders(
       );
 
       feeder.selectivityStatus = coord.status;
-      feeder.selectivityLimitA = coord.limitCurrent ? parseFloat((coord.limitCurrent / 1000).toFixed(2)) : null;
+      // Stored in kA (the field name carries the unit): coord.limitCurrent is Amperes.
+      feeder.selectivityLimitKa = coord.limitCurrent ? parseFloat((coord.limitCurrent / 1000).toFixed(2)) : null;
       feeder.cableDamageOk = coord.cableDamageOk;
       feeder.selectivityReason = coord.overlapDetails ?? (coord.status === 'FULL' ? `Fully selective against SMDB F${floorNumber}` : 'Selectivity restricted');
 
@@ -1147,5 +1175,15 @@ export function computeFeeders(
     });
   };
 
-  return { mdbFeeders, smdbFeeders, smdbFloorNumbers, mainIncomerSettings, mainIncomerIcuOk };
+  return {
+    mdbFeeders,
+    smdbFeeders,
+    smdbFloorNumbers,
+    mainIncomerSettings,
+    mainIncomerIcuOk,
+    mainCableSize: mainFinalSizing.cableSize,
+    mainParallelRuns: mainFinalSizing.parallelRuns,
+    mainCableIz: mainFinalSizing.deratedAmpacity,
+    mainBreakerIn,
+  };
 }

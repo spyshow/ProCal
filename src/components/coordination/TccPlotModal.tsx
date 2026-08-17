@@ -25,7 +25,8 @@ export interface TccPlotModalProps {
   upstreamCurrent?: number;
   faultCurrentKa?: number;
   selectivityStatus?: 'FULL' | 'PARTIAL' | 'NONE' | null;
-  selectivityLimitA?: number | null;
+  /** Selectivity limit in kA (only set for PARTIAL). */
+  selectivityLimitKa?: number | null;
   cableDamageOk?: boolean;
   selectivityReason?: string | null;
   alternativeSuggestions?: BreakerAlternativeSuggestion[];
@@ -48,7 +49,7 @@ export default function TccPlotModal({
   upstreamCurrent = 300,
   faultCurrentKa = 15,
   selectivityStatus = 'FULL',
-  selectivityLimitA,
+  selectivityLimitKa,
   cableDamageOk = true,
   selectivityReason,
   alternativeSuggestions = [],
@@ -184,7 +185,7 @@ export default function TccPlotModal({
                   {selectivityStatus === 'FULL'
                     ? 'FULL SELECTIVITY'
                     : selectivityStatus === 'PARTIAL'
-                    ? `PARTIAL (${selectivityLimitA ? `${selectivityLimitA} kA` : 'Limited'})`
+                    ? `PARTIAL (${selectivityLimitKa ? `${selectivityLimitKa} kA` : 'Limited'})`
                     : 'NO SELECTIVITY'}
                 </span>
               </div>

@@ -197,7 +197,8 @@ export interface PanelFeeder {
   parentFeederName?: string | null;
   faultCurrentKa?: number;
   selectivityStatus?: 'FULL' | 'PARTIAL' | 'NONE' | null;
-  selectivityLimitA?: number | null;
+  /** Selectivity limit in kA (not A) — only meaningful for PARTIAL; FULL/NONE carry null. */
+  selectivityLimitKa?: number | null;
   cableDamageOk?: boolean;
   cableIz?: number;
   isUnderProtected?: boolean;

@@ -23,6 +23,11 @@ export interface BreakerCurveSettings {
   letThroughI2t?: { current: number; i2t: number }[];
   manufacturer?: string;
   model?: string;
+  /** True when the device is a generic engineering specification (GENERIC_SPEC)
+   *  rather than a real catalog device. A generic device has its manufacturer
+   *  defaulted to the project preference, so same-brand alone is NOT evidence
+   *  of a tested selectivity/cascading limit — the tested matrix is skipped. */
+  isGeneric?: boolean;
 }
 
 export type SelectivityStatus = "FULL" | "PARTIAL" | "NONE";
@@ -479,7 +484,11 @@ export function verifyCoordination(
   let testedLimitAmps: number | null = null;
 
   const sameMfg = manufacturerPair.upstreamMfg.toUpperCase() === manufacturerPair.downstreamMfg.toUpperCase();
-  if (sameMfg) {
+  // The tested tables (ABB DOC / Schneider ECODIAL) only hold for real catalog
+  // device pairs. A generic spec defaults its manufacturer to the project
+  // preference, so same-brand alone must not unlock a tested limit.
+  const catalogDevices = !upstream.isGeneric && !downstream.isGeneric;
+  if (sameMfg && catalogDevices) {
     testedLimitAmps = lookupTestedSelectivity(upstream, downstream);
     if (testedLimitAmps !== null) {
       energySelectivityApplied = true;
@@ -538,6 +547,23 @@ export function verifyCoordination(
       limitCurrent = Math.round(effectiveLimitAmps);
       overlapDetails = `Fully selective up to ${(effectiveLimitAmps / 1000).toFixed(1)} kA (exceeds prospective fault level ${(availableFaultCurrentAmps / 1000).toFixed(1)} kA).`;
     }
+  }
+
+  // Phase 4b: The Phase 1/2 grading rules (1.6× current grading and the
+  // discrimination time margin) are prerequisites for a FULL verdict. If either
+  // fails, the claim must not stay FULL — demote to PARTIAL and surface the
+  // violation instead of passing with contradictory flags.
+  if (status === 'FULL' && (!currentGradingOk || !timeGradingOk)) {
+    status = 'PARTIAL';
+    const violations: string[] = [];
+    if (!currentGradingOk) {
+      violations.push(`upstream Ir ${upstream.ir}A < 1.6× downstream Ir ${downstream.ir}A`);
+    }
+    if (!timeGradingOk) {
+      violations.push(`time margin ${(t_up_test - t_down_test).toFixed(2)}s < ${requiredMargin}s at 10× downstream In`);
+    }
+    const limitText = limitCurrent !== undefined ? ` Selective up to ${(limitCurrent / 1000).toFixed(1)} kA.` : '';
+    overlapDetails = `Grading rules violated (${violations.join('; ')}).${limitText}`;
   }
 
   // Phase 5: Cable Thermal Withstand Check

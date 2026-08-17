@@ -18,7 +18,10 @@ interface MDBRow {
   current: number;
   breaker: string;
   cable: string;
+  /** Derated cable ampacity (Iz, A) — must cover the breaker rating. */
+  cableIz?: number;
   isSubPanel?: boolean;
+  isMainIncomer?: boolean;
 }
 
 /**
@@ -66,7 +69,16 @@ export default function MDBSchedule({ project, buildingId, showHeader = true }: 
 
   for (const bldg of project.buildings) {
     if (buildingId && bldg.id !== buildingId) continue;
-    const { mdbFeeders, smdbFloorNumbers, smdbFeeders } = computeFeeders(bldg, project, findBreaker);
+    const {
+      mdbFeeders,
+      smdbFloorNumbers,
+      smdbFeeders,
+      mainIncomerSettings,
+      mainBreakerIn,
+      mainCableSize,
+      mainParallelRuns,
+      mainCableIz,
+    } = computeFeeders(bldg, project, findBreaker);
 
     const feederFloor = (feederName: string): number => {
       const m = feederName.match(/^F(\d+)/);
@@ -75,6 +87,27 @@ export default function MDBSchedule({ project, buildingId, showHeader = true }: 
 
     const currentToKw = (current: number) =>
       (Math.sqrt(3) * (project.voltage / 1000) * current * project.powerFactor);
+
+    // Main incomer row: the catalog-frame breaker and its re-sized cable
+    // (size + parallel runs + derated ampacity Iz) come from computeFeeders,
+    // so this report shows the same device as the panel / breaker-schedule /
+    // coordination pages. Demand/current use the tuned pickup Ir.
+    mdbIndex += 1;
+    mdbRows.push({
+      idx: mdbIndex,
+      building: bldg.name,
+      floor: 0,
+      feeder: 'Main Incomer',
+      type: mainIncomerSettings.category ?? (mainBreakerIn >= 630 ? 'ACB' : 'MCCB'),
+      demand: currentToKw(mainIncomerSettings.ir),
+      current: mainIncomerSettings.ir,
+      breaker: `${mainBreakerIn}A`,
+      cable: mainParallelRuns > 1
+        ? `${mainParallelRuns} × ${mainCableSize} mm²`
+        : `${mainCableSize} mm²`,
+      cableIz: mainCableIz,
+      isMainIncomer: true,
+    });
 
     for (const f of mdbFeeders) {
       mdbIndex += 1;
@@ -88,7 +121,8 @@ export default function MDBSchedule({ project, buildingId, showHeader = true }: 
         demand: currentToKw(f.current),
         current: f.current,
         breaker: `${f.breakerSize}A`,
-        cable: `${f.cableSize} mm²`,
+        cable: f.formattedCableSize ?? `${f.cableSize} mm²`,
+        cableIz: f.cableIz,
         isSubPanel: f.type === 'SMDB',
       });
     }
@@ -105,7 +139,8 @@ export default function MDBSchedule({ project, buildingId, showHeader = true }: 
           demand: currentToKw(f.current),
           current: f.current,
           breaker: `${f.breakerSize}A`,
-          cable: `${f.cableSize} mm²`,
+          cable: f.formattedCableSize ?? `${f.cableSize} mm²`,
+          cableIz: f.cableIz,
           isSubPanel: false,
         });
       }
@@ -133,17 +168,24 @@ export default function MDBSchedule({ project, buildingId, showHeader = true }: 
             <th className="border p-2 text-right">Current (A)</th>
             <th className="border p-2 text-center">Breaker</th>
             <th className="border p-2 text-center">Cable</th>
+            <th className="border p-2 text-right">Iz (A)</th>
           </tr>
         </thead>
         <tbody>
           {mdbRows.map((row) => (
             <tr
               key={row.idx}
-              className={row.isSubPanel ? 'bg-orange-50 font-semibold' : 'hover:bg-gray-50'}
+              className={
+                row.isSubPanel
+                  ? 'bg-orange-50 font-semibold'
+                  : row.isMainIncomer
+                    ? 'bg-gray-100 font-bold'
+                    : 'hover:bg-gray-50'
+              }
             >
               <td className="border p-2 font-mono text-gray-500">{row.idx}</td>
               <td className="border p-2">{row.building}</td>
-              <td className="border p-2 text-center font-mono">F{row.floor}</td>
+              <td className="border p-2 text-center font-mono">{row.isMainIncomer ? '—' : `F${row.floor}`}</td>
               <td className="border p-2 font-semibold">{row.feeder}</td>
               <td className="border p-2 text-center text-xs">{row.type.replace('_', ' ')}</td>
               <td className="border p-2 text-right font-mono">{row.demand.toFixed(2)}</td>
@@ -152,6 +194,9 @@ export default function MDBSchedule({ project, buildingId, showHeader = true }: 
               </td>
               <td className="border p-2 text-center font-mono text-blue-600">{row.breaker}</td>
               <td className="border p-2 text-center font-mono text-green-600">{row.cable}</td>
+              <td className="border p-2 text-right font-mono text-gray-700">
+                {row.cableIz != null ? row.cableIz.toFixed(0) : '—'}
+              </td>
             </tr>
           ))}
         </tbody>

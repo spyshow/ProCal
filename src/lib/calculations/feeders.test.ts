@@ -382,4 +382,30 @@ describe('regression: three-phase classification', () => {
     });
     expect(() => computeFeeders(bldg, baseProject, findBreaker)).not.toThrow();
   });
+
+  it('re-sizes the main incomer cable to the catalog breaker frame so Iz >= In', () => {
+    const findBreaker = createFindBreaker(equipment, {}, 'ABB');
+    // ~110A demand → load-based standard breaker is 125A (35mm², Iz ≈ 138A),
+    // but the smallest catalog MCCB covering the required Icu is the 160A
+    // frame. The incomer breaker is upsized to 160A, so the cable must be
+    // re-sized too — otherwise In (160A) > Iz (138A) leaves it under-protected.
+    const bldg = building({
+      floorDesigns: [{
+        id: 'f1', floorNumber: 1, hasFloorSubPanels: false,
+        items: [item({ type: 'SERVICE_PANEL', name: 'Mech', calculatedCurrent: 110, calculatedMaxDemand: 65, apartmentTemplate: null, loadLibraryItem: null })],
+      }],
+    });
+    const result = computeFeeders(bldg, baseProject, findBreaker);
+
+    // Catalog frame beats the load-based 125A standard breaker
+    expect(result.mainBreakerIn).toBe(160);
+    // Ib <= In <= Iz: the incomer cable ampacity must cover the catalog frame
+    expect(result.mainCableIz).toBeGreaterThanOrEqual(result.mainBreakerIn);
+    // The cable actually grew beyond the load-based sizing (the bug: it used to
+    // stay on the 125A-sized cable with Iz < 160A)
+    const loadBased = sizeCableAndBreaker(110.38, true, { material: 'copper', insulation: 'XLPE', ambientTemp: 30, groupingCount: 1 });
+    expect(result.mainCableIz).toBeGreaterThan(loadBased.deratedAmpacity);
+    // Ir stays tuned to the load and below the cable ampacity
+    expect(result.mainIncomerSettings.ir).toBeLessThanOrEqual(result.mainCableIz);
+  });
 });

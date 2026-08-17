@@ -180,6 +180,9 @@ export function calculateShortCircuitCurrent(
  *   the loop impedance (source + go + return conductor, 2× cable impedance)
  * @param insulation - Cable insulation, selects the operating-temperature
  *   resistance factor: XLPE 90 °C → ×1.28, PVC 70 °C → ×1.20
+ * @param parallelRuns - Number of parallel cable runs (default 1). Parallel
+ *   conductors halve the loop impedance, so the fault current at the far end
+ *   is HIGHER than a single run of the same cross-section would suggest.
  * @returns Adjusted short-circuit current including cable impedance
  */
 export function calculateIscWithCable(
@@ -189,12 +192,16 @@ export function calculateIscWithCable(
   voltage: number,
   isCopper: boolean = true,
   isSinglePhase: boolean = false,
-  insulation: 'PVC' | 'XLPE' = 'XLPE'
+  insulation: 'PVC' | 'XLPE' = 'XLPE',
+  parallelRuns: number = 1
 ): number {
   assertPositive('transformerIsc', transformerIsc);
   assertNonNegative('cableLengthM', cableLengthM);
   assertNonNegative('cableSizeMm2', cableSizeMm2);
   assertPositive('voltage', voltage);
+  assertPositive('parallelRuns', parallelRuns);
+
+  const runs = Math.max(1, parallelRuns);
 
   // At the terminals an L-N fault equals the 3-phase value (Z1 = Z2 = Z0),
   // so both fault types collapse to transformerIsc when there is no cable.
@@ -210,14 +217,17 @@ export function calculateIscWithCable(
   // so a PVC fault current is higher than the old fixed 90 °C factor implied).
   const tempFactor = insulation === 'PVC' ? 1.2 : 1.28;
 
-  // Cable resistance
+  // Cable resistance (per run)
   const Rcable = (R20 * tempFactor * cableLengthM) / cableSizeMm2;
 
   // Cable reactance (typical value: 0.08 mΩ/m for LV cables)
   const Xcable = 0.00008 * cableLengthM;
 
-  // Total cable impedance (one conductor)
-  const Zcable = Math.sqrt(Rcable * Rcable + Xcable * Xcable);
+  // Total cable impedance per run, reduced by the number of parallel runs
+  // (impedances in parallel combine as Z / n — for a 2 × 240 mm² riser the
+  // loop impedance is half of a single 240 mm² run).
+  const ZcablePerRun = Math.sqrt(Rcable * Rcable + Xcable * Xcable);
+  const Zcable = ZcablePerRun / runs;
 
   // Transformer per-phase impedance, derived from the 3-phase terminal Isc
   const Ztransformer = (voltage / (Math.sqrt(3) * transformerIsc * 1000));

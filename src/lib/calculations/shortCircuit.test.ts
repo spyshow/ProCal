@@ -236,6 +236,31 @@ describe('calculateIscWithCable', () => {
     expect(() => calculateIscWithCable(25, -10, 95, 400)).toThrow(CalculationError);
     expect(() => calculateIscWithCable(25, 50, -5, 400)).toThrow(CalculationError);
     expect(() => calculateIscWithCable(25, 50, 95, 0)).toThrow(CalculationError);
+    expect(() => calculateIscWithCable(25, 50, 95, 400, true, true, 'XLPE', 0)).toThrow(CalculationError);
+  });
+
+  it('parallel runs halve the cable impedance and raise the fault current', () => {
+    const baseIsc = 25;
+    const single = calculateIscWithCable(baseIsc, 50, 95, 400, true, false, 'XLPE', 1);
+    const parallel = calculateIscWithCable(baseIsc, 50, 95, 400, true, false, 'XLPE', 2);
+
+    // Single run: Zt = 0.00924 Ω, Zcable = 0.01226 Ω → 10.74 kA (see above).
+    // Two runs: Zcable/2 = 0.00613 Ω → 230.94 / (0.00924 + 0.00613) / 1000 ≈ 15.03 kA.
+    expect(single).toBeCloseTo(10.74, 1);
+    expect(parallel).toBeCloseTo(15.03, 1);
+    // Fault current at the far end is HIGHER with parallel runs — ignoring them
+    // understates the fault, which is the non-conservative direction for Icu.
+    expect(parallel).toBeGreaterThan(single);
+  });
+
+  it('parallel runs also raise the single-phase (L-N loop) fault current', () => {
+    const baseIsc = 25;
+    const single = calculateIscWithCable(baseIsc, 50, 95, 400, true, true, 'XLPE', 1);
+    const parallel = calculateIscWithCable(baseIsc, 50, 95, 400, true, true, 'XLPE', 2);
+
+    // Loop impedance with 2 runs: Zt + 2·(Zcable/2) = Zt + Zcable → 10.74 kA
+    expect(parallel).toBeCloseTo(10.74, 1);
+    expect(parallel).toBeGreaterThan(single);
   });
 
   it('single-phase fault uses the L-N loop model (Uo over source + go + return)', () => {

@@ -59,7 +59,8 @@ interface BreakerEntry {
   parentFeederName?: string | null;
   faultCurrentKa?: number;
   selectivityStatus?: 'FULL' | 'PARTIAL' | 'NONE' | null;
-  selectivityLimitA?: number | null;
+  /** Selectivity limit in kA (only set for PARTIAL). */
+  selectivityLimitKa?: number | null;
   cableDamageOk?: boolean;
   selectivityReason?: string | null;
   suggestedAlternative?: string | null;
@@ -278,7 +279,9 @@ export default function BreakerSchedulePage() {
         parentFeederName: f.parentFeederName,
         faultCurrentKa: f.faultCurrentKa,
         selectivityStatus: saved ? 'FULL' : f.selectivityStatus,
-        selectivityLimitA: f.selectivityLimitA,
+        // A saved FULL override must not carry a stale PARTIAL limit — keep
+        // the status and the limit flag consistent.
+        selectivityLimitKa: saved ? null : f.selectivityLimitKa,
         cableDamageOk: f.cableDamageOk,
         selectivityReason: saved ? `Full electronic LSI selectivity (${effectiveModel})` : f.selectivityReason,
         suggestedAlternative: saved ? null : f.suggestedAlternative,
@@ -322,7 +325,9 @@ export default function BreakerSchedulePage() {
           parentFeederName: f.parentFeederName,
           faultCurrentKa: f.faultCurrentKa,
           selectivityStatus: saved ? 'FULL' : f.selectivityStatus,
-          selectivityLimitA: f.selectivityLimitA,
+          // A saved FULL override must not carry a stale PARTIAL limit — keep
+          // the status and the limit flag consistent.
+          selectivityLimitKa: saved ? null : f.selectivityLimitKa,
           cableDamageOk: f.cableDamageOk,
           selectivityReason: saved ? `Full electronic LSI selectivity (${effectiveModel})` : f.selectivityReason,
           suggestedAlternative: saved ? null : f.suggestedAlternative,
@@ -707,9 +712,9 @@ export default function BreakerSchedulePage() {
                         ) : b.selectivityStatus === 'PARTIAL' ? (
                           <span
                             className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-yellow-500/10 text-yellow-400 border border-yellow-500/20"
-                            title={`Selective up to ${b.selectivityLimitA ? `${b.selectivityLimitA} kA` : 'limited current'}`}
+                            title={`Selective up to ${b.selectivityLimitKa ? `${b.selectivityLimitKa} kA` : 'limited current'}`}
                           >
-                            <AlertTriangle size={11} /> PARTIAL {b.selectivityLimitA ? `(${b.selectivityLimitA}k)` : ''}
+                            <AlertTriangle size={11} /> PARTIAL {b.selectivityLimitKa ? `(${b.selectivityLimitKa}k)` : ''}
                           </span>
                         ) : (
                           <span
@@ -801,7 +806,7 @@ export default function BreakerSchedulePage() {
             downstreamCategory={downstreamCategory}
             faultCurrentKa={selectedFeederForModal.faultCurrentKa}
             selectivityStatus={selectedFeederForModal.selectivityStatus}
-            selectivityLimitA={selectedFeederForModal.selectivityLimitA}
+            selectivityLimitKa={selectedFeederForModal.selectivityLimitKa}
             cableDamageOk={selectedFeederForModal.cableDamageOk}
             selectivityReason={selectedFeederForModal.selectivityReason}
             alternativeSuggestions={selectedFeederForModal.alternativeSuggestions}

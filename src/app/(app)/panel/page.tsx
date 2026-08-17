@@ -15,7 +15,6 @@ import {
 } from 'lucide-react';
 import { PageSkeleton } from '@/components/ui/skeleton';
 import { calculateThreePhaseCurrent, sizeTransformer } from '@/lib/calculations/loads';
-import { sizeCableAndBreaker } from '@/lib/calculations/cables';
 import { CABLE_CATALOG } from '@/lib/calculations/cablesData';
 import { computeFeeders, createFindBreaker, type EquipmentItem, type DefaultFamilies } from '@/lib/calculations/feeders';
 import { calculateShortCircuitCurrent, getTypicalImpedance } from '@/lib/calculations/shortCircuit';
@@ -206,11 +205,11 @@ export default function PanelDesignerPage() {
 
   const bldg = project.buildings.find((b) => b.id === selectedBuilding) || project.buildings[0];
 
-  // Outgoing feeders (MDB + SMDB) via the shared helper. Three-phase is derived
-  // per item type through isThreePhaseForItem (matches the API routes), so the
-  // panel, breaker-schedule, and cable-schedule all agree. Main-incomer and
-  // transformer sizing stay page-local — the breaker schedule has no incomer.
-  const { mdbFeeders, smdbFeeders, smdbFloorNumbers } = computeFeeders(bldg, project, findBreaker);
+  // Outgoing feeders (MDB + SMDB) plus the main incomer breaker/cable via the
+  // shared helper — the SAME catalog-frame device the breaker-schedule and
+  // coordination pages use, so every view agrees. Transformer sizing stays
+  // page-local (it has no analog in the breaker schedule).
+  const { mdbFeeders, smdbFeeders, smdbFloorNumbers, mainIncomerSettings, mainBreakerIn, mainCableSize, mainParallelRuns } = computeFeeders(bldg, project, findBreaker);
 
   const activeSmdbFloor = selectedFloor || (smdbFloorNumbers.length > 0 ? smdbFloorNumbers[0] : null);
   const smdbFeedersForActive = activeSmdbFloor ? smdbFeeders(activeSmdbFloor) : [];
@@ -238,22 +237,18 @@ export default function PanelDesignerPage() {
     return s + kw / project.powerFactor;
   }, 0);
   const mainBreakerCurrent = calculateThreePhaseCurrent(totalDemandKva, project.voltage);
-  const mainSizing = sizeCableAndBreaker(mainBreakerCurrent, true, {
-    material: 'copper',
-    insulation: 'XLPE',
-    ambientTemp: 30,
-    groupingCount: 1,
-  });
   const transformerSize = sizeTransformer(totalDemandKva, 1.2, perPhaseKva);
 
-  const mainCategory = mainSizing.breakerSize < 630 ? 'MCCB' : 'ACB';
-  const mainMatch = findBreaker(mainSizing.breakerSize, mainCategory, 3);
-  const mainBreakerModel = mainMatch.model ?? `${mainCategory} ${mainSizing.breakerSize}`;
+  // Main incomer breaker + cable come from computeFeeders so this page shows
+  // the SAME catalog-frame device as the breaker schedule / coordination page.
+  // computeFeeders re-sizes the incomer cable to the catalog frame
+  // (Ib <= In <= Iz), so the displayed breaker and cable always agree.
+  const mainCategory = mainIncomerSettings.category === 'ACB' ? 'ACB' : 'MCCB';
+  const mainBreakerModel = mainIncomerSettings.model ?? `Main ${mainCategory} ${mainBreakerIn}`;
 
-  const mainCable = CABLE_CATALOG.find((c) => c.size >= mainSizing.cableSize) || CABLE_CATALOG[CABLE_CATALOG.length - 1];
-  // Number of parallel cables per phase
-  const mainCableAmpacity = mainCable.copperXlpe3Ph;
-  const cablesPerPhase = Math.ceil(mainBreakerCurrent / mainCableAmpacity);
+  const mainCable = CABLE_CATALOG.find((c) => c.size >= mainCableSize) || CABLE_CATALOG[CABLE_CATALOG.length - 1];
+  // Parallel cables per phase from the sizing engine (re-sized to the catalog frame)
+  const cablesPerPhase = mainParallelRuns;
 
   // Neutral: sum per-phase unbalance across all feeders
   const maxPhaseCurrent = Math.max(
@@ -366,7 +361,7 @@ export default function PanelDesignerPage() {
           </div>
           <div className="rounded-lg border border-gray-800 bg-gray-800/30 p-3">
             <p className="text-[10px] text-gray-500 uppercase">{t('common.breaker', 'Main Breaker')}</p>
-            <p className="text-lg font-bold text-white font-mono">{mainSizing.breakerSize}A</p>
+            <p className="text-lg font-bold text-white font-mono">{mainBreakerIn}A</p>
             <p className="text-[10px] text-gray-500">{mainBreakerModel}</p>
           </div>
           <div className="rounded-lg border border-gray-800 bg-gray-800/30 p-3">
@@ -382,7 +377,7 @@ export default function PanelDesignerPage() {
           <div className="rounded-lg border border-gray-800 bg-gray-800/30 p-3">
             <p className="text-[10px] text-gray-500 uppercase">{t('panel.busbarRating', 'Busbar')}</p>
             <p className="text-lg font-bold text-white font-mono">
-              {mainSizing.breakerSize <= 800 ? '800A' : mainSizing.breakerSize <= 1600 ? '1600A' : '3200A'}
+              {mainBreakerIn <= 800 ? '800A' : mainBreakerIn <= 1600 ? '1600A' : '3200A'}
             </p>
             <p className="text-[10px] text-gray-500">{t('panel.phasePE', '3-Phase + N + PE')}</p>
           </div>
@@ -525,12 +520,12 @@ export default function PanelDesignerPage() {
             {/* Busbar */}
             <rect x="60" y="65" width="680" height="12" fill="#f97316" opacity="0.3" rx="2" />
             <text x="400" y="75" textAnchor="middle" fill="#f97316" fontSize="10" fontWeight="600">
-              {t('panel.mainBusbar', 'MAIN BUSBAR')} — {mainSizing.breakerSize}A — {t('panel.phasePE', '3Φ + N + PE')}
+              {t('panel.mainBusbar', 'MAIN BUSBAR')} — {mainBreakerIn}A — {t('panel.phasePE', '3Φ + N + PE')}
             </text>
 
             {/* Main Incomer (Prominently Highlighted in ACB Amber/Orange) */}
             {(() => {
-              const lines = wrapSvgLines(`${mainSizing.breakerSize}A ${mainBreakerModel}`, 24, 2);
+              const lines = wrapSvgLines(`${mainBreakerIn}A ${mainBreakerModel}`, 24, 2);
               return (
                 <g>
                   <rect x="60" y="90" width="155" height="48" fill="#1f2937" stroke="#f97316" strokeWidth="1.5" rx="3" />
@@ -773,9 +768,9 @@ export default function PanelDesignerPage() {
                   })()}%
                 </td>
                 <td></td>
-                <td className="text-end font-mono text-white">{mainSizing.breakerSize}</td>
+                <td className="text-end font-mono text-white">{mainBreakerIn}</td>
                 <td className="text-center text-xs font-mono text-white">{mainBreakerModel}</td>
-                <td className="text-center font-mono text-green-400">{mainSizing.cableSize}</td>
+                <td className="text-center font-mono text-green-400">{mainCableSize}</td>
               </tr>
             </tbody>
           </table>

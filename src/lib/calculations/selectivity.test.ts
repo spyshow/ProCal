@@ -356,6 +356,24 @@ describe('verifyCoordination (4-Phase Protection Engine)', () => {
     expect(result.cascadingSupported).toBe(false);
   });
 
+  it('disables cascading for generic (GENERIC_SPEC) devices even when manufacturer strings match', () => {
+    // computeFeeders defaults a generic spec's manufacturer to the project
+    // preference, so a generic main + generic branch would otherwise claim the
+    // "tested" 10 kA limit purely from same-brand strings.
+    const upstream = {
+      inRating: 630, ir: 500, tr: 12, isd: 2500, tsd: 0.3, ii: 5000,
+      category: 'ACB' as const, manufacturer: 'ABB', isGeneric: true,
+    };
+    const downstream = {
+      inRating: 100, ir: 80, tr: 12, isd: 400, tsd: 0.1, ii: 800,
+      manufacturer: 'ABB', isGeneric: true,
+    };
+    const result = verifyCoordination(upstream, downstream, 10000, { upstreamMfg: 'ABB', downstreamMfg: 'ABB' });
+    expect(result.energySelectivityApplied).toBe(false);
+    expect(result.cascadingSupported).toBe(false);
+    expect(result.cascadingIcu).toBeUndefined();
+  });
+
   it('throws CalculationError for negative fault current', () => {
     const upstream = { inRating: 630, ir: 500, tr: 12 };
     const downstream = { inRating: 100, ir: 80, tr: 12 };
@@ -391,6 +409,25 @@ describe('verifyCoordination (4-Phase Protection Engine)', () => {
     // MCB magnetic trip (≤40 ms) protects the 4 mm² cable at every test
     // point up to the 800 A fault level.
     expect(result.cableDamageOk).toBe(true);
+  });
+
+  it('demotes FULL to PARTIAL when the 1.6× current-grading rule is violated', () => {
+    // Ir ratio 320/240 = 1.33 < 1.6 → current grading violated, yet the curve
+    // intersection (~4.1 kA) clears the 3 kA fault level — the old verdict
+    // reported FULL while carrying currentGradingOk: false.
+    const upstream = {
+      inRating: 400, ir: 320, tr: 12, isd: 1600, tsd: 0.3, ii: 4000,
+      category: 'MCCB' as const,
+    };
+    const downstream = {
+      inRating: 250, ir: 240, tr: 12, isd: 1000, tsd: 0.1, ii: 2500,
+      category: 'MCCB' as const,
+    };
+    const result = verifyCoordination(upstream, downstream, 3000, { cableSizeMm2: 120 });
+    expect(result.currentGradingOk).toBe(false);
+    expect(result.timeGradingOk).toBe(false);
+    expect(result.status).toBe('PARTIAL');
+    expect(result.overlapDetails).toMatch(/Grading rules violated/);
   });
 });
 

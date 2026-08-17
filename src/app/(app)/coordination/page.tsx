@@ -190,6 +190,8 @@ export default function CoordinationPage() {
           ...f,
           breakerModel: effectiveModel,
           selectivityStatus: saved ? 'FULL' : f.selectivityStatus,
+          // A saved FULL override must not carry a stale PARTIAL limit.
+          selectivityLimitKa: saved ? null : f.selectivityLimitKa,
           selectivityReason: saved ? `Full electronic LSI selectivity (${effectiveModel})` : f.selectivityReason,
           suggestedAlternative: saved ? null : f.suggestedAlternative,
           alternativeSuggestions: saved ? [] : f.alternativeSuggestions,

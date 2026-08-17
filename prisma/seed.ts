@@ -380,74 +380,6 @@ async function main() {
     },
 
     // =========================================================================
-    // Iskra Air Circuit Breakers (ACB) - IB Series (IEC 60947-2 Category B)
-    // =========================================================================
-    {
-      category: "ACB",
-      manufacturer: "Iskra",
-      series: "IB",
-      model: "IB-800 LSI",
-      ratedCurrent: 800,
-      poles: 3,
-      breakingCapacity: 42,
-      tripUnit: "ETU LSI",
-      datasheetUrl: "https://www.iskra.eu/en/Low-Voltage-Switchgear/",
-      settingsJson: JSON.stringify({
-        Icw: 42,
-        Ics: 42,
-        standard: "IEC 60947-2",
-        category: "B",
-        curveType: "LSI",
-        L: { range: "0.4..1.0xIn (320..800A)", delay: "1..20s", defaultIr: 800, defaultTr: 12 },
-        S: { range: "1.5..10xIr (1200..8000A)", delay: "0.08..0.4s", i2t: true, defaultIsd: 3200, defaultTsd: 0.1 },
-        I: { range: "2..15xIn (1600..12000A)", off: true, defaultIi: 8000 },
-      }),
-    },
-    {
-      category: "ACB",
-      manufacturer: "Iskra",
-      series: "IB",
-      model: "IB-1600 LSI",
-      ratedCurrent: 1600,
-      poles: 3,
-      breakingCapacity: 50,
-      tripUnit: "ETU LSI",
-      datasheetUrl: "https://www.iskra.eu/en/Low-Voltage-Switchgear/",
-      settingsJson: JSON.stringify({
-        Icw: 50,
-        Ics: 50,
-        standard: "IEC 60947-2",
-        category: "B",
-        curveType: "LSI",
-        L: { range: "0.4..1.0xIn (640..1600A)", delay: "1..20s", defaultIr: 1600, defaultTr: 12 },
-        S: { range: "1.5..10xIr (2400..16000A)", delay: "0.08..0.4s", i2t: true, defaultIsd: 6400, defaultTsd: 0.1 },
-        I: { range: "2..15xIn (3200..24000A)", off: true, defaultIi: 16000 },
-      }),
-    },
-    {
-      category: "ACB",
-      manufacturer: "Iskra",
-      series: "IB",
-      model: "IB-2000 LSIG",
-      ratedCurrent: 2000,
-      poles: 3,
-      breakingCapacity: 65,
-      tripUnit: "ETU LSIG",
-      datasheetUrl: "https://www.iskra.eu/en/Low-Voltage-Switchgear/",
-      settingsJson: JSON.stringify({
-        Icw: 65,
-        Ics: 65,
-        standard: "IEC 60947-2",
-        category: "B",
-        curveType: "LSIG",
-        L: { range: "0.4..1.0xIn (800..2000A)", delay: "1..20s", defaultIr: 2000, defaultTr: 12 },
-        S: { range: "1.5..10xIr (3000..20000A)", delay: "0.08..0.4s", i2t: true, defaultIsd: 8000, defaultTsd: 0.1 },
-        I: { range: "2..15xIn (4000..30000A)", off: true, defaultIi: 20000 },
-        G: { range: "0.2..1.0xIn (400..2000A)", delay: "0.1..0.5s", defaultIg: 400, defaultTg: 0.1 },
-      }),
-    },
-
-    // =========================================================================
     // ABB MCCBs - Tmax XT Series (IEC 60947-2)
     // =========================================================================
     {
@@ -973,6 +905,42 @@ async function main() {
       tripUnit: "Electronic LSI",
       datasheetUrl: "https://www.iskra.eu/en/Moulded-Case-Circuit-Breakers/",
       settingsJson: JSON.stringify({ Ics: 50, standard: "IEC 60947-2", category: "A", curveType: "LSI", L: { range: "0.4..1.0xIn (252..630A)", delay: "2..14s", defaultIr: 630, defaultTr: 10 }, S: { range: "1.5..10xIr (945..6300A)", delay: "0.08..0.3s", i2t: true, defaultIsd: 3150, defaultTsd: 0.1 }, I: { range: "2..12xIn (1260..7560A)", defaultIi: 6300 } }),
+    },
+    {
+      category: "MCCB",
+      manufacturer: "Iskra",
+      series: "MOD800",
+      model: "MOD800-800E LSI",
+      ratedCurrent: 800,
+      poles: 3,
+      breakingCapacity: 50,
+      tripUnit: "Microprocessor LSI",
+      datasheetUrl: "https://www.iskra.eu/en/Moulded-Case-Circuit-Breakers/",
+      settingsJson: JSON.stringify({ Ics: 50, standard: "IEC 60947-2", category: "A", curveType: "LSI", L: { range: "0.4..1.0xIn (320..800A)", delay: "2..14s", defaultIr: 800, defaultTr: 10 }, S: { range: "1.5..10xIr (1200..8000A)", delay: "0.08..0.3s", i2t: true, defaultIsd: 3200, defaultTsd: 0.1 }, I: { range: "2..12xIn (1600..9600A)", defaultIi: 8000 } }),
+    },
+    {
+      category: "MCCB",
+      manufacturer: "Iskra",
+      series: "MOD1000",
+      model: "MOD1000-1000E LSI",
+      ratedCurrent: 1000,
+      poles: 3,
+      breakingCapacity: 50,
+      tripUnit: "Microprocessor LSI",
+      datasheetUrl: "https://www.iskra.eu/en/Moulded-Case-Circuit-Breakers/",
+      settingsJson: JSON.stringify({ Ics: 50, standard: "IEC 60947-2", category: "A", curveType: "LSI", L: { range: "0.4..1.0xIn (400..1000A)", delay: "2..14s", defaultIr: 1000, defaultTr: 10 }, S: { range: "1.5..10xIr (1500..10000A)", delay: "0.08..0.3s", i2t: true, defaultIsd: 4000, defaultTsd: 0.1 }, I: { range: "2..12xIn (2000..12000A)", defaultIi: 10000 } }),
+    },
+    {
+      category: "MCCB",
+      manufacturer: "Iskra",
+      series: "MOD1250",
+      model: "MOD1250-1250E LSI",
+      ratedCurrent: 1250,
+      poles: 3,
+      breakingCapacity: 65,
+      tripUnit: "Microprocessor LSI",
+      datasheetUrl: "https://www.iskra.eu/en/Moulded-Case-Circuit-Breakers/",
+      settingsJson: JSON.stringify({ Ics: 65, standard: "IEC 60947-2", category: "A", curveType: "LSI", L: { range: "0.4..1.0xIn (500..1250A)", delay: "2..14s", defaultIr: 1250, defaultTr: 10 }, S: { range: "1.5..10xIr (1875..12500A)", delay: "0.08..0.3s", i2t: true, defaultIsd: 5000, defaultTsd: 0.1 }, I: { range: "2..12xIn (2500..15000A)", defaultIi: 12500 } }),
     },
 
     // =========================================================================
@@ -2506,6 +2474,14 @@ async function main() {
     series: item.series,
   }));
   const familyIdByKey = await upsertBreakerFamilies(db, familyKeys);
+
+  // Clean up any legacy or removed manufacturer categories
+  await db.equipmentCatalog.deleteMany({
+    where: { manufacturer: "Iskra", category: "ACB" },
+  });
+  await db.breakerFamily.deleteMany({
+    where: { manufacturer: "Iskra", category: "ACB" },
+  });
 
   for (const item of catalogData) {
     const familyId = familyIdByKey.get(getFamilyKey(item.manufacturer, item.category, item.series));

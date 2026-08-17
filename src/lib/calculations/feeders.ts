@@ -1045,7 +1045,12 @@ export function computeFeeders(
 
     f.selectivityStatus = coord.status;
     // Stored in kA (the field name carries the unit): coord.limitCurrent is Amperes.
-    f.selectivityLimitKa = coord.limitCurrent ? parseFloat((coord.limitCurrent / 1000).toFixed(2)) : null;
+    // Only PARTIAL carries a limit — a FULL verdict has a limit above the
+    // fault level (it is reported in selectivityReason), and NONE has none,
+    // so the data honors the PanelFeeder contract ("FULL/NONE carry null").
+    f.selectivityLimitKa = coord.status === 'PARTIAL' && coord.limitCurrent
+      ? parseFloat((coord.limitCurrent / 1000).toFixed(2))
+      : null;
     f.cableDamageOk = coord.cableDamageOk;
     f.selectivityReason = coord.overlapDetails ?? (coord.status === 'FULL' ? 'Fully selective against Main Incomer' : 'Selectivity restricted');
 
@@ -1151,7 +1156,10 @@ export function computeFeeders(
 
       feeder.selectivityStatus = coord.status;
       // Stored in kA (the field name carries the unit): coord.limitCurrent is Amperes.
-      feeder.selectivityLimitKa = coord.limitCurrent ? parseFloat((coord.limitCurrent / 1000).toFixed(2)) : null;
+      // Only PARTIAL carries a limit (FULL/NONE emit null, per the contract).
+      feeder.selectivityLimitKa = coord.status === 'PARTIAL' && coord.limitCurrent
+        ? parseFloat((coord.limitCurrent / 1000).toFixed(2))
+        : null;
       feeder.cableDamageOk = coord.cableDamageOk;
       feeder.selectivityReason = coord.overlapDetails ?? (coord.status === 'FULL' ? `Fully selective against SMDB F${floorNumber}` : 'Selectivity restricted');
 

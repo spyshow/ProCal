@@ -119,7 +119,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 42,
       tripUnit: "MicroLogic 5.0 X",
-      datasheetUrl: "https://www.se.com/ww/en/product-range/62111-masterpact-mtz/",
+      datasheetUrl: "https://download.se.com/files?p_Doc_Ref=COM-POWER-LVMKT215EN&p_enDocType=Catalog&p_File_Name=COM-POWER-LVMKT215EN.pdf",
       settingsJson: JSON.stringify({
         Icw: 42,
         Ics: 42,
@@ -140,7 +140,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 65,
       tripUnit: "MicroLogic 6.0 X",
-      datasheetUrl: "https://www.se.com/ww/en/product-range/62111-masterpact-mtz/",
+      datasheetUrl: "https://download.se.com/files?p_Doc_Ref=COM-POWER-LVMKT215EN&p_enDocType=Catalog&p_File_Name=COM-POWER-LVMKT215EN.pdf",
       settingsJson: JSON.stringify({
         Icw: 65,
         Ics: 65,
@@ -479,7 +479,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 36,
       tripUnit: "TM-D (Thermal Magnetic)",
-      datasheetUrl: "https://www.se.com/ww/en/product-range/65715-compact-nsx-mccb/",
+      datasheetUrl: "https://download.se.com/files?p_Doc_Ref=LVPED221001EN&p_enDocType=Catalog&p_File_Name=LVPED221001EN.pdf",
       settingsJson: JSON.stringify({ Ics: 36, standard: "IEC 60947-2", category: "A", curveType: "TM", thermal: { range: "0.7..1.0xIn (28..40A)", defaultIr: 40 }, magnetic: { range: "500A fixed", defaultIm: 500 } }),
     },
     {
@@ -491,7 +491,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 36,
       tripUnit: "TM-D",
-      datasheetUrl: "https://www.se.com/ww/en/product-range/65715-compact-nsx-mccb/",
+      datasheetUrl: "https://download.se.com/files?p_Doc_Ref=LVPED221001EN&p_enDocType=Catalog&p_File_Name=LVPED221001EN.pdf",
       settingsJson: JSON.stringify({ Ics: 36, standard: "IEC 60947-2", category: "A", curveType: "TM", thermal: { range: "0.7..1.0xIn (44..63A)", defaultIr: 63 }, magnetic: { range: "500A fixed", defaultIm: 500 } }),
     },
     {
@@ -503,7 +503,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 36,
       tripUnit: "TM-D",
-      datasheetUrl: "https://www.se.com/ww/en/product-range/65715-compact-nsx-mccb/",
+      datasheetUrl: "https://download.se.com/files?p_Doc_Ref=LVPED221001EN&p_enDocType=Catalog&p_File_Name=LVPED221001EN.pdf",
       settingsJson: JSON.stringify({ Ics: 36, standard: "IEC 60947-2", category: "A", curveType: "TM", thermal: { range: "0.7..1.0xIn (70..100A)", defaultIr: 100 }, magnetic: { range: "800A fixed", defaultIm: 800 } }),
     },
     {
@@ -515,7 +515,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 36,
       tripUnit: "MicroLogic 2.2",
-      datasheetUrl: "https://www.se.com/ww/en/product-range/65715-compact-nsx-mccb/",
+      datasheetUrl: "https://download.se.com/files?p_Doc_Ref=LVPED221001EN&p_enDocType=Catalog&p_File_Name=LVPED221001EN.pdf",
       settingsJson: JSON.stringify({ Ics: 36, standard: "IEC 60947-2", category: "A", curveType: "LSI", L: { range: "0.4..1.0xIn (63..160A)", delay: "16s at 6xIr", defaultIr: 160, defaultTr: 16 }, S: { range: "1.5..10xIr (240..1600A)", delay: "<40ms", defaultIsd: 960, defaultTsd: 0.04 }, I: { range: "2400A fixed (15xIn)", defaultIi: 2400 } }),
     },
     {
@@ -527,7 +527,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 36,
       tripUnit: "MicroLogic 2.2",
-      datasheetUrl: "https://www.se.com/ww/en/product-range/65715-compact-nsx-mccb/",
+      datasheetUrl: "https://download.se.com/files?p_Doc_Ref=LVPED221001EN&p_enDocType=Catalog&p_File_Name=LVPED221001EN.pdf",
       settingsJson: JSON.stringify({ Ics: 36, standard: "IEC 60947-2", category: "A", curveType: "LSI", L: { range: "0.4..1.0xIn (100..250A)", delay: "16s at 6xIr", defaultIr: 250, defaultTr: 16 }, S: { range: "1.5..10xIr (375..2500A)", delay: "<40ms", defaultIsd: 1500, defaultTsd: 0.04 }, I: { range: "3000A fixed (12xIn)", defaultIi: 3000 } }),
     },
     {
@@ -539,7 +539,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 36,
       tripUnit: "MicroLogic 2.3",
-      datasheetUrl: "https://www.se.com/ww/en/product-range/65715-compact-nsx-mccb/",
+      datasheetUrl: "https://download.se.com/files?p_Doc_Ref=LVPED221001EN&p_enDocType=Catalog&p_File_Name=LVPED221001EN.pdf",
       settingsJson: JSON.stringify({ Ics: 36, standard: "IEC 60947-2", category: "A", curveType: "LSI", L: { range: "0.4..1.0xIn (160..400A)", delay: "16s at 6xIr", defaultIr: 400, defaultTr: 16 }, S: { range: "1.5..10xIr (600..4000A)", delay: "<40ms", defaultIsd: 2400, defaultTsd: 0.04 }, I: { range: "4400A fixed (11xIn)", defaultIi: 4400 } }),
     },
     {
@@ -551,7 +551,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 36,
       tripUnit: "MicroLogic 2.3",
-      datasheetUrl: "https://www.se.com/ww/en/product-range/65715-compact-nsx-mccb/",
+      datasheetUrl: "https://download.se.com/files?p_Doc_Ref=LVPED221001EN&p_enDocType=Catalog&p_File_Name=LVPED221001EN.pdf",
       settingsJson: JSON.stringify({ Ics: 36, standard: "IEC 60947-2", category: "A", curveType: "LSI", L: { range: "0.4..1.0xIn (250..630A)", delay: "16s at 6xIr", defaultIr: 630, defaultTr: 16 }, S: { range: "1.5..10xIr (945..6300A)", delay: "<40ms", defaultIsd: 3780, defaultTsd: 0.04 }, I: { range: "6930A fixed (11xIn)", defaultIi: 6930 } }),
     },
 
@@ -1162,7 +1162,7 @@ async function main() {
       poles: 1,
       breakingCapacity: 6,
       tripUnit: "C-Curve",
-      datasheetUrl: "https://www.se.com/ww/en/product-range/7556-acti9-ic60/",
+      datasheetUrl: "https://download.se.com/files?p_Doc_Ref=CA909006E_MY&p_enDocType=Catalog&p_File_Name=Acti9_catalogue.pdf",
       settingsJson: JSON.stringify({ curveType: "C", thermalPickup: "1.13..1.45xIn", magneticPickup: "5..10xIn (50..100A)", Icn: 6, Icu: 10, Ics: 7.5, energyClass: 3, letThroughI2t: 18000, standard: "IEC/EN 60898-1 / IEC/EN 60947-2" }),
     },
     {
@@ -1174,7 +1174,7 @@ async function main() {
       poles: 1,
       breakingCapacity: 6,
       tripUnit: "C-Curve",
-      datasheetUrl: "https://www.se.com/ww/en/product-range/7556-acti9-ic60/",
+      datasheetUrl: "https://download.se.com/files?p_Doc_Ref=CA909006E_MY&p_enDocType=Catalog&p_File_Name=Acti9_catalogue.pdf",
       settingsJson: JSON.stringify({ curveType: "C", thermalPickup: "1.13..1.45xIn", magneticPickup: "5..10xIn (80..160A)", Icn: 6, Icu: 10, Ics: 7.5, energyClass: 3, letThroughI2t: 28000, standard: "IEC/EN 60898-1 / IEC/EN 60947-2" }),
     },
     {
@@ -1186,7 +1186,7 @@ async function main() {
       poles: 1,
       breakingCapacity: 6,
       tripUnit: "C-Curve",
-      datasheetUrl: "https://www.se.com/ww/en/product-range/7556-acti9-ic60/",
+      datasheetUrl: "https://download.se.com/files?p_Doc_Ref=CA909006E_MY&p_enDocType=Catalog&p_File_Name=Acti9_catalogue.pdf",
       settingsJson: JSON.stringify({ curveType: "C", thermalPickup: "1.13..1.45xIn", magneticPickup: "5..10xIn (100..200A)", Icn: 6, Icu: 10, Ics: 7.5, energyClass: 3, letThroughI2t: 36000, standard: "IEC/EN 60898-1 / IEC/EN 60947-2" }),
     },
     {
@@ -1198,7 +1198,7 @@ async function main() {
       poles: 1,
       breakingCapacity: 6,
       tripUnit: "C-Curve",
-      datasheetUrl: "https://www.se.com/ww/en/product-range/7556-acti9-ic60/",
+      datasheetUrl: "https://download.se.com/files?p_Doc_Ref=CA909006E_MY&p_enDocType=Catalog&p_File_Name=Acti9_catalogue.pdf",
       settingsJson: JSON.stringify({ curveType: "C", thermalPickup: "1.13..1.45xIn", magneticPickup: "5..10xIn (160..320A)", Icn: 6, Icu: 10, Ics: 7.5, energyClass: 3, letThroughI2t: 64000, standard: "IEC/EN 60898-1 / IEC/EN 60947-2" }),
     },
     {
@@ -1210,7 +1210,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 6,
       tripUnit: "C-Curve",
-      datasheetUrl: "https://www.se.com/ww/en/product-range/7556-acti9-ic60/",
+      datasheetUrl: "https://download.se.com/files?p_Doc_Ref=CA909006E_MY&p_enDocType=Catalog&p_File_Name=Acti9_catalogue.pdf",
       settingsJson: JSON.stringify({ curveType: "C", thermalPickup: "1.13..1.45xIn", magneticPickup: "5..10xIn (50..100A)", Icn: 6, Icu: 10, Ics: 7.5, energyClass: 3, letThroughI2t: 18000, standard: "IEC/EN 60898-1 / IEC/EN 60947-2" }),
     },
     {
@@ -1222,7 +1222,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 6,
       tripUnit: "C-Curve",
-      datasheetUrl: "https://www.se.com/ww/en/product-range/7556-acti9-ic60/",
+      datasheetUrl: "https://download.se.com/files?p_Doc_Ref=CA909006E_MY&p_enDocType=Catalog&p_File_Name=Acti9_catalogue.pdf",
       settingsJson: JSON.stringify({ curveType: "C", thermalPickup: "1.13..1.45xIn", magneticPickup: "5..10xIn (80..160A)", Icn: 6, Icu: 10, Ics: 7.5, energyClass: 3, letThroughI2t: 28000, standard: "IEC/EN 60898-1 / IEC/EN 60947-2" }),
     },
     {
@@ -1234,7 +1234,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 6,
       tripUnit: "C-Curve",
-      datasheetUrl: "https://www.se.com/ww/en/product-range/7556-acti9-ic60/",
+      datasheetUrl: "https://download.se.com/files?p_Doc_Ref=CA909006E_MY&p_enDocType=Catalog&p_File_Name=Acti9_catalogue.pdf",
       settingsJson: JSON.stringify({ curveType: "C", thermalPickup: "1.13..1.45xIn", magneticPickup: "5..10xIn (100..200A)", Icn: 6, Icu: 10, Ics: 7.5, energyClass: 3, letThroughI2t: 36000, standard: "IEC/EN 60898-1 / IEC/EN 60947-2" }),
     },
     {
@@ -1246,7 +1246,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 6,
       tripUnit: "C-Curve",
-      datasheetUrl: "https://www.se.com/ww/en/product-range/7556-acti9-ic60/",
+      datasheetUrl: "https://download.se.com/files?p_Doc_Ref=CA909006E_MY&p_enDocType=Catalog&p_File_Name=Acti9_catalogue.pdf",
       settingsJson: JSON.stringify({ curveType: "C", thermalPickup: "1.13..1.45xIn", magneticPickup: "5..10xIn (125..250A)", Icn: 6, Icu: 10, Ics: 7.5, energyClass: 3, letThroughI2t: 50000, standard: "IEC/EN 60898-1 / IEC/EN 60947-2" }),
     },
     {
@@ -1258,7 +1258,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 6,
       tripUnit: "C-Curve",
-      datasheetUrl: "https://www.se.com/ww/en/product-range/7556-acti9-ic60/",
+      datasheetUrl: "https://download.se.com/files?p_Doc_Ref=CA909006E_MY&p_enDocType=Catalog&p_File_Name=Acti9_catalogue.pdf",
       settingsJson: JSON.stringify({ curveType: "C", thermalPickup: "1.13..1.45xIn", magneticPickup: "5..10xIn (160..320A)", Icn: 6, Icu: 10, Ics: 7.5, energyClass: 3, letThroughI2t: 64000, standard: "IEC/EN 60898-1 / IEC/EN 60947-2" }),
     },
     {
@@ -1270,7 +1270,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 6,
       tripUnit: "C-Curve",
-      datasheetUrl: "https://www.se.com/ww/en/product-range/7556-acti9-ic60/",
+      datasheetUrl: "https://download.se.com/files?p_Doc_Ref=CA909006E_MY&p_enDocType=Catalog&p_File_Name=Acti9_catalogue.pdf",
       settingsJson: JSON.stringify({ curveType: "C", thermalPickup: "1.13..1.45xIn", magneticPickup: "5..10xIn (200..400A)", Icn: 6, Icu: 10, Ics: 7.5, energyClass: 3, letThroughI2t: 75000, standard: "IEC/EN 60898-1 / IEC/EN 60947-2" }),
     },
     {
@@ -1282,7 +1282,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 6,
       tripUnit: "C-Curve",
-      datasheetUrl: "https://www.se.com/ww/en/product-range/7556-acti9-ic60/",
+      datasheetUrl: "https://download.se.com/files?p_Doc_Ref=CA909006E_MY&p_enDocType=Catalog&p_File_Name=Acti9_catalogue.pdf",
       settingsJson: JSON.stringify({ curveType: "C", thermalPickup: "1.13..1.45xIn", magneticPickup: "5..10xIn (315..630A)", Icn: 6, Icu: 6, Ics: 6, energyClass: 3, letThroughI2t: 84000, standard: "IEC/EN 60898-1 / IEC/EN 60947-2" }),
     },
 
@@ -2026,7 +2026,7 @@ async function main() {
       poles: 2,
       breakingCapacity: 10,
       tripUnit: "Type A 30mA",
-      datasheetUrl: "https://www.se.com/ww/en/product-range/7559-acti9-iid/",
+      datasheetUrl: "https://download.se.com/files?p_Doc_Ref=CA909006E_MY&p_enDocType=Catalog&p_File_Name=Acti9_catalogue.pdf",
       settingsJson: JSON.stringify({ sensitivity: "30mA", type: "A", standard: "IEC/EN 61008-1" }),
     },
     {
@@ -2038,7 +2038,7 @@ async function main() {
       poles: 4,
       breakingCapacity: 10,
       tripUnit: "Type A 30mA",
-      datasheetUrl: "https://www.se.com/ww/en/product-range/7559-acti9-iid/",
+      datasheetUrl: "https://download.se.com/files?p_Doc_Ref=CA909006E_MY&p_enDocType=Catalog&p_File_Name=Acti9_catalogue.pdf",
       settingsJson: JSON.stringify({ sensitivity: "30mA", type: "A", standard: "IEC/EN 61008-1" }),
     },
     {
@@ -2050,7 +2050,7 @@ async function main() {
       poles: 4,
       breakingCapacity: 10,
       tripUnit: "Type A 30mA",
-      datasheetUrl: "https://www.se.com/ww/en/product-range/7559-acti9-iid/",
+      datasheetUrl: "https://download.se.com/files?p_Doc_Ref=CA909006E_MY&p_enDocType=Catalog&p_File_Name=Acti9_catalogue.pdf",
       settingsJson: JSON.stringify({ sensitivity: "30mA", type: "A", standard: "IEC/EN 61008-1" }),
     },
     {
@@ -2246,7 +2246,7 @@ async function main() {
       poles: 2,
       breakingCapacity: 6,
       tripUnit: "C-Curve / 30mA",
-      datasheetUrl: "https://www.se.com/ww/en/product-range/7560-acti9-idpn-vigi/",
+      datasheetUrl: "https://download.se.com/files?p_Doc_Ref=CA909006E_MY&p_enDocType=Catalog&p_File_Name=Acti9_catalogue.pdf",
       settingsJson: JSON.stringify({ curveType: "C", sensitivity: "30mA", standard: "IEC/EN 61009-1" }),
     },
     {
@@ -2258,7 +2258,7 @@ async function main() {
       poles: 2,
       breakingCapacity: 6,
       tripUnit: "C-Curve / 30mA",
-      datasheetUrl: "https://www.se.com/ww/en/product-range/7560-acti9-idpn-vigi/",
+      datasheetUrl: "https://download.se.com/files?p_Doc_Ref=CA909006E_MY&p_enDocType=Catalog&p_File_Name=Acti9_catalogue.pdf",
       settingsJson: JSON.stringify({ curveType: "C", sensitivity: "30mA", standard: "IEC/EN 61009-1" }),
     },
     {
@@ -2270,7 +2270,7 @@ async function main() {
       poles: 2,
       breakingCapacity: 10,
       tripUnit: "C-Curve / 30mA",
-      datasheetUrl: "https://www.se.com/ww/en/product-range/7558-acti9-ic60-rcbo/",
+      datasheetUrl: "https://download.se.com/files?p_Doc_Ref=CA909006E_MY&p_enDocType=Catalog&p_File_Name=Acti9_catalogue.pdf",
       settingsJson: JSON.stringify({ curveType: "C", sensitivity: "30mA", standard: "IEC/EN 61009-1" }),
     },
     {
@@ -2394,7 +2394,7 @@ async function main() {
       poles: 4,
       breakingCapacity: 40,
       tripUnit: "Type 2",
-      datasheetUrl: "https://www.se.com/ww/en/product-range/7565-acti9-iprd/",
+      datasheetUrl: "https://download.se.com/files?p_Doc_Ref=CA909006E_MY&p_enDocType=Catalog&p_File_Name=Acti9_catalogue.pdf",
       settingsJson: JSON.stringify({ type: "Type 2", Up: "1.4kV", Imax: "40kA", In: "20kA", standard: "IEC 61643-11" }),
     },
     {
@@ -2494,7 +2494,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 0,
       tripUnit: "230V Coil",
-      datasheetUrl: "https://www.se.com/ww/en/product-range/664-tesys-d/",
+      datasheetUrl: "https://download.se.com/files?p_Doc_Ref=MKTED210011EN&p_enDocType=Catalog&p_File_Name=MKTED210011EN.pdf",
       settingsJson: JSON.stringify({ coilVoltage: "230V AC", utilizationCategory: "AC-3", ratedPower: "4kW at 400V", standard: "IEC 60947-4-1" }),
     },
     {
@@ -2506,7 +2506,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 0,
       tripUnit: "230V Coil",
-      datasheetUrl: "https://www.se.com/ww/en/product-range/664-tesys-d/",
+      datasheetUrl: "https://download.se.com/files?p_Doc_Ref=MKTED210011EN&p_enDocType=Catalog&p_File_Name=MKTED210011EN.pdf",
       settingsJson: JSON.stringify({ coilVoltage: "230V AC", utilizationCategory: "AC-3", ratedPower: "7.5kW at 400V", standard: "IEC 60947-4-1" }),
     },
     {
@@ -2518,7 +2518,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 0,
       tripUnit: "230V Coil",
-      datasheetUrl: "https://www.se.com/ww/en/product-range/664-tesys-d/",
+      datasheetUrl: "https://download.se.com/files?p_Doc_Ref=MKTED210011EN&p_enDocType=Catalog&p_File_Name=MKTED210011EN.pdf",
       settingsJson: JSON.stringify({ coilVoltage: "230V AC", utilizationCategory: "AC-3", ratedPower: "15kW at 400V", standard: "IEC 60947-4-1" }),
     },
     {
@@ -2690,7 +2690,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 0,
       tripUnit: "Thermal Overload",
-      datasheetUrl: "https://www.se.com/ww/en/product-range/665-tesys-lrd/",
+      datasheetUrl: "https://download.se.com/files?p_Doc_Ref=MKTED210011EN&p_enDocType=Catalog&p_File_Name=MKTED210011EN.pdf",
       settingsJson: JSON.stringify({ settingRange: "7..10A", tripClass: "10A", standard: "IEC 60947-4-1" }),
     },
     {
@@ -2778,7 +2778,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 0,
       tripUnit: "Class 0.5S",
-      datasheetUrl: "https://www.se.com/ww/en/product-range/61280-powerlogic-pm5000-series/",
+      datasheetUrl: "https://download.se.com/files?p_Doc_Ref=PLSED309005EN&p_enDocType=Catalog&p_File_Name=PLSED309005EN.pdf",
       settingsJson: JSON.stringify({ accuracyClass: "0.5S", protocol: "Modbus RTU", measurement: "V, I, P, Q, S, PF, THD, kWh", standard: "IEC 61557-12" }),
     },
     {

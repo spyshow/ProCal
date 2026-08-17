@@ -31,6 +31,7 @@ export interface FloorItem {
   voltageDrop: number | null;
   installMethod?: string | null;
   cableInsulation?: string | null;
+  cableMaterial?: string | null; // "copper" | "aluminum"
   ambientTemp?: number | null;
   groupingCount?: number | null;
   apartmentTemplateId?: string | null;
@@ -53,6 +54,7 @@ export interface FloorDesign {
   riserBreakerSize?: string | null; // e.g., "630A"
   riserInstallMethod?: string | null; // IEC 60364-5-52 method (B1, B2, C, E, F, G) — SDB only
   riserCableInsulation?: string | null; // "PVC" or "XLPE" — SDB only
+  riserCableMaterial?: string | null; // "copper" or "aluminum" — SDB only
   riserAmbientTemp?: number | null;
   riserGroupingCount?: number | null;
   items: FloorItem[];
@@ -69,6 +71,7 @@ export interface BuildingLoad {
   cableLength?: number | null;
   installMethod?: string | null;
   cableInsulation?: string | null;
+  cableMaterial?: string | null; // "copper" | "aluminum"
   ambientTemp?: number | null;
   groupingCount?: number | null;
   // Per-phase balancing: assigned phase 1=L1, 2=L2, 3=L3 for a single-phase
@@ -125,6 +128,25 @@ export interface Project {
   buildings: Building[];
   apartmentTemplates: ApartmentTemplate[];
   loadLibraryItems: LoadLibraryItem[];
+}
+
+/**
+ * An issued revision of a project's engineering state. Carries a JSON snapshot
+ * of the project at issue time so the revision stays reproducible after the
+ * live project changes. See `ProjectRevision` in prisma/schema.prisma.
+ */
+export interface ProjectRevision {
+  id: string;
+  projectId: string;
+  /** "R0", "R1", … — auto-incremented per project. */
+  rev: string;
+  description: string;
+  createdById: string;
+  /** Username of the engineer who issued the revision. */
+  createdByUsername: string;
+  /** Full serialized project state at issue time. */
+  snapshotJson: string;
+  createdAt: string;
 }
 
 /**

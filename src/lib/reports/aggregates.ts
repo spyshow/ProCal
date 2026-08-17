@@ -181,6 +181,7 @@ export function aggregateCableRows(project: Project): CableRow[] {
           cableMm2: parseMm2(item.cableSize) ?? 4,
           method: (item.installMethod as string | undefined) || 'C',
           insulation: (item.cableInsulation as 'PVC' | 'XLPE' | undefined) || 'XLPE',
+          material: (item.cableMaterial as 'copper' | 'aluminum' | undefined) || 'copper',
         });
       });
     }

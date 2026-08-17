@@ -792,7 +792,8 @@ export function getAmpacity(
   cableSize: number,
   methodInput: string,
   insulation: 'PVC' | 'XLPE',
-  isThreePhase: boolean
+  isThreePhase: boolean,
+  material: 'copper' | 'aluminum' = 'copper'
 ): number {
   const refMethod = resolveReferenceMethod(methodInput);
 
@@ -827,6 +828,12 @@ export function getAmpacity(
 
   const key = `${refMethod}_${insulation}_${isThreePhase ? '3PH' : '1PH'}`;
   const table = tables[key] || tables[`${refMethod}_${insulation}_3PH`] || tables['C_XLPE_3PH'];
+  const copperAmpacity = table[cableSize] || 0;
+  if (copperAmpacity === 0) return 0;
 
-  return table[cableSize] || 0;
+  // The per-method tables above are COPPER only. Aluminum ampacity is ~0.85×
+  // the copper value for the same conductor size (matches the alXlpe3Ph column
+  // ratios in cablesData.ts), so we scale rather than duplicate 32 tables.
+  if (material === 'aluminum') return Math.round(copperAmpacity * 0.85);
+  return copperAmpacity;
 }

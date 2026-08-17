@@ -21,6 +21,29 @@ async function main() {
     console.log('Connected to PostgreSQL database...');
 
     const statements = [
+      // ProjectRevision table (issued engineering revisions with JSON snapshots)
+      `CREATE TABLE IF NOT EXISTS "ProjectRevision" (
+        "id" TEXT NOT NULL,
+        "projectId" TEXT NOT NULL,
+        "rev" TEXT NOT NULL,
+        "description" TEXT NOT NULL,
+        "createdById" TEXT NOT NULL,
+        "snapshotJson" TEXT NOT NULL,
+        "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        CONSTRAINT "ProjectRevision_pkey" PRIMARY KEY ("id")
+      );`,
+      `CREATE INDEX IF NOT EXISTS "ProjectRevision_projectId_idx" ON "ProjectRevision"("projectId");`,
+      `DO $$ BEGIN
+        IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'ProjectRevision_projectId_fkey') THEN
+          ALTER TABLE "ProjectRevision" ADD CONSTRAINT "ProjectRevision_projectId_fkey" FOREIGN KEY ("projectId") REFERENCES "Project"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+        END IF;
+      END $$;`,
+      `DO $$ BEGIN
+        IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'ProjectRevision_createdById_fkey') THEN
+          ALTER TABLE "ProjectRevision" ADD CONSTRAINT "ProjectRevision_createdById_fkey" FOREIGN KEY ("createdById") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+        END IF;
+      END $$;`,
+
       // Project columns
       `ALTER TABLE "Project" ADD COLUMN IF NOT EXISTS "ambientTemp" DOUBLE PRECISION DEFAULT 30;`,
       `ALTER TABLE "Project" ADD COLUMN IF NOT EXISTS "groupingCount" INTEGER DEFAULT 1;`,
@@ -37,6 +60,7 @@ async function main() {
       `ALTER TABLE "FloorDesign" ADD COLUMN IF NOT EXISTS "riserGroupingCount" INTEGER DEFAULT 1;`,
       `ALTER TABLE "FloorDesign" ADD COLUMN IF NOT EXISTS "riserInstallMethod" TEXT DEFAULT 'C';`,
       `ALTER TABLE "FloorDesign" ADD COLUMN IF NOT EXISTS "riserCableInsulation" TEXT DEFAULT 'XLPE';`,
+      `ALTER TABLE "FloorDesign" ADD COLUMN IF NOT EXISTS "riserCableMaterial" TEXT DEFAULT 'copper';`,
       `ALTER TABLE "FloorDesign" ADD COLUMN IF NOT EXISTS "riserCableLength" DOUBLE PRECISION;`,
       `ALTER TABLE "FloorDesign" ADD COLUMN IF NOT EXISTS "riserCableSize" TEXT;`,
 
@@ -45,6 +69,7 @@ async function main() {
       `ALTER TABLE "FloorItem" ADD COLUMN IF NOT EXISTS "groupingCount" INTEGER DEFAULT 1;`,
       `ALTER TABLE "FloorItem" ADD COLUMN IF NOT EXISTS "installMethod" TEXT DEFAULT 'C';`,
       `ALTER TABLE "FloorItem" ADD COLUMN IF NOT EXISTS "cableInsulation" TEXT DEFAULT 'XLPE';`,
+      `ALTER TABLE "FloorItem" ADD COLUMN IF NOT EXISTS "cableMaterial" TEXT DEFAULT 'copper';`,
       `ALTER TABLE "FloorItem" ADD COLUMN IF NOT EXISTS "cableLength" DOUBLE PRECISION;`,
       `ALTER TABLE "FloorItem" ADD COLUMN IF NOT EXISTS "voltageDrop" DOUBLE PRECISION;`,
       `ALTER TABLE "FloorItem" ADD COLUMN IF NOT EXISTS "assignedPhase" INTEGER;`,
@@ -54,6 +79,7 @@ async function main() {
       `ALTER TABLE "BuildingLoad" ADD COLUMN IF NOT EXISTS "groupingCount" INTEGER DEFAULT 1;`,
       `ALTER TABLE "BuildingLoad" ADD COLUMN IF NOT EXISTS "installMethod" TEXT;`,
       `ALTER TABLE "BuildingLoad" ADD COLUMN IF NOT EXISTS "cableInsulation" TEXT;`,
+      `ALTER TABLE "BuildingLoad" ADD COLUMN IF NOT EXISTS "cableMaterial" TEXT DEFAULT 'copper';`,
       `ALTER TABLE "BuildingLoad" ADD COLUMN IF NOT EXISTS "cableLength" DOUBLE PRECISION;`,
       `ALTER TABLE "BuildingLoad" ADD COLUMN IF NOT EXISTS "cableSize" TEXT;`,
       `ALTER TABLE "BuildingLoad" ADD COLUMN IF NOT EXISTS "assignedPhase" INTEGER;`,

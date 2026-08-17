@@ -50,6 +50,7 @@ export async function PATCH(
         riserBreakerSize: data.riserBreakerSize ?? floor.riserBreakerSize,
         riserInstallMethod: data.riserInstallMethod ?? floor.riserInstallMethod,
         riserCableInsulation: data.riserCableInsulation ?? floor.riserCableInsulation,
+        riserCableMaterial: data.riserCableMaterial ?? floor.riserCableMaterial,
         riserAmbientTemp: data.riserAmbientTemp ?? floor.riserAmbientTemp,
         riserGroupingCount: data.riserGroupingCount ?? floor.riserGroupingCount,
       },

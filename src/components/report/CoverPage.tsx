@@ -3,18 +3,20 @@
 
 import { phaseBalance } from '@/lib/calculations/phaseBalance';
 import { sizeTransformer } from '@/lib/calculations/loads';
-import type { Project } from '@/types';
+import type { Project, ProjectRevision } from '@/types';
 
 export interface CoverPageProps {
   project: Project;
   companyName?: string;
   companyLogoUrl?: string;
+  revisions?: ProjectRevision[];
 }
 
 export default function CoverPage({
   project,
   companyName,
   companyLogoUrl,
+  revisions = [],
 }: CoverPageProps) {
   const displayLogo = project.logoUrl || companyLogoUrl;
   const displayCompany = companyName || 'ProCal Engineering Suite';
@@ -161,6 +163,44 @@ export default function CoverPage({
                 </tr>
               );
             })}
+          </tbody>
+        </table>
+
+        {/* Revision block — standard drawing title-block revision table */}
+        <h2 className="text-xs font-bold text-slate-900 uppercase mb-1.5 border-l-4 border-amber-500 pl-2 mt-3">
+          3. Document Revisions
+        </h2>
+        <table className="w-full text-left text-[10px] border border-slate-300 rounded-lg overflow-hidden">
+          <thead>
+            <tr className="bg-slate-900 text-white font-bold uppercase tracking-wider">
+              <th className="p-1 border-r border-slate-800 w-12">Rev</th>
+              <th className="p-1 border-r border-slate-800 w-20">Date</th>
+              <th className="p-1 border-r border-slate-800">Description</th>
+              <th className="p-1 w-24">Prepared By</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-slate-200 text-slate-800">
+            {revisions.length === 0 ? (
+              <tr>
+                <td className="p-1 border-r border-slate-200 font-mono font-bold">R0</td>
+                <td className="p-1 border-r border-slate-200">{reportDate}</td>
+                <td className="p-1 border-r border-slate-200">Initial issue</td>
+                <td className="p-1">{project.engineer || '—'}</td>
+              </tr>
+            ) : (
+              [...revisions]
+                .sort((a, b) => (a.rev > b.rev ? -1 : 1))
+                .map((r, idx) => (
+                  <tr key={r.id} className={idx === 0 ? 'bg-amber-50 font-semibold' : ''}>
+                    <td className="p-1 border-r border-slate-200 font-mono font-bold">{r.rev}</td>
+                    <td className="p-1 border-r border-slate-200">
+                      {new Date(r.createdAt).toLocaleDateString()}
+                    </td>
+                    <td className="p-1 border-r border-slate-200">{r.description}</td>
+                    <td className="p-1">{r.createdByUsername}</td>
+                  </tr>
+                ))
+            )}
           </tbody>
         </table>
       </div>

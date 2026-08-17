@@ -1,7 +1,7 @@
 'use client';
 /* eslint-disable react-hooks/set-state-in-effect, @typescript-eslint/no-explicit-any */
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { useReactToPrint } from 'react-to-print';
 import { useProject } from '@/context/ProjectContext';
 import { useTranslation } from '@/i18n';
@@ -9,9 +9,13 @@ import { PageSkeleton } from '@/components/ui/skeleton';
 import {
   FileText,
   FileDown,
+  FileSpreadsheet,
   Table,
   Building2,
+  History,
+  Loader2,
 } from 'lucide-react';
+import RevisionsPanel from '@/components/report/RevisionsPanel';
 import { phaseBalance } from '@/lib/calculations/phaseBalance';
 import { sizeTransformer } from '@/lib/calculations/loads';
 import { calculateShortCircuitCurrent, getTypicalImpedance } from '@/lib/calculations/shortCircuit';
@@ -22,7 +26,8 @@ import MDBSchedule from '@/components/report/MDBSchedule';
 import CableSchedule from '@/components/report/CableSchedule';
 import BreakerSchedule from '@/components/report/BreakerSchedule';
 import VDSchedule from '@/components/report/VDSchedule';
-import type { Project, ReportTab } from '@/types';
+import type { Project, ProjectRevision, ReportTab } from '@/types';
+import { createFindBreaker, type EquipmentItem } from '@/lib/calculations/feeders';
 import WorkflowStepper from '@/components/layout/WorkflowStepper';
 
 export default function ReportsPage() {
@@ -33,6 +38,9 @@ export default function ReportsPage() {
   const [activeTab, setActiveTab] = useState<ReportTab>('summary');
   const [selectedBuilding, setSelectedBuilding] = useState<string | null>(null);
   const [company, setCompany] = useState<{ companyName: string; logoUrl: string }>({ companyName: "", logoUrl: "" });
+  const [revisions, setRevisions] = useState<ProjectRevision[]>([]);
+  const [showRevisions, setShowRevisions] = useState(false);
+  const [exporting, setExporting] = useState(false);
 
   useEffect(() => {
     if (selectedProject && selectedProject.id === selectedProjectId) {
@@ -78,6 +86,49 @@ export default function ReportsPage() {
       .then(data => { if (data.company) setCompany(data.company); })
       .catch(() => {});
   }, []);
+
+  // Load issued revisions (for the cover-page revision block).
+  const loadRevisions = useCallback(async () => {
+    if (!project) return;
+    try {
+      const r = await fetch(`/api/projects/${project.id}/revisions?t=${Date.now()}`, { cache: 'no-store' });
+      const data = await r.json();
+      if (Array.isArray(data)) setRevisions(data);
+    } catch { /* ignore */ }
+  }, [project?.id]);
+
+  useEffect(() => {
+    loadRevisions();
+  }, [loadRevisions]);
+
+  const handleExportExcel = async () => {
+    if (!project || exporting) return;
+    setExporting(true);
+    try {
+      const res = await fetch(`/api/equipment?category=ACB,MCCB,MCB`);
+      const equipment: EquipmentItem[] = res.ok ? await res.json() : [];
+      const findBreaker = createFindBreaker(
+        equipment,
+        {
+          ACB: project.defaultAcbFamilyId ?? undefined,
+          MCCB: project.defaultMccbFamilyId ?? undefined,
+          MCB: project.defaultMcbFamilyId ?? undefined,
+        },
+        preferredManufacturer
+      );
+      const [{ buildReportWorkbook }, XLSX] = await Promise.all([
+        import('@/lib/reports/excel'),
+        import('xlsx'),
+      ]);
+      const wb = buildReportWorkbook(project, findBreaker);
+      XLSX.writeFile(wb, `${project.name.replace(/[^\w\- ]+/g, '').trim() || 'Project'} - Schedules.xlsx`);
+    } catch (err) {
+      console.error(err);
+      alert('Excel export failed');
+    } finally {
+      setExporting(false);
+    }
+  };
 
   const printRef = useRef<HTMLDivElement>(null);
 
@@ -280,14 +331,33 @@ export default function ReportsPage() {
           </h1>
           <p className="text-sm text-gray-400 mt-1">{project.name}</p>
         </div>
-        <button
-          onClick={handlePrint}
-          className="flex items-center gap-2 px-3 py-2 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-sm font-semibold"
-        >
-          <FileDown size={14} />
-          {t('reports.downloadPdf', 'Export PDF')}
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setShowRevisions(true)}
+            className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-200 text-sm font-semibold"
+          >
+            <History size={14} />
+            Revisions
+          </button>
+          <button
+            onClick={handleExportExcel}
+            disabled={exporting}
+            className="flex items-center gap-2 px-3 py-2 rounded-lg bg-emerald-700 hover:bg-emerald-600 text-white text-sm font-semibold disabled:opacity-50"
+          >
+            {exporting ? <Loader2 size={14} className="animate-spin" /> : <FileSpreadsheet size={14} />}
+            {exporting ? 'Exporting…' : t('reports.downloadExcel', 'Export Excel')}
+          </button>
+          <button
+            onClick={handlePrint}
+            className="flex items-center gap-2 px-3 py-2 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-sm font-semibold"
+          >
+            <FileDown size={14} />
+            {t('reports.downloadPdf', 'Export PDF')}
+          </button>
+        </div>
       </div>
+
+      <RevisionsPanel projectId={project.id} open={showRevisions} onClose={() => setShowRevisions(false)} onChanged={loadRevisions} />
 
       {project.buildings.length > 1 && (
         <div className="flex gap-2 print:hidden">
@@ -328,7 +398,7 @@ export default function ReportsPage() {
       {/* ========== PRINT-ONLY: FULL REPORT ========== */}
       {/* Always rendered but hidden off-screen; react-to-print clones this into an iframe */}
       <div ref={printRef} id="print-all-tabs" style={{ position: 'absolute', left: '-9999px', top: 0 }}>
-        <CoverPage project={project} companyName={company.companyName} companyLogoUrl={company.logoUrl} />
+        <CoverPage project={project} companyName={company.companyName} companyLogoUrl={company.logoUrl} revisions={revisions} />
 
         <div style={{ pageBreakBefore: 'always', breakBefore: 'page' }}>
           <ReportHeader project={project} companyName={company.companyName} companyLogoUrl={company.logoUrl} />

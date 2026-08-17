@@ -387,6 +387,7 @@ export const ModelName = {
   User: 'User',
   ContactRequest: 'ContactRequest',
   Project: 'Project',
+  ProjectRevision: 'ProjectRevision',
   Building: 'Building',
   BuildingLoad: 'BuildingLoad',
   ApartmentTemplate: 'ApartmentTemplate',
@@ -412,7 +413,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "contactRequest" | "project" | "building" | "buildingLoad" | "apartmentTemplate" | "apartmentRoom" | "loadLibraryItem" | "floorDesign" | "floorItem" | "equipmentCatalog" | "breakerFamily" | "breakerSettings"
+    modelProps: "user" | "contactRequest" | "project" | "projectRevision" | "building" | "buildingLoad" | "apartmentTemplate" | "apartmentRoom" | "loadLibraryItem" | "floorDesign" | "floorItem" | "equipmentCatalog" | "breakerFamily" | "breakerSettings"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -635,6 +636,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.ProjectCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.ProjectCountAggregateOutputType> | number
+        }
+      }
+    }
+    ProjectRevision: {
+      payload: Prisma.$ProjectRevisionPayload<ExtArgs>
+      fields: Prisma.ProjectRevisionFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ProjectRevisionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectRevisionPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ProjectRevisionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectRevisionPayload>
+        }
+        findFirst: {
+          args: Prisma.ProjectRevisionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectRevisionPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ProjectRevisionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectRevisionPayload>
+        }
+        findMany: {
+          args: Prisma.ProjectRevisionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectRevisionPayload>[]
+        }
+        create: {
+          args: Prisma.ProjectRevisionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectRevisionPayload>
+        }
+        createMany: {
+          args: Prisma.ProjectRevisionCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ProjectRevisionCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectRevisionPayload>[]
+        }
+        delete: {
+          args: Prisma.ProjectRevisionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectRevisionPayload>
+        }
+        update: {
+          args: Prisma.ProjectRevisionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectRevisionPayload>
+        }
+        deleteMany: {
+          args: Prisma.ProjectRevisionDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ProjectRevisionUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ProjectRevisionUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectRevisionPayload>[]
+        }
+        upsert: {
+          args: Prisma.ProjectRevisionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectRevisionPayload>
+        }
+        aggregate: {
+          args: Prisma.ProjectRevisionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateProjectRevision>
+        }
+        groupBy: {
+          args: Prisma.ProjectRevisionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ProjectRevisionGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ProjectRevisionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ProjectRevisionCountAggregateOutputType> | number
         }
       }
     }
@@ -1480,6 +1555,19 @@ export const ProjectScalarFieldEnum = {
 export type ProjectScalarFieldEnum = (typeof ProjectScalarFieldEnum)[keyof typeof ProjectScalarFieldEnum]
 
 
+export const ProjectRevisionScalarFieldEnum = {
+  id: 'id',
+  projectId: 'projectId',
+  rev: 'rev',
+  description: 'description',
+  createdById: 'createdById',
+  snapshotJson: 'snapshotJson',
+  createdAt: 'createdAt'
+} as const
+
+export type ProjectRevisionScalarFieldEnum = (typeof ProjectRevisionScalarFieldEnum)[keyof typeof ProjectRevisionScalarFieldEnum]
+
+
 export const BuildingScalarFieldEnum = {
   id: 'id',
   name: 'name',
@@ -1509,6 +1597,7 @@ export const BuildingLoadScalarFieldEnum = {
   cableLength: 'cableLength',
   installMethod: 'installMethod',
   cableInsulation: 'cableInsulation',
+  cableMaterial: 'cableMaterial',
   ambientTemp: 'ambientTemp',
   groupingCount: 'groupingCount',
   assignedPhase: 'assignedPhase',
@@ -1574,6 +1663,7 @@ export const FloorDesignScalarFieldEnum = {
   riserBreakerSize: 'riserBreakerSize',
   riserInstallMethod: 'riserInstallMethod',
   riserCableInsulation: 'riserCableInsulation',
+  riserCableMaterial: 'riserCableMaterial',
   riserAmbientTemp: 'riserAmbientTemp',
   riserGroupingCount: 'riserGroupingCount',
   buildingId: 'buildingId'
@@ -1598,6 +1688,7 @@ export const FloorItemScalarFieldEnum = {
   voltageDrop: 'voltageDrop',
   installMethod: 'installMethod',
   cableInsulation: 'cableInsulation',
+  cableMaterial: 'cableMaterial',
   ambientTemp: 'ambientTemp',
   groupingCount: 'groupingCount',
   assignedPhase: 'assignedPhase'
@@ -1860,6 +1951,7 @@ export type GlobalOmitConfig = {
   user?: Prisma.UserOmit
   contactRequest?: Prisma.ContactRequestOmit
   project?: Prisma.ProjectOmit
+  projectRevision?: Prisma.ProjectRevisionOmit
   building?: Prisma.BuildingOmit
   buildingLoad?: Prisma.BuildingLoadOmit
   apartmentTemplate?: Prisma.ApartmentTemplateOmit

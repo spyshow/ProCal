@@ -439,6 +439,7 @@ export type ProjectWhereInput = {
   buildings?: Prisma.BuildingListRelationFilter
   apartmentTemplates?: Prisma.ApartmentTemplateListRelationFilter
   loadLibraryItems?: Prisma.LoadLibraryItemListRelationFilter
+  revisions?: Prisma.ProjectRevisionListRelationFilter
 }
 
 export type ProjectOrderByWithRelationInput = {
@@ -477,6 +478,7 @@ export type ProjectOrderByWithRelationInput = {
   buildings?: Prisma.BuildingOrderByRelationAggregateInput
   apartmentTemplates?: Prisma.ApartmentTemplateOrderByRelationAggregateInput
   loadLibraryItems?: Prisma.LoadLibraryItemOrderByRelationAggregateInput
+  revisions?: Prisma.ProjectRevisionOrderByRelationAggregateInput
 }
 
 export type ProjectWhereUniqueInput = Prisma.AtLeast<{
@@ -518,6 +520,7 @@ export type ProjectWhereUniqueInput = Prisma.AtLeast<{
   buildings?: Prisma.BuildingListRelationFilter
   apartmentTemplates?: Prisma.ApartmentTemplateListRelationFilter
   loadLibraryItems?: Prisma.LoadLibraryItemListRelationFilter
+  revisions?: Prisma.ProjectRevisionListRelationFilter
 }, "id">
 
 export type ProjectOrderByWithAggregationInput = {
@@ -622,6 +625,7 @@ export type ProjectCreateInput = {
   buildings?: Prisma.BuildingCreateNestedManyWithoutProjectInput
   apartmentTemplates?: Prisma.ApartmentTemplateCreateNestedManyWithoutProjectInput
   loadLibraryItems?: Prisma.LoadLibraryItemCreateNestedManyWithoutProjectInput
+  revisions?: Prisma.ProjectRevisionCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectUncheckedCreateInput = {
@@ -656,6 +660,7 @@ export type ProjectUncheckedCreateInput = {
   buildings?: Prisma.BuildingUncheckedCreateNestedManyWithoutProjectInput
   apartmentTemplates?: Prisma.ApartmentTemplateUncheckedCreateNestedManyWithoutProjectInput
   loadLibraryItems?: Prisma.LoadLibraryItemUncheckedCreateNestedManyWithoutProjectInput
+  revisions?: Prisma.ProjectRevisionUncheckedCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectUpdateInput = {
@@ -690,6 +695,7 @@ export type ProjectUpdateInput = {
   buildings?: Prisma.BuildingUpdateManyWithoutProjectNestedInput
   apartmentTemplates?: Prisma.ApartmentTemplateUpdateManyWithoutProjectNestedInput
   loadLibraryItems?: Prisma.LoadLibraryItemUpdateManyWithoutProjectNestedInput
+  revisions?: Prisma.ProjectRevisionUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectUncheckedUpdateInput = {
@@ -724,6 +730,7 @@ export type ProjectUncheckedUpdateInput = {
   buildings?: Prisma.BuildingUncheckedUpdateManyWithoutProjectNestedInput
   apartmentTemplates?: Prisma.ApartmentTemplateUncheckedUpdateManyWithoutProjectNestedInput
   loadLibraryItems?: Prisma.LoadLibraryItemUncheckedUpdateManyWithoutProjectNestedInput
+  revisions?: Prisma.ProjectRevisionUncheckedUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectCreateManyInput = {
@@ -1005,6 +1012,20 @@ export type NullableFloatFieldUpdateOperationsInput = {
   divide?: number
 }
 
+export type ProjectCreateNestedOneWithoutRevisionsInput = {
+  create?: Prisma.XOR<Prisma.ProjectCreateWithoutRevisionsInput, Prisma.ProjectUncheckedCreateWithoutRevisionsInput>
+  connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutRevisionsInput
+  connect?: Prisma.ProjectWhereUniqueInput
+}
+
+export type ProjectUpdateOneRequiredWithoutRevisionsNestedInput = {
+  create?: Prisma.XOR<Prisma.ProjectCreateWithoutRevisionsInput, Prisma.ProjectUncheckedCreateWithoutRevisionsInput>
+  connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutRevisionsInput
+  upsert?: Prisma.ProjectUpsertWithoutRevisionsInput
+  connect?: Prisma.ProjectWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ProjectUpdateToOneWithWhereWithoutRevisionsInput, Prisma.ProjectUpdateWithoutRevisionsInput>, Prisma.ProjectUncheckedUpdateWithoutRevisionsInput>
+}
+
 export type ProjectCreateNestedOneWithoutBuildingsInput = {
   create?: Prisma.XOR<Prisma.ProjectCreateWithoutBuildingsInput, Prisma.ProjectUncheckedCreateWithoutBuildingsInput>
   connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutBuildingsInput
@@ -1204,6 +1225,7 @@ export type ProjectCreateWithoutUserInput = {
   buildings?: Prisma.BuildingCreateNestedManyWithoutProjectInput
   apartmentTemplates?: Prisma.ApartmentTemplateCreateNestedManyWithoutProjectInput
   loadLibraryItems?: Prisma.LoadLibraryItemCreateNestedManyWithoutProjectInput
+  revisions?: Prisma.ProjectRevisionCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectUncheckedCreateWithoutUserInput = {
@@ -1237,6 +1259,7 @@ export type ProjectUncheckedCreateWithoutUserInput = {
   buildings?: Prisma.BuildingUncheckedCreateNestedManyWithoutProjectInput
   apartmentTemplates?: Prisma.ApartmentTemplateUncheckedCreateNestedManyWithoutProjectInput
   loadLibraryItems?: Prisma.LoadLibraryItemUncheckedCreateNestedManyWithoutProjectInput
+  revisions?: Prisma.ProjectRevisionUncheckedCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectCreateOrConnectWithoutUserInput = {
@@ -1299,6 +1322,158 @@ export type ProjectScalarWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"Project"> | Date | string
 }
 
+export type ProjectCreateWithoutRevisionsInput = {
+  id?: string
+  name: string
+  client: string
+  consultant: string
+  contractor: string
+  location: string
+  engineer: string
+  date: string
+  voltage?: number
+  frequency?: number
+  powerFactor?: number
+  maxDemandFactor?: number
+  transformerSize?: number | null
+  notes?: string | null
+  preferredManufacturer?: string
+  country?: string
+  logoUrl?: string | null
+  calculationStandard?: string
+  maxVoltageDropLighting?: number
+  maxVoltageDropPower?: number
+  ambientTemp?: number | null
+  groupingCount?: number | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  defaultAcbFamily?: Prisma.BreakerFamilyCreateNestedOneWithoutDefaultAcbInput
+  defaultMccbFamily?: Prisma.BreakerFamilyCreateNestedOneWithoutDefaultMccbInput
+  defaultMcbFamily?: Prisma.BreakerFamilyCreateNestedOneWithoutDefaultMcbInput
+  user: Prisma.UserCreateNestedOneWithoutProjectsInput
+  buildings?: Prisma.BuildingCreateNestedManyWithoutProjectInput
+  apartmentTemplates?: Prisma.ApartmentTemplateCreateNestedManyWithoutProjectInput
+  loadLibraryItems?: Prisma.LoadLibraryItemCreateNestedManyWithoutProjectInput
+}
+
+export type ProjectUncheckedCreateWithoutRevisionsInput = {
+  id?: string
+  name: string
+  client: string
+  consultant: string
+  contractor: string
+  location: string
+  engineer: string
+  date: string
+  voltage?: number
+  frequency?: number
+  powerFactor?: number
+  maxDemandFactor?: number
+  transformerSize?: number | null
+  notes?: string | null
+  preferredManufacturer?: string
+  defaultAcbFamilyId?: string | null
+  defaultMccbFamilyId?: string | null
+  defaultMcbFamilyId?: string | null
+  country?: string
+  logoUrl?: string | null
+  calculationStandard?: string
+  maxVoltageDropLighting?: number
+  maxVoltageDropPower?: number
+  ambientTemp?: number | null
+  groupingCount?: number | null
+  userId: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  buildings?: Prisma.BuildingUncheckedCreateNestedManyWithoutProjectInput
+  apartmentTemplates?: Prisma.ApartmentTemplateUncheckedCreateNestedManyWithoutProjectInput
+  loadLibraryItems?: Prisma.LoadLibraryItemUncheckedCreateNestedManyWithoutProjectInput
+}
+
+export type ProjectCreateOrConnectWithoutRevisionsInput = {
+  where: Prisma.ProjectWhereUniqueInput
+  create: Prisma.XOR<Prisma.ProjectCreateWithoutRevisionsInput, Prisma.ProjectUncheckedCreateWithoutRevisionsInput>
+}
+
+export type ProjectUpsertWithoutRevisionsInput = {
+  update: Prisma.XOR<Prisma.ProjectUpdateWithoutRevisionsInput, Prisma.ProjectUncheckedUpdateWithoutRevisionsInput>
+  create: Prisma.XOR<Prisma.ProjectCreateWithoutRevisionsInput, Prisma.ProjectUncheckedCreateWithoutRevisionsInput>
+  where?: Prisma.ProjectWhereInput
+}
+
+export type ProjectUpdateToOneWithWhereWithoutRevisionsInput = {
+  where?: Prisma.ProjectWhereInput
+  data: Prisma.XOR<Prisma.ProjectUpdateWithoutRevisionsInput, Prisma.ProjectUncheckedUpdateWithoutRevisionsInput>
+}
+
+export type ProjectUpdateWithoutRevisionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  client?: Prisma.StringFieldUpdateOperationsInput | string
+  consultant?: Prisma.StringFieldUpdateOperationsInput | string
+  contractor?: Prisma.StringFieldUpdateOperationsInput | string
+  location?: Prisma.StringFieldUpdateOperationsInput | string
+  engineer?: Prisma.StringFieldUpdateOperationsInput | string
+  date?: Prisma.StringFieldUpdateOperationsInput | string
+  voltage?: Prisma.FloatFieldUpdateOperationsInput | number
+  frequency?: Prisma.FloatFieldUpdateOperationsInput | number
+  powerFactor?: Prisma.FloatFieldUpdateOperationsInput | number
+  maxDemandFactor?: Prisma.FloatFieldUpdateOperationsInput | number
+  transformerSize?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredManufacturer?: Prisma.StringFieldUpdateOperationsInput | string
+  country?: Prisma.StringFieldUpdateOperationsInput | string
+  logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  calculationStandard?: Prisma.StringFieldUpdateOperationsInput | string
+  maxVoltageDropLighting?: Prisma.FloatFieldUpdateOperationsInput | number
+  maxVoltageDropPower?: Prisma.FloatFieldUpdateOperationsInput | number
+  ambientTemp?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  groupingCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  defaultAcbFamily?: Prisma.BreakerFamilyUpdateOneWithoutDefaultAcbNestedInput
+  defaultMccbFamily?: Prisma.BreakerFamilyUpdateOneWithoutDefaultMccbNestedInput
+  defaultMcbFamily?: Prisma.BreakerFamilyUpdateOneWithoutDefaultMcbNestedInput
+  user?: Prisma.UserUpdateOneRequiredWithoutProjectsNestedInput
+  buildings?: Prisma.BuildingUpdateManyWithoutProjectNestedInput
+  apartmentTemplates?: Prisma.ApartmentTemplateUpdateManyWithoutProjectNestedInput
+  loadLibraryItems?: Prisma.LoadLibraryItemUpdateManyWithoutProjectNestedInput
+}
+
+export type ProjectUncheckedUpdateWithoutRevisionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  client?: Prisma.StringFieldUpdateOperationsInput | string
+  consultant?: Prisma.StringFieldUpdateOperationsInput | string
+  contractor?: Prisma.StringFieldUpdateOperationsInput | string
+  location?: Prisma.StringFieldUpdateOperationsInput | string
+  engineer?: Prisma.StringFieldUpdateOperationsInput | string
+  date?: Prisma.StringFieldUpdateOperationsInput | string
+  voltage?: Prisma.FloatFieldUpdateOperationsInput | number
+  frequency?: Prisma.FloatFieldUpdateOperationsInput | number
+  powerFactor?: Prisma.FloatFieldUpdateOperationsInput | number
+  maxDemandFactor?: Prisma.FloatFieldUpdateOperationsInput | number
+  transformerSize?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredManufacturer?: Prisma.StringFieldUpdateOperationsInput | string
+  defaultAcbFamilyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  defaultMccbFamilyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  defaultMcbFamilyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  country?: Prisma.StringFieldUpdateOperationsInput | string
+  logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  calculationStandard?: Prisma.StringFieldUpdateOperationsInput | string
+  maxVoltageDropLighting?: Prisma.FloatFieldUpdateOperationsInput | number
+  maxVoltageDropPower?: Prisma.FloatFieldUpdateOperationsInput | number
+  ambientTemp?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  groupingCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  buildings?: Prisma.BuildingUncheckedUpdateManyWithoutProjectNestedInput
+  apartmentTemplates?: Prisma.ApartmentTemplateUncheckedUpdateManyWithoutProjectNestedInput
+  loadLibraryItems?: Prisma.LoadLibraryItemUncheckedUpdateManyWithoutProjectNestedInput
+}
+
 export type ProjectCreateWithoutBuildingsInput = {
   id?: string
   name: string
@@ -1330,6 +1505,7 @@ export type ProjectCreateWithoutBuildingsInput = {
   user: Prisma.UserCreateNestedOneWithoutProjectsInput
   apartmentTemplates?: Prisma.ApartmentTemplateCreateNestedManyWithoutProjectInput
   loadLibraryItems?: Prisma.LoadLibraryItemCreateNestedManyWithoutProjectInput
+  revisions?: Prisma.ProjectRevisionCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectUncheckedCreateWithoutBuildingsInput = {
@@ -1363,6 +1539,7 @@ export type ProjectUncheckedCreateWithoutBuildingsInput = {
   updatedAt?: Date | string
   apartmentTemplates?: Prisma.ApartmentTemplateUncheckedCreateNestedManyWithoutProjectInput
   loadLibraryItems?: Prisma.LoadLibraryItemUncheckedCreateNestedManyWithoutProjectInput
+  revisions?: Prisma.ProjectRevisionUncheckedCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectCreateOrConnectWithoutBuildingsInput = {
@@ -1412,6 +1589,7 @@ export type ProjectUpdateWithoutBuildingsInput = {
   user?: Prisma.UserUpdateOneRequiredWithoutProjectsNestedInput
   apartmentTemplates?: Prisma.ApartmentTemplateUpdateManyWithoutProjectNestedInput
   loadLibraryItems?: Prisma.LoadLibraryItemUpdateManyWithoutProjectNestedInput
+  revisions?: Prisma.ProjectRevisionUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectUncheckedUpdateWithoutBuildingsInput = {
@@ -1445,6 +1623,7 @@ export type ProjectUncheckedUpdateWithoutBuildingsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   apartmentTemplates?: Prisma.ApartmentTemplateUncheckedUpdateManyWithoutProjectNestedInput
   loadLibraryItems?: Prisma.LoadLibraryItemUncheckedUpdateManyWithoutProjectNestedInput
+  revisions?: Prisma.ProjectRevisionUncheckedUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectCreateWithoutApartmentTemplatesInput = {
@@ -1478,6 +1657,7 @@ export type ProjectCreateWithoutApartmentTemplatesInput = {
   user: Prisma.UserCreateNestedOneWithoutProjectsInput
   buildings?: Prisma.BuildingCreateNestedManyWithoutProjectInput
   loadLibraryItems?: Prisma.LoadLibraryItemCreateNestedManyWithoutProjectInput
+  revisions?: Prisma.ProjectRevisionCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectUncheckedCreateWithoutApartmentTemplatesInput = {
@@ -1511,6 +1691,7 @@ export type ProjectUncheckedCreateWithoutApartmentTemplatesInput = {
   updatedAt?: Date | string
   buildings?: Prisma.BuildingUncheckedCreateNestedManyWithoutProjectInput
   loadLibraryItems?: Prisma.LoadLibraryItemUncheckedCreateNestedManyWithoutProjectInput
+  revisions?: Prisma.ProjectRevisionUncheckedCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectCreateOrConnectWithoutApartmentTemplatesInput = {
@@ -1560,6 +1741,7 @@ export type ProjectUpdateWithoutApartmentTemplatesInput = {
   user?: Prisma.UserUpdateOneRequiredWithoutProjectsNestedInput
   buildings?: Prisma.BuildingUpdateManyWithoutProjectNestedInput
   loadLibraryItems?: Prisma.LoadLibraryItemUpdateManyWithoutProjectNestedInput
+  revisions?: Prisma.ProjectRevisionUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectUncheckedUpdateWithoutApartmentTemplatesInput = {
@@ -1593,6 +1775,7 @@ export type ProjectUncheckedUpdateWithoutApartmentTemplatesInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   buildings?: Prisma.BuildingUncheckedUpdateManyWithoutProjectNestedInput
   loadLibraryItems?: Prisma.LoadLibraryItemUncheckedUpdateManyWithoutProjectNestedInput
+  revisions?: Prisma.ProjectRevisionUncheckedUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectCreateWithoutLoadLibraryItemsInput = {
@@ -1626,6 +1809,7 @@ export type ProjectCreateWithoutLoadLibraryItemsInput = {
   user: Prisma.UserCreateNestedOneWithoutProjectsInput
   buildings?: Prisma.BuildingCreateNestedManyWithoutProjectInput
   apartmentTemplates?: Prisma.ApartmentTemplateCreateNestedManyWithoutProjectInput
+  revisions?: Prisma.ProjectRevisionCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectUncheckedCreateWithoutLoadLibraryItemsInput = {
@@ -1659,6 +1843,7 @@ export type ProjectUncheckedCreateWithoutLoadLibraryItemsInput = {
   updatedAt?: Date | string
   buildings?: Prisma.BuildingUncheckedCreateNestedManyWithoutProjectInput
   apartmentTemplates?: Prisma.ApartmentTemplateUncheckedCreateNestedManyWithoutProjectInput
+  revisions?: Prisma.ProjectRevisionUncheckedCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectCreateOrConnectWithoutLoadLibraryItemsInput = {
@@ -1708,6 +1893,7 @@ export type ProjectUpdateWithoutLoadLibraryItemsInput = {
   user?: Prisma.UserUpdateOneRequiredWithoutProjectsNestedInput
   buildings?: Prisma.BuildingUpdateManyWithoutProjectNestedInput
   apartmentTemplates?: Prisma.ApartmentTemplateUpdateManyWithoutProjectNestedInput
+  revisions?: Prisma.ProjectRevisionUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectUncheckedUpdateWithoutLoadLibraryItemsInput = {
@@ -1741,6 +1927,7 @@ export type ProjectUncheckedUpdateWithoutLoadLibraryItemsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   buildings?: Prisma.BuildingUncheckedUpdateManyWithoutProjectNestedInput
   apartmentTemplates?: Prisma.ApartmentTemplateUncheckedUpdateManyWithoutProjectNestedInput
+  revisions?: Prisma.ProjectRevisionUncheckedUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectCreateWithoutDefaultAcbFamilyInput = {
@@ -1774,6 +1961,7 @@ export type ProjectCreateWithoutDefaultAcbFamilyInput = {
   buildings?: Prisma.BuildingCreateNestedManyWithoutProjectInput
   apartmentTemplates?: Prisma.ApartmentTemplateCreateNestedManyWithoutProjectInput
   loadLibraryItems?: Prisma.LoadLibraryItemCreateNestedManyWithoutProjectInput
+  revisions?: Prisma.ProjectRevisionCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectUncheckedCreateWithoutDefaultAcbFamilyInput = {
@@ -1807,6 +1995,7 @@ export type ProjectUncheckedCreateWithoutDefaultAcbFamilyInput = {
   buildings?: Prisma.BuildingUncheckedCreateNestedManyWithoutProjectInput
   apartmentTemplates?: Prisma.ApartmentTemplateUncheckedCreateNestedManyWithoutProjectInput
   loadLibraryItems?: Prisma.LoadLibraryItemUncheckedCreateNestedManyWithoutProjectInput
+  revisions?: Prisma.ProjectRevisionUncheckedCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectCreateOrConnectWithoutDefaultAcbFamilyInput = {
@@ -1850,6 +2039,7 @@ export type ProjectCreateWithoutDefaultMccbFamilyInput = {
   buildings?: Prisma.BuildingCreateNestedManyWithoutProjectInput
   apartmentTemplates?: Prisma.ApartmentTemplateCreateNestedManyWithoutProjectInput
   loadLibraryItems?: Prisma.LoadLibraryItemCreateNestedManyWithoutProjectInput
+  revisions?: Prisma.ProjectRevisionCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectUncheckedCreateWithoutDefaultMccbFamilyInput = {
@@ -1883,6 +2073,7 @@ export type ProjectUncheckedCreateWithoutDefaultMccbFamilyInput = {
   buildings?: Prisma.BuildingUncheckedCreateNestedManyWithoutProjectInput
   apartmentTemplates?: Prisma.ApartmentTemplateUncheckedCreateNestedManyWithoutProjectInput
   loadLibraryItems?: Prisma.LoadLibraryItemUncheckedCreateNestedManyWithoutProjectInput
+  revisions?: Prisma.ProjectRevisionUncheckedCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectCreateOrConnectWithoutDefaultMccbFamilyInput = {
@@ -1926,6 +2117,7 @@ export type ProjectCreateWithoutDefaultMcbFamilyInput = {
   buildings?: Prisma.BuildingCreateNestedManyWithoutProjectInput
   apartmentTemplates?: Prisma.ApartmentTemplateCreateNestedManyWithoutProjectInput
   loadLibraryItems?: Prisma.LoadLibraryItemCreateNestedManyWithoutProjectInput
+  revisions?: Prisma.ProjectRevisionCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectUncheckedCreateWithoutDefaultMcbFamilyInput = {
@@ -1959,6 +2151,7 @@ export type ProjectUncheckedCreateWithoutDefaultMcbFamilyInput = {
   buildings?: Prisma.BuildingUncheckedCreateNestedManyWithoutProjectInput
   apartmentTemplates?: Prisma.ApartmentTemplateUncheckedCreateNestedManyWithoutProjectInput
   loadLibraryItems?: Prisma.LoadLibraryItemUncheckedCreateNestedManyWithoutProjectInput
+  revisions?: Prisma.ProjectRevisionUncheckedCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectCreateOrConnectWithoutDefaultMcbFamilyInput = {
@@ -2080,6 +2273,7 @@ export type ProjectUpdateWithoutUserInput = {
   buildings?: Prisma.BuildingUpdateManyWithoutProjectNestedInput
   apartmentTemplates?: Prisma.ApartmentTemplateUpdateManyWithoutProjectNestedInput
   loadLibraryItems?: Prisma.LoadLibraryItemUpdateManyWithoutProjectNestedInput
+  revisions?: Prisma.ProjectRevisionUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectUncheckedUpdateWithoutUserInput = {
@@ -2113,6 +2307,7 @@ export type ProjectUncheckedUpdateWithoutUserInput = {
   buildings?: Prisma.BuildingUncheckedUpdateManyWithoutProjectNestedInput
   apartmentTemplates?: Prisma.ApartmentTemplateUncheckedUpdateManyWithoutProjectNestedInput
   loadLibraryItems?: Prisma.LoadLibraryItemUncheckedUpdateManyWithoutProjectNestedInput
+  revisions?: Prisma.ProjectRevisionUncheckedUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectUncheckedUpdateManyWithoutUserInput = {
@@ -2266,6 +2461,7 @@ export type ProjectUpdateWithoutDefaultAcbFamilyInput = {
   buildings?: Prisma.BuildingUpdateManyWithoutProjectNestedInput
   apartmentTemplates?: Prisma.ApartmentTemplateUpdateManyWithoutProjectNestedInput
   loadLibraryItems?: Prisma.LoadLibraryItemUpdateManyWithoutProjectNestedInput
+  revisions?: Prisma.ProjectRevisionUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectUncheckedUpdateWithoutDefaultAcbFamilyInput = {
@@ -2299,6 +2495,7 @@ export type ProjectUncheckedUpdateWithoutDefaultAcbFamilyInput = {
   buildings?: Prisma.BuildingUncheckedUpdateManyWithoutProjectNestedInput
   apartmentTemplates?: Prisma.ApartmentTemplateUncheckedUpdateManyWithoutProjectNestedInput
   loadLibraryItems?: Prisma.LoadLibraryItemUncheckedUpdateManyWithoutProjectNestedInput
+  revisions?: Prisma.ProjectRevisionUncheckedUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectUncheckedUpdateManyWithoutDefaultAcbFamilyInput = {
@@ -2362,6 +2559,7 @@ export type ProjectUpdateWithoutDefaultMccbFamilyInput = {
   buildings?: Prisma.BuildingUpdateManyWithoutProjectNestedInput
   apartmentTemplates?: Prisma.ApartmentTemplateUpdateManyWithoutProjectNestedInput
   loadLibraryItems?: Prisma.LoadLibraryItemUpdateManyWithoutProjectNestedInput
+  revisions?: Prisma.ProjectRevisionUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectUncheckedUpdateWithoutDefaultMccbFamilyInput = {
@@ -2395,6 +2593,7 @@ export type ProjectUncheckedUpdateWithoutDefaultMccbFamilyInput = {
   buildings?: Prisma.BuildingUncheckedUpdateManyWithoutProjectNestedInput
   apartmentTemplates?: Prisma.ApartmentTemplateUncheckedUpdateManyWithoutProjectNestedInput
   loadLibraryItems?: Prisma.LoadLibraryItemUncheckedUpdateManyWithoutProjectNestedInput
+  revisions?: Prisma.ProjectRevisionUncheckedUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectUncheckedUpdateManyWithoutDefaultMccbFamilyInput = {
@@ -2458,6 +2657,7 @@ export type ProjectUpdateWithoutDefaultMcbFamilyInput = {
   buildings?: Prisma.BuildingUpdateManyWithoutProjectNestedInput
   apartmentTemplates?: Prisma.ApartmentTemplateUpdateManyWithoutProjectNestedInput
   loadLibraryItems?: Prisma.LoadLibraryItemUpdateManyWithoutProjectNestedInput
+  revisions?: Prisma.ProjectRevisionUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectUncheckedUpdateWithoutDefaultMcbFamilyInput = {
@@ -2491,6 +2691,7 @@ export type ProjectUncheckedUpdateWithoutDefaultMcbFamilyInput = {
   buildings?: Prisma.BuildingUncheckedUpdateManyWithoutProjectNestedInput
   apartmentTemplates?: Prisma.ApartmentTemplateUncheckedUpdateManyWithoutProjectNestedInput
   loadLibraryItems?: Prisma.LoadLibraryItemUncheckedUpdateManyWithoutProjectNestedInput
+  revisions?: Prisma.ProjectRevisionUncheckedUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectUncheckedUpdateManyWithoutDefaultMcbFamilyInput = {
@@ -2532,12 +2733,14 @@ export type ProjectCountOutputType = {
   buildings: number
   apartmentTemplates: number
   loadLibraryItems: number
+  revisions: number
 }
 
 export type ProjectCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   buildings?: boolean | ProjectCountOutputTypeCountBuildingsArgs
   apartmentTemplates?: boolean | ProjectCountOutputTypeCountApartmentTemplatesArgs
   loadLibraryItems?: boolean | ProjectCountOutputTypeCountLoadLibraryItemsArgs
+  revisions?: boolean | ProjectCountOutputTypeCountRevisionsArgs
 }
 
 /**
@@ -2569,6 +2772,13 @@ export type ProjectCountOutputTypeCountApartmentTemplatesArgs<ExtArgs extends ru
  */
 export type ProjectCountOutputTypeCountLoadLibraryItemsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.LoadLibraryItemWhereInput
+}
+
+/**
+ * ProjectCountOutputType without action
+ */
+export type ProjectCountOutputTypeCountRevisionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ProjectRevisionWhereInput
 }
 
 
@@ -2608,6 +2818,7 @@ export type ProjectSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   buildings?: boolean | Prisma.Project$buildingsArgs<ExtArgs>
   apartmentTemplates?: boolean | Prisma.Project$apartmentTemplatesArgs<ExtArgs>
   loadLibraryItems?: boolean | Prisma.Project$loadLibraryItemsArgs<ExtArgs>
+  revisions?: boolean | Prisma.Project$revisionsArgs<ExtArgs>
   _count?: boolean | Prisma.ProjectCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["project"]>
 
@@ -2721,6 +2932,7 @@ export type ProjectInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs
   buildings?: boolean | Prisma.Project$buildingsArgs<ExtArgs>
   apartmentTemplates?: boolean | Prisma.Project$apartmentTemplatesArgs<ExtArgs>
   loadLibraryItems?: boolean | Prisma.Project$loadLibraryItemsArgs<ExtArgs>
+  revisions?: boolean | Prisma.Project$revisionsArgs<ExtArgs>
   _count?: boolean | Prisma.ProjectCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type ProjectIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -2746,6 +2958,7 @@ export type $ProjectPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     buildings: Prisma.$BuildingPayload<ExtArgs>[]
     apartmentTemplates: Prisma.$ApartmentTemplatePayload<ExtArgs>[]
     loadLibraryItems: Prisma.$LoadLibraryItemPayload<ExtArgs>[]
+    revisions: Prisma.$ProjectRevisionPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -3177,6 +3390,7 @@ export interface Prisma__ProjectClient<T, Null = never, ExtArgs extends runtime.
   buildings<T extends Prisma.Project$buildingsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$buildingsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BuildingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   apartmentTemplates<T extends Prisma.Project$apartmentTemplatesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$apartmentTemplatesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ApartmentTemplatePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   loadLibraryItems<T extends Prisma.Project$loadLibraryItemsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$loadLibraryItemsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LoadLibraryItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  revisions<T extends Prisma.Project$revisionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$revisionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProjectRevisionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -3761,6 +3975,30 @@ export type Project$loadLibraryItemsArgs<ExtArgs extends runtime.Types.Extension
   take?: number
   skip?: number
   distinct?: Prisma.LoadLibraryItemScalarFieldEnum | Prisma.LoadLibraryItemScalarFieldEnum[]
+}
+
+/**
+ * Project.revisions
+ */
+export type Project$revisionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ProjectRevision
+   */
+  select?: Prisma.ProjectRevisionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ProjectRevision
+   */
+  omit?: Prisma.ProjectRevisionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProjectRevisionInclude<ExtArgs> | null
+  where?: Prisma.ProjectRevisionWhereInput
+  orderBy?: Prisma.ProjectRevisionOrderByWithRelationInput | Prisma.ProjectRevisionOrderByWithRelationInput[]
+  cursor?: Prisma.ProjectRevisionWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ProjectRevisionScalarFieldEnum | Prisma.ProjectRevisionScalarFieldEnum[]
 }
 
 /**

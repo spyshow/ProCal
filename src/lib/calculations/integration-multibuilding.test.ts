@@ -174,18 +174,20 @@ function servicePanelItem(
 }
 
 function libraryLoad(
-  opts: { id: string; lib: LoadLibraryItem; qty: number; cableLength: number }
+  opts: { id: string; lib: LoadLibraryItem; qty: number; cableLength: number; material?: 'copper' | 'aluminum' }
 ): BuildingLoad {
   const isThreePhase = opts.lib.phase === 3;
   const totalKw = opts.lib.power * opts.qty;
   const current = isThreePhase
     ? totalKw / (Math.sqrt(3) * (opts.lib.voltage / 1000) * opts.lib.powerFactor)
     : totalKw / ((opts.lib.voltage / 1000) * opts.lib.powerFactor);
+  const material = opts.material ?? 'copper';
   // feederFromBuildingLoad evaluates the stored cable at
-  // groupingCount = load.groupingCount ?? project.groupingCount ?? 1, so the
-  // stored cable must be sized with the SAME options to guarantee In <= Iz.
+  // groupingCount = load.groupingCount ?? project.groupingCount ?? 1 and the
+  // stored material, so the stored cable must be sized with the SAME options
+  // to guarantee In <= Iz.
   const sizing = sizeCableAndBreaker(current, isThreePhase, {
-    material: 'copper', insulation: 'XLPE', ambientTemp: 30, groupingCount: 1, installMethod: 'C',
+    material, insulation: 'XLPE', ambientTemp: 30, groupingCount: 1, installMethod: 'C',
   });
   return {
     id: opts.id,
@@ -193,10 +195,14 @@ function libraryLoad(
     loadLibraryItemId: opts.lib.id,
     loadLibraryItem: opts.lib,
     quantity: opts.qty,
-    cableSize: `${sizing.cableSize} mm²`,
+    // formattedCableSize keeps parallel runs ("2 × 120 mm²") — storing only
+    // the per-run size would make the downstream evaluation see a single
+    // under-sized run (the exact bug the API routes used to have).
+    cableSize: sizing.formattedCableSize,
     cableLength: opts.cableLength,
     installMethod: 'C',
     cableInsulation: 'XLPE',
+    cableMaterial: material,
     groupingCount: 1,
   };
 }
@@ -373,7 +379,9 @@ function buildMall(): Building {
     lightningProtection: true,
     floorDesigns,
     buildingLoads: [
-      libraryLoad({ id: 'm-bl-hvac', lib: lib.hvac, qty: 1, cableLength: 60 }),
+      // HVAC on ALUMINUM XLPE — the biggest building-load cable, exercising
+      // the aluminum path end-to-end (sizing, Iz, fault current, selectivity).
+      libraryLoad({ id: 'm-bl-hvac', lib: lib.hvac, qty: 1, cableLength: 60, material: 'aluminum' }),
       libraryLoad({ id: 'm-bl-esc', lib: lib.escalator, qty: 1, cableLength: 40 }),
       libraryLoad({ id: 'm-bl-eml', lib: lib.emergencyLighting, qty: 1, cableLength: 30 }),
     ],
@@ -561,6 +569,28 @@ describe('Mixed-Use Multi-Building Integration (loads → breakers → selectivi
     expect(a.smdbFloorNumbers).toEqual([5, 6, 7, 8]);
     expect(b.smdbFloorNumbers).toEqual([4, 5, 6]);
     expect(m.smdbFloorNumbers).toEqual([1, 2, 3, 4]);
+  });
+
+  it('aluminum building-load cable is sized by the aluminum columns and stays In <= Iz', () => {
+    const m = results['Shopping Mall'];
+    const hvac = m.mdbFeeders.find((f) => f.name === 'HVAC System');
+    expect(hvac).toBeDefined();
+    expect(hvac!.breakerSize).toBe(500); // current unchanged by material
+    // Aluminum XLPE 3-phase: single 300 mm² = 497 A < 500 A, so the sizing
+    // engine drops to parallel runs: 2 × 120 mm² (2 × 276 = 552 A). The stored
+    // cable keeps the "2 ×" prefix so the evaluation sees both runs.
+    expect(hvac!.formattedCableSize).toContain('2 × 120 mm²');
+    expect(hvac!.parallelRuns).toBe(2);
+    expect(hvac!.cableIz!).toBeGreaterThanOrEqual(hvac!.breakerSize);
+    expect(hvac!.isUnderProtected).toBe(false);
+
+    // The copper-equivalent HVAC (same current) fits a single 240 mm² run
+    // (copper 240 = 500 A) — aluminum needs parallel runs where copper does not.
+    const copperSizing = sizeCableAndBreaker(hvac!.current, true, {
+      material: 'copper', insulation: 'XLPE', ambientTemp: 30, groupingCount: 1, installMethod: 'C',
+    });
+    expect(copperSizing.parallelRuns).toBe(1);
+    expect(copperSizing.cableSize).toBe(240);
   });
 
   it('apartment feeder currents match the route formula (loads layer, per-feeder)', () => {

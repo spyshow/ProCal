@@ -13,6 +13,7 @@ export interface CableEditorInput {
   maxVoltageDropPercent: number;
   method?: string;
   insulation?: 'PVC' | 'XLPE';
+  material?: 'copper' | 'aluminum';
   ambientTemp?: number;
   groupingCount?: number;
   maxCableSize?: number;
@@ -50,6 +51,7 @@ export function recalculateCable(input: CableEditorInput): CableEditorResult {
     maxVoltageDropPercent,
     method = 'C',
     insulation = 'XLPE',
+    material = 'copper',
     ambientTemp = 30,
     groupingCount = 1,
     maxCableSize = 300,
@@ -69,10 +71,10 @@ export function recalculateCable(input: CableEditorInput): CableEditorResult {
   const totalDerating = tempFactor * groupFactor;
 
   // 1. Calculate continuous carrying capacity & VD of the current installed cable
-  const installedBaseAmpacity = getAmpacity(existingParsed.size, method, insulation, isThreePhase);
+  const installedBaseAmpacity = getAmpacity(existingParsed.size, method, insulation, isThreePhase, material);
   const installedSingleAmpacity = installedBaseAmpacity * totalDerating;
   const installedTotalAmpacity = installedSingleAmpacity * currentRuns;
-  const installedVD = calculateVoltageDrop(current, lengthMeters, existingParsed.size, powerFactor, isThreePhase, systemVoltage, currentRuns);
+  const installedVD = calculateVoltageDrop(current, lengthMeters, existingParsed.size, powerFactor, isThreePhase, systemVoltage, currentRuns, material);
 
   const availableCatalog = CABLE_CATALOG.filter((c) => c.size <= maxCableSize);
   const catalogToUse = availableCatalog.length > 0 ? availableCatalog : CABLE_CATALOG;
@@ -94,8 +96,8 @@ export function recalculateCable(input: CableEditorInput): CableEditorResult {
     optimalRuns = targetRuns;
     let foundTarget = false;
     for (const cable of catalogToUse) {
-      const vd = calculateVoltageDrop(current, lengthMeters, cable.size, powerFactor, isThreePhase, systemVoltage, optimalRuns);
-      const baseAmpacity = getAmpacity(cable.size, method, insulation, isThreePhase);
+      const vd = calculateVoltageDrop(current, lengthMeters, cable.size, powerFactor, isThreePhase, systemVoltage, optimalRuns, material);
+      const baseAmpacity = getAmpacity(cable.size, method, insulation, isThreePhase, material);
       const singleDerated = baseAmpacity * totalDerating;
       const totalDerated = singleDerated * optimalRuns;
 
@@ -111,10 +113,10 @@ export function recalculateCable(input: CableEditorInput): CableEditorResult {
     if (!foundTarget) {
       // Pick largest in catalog with targetRuns
       const largest = catalogToUse[catalogToUse.length - 1];
-      const baseAmpacity = getAmpacity(largest.size, method, insulation, isThreePhase);
+      const baseAmpacity = getAmpacity(largest.size, method, insulation, isThreePhase, material);
       const singleDerated = baseAmpacity * totalDerating;
       optimalCable = largest;
-      optimalVD = calculateVoltageDrop(current, lengthMeters, largest.size, powerFactor, isThreePhase, systemVoltage, optimalRuns);
+      optimalVD = calculateVoltageDrop(current, lengthMeters, largest.size, powerFactor, isThreePhase, systemVoltage, optimalRuns, material);
       optimalSingleAmpacity = singleDerated;
       optimalTotalAmpacity = singleDerated * optimalRuns;
     }
@@ -126,8 +128,8 @@ export function recalculateCable(input: CableEditorInput): CableEditorResult {
 
     // Pass 1: Try single conductor (runs = 1) up to maxCableSize
     for (const cable of catalogToUse) {
-      const vd = calculateVoltageDrop(current, lengthMeters, cable.size, powerFactor, isThreePhase, systemVoltage, 1);
-      const baseAmpacity = getAmpacity(cable.size, method, insulation, isThreePhase);
+      const vd = calculateVoltageDrop(current, lengthMeters, cable.size, powerFactor, isThreePhase, systemVoltage, 1, material);
+      const baseAmpacity = getAmpacity(cable.size, method, insulation, isThreePhase, material);
       const singleDerated = baseAmpacity * totalDerating;
 
       if (vd.dropPercent <= maxVoltageDropPercent && singleDerated >= current) {
@@ -146,8 +148,8 @@ export function recalculateCable(input: CableEditorInput): CableEditorResult {
     if (!found) {
       for (let runs = 2; runs <= 6; runs++) {
         for (const cable of catalogToUse) {
-          const vd = calculateVoltageDrop(current, lengthMeters, cable.size, powerFactor, isThreePhase, systemVoltage, runs);
-          const baseAmpacity = getAmpacity(cable.size, method, insulation, isThreePhase);
+          const vd = calculateVoltageDrop(current, lengthMeters, cable.size, powerFactor, isThreePhase, systemVoltage, runs, material);
+          const baseAmpacity = getAmpacity(cable.size, method, insulation, isThreePhase, material);
           const singleDerated = baseAmpacity * totalDerating;
           const totalDerated = singleDerated * runs;
 
@@ -168,12 +170,12 @@ export function recalculateCable(input: CableEditorInput): CableEditorResult {
     // Fallback: If no candidate satisfies both VD & ampacity, pick largest available
     if (!found) {
       const largest = catalogToUse[catalogToUse.length - 1];
-      const baseAmpacity = getAmpacity(largest.size, method, insulation, isThreePhase);
+      const baseAmpacity = getAmpacity(largest.size, method, insulation, isThreePhase, material);
       const singleDerated = baseAmpacity * totalDerating;
       const requiredRuns = Math.max(1, Math.ceil(current / (singleDerated > 0 ? singleDerated : 1)));
       optimalRuns = requiredRuns;
       optimalCable = largest;
-      optimalVD = calculateVoltageDrop(current, lengthMeters, largest.size, powerFactor, isThreePhase, systemVoltage, optimalRuns);
+      optimalVD = calculateVoltageDrop(current, lengthMeters, largest.size, powerFactor, isThreePhase, systemVoltage, optimalRuns, material);
       optimalSingleAmpacity = singleDerated;
       optimalTotalAmpacity = singleDerated * optimalRuns;
     }

@@ -412,7 +412,7 @@ export default function RiserPage() {
                     {fd.hasRiser
                       ? fd.riserNoData
                         ? 'no riser data'
-                        : `${fd.riserCableSize ?? '—'}mm² ${fd.riserCableInsulation || 'XLPE'} · ${fd.riserCableLength?.toFixed(0) ?? '—'}m`
+                        : `${fd.riserCableSize ?? '—'}mm² ${fd.riserCableInsulation || 'XLPE'}${fd.riserCableMaterial === 'aluminum' ? ' Al' : ''} · ${fd.riserCableLength?.toFixed(0) ?? '—'}m`
                       : `${fd.items.length} ${t('cableSchedule.circuits', 'apt feeders')}`}
                   </text>
 

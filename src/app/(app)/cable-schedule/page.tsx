@@ -47,6 +47,7 @@ interface CableEntry {
   changed: boolean;
   method: string;
   insulation: 'PVC' | 'XLPE';
+  material: 'copper' | 'aluminum';
   ambientTemp: number;
   groupingCount: number;
   ampacity: number;
@@ -82,6 +83,10 @@ export default function CableSchedulePage() {
   const [defaultInsulation, setDefaultInsulation] = useState<'PVC' | 'XLPE'>(() => {
     if (typeof window !== 'undefined') return (localStorage.getItem('procal-default-insulation') as 'PVC' | 'XLPE') || 'XLPE';
     return 'XLPE';
+  });
+  const [defaultMaterial, setDefaultMaterial] = useState<'copper' | 'aluminum'>(() => {
+    if (typeof window !== 'undefined') return (localStorage.getItem('procal-default-material') as 'copper' | 'aluminum') || 'copper';
+    return 'copper';
   });
   const [defaultAmbientTemp, setDefaultAmbientTemp] = useState<number>(() => {
     if (typeof window !== 'undefined') {
@@ -197,6 +202,7 @@ export default function CableSchedulePage() {
           const length = getItemCableLength(item, fd.floorNumber);
           const method = (item as any).installMethod || defaultMethod;
           const insulation = (item as any).cableInsulation || defaultInsulation;
+          const material = (item as any).cableMaterial || defaultMaterial;
           const ambientTemp = (item as any).ambientTemp ?? project.ambientTemp ?? defaultAmbientTemp;
           const groupingCount = (item as any).groupingCount ?? project.groupingCount ?? defaultGroupingCount;
           const rawPhase = (item as any).assignedPhase ?? null;
@@ -219,6 +225,7 @@ export default function CableSchedulePage() {
             maxVoltageDropPercent: limits.power,
             method,
             insulation,
+            material,
             ambientTemp,
             groupingCount,
             maxCableSize: defaultMaxCableSize,
@@ -248,6 +255,7 @@ export default function CableSchedulePage() {
             changed: result.changed,
             method,
             insulation,
+            material,
             ambientTemp,
             groupingCount,
             ampacity: result.ampacity,
@@ -279,6 +287,7 @@ export default function CableSchedulePage() {
         const length = getBuildingLoadCableLength(bl);
         const method = bl.installMethod || defaultMethod;
         const insulation = (bl.cableInsulation as 'PVC' | 'XLPE') || defaultInsulation;
+        const material = (bl.cableMaterial as 'copper' | 'aluminum') || defaultMaterial;
         const ambientTemp = bl.ambientTemp ?? project.ambientTemp ?? defaultAmbientTemp;
         const groupingCount = bl.groupingCount ?? project.groupingCount ?? defaultGroupingCount;
         const rawPhase = (bl as any).assignedPhase ?? null;
@@ -301,6 +310,7 @@ export default function CableSchedulePage() {
           maxVoltageDropPercent: limits.power,
           method,
           insulation,
+          material,
           ambientTemp,
           groupingCount,
           maxCableSize: defaultMaxCableSize,
@@ -330,6 +340,7 @@ export default function CableSchedulePage() {
           changed: result.changed,
           method,
           insulation,
+          material,
           ambientTemp,
           groupingCount,
           ampacity: result.ampacity,
@@ -351,6 +362,7 @@ export default function CableSchedulePage() {
         const length = getRiserCableLength(fd);
         const sdbMethod = fd.riserInstallMethod || defaultMethod;
         const sdbInsulation = (fd.riserCableInsulation as 'PVC' | 'XLPE') || defaultInsulation;
+        const sdbMaterial = (fd.riserCableMaterial as 'copper' | 'aluminum') || defaultMaterial;
         const ambientTemp = fd.riserAmbientTemp ?? project.ambientTemp ?? defaultAmbientTemp;
         const groupingCount = fd.riserGroupingCount ?? project.groupingCount ?? defaultGroupingCount;
 
@@ -365,6 +377,7 @@ export default function CableSchedulePage() {
           maxVoltageDropPercent: limits.power,
           method: sdbMethod,
           insulation: sdbInsulation,
+          material: sdbMaterial,
           ambientTemp,
           groupingCount,
           maxCableSize: defaultMaxCableSize,
@@ -394,6 +407,7 @@ export default function CableSchedulePage() {
           changed: result.changed,
           method: sdbMethod,
           insulation: sdbInsulation,
+          material: sdbMaterial,
           ambientTemp,
           groupingCount,
           ampacity: result.ampacity,
@@ -404,7 +418,7 @@ export default function CableSchedulePage() {
       }
     }
     setCables(cableList);
-  }, [project, selectedBuilding, defaultAmbientTemp, defaultGroupingCount, defaultInsulation, defaultMethod, defaultMaxCableSize]);
+  }, [project, selectedBuilding, defaultAmbientTemp, defaultGroupingCount, defaultInsulation, defaultMaterial, defaultMethod, defaultMaxCableSize]);
 
   const updateCableField = (id: string, field: string, value: any) => {
     const savedLimits = localStorage.getItem('procal-vd-limits');
@@ -415,6 +429,7 @@ export default function CableSchedulePage() {
       const newLength = field === 'length' ? value : c.length;
       const newMethod = field === 'method' ? value : c.method;
       const newInsulation = field === 'insulation' ? value : c.insulation;
+      const newMaterial = field === 'material' ? value : c.material;
       const newAmbientTemp = field === 'ambientTemp' ? value : c.ambientTemp;
       const newGroupingCount = field === 'groupingCount' ? value : c.groupingCount;
       const targetRuns = field === 'runs' ? parseInt(value, 10) || 1 : undefined;
@@ -430,6 +445,7 @@ export default function CableSchedulePage() {
         maxVoltageDropPercent: limits.power,
         method: newMethod,
         insulation: newInsulation,
+        material: newMaterial,
         ambientTemp: newAmbientTemp,
         groupingCount: newGroupingCount,
         maxCableSize: defaultMaxCableSize,
@@ -462,6 +478,7 @@ export default function CableSchedulePage() {
           length: newLength,
           method: newMethod,
           insulation: newInsulation,
+          material: newMaterial,
           ambientTemp: newAmbientTemp,
           groupingCount: newGroupingCount,
           newCableSize: result.cableSize,
@@ -480,6 +497,7 @@ export default function CableSchedulePage() {
         length: newLength,
         method: newMethod,
         insulation: newInsulation,
+        material: newMaterial,
         ambientTemp: newAmbientTemp,
         groupingCount: newGroupingCount,
         newCableSize: result.cableSize,
@@ -510,6 +528,7 @@ export default function CableSchedulePage() {
         maxVoltageDropPercent: limits.power,
         method: c.method,
         insulation: c.insulation,
+        material: c.material,
         ambientTemp: c.ambientTemp,
         groupingCount: c.groupingCount,
         maxCableSize: defaultMaxCableSize,
@@ -570,6 +589,7 @@ export default function CableSchedulePage() {
             maxVoltageDropPercent: limits.power,
             method: c.method,
             insulation: c.insulation,
+            material: c.material,
             ambientTemp: c.ambientTemp,
             groupingCount: c.groupingCount,
             maxCableSize: defaultMaxCableSize,
@@ -627,12 +647,14 @@ export default function CableSchedulePage() {
           ? {
               riserInstallMethod: defaultMethod,
               riserCableInsulation: defaultInsulation,
+              riserCableMaterial: defaultMaterial,
               riserAmbientTemp: defaultAmbientTemp,
               riserGroupingCount: defaultGroupingCount,
             }
           : {
               installMethod: defaultMethod,
               cableInsulation: defaultInsulation,
+              cableMaterial: defaultMaterial,
               ambientTemp: defaultAmbientTemp,
               groupingCount: defaultGroupingCount,
             };
@@ -655,6 +677,7 @@ export default function CableSchedulePage() {
           maxVoltageDropPercent: limits.power,
           method: defaultMethod,
           insulation: defaultInsulation,
+          material: defaultMaterial,
           ambientTemp: defaultAmbientTemp,
           groupingCount: defaultGroupingCount,
           maxCableSize: defaultMaxCableSize,
@@ -663,6 +686,7 @@ export default function CableSchedulePage() {
           ...c,
           method: defaultMethod,
           insulation: defaultInsulation,
+          material: defaultMaterial,
           ambientTemp: defaultAmbientTemp,
           groupingCount: defaultGroupingCount,
           newCableSize: result.cableSize,
@@ -881,6 +905,24 @@ export default function CableSchedulePage() {
 
           <div>
             <label className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block mb-1">
+              {t('cableSchedule.defaultMaterial', 'Default Material')}
+            </label>
+            <select
+              value={defaultMaterial}
+              onChange={(e) => {
+                const val = e.target.value as 'copper' | 'aluminum';
+                setDefaultMaterial(val);
+                if (typeof window !== 'undefined') localStorage.setItem('procal-default-material', val);
+              }}
+              className="dense-input w-full rounded text-xs py-1"
+            >
+              <option value="copper">Copper</option>
+              <option value="aluminum">Aluminum</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block mb-1">
               {t('cableSchedule.ambientTemp', 'Ambient Temp (°C)')}
             </label>
             <select
@@ -1007,6 +1049,7 @@ export default function CableSchedulePage() {
                     <th className="text-center">{t('cableSchedule.size', 'SIZE')}</th>
                     <th className="text-center">{t('cableSchedule.method', 'METHOD')}</th>
                     <th className="text-center">{t('cableSchedule.insulation', 'INS')}</th>
+                    <th className="text-center">{t('cableSchedule.material', 'MAT')}</th>
                     <th className="text-center">{t('cableSchedule.ambientTemp', 'TEMP')}</th>
                     <th className="text-center">{t('cableSchedule.groupingCount', 'GRP')}</th>
                     <th className="text-center">{t('cableSchedule.ampacity', 'AMPACITY (Iz)')}</th>
@@ -1092,6 +1135,19 @@ export default function CableSchedulePage() {
                         >
                           <option value="XLPE">XLPE</option>
                           <option value="PVC">PVC</option>
+                        </select>
+                      </td>
+
+                      {/* Material */}
+                      <td className="text-center">
+                        <select
+                          value={c.material}
+                          onChange={(e) => updateCableField(c.id, 'material', e.target.value)}
+                          className="bg-slate-800/90 border border-slate-700 hover:border-slate-600 rounded-md px-1.5 py-1 text-[11px] text-slate-200 font-medium cursor-pointer focus:outline-none focus:ring-1 focus:ring-orange-500"
+                          title="Copper or aluminum conductor"
+                        >
+                          <option value="copper">Cu</option>
+                          <option value="aluminum">Al</option>
                         </select>
                       </td>
 

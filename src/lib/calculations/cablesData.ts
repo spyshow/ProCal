@@ -7,29 +7,44 @@ export interface CableSpec {
   copperPvc1Ph: number; // Ampacity for 1-phase Copper PVC
   copperXlpe1Ph: number; // Ampacity for 1-phase Copper XLPE
   alXlpe3Ph: number; // Ampacity for 3-phase Aluminum XLPE
-  resistance: number; // AC Resistance at 70/90°C (ohms/km)
+  alXlpe1Ph: number; // Ampacity for 1-phase Aluminum XLPE
+  alPvc3Ph: number; // Ampacity for 3-phase Aluminum PVC
+  alPvc1Ph: number; // Ampacity for 1-phase Aluminum PVC
+  resistance: number; // AC Resistance at 70/90°C (ohms/km) — COPPER values; aluminum is ~1.64× (see calculateVoltageDrop)
   reactance: number; // Reactance at 50Hz (ohms/km)
 }
 
+type CableSpecBase = Omit<CableSpec, 'alXlpe1Ph' | 'alPvc3Ph' | 'alPvc1Ph'>;
+
 // Typical AC resistance & reactance values (ohms/km) and ampacities (Reference Method C - Clipped directly)
-export const CABLE_CATALOG: CableSpec[] = [
-  { size: 1.5, copperPvc3Ph: 15.5, copperXlpe3Ph: 22, copperPvc1Ph: 17.5, copperXlpe1Ph: 24, alXlpe3Ph: 18.5, resistance: 14.8, reactance: 0.115 },
-  { size: 2.5, copperPvc3Ph: 21, copperXlpe3Ph: 30, copperPvc1Ph: 24, copperXlpe1Ph: 33, alXlpe3Ph: 25, resistance: 8.91, reactance: 0.106 },
-  { size: 4, copperPvc3Ph: 28, copperXlpe3Ph: 40, copperPvc1Ph: 32, copperXlpe1Ph: 45, alXlpe3Ph: 34, resistance: 5.57, reactance: 0.097 },
-  { size: 6, copperPvc3Ph: 36, copperXlpe3Ph: 52, copperPvc1Ph: 41, copperXlpe1Ph: 58, alXlpe3Ph: 43, resistance: 3.71, reactance: 0.093 },
-  { size: 10, copperPvc3Ph: 50, copperXlpe3Ph: 71, copperPvc1Ph: 57, copperXlpe1Ph: 80, alXlpe3Ph: 60, resistance: 2.19, reactance: 0.086 },
-  { size: 16, copperPvc3Ph: 68, copperXlpe3Ph: 96, copperPvc1Ph: 76, copperXlpe1Ph: 107, alXlpe3Ph: 79, resistance: 1.38, reactance: 0.082 },
-  { size: 25, copperPvc3Ph: 89, copperXlpe3Ph: 119, copperPvc1Ph: 101, copperXlpe1Ph: 135, alXlpe3Ph: 101, resistance: 0.87, reactance: 0.080 },
-  { size: 35, copperPvc3Ph: 110, copperXlpe3Ph: 147, copperPvc1Ph: 125, copperXlpe1Ph: 169, alXlpe3Ph: 126, resistance: 0.627, reactance: 0.077 },
-  { size: 50, copperPvc3Ph: 134, copperXlpe3Ph: 179, copperPvc1Ph: 151, copperXlpe1Ph: 207, alXlpe3Ph: 153, resistance: 0.463, reactance: 0.075 },
-  { size: 70, copperPvc3Ph: 171, copperXlpe3Ph: 229, copperPvc1Ph: 192, copperXlpe1Ph: 268, alXlpe3Ph: 196, resistance: 0.321, reactance: 0.073 },
-  { size: 95, copperPvc3Ph: 207, copperXlpe3Ph: 278, copperPvc1Ph: 232, copperXlpe1Ph: 328, alXlpe3Ph: 238, resistance: 0.232, reactance: 0.072 },
-  { size: 120, copperPvc3Ph: 239, copperXlpe3Ph: 322, copperPvc1Ph: 269, copperXlpe1Ph: 382, alXlpe3Ph: 276, resistance: 0.184, reactance: 0.070 },
-  { size: 150, copperPvc3Ph: 272, copperXlpe3Ph: 371, copperPvc1Ph: 300, copperXlpe1Ph: 441, alXlpe3Ph: 319, resistance: 0.147, reactance: 0.070 },
-  { size: 185, copperPvc3Ph: 310, copperXlpe3Ph: 424, copperPvc1Ph: 341, copperXlpe1Ph: 506, alXlpe3Ph: 364, resistance: 0.117, reactance: 0.069 },
-  { size: 240, copperPvc3Ph: 364, copperXlpe3Ph: 500, copperPvc1Ph: 400, copperXlpe1Ph: 599, alXlpe3Ph: 430, resistance: 0.089, reactance: 0.068 },
-  { size: 300, copperPvc3Ph: 419, copperXlpe3Ph: 576, copperPvc1Ph: 460, copperXlpe1Ph: 693, alXlpe3Ph: 497, resistance: 0.072, reactance: 0.068 },
-];
+// The three extra aluminum columns are derived from the IEC-style alXlpe3Ph base
+// scaled by the copper 1-phase / PVC ratios — aluminum ampacity tables in
+// IEC 60364-5-52 keep the same relative shape, only lower.
+export const CABLE_CATALOG: CableSpec[] = (
+  [
+    { size: 1.5, copperPvc3Ph: 15.5, copperXlpe3Ph: 22, copperPvc1Ph: 17.5, copperXlpe1Ph: 24, alXlpe3Ph: 18.5, resistance: 14.8, reactance: 0.115 },
+    { size: 2.5, copperPvc3Ph: 21, copperXlpe3Ph: 30, copperPvc1Ph: 24, copperXlpe1Ph: 33, alXlpe3Ph: 25, resistance: 8.91, reactance: 0.106 },
+    { size: 4, copperPvc3Ph: 28, copperXlpe3Ph: 40, copperPvc1Ph: 32, copperXlpe1Ph: 45, alXlpe3Ph: 34, resistance: 5.57, reactance: 0.097 },
+    { size: 6, copperPvc3Ph: 36, copperXlpe3Ph: 52, copperPvc1Ph: 41, copperXlpe1Ph: 58, alXlpe3Ph: 43, resistance: 3.71, reactance: 0.093 },
+    { size: 10, copperPvc3Ph: 50, copperXlpe3Ph: 71, copperPvc1Ph: 57, copperXlpe1Ph: 80, alXlpe3Ph: 60, resistance: 2.19, reactance: 0.086 },
+    { size: 16, copperPvc3Ph: 68, copperXlpe3Ph: 96, copperPvc1Ph: 76, copperXlpe1Ph: 107, alXlpe3Ph: 79, resistance: 1.38, reactance: 0.082 },
+    { size: 25, copperPvc3Ph: 89, copperXlpe3Ph: 119, copperPvc1Ph: 101, copperXlpe1Ph: 135, alXlpe3Ph: 101, resistance: 0.87, reactance: 0.080 },
+    { size: 35, copperPvc3Ph: 110, copperXlpe3Ph: 147, copperPvc1Ph: 125, copperXlpe1Ph: 169, alXlpe3Ph: 126, resistance: 0.627, reactance: 0.077 },
+    { size: 50, copperPvc3Ph: 134, copperXlpe3Ph: 179, copperPvc1Ph: 151, copperXlpe1Ph: 207, alXlpe3Ph: 153, resistance: 0.463, reactance: 0.075 },
+    { size: 70, copperPvc3Ph: 171, copperXlpe3Ph: 229, copperPvc1Ph: 192, copperXlpe1Ph: 268, alXlpe3Ph: 196, resistance: 0.321, reactance: 0.073 },
+    { size: 95, copperPvc3Ph: 207, copperXlpe3Ph: 278, copperPvc1Ph: 232, copperXlpe1Ph: 328, alXlpe3Ph: 238, resistance: 0.232, reactance: 0.072 },
+    { size: 120, copperPvc3Ph: 239, copperXlpe3Ph: 322, copperPvc1Ph: 269, copperXlpe1Ph: 382, alXlpe3Ph: 276, resistance: 0.184, reactance: 0.070 },
+    { size: 150, copperPvc3Ph: 272, copperXlpe3Ph: 371, copperPvc1Ph: 300, copperXlpe1Ph: 441, alXlpe3Ph: 319, resistance: 0.147, reactance: 0.070 },
+    { size: 185, copperPvc3Ph: 310, copperXlpe3Ph: 424, copperPvc1Ph: 341, copperXlpe1Ph: 506, alXlpe3Ph: 364, resistance: 0.117, reactance: 0.069 },
+    { size: 240, copperPvc3Ph: 364, copperXlpe3Ph: 500, copperPvc1Ph: 400, copperXlpe1Ph: 599, alXlpe3Ph: 430, resistance: 0.089, reactance: 0.068 },
+    { size: 300, copperPvc3Ph: 419, copperXlpe3Ph: 576, copperPvc1Ph: 460, copperXlpe1Ph: 693, alXlpe3Ph: 497, resistance: 0.072, reactance: 0.068 },
+  ] as CableSpecBase[]
+).map((c) => ({
+  ...c,
+  alXlpe1Ph: Math.round(c.alXlpe3Ph * (c.copperXlpe1Ph / c.copperXlpe3Ph)),
+  alPvc3Ph: Math.round(c.alXlpe3Ph * (c.copperPvc3Ph / c.copperXlpe3Ph)),
+  alPvc1Ph: Math.round(c.alXlpe3Ph * (c.copperPvc1Ph / c.copperXlpe3Ph)),
+}));
 
 // Temperature derating factors (Reference ambient: 30°C in air)
 export const TEMP_DERATING: Record<string, Record<number, number>> = {

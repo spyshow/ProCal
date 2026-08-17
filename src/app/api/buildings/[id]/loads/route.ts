@@ -15,7 +15,7 @@ export async function POST(
     }
 
     const { id: buildingId } = await params;
-    const { loadLibraryItemId, quantity } = await request.json();
+    const { loadLibraryItemId, quantity, cableMaterial } = await request.json();
 
     if (!loadLibraryItemId) {
       return NextResponse.json({ error: "loadLibraryItemId is required" }, { status: 400 });
@@ -46,13 +46,16 @@ export async function POST(
     const current = isThreePhase
       ? totalPower / (Math.sqrt(3) * (libraryItem.voltage / 1000) * libraryItem.powerFactor)
       : totalPower / ((libraryItem.voltage / 1000) * libraryItem.powerFactor);
+    const material: 'copper' | 'aluminum' =
+      cableMaterial === 'aluminum' ? 'aluminum' : 'copper';
     const sizing = sizeCableAndBreaker(current, isThreePhase, {
-      material: "copper",
+      material,
       insulation: "XLPE",
       ambientTemp: 30,
       groupingCount: 1,
     });
-    const cableSize = `${sizing.cableSize} mm²`;
+    // formattedCableSize keeps parallel runs ("2 × 120 mm²").
+    const cableSize = sizing.formattedCableSize;
 
     const created = await db.buildingLoad.create({
       data: {
@@ -62,6 +65,7 @@ export async function POST(
         cableSize,
         installMethod: "C",
         cableInsulation: "XLPE",
+        cableMaterial: material,
       },
       include: { loadLibraryItem: true },
     });

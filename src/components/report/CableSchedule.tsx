@@ -20,6 +20,7 @@ interface CableRow {
   cable: string;
   method: string;
   insulation: string;
+  material: string;
 }
 
 /**
@@ -47,6 +48,7 @@ export default function CableSchedule({ project, buildingId, showHeader = true }
           cable: item.cableSize,
           method: item.installMethod || 'C',
           insulation: item.cableInsulation || 'XLPE',
+          material: item.cableMaterial || 'copper',
         });
       }
     }
@@ -69,6 +71,7 @@ export default function CableSchedule({ project, buildingId, showHeader = true }
         cable: bl.cableSize || '4 mm²',
         method: bl.installMethod || 'C',
         insulation: bl.cableInsulation || 'XLPE',
+        material: bl.cableMaterial || 'copper',
       });
     }
   }
@@ -93,7 +96,7 @@ export default function CableSchedule({ project, buildingId, showHeader = true }
             <th className="border p-2 text-center">Breaker (A)</th>
             <th className="border p-2 text-center">Cable (mm²)</th>
             <th className="border p-2 text-center">Method</th>
-            <th className="border p-2 text-center">Insulation</th>
+            <th className="border p-2 text-center">Insulation / Material</th>
           </tr>
         </thead>
         <tbody>
@@ -107,7 +110,9 @@ export default function CableSchedule({ project, buildingId, showHeader = true }
               <td className="border p-2 text-center font-mono text-blue-600">{row.breaker}</td>
               <td className="border p-2 text-center font-mono text-green-600">{row.cable}</td>
               <td className="border p-2 text-center text-xs text-gray-500">{row.method}</td>
-              <td className="border p-2 text-center text-xs text-gray-500">{row.insulation}</td>
+              <td className="border p-2 text-center text-xs text-gray-500">
+                {row.insulation} · {row.material === 'aluminum' ? 'Al' : 'Cu'}
+              </td>
             </tr>
           ))}
         </tbody>

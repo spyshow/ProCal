@@ -49,6 +49,7 @@ export type FloorDesignMinAggregateOutputType = {
   riserBreakerSize: string | null
   riserInstallMethod: string | null
   riserCableInsulation: string | null
+  riserCableMaterial: string | null
   riserAmbientTemp: number | null
   riserGroupingCount: number | null
   buildingId: string | null
@@ -63,6 +64,7 @@ export type FloorDesignMaxAggregateOutputType = {
   riserBreakerSize: string | null
   riserInstallMethod: string | null
   riserCableInsulation: string | null
+  riserCableMaterial: string | null
   riserAmbientTemp: number | null
   riserGroupingCount: number | null
   buildingId: string | null
@@ -77,6 +79,7 @@ export type FloorDesignCountAggregateOutputType = {
   riserBreakerSize: number
   riserInstallMethod: number
   riserCableInsulation: number
+  riserCableMaterial: number
   riserAmbientTemp: number
   riserGroupingCount: number
   buildingId: number
@@ -107,6 +110,7 @@ export type FloorDesignMinAggregateInputType = {
   riserBreakerSize?: true
   riserInstallMethod?: true
   riserCableInsulation?: true
+  riserCableMaterial?: true
   riserAmbientTemp?: true
   riserGroupingCount?: true
   buildingId?: true
@@ -121,6 +125,7 @@ export type FloorDesignMaxAggregateInputType = {
   riserBreakerSize?: true
   riserInstallMethod?: true
   riserCableInsulation?: true
+  riserCableMaterial?: true
   riserAmbientTemp?: true
   riserGroupingCount?: true
   buildingId?: true
@@ -135,6 +140,7 @@ export type FloorDesignCountAggregateInputType = {
   riserBreakerSize?: true
   riserInstallMethod?: true
   riserCableInsulation?: true
+  riserCableMaterial?: true
   riserAmbientTemp?: true
   riserGroupingCount?: true
   buildingId?: true
@@ -236,6 +242,7 @@ export type FloorDesignGroupByOutputType = {
   riserBreakerSize: string | null
   riserInstallMethod: string | null
   riserCableInsulation: string | null
+  riserCableMaterial: string | null
   riserAmbientTemp: number | null
   riserGroupingCount: number | null
   buildingId: string
@@ -273,6 +280,7 @@ export type FloorDesignWhereInput = {
   riserBreakerSize?: Prisma.StringNullableFilter<"FloorDesign"> | string | null
   riserInstallMethod?: Prisma.StringNullableFilter<"FloorDesign"> | string | null
   riserCableInsulation?: Prisma.StringNullableFilter<"FloorDesign"> | string | null
+  riserCableMaterial?: Prisma.StringNullableFilter<"FloorDesign"> | string | null
   riserAmbientTemp?: Prisma.FloatNullableFilter<"FloorDesign"> | number | null
   riserGroupingCount?: Prisma.IntNullableFilter<"FloorDesign"> | number | null
   buildingId?: Prisma.StringFilter<"FloorDesign"> | string
@@ -289,6 +297,7 @@ export type FloorDesignOrderByWithRelationInput = {
   riserBreakerSize?: Prisma.SortOrderInput | Prisma.SortOrder
   riserInstallMethod?: Prisma.SortOrderInput | Prisma.SortOrder
   riserCableInsulation?: Prisma.SortOrderInput | Prisma.SortOrder
+  riserCableMaterial?: Prisma.SortOrderInput | Prisma.SortOrder
   riserAmbientTemp?: Prisma.SortOrderInput | Prisma.SortOrder
   riserGroupingCount?: Prisma.SortOrderInput | Prisma.SortOrder
   buildingId?: Prisma.SortOrder
@@ -308,6 +317,7 @@ export type FloorDesignWhereUniqueInput = Prisma.AtLeast<{
   riserBreakerSize?: Prisma.StringNullableFilter<"FloorDesign"> | string | null
   riserInstallMethod?: Prisma.StringNullableFilter<"FloorDesign"> | string | null
   riserCableInsulation?: Prisma.StringNullableFilter<"FloorDesign"> | string | null
+  riserCableMaterial?: Prisma.StringNullableFilter<"FloorDesign"> | string | null
   riserAmbientTemp?: Prisma.FloatNullableFilter<"FloorDesign"> | number | null
   riserGroupingCount?: Prisma.IntNullableFilter<"FloorDesign"> | number | null
   buildingId?: Prisma.StringFilter<"FloorDesign"> | string
@@ -324,6 +334,7 @@ export type FloorDesignOrderByWithAggregationInput = {
   riserBreakerSize?: Prisma.SortOrderInput | Prisma.SortOrder
   riserInstallMethod?: Prisma.SortOrderInput | Prisma.SortOrder
   riserCableInsulation?: Prisma.SortOrderInput | Prisma.SortOrder
+  riserCableMaterial?: Prisma.SortOrderInput | Prisma.SortOrder
   riserAmbientTemp?: Prisma.SortOrderInput | Prisma.SortOrder
   riserGroupingCount?: Prisma.SortOrderInput | Prisma.SortOrder
   buildingId?: Prisma.SortOrder
@@ -346,6 +357,7 @@ export type FloorDesignScalarWhereWithAggregatesInput = {
   riserBreakerSize?: Prisma.StringNullableWithAggregatesFilter<"FloorDesign"> | string | null
   riserInstallMethod?: Prisma.StringNullableWithAggregatesFilter<"FloorDesign"> | string | null
   riserCableInsulation?: Prisma.StringNullableWithAggregatesFilter<"FloorDesign"> | string | null
+  riserCableMaterial?: Prisma.StringNullableWithAggregatesFilter<"FloorDesign"> | string | null
   riserAmbientTemp?: Prisma.FloatNullableWithAggregatesFilter<"FloorDesign"> | number | null
   riserGroupingCount?: Prisma.IntNullableWithAggregatesFilter<"FloorDesign"> | number | null
   buildingId?: Prisma.StringWithAggregatesFilter<"FloorDesign"> | string
@@ -360,6 +372,7 @@ export type FloorDesignCreateInput = {
   riserBreakerSize?: string | null
   riserInstallMethod?: string | null
   riserCableInsulation?: string | null
+  riserCableMaterial?: string | null
   riserAmbientTemp?: number | null
   riserGroupingCount?: number | null
   building: Prisma.BuildingCreateNestedOneWithoutFloorDesignsInput
@@ -375,6 +388,7 @@ export type FloorDesignUncheckedCreateInput = {
   riserBreakerSize?: string | null
   riserInstallMethod?: string | null
   riserCableInsulation?: string | null
+  riserCableMaterial?: string | null
   riserAmbientTemp?: number | null
   riserGroupingCount?: number | null
   buildingId: string
@@ -390,6 +404,7 @@ export type FloorDesignUpdateInput = {
   riserBreakerSize?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   riserInstallMethod?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   riserCableInsulation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  riserCableMaterial?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   riserAmbientTemp?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   riserGroupingCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   building?: Prisma.BuildingUpdateOneRequiredWithoutFloorDesignsNestedInput
@@ -405,6 +420,7 @@ export type FloorDesignUncheckedUpdateInput = {
   riserBreakerSize?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   riserInstallMethod?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   riserCableInsulation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  riserCableMaterial?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   riserAmbientTemp?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   riserGroupingCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   buildingId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -420,6 +436,7 @@ export type FloorDesignCreateManyInput = {
   riserBreakerSize?: string | null
   riserInstallMethod?: string | null
   riserCableInsulation?: string | null
+  riserCableMaterial?: string | null
   riserAmbientTemp?: number | null
   riserGroupingCount?: number | null
   buildingId: string
@@ -434,6 +451,7 @@ export type FloorDesignUpdateManyMutationInput = {
   riserBreakerSize?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   riserInstallMethod?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   riserCableInsulation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  riserCableMaterial?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   riserAmbientTemp?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   riserGroupingCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
@@ -447,6 +465,7 @@ export type FloorDesignUncheckedUpdateManyInput = {
   riserBreakerSize?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   riserInstallMethod?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   riserCableInsulation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  riserCableMaterial?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   riserAmbientTemp?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   riserGroupingCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   buildingId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -471,6 +490,7 @@ export type FloorDesignCountOrderByAggregateInput = {
   riserBreakerSize?: Prisma.SortOrder
   riserInstallMethod?: Prisma.SortOrder
   riserCableInsulation?: Prisma.SortOrder
+  riserCableMaterial?: Prisma.SortOrder
   riserAmbientTemp?: Prisma.SortOrder
   riserGroupingCount?: Prisma.SortOrder
   buildingId?: Prisma.SortOrder
@@ -492,6 +512,7 @@ export type FloorDesignMaxOrderByAggregateInput = {
   riserBreakerSize?: Prisma.SortOrder
   riserInstallMethod?: Prisma.SortOrder
   riserCableInsulation?: Prisma.SortOrder
+  riserCableMaterial?: Prisma.SortOrder
   riserAmbientTemp?: Prisma.SortOrder
   riserGroupingCount?: Prisma.SortOrder
   buildingId?: Prisma.SortOrder
@@ -506,6 +527,7 @@ export type FloorDesignMinOrderByAggregateInput = {
   riserBreakerSize?: Prisma.SortOrder
   riserInstallMethod?: Prisma.SortOrder
   riserCableInsulation?: Prisma.SortOrder
+  riserCableMaterial?: Prisma.SortOrder
   riserAmbientTemp?: Prisma.SortOrder
   riserGroupingCount?: Prisma.SortOrder
   buildingId?: Prisma.SortOrder
@@ -588,6 +610,7 @@ export type FloorDesignCreateWithoutBuildingInput = {
   riserBreakerSize?: string | null
   riserInstallMethod?: string | null
   riserCableInsulation?: string | null
+  riserCableMaterial?: string | null
   riserAmbientTemp?: number | null
   riserGroupingCount?: number | null
   items?: Prisma.FloorItemCreateNestedManyWithoutFloorDesignInput
@@ -602,6 +625,7 @@ export type FloorDesignUncheckedCreateWithoutBuildingInput = {
   riserBreakerSize?: string | null
   riserInstallMethod?: string | null
   riserCableInsulation?: string | null
+  riserCableMaterial?: string | null
   riserAmbientTemp?: number | null
   riserGroupingCount?: number | null
   items?: Prisma.FloorItemUncheckedCreateNestedManyWithoutFloorDesignInput
@@ -645,6 +669,7 @@ export type FloorDesignScalarWhereInput = {
   riserBreakerSize?: Prisma.StringNullableFilter<"FloorDesign"> | string | null
   riserInstallMethod?: Prisma.StringNullableFilter<"FloorDesign"> | string | null
   riserCableInsulation?: Prisma.StringNullableFilter<"FloorDesign"> | string | null
+  riserCableMaterial?: Prisma.StringNullableFilter<"FloorDesign"> | string | null
   riserAmbientTemp?: Prisma.FloatNullableFilter<"FloorDesign"> | number | null
   riserGroupingCount?: Prisma.IntNullableFilter<"FloorDesign"> | number | null
   buildingId?: Prisma.StringFilter<"FloorDesign"> | string
@@ -659,6 +684,7 @@ export type FloorDesignCreateWithoutItemsInput = {
   riserBreakerSize?: string | null
   riserInstallMethod?: string | null
   riserCableInsulation?: string | null
+  riserCableMaterial?: string | null
   riserAmbientTemp?: number | null
   riserGroupingCount?: number | null
   building: Prisma.BuildingCreateNestedOneWithoutFloorDesignsInput
@@ -673,6 +699,7 @@ export type FloorDesignUncheckedCreateWithoutItemsInput = {
   riserBreakerSize?: string | null
   riserInstallMethod?: string | null
   riserCableInsulation?: string | null
+  riserCableMaterial?: string | null
   riserAmbientTemp?: number | null
   riserGroupingCount?: number | null
   buildingId: string
@@ -703,6 +730,7 @@ export type FloorDesignUpdateWithoutItemsInput = {
   riserBreakerSize?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   riserInstallMethod?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   riserCableInsulation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  riserCableMaterial?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   riserAmbientTemp?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   riserGroupingCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   building?: Prisma.BuildingUpdateOneRequiredWithoutFloorDesignsNestedInput
@@ -717,6 +745,7 @@ export type FloorDesignUncheckedUpdateWithoutItemsInput = {
   riserBreakerSize?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   riserInstallMethod?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   riserCableInsulation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  riserCableMaterial?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   riserAmbientTemp?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   riserGroupingCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   buildingId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -731,6 +760,7 @@ export type FloorDesignCreateManyBuildingInput = {
   riserBreakerSize?: string | null
   riserInstallMethod?: string | null
   riserCableInsulation?: string | null
+  riserCableMaterial?: string | null
   riserAmbientTemp?: number | null
   riserGroupingCount?: number | null
 }
@@ -744,6 +774,7 @@ export type FloorDesignUpdateWithoutBuildingInput = {
   riserBreakerSize?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   riserInstallMethod?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   riserCableInsulation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  riserCableMaterial?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   riserAmbientTemp?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   riserGroupingCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   items?: Prisma.FloorItemUpdateManyWithoutFloorDesignNestedInput
@@ -758,6 +789,7 @@ export type FloorDesignUncheckedUpdateWithoutBuildingInput = {
   riserBreakerSize?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   riserInstallMethod?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   riserCableInsulation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  riserCableMaterial?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   riserAmbientTemp?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   riserGroupingCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   items?: Prisma.FloorItemUncheckedUpdateManyWithoutFloorDesignNestedInput
@@ -772,6 +804,7 @@ export type FloorDesignUncheckedUpdateManyWithoutBuildingInput = {
   riserBreakerSize?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   riserInstallMethod?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   riserCableInsulation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  riserCableMaterial?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   riserAmbientTemp?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   riserGroupingCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
@@ -816,6 +849,7 @@ export type FloorDesignSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   riserBreakerSize?: boolean
   riserInstallMethod?: boolean
   riserCableInsulation?: boolean
+  riserCableMaterial?: boolean
   riserAmbientTemp?: boolean
   riserGroupingCount?: boolean
   buildingId?: boolean
@@ -833,6 +867,7 @@ export type FloorDesignSelectCreateManyAndReturn<ExtArgs extends runtime.Types.E
   riserBreakerSize?: boolean
   riserInstallMethod?: boolean
   riserCableInsulation?: boolean
+  riserCableMaterial?: boolean
   riserAmbientTemp?: boolean
   riserGroupingCount?: boolean
   buildingId?: boolean
@@ -848,6 +883,7 @@ export type FloorDesignSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.E
   riserBreakerSize?: boolean
   riserInstallMethod?: boolean
   riserCableInsulation?: boolean
+  riserCableMaterial?: boolean
   riserAmbientTemp?: boolean
   riserGroupingCount?: boolean
   buildingId?: boolean
@@ -863,12 +899,13 @@ export type FloorDesignSelectScalar = {
   riserBreakerSize?: boolean
   riserInstallMethod?: boolean
   riserCableInsulation?: boolean
+  riserCableMaterial?: boolean
   riserAmbientTemp?: boolean
   riserGroupingCount?: boolean
   buildingId?: boolean
 }
 
-export type FloorDesignOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "floorNumber" | "hasFloorSubPanels" | "riserCableLength" | "riserCableSize" | "riserBreakerSize" | "riserInstallMethod" | "riserCableInsulation" | "riserAmbientTemp" | "riserGroupingCount" | "buildingId", ExtArgs["result"]["floorDesign"]>
+export type FloorDesignOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "floorNumber" | "hasFloorSubPanels" | "riserCableLength" | "riserCableSize" | "riserBreakerSize" | "riserInstallMethod" | "riserCableInsulation" | "riserCableMaterial" | "riserAmbientTemp" | "riserGroupingCount" | "buildingId", ExtArgs["result"]["floorDesign"]>
 export type FloorDesignInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   building?: boolean | Prisma.BuildingDefaultArgs<ExtArgs>
   items?: boolean | Prisma.FloorDesign$itemsArgs<ExtArgs>
@@ -896,6 +933,7 @@ export type $FloorDesignPayload<ExtArgs extends runtime.Types.Extensions.Interna
     riserBreakerSize: string | null
     riserInstallMethod: string | null
     riserCableInsulation: string | null
+    riserCableMaterial: string | null
     riserAmbientTemp: number | null
     riserGroupingCount: number | null
     buildingId: string
@@ -1332,6 +1370,7 @@ export interface FloorDesignFieldRefs {
   readonly riserBreakerSize: Prisma.FieldRef<"FloorDesign", 'String'>
   readonly riserInstallMethod: Prisma.FieldRef<"FloorDesign", 'String'>
   readonly riserCableInsulation: Prisma.FieldRef<"FloorDesign", 'String'>
+  readonly riserCableMaterial: Prisma.FieldRef<"FloorDesign", 'String'>
   readonly riserAmbientTemp: Prisma.FieldRef<"FloorDesign", 'Float'>
   readonly riserGroupingCount: Prisma.FieldRef<"FloorDesign", 'Int'>
   readonly buildingId: Prisma.FieldRef<"FloorDesign", 'String'>

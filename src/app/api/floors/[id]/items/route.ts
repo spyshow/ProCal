@@ -16,7 +16,9 @@ export async function POST(
 
     const { id: floorDesignId } = await params;
     const data = await request.json();
-    const { type, name, apartmentTemplateId, loadLibraryItemId, customKw } = data;
+    const { type, name, apartmentTemplateId, loadLibraryItemId, customKw, cableMaterial } = data;
+    const material: 'copper' | 'aluminum' =
+      cableMaterial === 'aluminum' ? 'aluminum' : 'copper';
 
     if (!type || !name) {
       return NextResponse.json({ error: "Type and name are required" }, { status: 400 });
@@ -78,14 +80,16 @@ export async function POST(
 
       // Size breaker and cable based on calculated current
       const sizing = sizeCableAndBreaker(calculatedCurrent, isThreePhase, {
-        material: "copper",
+        material,
         insulation: "XLPE",
         ambientTemp: 30,
         groupingCount: 1,
         installMethod: "C",
       });
       breakerSize = `${sizing.breakerSize}A`;
-      cableSize = `${sizing.cableSize} mm²`;
+      // formattedCableSize keeps parallel runs ("2 × 120 mm²"); the bare
+      // per-run size alone would evaluate as a single under-sized run.
+      cableSize = sizing.formattedCableSize;
     } else if (loadLibraryItemId) {
       // Use Load Library item for calculations
       const libraryItem = await db.loadLibraryItem.findUnique({
@@ -110,7 +114,7 @@ export async function POST(
       calculatedCurrent = parseFloat(calculatedCurrent.toFixed(2));
 
       const sizing = sizeCableAndBreaker(calculatedCurrent, isThreePhase, {
-        material: "copper",
+        material,
         insulation: "XLPE",
         ambientTemp: 30,
         groupingCount: 2,
@@ -118,7 +122,8 @@ export async function POST(
       });
 
       breakerSize = `${sizing.breakerSize}A`;
-      cableSize = `${sizing.cableSize} mm²`;
+      // formattedCableSize keeps parallel runs ("2 × 120 mm²").
+      cableSize = sizing.formattedCableSize;
     } else {
       // Manual kW entry (fallback)
       let kw = parseFloat(customKw) || 0;
@@ -143,7 +148,7 @@ export async function POST(
       calculatedCurrent = parseFloat(calculatedCurrent.toFixed(2));
 
       const sizing = sizeCableAndBreaker(calculatedCurrent, isThreePhase, {
-        material: "copper",
+        material,
         insulation: "XLPE",
         ambientTemp: 30,
         groupingCount: 2,
@@ -151,7 +156,7 @@ export async function POST(
       });
 
       breakerSize = `${sizing.breakerSize}A`;
-      cableSize = `${sizing.cableSize} mm²`;
+      cableSize = sizing.formattedCableSize;
     }
 
     const item = await db.floorItem.create({
@@ -166,6 +171,7 @@ export async function POST(
         calculatedCurrent,
         breakerSize,
         cableSize,
+        cableMaterial: material,
         voltageDrop: 0.1,
       },
     });

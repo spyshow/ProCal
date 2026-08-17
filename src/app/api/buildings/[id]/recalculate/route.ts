@@ -55,10 +55,10 @@ export async function POST(
       }
 
       const sizing = sizeCableAndBreaker(calculatedCurrent, isThreePhase, {
-        material: "copper",
-        insulation: "XLPE",
-        ambientTemp: 30,
-        groupingCount: 1,
+        material: (item.cableMaterial as 'copper' | 'aluminum') ?? 'copper',
+        insulation: (item.cableInsulation as 'PVC' | 'XLPE') ?? 'XLPE',
+        ambientTemp: item.ambientTemp ?? 30,
+        groupingCount: item.groupingCount ?? 1,
         installMethod: item.installMethod ?? "C",
       });
 
@@ -69,7 +69,7 @@ export async function POST(
           calculatedMaxDemand,
           calculatedCurrent: parseFloat(calculatedCurrent.toFixed(2)),
           breakerSize: `${sizing.breakerSize}A`,
-          cableSize: `${sizing.cableSize} mm²`,
+          cableSize: sizing.formattedCableSize,
         },
       });
       updated++;

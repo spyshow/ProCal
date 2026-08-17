@@ -249,6 +249,7 @@ export type UserWhereInput = {
   disabled?: Prisma.BoolFilter<"User"> | boolean
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   projects?: Prisma.ProjectListRelationFilter
+  revisions?: Prisma.ProjectRevisionListRelationFilter
   contactRequests?: Prisma.ContactRequestListRelationFilter
 }
 
@@ -263,6 +264,7 @@ export type UserOrderByWithRelationInput = {
   disabled?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   projects?: Prisma.ProjectOrderByRelationAggregateInput
+  revisions?: Prisma.ProjectRevisionOrderByRelationAggregateInput
   contactRequests?: Prisma.ContactRequestOrderByRelationAggregateInput
 }
 
@@ -280,6 +282,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   disabled?: Prisma.BoolFilter<"User"> | boolean
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   projects?: Prisma.ProjectListRelationFilter
+  revisions?: Prisma.ProjectRevisionListRelationFilter
   contactRequests?: Prisma.ContactRequestListRelationFilter
 }, "id" | "username">
 
@@ -326,6 +329,7 @@ export type UserCreateInput = {
   disabled?: boolean
   createdAt?: Date | string
   projects?: Prisma.ProjectCreateNestedManyWithoutUserInput
+  revisions?: Prisma.ProjectRevisionCreateNestedManyWithoutCreatedByInput
   contactRequests?: Prisma.ContactRequestCreateNestedManyWithoutUserInput
 }
 
@@ -340,6 +344,7 @@ export type UserUncheckedCreateInput = {
   disabled?: boolean
   createdAt?: Date | string
   projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutUserInput
+  revisions?: Prisma.ProjectRevisionUncheckedCreateNestedManyWithoutCreatedByInput
   contactRequests?: Prisma.ContactRequestUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -354,6 +359,7 @@ export type UserUpdateInput = {
   disabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   projects?: Prisma.ProjectUpdateManyWithoutUserNestedInput
+  revisions?: Prisma.ProjectRevisionUpdateManyWithoutCreatedByNestedInput
   contactRequests?: Prisma.ContactRequestUpdateManyWithoutUserNestedInput
 }
 
@@ -368,6 +374,7 @@ export type UserUncheckedUpdateInput = {
   disabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   projects?: Prisma.ProjectUncheckedUpdateManyWithoutUserNestedInput
+  revisions?: Prisma.ProjectRevisionUncheckedUpdateManyWithoutCreatedByNestedInput
   contactRequests?: Prisma.ContactRequestUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -508,6 +515,20 @@ export type UserUpdateOneRequiredWithoutProjectsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutProjectsInput, Prisma.UserUpdateWithoutProjectsInput>, Prisma.UserUncheckedUpdateWithoutProjectsInput>
 }
 
+export type UserCreateNestedOneWithoutRevisionsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutRevisionsInput, Prisma.UserUncheckedCreateWithoutRevisionsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutRevisionsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutRevisionsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutRevisionsInput, Prisma.UserUncheckedCreateWithoutRevisionsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutRevisionsInput
+  upsert?: Prisma.UserUpsertWithoutRevisionsInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutRevisionsInput, Prisma.UserUpdateWithoutRevisionsInput>, Prisma.UserUncheckedUpdateWithoutRevisionsInput>
+}
+
 export type UserCreateWithoutContactRequestsInput = {
   id?: string
   username: string
@@ -519,6 +540,7 @@ export type UserCreateWithoutContactRequestsInput = {
   disabled?: boolean
   createdAt?: Date | string
   projects?: Prisma.ProjectCreateNestedManyWithoutUserInput
+  revisions?: Prisma.ProjectRevisionCreateNestedManyWithoutCreatedByInput
 }
 
 export type UserUncheckedCreateWithoutContactRequestsInput = {
@@ -532,6 +554,7 @@ export type UserUncheckedCreateWithoutContactRequestsInput = {
   disabled?: boolean
   createdAt?: Date | string
   projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutUserInput
+  revisions?: Prisma.ProjectRevisionUncheckedCreateNestedManyWithoutCreatedByInput
 }
 
 export type UserCreateOrConnectWithoutContactRequestsInput = {
@@ -561,6 +584,7 @@ export type UserUpdateWithoutContactRequestsInput = {
   disabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   projects?: Prisma.ProjectUpdateManyWithoutUserNestedInput
+  revisions?: Prisma.ProjectRevisionUpdateManyWithoutCreatedByNestedInput
 }
 
 export type UserUncheckedUpdateWithoutContactRequestsInput = {
@@ -574,6 +598,7 @@ export type UserUncheckedUpdateWithoutContactRequestsInput = {
   disabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   projects?: Prisma.ProjectUncheckedUpdateManyWithoutUserNestedInput
+  revisions?: Prisma.ProjectRevisionUncheckedUpdateManyWithoutCreatedByNestedInput
 }
 
 export type UserCreateWithoutProjectsInput = {
@@ -586,6 +611,7 @@ export type UserCreateWithoutProjectsInput = {
   credits?: number
   disabled?: boolean
   createdAt?: Date | string
+  revisions?: Prisma.ProjectRevisionCreateNestedManyWithoutCreatedByInput
   contactRequests?: Prisma.ContactRequestCreateNestedManyWithoutUserInput
 }
 
@@ -599,6 +625,7 @@ export type UserUncheckedCreateWithoutProjectsInput = {
   credits?: number
   disabled?: boolean
   createdAt?: Date | string
+  revisions?: Prisma.ProjectRevisionUncheckedCreateNestedManyWithoutCreatedByInput
   contactRequests?: Prisma.ContactRequestUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -628,6 +655,7 @@ export type UserUpdateWithoutProjectsInput = {
   credits?: Prisma.IntFieldUpdateOperationsInput | number
   disabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  revisions?: Prisma.ProjectRevisionUpdateManyWithoutCreatedByNestedInput
   contactRequests?: Prisma.ContactRequestUpdateManyWithoutUserNestedInput
 }
 
@@ -641,6 +669,79 @@ export type UserUncheckedUpdateWithoutProjectsInput = {
   credits?: Prisma.IntFieldUpdateOperationsInput | number
   disabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  revisions?: Prisma.ProjectRevisionUncheckedUpdateManyWithoutCreatedByNestedInput
+  contactRequests?: Prisma.ContactRequestUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutRevisionsInput = {
+  id?: string
+  username: string
+  passwordHash: string
+  name: string
+  email?: string | null
+  role?: string
+  credits?: number
+  disabled?: boolean
+  createdAt?: Date | string
+  projects?: Prisma.ProjectCreateNestedManyWithoutUserInput
+  contactRequests?: Prisma.ContactRequestCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutRevisionsInput = {
+  id?: string
+  username: string
+  passwordHash: string
+  name: string
+  email?: string | null
+  role?: string
+  credits?: number
+  disabled?: boolean
+  createdAt?: Date | string
+  projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutUserInput
+  contactRequests?: Prisma.ContactRequestUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutRevisionsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutRevisionsInput, Prisma.UserUncheckedCreateWithoutRevisionsInput>
+}
+
+export type UserUpsertWithoutRevisionsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutRevisionsInput, Prisma.UserUncheckedUpdateWithoutRevisionsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutRevisionsInput, Prisma.UserUncheckedCreateWithoutRevisionsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutRevisionsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutRevisionsInput, Prisma.UserUncheckedUpdateWithoutRevisionsInput>
+}
+
+export type UserUpdateWithoutRevisionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.StringFieldUpdateOperationsInput | string
+  credits?: Prisma.IntFieldUpdateOperationsInput | number
+  disabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  projects?: Prisma.ProjectUpdateManyWithoutUserNestedInput
+  contactRequests?: Prisma.ContactRequestUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutRevisionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.StringFieldUpdateOperationsInput | string
+  credits?: Prisma.IntFieldUpdateOperationsInput | number
+  disabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  projects?: Prisma.ProjectUncheckedUpdateManyWithoutUserNestedInput
   contactRequests?: Prisma.ContactRequestUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -651,11 +752,13 @@ export type UserUncheckedUpdateWithoutProjectsInput = {
 
 export type UserCountOutputType = {
   projects: number
+  revisions: number
   contactRequests: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   projects?: boolean | UserCountOutputTypeCountProjectsArgs
+  revisions?: boolean | UserCountOutputTypeCountRevisionsArgs
   contactRequests?: boolean | UserCountOutputTypeCountContactRequestsArgs
 }
 
@@ -679,6 +782,13 @@ export type UserCountOutputTypeCountProjectsArgs<ExtArgs extends runtime.Types.E
 /**
  * UserCountOutputType without action
  */
+export type UserCountOutputTypeCountRevisionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ProjectRevisionWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
 export type UserCountOutputTypeCountContactRequestsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.ContactRequestWhereInput
 }
@@ -695,6 +805,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   disabled?: boolean
   createdAt?: boolean
   projects?: boolean | Prisma.User$projectsArgs<ExtArgs>
+  revisions?: boolean | Prisma.User$revisionsArgs<ExtArgs>
   contactRequests?: boolean | Prisma.User$contactRequestsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
@@ -738,6 +849,7 @@ export type UserSelectScalar = {
 export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "username" | "passwordHash" | "name" | "email" | "role" | "credits" | "disabled" | "createdAt", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   projects?: boolean | Prisma.User$projectsArgs<ExtArgs>
+  revisions?: boolean | Prisma.User$revisionsArgs<ExtArgs>
   contactRequests?: boolean | Prisma.User$contactRequestsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
@@ -748,6 +860,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   name: "User"
   objects: {
     projects: Prisma.$ProjectPayload<ExtArgs>[]
+    revisions: Prisma.$ProjectRevisionPayload<ExtArgs>[]
     contactRequests: Prisma.$ContactRequestPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
@@ -1155,6 +1268,7 @@ readonly fields: UserFieldRefs;
 export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   projects<T extends Prisma.User$projectsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$projectsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProjectPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  revisions<T extends Prisma.User$revisionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$revisionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProjectRevisionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   contactRequests<T extends Prisma.User$contactRequestsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$contactRequestsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ContactRequestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -1608,6 +1722,30 @@ export type User$projectsArgs<ExtArgs extends runtime.Types.Extensions.InternalA
   take?: number
   skip?: number
   distinct?: Prisma.ProjectScalarFieldEnum | Prisma.ProjectScalarFieldEnum[]
+}
+
+/**
+ * User.revisions
+ */
+export type User$revisionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ProjectRevision
+   */
+  select?: Prisma.ProjectRevisionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ProjectRevision
+   */
+  omit?: Prisma.ProjectRevisionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProjectRevisionInclude<ExtArgs> | null
+  where?: Prisma.ProjectRevisionWhereInput
+  orderBy?: Prisma.ProjectRevisionOrderByWithRelationInput | Prisma.ProjectRevisionOrderByWithRelationInput[]
+  cursor?: Prisma.ProjectRevisionWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ProjectRevisionScalarFieldEnum | Prisma.ProjectRevisionScalarFieldEnum[]
 }
 
 /**

@@ -329,3 +329,62 @@ describe('derating factors interpolate between table entries', () => {
     expect(groupingDeratingFactor(0.5)).toBe(1.0);
   });
 });
+
+describe('aluminum cables (PVC + XLPE, 1-phase + 3-phase)', () => {
+  const opts = (material: 'copper' | 'aluminum', insulation: 'PVC' | 'XLPE') => ({
+    material,
+    insulation,
+    ambientTemp: 30,
+    groupingCount: 1,
+  });
+
+  it('aluminum 3-phase XLPE uses the alXlpe3Ph column', () => {
+    // 120 mm² Al XLPE 3-ph = 276 A nominal (CABLE_CATALOG).
+    const amp = calculateCableAmpacity('120 mm²', true, opts('aluminum', 'XLPE'));
+    expect(amp.singleNominalAmpacity).toBe(276);
+    expect(amp.deratedAmpacity).toBeCloseTo(276, 5);
+  });
+
+  it('aluminum PVC 1-phase uses the alPvc1Ph column (not alXlpe3Ph)', () => {
+    const amp = calculateCableAmpacity('120 mm²', false, opts('aluminum', 'PVC'));
+    expect(amp.singleNominalAmpacity).toBe(231); // alPvc1Ph for 120 mm²
+    // The old bug returned alXlpe3Ph (276) for every non-copper combo — 20% optimistic.
+    expect(amp.singleNominalAmpacity).toBeLessThan(276);
+  });
+
+  it('aluminum 3-phase PVC uses the alPvc3Ph column', () => {
+    const amp = calculateCableAmpacity('95 mm²', true, opts('aluminum', 'PVC'));
+    expect(amp.singleNominalAmpacity).toBe(177); // alPvc3Ph for 95 mm²
+  });
+
+  it('aluminum 1-phase XLPE uses the alXlpe1Ph column', () => {
+    const amp = calculateCableAmpacity('95 mm²', false, opts('aluminum', 'XLPE'));
+    expect(amp.singleNominalAmpacity).toBe(281); // alXlpe1Ph for 95 mm²
+  });
+
+  it('aluminum needs a larger cable than copper for the same breaker', () => {
+    const copper = sizeCableAndBreaker(150, true, { ...opts('copper', 'XLPE'), manualBreakerRating: 160 });
+    const aluminum = sizeCableAndBreaker(150, true, { ...opts('aluminum', 'XLPE'), manualBreakerRating: 160 });
+    expect(copper.cableSize).toBe(50); // copper 50 mm² Iz 179 >= 160
+    expect(aluminum.cableSize).toBe(70); // al 50 mm² = 153 < 160 -> 70 mm² (196)
+    expect(aluminum.deratedAmpacity).toBeGreaterThanOrEqual(160);
+  });
+
+  it('aluminum voltage drop is higher than copper for the same run', () => {
+    const copper = calculateVoltageDrop(150, 50, 120, 0.85, true, 400, 1, 'copper');
+    const aluminum = calculateVoltageDrop(150, 50, 120, 0.85, true, 400, 1, 'aluminum');
+    expect(aluminum.dropPercent).toBeGreaterThan(copper.dropPercent);
+    // Ratio ~= 0.0283 / 0.0172 (resistance scaling; reactance is identical)
+    expect(aluminum.dropPercent / copper.dropPercent).toBeGreaterThan(1.5);
+    expect(aluminum.dropPercent / copper.dropPercent).toBeLessThan(1.7);
+  });
+
+  it('aluminum sizing respects PVC 1-phase column (bigger cable than XLPE 3-phase)', () => {
+    const al = sizeCableAndBreaker(200, false, { ...opts('aluminum', 'PVC'), manualBreakerRating: 250 });
+    expect(al.deratedAmpacity).toBeGreaterThanOrEqual(250);
+    // Same load as copper XLPE 3-ph would need less; the conservative combo
+    // (PVC + 1-phase + aluminum) must not come out smaller than copper XLPE.
+    const cu = sizeCableAndBreaker(200, false, { ...opts('copper', 'XLPE'), manualBreakerRating: 250 });
+    expect(al.cableSize).toBeGreaterThanOrEqual(cu.cableSize);
+  });
+});

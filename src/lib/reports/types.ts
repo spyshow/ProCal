@@ -50,6 +50,7 @@ export interface CableRow {
   cableMm2: number;
   method: string;
   insulation: 'PVC' | 'XLPE';
+  material?: 'copper' | 'aluminum';
 }
 
 /**

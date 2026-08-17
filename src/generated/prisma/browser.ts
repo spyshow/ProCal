@@ -33,6 +33,14 @@ export type ContactRequest = Prisma.ContactRequestModel
  */
 export type Project = Prisma.ProjectModel
 /**
+ * Model ProjectRevision
+ * *
+ *  * Issued revision of a project's engineering state. Each record snapshots the
+ *  * full serialized project (buildings / floors / items / templates) so an issued
+ *  * revision stays reproducible even after the live project changes.
+ */
+export type ProjectRevision = Prisma.ProjectRevisionModel
+/**
  * Model Building
  * 
  */

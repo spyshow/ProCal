@@ -62,13 +62,16 @@ function itemBranchVd(
   if (len == null || len <= 0 || size == null || !current || current <= 0) return null;
   const is3ph = isThreePhaseForItem(item);
   const itemVoltage = is3ph ? project.voltage : project.voltage / Math.sqrt(3);
+  const material = (item.cableMaterial as 'copper' | 'aluminum') ?? 'copper';
   return calculateVoltageDrop(
     current,
     len,
     size,
     pfForFloorItem(item, project),
     is3ph,
-    itemVoltage
+    itemVoltage,
+    1,
+    material
   );
 }
 
@@ -111,7 +114,9 @@ export function computeFloorRiserVd(fd: FloorDesign, project: Project): RiserFlo
           riserSize!,
           project.powerFactor ?? 0.85,
           true,
-          project.voltage
+          project.voltage,
+          1,
+          (fd.riserCableMaterial as 'copper' | 'aluminum') ?? 'copper'
         );
     const riserVdPercent = riserVd.dropPercent;
     const riserDropVolts = riserVd.dropVolts;

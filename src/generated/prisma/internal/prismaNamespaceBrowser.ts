@@ -54,6 +54,7 @@ export const ModelName = {
   User: 'User',
   ContactRequest: 'ContactRequest',
   Project: 'Project',
+  ProjectRevision: 'ProjectRevision',
   Building: 'Building',
   BuildingLoad: 'BuildingLoad',
   ApartmentTemplate: 'ApartmentTemplate',
@@ -145,6 +146,19 @@ export const ProjectScalarFieldEnum = {
 export type ProjectScalarFieldEnum = (typeof ProjectScalarFieldEnum)[keyof typeof ProjectScalarFieldEnum]
 
 
+export const ProjectRevisionScalarFieldEnum = {
+  id: 'id',
+  projectId: 'projectId',
+  rev: 'rev',
+  description: 'description',
+  createdById: 'createdById',
+  snapshotJson: 'snapshotJson',
+  createdAt: 'createdAt'
+} as const
+
+export type ProjectRevisionScalarFieldEnum = (typeof ProjectRevisionScalarFieldEnum)[keyof typeof ProjectRevisionScalarFieldEnum]
+
+
 export const BuildingScalarFieldEnum = {
   id: 'id',
   name: 'name',
@@ -174,6 +188,7 @@ export const BuildingLoadScalarFieldEnum = {
   cableLength: 'cableLength',
   installMethod: 'installMethod',
   cableInsulation: 'cableInsulation',
+  cableMaterial: 'cableMaterial',
   ambientTemp: 'ambientTemp',
   groupingCount: 'groupingCount',
   assignedPhase: 'assignedPhase',
@@ -239,6 +254,7 @@ export const FloorDesignScalarFieldEnum = {
   riserBreakerSize: 'riserBreakerSize',
   riserInstallMethod: 'riserInstallMethod',
   riserCableInsulation: 'riserCableInsulation',
+  riserCableMaterial: 'riserCableMaterial',
   riserAmbientTemp: 'riserAmbientTemp',
   riserGroupingCount: 'riserGroupingCount',
   buildingId: 'buildingId'
@@ -263,6 +279,7 @@ export const FloorItemScalarFieldEnum = {
   voltageDrop: 'voltageDrop',
   installMethod: 'installMethod',
   cableInsulation: 'cableInsulation',
+  cableMaterial: 'cableMaterial',
   ambientTemp: 'ambientTemp',
   groupingCount: 'groupingCount',
   assignedPhase: 'assignedPhase'

@@ -491,11 +491,12 @@ function feederFromItem(
 ): PanelFeeder {
   const isThreePhase = isThreePhaseForItem(item);
   const insulation = (item.cableInsulation as "PVC" | "XLPE") ?? "XLPE";
+  const material = (item.cableMaterial as "copper" | "aluminum") ?? "copper";
   const ambientTemp = item.ambientTemp ?? project.ambientTemp ?? 30;
   const groupingCount = item.groupingCount ?? project.groupingCount ?? 1;
   const installMethod = item.installMethod ?? undefined;
   const sizing = sizeCableAndBreaker(item.calculatedCurrent, isThreePhase, {
-    material: "copper",
+    material,
     insulation,
     ambientTemp,
     groupingCount,
@@ -514,7 +515,7 @@ function feederFromItem(
   const finalSizing =
     actualBreakerSize > sizing.breakerSize
       ? sizeCableAndBreaker(actualBreakerSize, isThreePhase, {
-          material: "copper",
+          material,
           insulation,
           ambientTemp,
           groupingCount,
@@ -525,6 +526,7 @@ function feederFromItem(
   const effectiveCableSize = parsedItemCable?.size ?? finalSizing.cableSize;
   const cableInputForEval = item.cableSize ?? finalSizing.formattedCableSize;
   const protEval = evaluateCableProtection(cableInputForEval, actualBreakerSize, isThreePhase, {
+    material,
     insulation,
     ambientTemp,
     groupingCount,
@@ -586,11 +588,12 @@ function feederFromBuildingLoad(
 ): PanelFeeder | null {
   if (current <= 0) return null;
   const insulation = (load.cableInsulation as "PVC" | "XLPE") ?? "XLPE";
+  const material = (load.cableMaterial as "copper" | "aluminum") ?? "copper";
   const ambientTemp = load.ambientTemp ?? project.ambientTemp ?? 30;
   const groupingCount = load.groupingCount ?? project.groupingCount ?? 1;
   const installMethod = load.installMethod ?? undefined;
   const sizing = sizeCableAndBreaker(current, isThreePhase, {
-    material: "copper",
+    material,
     insulation,
     ambientTemp,
     groupingCount,
@@ -607,7 +610,7 @@ function feederFromBuildingLoad(
   const finalSizing =
     actualBreakerSize > sizing.breakerSize
       ? sizeCableAndBreaker(actualBreakerSize, isThreePhase, {
-          material: "copper",
+          material,
           insulation,
           ambientTemp,
           groupingCount,
@@ -618,6 +621,7 @@ function feederFromBuildingLoad(
   const effectiveCableSize = parsedLoadCable?.size ?? finalSizing.cableSize;
   const cableInputForEval = load.cableSize ?? finalSizing.formattedCableSize;
   const protEval = evaluateCableProtection(cableInputForEval, actualBreakerSize, isThreePhase, {
+    material,
     insulation,
     ambientTemp,
     groupingCount,
@@ -721,11 +725,12 @@ export function computeFeeders(
       const riserIsThreePhase = true;
       const riserPoles: 1 | 3 = 3;
       const riserInsulation = (fd.riserCableInsulation as "PVC" | "XLPE") ?? "XLPE";
+      const riserMaterial = (fd.riserCableMaterial as "copper" | "aluminum") ?? "copper";
       const riserAmbientTemp = fd.riserAmbientTemp ?? project.ambientTemp ?? 30;
       const riserGroupingCount = fd.riserGroupingCount ?? project.groupingCount ?? 1;
       const riserInstallMethod = fd.riserInstallMethod ?? undefined;
       const sizing = sizeCableAndBreaker(floorCurrent, riserIsThreePhase, {
-        material: "copper",
+        material: riserMaterial,
         insulation: riserInsulation,
         ambientTemp: riserAmbientTemp,
         groupingCount: riserGroupingCount,
@@ -744,7 +749,7 @@ export function computeFeeders(
       const finalSizing =
         actualBreakerSize > sizing.breakerSize
           ? sizeCableAndBreaker(actualBreakerSize, riserIsThreePhase, {
-              material: "copper",
+              material: riserMaterial,
               insulation: riserInsulation,
               ambientTemp: riserAmbientTemp,
               groupingCount: riserGroupingCount,
@@ -756,6 +761,7 @@ export function computeFeeders(
       const effectiveRiserSize = parsedRiserCable?.size ?? finalSizing.cableSize;
       const cableInputForEval = fd.riserCableSize ?? finalSizing.formattedCableSize;
       const riserProtEval = evaluateCableProtection(cableInputForEval, actualBreakerSize, riserIsThreePhase, {
+        material: riserMaterial,
         insulation: riserInsulation,
         ambientTemp: riserAmbientTemp,
         groupingCount: riserGroupingCount,
@@ -983,16 +989,19 @@ export function computeFeeders(
     // Cable length resolution
     let cableLength = 20;
     let cableInsulation: 'PVC' | 'XLPE' = 'XLPE';
+    let cableMaterial: 'copper' | 'aluminum' = 'copper';
 
     if (f.type === 'SMDB') {
       const matchFloor = building.floorDesigns.find((fd) => `F${fd.floorNumber} – SMDB` === f.name);
       cableLength = getRiserCableLength(matchFloor, matchFloor?.floorNumber ?? 1);
       cableInsulation = (matchFloor?.riserCableInsulation as 'PVC' | 'XLPE') || 'XLPE';
+      cableMaterial = (matchFloor?.riserCableMaterial as 'copper' | 'aluminum') || 'copper';
     } else {
       const matchBl = (building.buildingLoads ?? []).find((bl) => bl.loadLibraryItem?.name === f.name || bl.loadLibraryItem?.category === f.type);
       if (matchBl) {
         cableLength = getBuildingLoadCableLength(matchBl);
         cableInsulation = (matchBl.cableInsulation as 'PVC' | 'XLPE') || 'XLPE';
+        cableMaterial = (matchBl.cableMaterial as 'copper' | 'aluminum') || 'copper';
       } else {
         const matchItem = building.floorDesigns
           .flatMap((fd) => fd.items.map((it) => ({ it, floorNumber: fd.floorNumber })))
@@ -1000,11 +1009,12 @@ export function computeFeeders(
         if (matchItem) {
           cableLength = getItemCableLength(matchItem.it, matchItem.floorNumber);
           cableInsulation = (matchItem.it.cableInsulation as 'PVC' | 'XLPE') || 'XLPE';
+          cableMaterial = (matchItem.it.cableMaterial as 'copper' | 'aluminum') || 'copper';
         }
       }
     }
 
-    const terminalIscKa = calculateIscWithCable(transformerIscKa, cableLength, f.cableSize, project.voltage, true, !f.isThreePhase, cableInsulation, f.parallelRuns);
+    const terminalIscKa = calculateIscWithCable(transformerIscKa, cableLength, f.cableSize, project.voltage, cableMaterial === 'copper', !f.isThreePhase, cableInsulation, f.parallelRuns);
     enforceFeederIcu(f, terminalIscKa);
 
     const dsInRating = Math.max(6, f.breakerSize || 10);
@@ -1033,7 +1043,7 @@ export function computeFeeders(
       terminalIscKa * 1000,
       {
         cableSizeMm2: f.cableSize,
-        cableMaterial: 'copper',
+        cableMaterial,
         cableInsulation,
         cableRuns: f.parallelRuns,
         manufacturerPair: {
@@ -1117,7 +1127,8 @@ export function computeFeeders(
 
       const branchLength = getItemCableLength(item, floorNumber);
       const branchInsulation = (item.cableInsulation as 'PVC' | 'XLPE') || 'XLPE';
-      const branchFaultIsc = calculateIscWithCable(smdbFaultIsc, branchLength, feeder.cableSize, project.voltage, true, !feeder.isThreePhase, branchInsulation, feeder.parallelRuns);
+      const branchMaterial = (item.cableMaterial as 'copper' | 'aluminum') || 'copper';
+      const branchFaultIsc = calculateIscWithCable(smdbFaultIsc, branchLength, feeder.cableSize, project.voltage, branchMaterial === 'copper', !feeder.isThreePhase, branchInsulation, feeder.parallelRuns);
       enforceFeederIcu(feeder, branchFaultIsc);
 
       const branchInRating = Math.max(6, feeder.breakerSize || 10);
@@ -1144,7 +1155,7 @@ export function computeFeeders(
         branchFaultIsc * 1000,
         {
           cableSizeMm2: feeder.cableSize,
-          cableMaterial: 'copper',
+          cableMaterial: branchMaterial,
           cableInsulation: branchInsulation,
           cableRuns: feeder.parallelRuns,
           manufacturerPair: {

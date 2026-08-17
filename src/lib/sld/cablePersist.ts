@@ -21,16 +21,17 @@ export function upsizeBody(newCableSize: number | string, kind: CableKind): Reco
   return { cableSize: sizeStr };
 }
 
-/** Single-field edits (length/method/insulation/ambientTemp/groupingCount) — PATCH body for updateCableField. */
+/** Single-field edits (length/method/insulation/material/ambientTemp/groupingCount) — PATCH body for updateCableField. */
 export function fieldEditBody(
   kind: CableKind,
-  field: 'length' | 'method' | 'insulation' | 'ambientTemp' | 'groupingCount',
+  field: 'length' | 'method' | 'insulation' | 'material' | 'ambientTemp' | 'groupingCount',
   value: string | number,
 ): Record<string, string | number> {
   if (kind === 'sdb') {
     if (field === 'length') return { riserCableLength: value };
     if (field === 'method') return { riserInstallMethod: value };
     if (field === 'insulation') return { riserCableInsulation: value };
+    if (field === 'material') return { riserCableMaterial: value };
     if (field === 'ambientTemp') return { riserAmbientTemp: value };
     if (field === 'groupingCount') return { riserGroupingCount: value };
     return {};
@@ -38,6 +39,7 @@ export function fieldEditBody(
   if (field === 'length') return { cableLength: value };
   if (field === 'method') return { installMethod: value };
   if (field === 'insulation') return { cableInsulation: value };
+  if (field === 'material') return { cableMaterial: value };
   if (field === 'ambientTemp') return { ambientTemp: value };
   if (field === 'groupingCount') return { groupingCount: value };
   return {};

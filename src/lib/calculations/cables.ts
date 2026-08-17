@@ -68,6 +68,27 @@ export function formatCableSize(size: number, runs: number = 1): string {
 }
 
 /**
+ * Single source of truth for the ampacity column of a CableSpec — resolves
+ * the material × insulation × phase combination. Before this helper existed
+ * the non-copper path always returned `alXlpe3Ph` regardless of insulation
+ * or phase, so an aluminum PVC 1-phase cable was sized against the XLPE
+ * 3-phase column (optimistic by ~1.5× for PVC, ~0.7× for 1-phase).
+ */
+export function getCableAmpacityColumn(
+  spec: CableSpec,
+  material: 'copper' | 'aluminum',
+  insulation: 'PVC' | 'XLPE',
+  isThreePhase: boolean
+): number {
+  if (material === 'copper') {
+    if (isThreePhase) return insulation === 'PVC' ? spec.copperPvc3Ph : spec.copperXlpe3Ph;
+    return insulation === 'PVC' ? spec.copperPvc1Ph : spec.copperXlpe1Ph;
+  }
+  if (isThreePhase) return insulation === 'PVC' ? spec.alPvc3Ph : spec.alXlpe3Ph;
+  return insulation === 'PVC' ? spec.alPvc1Ph : spec.alXlpe1Ph;
+}
+
+/**
  * Sizes the breaker rating (In) and cable cross-section (S) based on design current (Ib).
  * Automatically calculates parallel runs when load exceeds single cable capacity or maxCableSize.
  */
@@ -111,17 +132,8 @@ export function sizeCableAndBreaker(
   const availableCatalog = CABLE_CATALOG.filter((c) => c.size <= maxCableSize);
   const catalogToUse = availableCatalog.length > 0 ? availableCatalog : CABLE_CATALOG;
 
-  const getCableNominalAmpacity = (cable: CableSpec): number => {
-    if (material === "copper") {
-      if (isThreePhase) {
-        return insulation === "PVC" ? cable.copperPvc3Ph : cable.copperXlpe3Ph;
-      } else {
-        return insulation === "PVC" ? cable.copperPvc1Ph : cable.copperXlpe1Ph;
-      }
-    } else {
-      return cable.alXlpe3Ph;
-    }
-  };
+  const getCableNominalAmpacity = (cable: CableSpec): number =>
+    getCableAmpacityColumn(cable, material, insulation, isThreePhase);
 
   let selectedCable: CableSpec = catalogToUse[catalogToUse.length - 1];
   let selectedRuns = 1;
@@ -210,9 +222,7 @@ export function sizeCableAndBreaker(
     if (neutralCurrent != null) {
       const reducedAmpacity = CABLE_CATALOG.find((c) => c.size === reducedSize);
       const neutralAmpacity = (reducedAmpacity
-        ? (material === "copper"
-            ? (insulation === "PVC" ? reducedAmpacity.copperPvc1Ph : reducedAmpacity.copperXlpe1Ph)
-            : reducedAmpacity.alXlpe3Ph) * totalDerating
+        ? getCableAmpacityColumn(reducedAmpacity, material, insulation, false) * totalDerating
         : 0) * selectedRuns;
 
       if (neutralCurrent > neutralAmpacity) {
@@ -261,7 +271,8 @@ export function calculateVoltageDrop(
   powerFactor: number,
   isThreePhase: boolean,
   systemVoltage: number, // e.g. 400 for 3-phase, 230 for 1-phase
-  parallelRuns: number = 1
+  parallelRuns: number = 1,
+  material: 'copper' | 'aluminum' = 'copper'
 ): { dropVolts: number; dropPercent: number } {
   assertNonNegative('current', current);
   assertPositive('lengthMeters', lengthMeters);
@@ -272,7 +283,11 @@ export function calculateVoltageDrop(
 
   // Find cable spec
   const spec = CABLE_CATALOG.find((c) => c.size === cableSizeSqMm) || CABLE_CATALOG[0];
-  const R = spec.resistance / runs;
+  // The catalog resistance column holds COPPER AC resistance at operating
+  // temperature. Aluminum has ~1.64× the resistivity of copper (0.0283 vs
+  // 0.0172 Ω·mm²/m), so an aluminum run drops that much more voltage.
+  const materialFactor = material === 'aluminum' ? 0.0283 / 0.0172 : 1;
+  const R = (spec.resistance * materialFactor) / runs;
   const X = spec.reactance / runs;
 
   // cos(phi) and sin(phi)
@@ -402,16 +417,7 @@ export function calculateCableAmpacity(
   // declared size. Rounding UP made a non-standard 18 mm² cable claim 25 mm²
   // ampacity, so evaluateCableProtection missed under-protected cables.
   const spec = CABLE_CATALOG.filter((c) => c.size <= cableSize).pop() ?? CABLE_CATALOG[0];
-  let singleNominal = 0;
-  if (material === "copper") {
-    if (isThreePhase) {
-      singleNominal = insulation === "PVC" ? spec.copperPvc3Ph : spec.copperXlpe3Ph;
-    } else {
-      singleNominal = insulation === "PVC" ? spec.copperPvc1Ph : spec.copperXlpe1Ph;
-    }
-  } else {
-    singleNominal = spec.alXlpe3Ph;
-  }
+  const singleNominal = getCableAmpacityColumn(spec, material, insulation, isThreePhase);
 
   const tempFactor = temperatureDeratingFactor(insulation, ambientTemp);
   const groupFactor = groupingDeratingFactor(groupingCount);

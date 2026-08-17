@@ -18,6 +18,7 @@ model User {
   disabled        Boolean          @default(false)  // soft-delete; preserves project history
   createdAt       DateTime         @default(now())
   projects        Project[]
+  revisions       ProjectRevision[]
   contactRequests ContactRequest[]
 }
 
@@ -77,8 +78,28 @@ model Project {
   buildings             Building[]
   apartmentTemplates    ApartmentTemplate[]
   loadLibraryItems      LoadLibraryItem[]
+  revisions             ProjectRevision[]
   createdAt             DateTime            @default(now())
   updatedAt             DateTime            @updatedAt
+}
+
+/**
+ * Issued revision of a project's engineering state. Each record snapshots the
+ * full serialized project (buildings / floors / items / templates) so an issued
+ * revision stays reproducible even after the live project changes.
+ */
+model ProjectRevision {
+  id           String   @id @default(uuid())
+  projectId    String
+  project      Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  rev          String // "R0", "R1", …
+  description  String
+  createdById  String
+  createdBy    User     @relation(fields: [createdById], references: [id], onDelete: Cascade)
+  snapshotJson String // JSON.stringify(project) at issue time
+  createdAt    DateTime @default(now())
+
+  @@index([projectId])
 }
 
 model Building {
@@ -112,6 +133,7 @@ model BuildingLoad {
   cableLength       Float?
   installMethod     String?
   cableInsulation   String?
+  cableMaterial     String?          @default("copper") // "copper" or "aluminum"
   ambientTemp       Float?           @default(30)
   groupingCount     Int?             @default(1)
   // Per-phase balancing: which phase (1=L1, 2=L2, 3=L3) a single-phase building
@@ -176,6 +198,7 @@ model FloorDesign {
   riserBreakerSize    String?     // e.g., "630A" — user-overridden riser breaker frame
   riserInstallMethod   String?    @default("C")   // IEC 60364-5-52: B1, B2, C, E, F, G (riser cable, SDB only)
   riserCableInsulation String?    @default("XLPE") // "PVC" or "XLPE" (riser cable, SDB only)
+  riserCableMaterial   String?    @default("copper") // "copper" or "aluminum" (riser cable, SDB only)
   riserAmbientTemp    Float?      @default(30)    // °C (riser cable, SDB only)
   riserGroupingCount  Int?        @default(1)     // grouping (riser cable, SDB only)
   buildingId          String
@@ -202,6 +225,7 @@ model FloorItem {
   voltageDrop             Float?
   installMethod           String? @default("C") // IEC 60364-5-52: B1, B2, C, E, F, G
   cableInsulation         String? @default("XLPE") // "PVC" or "XLPE"
+  cableMaterial           String? @default("copper") // "copper" or "aluminum"
   ambientTemp             Float?  @default(30) // °C
   groupingCount           Int?    @default(1)
   // Per-phase balancing: which phase (1=L1, 2=L2, 3=L3) a single-phase floor

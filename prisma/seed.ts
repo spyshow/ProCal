@@ -166,7 +166,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 42,
       tripUnit: "PXR20 LSI",
-      datasheetUrl: "https://www.farnell.com/datasheets/2301550.pdf",
+      datasheetUrl: "https://www.eaton.com/gb/en-gb/catalog/electrical-circuit-protection/air-circuit-breaker---izmx-inx-series.html",
       settingsJson: JSON.stringify({
         Icw: 42,
         Ics: 42,
@@ -187,7 +187,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 42,
       tripUnit: "PXR20 LSI",
-      datasheetUrl: "https://www.farnell.com/datasheets/2301550.pdf",
+      datasheetUrl: "https://www.eaton.com/gb/en-gb/catalog/electrical-circuit-protection/air-circuit-breaker---izmx-inx-series.html",
       settingsJson: JSON.stringify({
         Icw: 42,
         Ics: 42,
@@ -208,7 +208,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 42,
       tripUnit: "PXR20 LSI",
-      datasheetUrl: "https://www.farnell.com/datasheets/2301550.pdf",
+      datasheetUrl: "https://www.eaton.com/gb/en-gb/catalog/electrical-circuit-protection/air-circuit-breaker---izmx-inx-series.html",
       settingsJson: JSON.stringify({
         Icw: 42,
         Ics: 42,
@@ -229,7 +229,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 66,
       tripUnit: "PXR25 LSIG",
-      datasheetUrl: "https://www.farnell.com/datasheets/2301550.pdf",
+      datasheetUrl: "https://www.eaton.com/gb/en-gb/catalog/electrical-circuit-protection/air-circuit-breaker---izmx-inx-series.html",
       settingsJson: JSON.stringify({
         Icw: 66,
         Ics: 66,
@@ -255,7 +255,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 42,
       tripUnit: "ETU300 LSI",
-      datasheetUrl: "https://www.farnell.com/datasheets/2613580.pdf",
+      datasheetUrl: "https://www.siemens.com/en-us/products/sentron/3wa-air-circuit-breakers/",
       settingsJson: JSON.stringify({
         Icw: 42,
         Ics: 42,
@@ -276,7 +276,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 55,
       tripUnit: "ETU600 LSI",
-      datasheetUrl: "https://www.farnell.com/datasheets/2613580.pdf",
+      datasheetUrl: "https://www.siemens.com/en-us/products/sentron/3wa-air-circuit-breakers/",
       settingsJson: JSON.stringify({
         Icw: 55,
         Ics: 55,
@@ -297,7 +297,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 66,
       tripUnit: "ETU600 LSIG",
-      datasheetUrl: "https://www.farnell.com/datasheets/2613580.pdf",
+      datasheetUrl: "https://www.siemens.com/en-us/products/sentron/3wa-air-circuit-breakers/",
       settingsJson: JSON.stringify({
         Icw: 66,
         Ics: 66,
@@ -323,7 +323,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 42,
       tripUnit: "MP4 LSI",
-      datasheetUrl: "https://www.legrand.com/ecatalogue/dmx3-air-circuit-breakers",
+      datasheetUrl: "https://assets.legrand.com/pim/DOCUMENT/ex223001_0233.pdf",
       settingsJson: JSON.stringify({
         Icw: 42,
         Ics: 42,
@@ -344,7 +344,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 42,
       tripUnit: "MP4 LSI",
-      datasheetUrl: "https://www.legrand.com/ecatalogue/dmx3-air-circuit-breakers",
+      datasheetUrl: "https://assets.legrand.com/pim/DOCUMENT/ex223001_0233.pdf",
       settingsJson: JSON.stringify({
         Icw: 42,
         Ics: 42,
@@ -365,7 +365,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 65,
       tripUnit: "MP6 LSIG",
-      datasheetUrl: "https://www.legrand.com/ecatalogue/dmx3-air-circuit-breakers",
+      datasheetUrl: "https://assets.legrand.com/pim/DOCUMENT/ex223001_0233.pdf",
       settingsJson: JSON.stringify({
         Icw: 65,
         Ics: 65,
@@ -556,7 +556,7 @@ async function main() {
     },
 
     // =========================================================================
-    // Eaton MCCBs - NZM Series (IEC 60947-2 Category A)
+    // Eaton MCCBs - NZM Series (IEC 60947-2)
     // =========================================================================
     {
       category: "MCCB",
@@ -567,7 +567,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 25,
       tripUnit: "TMD (Thermal Magnetic)",
-      datasheetUrl: "https://www.farnell.com/datasheets/3973950.pdf",
+      datasheetUrl: "https://www.eaton.com/gb/en-gb/catalog/electrical-circuit-protection/digital-nzm-mccb-eaton.html",
       settingsJson: JSON.stringify({ Ics: 25, standard: "IEC 60947-2", category: "A", curveType: "TM", thermal: { range: "0.8..1.0xIn (32..40A)", defaultIr: 40 }, magnetic: { range: "8..10xIn fixed (320..400A)", defaultIm: 400 } }),
     },
     {
@@ -579,7 +579,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 25,
       tripUnit: "TMD",
-      datasheetUrl: "https://www.farnell.com/datasheets/3973950.pdf",
+      datasheetUrl: "https://www.eaton.com/gb/en-gb/catalog/electrical-circuit-protection/digital-nzm-mccb-eaton.html",
       settingsJson: JSON.stringify({ Ics: 25, standard: "IEC 60947-2", category: "A", curveType: "TM", thermal: { range: "0.8..1.0xIn (50..63A)", defaultIr: 63 }, magnetic: { range: "6..10xIn fixed (380..630A)", defaultIm: 630 } }),
     },
     {
@@ -591,7 +591,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 25,
       tripUnit: "TMD",
-      datasheetUrl: "https://www.farnell.com/datasheets/3973950.pdf",
+      datasheetUrl: "https://www.eaton.com/gb/en-gb/catalog/electrical-circuit-protection/digital-nzm-mccb-eaton.html",
       settingsJson: JSON.stringify({ Ics: 25, standard: "IEC 60947-2", category: "A", curveType: "TM", thermal: { range: "0.8..1.0xIn (80..100A)", defaultIr: 100 }, magnetic: { range: "6..10xIn (600..1000A)", defaultIm: 1000 } }),
     },
     {
@@ -603,7 +603,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 50,
       tripUnit: "Electronic VE (LSI)",
-      datasheetUrl: "https://www.farnell.com/datasheets/3973950.pdf",
+      datasheetUrl: "https://www.eaton.com/gb/en-gb/catalog/electrical-circuit-protection/digital-nzm-mccb-eaton.html",
       settingsJson: JSON.stringify({ Ics: 50, standard: "IEC 60947-2", category: "A", curveType: "LSI", L: { range: "0.5..1.0xIn (80..160A)", delay: "2..14s", defaultIr: 160, defaultTr: 10 }, S: { range: "2..10xIr (320..1600A)", delay: "0.05..0.3s", i2t: true, defaultIsd: 800, defaultTsd: 0.1 }, I: { range: "2..12xIn (320..1920A)", defaultIi: 1600 } }),
     },
     {
@@ -615,7 +615,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 50,
       tripUnit: "Electronic VE (LSI)",
-      datasheetUrl: "https://www.farnell.com/datasheets/3973950.pdf",
+      datasheetUrl: "https://www.eaton.com/gb/en-gb/catalog/electrical-circuit-protection/digital-nzm-mccb-eaton.html",
       settingsJson: JSON.stringify({ Ics: 50, standard: "IEC 60947-2", category: "A", curveType: "LSI", L: { range: "0.5..1.0xIn (125..250A)", delay: "2..14s", defaultIr: 250, defaultTr: 10 }, S: { range: "2..10xIr (500..2500A)", delay: "0.05..0.3s", i2t: true, defaultIsd: 1250, defaultTsd: 0.1 }, I: { range: "2..12xIn (500..3000A)", defaultIi: 2500 } }),
     },
     {
@@ -627,7 +627,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 50,
       tripUnit: "Electronic AE (LSI)",
-      datasheetUrl: "https://www.farnell.com/datasheets/3973950.pdf",
+      datasheetUrl: "https://www.eaton.com/gb/en-gb/catalog/electrical-circuit-protection/digital-nzm-mccb-eaton.html",
       settingsJson: JSON.stringify({ Ics: 50, standard: "IEC 60947-2", category: "A", curveType: "LSI", L: { range: "0.5..1.0xIn (200..400A)", delay: "2..14s", defaultIr: 400, defaultTr: 10 }, S: { range: "2..10xIr (800..4000A)", delay: "0.05..0.3s", i2t: true, defaultIsd: 2000, defaultTsd: 0.1 }, I: { range: "2..12xIn (800..4800A)", defaultIi: 4000 } }),
     },
     {
@@ -639,7 +639,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 50,
       tripUnit: "Electronic VE (LSI)",
-      datasheetUrl: "https://www.farnell.com/datasheets/3973950.pdf",
+      datasheetUrl: "https://www.eaton.com/gb/en-gb/catalog/electrical-circuit-protection/digital-nzm-mccb-eaton.html",
       settingsJson: JSON.stringify({ Ics: 50, standard: "IEC 60947-2", category: "A", curveType: "LSI", L: { range: "0.5..1.0xIn (315..630A)", delay: "2..14s", defaultIr: 630, defaultTr: 10 }, S: { range: "2..10xIr (1260..6300A)", delay: "0.05..0.3s", i2t: true, defaultIsd: 3150, defaultTsd: 0.1 }, I: { range: "2..12xIn (1260..7560A)", defaultIi: 6300 } }),
     },
 
@@ -655,7 +655,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 36,
       tripUnit: "TM240 TMD",
-      datasheetUrl: "https://www.farnell.com/datasheets/2613580.pdf",
+      datasheetUrl: "https://support.industry.siemens.com/cs/document/90318775/manual-3va-molded-case-circuit-breakers-with-iec-certificate",
       settingsJson: JSON.stringify({ Ics: 36, standard: "IEC 60947-2", category: "A", curveType: "TM", thermal: { range: "0.7..1.0xIn (28..40A)", defaultIr: 40 }, magnetic: { range: "10xIn fixed (400A)", defaultIm: 400 } }),
     },
     {
@@ -667,7 +667,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 36,
       tripUnit: "TM240 TMD",
-      datasheetUrl: "https://www.farnell.com/datasheets/2613580.pdf",
+      datasheetUrl: "https://support.industry.siemens.com/cs/document/90318775/manual-3va-molded-case-circuit-breakers-with-iec-certificate",
       settingsJson: JSON.stringify({ Ics: 36, standard: "IEC 60947-2", category: "A", curveType: "TM", thermal: { range: "0.7..1.0xIn (44..63A)", defaultIr: 63 }, magnetic: { range: "10xIn fixed (630A)", defaultIm: 630 } }),
     },
     {
@@ -679,7 +679,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 36,
       tripUnit: "TM240 TMD",
-      datasheetUrl: "https://www.farnell.com/datasheets/2613580.pdf",
+      datasheetUrl: "https://support.industry.siemens.com/cs/document/90318775/manual-3va-molded-case-circuit-breakers-with-iec-certificate",
       settingsJson: JSON.stringify({ Ics: 36, standard: "IEC 60947-2", category: "A", curveType: "TM", thermal: { range: "0.7..1.0xIn (70..100A)", defaultIr: 100 }, magnetic: { range: "10xIn fixed (1000A)", defaultIm: 1000 } }),
     },
     {
@@ -691,7 +691,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 55,
       tripUnit: "ETU350 LSI",
-      datasheetUrl: "https://www.farnell.com/datasheets/2613580.pdf",
+      datasheetUrl: "https://support.industry.siemens.com/cs/document/90318775/manual-3va-molded-case-circuit-breakers-with-iec-certificate",
       settingsJson: JSON.stringify({ Ics: 55, standard: "IEC 60947-2", category: "A", curveType: "LSI", L: { range: "0.4..1.0xIn (64..160A)", delay: "0.5..17s", defaultIr: 160, defaultTr: 10 }, S: { range: "1.5..10xIr (240..1600A)", delay: "0.08..0.3s", i2t: true, defaultIsd: 800, defaultTsd: 0.1 }, I: { range: "1.5..12xIn (240..1920A)", defaultIi: 1600 } }),
     },
     {
@@ -703,7 +703,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 55,
       tripUnit: "ETU350 LSI",
-      datasheetUrl: "https://www.farnell.com/datasheets/2613580.pdf",
+      datasheetUrl: "https://support.industry.siemens.com/cs/document/90318775/manual-3va-molded-case-circuit-breakers-with-iec-certificate",
       settingsJson: JSON.stringify({ Ics: 55, standard: "IEC 60947-2", category: "A", curveType: "LSI", L: { range: "0.4..1.0xIn (100..250A)", delay: "0.5..17s", defaultIr: 250, defaultTr: 10 }, S: { range: "1.5..10xIr (375..2500A)", delay: "0.08..0.3s", i2t: true, defaultIsd: 1250, defaultTsd: 0.1 }, I: { range: "1.5..12xIn (375..3000A)", defaultIi: 2500 } }),
     },
     {
@@ -715,7 +715,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 55,
       tripUnit: "ETU350 LSI",
-      datasheetUrl: "https://www.farnell.com/datasheets/2613580.pdf",
+      datasheetUrl: "https://support.industry.siemens.com/cs/document/90318775/manual-3va-molded-case-circuit-breakers-with-iec-certificate",
       settingsJson: JSON.stringify({ Ics: 55, standard: "IEC 60947-2", category: "A", curveType: "LSI", L: { range: "0.4..1.0xIn (160..400A)", delay: "0.5..17s", defaultIr: 400, defaultTr: 10 }, S: { range: "1.5..10xIr (600..4000A)", delay: "0.08..0.3s", i2t: true, defaultIsd: 2000, defaultTsd: 0.1 }, I: { range: "1.5..12xIn (600..4800A)", defaultIi: 4000 } }),
     },
     {
@@ -727,7 +727,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 55,
       tripUnit: "ETU350 LSI",
-      datasheetUrl: "https://www.farnell.com/datasheets/2613580.pdf",
+      datasheetUrl: "https://support.industry.siemens.com/cs/document/90318775/manual-3va-molded-case-circuit-breakers-with-iec-certificate",
       settingsJson: JSON.stringify({ Ics: 55, standard: "IEC 60947-2", category: "A", curveType: "LSI", L: { range: "0.4..1.0xIn (252..630A)", delay: "0.5..17s", defaultIr: 630, defaultTr: 10 }, S: { range: "1.5..10xIr (945..6300A)", delay: "0.08..0.3s", i2t: true, defaultIsd: 3150, defaultTsd: 0.1 }, I: { range: "1.5..12xIn (945..7560A)", defaultIi: 6300 } }),
     },
 
@@ -743,7 +743,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 25,
       tripUnit: "TMD",
-      datasheetUrl: "https://www.legrand.com/ecatalogue/dpx3-moulded-case-circuit-breakers",
+      datasheetUrl: "https://assets.legrand.com/pim/NP-FT-GT/F01360EN06_DPX3160_MT.pdf",
       settingsJson: JSON.stringify({ Ics: 25, standard: "IEC 60947-2", category: "A", curveType: "TM", thermal: { range: "0.8..1.0xIn (32..40A)", defaultIr: 40 }, magnetic: { range: "10xIn fixed (400A)", defaultIm: 400 } }),
     },
     {
@@ -755,7 +755,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 25,
       tripUnit: "TMD",
-      datasheetUrl: "https://www.legrand.com/ecatalogue/dpx3-moulded-case-circuit-breakers",
+      datasheetUrl: "https://assets.legrand.com/pim/NP-FT-GT/F01360EN06_DPX3160_MT.pdf",
       settingsJson: JSON.stringify({ Ics: 25, standard: "IEC 60947-2", category: "A", curveType: "TM", thermal: { range: "0.8..1.0xIn (50..63A)", defaultIr: 63 }, magnetic: { range: "10xIn fixed (630A)", defaultIm: 630 } }),
     },
     {
@@ -767,7 +767,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 25,
       tripUnit: "TMD",
-      datasheetUrl: "https://www.legrand.com/ecatalogue/dpx3-moulded-case-circuit-breakers",
+      datasheetUrl: "https://assets.legrand.com/pim/NP-FT-GT/F01360EN06_DPX3160_MT.pdf",
       settingsJson: JSON.stringify({ Ics: 25, standard: "IEC 60947-2", category: "A", curveType: "TM", thermal: { range: "0.8..1.0xIn (80..100A)", defaultIr: 100 }, magnetic: { range: "10xIn fixed (1000A)", defaultIm: 1000 } }),
     },
     {
@@ -779,7 +779,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 36,
       tripUnit: "Electronic S2 LSI",
-      datasheetUrl: "https://www.legrand.com/ecatalogue/dpx3-moulded-case-circuit-breakers",
+      datasheetUrl: "https://assets.legrand.com/pim/NP-FT-GT/F03043EN_04.pdf",
       settingsJson: JSON.stringify({ Ics: 36, standard: "IEC 60947-2", category: "A", curveType: "LSI", L: { range: "0.4..1.0xIn (64..160A)", delay: "3..15s", defaultIr: 160, defaultTr: 10 }, S: { range: "1.5..10xIr (240..1600A)", delay: "0.1..0.3s", i2t: true, defaultIsd: 800, defaultTsd: 0.1 }, I: { range: "1.5..15xIn (240..2400A)", defaultIi: 1600 } }),
     },
     {
@@ -791,7 +791,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 36,
       tripUnit: "Electronic S2 LSI",
-      datasheetUrl: "https://www.legrand.com/ecatalogue/dpx3-moulded-case-circuit-breakers",
+      datasheetUrl: "https://assets.legrand.com/pim/NP-FT-GT/F03043EN_04.pdf",
       settingsJson: JSON.stringify({ Ics: 36, standard: "IEC 60947-2", category: "A", curveType: "LSI", L: { range: "0.4..1.0xIn (100..250A)", delay: "3..15s", defaultIr: 250, defaultTr: 10 }, S: { range: "1.5..10xIr (375..2500A)", delay: "0.1..0.3s", i2t: true, defaultIsd: 1250, defaultTsd: 0.1 }, I: { range: "1.5..15xIn (375..3750A)", defaultIi: 2500 } }),
     },
     {
@@ -803,7 +803,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 36,
       tripUnit: "Electronic S2 LSI",
-      datasheetUrl: "https://www.legrand.com/ecatalogue/dpx3-moulded-case-circuit-breakers",
+      datasheetUrl: "https://assets.legrand.com/pim/NP-FT-GT/F01958EN_06.pdf",
       settingsJson: JSON.stringify({ Ics: 36, standard: "IEC 60947-2", category: "A", curveType: "LSI", L: { range: "0.4..1.0xIn (160..400A)", delay: "3..15s", defaultIr: 400, defaultTr: 10 }, S: { range: "1.5..10xIr (600..4000A)", delay: "0.1..0.3s", i2t: true, defaultIsd: 2000, defaultTsd: 0.1 }, I: { range: "1.5..15xIn (600..6000A)", defaultIi: 4000 } }),
     },
     {
@@ -815,7 +815,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 36,
       tripUnit: "Electronic S2 LSI",
-      datasheetUrl: "https://www.legrand.com/ecatalogue/dpx3-moulded-case-circuit-breakers",
+      datasheetUrl: "https://assets.legrand.com/pim/NP-FT-GT/F01958EN_06.pdf",
       settingsJson: JSON.stringify({ Ics: 36, standard: "IEC 60947-2", category: "A", curveType: "LSI", L: { range: "0.4..1.0xIn (252..630A)", delay: "3..15s", defaultIr: 630, defaultTr: 10 }, S: { range: "1.5..10xIr (945..6300A)", delay: "0.1..0.3s", i2t: true, defaultIsd: 3150, defaultTsd: 0.1 }, I: { range: "1.5..15xIn (945..9450A)", defaultIi: 6300 } }),
     },
 
@@ -831,7 +831,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 25,
       tripUnit: "TMD",
-      datasheetUrl: "https://www.iskra.eu/en/Moulded-Case-Circuit-Breakers/",
+      datasheetUrl: "https://www.iskra.eu/f/docs/general-catalogues/Iskra-Product-lines.pdf",
       settingsJson: JSON.stringify({ Ics: 25, standard: "IEC 60947-2", category: "A", curveType: "TM", thermal: { range: "0.8..1.0xIn (32..40A)", defaultIr: 40 }, magnetic: { range: "10xIn fixed (400A)", defaultIm: 400 } }),
     },
     {
@@ -843,7 +843,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 25,
       tripUnit: "TMD",
-      datasheetUrl: "https://www.iskra.eu/en/Moulded-Case-Circuit-Breakers/",
+      datasheetUrl: "https://www.iskra.eu/f/docs/general-catalogues/Iskra-Product-lines.pdf",
       settingsJson: JSON.stringify({ Ics: 25, standard: "IEC 60947-2", category: "A", curveType: "TM", thermal: { range: "0.8..1.0xIn (50..63A)", defaultIr: 63 }, magnetic: { range: "10xIn fixed (630A)", defaultIm: 630 } }),
     },
     {
@@ -855,7 +855,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 25,
       tripUnit: "TMD",
-      datasheetUrl: "https://www.iskra.eu/en/Moulded-Case-Circuit-Breakers/",
+      datasheetUrl: "https://www.iskra.eu/f/docs/general-catalogues/Iskra-Product-lines.pdf",
       settingsJson: JSON.stringify({ Ics: 25, standard: "IEC 60947-2", category: "A", curveType: "TM", thermal: { range: "0.8..1.0xIn (80..100A)", defaultIr: 100 }, magnetic: { range: "10xIn fixed (1000A)", defaultIm: 1000 } }),
     },
     {
@@ -867,7 +867,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 25,
       tripUnit: "TMD",
-      datasheetUrl: "https://www.iskra.eu/en/Moulded-Case-Circuit-Breakers/",
+      datasheetUrl: "https://www.iskra.eu/f/docs/general-catalogues/Iskra-Product-lines.pdf",
       settingsJson: JSON.stringify({ Ics: 25, standard: "IEC 60947-2", category: "A", curveType: "TM", thermal: { range: "0.8..1.0xIn (100..125A)", defaultIr: 125 }, magnetic: { range: "10xIn fixed (1250A)", defaultIm: 1250 } }),
     },
     {
@@ -879,7 +879,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 36,
       tripUnit: "Electronic LSI",
-      datasheetUrl: "https://www.iskra.eu/en/Moulded-Case-Circuit-Breakers/",
+      datasheetUrl: "https://www.iskra.eu/f/docs/general-catalogues/Iskra-Product-lines.pdf",
       settingsJson: JSON.stringify({ Ics: 36, standard: "IEC 60947-2", category: "A", curveType: "LSI", L: { range: "0.4..1.0xIn (64..160A)", delay: "2..14s", defaultIr: 160, defaultTr: 10 }, S: { range: "1.5..10xIr (240..1600A)", delay: "0.08..0.3s", i2t: true, defaultIsd: 800, defaultTsd: 0.1 }, I: { range: "2..12xIn (320..1920A)", defaultIi: 1600 } }),
     },
     {
@@ -891,7 +891,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 36,
       tripUnit: "Electronic LSI",
-      datasheetUrl: "https://www.iskra.eu/en/Moulded-Case-Circuit-Breakers/",
+      datasheetUrl: "https://www.iskra.eu/f/docs/general-catalogues/Iskra-Product-lines.pdf",
       settingsJson: JSON.stringify({ Ics: 36, standard: "IEC 60947-2", category: "A", curveType: "LSI", L: { range: "0.4..1.0xIn (100..250A)", delay: "2..14s", defaultIr: 250, defaultTr: 10 }, S: { range: "1.5..10xIr (375..2500A)", delay: "0.08..0.3s", i2t: true, defaultIsd: 1250, defaultTsd: 0.1 }, I: { range: "2..12xIn (500..3000A)", defaultIi: 2500 } }),
     },
     {
@@ -903,7 +903,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 50,
       tripUnit: "Electronic LSI",
-      datasheetUrl: "https://www.iskra.eu/en/Moulded-Case-Circuit-Breakers/",
+      datasheetUrl: "https://www.iskra.eu/f/docs/general-catalogues/Iskra-Product-lines.pdf",
       settingsJson: JSON.stringify({ Ics: 50, standard: "IEC 60947-2", category: "A", curveType: "LSI", L: { range: "0.4..1.0xIn (160..400A)", delay: "2..14s", defaultIr: 400, defaultTr: 10 }, S: { range: "1.5..10xIr (600..4000A)", delay: "0.08..0.3s", i2t: true, defaultIsd: 2000, defaultTsd: 0.1 }, I: { range: "2..12xIn (800..4800A)", defaultIi: 4000 } }),
     },
     {
@@ -915,7 +915,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 50,
       tripUnit: "Electronic LSI",
-      datasheetUrl: "https://www.iskra.eu/en/Moulded-Case-Circuit-Breakers/",
+      datasheetUrl: "https://www.iskra.eu/f/docs/general-catalogues/Iskra-Product-lines.pdf",
       settingsJson: JSON.stringify({ Ics: 50, standard: "IEC 60947-2", category: "A", curveType: "LSI", L: { range: "0.4..1.0xIn (252..630A)", delay: "2..14s", defaultIr: 630, defaultTr: 10 }, S: { range: "1.5..10xIr (945..6300A)", delay: "0.08..0.3s", i2t: true, defaultIsd: 3150, defaultTsd: 0.1 }, I: { range: "2..12xIn (1260..7560A)", defaultIi: 6300 } }),
     },
     {
@@ -927,7 +927,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 50,
       tripUnit: "Microprocessor LSI",
-      datasheetUrl: "https://www.iskra.eu/en/Moulded-Case-Circuit-Breakers/",
+      datasheetUrl: "https://www.iskra.eu/f/docs/general-catalogues/Iskra-Product-lines.pdf",
       settingsJson: JSON.stringify({ Ics: 50, standard: "IEC 60947-2", category: "A", curveType: "LSI", L: { range: "0.4..1.0xIn (320..800A)", delay: "2..14s", defaultIr: 800, defaultTr: 10 }, S: { range: "1.5..10xIr (1200..8000A)", delay: "0.08..0.3s", i2t: true, defaultIsd: 3200, defaultTsd: 0.1 }, I: { range: "2..12xIn (1600..9600A)", defaultIi: 8000 } }),
     },
     {
@@ -939,7 +939,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 50,
       tripUnit: "Microprocessor LSI",
-      datasheetUrl: "https://www.iskra.eu/en/Moulded-Case-Circuit-Breakers/",
+      datasheetUrl: "https://www.iskra.eu/f/docs/general-catalogues/Iskra-Product-lines.pdf",
       settingsJson: JSON.stringify({ Ics: 50, standard: "IEC 60947-2", category: "A", curveType: "LSI", L: { range: "0.4..1.0xIn (400..1000A)", delay: "2..14s", defaultIr: 1000, defaultTr: 10 }, S: { range: "1.5..10xIr (1500..10000A)", delay: "0.08..0.3s", i2t: true, defaultIsd: 4000, defaultTsd: 0.1 }, I: { range: "2..12xIn (2000..12000A)", defaultIi: 10000 } }),
     },
     {
@@ -951,7 +951,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 65,
       tripUnit: "Microprocessor LSI",
-      datasheetUrl: "https://www.iskra.eu/en/Moulded-Case-Circuit-Breakers/",
+      datasheetUrl: "https://www.iskra.eu/f/docs/general-catalogues/Iskra-Product-lines.pdf",
       settingsJson: JSON.stringify({ Ics: 65, standard: "IEC 60947-2", category: "A", curveType: "LSI", L: { range: "0.4..1.0xIn (500..1250A)", delay: "2..14s", defaultIr: 1250, defaultTr: 10 }, S: { range: "1.5..10xIr (1875..12500A)", delay: "0.08..0.3s", i2t: true, defaultIsd: 5000, defaultTsd: 0.1 }, I: { range: "2..12xIn (2500..15000A)", defaultIi: 12500 } }),
     },
 
@@ -1239,7 +1239,7 @@ async function main() {
       poles: 1,
       breakingCapacity: 10,
       tripUnit: "C-Curve",
-      datasheetUrl: "https://www.farnell.com/datasheets/1852899.pdf",
+      datasheetUrl: "https://www.eaton.com/content/dam/eaton/products/electrical-circuit-protection/industrial-miniature-circuit-breakers/Industrial-breakers-catalog-ca08100005e.pdf",
       settingsJson: JSON.stringify({ curveType: "C", thermalPickup: "1.13..1.45xIn", magneticPickup: "5..10xIn (50..100A)", Icn: 10, Icu: 15, Ics: 7.5, energyClass: 3, letThroughI2t: 18000, standard: "IEC/EN 60898-1 / IEC/EN 60947-2" }),
     },
     {
@@ -1251,7 +1251,7 @@ async function main() {
       poles: 1,
       breakingCapacity: 10,
       tripUnit: "C-Curve",
-      datasheetUrl: "https://www.farnell.com/datasheets/1852899.pdf",
+      datasheetUrl: "https://www.eaton.com/content/dam/eaton/products/electrical-circuit-protection/industrial-miniature-circuit-breakers/Industrial-breakers-catalog-ca08100005e.pdf",
       settingsJson: JSON.stringify({ curveType: "C", thermalPickup: "1.13..1.45xIn", magneticPickup: "5..10xIn (80..160A)", Icn: 10, Icu: 15, Ics: 7.5, energyClass: 3, letThroughI2t: 28000, standard: "IEC/EN 60898-1 / IEC/EN 60947-2" }),
     },
     {
@@ -1263,7 +1263,7 @@ async function main() {
       poles: 1,
       breakingCapacity: 10,
       tripUnit: "C-Curve",
-      datasheetUrl: "https://www.farnell.com/datasheets/1852899.pdf",
+      datasheetUrl: "https://www.eaton.com/content/dam/eaton/products/electrical-circuit-protection/industrial-miniature-circuit-breakers/Industrial-breakers-catalog-ca08100005e.pdf",
       settingsJson: JSON.stringify({ curveType: "C", thermalPickup: "1.13..1.45xIn", magneticPickup: "5..10xIn (100..200A)", Icn: 10, Icu: 15, Ics: 7.5, energyClass: 3, letThroughI2t: 36000, standard: "IEC/EN 60898-1 / IEC/EN 60947-2" }),
     },
     {
@@ -1275,7 +1275,7 @@ async function main() {
       poles: 1,
       breakingCapacity: 10,
       tripUnit: "C-Curve",
-      datasheetUrl: "https://www.farnell.com/datasheets/1852899.pdf",
+      datasheetUrl: "https://www.eaton.com/content/dam/eaton/products/electrical-circuit-protection/industrial-miniature-circuit-breakers/Industrial-breakers-catalog-ca08100005e.pdf",
       settingsJson: JSON.stringify({ curveType: "C", thermalPickup: "1.13..1.45xIn", magneticPickup: "5..10xIn (160..320A)", Icn: 10, Icu: 15, Ics: 7.5, energyClass: 3, letThroughI2t: 64000, standard: "IEC/EN 60898-1 / IEC/EN 60947-2" }),
     },
     {
@@ -1287,7 +1287,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 10,
       tripUnit: "C-Curve",
-      datasheetUrl: "https://www.farnell.com/datasheets/1852899.pdf",
+      datasheetUrl: "https://www.eaton.com/content/dam/eaton/products/electrical-circuit-protection/industrial-miniature-circuit-breakers/Industrial-breakers-catalog-ca08100005e.pdf",
       settingsJson: JSON.stringify({ curveType: "C", thermalPickup: "1.13..1.45xIn", magneticPickup: "5..10xIn (50..100A)", Icn: 10, Icu: 15, Ics: 7.5, energyClass: 3, letThroughI2t: 18000, standard: "IEC/EN 60898-1 / IEC/EN 60947-2" }),
     },
     {
@@ -1299,7 +1299,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 10,
       tripUnit: "C-Curve",
-      datasheetUrl: "https://www.farnell.com/datasheets/1852899.pdf",
+      datasheetUrl: "https://www.eaton.com/content/dam/eaton/products/electrical-circuit-protection/industrial-miniature-circuit-breakers/Industrial-breakers-catalog-ca08100005e.pdf",
       settingsJson: JSON.stringify({ curveType: "C", thermalPickup: "1.13..1.45xIn", magneticPickup: "5..10xIn (80..160A)", Icn: 10, Icu: 15, Ics: 7.5, energyClass: 3, letThroughI2t: 28000, standard: "IEC/EN 60898-1 / IEC/EN 60947-2" }),
     },
     {
@@ -1311,7 +1311,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 10,
       tripUnit: "C-Curve",
-      datasheetUrl: "https://www.farnell.com/datasheets/1852899.pdf",
+      datasheetUrl: "https://www.eaton.com/content/dam/eaton/products/electrical-circuit-protection/industrial-miniature-circuit-breakers/Industrial-breakers-catalog-ca08100005e.pdf",
       settingsJson: JSON.stringify({ curveType: "C", thermalPickup: "1.13..1.45xIn", magneticPickup: "5..10xIn (100..200A)", Icn: 10, Icu: 15, Ics: 7.5, energyClass: 3, letThroughI2t: 36000, standard: "IEC/EN 60898-1 / IEC/EN 60947-2" }),
     },
     {
@@ -1323,7 +1323,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 10,
       tripUnit: "C-Curve",
-      datasheetUrl: "https://www.farnell.com/datasheets/1852899.pdf",
+      datasheetUrl: "https://www.eaton.com/content/dam/eaton/products/electrical-circuit-protection/industrial-miniature-circuit-breakers/Industrial-breakers-catalog-ca08100005e.pdf",
       settingsJson: JSON.stringify({ curveType: "C", thermalPickup: "1.13..1.45xIn", magneticPickup: "5..10xIn (125..250A)", Icn: 10, Icu: 15, Ics: 7.5, energyClass: 3, letThroughI2t: 50000, standard: "IEC/EN 60898-1 / IEC/EN 60947-2" }),
     },
     {
@@ -1335,7 +1335,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 10,
       tripUnit: "C-Curve",
-      datasheetUrl: "https://www.farnell.com/datasheets/1852899.pdf",
+      datasheetUrl: "https://www.eaton.com/content/dam/eaton/products/electrical-circuit-protection/industrial-miniature-circuit-breakers/Industrial-breakers-catalog-ca08100005e.pdf",
       settingsJson: JSON.stringify({ curveType: "C", thermalPickup: "1.13..1.45xIn", magneticPickup: "5..10xIn (160..320A)", Icn: 10, Icu: 15, Ics: 7.5, energyClass: 3, letThroughI2t: 64000, standard: "IEC/EN 60898-1 / IEC/EN 60947-2" }),
     },
     {
@@ -1347,7 +1347,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 10,
       tripUnit: "C-Curve",
-      datasheetUrl: "https://www.farnell.com/datasheets/1852899.pdf",
+      datasheetUrl: "https://www.eaton.com/content/dam/eaton/products/electrical-circuit-protection/industrial-miniature-circuit-breakers/Industrial-breakers-catalog-ca08100005e.pdf",
       settingsJson: JSON.stringify({ curveType: "C", thermalPickup: "1.13..1.45xIn", magneticPickup: "5..10xIn (200..400A)", Icn: 10, Icu: 15, Ics: 7.5, energyClass: 3, letThroughI2t: 75000, standard: "IEC/EN 60898-1 / IEC/EN 60947-2" }),
     },
     {
@@ -1359,7 +1359,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 10,
       tripUnit: "C-Curve",
-      datasheetUrl: "https://www.farnell.com/datasheets/1852899.pdf",
+      datasheetUrl: "https://www.eaton.com/content/dam/eaton/products/electrical-circuit-protection/industrial-miniature-circuit-breakers/Industrial-breakers-catalog-ca08100005e.pdf",
       settingsJson: JSON.stringify({ curveType: "C", thermalPickup: "1.13..1.45xIn", magneticPickup: "5..10xIn (315..630A)", Icn: 10, Icu: 15, Ics: 7.5, energyClass: 3, letThroughI2t: 84000, standard: "IEC/EN 60898-1 / IEC/EN 60947-2" }),
     },
 
@@ -1375,7 +1375,7 @@ async function main() {
       poles: 1,
       breakingCapacity: 10,
       tripUnit: "C-Curve",
-      datasheetUrl: "https://www.farnell.com/datasheets/1852899.pdf",
+      datasheetUrl: "https://support.industry.siemens.com/cs/document/45302792/configuration-manual-miniature-circuit-breakers",
       settingsJson: JSON.stringify({ curveType: "C", thermalPickup: "1.13..1.45xIn", magneticPickup: "5..10xIn (50..100A)", Icn: 10, Icu: 15, Ics: 7.5, energyClass: 3, letThroughI2t: 18000, standard: "IEC/EN 60898-1 / IEC/EN 60947-2" }),
     },
     {
@@ -1387,7 +1387,7 @@ async function main() {
       poles: 1,
       breakingCapacity: 10,
       tripUnit: "C-Curve",
-      datasheetUrl: "https://www.farnell.com/datasheets/1852899.pdf",
+      datasheetUrl: "https://support.industry.siemens.com/cs/document/45302792/configuration-manual-miniature-circuit-breakers",
       settingsJson: JSON.stringify({ curveType: "C", thermalPickup: "1.13..1.45xIn", magneticPickup: "5..10xIn (80..160A)", Icn: 10, Icu: 15, Ics: 7.5, energyClass: 3, letThroughI2t: 28000, standard: "IEC/EN 60898-1 / IEC/EN 60947-2" }),
     },
     {
@@ -1399,7 +1399,7 @@ async function main() {
       poles: 1,
       breakingCapacity: 10,
       tripUnit: "C-Curve",
-      datasheetUrl: "https://www.farnell.com/datasheets/1852899.pdf",
+      datasheetUrl: "https://support.industry.siemens.com/cs/document/45302792/configuration-manual-miniature-circuit-breakers",
       settingsJson: JSON.stringify({ curveType: "C", thermalPickup: "1.13..1.45xIn", magneticPickup: "5..10xIn (100..200A)", Icn: 10, Icu: 15, Ics: 7.5, energyClass: 3, letThroughI2t: 36000, standard: "IEC/EN 60898-1 / IEC/EN 60947-2" }),
     },
     {
@@ -1411,7 +1411,7 @@ async function main() {
       poles: 1,
       breakingCapacity: 10,
       tripUnit: "C-Curve",
-      datasheetUrl: "https://www.farnell.com/datasheets/1852899.pdf",
+      datasheetUrl: "https://support.industry.siemens.com/cs/document/45302792/configuration-manual-miniature-circuit-breakers",
       settingsJson: JSON.stringify({ curveType: "C", thermalPickup: "1.13..1.45xIn", magneticPickup: "5..10xIn (160..320A)", Icn: 10, Icu: 15, Ics: 7.5, energyClass: 3, letThroughI2t: 64000, standard: "IEC/EN 60898-1 / IEC/EN 60947-2" }),
     },
     {
@@ -1423,7 +1423,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 10,
       tripUnit: "C-Curve",
-      datasheetUrl: "https://www.farnell.com/datasheets/1852899.pdf",
+      datasheetUrl: "https://support.industry.siemens.com/cs/document/45302792/configuration-manual-miniature-circuit-breakers",
       settingsJson: JSON.stringify({ curveType: "C", thermalPickup: "1.13..1.45xIn", magneticPickup: "5..10xIn (50..100A)", Icn: 10, Icu: 15, Ics: 7.5, energyClass: 3, letThroughI2t: 18000, standard: "IEC/EN 60898-1 / IEC/EN 60947-2" }),
     },
     {
@@ -1435,7 +1435,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 10,
       tripUnit: "C-Curve",
-      datasheetUrl: "https://www.farnell.com/datasheets/1852899.pdf",
+      datasheetUrl: "https://support.industry.siemens.com/cs/document/45302792/configuration-manual-miniature-circuit-breakers",
       settingsJson: JSON.stringify({ curveType: "C", thermalPickup: "1.13..1.45xIn", magneticPickup: "5..10xIn (80..160A)", Icn: 10, Icu: 15, Ics: 7.5, energyClass: 3, letThroughI2t: 28000, standard: "IEC/EN 60898-1 / IEC/EN 60947-2" }),
     },
     {
@@ -1447,7 +1447,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 10,
       tripUnit: "C-Curve",
-      datasheetUrl: "https://www.farnell.com/datasheets/1852899.pdf",
+      datasheetUrl: "https://support.industry.siemens.com/cs/document/45302792/configuration-manual-miniature-circuit-breakers",
       settingsJson: JSON.stringify({ curveType: "C", thermalPickup: "1.13..1.45xIn", magneticPickup: "5..10xIn (100..200A)", Icn: 10, Icu: 15, Ics: 7.5, energyClass: 3, letThroughI2t: 36000, standard: "IEC/EN 60898-1 / IEC/EN 60947-2" }),
     },
     {
@@ -1459,7 +1459,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 10,
       tripUnit: "C-Curve",
-      datasheetUrl: "https://www.farnell.com/datasheets/1852899.pdf",
+      datasheetUrl: "https://support.industry.siemens.com/cs/document/45302792/configuration-manual-miniature-circuit-breakers",
       settingsJson: JSON.stringify({ curveType: "C", thermalPickup: "1.13..1.45xIn", magneticPickup: "5..10xIn (125..250A)", Icn: 10, Icu: 15, Ics: 7.5, energyClass: 3, letThroughI2t: 50000, standard: "IEC/EN 60898-1 / IEC/EN 60947-2" }),
     },
     {
@@ -1471,7 +1471,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 10,
       tripUnit: "C-Curve",
-      datasheetUrl: "https://support.industry.siemens.com/cs/document/109744955/sentron-5sy-miniature-circuit-breakers",
+      datasheetUrl: "https://support.industry.siemens.com/cs/document/45302792/configuration-manual-miniature-circuit-breakers",
       settingsJson: JSON.stringify({ curveType: "C", thermalPickup: "1.13..1.45xIn", magneticPickup: "5..10xIn (160..320A)", Icn: 10, Icu: 15, Ics: 7.5, energyClass: 3, letThroughI2t: 64000, standard: "IEC/EN 60898-1 / IEC/EN 60947-2" }),
     },
     {
@@ -1483,7 +1483,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 10,
       tripUnit: "C-Curve",
-      datasheetUrl: "https://support.industry.siemens.com/cs/document/109744955/sentron-5sy-miniature-circuit-breakers",
+      datasheetUrl: "https://support.industry.siemens.com/cs/document/45302792/configuration-manual-miniature-circuit-breakers",
       settingsJson: JSON.stringify({ curveType: "C", thermalPickup: "1.13..1.45xIn", magneticPickup: "5..10xIn (200..400A)", Icn: 10, Icu: 15, Ics: 7.5, energyClass: 3, letThroughI2t: 75000, standard: "IEC/EN 60898-1 / IEC/EN 60947-2" }),
     },
     {
@@ -1495,7 +1495,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 10,
       tripUnit: "C-Curve",
-      datasheetUrl: "https://support.industry.siemens.com/cs/document/109744955/sentron-5sy-miniature-circuit-breakers",
+      datasheetUrl: "https://support.industry.siemens.com/cs/document/45302792/configuration-manual-miniature-circuit-breakers",
       settingsJson: JSON.stringify({ curveType: "C", thermalPickup: "1.13..1.45xIn", magneticPickup: "5..10xIn (315..630A)", Icn: 10, Icu: 15, Ics: 7.5, energyClass: 3, letThroughI2t: 84000, standard: "IEC/EN 60898-1 / IEC/EN 60947-2" }),
     },
 
@@ -1511,7 +1511,7 @@ async function main() {
       poles: 1,
       breakingCapacity: 10,
       tripUnit: "C-Curve",
-      datasheetUrl: "https://www.legrand.com/ecatalogue/dx3-miniature-circuit-breakers",
+      datasheetUrl: "https://assets.legrand.com/pim/NP-FT-GT/F01559EN-03.pdf",
       settingsJson: JSON.stringify({ curveType: "C", thermalPickup: "1.13..1.45xIn", magneticPickup: "5..10xIn (50..100A)", Icn: 10, Icu: 15, Ics: 7.5, energyClass: 3, letThroughI2t: 18000, standard: "IEC/EN 60898-1 / IEC/EN 60947-2" }),
     },
     {
@@ -1523,7 +1523,7 @@ async function main() {
       poles: 1,
       breakingCapacity: 10,
       tripUnit: "C-Curve",
-      datasheetUrl: "https://www.legrand.com/ecatalogue/dx3-miniature-circuit-breakers",
+      datasheetUrl: "https://assets.legrand.com/pim/NP-FT-GT/F01559EN-03.pdf",
       settingsJson: JSON.stringify({ curveType: "C", thermalPickup: "1.13..1.45xIn", magneticPickup: "5..10xIn (80..160A)", Icn: 10, Icu: 15, Ics: 7.5, energyClass: 3, letThroughI2t: 28000, standard: "IEC/EN 60898-1 / IEC/EN 60947-2" }),
     },
     {
@@ -1535,7 +1535,7 @@ async function main() {
       poles: 1,
       breakingCapacity: 10,
       tripUnit: "C-Curve",
-      datasheetUrl: "https://www.legrand.com/ecatalogue/dx3-miniature-circuit-breakers",
+      datasheetUrl: "https://assets.legrand.com/pim/NP-FT-GT/F01559EN-03.pdf",
       settingsJson: JSON.stringify({ curveType: "C", thermalPickup: "1.13..1.45xIn", magneticPickup: "5..10xIn (100..200A)", Icn: 10, Icu: 15, Ics: 7.5, energyClass: 3, letThroughI2t: 36000, standard: "IEC/EN 60898-1 / IEC/EN 60947-2" }),
     },
     {
@@ -1547,7 +1547,7 @@ async function main() {
       poles: 1,
       breakingCapacity: 10,
       tripUnit: "C-Curve",
-      datasheetUrl: "https://www.legrand.com/ecatalogue/dx3-miniature-circuit-breakers",
+      datasheetUrl: "https://assets.legrand.com/pim/NP-FT-GT/F01559EN-03.pdf",
       settingsJson: JSON.stringify({ curveType: "C", thermalPickup: "1.13..1.45xIn", magneticPickup: "5..10xIn (160..320A)", Icn: 10, Icu: 15, Ics: 7.5, energyClass: 3, letThroughI2t: 64000, standard: "IEC/EN 60898-1 / IEC/EN 60947-2" }),
     },
     {
@@ -1559,7 +1559,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 10,
       tripUnit: "C-Curve",
-      datasheetUrl: "https://www.legrand.com/ecatalogue/dx3-miniature-circuit-breakers",
+      datasheetUrl: "https://assets.legrand.com/pim/NP-FT-GT/F01559EN-03.pdf",
       settingsJson: JSON.stringify({ curveType: "C", thermalPickup: "1.13..1.45xIn", magneticPickup: "5..10xIn (50..100A)", Icn: 10, Icu: 15, Ics: 7.5, energyClass: 3, letThroughI2t: 18000, standard: "IEC/EN 60898-1 / IEC/EN 60947-2" }),
     },
     {
@@ -1571,7 +1571,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 10,
       tripUnit: "C-Curve",
-      datasheetUrl: "https://www.legrand.com/ecatalogue/dx3-miniature-circuit-breakers",
+      datasheetUrl: "https://assets.legrand.com/pim/NP-FT-GT/F01559EN-03.pdf",
       settingsJson: JSON.stringify({ curveType: "C", thermalPickup: "1.13..1.45xIn", magneticPickup: "5..10xIn (80..160A)", Icn: 10, Icu: 15, Ics: 7.5, energyClass: 3, letThroughI2t: 28000, standard: "IEC/EN 60898-1 / IEC/EN 60947-2" }),
     },
     {
@@ -1583,7 +1583,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 10,
       tripUnit: "C-Curve",
-      datasheetUrl: "https://www.legrand.com/ecatalogue/dx3-miniature-circuit-breakers",
+      datasheetUrl: "https://assets.legrand.com/pim/NP-FT-GT/F01559EN-03.pdf",
       settingsJson: JSON.stringify({ curveType: "C", thermalPickup: "1.13..1.45xIn", magneticPickup: "5..10xIn (100..200A)", Icn: 10, Icu: 15, Ics: 7.5, energyClass: 3, letThroughI2t: 36000, standard: "IEC/EN 60898-1 / IEC/EN 60947-2" }),
     },
     {
@@ -1595,7 +1595,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 10,
       tripUnit: "C-Curve",
-      datasheetUrl: "https://www.legrand.com/ecatalogue/dx3-miniature-circuit-breakers",
+      datasheetUrl: "https://assets.legrand.com/pim/NP-FT-GT/F01559EN-03.pdf",
       settingsJson: JSON.stringify({ curveType: "C", thermalPickup: "1.13..1.45xIn", magneticPickup: "5..10xIn (125..250A)", Icn: 10, Icu: 15, Ics: 7.5, energyClass: 3, letThroughI2t: 50000, standard: "IEC/EN 60898-1 / IEC/EN 60947-2" }),
     },
     {
@@ -1607,7 +1607,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 10,
       tripUnit: "C-Curve",
-      datasheetUrl: "https://www.legrand.com/ecatalogue/dx3-miniature-circuit-breakers",
+      datasheetUrl: "https://assets.legrand.com/pim/NP-FT-GT/F01559EN-03.pdf",
       settingsJson: JSON.stringify({ curveType: "C", thermalPickup: "1.13..1.45xIn", magneticPickup: "5..10xIn (160..320A)", Icn: 10, Icu: 15, Ics: 7.5, energyClass: 3, letThroughI2t: 64000, standard: "IEC/EN 60898-1 / IEC/EN 60947-2" }),
     },
     {
@@ -1619,7 +1619,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 10,
       tripUnit: "C-Curve",
-      datasheetUrl: "https://www.legrand.com/ecatalogue/dx3-miniature-circuit-breakers",
+      datasheetUrl: "https://assets.legrand.com/pim/NP-FT-GT/F01559EN-03.pdf",
       settingsJson: JSON.stringify({ curveType: "C", thermalPickup: "1.13..1.45xIn", magneticPickup: "5..10xIn (200..400A)", Icn: 10, Icu: 15, Ics: 7.5, energyClass: 3, letThroughI2t: 75000, standard: "IEC/EN 60898-1 / IEC/EN 60947-2" }),
     },
     {
@@ -1631,7 +1631,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 10,
       tripUnit: "C-Curve",
-      datasheetUrl: "https://www.legrand.com/ecatalogue/dx3-miniature-circuit-breakers",
+      datasheetUrl: "https://assets.legrand.com/pim/NP-FT-GT/F01559EN-03.pdf",
       settingsJson: JSON.stringify({ curveType: "C", thermalPickup: "1.13..1.45xIn", magneticPickup: "5..10xIn (315..630A)", Icn: 10, Icu: 15, Ics: 7.5, energyClass: 3, letThroughI2t: 84000, standard: "IEC/EN 60898-1 / IEC/EN 60947-2" }),
     },
 
@@ -1648,7 +1648,7 @@ async function main() {
       poles: 1,
       breakingCapacity: 6,
       tripUnit: "C-Curve",
-      datasheetUrl: "https://www.iskra.eu/en/Miniature-Circuit-Breakers/",
+      datasheetUrl: "https://www.iskra.eu/f/docs/2402/Low_Voltage_Switchgear_6.pdf",
       settingsJson: JSON.stringify({ curveType: "C", thermalPickup: "1.13..1.45xIn", magneticPickup: "5..10xIn (50..100A)", Icn: 6, Ics: 6, energyClass: 3, letThroughI2t: 15000, standard: "IEC/EN 60898-1" }),
     },
     {
@@ -1660,7 +1660,7 @@ async function main() {
       poles: 1,
       breakingCapacity: 6,
       tripUnit: "C-Curve",
-      datasheetUrl: "https://www.iskra.eu/en/Miniature-Circuit-Breakers/",
+      datasheetUrl: "https://www.iskra.eu/f/docs/2402/Low_Voltage_Switchgear_6.pdf",
       settingsJson: JSON.stringify({ curveType: "C", thermalPickup: "1.13..1.45xIn", magneticPickup: "5..10xIn (80..160A)", Icn: 6, Ics: 6, energyClass: 3, letThroughI2t: 22000, standard: "IEC/EN 60898-1" }),
     },
     {
@@ -1672,7 +1672,7 @@ async function main() {
       poles: 1,
       breakingCapacity: 6,
       tripUnit: "C-Curve",
-      datasheetUrl: "https://www.iskra.eu/en/Miniature-Circuit-Breakers/",
+      datasheetUrl: "https://www.iskra.eu/f/docs/2402/Low_Voltage_Switchgear_6.pdf",
       settingsJson: JSON.stringify({ curveType: "C", thermalPickup: "1.13..1.45xIn", magneticPickup: "5..10xIn (100..200A)", Icn: 6, Ics: 6, energyClass: 3, letThroughI2t: 30000, standard: "IEC/EN 60898-1" }),
     },
     {
@@ -1684,7 +1684,7 @@ async function main() {
       poles: 1,
       breakingCapacity: 6,
       tripUnit: "C-Curve",
-      datasheetUrl: "https://www.iskra.eu/en/Miniature-Circuit-Breakers/",
+      datasheetUrl: "https://www.iskra.eu/f/docs/2402/Low_Voltage_Switchgear_6.pdf",
       settingsJson: JSON.stringify({ curveType: "C", thermalPickup: "1.13..1.45xIn", magneticPickup: "5..10xIn (160..320A)", Icn: 6, Ics: 6, energyClass: 3, letThroughI2t: 52000, standard: "IEC/EN 60898-1" }),
     },
     {
@@ -1696,7 +1696,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 6,
       tripUnit: "C-Curve",
-      datasheetUrl: "https://www.iskra.eu/en/Miniature-Circuit-Breakers/",
+      datasheetUrl: "https://www.iskra.eu/f/docs/2402/Low_Voltage_Switchgear_6.pdf",
       settingsJson: JSON.stringify({ curveType: "C", thermalPickup: "1.13..1.45xIn", magneticPickup: "5..10xIn (80..160A)", Icn: 6, Ics: 6, energyClass: 3, letThroughI2t: 22000, standard: "IEC/EN 60898-1" }),
     },
     {
@@ -1708,7 +1708,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 6,
       tripUnit: "C-Curve",
-      datasheetUrl: "https://www.iskra.eu/en/Miniature-Circuit-Breakers/",
+      datasheetUrl: "https://www.iskra.eu/f/docs/2402/Low_Voltage_Switchgear_6.pdf",
       settingsJson: JSON.stringify({ curveType: "C", thermalPickup: "1.13..1.45xIn", magneticPickup: "5..10xIn (160..320A)", Icn: 6, Ics: 6, energyClass: 3, letThroughI2t: 52000, standard: "IEC/EN 60898-1" }),
     },
 
@@ -1722,7 +1722,7 @@ async function main() {
       poles: 1,
       breakingCapacity: 10,
       tripUnit: "C-Curve",
-      datasheetUrl: "https://www.iskra.eu/en/Miniature-Circuit-Breakers/",
+      datasheetUrl: "https://www.iskra.eu/f/docs/2402/Low_Voltage_Switchgear_6.pdf",
       settingsJson: JSON.stringify({ curveType: "C", thermalPickup: "1.13..1.45xIn", magneticPickup: "5..10xIn (50..100A)", Icn: 10, Icu: 15, Ics: 7.5, energyClass: 3, letThroughI2t: 18000, standard: "IEC/EN 60898-1 / IEC/EN 60947-2" }),
     },
     {
@@ -1734,7 +1734,7 @@ async function main() {
       poles: 1,
       breakingCapacity: 10,
       tripUnit: "C-Curve",
-      datasheetUrl: "https://www.iskra.eu/en/Miniature-Circuit-Breakers/",
+      datasheetUrl: "https://www.iskra.eu/f/docs/2402/Low_Voltage_Switchgear_6.pdf",
       settingsJson: JSON.stringify({ curveType: "C", thermalPickup: "1.13..1.45xIn", magneticPickup: "5..10xIn (80..160A)", Icn: 10, Icu: 15, Ics: 7.5, energyClass: 3, letThroughI2t: 28000, standard: "IEC/EN 60898-1 / IEC/EN 60947-2" }),
     },
     {
@@ -1746,7 +1746,7 @@ async function main() {
       poles: 1,
       breakingCapacity: 10,
       tripUnit: "C-Curve",
-      datasheetUrl: "https://www.iskra.eu/en/Miniature-Circuit-Breakers/",
+      datasheetUrl: "https://www.iskra.eu/f/docs/2402/Low_Voltage_Switchgear_6.pdf",
       settingsJson: JSON.stringify({ curveType: "C", thermalPickup: "1.13..1.45xIn", magneticPickup: "5..10xIn (100..200A)", Icn: 10, Icu: 15, Ics: 7.5, energyClass: 3, letThroughI2t: 36000, standard: "IEC/EN 60898-1 / IEC/EN 60947-2" }),
     },
     {
@@ -1758,7 +1758,7 @@ async function main() {
       poles: 1,
       breakingCapacity: 10,
       tripUnit: "C-Curve",
-      datasheetUrl: "https://www.iskra.eu/en/Miniature-Circuit-Breakers/",
+      datasheetUrl: "https://www.iskra.eu/f/docs/2402/Low_Voltage_Switchgear_6.pdf",
       settingsJson: JSON.stringify({ curveType: "C", thermalPickup: "1.13..1.45xIn", magneticPickup: "5..10xIn (125..250A)", Icn: 10, Icu: 15, Ics: 7.5, energyClass: 3, letThroughI2t: 50000, standard: "IEC/EN 60898-1 / IEC/EN 60947-2" }),
     },
     {
@@ -1770,7 +1770,7 @@ async function main() {
       poles: 1,
       breakingCapacity: 10,
       tripUnit: "C-Curve",
-      datasheetUrl: "https://www.iskra.eu/en/Miniature-Circuit-Breakers/",
+      datasheetUrl: "https://www.iskra.eu/f/docs/2402/Low_Voltage_Switchgear_6.pdf",
       settingsJson: JSON.stringify({ curveType: "C", thermalPickup: "1.13..1.45xIn", magneticPickup: "5..10xIn (160..320A)", Icn: 10, Icu: 15, Ics: 7.5, energyClass: 3, letThroughI2t: 64000, standard: "IEC/EN 60898-1 / IEC/EN 60947-2" }),
     },
     {
@@ -1782,7 +1782,7 @@ async function main() {
       poles: 1,
       breakingCapacity: 10,
       tripUnit: "C-Curve",
-      datasheetUrl: "https://www.iskra.eu/en/Miniature-Circuit-Breakers/",
+      datasheetUrl: "https://www.iskra.eu/f/docs/2402/Low_Voltage_Switchgear_6.pdf",
       settingsJson: JSON.stringify({ curveType: "C", thermalPickup: "1.13..1.45xIn", magneticPickup: "5..10xIn (200..400A)", Icn: 10, Icu: 15, Ics: 7.5, energyClass: 3, letThroughI2t: 75000, standard: "IEC/EN 60898-1 / IEC/EN 60947-2" }),
     },
     {
@@ -1794,7 +1794,7 @@ async function main() {
       poles: 1,
       breakingCapacity: 10,
       tripUnit: "C-Curve",
-      datasheetUrl: "https://www.iskra.eu/en/Miniature-Circuit-Breakers/",
+      datasheetUrl: "https://www.iskra.eu/f/docs/2402/Low_Voltage_Switchgear_6.pdf",
       settingsJson: JSON.stringify({ curveType: "C", thermalPickup: "1.13..1.45xIn", magneticPickup: "5..10xIn (315..630A)", Icn: 10, Icu: 15, Ics: 7.5, energyClass: 3, letThroughI2t: 84000, standard: "IEC/EN 60898-1 / IEC/EN 60947-2" }),
     },
     {
@@ -1806,7 +1806,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 10,
       tripUnit: "C-Curve",
-      datasheetUrl: "https://www.iskra.eu/en/Miniature-Circuit-Breakers/",
+      datasheetUrl: "https://www.iskra.eu/f/docs/2402/Low_Voltage_Switchgear_6.pdf",
       settingsJson: JSON.stringify({ curveType: "C", thermalPickup: "1.13..1.45xIn", magneticPickup: "5..10xIn (50..100A)", Icn: 10, Icu: 15, Ics: 7.5, energyClass: 3, letThroughI2t: 18000, standard: "IEC/EN 60898-1 / IEC/EN 60947-2" }),
     },
     {
@@ -1818,7 +1818,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 10,
       tripUnit: "C-Curve",
-      datasheetUrl: "https://www.iskra.eu/en/Miniature-Circuit-Breakers/",
+      datasheetUrl: "https://www.iskra.eu/f/docs/2402/Low_Voltage_Switchgear_6.pdf",
       settingsJson: JSON.stringify({ curveType: "C", thermalPickup: "1.13..1.45xIn", magneticPickup: "5..10xIn (80..160A)", Icn: 10, Icu: 15, Ics: 7.5, energyClass: 3, letThroughI2t: 28000, standard: "IEC/EN 60898-1 / IEC/EN 60947-2" }),
     },
     {
@@ -1830,7 +1830,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 10,
       tripUnit: "C-Curve",
-      datasheetUrl: "https://www.iskra.eu/en/Miniature-Circuit-Breakers/",
+      datasheetUrl: "https://www.iskra.eu/f/docs/2402/Low_Voltage_Switchgear_6.pdf",
       settingsJson: JSON.stringify({ curveType: "C", thermalPickup: "1.13..1.45xIn", magneticPickup: "5..10xIn (100..200A)", Icn: 10, Icu: 15, Ics: 7.5, energyClass: 3, letThroughI2t: 36000, standard: "IEC/EN 60898-1 / IEC/EN 60947-2" }),
     },
     {
@@ -1842,7 +1842,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 10,
       tripUnit: "C-Curve",
-      datasheetUrl: "https://www.iskra.eu/en/Miniature-Circuit-Breakers/",
+      datasheetUrl: "https://www.iskra.eu/f/docs/2402/Low_Voltage_Switchgear_6.pdf",
       settingsJson: JSON.stringify({ curveType: "C", thermalPickup: "1.13..1.45xIn", magneticPickup: "5..10xIn (125..250A)", Icn: 10, Icu: 15, Ics: 7.5, energyClass: 3, letThroughI2t: 50000, standard: "IEC/EN 60898-1 / IEC/EN 60947-2" }),
     },
     {
@@ -1854,7 +1854,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 10,
       tripUnit: "C-Curve",
-      datasheetUrl: "https://www.iskra.eu/en/Miniature-Circuit-Breakers/",
+      datasheetUrl: "https://www.iskra.eu/f/docs/2402/Low_Voltage_Switchgear_6.pdf",
       settingsJson: JSON.stringify({ curveType: "C", thermalPickup: "1.13..1.45xIn", magneticPickup: "5..10xIn (160..320A)", Icn: 10, Icu: 15, Ics: 7.5, energyClass: 3, letThroughI2t: 64000, standard: "IEC/EN 60898-1 / IEC/EN 60947-2" }),
     },
     {
@@ -1866,7 +1866,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 10,
       tripUnit: "C-Curve",
-      datasheetUrl: "https://www.iskra.eu/en/Miniature-Circuit-Breakers/",
+      datasheetUrl: "https://www.iskra.eu/f/docs/2402/Low_Voltage_Switchgear_6.pdf",
       settingsJson: JSON.stringify({ curveType: "C", thermalPickup: "1.13..1.45xIn", magneticPickup: "5..10xIn (200..400A)", Icn: 10, Icu: 15, Ics: 7.5, energyClass: 3, letThroughI2t: 75000, standard: "IEC/EN 60898-1 / IEC/EN 60947-2" }),
     },
     {
@@ -1878,7 +1878,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 10,
       tripUnit: "C-Curve",
-      datasheetUrl: "https://www.iskra.eu/en/Miniature-Circuit-Breakers/",
+      datasheetUrl: "https://www.iskra.eu/f/docs/2402/Low_Voltage_Switchgear_6.pdf",
       settingsJson: JSON.stringify({ curveType: "C", thermalPickup: "1.13..1.45xIn", magneticPickup: "5..10xIn (315..630A)", Icn: 10, Icu: 15, Ics: 7.5, energyClass: 3, letThroughI2t: 84000, standard: "IEC/EN 60898-1 / IEC/EN 60947-2" }),
     },
 
@@ -1892,7 +1892,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 10,
       tripUnit: "C-Curve",
-      datasheetUrl: "https://www.iskra.eu/en/Miniature-Circuit-Breakers/",
+      datasheetUrl: "https://www.iskra.eu/f/docs/2402/Low_Voltage_Switchgear_6.pdf",
       settingsJson: JSON.stringify({ curveType: "C", thermalPickup: "1.13..1.45xIn", magneticPickup: "5..10xIn (400..800A)", Icn: 10, Icu: 15, Ics: 7.5, energyClass: 3, letThroughI2t: 120000, standard: "IEC/EN 60898-1 / IEC/EN 60947-2" }),
     },
     {
@@ -1904,7 +1904,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 10,
       tripUnit: "C-Curve",
-      datasheetUrl: "https://www.iskra.eu/en/Miniature-Circuit-Breakers/",
+      datasheetUrl: "https://www.iskra.eu/f/docs/2402/Low_Voltage_Switchgear_6.pdf",
       settingsJson: JSON.stringify({ curveType: "C", thermalPickup: "1.13..1.45xIn", magneticPickup: "5..10xIn (500..1000A)", Icn: 10, Icu: 15, Ics: 7.5, energyClass: 3, letThroughI2t: 160000, standard: "IEC/EN 60898-1 / IEC/EN 60947-2" }),
     },
     {
@@ -1916,7 +1916,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 10,
       tripUnit: "C-Curve",
-      datasheetUrl: "https://www.iskra.eu/en/Miniature-Circuit-Breakers/",
+      datasheetUrl: "https://www.iskra.eu/f/docs/2402/Low_Voltage_Switchgear_6.pdf",
       settingsJson: JSON.stringify({ curveType: "C", thermalPickup: "1.13..1.45xIn", magneticPickup: "5..10xIn (625..1250A)", Icn: 10, Icu: 15, Ics: 7.5, energyClass: 3, letThroughI2t: 210000, standard: "IEC/EN 60898-1 / IEC/EN 60947-2" }),
     },
 
@@ -2003,7 +2003,7 @@ async function main() {
       poles: 2,
       breakingCapacity: 10,
       tripUnit: "Type AC 30mA",
-      datasheetUrl: "https://www.farnell.com/datasheets/2051662.pdf",
+      datasheetUrl: "https://www.eaton.com/gb/en-gb/catalog/electrical-circuit-protection/frcmm-type-ac--a--u--r-xeffect-residual-current-circuit-breaker.html",
       settingsJson: JSON.stringify({ sensitivity: "30mA", type: "AC", standard: "IEC/EN 61008-1" }),
     },
     {
@@ -2015,7 +2015,7 @@ async function main() {
       poles: 4,
       breakingCapacity: 10,
       tripUnit: "Type A 30mA",
-      datasheetUrl: "https://www.farnell.com/datasheets/2051662.pdf",
+      datasheetUrl: "https://www.eaton.com/gb/en-gb/catalog/electrical-circuit-protection/frcmm-type-ac--a--u--r-xeffect-residual-current-circuit-breaker.html",
       settingsJson: JSON.stringify({ sensitivity: "30mA", type: "A", standard: "IEC/EN 61008-1" }),
     },
     {
@@ -2027,7 +2027,7 @@ async function main() {
       poles: 4,
       breakingCapacity: 10,
       tripUnit: "Type A 30mA",
-      datasheetUrl: "https://www.farnell.com/datasheets/2051662.pdf",
+      datasheetUrl: "https://www.eaton.com/gb/en-gb/catalog/electrical-circuit-protection/frcmm-type-ac--a--u--r-xeffect-residual-current-circuit-breaker.html",
       settingsJson: JSON.stringify({ sensitivity: "30mA", type: "A", standard: "IEC/EN 61008-1" }),
     },
     {
@@ -2039,7 +2039,7 @@ async function main() {
       poles: 2,
       breakingCapacity: 10,
       tripUnit: "Type A 30mA",
-      datasheetUrl: "https://www.farnell.com/datasheets/2051662.pdf",
+      datasheetUrl: "https://www.siemens.com/en-us/products/sentron/residual-current-protective-devices/",
       settingsJson: JSON.stringify({ sensitivity: "30mA", type: "A", standard: "IEC/EN 61008-1" }),
     },
     {
@@ -2051,7 +2051,7 @@ async function main() {
       poles: 4,
       breakingCapacity: 10,
       tripUnit: "Type A 30mA",
-      datasheetUrl: "https://www.farnell.com/datasheets/2051662.pdf",
+      datasheetUrl: "https://www.siemens.com/en-us/products/sentron/residual-current-protective-devices/",
       settingsJson: JSON.stringify({ sensitivity: "30mA", type: "A", standard: "IEC/EN 61008-1" }),
     },
     {
@@ -2063,7 +2063,7 @@ async function main() {
       poles: 4,
       breakingCapacity: 10,
       tripUnit: "Type A 30mA",
-      datasheetUrl: "https://www.farnell.com/datasheets/2051662.pdf",
+      datasheetUrl: "https://www.siemens.com/en-us/products/sentron/residual-current-protective-devices/",
       settingsJson: JSON.stringify({ sensitivity: "30mA", type: "A", standard: "IEC/EN 61008-1" }),
     },
     {
@@ -2075,7 +2075,7 @@ async function main() {
       poles: 2,
       breakingCapacity: 10,
       tripUnit: "Type AC 30mA",
-      datasheetUrl: "https://www.legrand.com/ecatalogue/dx3-id-rccb",
+      datasheetUrl: "https://assets.legrand.com/pim/NP-FT-GT/F01316EN-04.pdf",
       settingsJson: JSON.stringify({ sensitivity: "30mA", type: "AC", standard: "IEC/EN 61008-1" }),
     },
     {
@@ -2087,7 +2087,7 @@ async function main() {
       poles: 4,
       breakingCapacity: 10,
       tripUnit: "Type A 30mA",
-      datasheetUrl: "https://www.legrand.com/ecatalogue/dx3-id-rccb",
+      datasheetUrl: "https://assets.legrand.com/pim/NP-FT-GT/F01316EN-04.pdf",
       settingsJson: JSON.stringify({ sensitivity: "30mA", type: "A", standard: "IEC/EN 61008-1" }),
     },
     {
@@ -2099,7 +2099,7 @@ async function main() {
       poles: 4,
       breakingCapacity: 10,
       tripUnit: "Type A 30mA",
-      datasheetUrl: "https://www.legrand.com/ecatalogue/dx3-id-rccb",
+      datasheetUrl: "https://assets.legrand.com/pim/NP-FT-GT/F01316EN-04.pdf",
       settingsJson: JSON.stringify({ sensitivity: "30mA", type: "A", standard: "IEC/EN 61008-1" }),
     },
     {
@@ -2111,7 +2111,7 @@ async function main() {
       poles: 2,
       breakingCapacity: 10,
       tripUnit: "Type AC 30mA",
-      datasheetUrl: "https://www.iskra.eu/en/Residual-Current-Circuit-Breakers/",
+      datasheetUrl: "https://www.iskra.eu/f/docs/71071/Residual_Current_Circuit_Breakers_Ver3.1_1_2_3_4.pdf",
       settingsJson: JSON.stringify({ sensitivity: "30mA", type: "AC", standard: "IEC/EN 61008-1" }),
     },
     {
@@ -2123,7 +2123,7 @@ async function main() {
       poles: 4,
       breakingCapacity: 10,
       tripUnit: "Type A 30mA",
-      datasheetUrl: "https://www.iskra.eu/en/Residual-Current-Circuit-Breakers/",
+      datasheetUrl: "https://www.iskra.eu/f/docs/71071/Residual_Current_Circuit_Breakers_Ver3.1_1_2_3_4.pdf",
       settingsJson: JSON.stringify({ sensitivity: "30mA", type: "A", standard: "IEC/EN 61008-1" }),
     },
     {
@@ -2135,7 +2135,7 @@ async function main() {
       poles: 4,
       breakingCapacity: 10,
       tripUnit: "Type A 30mA",
-      datasheetUrl: "https://www.iskra.eu/en/Residual-Current-Circuit-Breakers/",
+      datasheetUrl: "https://www.iskra.eu/f/docs/71071/Residual_Current_Circuit_Breakers_Ver3.1_1_2_3_4.pdf",
       settingsJson: JSON.stringify({ sensitivity: "30mA", type: "A", standard: "IEC/EN 61008-1" }),
     },
     {
@@ -2147,7 +2147,7 @@ async function main() {
       poles: 2,
       breakingCapacity: 10,
       tripUnit: "Type AC 30mA",
-      datasheetUrl: "https://www.iskra.eu/en/Residual-Current-Circuit-Breakers/",
+      datasheetUrl: "https://www.iskra.eu/f/docs/71071/Residual_Current_Circuit_Breakers_Ver3.1_1_2_3_4.pdf",
       settingsJson: JSON.stringify({ sensitivity: "30mA", type: "AC", instantaneous: true, standard: "IEC/EN 61008-1" }),
     },
 
@@ -2223,7 +2223,7 @@ async function main() {
       poles: 2,
       breakingCapacity: 10,
       tripUnit: "C-Curve / 30mA",
-      datasheetUrl: "https://www.farnell.com/datasheets/1852899.pdf",
+      datasheetUrl: "https://www.eaton.com/gb/en-gb/catalog/electrical-circuit-protection/xpole-combined-rcd-mcb-device-pkn6-pknm--1-n-pole.html",
       settingsJson: JSON.stringify({ curveType: "C", sensitivity: "30mA", standard: "IEC/EN 61009-1" }),
     },
     {
@@ -2235,7 +2235,7 @@ async function main() {
       poles: 2,
       breakingCapacity: 6,
       tripUnit: "C-Curve / 30mA",
-      datasheetUrl: "https://www.farnell.com/datasheets/2885994.pdf",
+      datasheetUrl: "https://www.eaton.com/gb/en-gb/catalog/electrical-circuit-protection/xpole-combined-rcd-mcb-device-pkn6-pknm--1-n-pole.html",
       settingsJson: JSON.stringify({ curveType: "C", sensitivity: "30mA", standard: "IEC/EN 61009-1" }),
     },
     {
@@ -2247,7 +2247,7 @@ async function main() {
       poles: 2,
       breakingCapacity: 10,
       tripUnit: "C-Curve / 30mA",
-      datasheetUrl: "https://www.farnell.com/datasheets/2051662.pdf",
+      datasheetUrl: "https://www.siemens.com/en-us/products/sentron/residual-current-protective-devices/",
       settingsJson: JSON.stringify({ curveType: "C", sensitivity: "30mA", standard: "IEC/EN 61009-1" }),
     },
     {
@@ -2259,7 +2259,7 @@ async function main() {
       poles: 2,
       breakingCapacity: 6,
       tripUnit: "C-Curve / 30mA",
-      datasheetUrl: "https://www.farnell.com/datasheets/2885994.pdf",
+      datasheetUrl: "https://www.siemens.com/en-us/products/sentron/residual-current-protective-devices/",
       settingsJson: JSON.stringify({ curveType: "C", sensitivity: "30mA", standard: "IEC/EN 61009-1" }),
     },
     {
@@ -2271,7 +2271,7 @@ async function main() {
       poles: 2,
       breakingCapacity: 10,
       tripUnit: "C-Curve / 30mA",
-      datasheetUrl: "https://www.legrand.com/ecatalogue/dx3-rcbo",
+      datasheetUrl: "https://assets.legrand.com/pim/NP-FT-GT/F01594EN-02.pdf",
       settingsJson: JSON.stringify({ curveType: "C", sensitivity: "30mA", standard: "IEC/EN 61009-1" }),
     },
     {
@@ -2283,7 +2283,7 @@ async function main() {
       poles: 2,
       breakingCapacity: 10,
       tripUnit: "C-Curve / 30mA",
-      datasheetUrl: "https://www.iskra.eu/en/Residual-Current-Circuit-Breakers/",
+      datasheetUrl: "https://www.iskra.eu/f/docs/71071/Residual_Current_Circuit_Breakers_Ver3.1_1_2_3_4.pdf",
       settingsJson: JSON.stringify({ curveType: "C", sensitivity: "30mA", type: "A", standard: "IEC/EN 61009-1" }),
     },
     {
@@ -2295,7 +2295,7 @@ async function main() {
       poles: 2,
       breakingCapacity: 10,
       tripUnit: "C-Curve / 30mA",
-      datasheetUrl: "https://www.iskra.eu/en/Residual-Current-Circuit-Breakers/",
+      datasheetUrl: "https://www.iskra.eu/f/docs/71071/Residual_Current_Circuit_Breakers_Ver3.1_1_2_3_4.pdf",
       settingsJson: JSON.stringify({ curveType: "C", sensitivity: "30mA", type: "A", standard: "IEC/EN 61009-1" }),
     },
     {
@@ -2307,7 +2307,7 @@ async function main() {
       poles: 2,
       breakingCapacity: 10,
       tripUnit: "C-Curve / 30mA",
-      datasheetUrl: "https://www.iskra.eu/en/Residual-Current-Circuit-Breakers/",
+      datasheetUrl: "https://www.iskra.eu/f/docs/71071/Residual_Current_Circuit_Breakers_Ver3.1_1_2_3_4.pdf",
       settingsJson: JSON.stringify({ curveType: "C", sensitivity: "30mA", type: "AC", standard: "IEC/EN 61009-1" }),
     },
 
@@ -2347,7 +2347,7 @@ async function main() {
       poles: 4,
       breakingCapacity: 40,
       tripUnit: "Type 2",
-      datasheetUrl: "https://www.farnell.com/datasheets/2051662.pdf",
+      datasheetUrl: "https://www.eaton.com/gb/en-gb/catalog/electrical-circuit-protection/spct2.html",
       settingsJson: JSON.stringify({ type: "Type 2", Up: "1.4kV", Imax: "40kA", In: "20kA", standard: "IEC 61643-11" }),
     },
     {
@@ -2359,7 +2359,7 @@ async function main() {
       poles: 4,
       breakingCapacity: 40,
       tripUnit: "Type 2",
-      datasheetUrl: "https://www.farnell.com/datasheets/2051662.pdf",
+      datasheetUrl: "https://support.industry.siemens.com/cs/attachments/45315289/SENTRON_LV10-PH06_complete_English_10-2015_201603161104047523.pdf",
       settingsJson: JSON.stringify({ type: "Type 2", Up: "1.4kV", Imax: "40kA", In: "20kA", standard: "IEC 61643-11" }),
     },
     {
@@ -2371,7 +2371,7 @@ async function main() {
       poles: 4,
       breakingCapacity: 40,
       tripUnit: "Type 2",
-      datasheetUrl: "https://www.legrand.com/ecatalogue/surge-protective-devices",
+      datasheetUrl: "https://assets.legrand.com/pim/NP-FT-GT/F02063EN-03.pdf",
       settingsJson: JSON.stringify({ type: "Type 2", Up: "1.4kV", Imax: "40kA", In: "20kA", standard: "IEC 61643-11" }),
     },
     {
@@ -2383,7 +2383,7 @@ async function main() {
       poles: 4,
       breakingCapacity: 40,
       tripUnit: "Type 2",
-      datasheetUrl: "https://www.iskra.eu/en/Surge-Protective-Devices/",
+      datasheetUrl: "https://www.iskra.eu/f/docs/42360/Single_pole_and_multi-pole_lightning_current_and_surge_arrestres__Class_II_CATALOGU.pdf",
       settingsJson: JSON.stringify({ type: "Type 2", Up: "1.4kV", Imax: "40kA", In: "20kA", standard: "IEC 61643-11" }),
     },
 
@@ -2471,7 +2471,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 0,
       tripUnit: "230V Coil",
-      datasheetUrl: "https://www.farnell.com/datasheets/1806338.pdf",
+      datasheetUrl: "https://www.eaton.com/gb/en-gb/catalog/industrial-control--drives--automation---sensors/dil-contactors.html",
       settingsJson: JSON.stringify({ coilVoltage: "230V AC", utilizationCategory: "AC-3", ratedPower: "4kW at 400V", standard: "IEC 60947-4-1" }),
     },
     {
@@ -2483,7 +2483,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 0,
       tripUnit: "230V Coil",
-      datasheetUrl: "https://www.farnell.com/datasheets/1806338.pdf",
+      datasheetUrl: "https://www.eaton.com/gb/en-gb/catalog/industrial-control--drives--automation---sensors/dil-contactors.html",
       settingsJson: JSON.stringify({ coilVoltage: "230V AC", utilizationCategory: "AC-3", ratedPower: "7.5kW at 400V", standard: "IEC 60947-4-1" }),
     },
     {
@@ -2495,7 +2495,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 0,
       tripUnit: "230V Coil",
-      datasheetUrl: "https://www.farnell.com/datasheets/1806338.pdf",
+      datasheetUrl: "https://www.eaton.com/gb/en-gb/catalog/industrial-control--drives--automation---sensors/dil-contactors.html",
       settingsJson: JSON.stringify({ coilVoltage: "230V AC", utilizationCategory: "AC-3", ratedPower: "15kW at 400V", standard: "IEC 60947-4-1" }),
     },
     {
@@ -2507,7 +2507,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 0,
       tripUnit: "230V Coil",
-      datasheetUrl: "https://www.farnell.com/datasheets/1806338.pdf",
+      datasheetUrl: "https://support.industry.siemens.com/cs/document/60311318/system-manual-industrial-controls-sirius-innovations",
       settingsJson: JSON.stringify({ coilVoltage: "230V AC", utilizationCategory: "AC-3", ratedPower: "4kW at 400V", standard: "IEC 60947-4-1" }),
     },
     {
@@ -2519,7 +2519,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 0,
       tripUnit: "230V Coil",
-      datasheetUrl: "https://www.farnell.com/datasheets/1806338.pdf",
+      datasheetUrl: "https://support.industry.siemens.com/cs/document/60311318/system-manual-industrial-controls-sirius-innovations",
       settingsJson: JSON.stringify({ coilVoltage: "230V AC", utilizationCategory: "AC-3", ratedPower: "7.5kW at 400V", standard: "IEC 60947-4-1" }),
     },
     {
@@ -2531,7 +2531,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 0,
       tripUnit: "230V Coil",
-      datasheetUrl: "https://www.farnell.com/datasheets/1806338.pdf",
+      datasheetUrl: "https://support.industry.siemens.com/cs/document/60311318/system-manual-industrial-controls-sirius-innovations",
       settingsJson: JSON.stringify({ coilVoltage: "230V AC", utilizationCategory: "AC-3", ratedPower: "15kW at 400V", standard: "IEC 60947-4-1" }),
     },
     {
@@ -2543,7 +2543,7 @@ async function main() {
       poles: 2,
       breakingCapacity: 0,
       tripUnit: "230V Coil",
-      datasheetUrl: "https://www.legrand.com/ecatalogue/cx3-contactors",
+      datasheetUrl: "https://assets.legrand.com/general/legrand-exp/pc/ex218001_191.pdf",
       settingsJson: JSON.stringify({ coilVoltage: "230V AC", utilizationCategory: "AC-3", ratedPower: "4kW at 400V", standard: "IEC 60947-4-1" }),
     },
     {
@@ -2555,7 +2555,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 0,
       tripUnit: "230V Coil",
-      datasheetUrl: "https://www.legrand.com/ecatalogue/cx3-contactors",
+      datasheetUrl: "https://assets.legrand.com/general/legrand-exp/pc/ex218001_191.pdf",
       settingsJson: JSON.stringify({ coilVoltage: "230V AC", utilizationCategory: "AC-3", ratedPower: "11kW at 400V", standard: "IEC 60947-4-1" }),
     },
     {
@@ -2567,7 +2567,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 0,
       tripUnit: "230V Coil",
-      datasheetUrl: "https://www.iskra.eu/en/Contactors/",
+      datasheetUrl: "https://www.iskra.eu/f/docs/Contactors/Contactors-catalogue_Ver3_6.pdf",
       settingsJson: JSON.stringify({ coilVoltage: "230V AC", utilizationCategory: "AC-3", ratedPower: "4kW at 400V", standard: "IEC 60947-4-1" }),
     },
     {
@@ -2579,7 +2579,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 0,
       tripUnit: "230V Coil",
-      datasheetUrl: "https://www.iskra.eu/en/Contactors/",
+      datasheetUrl: "https://www.iskra.eu/f/docs/Contactors/Contactors-catalogue_Ver3_6.pdf",
       settingsJson: JSON.stringify({ coilVoltage: "230V AC", utilizationCategory: "AC-3", ratedPower: "7.5kW at 400V", standard: "IEC 60947-4-1" }),
     },
     {
@@ -2591,7 +2591,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 0,
       tripUnit: "230V Coil",
-      datasheetUrl: "https://www.iskra.eu/en/Contactors/",
+      datasheetUrl: "https://www.iskra.eu/f/docs/Contactors/Contactors-catalogue_Ver3_6.pdf",
       settingsJson: JSON.stringify({ coilVoltage: "230V AC", utilizationCategory: "AC-3", ratedPower: "15kW at 400V", standard: "IEC 60947-4-1" }),
     },
     {
@@ -2603,7 +2603,7 @@ async function main() {
       poles: 2,
       breakingCapacity: 0,
       tripUnit: "230V Coil",
-      datasheetUrl: "https://www.iskra.eu/en/Installation-Contactors/",
+      datasheetUrl: "https://www.iskra.eu/f/docs/61693/Installation_contactors_ver3.0.pdf",
       settingsJson: JSON.stringify({ coilVoltage: "230V AC", utilizationCategory: "AC-1", ratedPower: "4kW at 230V", standard: "IEC/EN 61095" }),
     },
 
@@ -2643,7 +2643,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 0,
       tripUnit: "Thermal Overload",
-      datasheetUrl: "https://www.farnell.com/datasheets/1806338.pdf",
+      datasheetUrl: "https://www.eaton.com/content/dam/eaton/products/industrialcontrols-drives-automation-sensors/marketing-assets/eaton-product-overview-machine-building-catalog-ca08103003z-en-us.pdf",
       settingsJson: JSON.stringify({ settingRange: "6..10A", tripClass: "10", standard: "IEC 60947-4-1" }),
     },
     {
@@ -2655,7 +2655,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 0,
       tripUnit: "Thermal Overload",
-      datasheetUrl: "https://www.farnell.com/datasheets/1806338.pdf",
+      datasheetUrl: "https://support.industry.siemens.com/cs/document/60311318/system-manual-industrial-controls-sirius-innovations",
       settingsJson: JSON.stringify({ settingRange: "7..10A", tripClass: "10", standard: "IEC 60947-4-1" }),
     },
     {
@@ -2667,7 +2667,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 0,
       tripUnit: "Thermal Overload",
-      datasheetUrl: "https://www.legrand.com/ecatalogue/rtx3-thermal-overload-relays",
+      datasheetUrl: "https://assets.legrand.com/pim/DOCUMENT/ex223001_0284.pdf",
       settingsJson: JSON.stringify({ settingRange: "7..10A", tripClass: "10A", standard: "IEC 60947-4-1" }),
     },
     {
@@ -2679,7 +2679,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 0,
       tripUnit: "Thermal Overload",
-      datasheetUrl: "https://www.iskra.eu/en/Contactors/",
+      datasheetUrl: "https://www.iskra.eu/f/docs/Contactors/Contactors-catalogue_Ver3_6.pdf",
       settingsJson: JSON.stringify({ settingRange: "6..10A", tripClass: "10", standard: "IEC 60947-4-1" }),
     },
     {
@@ -2691,7 +2691,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 0,
       tripUnit: "Thermal Overload",
-      datasheetUrl: "https://www.iskra.eu/en/Contactors/",
+      datasheetUrl: "https://www.iskra.eu/f/docs/Contactors/Contactors-catalogue_Ver3_6.pdf",
       settingsJson: JSON.stringify({ settingRange: "17..25A", tripClass: "10", standard: "IEC 60947-4-1" }),
     },
 
@@ -2731,7 +2731,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 0,
       tripUnit: "Class 0.5S",
-      datasheetUrl: "https://www.farnell.com/datasheets/2301550.pdf",
+      datasheetUrl: "https://www.eaton.com/us/en-us/catalog/low-voltage-power-distribution-controls-systems/power-xpert-energy-meter.html",
       settingsJson: JSON.stringify({ accuracyClass: "0.5S", protocol: "Modbus RTU", measurement: "V, I, P, Q, S, PF, THD, kWh", standard: "IEC 61557-12" }),
     },
     {
@@ -2743,7 +2743,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 0,
       tripUnit: "Class 0.5S",
-      datasheetUrl: "https://www.farnell.com/datasheets/2613580.pdf",
+      datasheetUrl: "https://support.industry.siemens.com/cs/document/26504150/manual-sentron-power-monitoring-device-pac3200",
       settingsJson: JSON.stringify({ accuracyClass: "0.5S", protocol: "Modbus RTU", measurement: "V, I, P, Q, S, PF, THD, kWh", standard: "IEC 61557-12" }),
     },
     {
@@ -2755,7 +2755,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 0,
       tripUnit: "Class 0.5S",
-      datasheetUrl: "https://www.legrand.com/ecatalogue/emdx3-power-meters",
+      datasheetUrl: "https://assets.legrand.com/pim/NP-FT-GT/IDP000421EN_01.pdf",
       settingsJson: JSON.stringify({ accuracyClass: "0.5S", protocol: "Modbus RTU", measurement: "V, I, P, Q, S, PF, THD, kWh", standard: "IEC 61557-12" }),
     },
     {
@@ -2767,7 +2767,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 0,
       tripUnit: "Class 0.5S",
-      datasheetUrl: "https://www.iskra.eu/en/Smart-Energy-Meters/",
+      datasheetUrl: "https://www.iskra.eu/f/docs/Smart-energy-meters/Iskra_IE38MF_flyer.pdf",
       settingsJson: JSON.stringify({ accuracyClass: "0.5S", protocol: "Modbus RTU", measurement: "V, I, P, Q, S, PF, THD, Harmonics, kWh", standard: "IEC 61557-12" }),
     },
     {
@@ -2779,7 +2779,7 @@ async function main() {
       poles: 3,
       breakingCapacity: 0,
       tripUnit: "Class 0.2S",
-      datasheetUrl: "https://www.iskra.eu/en/Measuring-Centres/",
+      datasheetUrl: "https://www.iskra.eu/f/docs/Merilni-centri/K_MC784_iMC784_EN_22444054_UsersManual_Ver_4.02.pdf",
       settingsJson: JSON.stringify({ accuracyClass: "0.2S", protocol: "Modbus TCP / RTU", measurement: "Class A Power Quality, Harmonics to 63rd, EN 50160", standard: "IEC 61000-4-30 Class A / IEC 61557-12" }),
     },
   ];

@@ -1,7 +1,7 @@
 'use client';
 /* eslint-disable react-hooks/set-state-in-effect, @typescript-eslint/no-unused-vars */
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
 import { useProject } from '@/context/ProjectContext';
 import { useTranslation } from '@/i18n';
 import {
@@ -134,6 +134,9 @@ export default function PanelDesignerPage() {
   const [panelType, setPanelType] = useState<'MDB' | 'SMDB'>('MDB');
   const [selectedFloor, setSelectedFloor] = useState<number | null>(null);
   const [equipment, setEquipment] = useState<EquipmentItem[]>([]);
+  // Catalog arrives async; until it resolves, createFindBreaker([]) would label
+  // every feeder GENERIC_SPEC. Gate the panel so that flash never renders.
+  const [catalogLoaded, setCatalogLoaded] = useState(false);
 
   useEffect(() => {
     if (selectedProject && selectedProject.id === selectedProjectId) {
@@ -180,15 +183,45 @@ export default function PanelDesignerPage() {
       loadProject();
     }
   }, [loadProject, selectedProject, selectedProjectId]);
-  useEffect(() => { loadEquipment(); }, [loadEquipment]);
+  useEffect(() => {
+    let cancelled = false;
+    loadEquipment().finally(() => {
+      if (!cancelled) setCatalogLoaded(true);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [loadEquipment]);
 
-  const defaultFamilies: DefaultFamilies = {
-    ACB: project?.defaultAcbFamilyId ?? undefined,
-    MCCB: project?.defaultMccbFamilyId ?? undefined,
-    MCB: project?.defaultMcbFamilyId ?? undefined,
-  };
+  const defaultFamilies: DefaultFamilies = useMemo(
+    () => ({
+      ACB: project?.defaultAcbFamilyId ?? undefined,
+      MCCB: project?.defaultMccbFamilyId ?? undefined,
+      MCB: project?.defaultMcbFamilyId ?? undefined,
+    }),
+    [project?.defaultAcbFamilyId, project?.defaultMccbFamilyId, project?.defaultMcbFamilyId]
+  );
 
-  const findBreaker = createFindBreaker(equipment, defaultFamilies, preferredManufacturer);
+  const findBreaker = useMemo(
+    () => createFindBreaker(equipment, defaultFamilies, preferredManufacturer),
+    [equipment, defaultFamilies, preferredManufacturer]
+  );
+
+  // Selected building + its feeder computation. Memoized so panel-type/floor
+  // switches and modal opens don't recompute the whole building's feeders.
+  // Computed before the guards below so the hook stays unconditional.
+  const activeBldg = project
+    ? project.buildings.find((b) => b.id === selectedBuilding) || project.buildings[0] || null
+    : null;
+
+  const feederResult = useMemo(() => {
+    if (!project || !activeBldg) return null;
+    // Outgoing feeders (MDB + SMDB) plus the main incomer breaker/cable via the
+    // shared helper — the SAME catalog-frame device the breaker-schedule and
+    // coordination pages use, so every view agrees. Transformer sizing stays
+    // page-local (it has no analog in the breaker schedule).
+    return computeFeeders(activeBldg, project, findBreaker);
+  }, [project, activeBldg, findBreaker]);
 
   if (!project && (loading || contextLoading || selectedProjectId)) {
     return <PageSkeleton titleWidth="w-60" rowCount={7} />;
@@ -203,13 +236,9 @@ export default function PanelDesignerPage() {
     );
   }
 
-  const bldg = project.buildings.find((b) => b.id === selectedBuilding) || project.buildings[0];
+  const bldg = activeBldg!;
 
-  // Outgoing feeders (MDB + SMDB) plus the main incomer breaker/cable via the
-  // shared helper — the SAME catalog-frame device the breaker-schedule and
-  // coordination pages use, so every view agrees. Transformer sizing stays
-  // page-local (it has no analog in the breaker schedule).
-  const { mdbFeeders, smdbFeeders, smdbFloorNumbers, mainIncomerSettings, mainBreakerIn, mainCableSize, mainParallelRuns } = computeFeeders(bldg, project, findBreaker);
+  const { mdbFeeders, smdbFeeders, smdbFloorNumbers, mainIncomerSettings, mainBreakerIn, mainCableSize, mainParallelRuns } = feederResult!;
 
   const activeSmdbFloor = selectedFloor || (smdbFloorNumbers.length > 0 ? smdbFloorNumbers[0] : null);
   const smdbFeedersForActive = activeSmdbFloor ? smdbFeeders(activeSmdbFloor) : [];
@@ -275,6 +304,18 @@ export default function PanelDesignerPage() {
     impedancePercent: getTypicalImpedance(effectiveTransformerKva),
     earthingSystem,
   });
+
+  if (!catalogLoaded) {
+    return (
+      <div className="p-6 space-y-6 max-w-7xl mx-auto">
+        <WorkflowStepper currentStep={5} />
+        <div className="rounded-xl border border-gray-800 bg-gray-900/40 p-8 text-center">
+          <Activity size={18} className="animate-spin text-orange-500 mx-auto mb-2" />
+          <p className="text-gray-400 text-sm">{t('breakerSchedule.loadingCatalog', 'Loading breaker catalog…')}</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 space-y-6 max-w-7xl mx-auto">

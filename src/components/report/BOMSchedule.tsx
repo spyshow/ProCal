@@ -40,16 +40,25 @@ interface BreakerBOMItem {
 export default function BOMSchedule({ project, buildingId, showHeader = true }: BOMScheduleProps) {
   const [equipment, setEquipment] = useState<EquipmentItem[]>([]);
   const [annexOpen, setAnnexOpen] = useState(true);
+  // Catalog arrives async; until it resolves, createFindBreaker([]) would label
+  // every feeder GENERIC_SPEC. Gate the table so that flash never renders.
+  const [catalogLoaded, setCatalogLoaded] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
     fetch(`/api/equipment?category=ACB,MCCB,MCB`)
       .then((res) => (res.ok ? res.json() : []))
       .then((data) => {
-        if (!cancelled) setEquipment(data);
+        if (!cancelled) {
+          setEquipment(data);
+          setCatalogLoaded(true);
+        }
       })
       .catch(() => {
-        if (!cancelled) setEquipment([]);
+        if (!cancelled) {
+          setEquipment([]);
+          setCatalogLoaded(true);
+        }
       });
     return () => {
       cancelled = true;
@@ -70,99 +79,125 @@ export default function BOMSchedule({ project, buildingId, showHeader = true }: 
     [equipment, project]
   );
 
-  const allItems: (FloorItem & { floor: number; building: string })[] = [];
+  // The whole BOM (all items + cable/breaker aggregation) is derived purely
+  // from project inputs + the live catalog. Memoized so unrelated reports-page
+  // state changes (tab switches, revision panel, export spinners) don't
+  // recompute every building's feeders.
+  const { allItems, cableRows, totalCableLength, breakerRows, totalBreakers, annexItems } = useMemo(() => {
+    const allItems: (FloorItem & { floor: number; building: string })[] = [];
 
-  for (const b of project.buildings) {
-    if (buildingId && b.id !== buildingId) continue;
-    for (const fd of b.floorDesigns) {
-      for (const item of fd.items) {
+    for (const b of project.buildings) {
+      if (buildingId && b.id !== buildingId) continue;
+      for (const fd of b.floorDesigns) {
+        for (const item of fd.items) {
+          allItems.push({
+            ...item,
+            floor: fd.floorNumber,
+            building: b.name,
+          });
+        }
+      }
+      for (const bl of b.buildingLoads || []) {
+        if (!bl.loadLibraryItem) continue;
         allItems.push({
-          ...item,
-          floor: fd.floorNumber,
+          id: bl.id,
+          name: bl.loadLibraryItem.name,
+          type: 'SERVICE_PANEL' as const,
+          calculatedConnectedLoad: bl.loadLibraryItem.power * bl.quantity,
+          calculatedMaxDemand: bl.loadLibraryItem.power * bl.quantity,
+          calculatedCurrent: 0,
+          breakerSize: (bl as any).breakerSize || '32A',
+          cableSize: bl.cableSize || '4 mm²',
+          voltageDrop: 0,
+          cableLength: getBuildingLoadCableLength(bl),
+          floor: 0,
           building: b.name,
         });
       }
     }
-    for (const bl of b.buildingLoads || []) {
-      if (!bl.loadLibraryItem) continue;
-      allItems.push({
-        id: bl.id,
-        name: bl.loadLibraryItem.name,
-        type: 'SERVICE_PANEL' as const,
-        calculatedConnectedLoad: bl.loadLibraryItem.power * bl.quantity,
-        calculatedMaxDemand: bl.loadLibraryItem.power * bl.quantity,
-        calculatedCurrent: 0,
-        breakerSize: (bl as any).breakerSize || '32A',
-        cableSize: bl.cableSize || '4 mm²',
-        voltageDrop: 0,
-        cableLength: getBuildingLoadCableLength(bl),
-        floor: 0,
-        building: b.name,
-      });
-    }
-  }
 
-  // Aggregate Cables
-  const cableBOM: Record<number, CableBOMItem> = {};
-  for (const item of allItems) {
-    const sizeNum = parseMm2(item.cableSize) ?? 4;
-    const sizeLabel = `${sizeNum} mm²`;
+    // Aggregate Cables
+    const cableBOM: Record<number, CableBOMItem> = {};
+    for (const item of allItems) {
+      const sizeNum = parseMm2(item.cableSize) ?? 4;
+      const sizeLabel = `${sizeNum} mm²`;
 
-    if (!cableBOM[sizeNum]) {
-      cableBOM[sizeNum] = { sizeNum, sizeLabel, length: 0, count: 0 };
-    }
-    cableBOM[sizeNum].length += getItemCableLength(item, item.floor);
-    cableBOM[sizeNum].count += 1;
-  }
-  const cableRows = Object.values(cableBOM).sort((a, b) => a.sizeNum - b.sizeNum);
-  const totalCableLength = Math.round(cableRows.reduce((s, e) => s + e.length, 0));
-
-  // Aggregate Breakers with real catalog & fallback model details
-  const breakerMap = new Map<string, BreakerBOMItem>();
-
-  for (const bldg of project.buildings) {
-    if (buildingId && bldg.id !== buildingId) continue;
-    const { mdbFeeders, smdbFloorNumbers, smdbFeeders } = computeFeeders(bldg, project, findBreaker);
-
-    const processFeeder = (f: { breakerSize: number; isThreePhase: boolean; type: string; breakerModel: string; manufacturer: string | null; fallbackType?: FallbackType; genericSpec?: GenericBreakerSpec }) => {
-      const cat: 'ACB' | 'MCCB' | 'MCB' =
-        f.breakerSize >= 630 ? 'ACB' : f.breakerSize > 63 || f.type !== 'APARTMENT' ? 'MCCB' : 'MCB';
-      const polesStr = f.isThreePhase ? '3P' : cat === 'MCB' ? '1P' : '3P';
-      const key = `${f.breakerSize}-${cat}-${polesStr}-${f.breakerModel}`;
-
-      const existing = breakerMap.get(key);
-      if (existing) {
-        existing.count += 1;
-      } else {
-        breakerMap.set(key, {
-          ratingAmps: f.breakerSize,
-          ratingLabel: `${f.breakerSize}A`,
-          category: cat,
-          poles: polesStr,
-          model: f.breakerModel,
-          manufacturer: f.manufacturer || 'Standard',
-          fallbackType: f.fallbackType,
-          genericSpec: f.genericSpec,
-          count: 1,
-        });
+      if (!cableBOM[sizeNum]) {
+        cableBOM[sizeNum] = { sizeNum, sizeLabel, length: 0, count: 0 };
       }
-    };
-
-    for (const f of mdbFeeders) {
-      processFeeder(f);
+      cableBOM[sizeNum].length += getItemCableLength(item, item.floor);
+      cableBOM[sizeNum].count += 1;
     }
-    for (const fl of smdbFloorNumbers) {
-      for (const f of smdbFeeders(fl)) {
+    const cableRows = Object.values(cableBOM).sort((a, b) => a.sizeNum - b.sizeNum);
+    const totalCableLength = Math.round(cableRows.reduce((s, e) => s + e.length, 0));
+
+    // Aggregate Breakers with real catalog & fallback model details
+    const breakerMap = new Map<string, BreakerBOMItem>();
+
+    for (const bldg of project.buildings) {
+      if (buildingId && bldg.id !== buildingId) continue;
+      const { mdbFeeders, smdbFloorNumbers, smdbFeeders } = computeFeeders(bldg, project, findBreaker);
+
+      const processFeeder = (f: { breakerSize: number; isThreePhase: boolean; type: string; breakerModel: string; manufacturer: string | null; fallbackType?: FallbackType; genericSpec?: GenericBreakerSpec }) => {
+        const cat: 'ACB' | 'MCCB' | 'MCB' =
+          f.breakerSize >= 630 ? 'ACB' : f.breakerSize > 63 || f.type !== 'APARTMENT' ? 'MCCB' : 'MCB';
+        const polesStr = f.isThreePhase ? '3P' : cat === 'MCB' ? '1P' : '3P';
+        const key = `${f.breakerSize}-${cat}-${polesStr}-${f.breakerModel}`;
+
+        const existing = breakerMap.get(key);
+        if (existing) {
+          existing.count += 1;
+        } else {
+          breakerMap.set(key, {
+            ratingAmps: f.breakerSize,
+            ratingLabel: `${f.breakerSize}A`,
+            category: cat,
+            poles: polesStr,
+            model: f.breakerModel,
+            manufacturer: f.manufacturer || 'Standard',
+            fallbackType: f.fallbackType,
+            genericSpec: f.genericSpec,
+            count: 1,
+          });
+        }
+      };
+
+      for (const f of mdbFeeders) {
         processFeeder(f);
       }
+      for (const fl of smdbFloorNumbers) {
+        for (const f of smdbFeeders(fl)) {
+          processFeeder(f);
+        }
+      }
     }
+
+    const breakerRows = Array.from(breakerMap.values()).sort((a, b) => a.ratingAmps - b.ratingAmps || a.category.localeCompare(b.category));
+    const totalBreakers = breakerRows.reduce((sum, b) => sum + b.count, 0);
+
+    // Filter items that have generic specs or fallbacks for the Annex
+    const annexItems = breakerRows.filter((b) => b.fallbackType || b.genericSpec);
+
+    return { allItems, cableRows, totalCableLength, breakerRows, totalBreakers, annexItems };
+  }, [project, buildingId, findBreaker]);
+
+  if (!catalogLoaded) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between text-xs text-gray-500 mb-1">
+          <span className="font-semibold">{project.name}</span>
+          <span>{project.date || new Date().toLocaleDateString()}</span>
+        </div>
+        <div className="flex items-center justify-between border-b pb-2">
+          <h2 className="text-lg font-bold text-gray-100 flex items-center gap-2">
+            <FileText size={18} className="text-orange-500" />
+            Bill of Materials (BOM) & Equipment Procurement
+          </h2>
+        </div>
+        <div className="p-6 text-center text-sm text-gray-400">Loading breaker catalog…</div>
+      </div>
+    );
   }
-
-  const breakerRows = Array.from(breakerMap.values()).sort((a, b) => a.ratingAmps - b.ratingAmps || a.category.localeCompare(b.category));
-  const totalBreakers = breakerRows.reduce((sum, b) => sum + b.count, 0);
-
-  // Filter items that have generic specs or fallbacks for the Annex
-  const annexItems = breakerRows.filter((b) => b.fallbackType || b.genericSpec);
 
   return (
     <div className="space-y-6">

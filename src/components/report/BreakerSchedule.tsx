@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { computeFeeders, createFindBreaker, type EquipmentItem, type FindBreaker } from '@/lib/calculations/feeders';
 import type { Project } from '@/types';
 
@@ -45,6 +45,9 @@ export default function BreakerSchedule({
   showHeader = true,
 }: BreakerScheduleProps) {
   const [equipment, setEquipment] = useState<EquipmentItem[]>([]);
+  // Catalog arrives async; until it resolves, createFindBreaker([]) would label
+  // every feeder GENERIC_SPEC. Gate the table so that flash never renders.
+  const [catalogLoaded, setCatalogLoaded] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -56,10 +59,16 @@ export default function BreakerSchedule({
     fetch(`/api/equipment?${params.toString()}`)
       .then((res) => (res.ok ? res.json() : []))
       .then((data) => {
-        if (!cancelled) setEquipment(data);
+        if (!cancelled) {
+          setEquipment(data);
+          setCatalogLoaded(true);
+        }
       })
       .catch(() => {
-        if (!cancelled) setEquipment([]);
+        if (!cancelled) {
+          setEquipment([]);
+          setCatalogLoaded(true);
+        }
       });
 
     return () => {
@@ -67,57 +76,41 @@ export default function BreakerSchedule({
     };
   }, [manufacturer]);
 
-  const findBreaker: FindBreaker = createFindBreaker(
-    equipment,
-    {
-      ACB: project.defaultAcbFamilyId ?? undefined,
-      MCCB: project.defaultMccbFamilyId ?? undefined,
-      MCB: project.defaultMcbFamilyId ?? undefined,
-    },
-    manufacturer || project.preferredManufacturer
+  const findBreaker: FindBreaker = useMemo(
+    () =>
+      createFindBreaker(
+        equipment,
+        {
+          ACB: project.defaultAcbFamilyId ?? undefined,
+          MCCB: project.defaultMccbFamilyId ?? undefined,
+          MCB: project.defaultMcbFamilyId ?? undefined,
+        },
+        manufacturer || project.preferredManufacturer
+      ),
+    [equipment, project, manufacturer]
   );
 
-  const breakers: BreakerRow[] = [];
+  // The printed breaker list is derived purely from project inputs + the live
+  // catalog. Memoized so unrelated reports-page state changes (tab switches,
+  // revision panel, export spinners) don't recompute every building's feeders.
+  const breakers: BreakerRow[] = useMemo(() => {
+    const list: BreakerRow[] = [];
 
-  for (const bldg of project.buildings) {
-    if (buildingId && bldg.id !== buildingId) continue;
-    const { mdbFeeders, smdbFloorNumbers, smdbFeeders } = computeFeeders(bldg, project, findBreaker);
+    for (const bldg of project.buildings) {
+      if (buildingId && bldg.id !== buildingId) continue;
+      const { mdbFeeders, smdbFloorNumbers, smdbFeeders } = computeFeeders(bldg, project, findBreaker);
 
-    const feederFloor = (feederName: string): number => {
-      const m = feederName.match(/^F(\d+)/);
-      return m ? parseInt(m[1], 10) : 0;
-    };
+      const feederFloor = (feederName: string): number => {
+        const m = feederName.match(/^F(\d+)/);
+        return m ? parseInt(m[1], 10) : 0;
+      };
 
-    for (const f of mdbFeeders) {
-      breakers.push({
-        id: `${bldg.id}-mdb-${breakers.length}`,
-        name: f.name,
-        type: f.type,
-        floor: feederFloor(f.name),
-        buildingName: bldg.name,
-        current: f.current,
-        breakerSize: f.breakerSize,
-        baseBreakerSize: f.baseBreakerSize,
-        isBreakerUpsized: f.isBreakerUpsized,
-        upsizeReason: f.upsizeReason,
-        cableSize: f.cableSize,
-        breakerModel: f.breakerModel,
-        isThreePhase: f.type !== 'APARTMENT',
-        parentFeederName: f.parentFeederName,
-        faultCurrentKa: f.faultCurrentKa,
-        selectivityStatus: f.selectivityStatus,
-        cableDamageOk: f.cableDamageOk,
-        suggestedAlternative: f.suggestedAlternative,
-      });
-    }
-
-    for (const floorNumber of smdbFloorNumbers) {
-      for (const f of smdbFeeders(floorNumber)) {
-        breakers.push({
-          id: `${bldg.id}-smdb-${breakers.length}`,
+      for (const f of mdbFeeders) {
+        list.push({
+          id: `${bldg.id}-mdb-${list.length}`,
           name: f.name,
           type: f.type,
-          floor: floorNumber,
+          floor: feederFloor(f.name),
           buildingName: bldg.name,
           current: f.current,
           breakerSize: f.breakerSize,
@@ -134,14 +127,53 @@ export default function BreakerSchedule({
           suggestedAlternative: f.suggestedAlternative,
         });
       }
+
+      for (const floorNumber of smdbFloorNumbers) {
+        for (const f of smdbFeeders(floorNumber)) {
+          list.push({
+            id: `${bldg.id}-smdb-${list.length}`,
+            name: f.name,
+            type: f.type,
+            floor: floorNumber,
+            buildingName: bldg.name,
+            current: f.current,
+            breakerSize: f.breakerSize,
+            baseBreakerSize: f.baseBreakerSize,
+            isBreakerUpsized: f.isBreakerUpsized,
+            upsizeReason: f.upsizeReason,
+            cableSize: f.cableSize,
+            breakerModel: f.breakerModel,
+            isThreePhase: f.type !== 'APARTMENT',
+            parentFeederName: f.parentFeederName,
+            faultCurrentKa: f.faultCurrentKa,
+            selectivityStatus: f.selectivityStatus,
+            cableDamageOk: f.cableDamageOk,
+            suggestedAlternative: f.suggestedAlternative,
+          });
+        }
+      }
     }
-  }
+    return list;
+  }, [project, buildingId, findBreaker]);
 
   const grouped = breakers.reduce<Record<string, BreakerRow[]>>((acc, b) => {
     if (!acc[b.type]) acc[b.type] = [];
     acc[b.type].push(b);
     return acc;
   }, {});
+
+  if (!catalogLoaded) {
+    return (
+      <div className="space-y-4">
+        <div className="flex items-center justify-between text-xs text-gray-500 mb-1">
+          <span className="font-semibold">{project.name}</span>
+          <span>{project.date || new Date().toLocaleDateString()}</span>
+        </div>
+        <h2 className="text-lg font-bold border-b pb-2">Breaker & Protection Schedule</h2>
+        <div className="p-6 text-center text-sm text-gray-400">Loading breaker catalog…</div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">

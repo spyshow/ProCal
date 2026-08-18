@@ -1,7 +1,7 @@
 'use client';
 /* eslint-disable react-hooks/set-state-in-effect */
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
 import { useProject } from '@/context/ProjectContext';
 import { useTranslation } from '@/i18n';
 import { PageSkeleton } from '@/components/ui/skeleton';
@@ -86,6 +86,10 @@ export default function BreakerSchedulePage() {
   const [selectedFeederForModal, setSelectedFeederForModal] = useState<BreakerEntry | null>(null);
   const [applyingSuggestionId, setApplyingSuggestionId] = useState<string | null>(null);
   const [showSizingGuide, setShowSizingGuide] = useState(false);
+  // Catalog (equipment + families + saved settings) arrives async; until it
+  // has all resolved, createFindBreaker([]) would label every breaker
+  // GENERIC_SPEC. Gate the tables so that flash never renders.
+  const [catalogLoaded, setCatalogLoaded] = useState(false);
   const [defaults, setDefaults] = useState<DefaultFamilies>(() => ({
     ACB: selectedProject?.defaultAcbFamilyId ?? undefined,
     MCCB: selectedProject?.defaultMccbFamilyId ?? undefined,
@@ -160,9 +164,15 @@ export default function BreakerSchedulePage() {
       loadProject();
     }
   }, [loadProject, selectedProject, selectedProjectId]);
-  useEffect(() => { loadEquipment(); }, [loadEquipment]);
-  useEffect(() => { loadFamilies(); }, [loadFamilies]);
-  useEffect(() => { loadBreakerSettings(); }, [loadBreakerSettings]);
+  useEffect(() => {
+    let cancelled = false;
+    Promise.allSettled([loadEquipment(), loadFamilies(), loadBreakerSettings()]).then(() => {
+      if (!cancelled) setCatalogLoaded(true);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [loadEquipment, loadFamilies, loadBreakerSettings]);
 
   const saveDefaults = useCallback(async (next: DefaultFamilies) => {
     if (!project) return;
@@ -195,20 +205,10 @@ export default function BreakerSchedulePage() {
     saveDefaults(next);
   };
 
-  if (!project && (loading || contextLoading || selectedProjectId)) {
-    return <PageSkeleton titleWidth="w-60" rowCount={6} />;
-  }
-
-  if (!project || project.buildings.length === 0) {
-    return (
-      <div className="flex flex-col items-center justify-center h-full text-center p-8">
-        <CircuitBoard size={40} className="text-gray-600 mb-3" />
-        <p className="text-gray-400 text-sm">No project data. Select a project from the sidebar.</p>
-      </div>
-    );
-  }
-
-  const findBreaker = createFindBreaker(equipment, defaults, preferredManufacturer);
+  const findBreaker = useMemo(
+    () => createFindBreaker(equipment, defaults, preferredManufacturer),
+    [equipment, defaults, preferredManufacturer]
+  );
 
   const resolveBreakerDisplayName = (savedModel: string | undefined | null, feederModel: string): string => {
     if (!savedModel) return feederModel;
@@ -230,77 +230,36 @@ export default function BreakerSchedulePage() {
     return savedModel;
   };
 
-  const breakers: BreakerEntry[] = [];
-  for (const bldg of project.buildings) {
-    const { mdbFeeders, smdbFloorNumbers, smdbFeeders } = computeFeeders(bldg, project, findBreaker);
+  // The full breaker list is derived purely from project inputs + the live
+  // catalog + saved settings. Computing it only when one of those changes
+  // (instead of on every render) keeps filter clicks / modal opens cheap.
+  const breakers: BreakerEntry[] = useMemo(() => {
+    if (!project) return [];
+    const list: BreakerEntry[] = [];
+    for (const bldg of project.buildings) {
+      const { mdbFeeders, smdbFloorNumbers, smdbFeeders } = computeFeeders(bldg, project, findBreaker);
 
-    const feederFloor = (feederName: string): number => {
-      const m = feederName.match(/^F(\d+)/);
-      return m ? parseInt(m[1], 10) : 0;
-    };
+      const feederFloor = (feederName: string): number => {
+        const m = feederName.match(/^F(\d+)/);
+        return m ? parseInt(m[1], 10) : 0;
+      };
 
-    const findSavedBreakerSetting = (f: PanelFeeder) =>
-      breakerSettings.find(
-        (s) =>
-          s.breakerId === `${project.id}-${f.name}` ||
-          s.breakerId === f.name ||
-          (f.itemId && s.breakerId === f.itemId)
-      );
+      const findSavedBreakerSetting = (f: PanelFeeder) =>
+        breakerSettings.find(
+          (s) =>
+            s.breakerId === `${project.id}-${f.name}` ||
+            s.breakerId === f.name ||
+            (f.itemId && s.breakerId === f.itemId)
+        );
 
-    for (const f of mdbFeeders) {
-      const saved = findSavedBreakerSetting(f);
-      const effectiveModel = resolveBreakerDisplayName(saved?.model, f.breakerModel);
-      breakers.push({
-        id: `${bldg.id}-mdb-${breakers.length}`,
-        name: f.name,
-        type: f.type,
-        floor: feederFloor(f.name),
-        buildingId: bldg.id,
-        buildingName: bldg.name,
-        current: f.current,
-        breakerSize: f.breakerSize,
-        baseBreakerSize: f.baseBreakerSize,
-        isBreakerUpsized: f.isBreakerUpsized,
-        upsizeReason: f.upsizeReason,
-        cableSize: f.cableSize,
-        parallelRuns: f.parallelRuns,
-        formattedCableSize: f.formattedCableSize,
-        cableIz: f.cableIz,
-        isUnderProtected: f.isUnderProtected,
-        recommendedCableSize: f.recommendedCableSize,
-        recommendedCableSizeFormatted: f.recommendedCableSizeFormatted,
-        breakerModel: effectiveModel,
-        manufacturer: f.manufacturer,
-        familyName: f.familyName,
-        fallback: f.fallback,
-        fallbackType: f.fallbackType,
-        genericSpec: f.genericSpec,
-        isThreePhase: f.isThreePhase,
-        parentFeederName: f.parentFeederName,
-        faultCurrentKa: f.faultCurrentKa,
-        selectivityStatus: saved ? 'FULL' : f.selectivityStatus,
-        // A saved FULL override must not carry a stale PARTIAL limit — keep
-        // the status and the limit flag consistent.
-        selectivityLimitKa: saved ? null : f.selectivityLimitKa,
-        cableDamageOk: f.cableDamageOk,
-        selectivityReason: saved ? `Full electronic LSI selectivity (${effectiveModel})` : f.selectivityReason,
-        suggestedAlternative: saved ? null : f.suggestedAlternative,
-        alternativeSuggestions: saved ? [] : f.alternativeSuggestions,
-        itemId: f.itemId,
-        floorDesignId: f.floorDesignId,
-        buildingLoadId: f.buildingLoadId,
-      });
-    }
-
-    for (const floorNumber of smdbFloorNumbers) {
-      for (const f of smdbFeeders(floorNumber)) {
+      for (const f of mdbFeeders) {
         const saved = findSavedBreakerSetting(f);
         const effectiveModel = resolveBreakerDisplayName(saved?.model, f.breakerModel);
-        breakers.push({
-          id: `${bldg.id}-smdb-${breakers.length}`,
+        list.push({
+          id: `${bldg.id}-mdb-${list.length}`,
           name: f.name,
           type: f.type,
-          floor: floorNumber,
+          floor: feederFloor(f.name),
           buildingId: bldg.id,
           buildingName: bldg.name,
           current: f.current,
@@ -337,8 +296,56 @@ export default function BreakerSchedulePage() {
           buildingLoadId: f.buildingLoadId,
         });
       }
+
+      for (const floorNumber of smdbFloorNumbers) {
+        for (const f of smdbFeeders(floorNumber)) {
+          const saved = findSavedBreakerSetting(f);
+          const effectiveModel = resolveBreakerDisplayName(saved?.model, f.breakerModel);
+          list.push({
+            id: `${bldg.id}-smdb-${list.length}`,
+            name: f.name,
+            type: f.type,
+            floor: floorNumber,
+            buildingId: bldg.id,
+            buildingName: bldg.name,
+            current: f.current,
+            breakerSize: f.breakerSize,
+            baseBreakerSize: f.baseBreakerSize,
+            isBreakerUpsized: f.isBreakerUpsized,
+            upsizeReason: f.upsizeReason,
+            cableSize: f.cableSize,
+            parallelRuns: f.parallelRuns,
+            formattedCableSize: f.formattedCableSize,
+            cableIz: f.cableIz,
+            isUnderProtected: f.isUnderProtected,
+            recommendedCableSize: f.recommendedCableSize,
+            recommendedCableSizeFormatted: f.recommendedCableSizeFormatted,
+            breakerModel: effectiveModel,
+            manufacturer: f.manufacturer,
+            familyName: f.familyName,
+            fallback: f.fallback,
+            fallbackType: f.fallbackType,
+            genericSpec: f.genericSpec,
+            isThreePhase: f.isThreePhase,
+            parentFeederName: f.parentFeederName,
+            faultCurrentKa: f.faultCurrentKa,
+            selectivityStatus: saved ? 'FULL' : f.selectivityStatus,
+            // A saved FULL override must not carry a stale PARTIAL limit — keep
+            // the status and the limit flag consistent.
+            selectivityLimitKa: saved ? null : f.selectivityLimitKa,
+            cableDamageOk: f.cableDamageOk,
+            selectivityReason: saved ? `Full electronic LSI selectivity (${effectiveModel})` : f.selectivityReason,
+            suggestedAlternative: saved ? null : f.suggestedAlternative,
+            alternativeSuggestions: saved ? [] : f.alternativeSuggestions,
+            itemId: f.itemId,
+            floorDesignId: f.floorDesignId,
+            buildingLoadId: f.buildingLoadId,
+          });
+        }
+      }
     }
-  }
+    return list;
+  }, [project, findBreaker, breakerSettings]);
 
   const filteredBreakers = selectedBuilding === 'all'
     ? breakers
@@ -500,6 +507,19 @@ export default function BreakerSchedulePage() {
     }
   };
 
+  if (!project && (loading || contextLoading || selectedProjectId)) {
+    return <PageSkeleton titleWidth="w-60" rowCount={6} />;
+  }
+
+  if (!project || project.buildings.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center h-full text-center p-8">
+        <CircuitBoard size={40} className="text-gray-600 mb-3" />
+        <p className="text-gray-400 text-sm">No project data. Select a project from the sidebar.</p>
+      </div>
+    );
+  }
+
   return (
     <div className="p-6 space-y-5 max-w-7xl mx-auto">
       {/* Workflow Stepper: Step 2 */}
@@ -609,7 +629,13 @@ export default function BreakerSchedulePage() {
       </div>
 
       {/* Breaker Tables by Type */}
-      <div data-tour="breaker-table" className="space-y-4">
+      {!catalogLoaded && (
+        <div className="rounded-xl border border-gray-800 bg-gray-900/40 p-8 text-center">
+          <RefreshCw size={18} className="animate-spin text-orange-500 mx-auto mb-2" />
+          <p className="text-gray-400 text-sm">{t('breakerSchedule.loadingCatalog', 'Loading breaker catalog…')}</p>
+        </div>
+      )}
+      <div data-tour="breaker-table" className="space-y-4" hidden={!catalogLoaded}>
       {Object.entries(grouped).map(([type, items]) => (
         <div key={type} className="rounded-xl border border-gray-800 bg-gray-900/40 p-4">
           <div className="flex items-center justify-between mb-3">
@@ -754,14 +780,14 @@ export default function BreakerSchedulePage() {
       ))}
       </div>
 
-      {filteredBreakers.length === 0 && (
+      {catalogLoaded && filteredBreakers.length === 0 && (
         <div className="rounded-xl border border-gray-800 bg-gray-900/40 p-8 text-center">
           <p className="text-gray-500 text-sm">{t('nav.noProjects', 'No breakers to display for this selection.')}</p>
         </div>
       )}
 
       {/* Summary */}
-      <div className="text-[10px] text-gray-600 flex justify-between items-center">
+      <div className="text-[10px] text-gray-600 flex justify-between items-center" hidden={!catalogLoaded}>
         <p>{t('cableSchedule.totalCables', 'Total breakers')}: {filteredBreakers.length}</p>
         <p className="flex items-center gap-2">
           <ShieldCheck size={12} className="text-orange-500" />

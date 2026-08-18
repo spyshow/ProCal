@@ -160,16 +160,10 @@ export default function CableSchedulePage() {
     setLoading(true);
     try {
       await refreshProject();
-      const res = await fetch(`/api/projects/${selectedProjectId}?t=${Date.now()}`);
-      if (res.ok) {
-        const data = await res.json();
-        setProject(data);
-        if (selectedBuilding && !data.buildings.some((b: any) => b.id === selectedBuilding)) {
-          setSelectedBuilding(null);
-        }
-      }
+      // The context now holds the fresh project; the sync effect above copies
+      // it (and validates the selected building) into local state.
     } catch (err) { console.error(err); } finally { setLoading(false); }
-  }, [selectedProjectId, refreshProject, selectedBuilding]);
+  }, [selectedProjectId, refreshProject]);
 
   useEffect(() => {
     if (!selectedProject || selectedProject.id !== selectedProjectId) {
@@ -797,7 +791,7 @@ export default function CableSchedulePage() {
       )}
 
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div data-tour="cable-header" className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-3">
             <h1 className="text-2xl font-bold text-gray-100 flex items-center gap-2">
@@ -824,7 +818,7 @@ export default function CableSchedulePage() {
             {showPhaseDetails ? 'Compact Currents' : 'Phase Details'}
           </button>
           <button
-            onClick={() => window.dispatchEvent(new CustomEvent('procal:start-tour'))}
+            onClick={() => window.dispatchEvent(new CustomEvent('trigger-procal-cable-schedule-tour'))}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-orange-500/30 bg-orange-500/10 hover:bg-orange-500/20 text-orange-400 text-xs font-semibold transition-all"
             title="Start page interactive guide"
           >
@@ -832,6 +826,7 @@ export default function CableSchedulePage() {
             {t('tour.pageTour', 'Page Tour')}
           </button>
           <button
+            data-tour="cable-derating"
             onClick={() => setShowSettings(!showSettings)}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-gray-700 bg-gray-800/80 hover:bg-gray-700 text-gray-300 text-xs font-medium transition-all"
           >

@@ -1,7 +1,7 @@
 "use client";
 /* eslint-disable react-hooks/set-state-in-effect */
 
-import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from "react";
 import type { Project } from "@/types";
 
 export type PreferredManufacturer = "ABB" | "SCHNEIDER" | "EATON" | "SIEMENS" | "LEGRAND" | "ISKRA" | "MIXED";
@@ -38,28 +38,49 @@ export function ProjectProvider({ children }: { children: React.ReactNode }) {
     if (savedOnboarding === "true") setHasCompletedOnboarding(true);
   }, []);
 
+  // Dedupe concurrent fetches for the same project: on first mount the context
+  // fetch and a page's loadProject can both fire before either resolves, which
+  // used to download the (large) project payload twice. Callers racing for the
+  // same projectId now share one in-flight request; sequential calls (after the
+  // map entry is cleared) always fetch fresh.
+  const inflightFetches = useRef<Map<string, Promise<void>>>(new Map());
+
   const fetchProjectDetails = useCallback(async (projectId: string) => {
-    setLoading(true);
-    try {
-      const res = await fetch(`/api/projects/${projectId}?t=${Date.now()}`, {
-        cache: "no-store",
-        headers: { "Cache-Control": "no-cache" },
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setSelectedProject(data);
-        if (data.preferredManufacturer) {
-          setPreferredManufacturer(data.preferredManufacturer);
-          localStorage.setItem("preferred_manufacturer", data.preferredManufacturer);
+    const existing = inflightFetches.current.get(projectId);
+    if (existing) return existing;
+
+    const promise = (async () => {
+      setLoading(true);
+      try {
+        const res = await fetch(`/api/projects/${projectId}?t=${Date.now()}`, {
+          cache: "no-store",
+          headers: { "Cache-Control": "no-cache" },
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setSelectedProject(data);
+          if (data.preferredManufacturer) {
+            setPreferredManufacturer(data.preferredManufacturer);
+            localStorage.setItem("preferred_manufacturer", data.preferredManufacturer);
+          }
+        } else {
+          setSelectedProject(null);
         }
-      } else {
+      } catch (error) {
+        console.error("Error fetching project:", error);
         setSelectedProject(null);
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      console.error("Error fetching project:", error);
-      setSelectedProject(null);
+    })();
+
+    inflightFetches.current.set(projectId, promise);
+    try {
+      await promise;
     } finally {
-      setLoading(false);
+      if (inflightFetches.current.get(projectId) === promise) {
+        inflightFetches.current.delete(projectId);
+      }
     }
   }, []);
 

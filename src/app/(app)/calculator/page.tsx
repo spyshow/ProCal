@@ -78,20 +78,14 @@ function CalculatorContent() {
     setLoading(true);
     try {
       await refreshProject();
-      const res = await fetch(`/api/projects/${selectedProjectId}?t=${Date.now()}`);
-      if (res.ok) {
-        const data = await res.json();
-        setProject(data);
-        if (!selectedBuilding && data.buildings.length > 0) {
-          setSelectedBuilding(data.buildings[0].id);
-        }
-      }
+      // The context now holds the fresh project; the sync effect above copies
+      // it (and defaults the selected building) into local state.
     } catch (err) {
       console.error(err);
     } finally {
       setLoading(false);
     }
-  }, [selectedProjectId, refreshProject, selectedBuilding]);
+  }, [selectedProjectId, refreshProject]);
 
   useEffect(() => {
     if (!selectedProject || selectedProject.id !== selectedProjectId) {

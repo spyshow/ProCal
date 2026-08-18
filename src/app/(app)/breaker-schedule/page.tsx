@@ -113,16 +113,8 @@ export default function BreakerSchedulePage() {
     setLoading(true);
     try {
       await refreshProject();
-      const res = await fetch(`/api/projects/${selectedProjectId}?t=${Date.now()}`);
-      if (res.ok) {
-        const data = await res.json();
-        setProject(data);
-        setDefaults({
-          ACB: data.defaultAcbFamilyId ?? undefined,
-          MCCB: data.defaultMccbFamilyId ?? undefined,
-          MCB: data.defaultMcbFamilyId ?? undefined,
-        });
-      }
+      // The context now holds the fresh project; the sync effect above copies
+      // it (and the default family ids) into local state. No second fetch.
     } catch (err) { console.error(err); } finally { setLoading(false); }
   }, [selectedProjectId, refreshProject]);
 
@@ -489,16 +481,10 @@ export default function BreakerSchedulePage() {
         await loadBreakerSettings();
       }
 
-      // Re-fetch project to update database state and re-compute feeders
+      // Re-fetch project to update database state and re-compute feeders.
+      // refreshProject() updates the context, and the sync effect copies the
+      // fresh project into local state — no duplicate fetch needed.
       await refreshProject();
-      const res = await fetch(`/api/projects/${project.id}?t=${Date.now()}`, {
-        cache: 'no-store',
-        headers: { 'Cache-Control': 'no-cache' },
-      });
-      if (res.ok) {
-        const updated = await res.json();
-        setProject(updated);
-      }
       setSelectedFeederForModal(null);
     } catch (err) {
       console.error('Error applying suggestion:', err);
@@ -506,19 +492,6 @@ export default function BreakerSchedulePage() {
       setApplyingSuggestionId(null);
     }
   };
-
-  if (!project && (loading || contextLoading || selectedProjectId)) {
-    return <PageSkeleton titleWidth="w-60" rowCount={6} />;
-  }
-
-  if (!project || project.buildings.length === 0) {
-    return (
-      <div className="flex flex-col items-center justify-center h-full text-center p-8">
-        <CircuitBoard size={40} className="text-gray-600 mb-3" />
-        <p className="text-gray-400 text-sm">No project data. Select a project from the sidebar.</p>
-      </div>
-    );
-  }
 
   return (
     <div className="p-6 space-y-5 max-w-7xl mx-auto">
@@ -531,7 +504,7 @@ export default function BreakerSchedulePage() {
             <CircuitBoard size={22} className="text-orange-500" />
             {t('breakerSchedule.title', 'Breaker Schedule')}
           </h1>
-          <p className="text-sm text-gray-400 mt-1">{project.name} &mdash; {t('breakerSchedule.subtitle', 'Protection hierarchy, trip curves, and selectivity')}</p>
+          <p className="text-sm text-gray-400 mt-1">{project ? `${project.name} — ` : ''}{t('breakerSchedule.subtitle', 'Protection hierarchy, trip curves, and selectivity')}</p>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
           {/* Engineering Sizing & Selectivity Guide */}
@@ -567,6 +540,15 @@ export default function BreakerSchedulePage() {
         </div>
       </div>
 
+      {!project && (loading || contextLoading || selectedProjectId) ? (
+        <PageSkeleton titleWidth="w-60" rowCount={6} />
+      ) : !project || project.buildings.length === 0 ? (
+        <div className="flex flex-col items-center justify-center h-full text-center p-8">
+          <CircuitBoard size={40} className="text-gray-600 mb-3" />
+          <p className="text-gray-400 text-sm">No project data. Select a project from the sidebar.</p>
+        </div>
+      ) : (
+        <>
       {/* Default Breaker Families */}
       <div data-tour="breaker-family-select" className="rounded-xl border border-gray-800 bg-gray-900/40 p-4">
         <h2 className="text-sm font-bold text-orange-400 mb-3 uppercase tracking-wide">{t('breakers.defaultFamilies', 'Default Breaker Families')}</h2>
@@ -579,11 +561,12 @@ export default function BreakerSchedulePage() {
             <div key={key} className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6 pb-4 border-b border-gray-800 last:border-0 last:pb-0">
               <div className="sm:w-64">
                 <strong className="text-gray-200 text-sm block">{label}</strong>
-                <small className="text-gray-500">{description}</small>
+                <small className="text-gray-400">{description}</small>
               </div>
               <div className="flex-1">
-                <label className="block text-[10px] uppercase tracking-wide text-gray-500 mb-1">{t('breakers.series', 'Family / Series')}</label>
+                <label htmlFor={`default-family-${key}`} className="block text-[10px] uppercase tracking-wide text-gray-400 mb-1">{t('breakers.series', 'Family / Series')}</label>
                 <select
+                  id={`default-family-${key}`}
                   value={defaults[key] ?? ''}
                   onChange={(e) => handleFamilyChange(key, e.target.value)}
                   disabled={saving}
@@ -609,7 +592,7 @@ export default function BreakerSchedulePage() {
           <button
             onClick={() => setSelectedBuilding('all')}
             className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-              selectedBuilding === 'all' ? 'bg-orange-600 text-white' : 'bg-gray-800 text-gray-400'
+              selectedBuilding === 'all' ? 'bg-orange-600 text-slate-950' : 'bg-gray-800 text-gray-400'
             }`}
           >
             {t('cableSchedule.allBuildings', 'All Buildings')}
@@ -619,7 +602,7 @@ export default function BreakerSchedulePage() {
               key={b.id}
               onClick={() => setSelectedBuilding(b.id)}
               className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-                selectedBuilding === b.id ? 'bg-orange-600 text-white' : 'bg-gray-800 text-gray-400'
+                selectedBuilding === b.id ? 'bg-orange-600 text-slate-950' : 'bg-gray-800 text-gray-400'
               }`}
             >
               {b.name}
@@ -640,7 +623,7 @@ export default function BreakerSchedulePage() {
         <div key={type} className="rounded-xl border border-gray-800 bg-gray-900/40 p-4">
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-sm font-bold text-orange-400">{type.replace('_', ' ')}</h3>
-            <span className="text-xs text-gray-500 font-mono">{items.length} breakers</span>
+            <span className="text-xs text-gray-400 font-mono">{items.length} breakers</span>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full engineering-table text-xs">
@@ -782,12 +765,12 @@ export default function BreakerSchedulePage() {
 
       {catalogLoaded && filteredBreakers.length === 0 && (
         <div className="rounded-xl border border-gray-800 bg-gray-900/40 p-8 text-center">
-          <p className="text-gray-500 text-sm">{t('nav.noProjects', 'No breakers to display for this selection.')}</p>
+          <p className="text-gray-400 text-sm">{t('nav.noProjects', 'No breakers to display for this selection.')}</p>
         </div>
       )}
 
       {/* Summary */}
-      <div className="text-[10px] text-gray-600 flex justify-between items-center" hidden={!catalogLoaded}>
+      <div className="text-[10px] text-gray-400 flex justify-between items-center" hidden={!catalogLoaded}>
         <p>{t('cableSchedule.totalCables', 'Total breakers')}: {filteredBreakers.length}</p>
         <p className="flex items-center gap-2">
           <ShieldCheck size={12} className="text-orange-500" />
@@ -848,6 +831,8 @@ export default function BreakerSchedulePage() {
         onClose={() => setShowSizingGuide(false)}
         onStartTour={() => window.dispatchEvent(new CustomEvent('trigger-procal-breaker-schedule-tour'))}
       />
+        </>
+      )}
     </div>
   );
 }

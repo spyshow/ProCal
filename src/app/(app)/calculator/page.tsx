@@ -20,6 +20,7 @@ import {
   RefreshCw,
   AlertTriangle,
   HelpCircle,
+  Sparkles,
 } from 'lucide-react';
 import InfoTooltip from '@/components/InfoTooltip';
 import { PageSkeleton } from '@/components/ui/skeleton';
@@ -39,8 +40,10 @@ export default function CalculatorPage() {
 function CalculatorContent() {
   const searchParams = useSearchParams();
   const focusFloorId = searchParams.get('floor');
-  const { selectedProjectId, selectedProject, loading: contextLoading, refreshProject } = useProject();
+  const { selectedProjectId, selectedProject, loading: contextLoading, refreshProject, isQA, canEdit, currentMemberRole } = useProject();
   const { t, isRtl } = useTranslation();
+
+  const isReadOnly = isQA || !canEdit('calculator') || currentMemberRole === 'QA';
 
   const [project, setProject] = useState<Project | null>(selectedProject);
   const [loading, setLoading] = useState(!selectedProject);
@@ -48,6 +51,7 @@ function CalculatorContent() {
   const [expandedFloor, setExpandedFloor] = useState<string | null>(focusFloorId || null);
   const [expandedBuildingLoads, setExpandedBuildingLoads] = useState(true);
   const [showAddItem, setShowAddItem] = useState<string | null>(null);
+  const [isSeedingDefaults, setIsSeedingDefaults] = useState(false);
   const [addForm, setAddForm] = useState({
     type: 'APARTMENT',
     name: '',
@@ -88,6 +92,26 @@ function CalculatorContent() {
       loadProject();
     }
   }, [loadProject, selectedProject, selectedProjectId]);
+
+  const handleSeedDefaults = async () => {
+    if (!project?.id) return;
+    setIsSeedingDefaults(true);
+    try {
+      const res = await fetch(`/api/projects/${project.id}/seed-defaults`, {
+        method: 'POST',
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        alert(err.error || 'Failed to generate default templates');
+        return;
+      }
+      await loadProject();
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsSeedingDefaults(false);
+    }
+  };
 
   const handleAddItem = async (floorDesignId: string) => {
     const res = await fetch(`/api/floors/${floorDesignId}/items`, {
@@ -254,7 +278,7 @@ function CalculatorContent() {
             {t('cableSchedule.pageTour', 'Page Tour')}
           </button>
 
-          {bldg && bldg.floorDesigns.some(fd => fd.items.some(i => i.type === 'APARTMENT')) && (
+          {!isReadOnly && bldg && bldg.floorDesigns.some(fd => fd.items.some(i => i.type === 'APARTMENT')) && (
             <div className="flex items-center gap-2">
               <button
                 onClick={async () => {
@@ -523,7 +547,7 @@ function CalculatorContent() {
                               <td className="text-center">
                                 {itemPhaseCount === 3 ? (
                                   <span className="text-[10px] text-gray-600">—</span>
-                                ) : (
+                                ) : !isReadOnly ? (
                                   <div className="flex items-center justify-center gap-0.5">
                                     <button
                                       onClick={() => handleUpdateAssignedPhase(item.id, null)}
@@ -543,6 +567,10 @@ function CalculatorContent() {
                                       );
                                     })}
                                   </div>
+                                ) : (
+                                  <span className="px-1.5 py-0.5 text-[10px] rounded font-mono bg-gray-800 text-yellow-400 font-medium">
+                                    L{item.assignedPhase ?? resolvedPhase}
+                                  </span>
                                 )}
                               </td>
                               <td className="text-right font-mono text-sm">{item.calculatedConnectedLoad.toFixed(2)}</td>
@@ -554,12 +582,16 @@ function CalculatorContent() {
                                 {item.voltageDrop != null ? `${item.voltageDrop}%` : '—'}
                               </td>
                               <td className="text-center">
-                                <button
-                                  onClick={() => handleDeleteItem(item.id)}
-                                  className="p-1 rounded text-gray-600 hover:text-red-400"
-                                >
-                                  <Trash2 size={12} />
-                                </button>
+                                {!isReadOnly ? (
+                                  <button
+                                    onClick={() => handleDeleteItem(item.id)}
+                                    className="p-1 rounded text-gray-600 hover:text-red-400"
+                                  >
+                                    <Trash2 size={12} />
+                                  </button>
+                                ) : (
+                                  <span className="text-gray-600 text-xs">—</span>
+                                )}
                               </td>
                             </tr>
                           );
@@ -596,80 +628,107 @@ function CalculatorContent() {
                         </div>
                         {addForm.type === 'APARTMENT' ? (
                           <>
-                            <div className="flex-1">
-                              <label className="flex items-center gap-1 text-[10px] text-gray-500 mb-1">
-                                Template
-                                <InfoTooltip
-                                  label="Apartment Template"
-                                  helper="Choose a saved apartment template. Its connected load and max demand are calculated from room areas, load densities, and AC units."
-                                />
-                              </label>
-                              <select
-                                value={addForm.apartmentTemplateId}
-                                onChange={(e) => {
-                                  const tpl = project.apartmentTemplates.find((t) => t.id === e.target.value);
-                                  setAddForm({
-                                    ...addForm,
-                                    apartmentTemplateId: e.target.value,
-                                    name: tpl?.name || '',
-                                  });
-                                }}
-                                className="dense-input w-full rounded"
-                              >
-                                <option value="">Select template…</option>
-                                {project.apartmentTemplates.map((t) => {
-                                  const totalArea = t.rooms?.reduce((sum, r) => sum + r.area, 0) || 0;
-                                  const totalLoad = t.rooms?.reduce((sum, r) => sum + r.connectedLoad, 0) || 0;
-                                  return (
-                                    <option key={t.id} value={t.id}>
-                                      {t.name} — {t.phases === 3 ? '3Φ' : '1Φ'} — {totalArea.toFixed(0)}m² ({(totalLoad / 1000).toFixed(1)}kW)
-                                    </option>
-                                  );
-                                })}
-                              </select>
-                            </div>
-                            <div className="flex-1">
-                              <label className="block text-[10px] text-gray-500 mb-1">Name</label>
-                              <input
-                                value={addForm.name}
-                                onChange={(e) => setAddForm({ ...addForm, name: e.target.value })}
-                                className="dense-input w-full rounded"
-                                placeholder="Apt 1"
-                              />
-                            </div>
-
-                            {/* Room Breakdown Preview */}
-                            {addForm.apartmentTemplateId && (() => {
-                              const selectedTpl = project.apartmentTemplates.find(
-                                (t) => t.id === addForm.apartmentTemplateId
-                              );
-                              if (!selectedTpl?.rooms?.length) return null;
-
-                              const totalArea = selectedTpl.rooms.reduce((sum, r) => sum + r.area, 0);
-                              const totalLoad = selectedTpl.rooms.reduce((sum, r) => sum + r.connectedLoad, 0);
-                              const acRooms = selectedTpl.rooms.filter((r) => r.hasAc);
-
-                              return (
-                                <div className="col-span-2 mt-2 p-2 rounded-lg bg-gray-800/50 border border-gray-700">
-                                  <div className="flex items-center gap-4 text-[10px]">
-                                    <span className="text-gray-500">
-                                      {selectedTpl.rooms.length} rooms · {totalArea.toFixed(0)}m²
-                                    </span>
-                                    <span className="text-orange-400 font-mono">
-                                      {(totalLoad / 1000).toFixed(2)} kW
-                                    </span>
-                                    {acRooms.length > 0 && (
-                                      <span className="text-blue-400">
-                                        {acRooms.length}× AC
-                                      </span>
-                                    )}
-                                    <span className="text-gray-600">
-                                      {selectedTpl.rooms.map((r) => r.name).filter(Boolean).join(' · ')}
-                                    </span>
+                            {(!project.apartmentTemplates || project.apartmentTemplates.length === 0) ? (
+                              <div className="col-span-2 p-3 rounded-lg bg-orange-950/30 border border-orange-800/50 text-xs">
+                                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                                  <div>
+                                    <p className="font-semibold text-orange-300">No Apartment Templates Found</p>
+                                    <p className="text-[11px] text-gray-400 mt-0.5">
+                                      This project does not have any apartment templates yet. Generate standard templates (2BR, 3BR, Studio) to quickly start adding apartments.
+                                    </p>
                                   </div>
+                                  <button
+                                    type="button"
+                                    disabled={isSeedingDefaults || isReadOnly}
+                                    onClick={handleSeedDefaults}
+                                    className="px-3 py-1.5 rounded-lg bg-orange-600 hover:bg-orange-500 disabled:opacity-50 text-white font-medium text-xs whitespace-nowrap shadow transition-colors flex items-center gap-1.5 shrink-0"
+                                  >
+                                    {isSeedingDefaults ? (
+                                      <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                                    ) : (
+                                      <Sparkles className="w-3.5 h-3.5" />
+                                    )}
+                                    Generate Default Templates
+                                  </button>
                                 </div>
-                              );
-                            })()}
+                              </div>
+                            ) : (
+                              <>
+                                <div className="flex-1">
+                                  <label className="flex items-center gap-1 text-[10px] text-gray-500 mb-1">
+                                    Template
+                                    <InfoTooltip
+                                      label="Apartment Template"
+                                      helper="Choose a saved apartment template. Its connected load and max demand are calculated from room areas, load densities, and AC units."
+                                    />
+                                  </label>
+                                  <select
+                                    value={addForm.apartmentTemplateId}
+                                    onChange={(e) => {
+                                      const tpl = project.apartmentTemplates.find((t) => t.id === e.target.value);
+                                      setAddForm({
+                                        ...addForm,
+                                        apartmentTemplateId: e.target.value,
+                                        name: tpl?.name || '',
+                                      });
+                                    }}
+                                    className="dense-input w-full rounded"
+                                  >
+                                    <option value="">Select template…</option>
+                                    {project.apartmentTemplates.map((t) => {
+                                      const totalArea = t.rooms?.reduce((sum, r) => sum + r.area, 0) || 0;
+                                      const totalLoad = t.rooms?.reduce((sum, r) => sum + r.connectedLoad, 0) || 0;
+                                      return (
+                                        <option key={t.id} value={t.id}>
+                                          {t.name} — {t.phases === 3 ? '3Φ' : '1Φ'} — {totalArea.toFixed(0)}m² ({(totalLoad / 1000).toFixed(1)}kW)
+                                        </option>
+                                      );
+                                    })}
+                                  </select>
+                                </div>
+                                <div className="flex-1">
+                                  <label className="block text-[10px] text-gray-500 mb-1">Name</label>
+                                  <input
+                                    value={addForm.name}
+                                    onChange={(e) => setAddForm({ ...addForm, name: e.target.value })}
+                                    className="dense-input w-full rounded"
+                                    placeholder="Apt 1"
+                                  />
+                                </div>
+                                {/* Room Breakdown Preview */}
+                                {addForm.apartmentTemplateId && (() => {
+                                  const selectedTpl = project.apartmentTemplates.find(
+                                    (t) => t.id === addForm.apartmentTemplateId
+                                  );
+                                  if (!selectedTpl?.rooms?.length) return null;
+
+                                  const totalArea = selectedTpl.rooms.reduce((sum, r) => sum + r.area, 0);
+                                  const totalLoad = selectedTpl.rooms.reduce((sum, r) => sum + r.connectedLoad, 0);
+                                  const acRooms = selectedTpl.rooms.filter((r) => r.hasAc);
+
+                                  return (
+                                    <div className="col-span-2 mt-2 p-2 rounded-lg bg-gray-800/50 border border-gray-700">
+                                      <div className="flex items-center gap-4 text-[10px]">
+                                        <span className="text-gray-500">
+                                          {selectedTpl.rooms.length} rooms · {totalArea.toFixed(0)}m²
+                                        </span>
+                                        <span className="text-orange-400 font-mono">
+                                          {(totalLoad / 1000).toFixed(2)} kW
+                                        </span>
+                                        {acRooms.length > 0 && (
+                                          <span className="text-blue-400">
+                                            {acRooms.length}× AC
+                                          </span>
+                                        )}
+                                        <span className="text-gray-600">
+                                          {selectedTpl.rooms.map((r) => r.name).filter(Boolean).join(' · ')}
+                                        </span>
+                                      </div>
+                                    </div>
+                                  );
+                                })()}
+                              </>
+                            )}
                           </>
                         ) : (
                           <>
@@ -752,7 +811,7 @@ function CalculatorContent() {
                         </button>
                       </div>
                     </div>
-                  ) : (
+                  ) : !isReadOnly ? (
                     <div className="flex gap-2">
                       <button
                         onClick={() => setShowAddItem(fd.id)}
@@ -792,7 +851,7 @@ function CalculatorContent() {
                         </button>
                       )}
                     </div>
-                  )}
+                  ) : null}
 
                   {/* Copy Dialog */}
                   {copySourceFloor === fd.id && (

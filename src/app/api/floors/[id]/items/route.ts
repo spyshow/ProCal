@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { getSessionUser } from "@/lib/auth";
+import { verifyProjectAccess } from "@/lib/project-auth";
 import { sizeCableAndBreaker } from "@/lib/calculations/cables";
 import { getApartmentDiversityFactor } from "@/lib/calculations/loads";
 
@@ -9,11 +9,6 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const user = await getSessionUser();
-    if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
     const { id: floorDesignId } = await params;
     const data = await request.json();
     const { type, name, apartmentTemplateId, loadLibraryItemId, customKw, cableMaterial } = data;
@@ -29,9 +24,15 @@ export async function POST(
       include: { building: { include: { project: true } } },
     });
 
-    if (!floorDesign || floorDesign.building.project.userId !== user.id) {
+    if (!floorDesign) {
       return NextResponse.json({ error: "Floor not found" }, { status: 404 });
     }
+
+    const auth = await verifyProjectAccess(floorDesign.building.projectId, {
+      requiredAction: "EDIT",
+      pageKey: "calculator",
+    });
+    if (auth instanceof NextResponse) return auth;
 
     const project = floorDesign.building.project;
     const voltageKv = project.voltage / 1000; // 400V → 0.4 kV

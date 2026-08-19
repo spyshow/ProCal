@@ -24,6 +24,7 @@ import {
 import { COUNTRY_DEFAULTS, ROOM_TYPES, CountryConfig, AcSizingRule } from '@/lib/country-defaults';
 import { useTranslation, SupportedLanguage } from '@/i18n';
 import { useUser } from '@/context/UserContext';
+import { useProject } from '@/context/ProjectContext';
 import { ProjectTeamTab } from '@/components/settings/ProjectTeamTab';
 import { ActivityLogTab } from '@/components/settings/ActivityLogTab';
 import { QAReviewTab } from '@/components/settings/QAReviewTab';
@@ -33,6 +34,9 @@ type SettingsTab = 'engineering' | 'company' | 'team' | 'activity' | 'qa' | 'lan
 export default function SettingsPage() {
   const { t, language, setLanguage, isRtl } = useTranslation();
   const { user: currentUser, refreshUser } = useUser();
+  const { isQA, canEdit, currentMemberRole } = useProject();
+  const isReadOnly = isQA || !canEdit('calculator') || currentMemberRole === 'QA';
+
   const [settings, setSettings] = useState<Record<string, CountryConfig>>({});
   const [selectedCountry, setSelectedCountry] = useState('Syria');
   const [loading, setLoading] = useState(true);
@@ -442,23 +446,32 @@ export default function SettingsPage() {
       {/* Engineering Defaults Tab */}
       {activeTab === 'engineering' && (
         <>
-          <div className="flex justify-end gap-2">
-            <button
-              onClick={handleReset}
-              className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-300 text-sm"
-            >
-              <RotateCcw size={14} />
-              {t('settings.reset', 'Reset to Defaults')}
-            </button>
-            <button
-              onClick={handleSave}
-              disabled={saving}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-sm font-semibold disabled:opacity-50"
-            >
-              <Save size={14} />
-              {saving ? t('settings.saving', 'Saving…') : t('settings.save', 'Save Settings')}
-            </button>
-          </div>
+          {isReadOnly && (
+            <div className="flex items-center gap-2 p-3 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-300 text-xs">
+              <Shield size={14} className="shrink-0 text-amber-400" />
+              <span>{t('team.readOnlyNotice', 'Read-Only Mode: You have QA / Reviewer permissions. Parameters and calculations can be inspected but not modified.')}</span>
+            </div>
+          )}
+
+          {!isReadOnly && (
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={handleReset}
+                className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-300 text-sm"
+              >
+                <RotateCcw size={14} />
+                {t('settings.reset', 'Reset to Defaults')}
+              </button>
+              <button
+                onClick={handleSave}
+                disabled={saving}
+                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-sm font-semibold disabled:opacity-50"
+              >
+                <Save size={14} />
+                {saving ? t('settings.saving', 'Saving…') : t('settings.save', 'Save Settings')}
+              </button>
+            </div>
+          )}
 
           {/* Country Selector */}
           <div className="rounded-xl border border-gray-800 bg-gray-900/40 p-4">
@@ -606,9 +619,24 @@ export default function SettingsPage() {
       {/* Company & Branding Tab */}
       {activeTab === 'company' && (
         <div className="rounded-xl border border-gray-800 bg-gray-900/40 p-4 space-y-4">
-          <h2 className="text-sm font-semibold text-gray-300 uppercase tracking-wider">
-            {t('settings.companyInfo', 'Company Information')}
-          </h2>
+          <div className="flex items-center justify-between">
+            <h2 className="text-sm font-semibold text-gray-300 uppercase tracking-wider">
+              {t('settings.companyInfo', 'Company Information')}
+            </h2>
+            {isReadOnly && (
+              <span className="px-2.5 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-300 text-[11px] font-semibold flex items-center gap-1">
+                <Shield size={12} />
+                QA / Reviewer (Read-Only)
+              </span>
+            )}
+          </div>
+
+          {isReadOnly && (
+            <div className="flex items-center gap-2 p-3 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-300 text-xs">
+              <Shield size={14} className="shrink-0 text-amber-400" />
+              <span>{t('team.readOnlyNotice', 'Read-Only Mode: You have QA / Reviewer permissions. Parameters and calculations can be inspected but not modified.')}</span>
+            </div>
+          )}
 
           {/* Company Name */}
           <div>
@@ -617,7 +645,8 @@ export default function SettingsPage() {
               type="text"
               value={company.companyName}
               onChange={(e) => setCompany({ ...company, companyName: e.target.value })}
-              className="dense-input w-full max-w-md rounded"
+              disabled={isReadOnly}
+              className="dense-input w-full max-w-md rounded disabled:opacity-60 disabled:cursor-not-allowed"
               placeholder={t('settings.companyNamePlaceholder', 'Your Company Name')}
             />
           </div>
@@ -633,13 +662,17 @@ export default function SettingsPage() {
                     alt="Company logo"
                     className="h-20 w-auto object-contain rounded border border-gray-700 bg-white p-1"
                   />
-                  <button
-                    onClick={() => setCompany({ ...company, logoUrl: "" })}
-                    className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-red-600 text-white text-xs flex items-center justify-center hover:bg-red-500"
-                  >
-                    ×
-                  </button>
+                  {!isReadOnly && (
+                    <button
+                      onClick={() => setCompany({ ...company, logoUrl: "" })}
+                      className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-red-600 text-white text-xs flex items-center justify-center hover:bg-red-500"
+                    >
+                      ×
+                    </button>
+                  )}
                 </div>
+              ) : isReadOnly ? (
+                <p className="text-xs text-gray-500 italic">No company logo uploaded</p>
               ) : (
                 <label className="flex flex-col items-center justify-center w-32 h-20 border-2 border-dashed border-gray-700 rounded-lg cursor-pointer hover:border-orange-500 transition-colors">
                   <span className="text-xs text-gray-500">
@@ -669,19 +702,26 @@ export default function SettingsPage() {
                 </label>
               )}
             </div>
-            <p className="text-[10px] text-gray-600 mt-1">{t('settings.logoFormats', 'PNG, JPG, SVG, or WebP. Max 2MB.')}</p>
+            {!isReadOnly && <p className="text-[10px] text-gray-600 mt-1">{t('settings.logoFormats', 'PNG, JPG, SVG, or WebP. Max 2MB.')}</p>}
           </div>
 
           {/* Save */}
-          <div className="flex justify-end">
-            <button
-              onClick={handleSaveCompany}
-              disabled={saving}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-sm font-semibold disabled:opacity-50"
-            >
-              <Save size={14} />
-              {saving ? t('settings.saving', 'Saving…') : t('settings.saveCompany', 'Save Company Settings')}
-            </button>
+          <div className="flex items-center justify-end gap-2">
+            {!isReadOnly ? (
+              <button
+                onClick={handleSaveCompany}
+                disabled={saving}
+                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-sm font-semibold disabled:opacity-50"
+              >
+                <Save size={14} />
+                {saving ? t('settings.saving', 'Saving…') : t('settings.saveCompany', 'Save Company Settings')}
+              </button>
+            ) : (
+              <span className="px-3 py-2 rounded-lg bg-gray-800/80 border border-gray-700/60 text-gray-400 text-xs font-medium flex items-center gap-1.5">
+                <Shield size={13} className="text-amber-400" />
+                {t('team.readOnlyActionDisabled', 'Action disabled in QA / Reviewer read-only mode')}
+              </span>
+            )}
           </div>
         </div>
       )}

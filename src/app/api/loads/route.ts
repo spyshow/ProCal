@@ -1,14 +1,9 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { getSessionUser } from "@/lib/auth";
+import { verifyProjectAccess } from "@/lib/project-auth";
 
 export async function POST(request: Request) {
   try {
-    const user = await getSessionUser();
-    if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
     const data = await request.json();
     const {
       projectId,
@@ -28,13 +23,11 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
-    const project = await db.project.findUnique({
-      where: { id: projectId, userId: user.id },
+    const auth = await verifyProjectAccess(projectId, {
+      requiredAction: "EDIT",
+      pageKey: "calculator",
     });
-
-    if (!project) {
-      return NextResponse.json({ error: "Project not found" }, { status: 404 });
-    }
+    if (auth instanceof NextResponse) return auth;
 
     const kw = parseFloat(power);
     const qty = parseInt(quantity) || 1;

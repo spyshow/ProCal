@@ -5,6 +5,7 @@ import { Plus, Pencil, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { useProject } from '@/context/ProjectContext';
 import {
   Table,
   TableBody,
@@ -45,6 +46,9 @@ interface LoadManagerProps {
 const CATEGORIES = ['Lighting', 'Socket', 'AC', 'Pump', 'Elevator', 'Fire Pump', 'Mechanical', 'Other'];
 
 export default function LoadManager({ projectId, loads, onRefresh }: LoadManagerProps) {
+  const { isQA, canEdit, currentMemberRole } = useProject();
+  const isReadOnly = isQA || !canEdit('calculator') || currentMemberRole === 'QA';
+
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState<LoadItem | null>(null);
   const [form, setForm] = useState({
@@ -61,6 +65,7 @@ export default function LoadManager({ projectId, loads, onRefresh }: LoadManager
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isReadOnly) return;
     const url = editing ? `/api/loads/${editing.id}` : '/api/loads';
     const method = editing ? 'PUT' : 'POST';
     await fetch(url, {
@@ -73,12 +78,14 @@ export default function LoadManager({ projectId, loads, onRefresh }: LoadManager
   };
 
   const handleDelete = async (id: string) => {
+    if (isReadOnly) return;
     if (!confirm('Delete this load item?')) return;
     await fetch(`/api/loads/${id}`, { method: 'DELETE' });
     onRefresh();
   };
 
   const startEdit = (l: LoadItem) => {
+    if (isReadOnly) return;
     setEditing(l);
     setForm({
       name: l.name, category: l.category, power: l.power, voltage: l.voltage,
@@ -96,14 +103,16 @@ export default function LoadManager({ projectId, loads, onRefresh }: LoadManager
           <h3 className="text-sm font-bold text-white uppercase tracking-wider">Load Library</h3>
           <p className="text-xs text-slate-400">Manage electrical equipment, connected loads, and power factors</p>
         </div>
-        <Button
-          onClick={() => { resetForm(); setShowForm(true); }}
-          variant="glow"
-          size="sm"
-          className="gap-1.5"
-        >
-          <Plus className="w-3.5 h-3.5" /> Add Load
-        </Button>
+        {!isReadOnly && (
+          <Button
+            onClick={() => { resetForm(); setShowForm(true); }}
+            variant="glow"
+            size="sm"
+            className="gap-1.5"
+          >
+            <Plus className="w-3.5 h-3.5" /> Add Load
+          </Button>
+        )}
       </div>
 
       <Dialog open={showForm} onOpenChange={(open: boolean) => !open && resetForm()}>
@@ -211,14 +220,18 @@ export default function LoadManager({ projectId, loads, onRefresh }: LoadManager
                 <TableCell className="font-mono">{l.quantity}</TableCell>
                 <TableCell className="font-mono text-orange-400 font-bold">{l.runningCurrent} A</TableCell>
                 <TableCell className="text-right">
-                  <div className="flex items-center justify-end gap-1">
-                    <Button onClick={() => startEdit(l)} variant="ghost" size="icon" className="h-7 w-7">
-                      <Pencil className="w-3.5 h-3.5 text-slate-400 hover:text-orange-400" />
-                    </Button>
-                    <Button onClick={() => handleDelete(l.id)} variant="ghost" size="icon" className="h-7 w-7">
-                      <Trash2 className="w-3.5 h-3.5 text-slate-400 hover:text-rose-400" />
-                    </Button>
-                  </div>
+                  {!isReadOnly ? (
+                    <div className="flex items-center justify-end gap-1">
+                      <Button onClick={() => startEdit(l)} variant="ghost" size="icon" className="h-7 w-7">
+                        <Pencil className="w-3.5 h-3.5 text-slate-400 hover:text-orange-400" />
+                      </Button>
+                      <Button onClick={() => handleDelete(l.id)} variant="ghost" size="icon" className="h-7 w-7">
+                        <Trash2 className="w-3.5 h-3.5 text-slate-400 hover:text-rose-400" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <span className="text-slate-600 text-xs">—</span>
+                  )}
                 </TableCell>
               </TableRow>
             ))

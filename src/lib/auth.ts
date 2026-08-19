@@ -23,6 +23,24 @@ export async function verifyJWT(token: string) {
   }
 }
 
+export async function signPasswordResetToken(userId: string, email: string) {
+  return new SignJWT({ userId, email, purpose: "reset-password" })
+    .setProtectedHeader({ alg: "HS256" })
+    .setIssuedAt()
+    .setExpirationTime("1h")
+    .sign(JWT_SECRET);
+}
+
+export async function verifyPasswordResetToken(token: string) {
+  try {
+    const { payload } = await jwtVerify(token, JWT_SECRET);
+    if (payload.purpose !== "reset-password") return null;
+    return payload as { userId: string; email: string; purpose: string };
+  } catch {
+    return null;
+  }
+}
+
 /**
  * Returns the currently authenticated user from request cookies.
  */

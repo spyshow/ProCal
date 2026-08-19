@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { getSessionUser } from "@/lib/auth";
+import { verifyProjectAccess } from "@/lib/project-auth";
 import { sizeCableAndBreaker } from "@/lib/calculations/cables";
 import { calculateRoomLoad, getCountryDefaults } from "@/lib/country-defaults";
 
@@ -14,11 +14,6 @@ interface RoomInput {
 
 export async function POST(request: Request) {
   try {
-    const user = await getSessionUser();
-    if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
     const data = await request.json();
     const { projectId, name, rooms, phases } = data;
 
@@ -26,14 +21,13 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
-    // Verify project ownership
-    const project = await db.project.findUnique({
-      where: { id: projectId, userId: user.id },
+    const auth = await verifyProjectAccess(projectId, {
+      requiredAction: "EDIT",
+      pageKey: "calculator",
     });
+    if (auth instanceof NextResponse) return auth;
 
-    if (!project) {
-      return NextResponse.json({ error: "Project not found" }, { status: 404 });
-    }
+    const project = auth.project;
 
     // Get country defaults for AC sizing
     const countryDefaults = getCountryDefaults(project.country);

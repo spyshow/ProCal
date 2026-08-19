@@ -15,6 +15,9 @@ import {
   Settings,
   Zap,
   Home,
+  Shield,
+  Sparkles,
+  RefreshCw,
 } from 'lucide-react';
 import { RoomList } from '@/components/RoomList';
 import InfoTooltip from '@/components/InfoTooltip';
@@ -87,8 +90,10 @@ export default function ProjectDetailPage() {
   const params = useParams();
   const router = useRouter();
   const projectId = params.id as string;
-  const { selectedProject, selectedProjectId, selectProject, refreshProject } = useProject();
+  const { selectedProject, selectedProjectId, selectProject, refreshProject, isQA, canEdit, isProjectManager, currentMemberRole } = useProject();
   const { t, isRtl } = useTranslation();
+
+  const isReadOnly = isQA || !canEdit('calculator') || currentMemberRole === 'QA';
 
   const [project, setProject] = useState<Project | null>(() => {
     if (selectedProject && selectedProject.id === projectId) {
@@ -258,12 +263,32 @@ export default function ProjectDetailPage() {
   const [templateName, setTemplateName] = useState('');
   const [templatePhases, setTemplatePhases] = useState('1');
   const [templateRooms, setTemplateRooms] = useState<RoomData[]>([]);
+  const [isSeedingDefaults, setIsSeedingDefaults] = useState(false);
+
+  const handleSeedDefaults = async () => {
+    setIsSeedingDefaults(true);
+    try {
+      const res = await fetch(`/api/projects/${projectId}/seed-defaults`, {
+        method: 'POST',
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        alert(err.error || 'Failed to generate default templates');
+        return;
+      }
+      await loadProject();
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsSeedingDefaults(false);
+    }
+  };
 
   const handleNewTemplate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!templateName || templateRooms.length === 0) return;
 
-    await fetch('/api/templates', {
+    const res = await fetch('/api/templates', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -273,6 +298,11 @@ export default function ProjectDetailPage() {
         rooms: templateRooms.map(({ id, ...rest }) => rest),
       }),
     });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      alert(err.error || 'Failed to create template');
+      return;
+    }
     setTemplateName('');
     setTemplatePhases('1');
     setTemplateRooms([]);
@@ -400,7 +430,23 @@ export default function ProjectDetailPage() {
       {/* Project Settings Modal */}
       {editingProject && (
         <div className="rounded-xl border border-orange-500/30 bg-gray-900/80 p-5 space-y-4">
-          <h3 className="text-sm font-semibold text-orange-400">Project Settings</h3>
+          <div className="flex items-center justify-between">
+            <h3 className="text-sm font-semibold text-orange-400">Project Settings</h3>
+            {isReadOnly && (
+              <span className="px-2.5 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-300 text-[11px] font-semibold flex items-center gap-1">
+                <Shield size={12} />
+                QA / Reviewer (Read-Only)
+              </span>
+            )}
+          </div>
+
+          {isReadOnly && (
+            <div className="flex items-center gap-2 p-3 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-300 text-xs">
+              <Shield size={14} className="shrink-0 text-amber-400" />
+              <span>{t('team.readOnlyNotice', 'Read-Only Mode: You have QA / Reviewer permissions. Parameters and calculations can be inspected but not modified.')}</span>
+            </div>
+          )}
+
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {[
               ['name', 'Project Name', '', 'Project name used across reports and schedules.'],
@@ -440,7 +486,8 @@ export default function ProjectDetailPage() {
                 <select
                   value={projectForm.calculationStandard || 'IEC'}
                   onChange={(e) => setProjectForm({ ...projectForm, calculationStandard: e.target.value })}
-                  className="dense-input w-full rounded"
+                  disabled={isReadOnly}
+                  className="dense-input w-full rounded disabled:opacity-60 disabled:cursor-not-allowed"
                 >
                   <option value="IEC">IEC / EN 50160</option>
                   <option value="NEMA">NEMA / IEEE</option>
@@ -453,7 +500,8 @@ export default function ProjectDetailPage() {
                   value={projectForm[key as string] || ''}
                   onChange={(e) => setProjectForm({ ...projectForm, [key as string]: e.target.value })}
                   placeholder={(placeholder as string) || undefined}
-                  className="dense-input w-full rounded"
+                  disabled={isReadOnly}
+                  className="dense-input w-full rounded disabled:opacity-60 disabled:cursor-not-allowed"
                 />
                 {helper && <p className="text-[10px] text-gray-600 mt-1 leading-snug">{helper}</p>}
               </div>
@@ -471,14 +519,18 @@ export default function ProjectDetailPage() {
                     alt="Project logo"
                     className="h-20 w-auto object-contain rounded border border-gray-700 bg-white p-1"
                   />
-                  <button
-                    type="button"
-                    onClick={handleClearProjectLogo}
-                    className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-red-600 text-white text-xs flex items-center justify-center hover:bg-red-500"
-                  >
-                    ×
-                  </button>
+                  {!isReadOnly && (
+                    <button
+                      type="button"
+                      onClick={handleClearProjectLogo}
+                      className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-red-600 text-white text-xs flex items-center justify-center hover:bg-red-500"
+                    >
+                      ×
+                    </button>
+                  )}
                 </div>
+              ) : isReadOnly ? (
+                <p className="text-xs text-gray-500 italic">No logo uploaded</p>
               ) : (
                 <label className="flex flex-col items-center justify-center w-32 h-20 border-2 border-dashed border-gray-700 rounded-lg cursor-pointer hover:border-orange-500 transition-colors">
                   <span className="text-xs text-gray-500">
@@ -493,15 +545,22 @@ export default function ProjectDetailPage() {
                 </label>
               )}
             </div>
-            <p className="text-[10px] text-gray-600 mt-1">PNG, JPG, SVG, or WebP. Max 2MB.</p>
+            {!isReadOnly && <p className="text-[10px] text-gray-600 mt-1">PNG, JPG, SVG, or WebP. Max 2MB.</p>}
           </div>
 
-          <div className="flex gap-2">
-            <button onClick={handleSaveProject} className="px-4 py-2 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-sm font-semibold">
-              {t('common.save', 'Save')}
-            </button>
-            <button onClick={() => setEditingProject(false)} className="px-4 py-2 rounded-lg bg-gray-800 text-gray-300 text-sm">
-              {t('common.cancel', 'Cancel')}
+          <div className="flex items-center gap-2">
+            {!isReadOnly ? (
+              <button onClick={handleSaveProject} className="px-4 py-2 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-sm font-semibold">
+                {t('common.save', 'Save')}
+              </button>
+            ) : (
+              <span className="px-3 py-2 rounded-lg bg-gray-800/80 border border-gray-700/60 text-gray-400 text-xs font-medium flex items-center gap-1.5">
+                <Shield size={13} className="text-amber-400" />
+                {t('team.readOnlyActionDisabled', 'Action disabled in QA / Reviewer read-only mode')}
+              </span>
+            )}
+            <button onClick={() => setEditingProject(false)} className="px-4 py-2 rounded-lg bg-gray-800 text-gray-300 text-sm hover:bg-gray-700">
+              {isReadOnly ? t('common.close', 'Close') : t('common.cancel', 'Cancel')}
             </button>
           </div>
         </div>
@@ -532,17 +591,19 @@ export default function ProjectDetailPage() {
       {/* Buildings Tab */}
       {activeTab === 'buildings' && (
         <div className="space-y-3">
-          <div className="flex justify-end">
-            <button
-              onClick={() => setShowNewBuilding(!showNewBuilding)}
-              className="flex items-center gap-2 px-3 py-2 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-sm font-semibold"
-            >
-              <Plus size={14} />
-              {t('projects.addBuilding', 'Add Building')}
-            </button>
-          </div>
+          {!isReadOnly && (
+            <div className="flex justify-end">
+              <button
+                onClick={() => setShowNewBuilding(!showNewBuilding)}
+                className="flex items-center gap-2 px-3 py-2 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-sm font-semibold"
+              >
+                <Plus size={14} />
+                {t('projects.addBuilding', 'Add Building')}
+              </button>
+            </div>
+          )}
 
-          {showNewBuilding && (
+          {showNewBuilding && !isReadOnly && (
             <form onSubmit={handleNewBuilding} className="rounded-xl border border-gray-800 bg-gray-900/60 p-4 space-y-3">
               <h4 className="text-sm font-semibold text-gray-300">{t('projects.newBuilding', 'New Building')}</h4>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -602,22 +663,24 @@ export default function ProjectDetailPage() {
                         {bldg.floors} {t('projects.floorsCount', 'floors')} · {bldg.serviceFloors} {t('projects.serviceFloors', 'service')} · {totalApts} {t('projects.apartments', 'apartments')} · {bldg.buildingLoads?.length || 0} {t('projects.loadLibrary', 'building loads')}
                       </p>
                     </div>
-                    <div className="flex items-center gap-1">
-                      <button
-                        onClick={(e) => { e.stopPropagation(); startEditBuilding(bldg); }}
-                        className="p-1.5 rounded-lg text-gray-600 hover:text-orange-400 hover:bg-orange-500/10"
-                        title={t('common.edit', 'Edit building')}
-                      >
-                        <Pencil size={14} />
-                      </button>
-                      <button
-                        onClick={(e) => { e.stopPropagation(); handleDeleteBuilding(bldg.id); }}
-                        className="p-1.5 rounded-lg text-gray-600 hover:text-red-400 hover:bg-red-500/10"
-                        title={t('common.delete', 'Delete building')}
-                      >
-                        <Trash2 size={14} />
-                      </button>
-                    </div>
+                    {!isReadOnly && (
+                      <div className="flex items-center gap-1">
+                        <button
+                          onClick={(e) => { e.stopPropagation(); startEditBuilding(bldg); }}
+                          className="p-1.5 rounded-lg text-gray-600 hover:text-orange-400 hover:bg-orange-500/10"
+                          title={t('common.edit', 'Edit building')}
+                        >
+                          <Pencil size={14} />
+                        </button>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); handleDeleteBuilding(bldg.id); }}
+                          className="p-1.5 rounded-lg text-gray-600 hover:text-red-400 hover:bg-red-500/10"
+                          title={t('common.delete', 'Delete building')}
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                    )}
                   </div>
 
                   {expanded && (
@@ -652,6 +715,7 @@ export default function ProjectDetailPage() {
                                 <button
                                   onClick={async (e) => {
                                     e.stopPropagation();
+                                    if (isReadOnly) return;
                                     const newValue = !fd.hasFloorSubPanels;
                                     await fetch(`/api/floors/${fd.id}`, {
                                       method: 'PUT',
@@ -660,12 +724,13 @@ export default function ProjectDetailPage() {
                                     });
                                     loadProject();
                                   }}
+                                  disabled={isReadOnly}
                                   className={`flex items-center gap-1.5 text-[10px] px-2 py-0.5 rounded font-medium transition-colors ${
                                     fd.hasFloorSubPanels
                                       ? 'bg-orange-600/20 text-orange-400 border border-orange-600/40'
                                       : 'bg-gray-800 text-gray-500 border border-gray-700 hover:border-gray-600'
-                                  }`}
-                                  title={fd.hasFloorSubPanels ? 'Sub-panel enabled — click to disable' : 'Click to enable sub-panel'}
+                                  } ${isReadOnly ? 'cursor-default opacity-80' : ''}`}
+                                  title={fd.hasFloorSubPanels ? 'Sub-panel enabled' : 'Sub-panel disabled'}
                                 >
                                   <span className={`w-3 h-3 rounded-sm border flex items-center justify-center ${
                                     fd.hasFloorSubPanels
@@ -689,16 +754,18 @@ export default function ProjectDetailPage() {
                       <div className="space-y-2">
                         <div className="flex items-center justify-between">
                           <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Building Loads</h4>
-                          <button
-                            onClick={() => {
-                              setBuildingLoadForm({ loadLibraryItemId: '', quantity: 1 });
-                              setShowAddBuildingLoad(showAddBuildingLoad === bldg.id ? null : bldg.id);
-                            }}
-                            className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-gray-800 hover:bg-gray-700 text-xs text-gray-400 hover:text-orange-400"
-                          >
-                            <Plus size={12} />
-                            Add Building Load
-                          </button>
+                          {!isReadOnly && (
+                            <button
+                              onClick={() => {
+                                setBuildingLoadForm({ loadLibraryItemId: '', quantity: 1 });
+                                setShowAddBuildingLoad(showAddBuildingLoad === bldg.id ? null : bldg.id);
+                              }}
+                              className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-gray-800 hover:bg-gray-700 text-xs text-gray-400 hover:text-orange-400"
+                            >
+                              <Plus size={12} />
+                              Add Building Load
+                            </button>
+                          )}
                         </div>
 
                         {(bldg.buildingLoads?.length || 0) === 0 ? (
@@ -721,7 +788,7 @@ export default function ProjectDetailPage() {
                                     {bl.loadLibraryItem?.category ?? '—'} · {bl.quantity} × {(bl.loadLibraryItem?.power ?? 0).toFixed(1)} kW
                                   </p>
                                 </div>
-                                {(bl.loadLibraryItem?.phase ?? 3) !== 3 && (
+                                {!isReadOnly && (bl.loadLibraryItem?.phase ?? 3) !== 3 && (
                                   <div className="flex items-center gap-0.5">
                                     <button
                                       onClick={() => handleUpdateBuildingLoadPhase(bl.id, null)}
@@ -738,13 +805,15 @@ export default function ProjectDetailPage() {
                                     ))}
                                   </div>
                                 )}
-                                <button
-                                  onClick={() => handleDeleteBuildingLoad(bl.id)}
-                                  className="p-1 rounded text-gray-600 hover:text-red-400"
-                                  title="Remove building load"
-                                >
-                                  <Trash2 size={12} />
-                                </button>
+                                {!isReadOnly && (
+                                  <button
+                                    onClick={() => handleDeleteBuildingLoad(bl.id)}
+                                    className="p-1 rounded text-gray-600 hover:text-red-400"
+                                    title="Remove building load"
+                                  >
+                                    <Trash2 size={12} />
+                                  </button>
+                                )}
                               </div>
                             ))}
                           </div>
@@ -937,17 +1006,19 @@ export default function ProjectDetailPage() {
       {/* Templates Tab */}
       {activeTab === 'templates' && (
         <div className="space-y-3">
-          <div className="flex justify-end">
-            <button
-              onClick={() => setShowNewTemplate(!showNewTemplate)}
-              className="flex items-center gap-2 px-3 py-2 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-sm font-semibold"
-            >
-              <Plus size={14} />
-              New Template
-            </button>
-          </div>
+          {!isReadOnly && (
+            <div className="flex justify-end">
+              <button
+                onClick={() => setShowNewTemplate(!showNewTemplate)}
+                className="flex items-center gap-2 px-3 py-2 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-sm font-semibold"
+              >
+                <Plus size={14} />
+                New Template
+              </button>
+            </div>
+          )}
 
-          {showNewTemplate && (
+          {showNewTemplate && !isReadOnly && (
             <form onSubmit={handleNewTemplate} className="rounded-xl border border-gray-800 bg-gray-900/60 p-4 space-y-4">
               <div className="flex items-center justify-between">
                 <h4 className="text-sm font-semibold text-gray-300">New Apartment Template</h4>
@@ -1008,8 +1079,39 @@ export default function ProjectDetailPage() {
           )}
 
           {project.apartmentTemplates.length === 0 ? (
-            <div className="text-center py-12 text-gray-500 text-sm rounded-xl border border-gray-800 bg-gray-900/40">
-              No templates yet
+            <div className="text-center py-12 text-gray-400 text-sm rounded-xl border border-gray-800 bg-gray-900/40 p-6 flex flex-col items-center justify-center gap-3">
+              <Home className="w-10 h-10 text-gray-600" />
+              <div>
+                <p className="font-semibold text-gray-200">No apartment templates yet</p>
+                <p className="text-xs text-gray-500 mt-1 max-w-sm">
+                  Create custom apartment layouts or generate standard default templates (2BR, 3BR, Studio) configured with regional electrical sizing rules.
+                </p>
+              </div>
+              {!isReadOnly && (
+                <div className="flex items-center gap-3 mt-2">
+                  <button
+                    type="button"
+                    disabled={isSeedingDefaults}
+                    onClick={handleSeedDefaults}
+                    className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-orange-600 hover:bg-orange-500 disabled:opacity-50 text-white text-xs font-semibold shadow transition-colors"
+                  >
+                    {isSeedingDefaults ? (
+                      <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                    ) : (
+                      <Sparkles className="w-3.5 h-3.5" />
+                    )}
+                    Generate Default Templates
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowNewTemplate(true)}
+                    className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-200 text-xs font-medium border border-gray-700 transition-colors"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    Create Custom Template
+                  </button>
+                </div>
+              )}
             </div>
           ) : (
             <div className="space-y-3">
@@ -1023,7 +1125,7 @@ export default function ProjectDetailPage() {
 
                 return (
                   <div key={tpl.id} className="rounded-xl border border-gray-800 bg-gray-900/40 p-4">
-                    {editingTemplateId === tpl.id ? (
+                    {editingTemplateId === tpl.id && !isReadOnly ? (
                       <form onSubmit={handleUpdateTemplate} className="space-y-4">
                         <div className="flex items-center justify-between">
                           <h4 className="text-sm font-semibold text-gray-300">Edit Template</h4>
@@ -1087,20 +1189,22 @@ export default function ProjectDetailPage() {
                               </span>
                             </div>
                           </div>
-                          <div className="flex items-center gap-1">
-                            <button
-                              onClick={() => startEditTemplate(tpl)}
-                              className="p-1.5 rounded text-gray-600 hover:text-orange-400 hover:bg-orange-500/10"
-                            >
-                              <Pencil size={14} />
-                            </button>
-                            <button
-                              onClick={() => handleDeleteTemplate(tpl.id)}
-                              className="p-1.5 rounded text-gray-600 hover:text-red-400 hover:bg-red-500/10"
-                            >
-                              <Trash2 size={14} />
-                            </button>
-                          </div>
+                          {!isReadOnly && (
+                            <div className="flex items-center gap-1">
+                              <button
+                                onClick={() => startEditTemplate(tpl)}
+                                className="p-1.5 rounded text-gray-600 hover:text-orange-400 hover:bg-orange-500/10"
+                              >
+                                <Pencil size={14} />
+                              </button>
+                              <button
+                                onClick={() => handleDeleteTemplate(tpl.id)}
+                                className="p-1.5 rounded text-gray-600 hover:text-red-400 hover:bg-red-500/10"
+                              >
+                                <Trash2 size={14} />
+                              </button>
+                            </div>
+                          )}
                         </div>
 
                         {tpl.rooms && tpl.rooms.length > 0 && (
@@ -1133,14 +1237,14 @@ export default function ProjectDetailPage() {
       {/* Load Library Tab */}
       {activeTab === 'loads' && (
         <div className="space-y-3">
-          <LoadLibrary projectId={projectId} onRefresh={loadProject} loads={project.loadLibraryItems} />
+          <LoadLibrary projectId={projectId} onRefresh={loadProject} loads={project.loadLibraryItems} isReadOnly={isReadOnly} />
         </div>
       )}
     </div>
   );
 }
 
-function LoadLibrary({ projectId, onRefresh, loads }: { projectId: string; onRefresh: () => void; loads: any[] }) {
+function LoadLibrary({ projectId, onRefresh, loads, isReadOnly = false }: { projectId: string; onRefresh: () => void; loads: any[]; isReadOnly?: boolean }) {
   const [showNew, setShowNew] = useState(false);
   const [form, setForm] = useState({
     name: '',
@@ -1156,6 +1260,7 @@ function LoadLibrary({ projectId, onRefresh, loads }: { projectId: string; onRef
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isReadOnly) return;
     await fetch('/api/loads', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -1167,6 +1272,7 @@ function LoadLibrary({ projectId, onRefresh, loads }: { projectId: string; onRef
   };
 
   const handleDelete = async (id: string) => {
+    if (isReadOnly) return;
     if (!confirm('Delete this load item?')) return;
     await fetch(`/api/loads/${id}`, { method: 'DELETE' });
     onRefresh();
@@ -1187,6 +1293,7 @@ function LoadLibrary({ projectId, onRefresh, loads }: { projectId: string; onRef
   });
 
   const startEdit = (item: any) => {
+    if (isReadOnly) return;
     setEditingId(item.id);
     setEditForm({
       name: item.name,
@@ -1203,7 +1310,7 @@ function LoadLibrary({ projectId, onRefresh, loads }: { projectId: string; onRef
 
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!editingId) return;
+    if (isReadOnly || !editingId) return;
     const res = await fetch(`/api/loads/${editingId}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
@@ -1219,14 +1326,16 @@ function LoadLibrary({ projectId, onRefresh, loads }: { projectId: string; onRef
 
   return (
     <>
-      <div className="flex justify-end">
-        <button onClick={() => setShowNew(!showNew)} className="flex items-center gap-2 px-3 py-2 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-sm font-semibold">
-          <Plus size={14} />
-          Add Load
-        </button>
-      </div>
+      {!isReadOnly && (
+        <div className="flex justify-end">
+          <button onClick={() => setShowNew(!showNew)} className="flex items-center gap-2 px-3 py-2 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-sm font-semibold">
+            <Plus size={14} />
+            Add Load
+          </button>
+        </div>
+      )}
 
-      {showNew && (
+      {showNew && !isReadOnly && (
         <form onSubmit={handleSubmit} className="rounded-xl border border-gray-800 bg-gray-900/60 p-4 space-y-3">
           <h4 className="text-sm font-semibold text-gray-300">New Load Item</h4>
           <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
@@ -1285,7 +1394,7 @@ function LoadLibrary({ projectId, onRefresh, loads }: { projectId: string; onRef
             </thead>
             <tbody>
               {loads.map((item: any) => (
-                editingId === item.id ? (
+                editingId === item.id && !isReadOnly ? (
                   <tr key={item.id} className="bg-gray-800/50">
                     <td colSpan={9} className="p-3">
                       <form onSubmit={handleUpdate} className="space-y-3">
@@ -1336,14 +1445,18 @@ function LoadLibrary({ projectId, onRefresh, loads }: { projectId: string; onRef
                     <td className="text-right font-mono">{item.quantity}</td>
                     <td className="text-right font-mono text-orange-400">{item.runningCurrent}A</td>
                     <td className="text-center">
-                      <div className="flex items-center justify-center gap-1">
-                        <button onClick={() => startEdit(item)} className="p-1 rounded text-gray-600 hover:text-orange-400">
-                          <Pencil size={13} />
-                        </button>
-                        <button onClick={() => handleDelete(item.id)} className="p-1 rounded text-gray-600 hover:text-red-400">
-                          <Trash2 size={13} />
-                        </button>
-                      </div>
+                      {!isReadOnly ? (
+                        <div className="flex items-center justify-center gap-1">
+                          <button onClick={() => startEdit(item)} className="p-1 rounded text-gray-600 hover:text-orange-400">
+                            <Pencil size={13} />
+                          </button>
+                          <button onClick={() => handleDelete(item.id)} className="p-1 rounded text-gray-600 hover:text-red-400">
+                            <Trash2 size={13} />
+                          </button>
+                        </div>
+                      ) : (
+                        <span className="text-gray-600 text-xs">—</span>
+                      )}
                     </td>
                   </tr>
                 )

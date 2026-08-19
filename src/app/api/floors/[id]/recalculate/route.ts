@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { verifyProjectAccess } from "@/lib/project-auth";
 import { sizeCableAndBreaker } from "@/lib/calculations/cables";
 import { getApartmentDiversityFactor } from "@/lib/calculations/loads";
 
@@ -17,6 +18,13 @@ export async function POST(
     if (!floorDesign) {
       return NextResponse.json({ error: "Floor not found" }, { status: 404 });
     }
+
+    const auth = await verifyProjectAccess(floorDesign.building.projectId, {
+      requiredAction: "EDIT",
+      pageKey: "calculator",
+    });
+    if (auth instanceof NextResponse) return auth;
+
     const project = floorDesign.building.project;
     const voltageKv = project.voltage / 1000;
     const powerFactor = project.powerFactor;

@@ -1,17 +1,12 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { getSessionUser } from "@/lib/auth";
+import { verifyProjectAccess } from "@/lib/project-auth";
 
 export async function PATCH(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const user = await getSessionUser();
-    if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
     const { id } = await params;
     const body = await request.json();
 
@@ -20,9 +15,15 @@ export async function PATCH(
       include: { floorDesign: { include: { building: { include: { project: true } } } } },
     });
 
-    if (!item || item.floorDesign.building.project.userId !== user.id) {
+    if (!item) {
       return NextResponse.json({ error: "Floor item not found" }, { status: 404 });
     }
+
+    const auth = await verifyProjectAccess(item.floorDesign.building.projectId, {
+      requiredAction: "EDIT",
+      pageKey: "calculator",
+    });
+    if (auth instanceof NextResponse) return auth;
 
     const updateData: Record<string, string | number | null | undefined> = {};
     if (body.cableLength !== undefined) updateData.cableLength = body.cableLength;
@@ -55,11 +56,6 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const user = await getSessionUser();
-    if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
     const { id } = await params;
 
     const item = await db.floorItem.findUnique({
@@ -67,9 +63,15 @@ export async function DELETE(
       include: { floorDesign: { include: { building: { include: { project: true } } } } },
     });
 
-    if (!item || item.floorDesign.building.project.userId !== user.id) {
+    if (!item) {
       return NextResponse.json({ error: "Floor item not found" }, { status: 404 });
     }
+
+    const auth = await verifyProjectAccess(item.floorDesign.building.projectId, {
+      requiredAction: "EDIT",
+      pageKey: "calculator",
+    });
+    if (auth instanceof NextResponse) return auth;
 
     await db.floorItem.delete({
       where: { id },

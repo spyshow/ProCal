@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { getSessionUser } from "@/lib/auth";
+import { verifyProjectAccess } from "@/lib/project-auth";
 import { phaseBalance } from "@/lib/calculations/phaseBalance";
 
 /**
@@ -14,11 +14,6 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const user = await getSessionUser();
-    if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
     const { id: floorDesignId } = await params;
 
     const floorDesign = await db.floorDesign.findUnique({
@@ -34,9 +29,15 @@ export async function POST(
       },
     });
 
-    if (!floorDesign || floorDesign.building.project.userId !== user.id) {
+    if (!floorDesign) {
       return NextResponse.json({ error: "Floor not found" }, { status: 404 });
     }
+
+    const auth = await verifyProjectAccess(floorDesign.building.projectId, {
+      requiredAction: "EDIT",
+      pageKey: "calculator",
+    });
+    if (auth instanceof NextResponse) return auth;
 
     const project = floorDesign.building.project;
     const balance = phaseBalance(floorDesign.items as any, project as any);

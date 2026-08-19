@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { getSessionUser } from "@/lib/auth";
 import { parseMemberPermissions } from "@/lib/project-permissions";
 import { logProjectActivity } from "@/lib/audit-logger";
+import { seedDefaultProjectTemplates, seedDefaultLoadLibrary } from "@/lib/project-defaults";
 
 export async function GET() {
   try {
@@ -149,6 +150,14 @@ export async function POST(request: Request) {
         role: "PROJECT_MANAGER",
       },
     });
+
+    // Auto-seed standard apartment templates and equipment loads
+    try {
+      await seedDefaultProjectTemplates(project.id, project.country);
+      await seedDefaultLoadLibrary(project.id);
+    } catch (seedErr) {
+      console.warn("Failed to auto-seed project defaults:", seedErr);
+    }
 
     await logProjectActivity({
       projectId: project.id,

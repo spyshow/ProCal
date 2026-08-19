@@ -54,4 +54,41 @@ describe('Template API - Room-based calculations', () => {
       expect(syriaDefaults.roomDensities.other).toBe(70);
     });
   });
+
+  describe('Standard Template Presets', () => {
+    it('calculates Type A (2BR 1-Phase) connected load correctly', () => {
+      const typeARooms = [
+        { area: 24, density: syriaDefaults.roomDensities.livingRoom, hasAc: true },
+        { area: 18, density: syriaDefaults.roomDensities.bedroom, hasAc: true },
+        { area: 14, density: syriaDefaults.roomDensities.bedroom, hasAc: true },
+        { area: 12, density: syriaDefaults.roomDensities.kitchen, hasAc: false },
+        { area: 12, density: syriaDefaults.roomDensities.diningRoom, hasAc: false },
+        { area: 6, density: syriaDefaults.roomDensities.bathroom, hasAc: false },
+        { area: 8, density: syriaDefaults.roomDensities.hall, hasAc: false },
+      ];
+
+      const totalConnectedLoad = typeARooms.reduce((sum, r) => {
+        return sum + calculateRoomLoad(r.area, r.density, r.hasAc, syriaDefaults.acSizingRules);
+      }, 0);
+
+      // Total load should be positive and reasonable (~22.7 kVA)
+      expect(totalConnectedLoad).toBeGreaterThan(15000);
+      expect(totalConnectedLoad).toBeLessThan(30000);
+    });
+
+    it('calculates Type C (Studio 1-Phase) connected load correctly', () => {
+      const studioRooms = [
+        { area: 26, density: syriaDefaults.roomDensities.livingRoom, hasAc: true },
+        { area: 8, density: syriaDefaults.roomDensities.kitchen, hasAc: false },
+        { area: 5, density: syriaDefaults.roomDensities.bathroom, hasAc: false },
+      ];
+
+      const totalConnectedLoad = studioRooms.reduce((sum, r) => {
+        return sum + calculateRoomLoad(r.area, r.density, r.hasAc, syriaDefaults.acSizingRules);
+      }, 0);
+
+      expect(totalConnectedLoad).toBeGreaterThan(5000);
+      expect(totalConnectedLoad).toBeLessThan(15000);
+    });
+  });
 });

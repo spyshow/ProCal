@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { getSessionUser } from "@/lib/auth";
+import { verifyProjectAccess } from "@/lib/project-auth";
 import { calculateRoomLoad, getCountryDefaults } from "@/lib/country-defaults";
 
 interface RoomInput {
@@ -16,11 +16,6 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const user = await getSessionUser();
-    if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
     const { id } = await params;
 
     const template = await db.apartmentTemplate.findUnique({
@@ -31,9 +26,15 @@ export async function GET(
       },
     });
 
-    if (!template || template.project.userId !== user.id) {
+    if (!template) {
       return NextResponse.json({ error: "Template not found" }, { status: 404 });
     }
+
+    const auth = await verifyProjectAccess(template.projectId, {
+      requiredAction: "VIEW",
+      pageKey: "calculator",
+    });
+    if (auth instanceof NextResponse) return auth;
 
     return NextResponse.json(template);
   } catch (error) {
@@ -47,11 +48,6 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const user = await getSessionUser();
-    if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
     const { id } = await params;
     const data = await request.json();
 
@@ -60,9 +56,15 @@ export async function PUT(
       include: { project: true },
     });
 
-    if (!template || template.project.userId !== user.id) {
+    if (!template) {
       return NextResponse.json({ error: "Template not found" }, { status: 404 });
     }
+
+    const auth = await verifyProjectAccess(template.projectId, {
+      requiredAction: "EDIT",
+      pageKey: "calculator",
+    });
+    if (auth instanceof NextResponse) return auth;
 
     // Get country defaults for AC sizing
     const countryDefaults = getCountryDefaults(template.project.country);
@@ -136,11 +138,6 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const user = await getSessionUser();
-    if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
     const { id } = await params;
 
     const template = await db.apartmentTemplate.findUnique({
@@ -148,9 +145,15 @@ export async function DELETE(
       include: { project: true },
     });
 
-    if (!template || template.project.userId !== user.id) {
+    if (!template) {
       return NextResponse.json({ error: "Template not found" }, { status: 404 });
     }
+
+    const auth = await verifyProjectAccess(template.projectId, {
+      requiredAction: "EDIT",
+      pageKey: "calculator",
+    });
+    if (auth instanceof NextResponse) return auth;
 
     // Delete rooms first (cascade should handle this, but being explicit)
     await db.apartmentRoom.deleteMany({

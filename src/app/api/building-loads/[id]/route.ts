@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { getSessionUser } from "@/lib/auth";
+import { verifyProjectAccess } from "@/lib/project-auth";
 
 // Update a building load (quantity and/or cable fields).
 export async function PATCH(
@@ -8,11 +8,6 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const user = await getSessionUser();
-    if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
     const { id } = await params;
     const body = await request.json();
 
@@ -20,9 +15,15 @@ export async function PATCH(
       where: { id },
       include: { building: { include: { project: true } } },
     });
-    if (!load || load.building.project.userId !== user.id) {
+    if (!load) {
       return NextResponse.json({ error: "Building load not found" }, { status: 404 });
     }
+
+    const auth = await verifyProjectAccess(load.building.projectId, {
+      requiredAction: "EDIT",
+      pageKey: "calculator",
+    });
+    if (auth instanceof NextResponse) return auth;
 
     const updateData: Record<string, string | number | null | undefined> = {};
     if (body.quantity !== undefined) updateData.quantity = Math.max(1, parseInt(body.quantity) || 1);
@@ -57,20 +58,21 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const user = await getSessionUser();
-    if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
     const { id } = await params;
 
     const load = await db.buildingLoad.findUnique({
       where: { id },
       include: { building: { include: { project: true } } },
     });
-    if (!load || load.building.project.userId !== user.id) {
+    if (!load) {
       return NextResponse.json({ error: "Building load not found" }, { status: 404 });
     }
+
+    const auth = await verifyProjectAccess(load.building.projectId, {
+      requiredAction: "EDIT",
+      pageKey: "calculator",
+    });
+    if (auth instanceof NextResponse) return auth;
 
     await db.buildingLoad.delete({ where: { id } });
 

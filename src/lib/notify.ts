@@ -244,6 +244,77 @@ export async function sendProjectInviteNotification(input: {
   }
 }
 
+export async function sendPasswordResetNotification(input: {
+  toEmail: string;
+  name: string;
+  username: string;
+  resetUrl: string;
+}): Promise<SendResult> {
+  const from = getFromAddress();
+  const subject = `Reset your ProCal password`;
+
+  const textBody = [
+    `Hello ${input.name || input.username},`,
+    ``,
+    `We received a request to reset the password for your ProCal account (${input.username}).`,
+    ``,
+    `To choose a new password, please click the link below:`,
+    input.resetUrl,
+    ``,
+    `This link is valid for 1 hour. If you did not request a password reset, you can safely ignore this email; your account remains secure.`,
+    ``,
+    `Best regards,`,
+    `The ProCal Team`,
+  ].join("\r\n");
+
+  const htmlBody = `
+    <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 560px; margin: 0 auto; padding: 24px; background-color: #0f172a; color: #f8fafc; border-radius: 12px; border: 1px solid #334155;">
+      <div style="text-align: center; margin-bottom: 24px;">
+        <span style="font-size: 24px; font-weight: bold; color: #ea580c; letter-spacing: -0.5px;">⚡ ProCal</span>
+        <p style="margin: 4px 0 0 0; font-size: 12px; color: #94a3b8;">Electrical Load & MDB Design Platform</p>
+      </div>
+      <div style="background-color: #1e293b; padding: 20px; border-radius: 8px; border: 1px solid #334155; margin-bottom: 24px;">
+        <h2 style="margin: 0 0 12px 0; font-size: 18px; color: #f8fafc;">Password Reset Request</h2>
+        <p style="margin: 0 0 16px 0; font-size: 14px; line-height: 1.5; color: #cbd5e1;">
+          Hello <strong>${input.name || input.username}</strong>, we received a request to reset the password for your ProCal account (<code>${input.username}</code>).
+        </p>
+        <div style="text-align: center; margin: 24px 0;">
+          <a href="${input.resetUrl}" style="display: inline-block; background: linear-gradient(to right, #ea580c, #f97316); color: #ffffff; text-decoration: none; font-weight: 600; font-size: 14px; padding: 12px 28px; border-radius: 8px; box-shadow: 0 4px 12px rgba(234, 88, 12, 0.3);">
+            Reset Password
+          </a>
+        </div>
+        <p style="margin: 0; font-size: 12px; color: #64748b; text-align: center;">
+          Or copy and paste this URL into your browser:<br/>
+          <a href="${input.resetUrl}" style="color: #ea580c; word-break: break-all;">${input.resetUrl}</a>
+        </p>
+      </div>
+      <p style="margin: 0; font-size: 11px; color: #64748b; text-align: center;">
+        This password reset link will expire in 1 hour. If you did not request this, please ignore this email.
+      </p>
+    </div>
+  `;
+
+  if (!process.env.SMTP_HOST && !process.env.LEADS_TO_ADDRESS) {
+    console.log("[DEV RESET PASSWORD EMAIL] Would send reset email to:", input.toEmail, "Reset URL:", input.resetUrl);
+    return { ok: true, messageId: "dev-reset-id" };
+  }
+
+  try {
+    const info = await getTransporter().sendMail({
+      from,
+      to: input.toEmail,
+      subject,
+      text: textBody,
+      html: htmlBody,
+    });
+    return { ok: true, messageId: info.messageId };
+  } catch (err) {
+    const error = err instanceof Error ? err.message : "SMTP send failed";
+    console.warn("Failed to send password reset email via SMTP:", error);
+    return { ok: false, error };
+  }
+}
+
 /** Test hook: reset the cached transporter between unit tests (t22 mocks us). */
 export function __resetTransporterForTests() {
   transporter = null;

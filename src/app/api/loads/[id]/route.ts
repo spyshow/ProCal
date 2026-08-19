@@ -1,17 +1,12 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { getSessionUser } from "@/lib/auth";
+import { verifyProjectAccess } from "@/lib/project-auth";
 
 export async function PUT(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const user = await getSessionUser();
-    if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
     const { id } = await params;
     const data = await request.json();
 
@@ -20,9 +15,15 @@ export async function PUT(
       include: { project: true },
     });
 
-    if (!loadItem || loadItem.project.userId !== user.id) {
+    if (!loadItem) {
       return NextResponse.json({ error: "Load item not found" }, { status: 404 });
     }
+
+    const auth = await verifyProjectAccess(loadItem.projectId, {
+      requiredAction: "EDIT",
+      pageKey: "calculator",
+    });
+    if (auth instanceof NextResponse) return auth;
 
     const name = data.name ?? loadItem.name;
     const category = data.category ?? loadItem.category;
@@ -73,11 +74,6 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const user = await getSessionUser();
-    if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
     const { id } = await params;
 
     const loadItem = await db.loadLibraryItem.findUnique({
@@ -85,9 +81,15 @@ export async function DELETE(
       include: { project: true },
     });
 
-    if (!loadItem || loadItem.project.userId !== user.id) {
+    if (!loadItem) {
       return NextResponse.json({ error: "Load item not found" }, { status: 404 });
     }
+
+    const auth = await verifyProjectAccess(loadItem.projectId, {
+      requiredAction: "EDIT",
+      pageKey: "calculator",
+    });
+    if (auth instanceof NextResponse) return auth;
 
     await db.loadLibraryItem.delete({
       where: { id },

@@ -13,6 +13,57 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
+  // Forgot password modal state
+  const [showForgotModal, setShowForgotModal] = useState(false);
+  const [forgotIdentifier, setForgotIdentifier] = useState('');
+  const [isForgotLoading, setIsForgotLoading] = useState(false);
+  const [forgotSuccess, setForgotSuccess] = useState(false);
+  const [forgotError, setForgotError] = useState('');
+  const [devResetUrl, setDevResetUrl] = useState<string | null>(null);
+
+  const handleForgotSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setForgotError('');
+
+    if (!forgotIdentifier.trim()) {
+      setForgotError(t('auth.username', 'Please enter your username or email address.'));
+      return;
+    }
+
+    setIsForgotLoading(true);
+    try {
+      const res = await fetch('/api/auth/forgot-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ identifier: forgotIdentifier.trim() }),
+      });
+
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        setForgotError(data?.error || t('auth.invalidCredentials', 'An error occurred. Please try again.'));
+        return;
+      }
+
+      setForgotSuccess(true);
+      if (data?.devResetUrl) {
+        setDevResetUrl(data.devResetUrl);
+      }
+    } catch {
+      setForgotError(t('auth.invalidCredentials', 'Unable to connect to the server. Please try again.'));
+    } finally {
+      setIsForgotLoading(false);
+    }
+  };
+
+  const resetForgotState = () => {
+    setShowForgotModal(false);
+    setForgotIdentifier('');
+    setForgotSuccess(false);
+    setForgotError('');
+    setDevResetUrl(null);
+  };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError('');
@@ -49,7 +100,7 @@ export default function LoginPage() {
 
   return (
     <div
-      className="min-h-screen flex flex-col items-center justify-center px-4 py-12"
+      className="min-h-screen flex flex-col items-center justify-center px-4 py-12 relative"
       style={{
         background:
           'radial-gradient(ellipse at center, #111827 0%, #030712 100%)',
@@ -128,12 +179,24 @@ export default function LoginPage() {
 
             {/* Password */}
             <div>
-              <label
-                htmlFor="password"
-                className="block mb-1.5 text-xs font-semibold uppercase tracking-wider text-gray-400"
-              >
-                {t('auth.password', 'Password')}
-              </label>
+              <div className="flex items-center justify-between mb-1.5">
+                <label
+                  htmlFor="password"
+                  className="block text-xs font-semibold uppercase tracking-wider text-gray-400"
+                >
+                  {t('auth.password', 'Password')}
+                </label>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setForgotIdentifier(username || '');
+                    setShowForgotModal(true);
+                  }}
+                  className="text-xs text-orange-400 hover:text-orange-300 font-medium transition-colors"
+                >
+                  {t('auth.forgotPassword', 'Forgot Password?')}
+                </button>
+              </div>
               <div className="relative">
                 <input
                   id="password"
@@ -213,6 +276,119 @@ export default function LoginPage() {
           &nbsp;&mdash;&nbsp;{t('common.appTagline', 'Professional Electrical Engineering Software.')}
         </p>
       </div>
+
+      {/* ── Reset Password Modal ── */}
+      {showForgotModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-in fade-in duration-150">
+          <div
+            className="w-full max-w-md rounded-2xl border border-gray-700/80 bg-gray-900/95 p-6 shadow-2xl text-left"
+            style={{ direction: isRtl ? 'rtl' : 'ltr' }}
+          >
+            <div className="flex items-center justify-between pb-3 border-b border-gray-800">
+              <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                <span className="text-orange-500">⚡</span>
+                {t('auth.forgotPasswordTitle', 'Reset Your Password')}
+              </h3>
+              <button
+                type="button"
+                onClick={resetForgotState}
+                className="text-gray-400 hover:text-white transition-colors p-1 rounded-lg hover:bg-gray-800 text-sm"
+              >
+                ✕
+              </button>
+            </div>
+
+            {forgotSuccess ? (
+              <div className="py-4 space-y-4">
+                <div className="p-4 rounded-xl bg-green-950/30 border border-green-800/60 text-green-200 text-center">
+                  <div className="text-2xl mb-1">✓</div>
+                  <h4 className="text-sm font-semibold text-green-300">
+                    {t('auth.resetLinkSent', 'Reset Link Sent')}
+                  </h4>
+                  <p className="text-xs text-gray-300 mt-1 leading-relaxed">
+                    {t(
+                      'auth.resetLinkSentDesc',
+                      'If an account matches that username or email, a password reset link has been sent. Please check your inbox and spam folder.'
+                    )}
+                  </p>
+                </div>
+
+                {devResetUrl && (
+                  <div className="p-3 rounded-lg bg-orange-950/40 border border-orange-700/50 text-xs">
+                    <div className="font-semibold text-orange-300 mb-1">
+                      Development Direct Link:
+                    </div>
+                    <a
+                      href={devResetUrl}
+                      className="text-orange-400 hover:underline break-all text-[11px]"
+                    >
+                      {devResetUrl}
+                    </a>
+                  </div>
+                )}
+
+                <button
+                  type="button"
+                  onClick={resetForgotState}
+                  className="w-full py-2.5 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-sm font-semibold transition-colors"
+                >
+                  {t('common.close', 'Close')}
+                </button>
+              </div>
+            ) : (
+              <form onSubmit={handleForgotSubmit} className="py-4 space-y-4">
+                <p className="text-xs text-gray-400 leading-relaxed">
+                  {t(
+                    'auth.forgotPasswordDesc',
+                    "Enter your username or email address and we'll send you a link to reset your password."
+                  )}
+                </p>
+
+                <div>
+                  <label
+                    htmlFor="forgot-identifier"
+                    className="block mb-1 text-xs font-semibold uppercase tracking-wider text-gray-400"
+                  >
+                    {t('auth.username', 'Username or Email')}
+                  </label>
+                  <input
+                    id="forgot-identifier"
+                    type="text"
+                    autoFocus
+                    value={forgotIdentifier}
+                    onChange={(e) => setForgotIdentifier(e.target.value)}
+                    placeholder="john@example.com or engineer_john"
+                    className="w-full rounded-lg border border-gray-700 bg-gray-800 px-3.5 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                  />
+                </div>
+
+                {forgotError && (
+                  <div className="p-3 rounded-lg bg-red-950/40 border border-red-800/60 text-xs text-red-300">
+                    {forgotError}
+                  </div>
+                )}
+
+                <div className="flex items-center justify-end gap-2 pt-2">
+                  <button
+                    type="button"
+                    onClick={resetForgotState}
+                    className="px-4 py-2 rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-300 text-xs font-medium transition-colors"
+                  >
+                    {t('common.cancel', 'Cancel')}
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isForgotLoading}
+                    className="px-4 py-2 rounded-lg bg-orange-600 hover:bg-orange-500 disabled:opacity-50 text-white text-xs font-semibold transition-colors flex items-center gap-1.5"
+                  >
+                    {isForgotLoading ? t('common.loading', 'Sending...') : t('auth.sendResetLink', 'Send Reset Link')}
+                  </button>
+                </div>
+              </form>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

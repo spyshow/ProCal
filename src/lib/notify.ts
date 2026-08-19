@@ -37,6 +37,30 @@ function getTransporter(): nodemailer.Transporter {
   return transporter;
 }
 
+/**
+ * Resolves the outbound "From" address for SMTP delivery.
+ * 1. Checks explicit SMTP_FROM_ADDRESS / EMAIL_FROM / SMTP_FROM env variables.
+ * 2. If sending via Resend SMTP (smtp.resend.com), defaults to 'ProCal <onboarding@resend.dev>'
+ *    to comply with Resend unverified test domain rules.
+ * 3. Falls back to LEADS_TO_ADDRESS if it's a valid non-local email, or no-reply@procal.app.
+ */
+export function getFromAddress(): string {
+  if (process.env.SMTP_FROM_ADDRESS) return process.env.SMTP_FROM_ADDRESS;
+  if (process.env.EMAIL_FROM) return process.env.EMAIL_FROM;
+  if (process.env.SMTP_FROM) return process.env.SMTP_FROM;
+
+  if (process.env.SMTP_HOST?.toLowerCase().includes("resend")) {
+    return "ProCal <onboarding@resend.dev>";
+  }
+
+  const leadsTo = process.env.LEADS_TO_ADDRESS;
+  if (leadsTo && !leadsTo.endsWith(".local") && leadsTo.includes("@")) {
+    return `ProCal <${leadsTo}>`;
+  }
+
+  return "ProCal <no-reply@procal.app>";
+}
+
 export type SendResult = { ok: true; messageId: string } | { ok: false; error: string };
 
 export async function sendLeadNotification(input: {
@@ -52,6 +76,8 @@ export async function sendLeadNotification(input: {
   if (!to) {
     return { ok: false, error: "LEADS_TO_ADDRESS is not configured" };
   }
+
+  const from = getFromAddress();
 
   // ponytail: full relay config present? If not, still attempt the send — many
   // local/dev SMTP relays accept unauthenticated submit on 25/587. A missing
@@ -127,9 +153,11 @@ export async function sendFeedbackNotification(input: {
     .filter(Boolean)
     .join("\r\n");
 
+  const from = getFromAddress();
+
   try {
     const info = await getTransporter().sendMail({
-      from: to,
+      from,
       to,
       replyTo: input.replyToEmail || undefined,
       subject,
@@ -150,7 +178,7 @@ export async function sendProjectInviteNotification(input: {
   role: string;
   acceptUrl: string;
 }): Promise<SendResult> {
-  const from = process.env.LEADS_TO_ADDRESS || "no-reply@procal.app";
+  const from = getFromAddress();
   const roleLabel = input.role === "PROJECT_MANAGER" ? "Project Manager" : input.role === "QA" ? "QA Reviewer" : "Engineer";
   const subject = `Invitation to join project "${input.projectName}" on ProCal`;
 

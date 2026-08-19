@@ -176,4 +176,43 @@ describe("POST /api/projects/[id]/members (Invite Member)", () => {
     const data = await res.json();
     expect(data.error).toMatch(/valid email/i);
   });
+
+  it("resolves user by username and creates invitation", async () => {
+    mocks.userFindFirst.mockResolvedValueOnce({
+      id: "user-2",
+      username: "engineer_samer",
+      name: "Samer Al-Khatib",
+      email: "samer@company.com",
+    });
+
+    const res = await postInvite("proj-1", {
+      username: "engineer_samer",
+      role: "ENGINEER",
+    });
+
+    expect(res.status).toBe(200);
+    const data = await res.json();
+    expect(data.success).toBe(true);
+    expect(mocks.inviteCreate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          email: "samer@company.com",
+          name: "Samer Al-Khatib",
+        }),
+      })
+    );
+  });
+
+  it("returns 404 when username is not found and no email is provided", async () => {
+    mocks.userFindFirst.mockResolvedValueOnce(null);
+
+    const res = await postInvite("proj-1", {
+      username: "non_existent_user",
+      role: "ENGINEER",
+    });
+
+    expect(res.status).toBe(404);
+    const data = await res.json();
+    expect(data.error).toMatch(/not found/i);
+  });
 });

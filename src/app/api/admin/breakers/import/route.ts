@@ -192,12 +192,13 @@ export async function POST(request: Request) {
 
     let applied = 0;
     const upsertErrors: Array<{ row: number; message: string }> = [];
+    const BATCH_SIZE = 50;
 
-    for (let i = 0; i < candidates.length; i++) {
-      const c = candidates[i];
-      const familyId = familyIdByKey.get(getFamilyKey(c.manufacturer, c.category, c.series));
-      try {
-        await db.equipmentCatalog.upsert({
+    for (let i = 0; i < candidates.length; i += BATCH_SIZE) {
+      const chunk = candidates.slice(i, i + BATCH_SIZE);
+      const operations = chunk.map((c) => {
+        const familyId = familyIdByKey.get(getFamilyKey(c.manufacturer, c.category, c.series));
+        return db.equipmentCatalog.upsert({
           where: {
             catalogUniqueKey: {
               manufacturer: c.manufacturer,
@@ -229,9 +230,54 @@ export async function POST(request: Request) {
             familyId,
           },
         });
-        applied++;
-      } catch (err) {
-        upsertErrors.push({ row: i + 2, message: err instanceof Error ? err.message : String(err) });
+      });
+
+      try {
+        await db.$transaction(operations);
+        applied += chunk.length;
+      } catch {
+        // Fallback to row-by-row on batch failure to isolate row errors
+        for (let j = 0; j < chunk.length; j++) {
+          const c = chunk[j];
+          const familyId = familyIdByKey.get(getFamilyKey(c.manufacturer, c.category, c.series));
+          try {
+            await db.equipmentCatalog.upsert({
+              where: {
+                catalogUniqueKey: {
+                  manufacturer: c.manufacturer,
+                  category: c.category,
+                  series: c.series,
+                  model: c.model,
+                  ratedCurrent: c.ratedCurrent,
+                  poles: c.poles,
+                },
+              },
+              update: {
+                breakingCapacity: c.breakingCapacity,
+                tripUnit: c.tripUnit,
+                settingsJson: c.settingsJson,
+                datasheetUrl: c.datasheetUrl,
+                familyId,
+              },
+              create: {
+                manufacturer: c.manufacturer,
+                category: c.category,
+                series: c.series,
+                model: c.model,
+                ratedCurrent: c.ratedCurrent,
+                poles: c.poles,
+                breakingCapacity: c.breakingCapacity,
+                tripUnit: c.tripUnit,
+                settingsJson: c.settingsJson,
+                datasheetUrl: c.datasheetUrl,
+                familyId,
+              },
+            });
+            applied++;
+          } catch (err) {
+            upsertErrors.push({ row: i + j + 2, message: err instanceof Error ? err.message : String(err) });
+          }
+        }
       }
     }
 

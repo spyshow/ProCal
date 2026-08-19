@@ -3,6 +3,8 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useTranslation } from '@/i18n';
+import { useProject } from '@/context/ProjectContext';
+import { type ProjectPageKey } from '@/lib/project-permissions';
 import {
   Zap,
   Cpu,
@@ -14,12 +16,14 @@ import {
   Check,
   ChevronRight,
   ChevronLeft,
+  Lock,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export interface WorkflowStep {
   step: number;
   id: string;
+  pageKey: ProjectPageKey;
   nameKey: string;
   defaultName: string;
   shortNameKey: string;
@@ -32,6 +36,7 @@ export const WORKFLOW_STEPS: WorkflowStep[] = [
   {
     step: 1,
     id: 'calculator',
+    pageKey: 'calculator',
     nameKey: 'workflow.loadsDemand',
     defaultName: 'Loads & Demand',
     shortNameKey: 'workflow.short.loads',
@@ -42,6 +47,7 @@ export const WORKFLOW_STEPS: WorkflowStep[] = [
   {
     step: 2,
     id: 'breaker-schedule',
+    pageKey: 'breakerSchedule',
     nameKey: 'workflow.circuitBreakers',
     defaultName: 'Circuit Breakers',
     shortNameKey: 'workflow.short.breakers',
@@ -52,6 +58,7 @@ export const WORKFLOW_STEPS: WorkflowStep[] = [
   {
     step: 3,
     id: 'coordination',
+    pageKey: 'coordination',
     nameKey: 'workflow.selectivityTcc',
     defaultName: 'Selectivity & TCC',
     shortNameKey: 'workflow.short.coordination',
@@ -62,6 +69,7 @@ export const WORKFLOW_STEPS: WorkflowStep[] = [
   {
     step: 4,
     id: 'cable-schedule',
+    pageKey: 'cableSchedule',
     nameKey: 'workflow.cableSizing',
     defaultName: 'Cable Sizing',
     shortNameKey: 'workflow.short.cables',
@@ -72,6 +80,7 @@ export const WORKFLOW_STEPS: WorkflowStep[] = [
   {
     step: 5,
     id: 'panel',
+    pageKey: 'panelDesigner',
     nameKey: 'workflow.distributionMdb',
     defaultName: 'Distribution & MDB',
     shortNameKey: 'workflow.short.panels',
@@ -82,6 +91,7 @@ export const WORKFLOW_STEPS: WorkflowStep[] = [
   {
     step: 6,
     id: 'riser',
+    pageKey: 'riserDiagram',
     nameKey: 'workflow.riserSystem',
     defaultName: 'Riser System',
     shortNameKey: 'workflow.short.risers',
@@ -92,6 +102,7 @@ export const WORKFLOW_STEPS: WorkflowStep[] = [
   {
     step: 7,
     id: 'sld',
+    pageKey: 'sldDesigner',
     nameKey: 'workflow.sldSchematic',
     defaultName: 'SLD Schematic',
     shortNameKey: 'workflow.short.sld',
@@ -102,6 +113,7 @@ export const WORKFLOW_STEPS: WorkflowStep[] = [
   {
     step: 8,
     id: 'reports',
+    pageKey: 'reports',
     nameKey: 'workflow.reportsBom',
     defaultName: 'Reports & BOM',
     shortNameKey: 'workflow.short.reports',
@@ -119,6 +131,7 @@ export interface WorkflowStepperProps {
 export default function WorkflowStepper({ currentStep, className }: WorkflowStepperProps) {
   const pathname = usePathname();
   const { t, isRtl } = useTranslation();
+  const { canView } = useProject();
 
   const activeIndex =
     currentStep != null
@@ -136,6 +149,7 @@ export default function WorkflowStepper({ currentStep, className }: WorkflowStep
     >
       <div className="flex items-center justify-between gap-2 overflow-x-auto custom-scrollbar pb-1">
         {WORKFLOW_STEPS.map((step, idx) => {
+          const isRestricted = !canView(step.pageKey);
           const isActive = idx === activeIndex;
           const isCompleted = activeIndex >= 0 && idx < activeIndex;
           const name = t(step.nameKey, step.defaultName);
@@ -145,28 +159,44 @@ export default function WorkflowStepper({ currentStep, className }: WorkflowStep
           return (
             <div key={step.id} className="flex items-center gap-2 shrink-0">
               <Link
-                href={step.href}
+                href={isRestricted ? '#' : step.href}
+                onClick={(e) => {
+                  if (isRestricted) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                  }
+                }}
+                aria-disabled={isRestricted}
+                tabIndex={isRestricted ? -1 : undefined}
                 className={cn(
                   'flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all group outline-none',
-                  isActive
+                  isRestricted
+                    ? 'opacity-40 text-gray-500 hover:text-gray-500 bg-transparent border border-transparent cursor-not-allowed select-none'
+                    : isActive
                     ? 'bg-gradient-to-r from-orange-500/20 to-amber-500/10 border border-orange-500/40 text-orange-300 shadow-[0_0_15px_rgba(234,88,12,0.15)]'
                     : isCompleted
                     ? 'bg-gray-950/60 border border-gray-800/80 text-gray-300 hover:border-gray-700 hover:text-white'
                     : 'text-gray-400 hover:text-gray-300 hover:bg-gray-800/40 border border-transparent'
                 )}
-                title={`${stepPrefix} ${step.step}: ${name}`}
+                title={
+                  isRestricted
+                    ? `${stepPrefix} ${step.step}: ${name} (${t('rbac.accessRestricted', 'Restricted')})`
+                    : `${stepPrefix} ${step.step}: ${name}`
+                }
               >
                 <span
                   className={cn(
                     'w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-mono font-bold shrink-0 transition-colors',
-                    isActive
+                    isRestricted
+                      ? 'bg-gray-900 text-gray-600 border border-gray-800'
+                      : isActive
                       ? 'bg-orange-500 text-white shadow-[0_0_8px_rgba(234,88,12,0.6)]'
                       : isCompleted
                       ? 'bg-green-500/20 text-green-400 border border-green-500/30'
                       : 'bg-gray-800 text-gray-400 group-hover:text-gray-300'
                   )}
                 >
-                  {isCompleted ? <Check size={11} strokeWidth={3} /> : step.step}
+                  {isRestricted ? <Lock size={10} /> : isCompleted ? <Check size={11} strokeWidth={3} /> : step.step}
                 </span>
 
                 <div className="flex flex-col">

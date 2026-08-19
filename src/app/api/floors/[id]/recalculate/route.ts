@@ -43,7 +43,7 @@ export async function POST(
       include: { apartmentTemplate: { include: { rooms: true } } },
     });
 
-    let updated = 0;
+    const updates = [];
     for (const item of items) {
       if (item.type !== "APARTMENT" || !item.apartmentTemplate) continue;
 
@@ -72,20 +72,25 @@ export async function POST(
         installMethod: item.installMethod ?? "C",
       });
 
-      await db.floorItem.update({
-        where: { id: item.id },
-        data: {
-          calculatedConnectedLoad,
-          calculatedMaxDemand,
-          calculatedCurrent: parseFloat(calculatedCurrent.toFixed(2)),
-          breakerSize: `${sizing.breakerSize}A`,
-          cableSize: sizing.formattedCableSize,
-        },
-      });
-      updated++;
+      updates.push(
+        db.floorItem.update({
+          where: { id: item.id },
+          data: {
+            calculatedConnectedLoad,
+            calculatedMaxDemand,
+            calculatedCurrent: parseFloat(calculatedCurrent.toFixed(2)),
+            breakerSize: `${sizing.breakerSize}A`,
+            cableSize: sizing.formattedCableSize,
+          },
+        })
+      );
     }
 
-    return NextResponse.json({ success: true, updated, diversityFactor });
+    if (updates.length > 0) {
+      await db.$transaction(updates);
+    }
+
+    return NextResponse.json({ success: true, updated: updates.length, diversityFactor });
   } catch (error) {
     console.error("Recalculate Error:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });

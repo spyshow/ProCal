@@ -29,9 +29,11 @@ import VDSchedule from '@/components/report/VDSchedule';
 import type { Project, ProjectRevision, ReportTab } from '@/types';
 import { createFindBreaker, type EquipmentItem } from '@/lib/calculations/feeders';
 import WorkflowStepper from '@/components/layout/WorkflowStepper';
+import { AccessRestricted } from '@/components/AccessRestricted';
+import { ReadOnlyBanner } from '@/components/ReadOnlyBanner';
 
 export default function ReportsPage() {
-  const { selectedProjectId, selectedProject, loading: contextLoading, preferredManufacturer, refreshProject } = useProject();
+  const { selectedProjectId, selectedProject, loading: contextLoading, preferredManufacturer, refreshProject, canView, canEdit } = useProject();
   const { t } = useTranslation();
   const [project, setProject] = useState<Project | null>(selectedProject);
   const [loading, setLoading] = useState(!selectedProject);
@@ -351,12 +353,19 @@ export default function ReportsPage() {
     }
   };
 
+  if (selectedProject && !canView('reports')) {
+    return <AccessRestricted pageTitle={t('nav.reports', 'Reports & Revisions')} />;
+  }
+
   return (
     <div className="p-6 space-y-5 max-w-7xl mx-auto print:p-0 print:w-full print:max-w-none print:m-0">
       {/* Workflow Stepper: Step 8 */}
       <div className="print:hidden">
         <WorkflowStepper currentStep={8} />
       </div>
+
+      {/* Read-Only Mode Banner */}
+      <ReadOnlyBanner pageKey="reports" />
 
       {pageHeader}
 

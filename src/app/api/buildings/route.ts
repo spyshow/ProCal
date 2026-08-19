@@ -44,12 +44,13 @@ export async function POST(request: Request) {
 
     // Automatically create FloorDesign templates for each floor
     const totalFloors = building.floors + building.serviceFloors;
-    for (let f = 1; f <= totalFloors; f++) {
-      await db.floorDesign.create({
-        data: {
-          floorNumber: f,
-          buildingId: building.id,
-        },
+    if (totalFloors > 0) {
+      const floorsData = Array.from({ length: totalFloors }, (_, i) => ({
+        floorNumber: i + 1,
+        buildingId: building.id,
+      }));
+      await db.floorDesign.createMany({
+        data: floorsData,
       });
     }
 

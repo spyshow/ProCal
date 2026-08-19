@@ -28,6 +28,9 @@ import type { FloorItem, FloorDesign, Building, Project } from '@/types';
 import { phaseBalance } from '@/lib/calculations/phaseBalance';
 import { MotionIcon } from '@/components/MotionIcon';
 import WorkflowStepper from '@/components/layout/WorkflowStepper';
+import { AccessRestricted } from '@/components/AccessRestricted';
+import { ReadOnlyBanner } from '@/components/ReadOnlyBanner';
+import { QAReviewDrawer } from '@/components/QAReviewDrawer';
 
 export default function CalculatorPage() {
   return (
@@ -40,7 +43,7 @@ export default function CalculatorPage() {
 function CalculatorContent() {
   const searchParams = useSearchParams();
   const focusFloorId = searchParams.get('floor');
-  const { selectedProjectId, selectedProject, loading: contextLoading, refreshProject, isQA, canEdit, currentMemberRole } = useProject();
+  const { selectedProjectId, selectedProject, loading: contextLoading, refreshProject, isQA, canView, canEdit, currentMemberRole } = useProject();
   const { t, isRtl } = useTranslation();
 
   const isReadOnly = isQA || !canEdit('calculator') || currentMemberRole === 'QA';
@@ -162,33 +165,28 @@ function CalculatorContent() {
     if (!bldg || !copySourceFloor || copyTargetFloors.length === 0) return;
     setCopying(true);
 
-    const sourceFloor = bldg.floorDesigns.find((fd) => fd.id === copySourceFloor);
-    if (!sourceFloor || sourceFloor.items.length === 0) {
-      setCopying(false);
-      setCopySourceFloor(null);
-      return;
-    }
+    try {
+      const res = await fetch(`/api/floors/${copySourceFloor}/copy-items`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          targetFloorIds: copyTargetFloors,
+        }),
+      });
 
-    for (const targetFloorId of copyTargetFloors) {
-      for (const item of sourceFloor.items) {
-        await fetch(`/api/floors/${targetFloorId}/items`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            type: item.type,
-            name: item.name,
-            apartmentTemplateId: item.apartmentTemplateId || undefined,
-            loadLibraryItemId: item.loadLibraryItemId || undefined,
-            customKw: item.type !== 'APARTMENT' ? String(item.calculatedConnectedLoad) : undefined,
-          }),
-        });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        alert(data.error || 'Failed to copy items to target floors');
       }
+    } catch (err) {
+      console.error('Copy to floors failed:', err);
+      alert('Network error while copying items to floors');
+    } finally {
+      setCopySourceFloor(null);
+      setCopyTargetFloors([]);
+      setCopying(false);
+      loadProject();
     }
-
-    setCopySourceFloor(null);
-    setCopyTargetFloors([]);
-    setCopying(false);
-    loadProject();
   };
 
   const bldg = project
@@ -248,10 +246,20 @@ function CalculatorContent() {
   // Incomer current = max phase current from the combined building balance (correct for mixed 1φ/3φ boards).
   const totalCurrent3Ph = buildingBalance?.maxPhaseCurrent ?? 0;
 
+  if (selectedProject && !canView('calculator')) {
+    return <AccessRestricted pageTitle={t('nav.calculator', 'Load Calculator')} />;
+  }
+
   return (
     <div className="p-6 space-y-5 max-w-7xl mx-auto">
       {/* Workflow Stepper: Step 1 */}
       <WorkflowStepper currentStep={1} />
+
+      {/* Read-Only Mode Banner */}
+      <ReadOnlyBanner pageKey="calculator" />
+
+      {/* Floating QA Review Tool */}
+      <QAReviewDrawer pageKey="calculator" pageTitle="Load Calculator" />
 
       {/* Header */}
       <div className="flex items-center justify-between">
@@ -858,7 +866,19 @@ function CalculatorContent() {
                     <div className="rounded-lg border border-blue-500/30 bg-gray-800/50 p-3 space-y-3 w-full">
                       <div className="flex items-center justify-between">
                         <h4 className="text-xs font-semibold text-gray-400">Copy {fd.items.length} item{fd.items.length !== 1 ? 's' : ''} from F{fd.floorNumber} to:</h4>
-                        <button onClick={() => setCopySourceFloor(null)} className="text-xs text-gray-500 hover:text-gray-300">Cancel</button>
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const otherIds = bldg.floorDesigns.filter((other) => other.id !== fd.id).map((other) => other.id);
+                              setCopyTargetFloors(copyTargetFloors.length === otherIds.length ? [] : otherIds);
+                            }}
+                            className="text-xs text-orange-400 hover:text-orange-300 font-medium"
+                          >
+                            {copyTargetFloors.length === bldg.floorDesigns.filter((other) => other.id !== fd.id).length ? 'Deselect All' : 'Select All'}
+                          </button>
+                          <button onClick={() => setCopySourceFloor(null)} className="text-xs text-gray-500 hover:text-gray-300">Cancel</button>
+                        </div>
                       </div>
                       <div className="leading-8">
                         {bldg.floorDesigns

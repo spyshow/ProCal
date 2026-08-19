@@ -19,6 +19,9 @@ import {
   ArrowRight,
 } from 'lucide-react';
 import WorkflowStepper from '@/components/layout/WorkflowStepper';
+import { AccessRestricted } from '@/components/AccessRestricted';
+import { ReadOnlyBanner } from '@/components/ReadOnlyBanner';
+import { QAReviewDrawer } from '@/components/QAReviewDrawer';
 import {
   generateCurvePoints,
   generateCableDamageCurve,
@@ -43,7 +46,7 @@ interface ProjectFeederItem extends PanelFeeder {
 
 export default function CoordinationPage() {
   const { t } = useTranslation();
-  const { selectedProjectId, selectedProject, loading: contextLoading, preferredManufacturer, refreshProject } = useProject();
+  const { selectedProjectId, selectedProject, loading: contextLoading, preferredManufacturer, refreshProject, canView, canEdit } = useProject();
 
   const [project, setProject] = useState<Project | null>(selectedProject);
   const [equipment, setEquipment] = useState<EquipmentItem[]>([]);
@@ -664,10 +667,20 @@ export default function CoordinationPage() {
   const currentGridLines = [10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000, 50000];
   const timeGridLines = [0.01, 0.1, 1, 10, 60, 300, 3600, 10000];
 
+  if (selectedProject && !canView('coordination')) {
+    return <AccessRestricted pageTitle={t('nav.coordination', 'Coordination & Selectivity')} />;
+  }
+
   return (
     <div className="p-6 space-y-5 max-w-7xl mx-auto">
       {/* Workflow Stepper: Step 3 */}
       <WorkflowStepper currentStep={3} />
+
+      {/* Read-Only Mode Banner */}
+      <ReadOnlyBanner pageKey="coordination" />
+
+      {/* Floating QA Review Tool */}
+      <QAReviewDrawer pageKey="coordination" pageTitle="Coordination & Selectivity" />
 
       {/* Header & Mode Switcher */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">

@@ -42,6 +42,8 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { AccessRestricted } from '@/components/AccessRestricted';
+import { ReadOnlyBanner } from '@/components/ReadOnlyBanner';
 import type { Project } from '@/types';
 
 export interface ComponentProperty {
@@ -61,7 +63,7 @@ export interface ComponentProperty {
 }
 
 export default function SLDPage() {
-  const { selectedProjectId, selectedProject, loading: contextLoading } = useProject();
+  const { selectedProjectId, selectedProject, loading: contextLoading, canView, canEdit } = useProject();
   const { t, isRtl } = useTranslation();
   const [project, setProject] = useState<Project | null>(selectedProject);
   const [loading, setLoading] = useState(!selectedProject);
@@ -715,10 +717,17 @@ export default function SLDPage() {
       </div>
     );
 
+  if (selectedProject && !canView('sldDesigner')) {
+    return <AccessRestricted pageTitle={t('nav.sldDesigner', 'Single Line Diagram')} />;
+  }
+
   const activeStatus = selectedComponent ? getStatus(selectedComponent.id) : 'Closed';
 
   return (
     <div className="sld-workstation-root flex flex-col h-screen bg-slate-950 text-slate-100 overflow-hidden font-sans select-none print:h-auto print:bg-white print:text-black print:overflow-visible">
+      {/* Read-Only Mode Banner */}
+      <ReadOnlyBanner pageKey="sldDesigner" />
+
       {/* Top Workstation Window Bar & Header */}
       <header data-tour="sld-header" className="h-14 border-b border-white/10 bg-slate-950/90 backdrop-blur-xl px-4 flex items-center justify-between z-30 shrink-0 print:hidden">
         {/* Left: App Title & Breadcrumbs */}

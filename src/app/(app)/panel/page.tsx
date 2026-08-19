@@ -20,6 +20,9 @@ import { computeFeeders, createFindBreaker, type EquipmentItem, type DefaultFami
 import { calculateShortCircuitCurrent, getTypicalImpedance } from '@/lib/calculations/shortCircuit';
 import type { Project, PanelFeeder } from '@/types';
 import WorkflowStepper from '@/components/layout/WorkflowStepper';
+import { AccessRestricted } from '@/components/AccessRestricted';
+import { ReadOnlyBanner } from '@/components/ReadOnlyBanner';
+import { QAReviewDrawer } from '@/components/QAReviewDrawer';
 
 function wrapSvgLines(text: string, maxCharsPerLine: number = 24, maxLines: number = 2): string[] {
   if (!text) return [];
@@ -126,7 +129,7 @@ const BREAKER_FAMILY_THEME: Record<'ACB' | 'MCCB' | 'MCB', { stroke: string; tex
 };
 
 export default function PanelDesignerPage() {
-  const { selectedProjectId, selectedProject, loading: contextLoading, preferredManufacturer } = useProject();
+  const { selectedProjectId, selectedProject, loading: contextLoading, preferredManufacturer, canView, canEdit } = useProject();
   const { t, isRtl } = useTranslation();
   const [project, setProject] = useState<Project | null>(selectedProject);
   const [loading, setLoading] = useState(!selectedProject);
@@ -317,10 +320,21 @@ export default function PanelDesignerPage() {
     );
   }
 
+  if (selectedProject && !canView('panelDesigner')) {
+    return <AccessRestricted pageTitle={t('nav.panelDesigner', 'Panel Designer')} />;
+  }
+
   return (
     <div className="p-6 space-y-6 max-w-7xl mx-auto">
       {/* Workflow Stepper: Step 5 */}
       <WorkflowStepper currentStep={5} />
+
+      {/* Read-Only Mode Banner */}
+      <ReadOnlyBanner pageKey="panelDesigner" />
+
+      {/* Floating QA Review Tool */}
+      <QAReviewDrawer pageKey="panelDesigner" pageTitle="Panel Designer" />
+
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-white flex items-center gap-2">

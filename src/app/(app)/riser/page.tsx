@@ -17,6 +17,9 @@ import { computeFloorRiserVd, type RiserFloorVd } from '@/lib/calculations/riser
 import { PageSkeleton } from '@/components/ui/skeleton';
 import type { FloorDesign, Project } from '@/types';
 import WorkflowStepper from '@/components/layout/WorkflowStepper';
+import { AccessRestricted } from '@/components/AccessRestricted';
+import { ReadOnlyBanner } from '@/components/ReadOnlyBanner';
+import { QAReviewDrawer } from '@/components/QAReviewDrawer';
 
 // FloorDesign.riserCableSize is a string ("120 mm²"); the riser calc helper
 // returns it parsed to a numeric mm², so Omit both riser fields from the base
@@ -33,7 +36,7 @@ interface FloorData extends Omit<FloorDesign, 'riserCableSize' | 'riserCableLeng
 }
 
 export default function RiserPage() {
-  const { selectedProjectId, selectedProject, loading: contextLoading } = useProject();
+  const { selectedProjectId, selectedProject, loading: contextLoading, canView, canEdit } = useProject();
   const { t, isRtl } = useTranslation();
   const [project, setProject] = useState<Project | null>(selectedProject);
   const [loading, setLoading] = useState(!selectedProject);
@@ -182,10 +185,21 @@ export default function RiserPage() {
     URL.revokeObjectURL(url);
   };
 
+  if (selectedProject && !canView('riserDiagram')) {
+    return <AccessRestricted pageTitle={t('nav.riserDiagram', 'Riser Diagram')} />;
+  }
+
   return (
     <div className="p-6 space-y-4 max-w-7xl mx-auto">
       {/* Workflow Stepper: Step 6 */}
       <WorkflowStepper currentStep={6} />
+
+      {/* Read-Only Mode Banner */}
+      <ReadOnlyBanner pageKey="riserDiagram" />
+
+      {/* Floating QA Review Tool */}
+      <QAReviewDrawer pageKey="riserDiagram" pageTitle="Riser Diagram" />
+
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-white flex items-center gap-2">

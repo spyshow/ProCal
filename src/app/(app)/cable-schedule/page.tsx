@@ -638,29 +638,19 @@ export default function CableSchedulePage() {
     const limits = savedLimits ? JSON.parse(savedLimits) : { lighting: 3, power: 5 };
 
     try {
-      await Promise.all(cables.map(c => {
-        const url = cablePatchUrl(c.kind, c.id);
-        const body = c.kind === 'sdb'
-          ? {
-              riserInstallMethod: defaultMethod,
-              riserCableInsulation: defaultInsulation,
-              riserCableMaterial: defaultMaterial,
-              riserAmbientTemp: defaultAmbientTemp,
-              riserGroupingCount: defaultGroupingCount,
-            }
-          : {
-              installMethod: defaultMethod,
-              cableInsulation: defaultInsulation,
-              cableMaterial: defaultMaterial,
-              ambientTemp: defaultAmbientTemp,
-              groupingCount: defaultGroupingCount,
-            };
-        return fetch(url, {
-          method: 'PATCH',
+      if (project?.id) {
+        await fetch(`/api/projects/${project.id}/cables/batch-defaults`, {
+          method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(body),
+          body: JSON.stringify({
+            installMethod: defaultMethod,
+            cableInsulation: defaultInsulation,
+            cableMaterial: defaultMaterial,
+            ambientTemp: defaultAmbientTemp,
+            groupingCount: defaultGroupingCount,
+          }),
         });
-      }));
+      }
 
       setCables(prev => prev.map(c => {
         const result = recalculateCable({

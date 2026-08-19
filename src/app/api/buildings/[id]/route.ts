@@ -75,15 +75,17 @@ export async function PUT(
 
     // Adjust FloorDesign objects
     if (newTotalFloors > oldTotalFloors) {
-      // Add missing floors
-      for (let f = oldTotalFloors + 1; f <= newTotalFloors; f++) {
-        await db.floorDesign.create({
-          data: {
-            floorNumber: f,
-            buildingId: building.id,
-          },
-        });
-      }
+      // Add missing floors in bulk
+      const missingFloors = Array.from(
+        { length: newTotalFloors - oldTotalFloors },
+        (_, i) => ({
+          floorNumber: oldTotalFloors + 1 + i,
+          buildingId: building.id,
+        })
+      );
+      await db.floorDesign.createMany({
+        data: missingFloors,
+      });
     } else if (newTotalFloors < oldTotalFloors) {
       // Remove excess floors
       await db.floorDesign.deleteMany({

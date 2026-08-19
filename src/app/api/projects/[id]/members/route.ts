@@ -87,17 +87,36 @@ export async function POST(
     if (auth instanceof NextResponse) return auth;
 
     const body = await request.json();
-    const { email, name, role, permissions } = body;
+    const { email, name, username, role, permissions } = body;
 
-    const trimmedEmail = (email || "").trim().toLowerCase();
-    const trimmedName = (name || "").trim();
+    let trimmedEmail = (email || "").trim().toLowerCase();
+    let trimmedName = (name || "").trim();
+    const trimmedUsername = (username || "").trim();
+
+    let matchedUser = null;
+    if (trimmedUsername) {
+      matchedUser = await db.user.findFirst({
+        where: { username: { equals: trimmedUsername, mode: "insensitive" }, disabled: false },
+        select: { id: true, username: true, name: true, email: true },
+      });
+
+      if (matchedUser) {
+        if (!trimmedName && matchedUser.name) trimmedName = matchedUser.name;
+        if (!trimmedEmail && matchedUser.email) trimmedEmail = matchedUser.email.toLowerCase().trim();
+      } else if (!trimmedEmail) {
+        return NextResponse.json(
+          { error: `User "${trimmedUsername}" was not found. Please check the username or enter an email address.` },
+          { status: 404 }
+        );
+      }
+    }
 
     if (!trimmedEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail)) {
       return NextResponse.json({ error: "A valid email address is required" }, { status: 400 });
     }
 
     if (!trimmedName) {
-      return NextResponse.json({ error: "Invitee name is required" }, { status: 400 });
+      trimmedName = matchedUser?.name || trimmedUsername || trimmedEmail.split("@")[0];
     }
 
     const assignedRole: ProjectRole =
@@ -118,12 +137,20 @@ export async function POST(
       );
     }
 
-    // 2. Check if user with this email is already an active member of the project
-    const existingUser = await db.user.findFirst({
+    // 2. Check if user is project owner or already an active member of the project
+    const existingUser = matchedUser || await db.user.findFirst({
       where: { email: trimmedEmail },
+      select: { id: true, username: true, name: true },
     });
 
     if (existingUser) {
+      if (auth.project.userId === existingUser.id) {
+        return NextResponse.json(
+          { error: "This user is already the owner of this project" },
+          { status: 400 }
+        );
+      }
+
       const existingMember = await db.projectMember.findUnique({
         where: {
           projectId_userId: {
@@ -135,7 +162,7 @@ export async function POST(
 
       if (existingMember) {
         return NextResponse.json(
-          { error: "This user is already a member of this project" },
+          { error: `"${existingUser.name || existingUser.username}" is already a member of this project` },
           { status: 400 }
         );
       }

@@ -17,9 +17,11 @@ import {
   ArrowLeft,
   Plus,
   Plug,
+  Lock,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { type ProjectPageKey } from '@/lib/project-permissions';
 
 interface ProjectSummary {
   id: string;
@@ -34,7 +36,7 @@ interface ProjectSummary {
 }
 
 export default function DashboardPage() {
-  const { selectedProject } = useProject();
+  const { selectedProject, canView } = useProject();
   const { t, isRtl } = useTranslation();
   const [projects, setProjects] = useState<ProjectSummary[]>([]);
   const [loading, setLoading] = useState(true);
@@ -91,13 +93,19 @@ export default function DashboardPage() {
     },
   ];
 
-  const quickLinks = [
+  const quickLinks: {
+    label: string;
+    href: string;
+    icon: typeof FolderOpen;
+    desc: string;
+    pageKey?: ProjectPageKey;
+  }[] = [
     { label: t('nav.projects', 'Projects'), href: '/projects', icon: FolderOpen, desc: t('projects.subtitle', 'Create and manage projects') },
-    { label: t('nav.calculator', 'Load Calculator'), href: '/calculator', icon: Zap, desc: t('calculator.subtitle', 'Add loads and size cables') },
-    { label: t('nav.panelDesigner', 'Panel Designer'), href: '/panel', icon: Cpu, desc: t('panel.subtitle', 'Design MDB/SMDB layouts') },
-    { label: t('nav.riserDiagram', 'Riser Diagram'), href: '/riser', icon: GitBranch, desc: t('riser.subtitle', 'Visual vertical riser') },
-    { label: t('nav.coordination', 'Coordination'), href: '/coordination', icon: Shield, desc: t('breakers.subtitle', 'TCC selectivity curves') },
-    { label: t('nav.reports', 'Reports'), href: '/reports', icon: FileText, desc: t('reports.subtitle', 'BOM and schedules') },
+    { label: t('nav.calculator', 'Load Calculator'), href: '/calculator', icon: Zap, desc: t('calculator.subtitle', 'Add loads and size cables'), pageKey: 'calculator' },
+    { label: t('nav.panelDesigner', 'Panel Designer'), href: '/panel', icon: Cpu, desc: t('panel.subtitle', 'Design MDB/SMDB layouts'), pageKey: 'panelDesigner' },
+    { label: t('nav.riserDiagram', 'Riser Diagram'), href: '/riser', icon: GitBranch, desc: t('riser.subtitle', 'Visual vertical riser'), pageKey: 'riserDiagram' },
+    { label: t('nav.coordination', 'Coordination'), href: '/coordination', icon: Shield, desc: t('breakers.subtitle', 'TCC selectivity curves'), pageKey: 'coordination' },
+    { label: t('nav.reports', 'Reports'), href: '/reports', icon: FileText, desc: t('reports.subtitle', 'BOM and schedules'), pageKey: 'reports' },
   ];
 
   return (
@@ -145,28 +153,72 @@ export default function DashboardPage() {
           </h2>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-          {quickLinks.map(({ label, href, icon: Icon, desc }) => (
-            <Link key={href} href={href}>
-              <Card className="glow-card border-white/10 hover:border-orange-500/40 p-4 group h-full">
-                <div className="flex items-start gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-slate-900 border border-slate-800 group-hover:bg-orange-500/15 group-hover:border-orange-500/30 flex items-center justify-center transition-colors flex-shrink-0">
-                    <Icon className="w-5 h-5 text-slate-400 group-hover:text-orange-400 transition-colors" />
+          {quickLinks.map(({ label, href, icon: Icon, desc, pageKey }) => {
+            const isRestricted = pageKey ? !canView(pageKey) : false;
+            return (
+              <Link
+                key={href}
+                href={isRestricted ? '#' : href}
+                onClick={(e) => {
+                  if (isRestricted) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                  }
+                }}
+                aria-disabled={isRestricted}
+                tabIndex={isRestricted ? -1 : undefined}
+                className={isRestricted ? 'cursor-not-allowed select-none' : ''}
+              >
+                <Card
+                  className={`glow-card border-white/10 p-4 group h-full transition-all ${
+                    isRestricted
+                      ? 'opacity-40 hover:border-white/10'
+                      : 'hover:border-orange-500/40'
+                  }`}
+                >
+                  <div className="flex items-start gap-3">
+                    <div
+                      className={`w-10 h-10 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-center transition-colors flex-shrink-0 ${
+                        isRestricted
+                          ? 'text-slate-600'
+                          : 'group-hover:bg-orange-500/15 group-hover:border-orange-500/30'
+                      }`}
+                    >
+                      <Icon
+                        className={`w-5 h-5 transition-colors ${
+                          isRestricted
+                            ? 'text-slate-600'
+                            : 'text-slate-400 group-hover:text-orange-400'
+                        }`}
+                      />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p
+                        className={`text-sm font-semibold transition-colors flex items-center justify-between ${
+                          isRestricted
+                            ? 'text-slate-500'
+                            : 'text-slate-100 group-hover:text-orange-300'
+                        }`}
+                      >
+                        <span className="flex items-center gap-1.5">
+                          {label}
+                          {isRestricted && <Lock size={12} className="text-slate-500" />}
+                        </span>
+                        {!isRestricted && (
+                          isRtl ? (
+                            <ArrowLeft className="w-3.5 h-3.5 text-slate-500 group-hover:text-orange-400 group-hover:-translate-x-0.5 transition-all" />
+                          ) : (
+                            <ArrowRight className="w-3.5 h-3.5 text-slate-500 group-hover:text-orange-400 group-hover:translate-x-0.5 transition-all" />
+                          )
+                        )}
+                      </p>
+                      <p className="text-xs text-slate-400 mt-1 line-clamp-2">{desc}</p>
+                    </div>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-slate-100 group-hover:text-orange-300 transition-colors flex items-center justify-between">
-                      <span>{label}</span>
-                      {isRtl ? (
-                        <ArrowLeft className="w-3.5 h-3.5 text-slate-500 group-hover:text-orange-400 group-hover:-translate-x-0.5 transition-all" />
-                      ) : (
-                        <ArrowRight className="w-3.5 h-3.5 text-slate-500 group-hover:text-orange-400 group-hover:translate-x-0.5 transition-all" />
-                      )}
-                    </p>
-                    <p className="text-xs text-slate-400 mt-1 line-clamp-2">{desc}</p>
-                  </div>
-                </div>
-              </Card>
-            </Link>
-          ))}
+                </Card>
+              </Link>
+            );
+          })}
         </div>
       </div>
 

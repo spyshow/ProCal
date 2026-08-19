@@ -317,14 +317,22 @@ export default function Sidebar() {
           return (
             <Link
               key={href}
-              href={href}
+              href={isRestricted ? "#" : href}
+              onClick={(e) => {
+                if (isRestricted) {
+                  e.preventDefault();
+                  e.stopPropagation();
+                }
+              }}
+              aria-disabled={isRestricted}
+              tabIndex={isRestricted ? -1 : undefined}
               data-tour={tourKey}
-              title={isCollapsed ? (isRestricted ? `${label} (Restricted)` : label) : undefined}
+              title={isCollapsed ? (isRestricted ? `${label} (${t('rbac.accessRestricted', 'Restricted')})` : label) : isRestricted ? `${label} (${t('rbac.accessRestricted', 'Restricted')})` : undefined}
               className={cn(
                 "group flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 outline-none",
                 isCollapsed ? "justify-center px-0 py-2.5" : "",
                 isRestricted
-                  ? "opacity-60 text-slate-500 hover:text-slate-400 hover:bg-slate-900/40"
+                  ? "opacity-50 text-slate-600 hover:text-slate-600 bg-transparent cursor-not-allowed select-none"
                   : isActive
                   ? isRtl
                     ? "bg-gradient-to-l from-orange-600/25 to-amber-600/10 text-orange-300 border-r-2 border-orange-500 shadow-[0_0_15px_rgba(234,88,12,0.15)] font-semibold"

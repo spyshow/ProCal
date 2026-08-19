@@ -4,6 +4,8 @@ import React, { useState, useEffect } from "react";
 import {
   Users,
   UserPlus,
+  User,
+  Search,
   Mail,
   Shield,
   Trash2,
@@ -41,6 +43,7 @@ export function ProjectTeamTab() {
 
   // Invite Modal State
   const [inviteModalOpen, setInviteModalOpen] = useState(false);
+  const [inviteUsername, setInviteUsername] = useState("");
   const [inviteName, setInviteName] = useState("");
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviteRole, setInviteRole] = useState<ProjectRole>("ENGINEER");
@@ -48,6 +51,36 @@ export function ProjectTeamTab() {
     DEFAULT_ROLE_PERMISSIONS.ENGINEER
   );
   const [sendingInvite, setSendingInvite] = useState(false);
+  const [lookupLoading, setLookupLoading] = useState(false);
+  const [lookupMatch, setLookupMatch] = useState<{ name?: string; email?: string } | null>(null);
+
+  const handleUsernameLookup = async (uname: string) => {
+    const clean = uname.trim();
+    if (!clean || clean.length < 2) {
+      setLookupMatch(null);
+      return;
+    }
+    setLookupLoading(true);
+    try {
+      const res = await fetch(`/api/users/lookup?username=${encodeURIComponent(clean)}`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.found && data.user) {
+          setLookupMatch({ name: data.user.name, email: data.user.email });
+          if (data.user.name) setInviteName(data.user.name);
+          if (data.user.email) setInviteEmail(data.user.email);
+        } else {
+          setLookupMatch(null);
+        }
+      } else {
+        setLookupMatch(null);
+      }
+    } catch {
+      setLookupMatch(null);
+    } finally {
+      setLookupLoading(false);
+    }
+  };
 
   // Edit Permissions Modal State
   const [editingMember, setEditingMember] = useState<ProjectMember | null>(null);
@@ -101,6 +134,7 @@ export function ProjectTeamTab() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          username: inviteUsername.trim() || undefined,
           name: inviteName.trim(),
           email: inviteEmail.trim(),
           role: inviteRole,
@@ -117,8 +151,10 @@ export function ProjectTeamTab() {
             : `Invitation created. (Link: ${data.invite?.acceptUrl})`,
         });
         setInviteModalOpen(false);
+        setInviteUsername("");
         setInviteName("");
         setInviteEmail("");
+        setLookupMatch(null);
         setInviteRole("ENGINEER");
         setInvitePerms(DEFAULT_ROLE_PERMISSIONS.ENGINEER);
         await loadTeam();
@@ -413,6 +449,51 @@ export function ProjectTeamTab() {
             </div>
 
             <form onSubmit={handleSendInvite} className="space-y-4">
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-xs font-semibold text-slate-300">
+                    {t('team.username', 'Username')} <span className="text-slate-500 font-normal">({t('common.optional', 'optional')})</span>
+                  </label>
+                  {lookupLoading && (
+                    <span className="text-[10px] text-orange-400 animate-pulse flex items-center gap-1">
+                      <RefreshCw size={10} className="animate-spin" />
+                      {t('common.searching', 'Searching...')}
+                    </span>
+                  )}
+                </div>
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={inviteUsername}
+                    onChange={(e) => {
+                      setInviteUsername(e.target.value);
+                      setLookupMatch(null);
+                    }}
+                    onBlur={() => {
+                      if (inviteUsername.trim()) {
+                        handleUsernameLookup(inviteUsername);
+                      }
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        if (inviteUsername.trim()) {
+                          handleUsernameLookup(inviteUsername);
+                        }
+                      }
+                    }}
+                    placeholder={t('team.usernamePlaceholder', 'e.g., engineer_ahmad')}
+                    className="dense-input w-full rounded-xl text-xs pl-8"
+                  />
+                  <User className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                </div>
+                {lookupMatch && (
+                  <div className="mt-1.5 p-2 rounded-lg bg-emerald-950/40 border border-emerald-800/60 text-[11px] text-emerald-300 flex items-center justify-between">
+                    <span>✓ {t('team.userFound', 'Account found')}: <strong>{lookupMatch.name || inviteUsername}</strong> ({lookupMatch.email})</span>
+                  </div>
+                )}
+              </div>
+
               <div>
                 <label className="block text-xs font-semibold text-slate-300 mb-1">{t('team.fullName', 'Full Name')}</label>
                 <input

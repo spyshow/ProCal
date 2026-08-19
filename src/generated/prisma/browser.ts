@@ -33,6 +33,26 @@ export type ContactRequest = Prisma.ContactRequestModel
  */
 export type Project = Prisma.ProjectModel
 /**
+ * Model ProjectMember
+ * 
+ */
+export type ProjectMember = Prisma.ProjectMemberModel
+/**
+ * Model ProjectInvite
+ * 
+ */
+export type ProjectInvite = Prisma.ProjectInviteModel
+/**
+ * Model ProjectAuditLog
+ * 
+ */
+export type ProjectAuditLog = Prisma.ProjectAuditLogModel
+/**
+ * Model ProjectReviewItem
+ * 
+ */
+export type ProjectReviewItem = Prisma.ProjectReviewItemModel
+/**
  * Model ProjectRevision
  * *
  *  * Issued revision of a project's engineering state. Each record snapshots the

@@ -17,12 +17,18 @@ import {
   Lock,
   CheckCircle2,
   AlertCircle,
+  Users,
+  History,
+  ClipboardCheck,
 } from 'lucide-react';
 import { COUNTRY_DEFAULTS, ROOM_TYPES, CountryConfig, AcSizingRule } from '@/lib/country-defaults';
 import { useTranslation, SupportedLanguage } from '@/i18n';
 import { useUser } from '@/context/UserContext';
+import { ProjectTeamTab } from '@/components/settings/ProjectTeamTab';
+import { ActivityLogTab } from '@/components/settings/ActivityLogTab';
+import { QAReviewTab } from '@/components/settings/QAReviewTab';
 
-type SettingsTab = 'engineering' | 'company' | 'language' | 'account';
+type SettingsTab = 'engineering' | 'company' | 'team' | 'activity' | 'qa' | 'language' | 'account';
 
 export default function SettingsPage() {
   const { t, language, setLanguage, isRtl } = useTranslation();
@@ -69,7 +75,7 @@ export default function SettingsPage() {
     loadSettings();
     loadCompany();
 
-    // Support direct tab linking via ?tab=account or ?tab=security
+    // Support direct tab linking via ?tab=...
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search);
       const tabParam = params.get('tab');
@@ -77,6 +83,12 @@ export default function SettingsPage() {
         setActiveTab('account');
       } else if (tabParam === 'company') {
         setActiveTab('company');
+      } else if (tabParam === 'team') {
+        setActiveTab('team');
+      } else if (tabParam === 'activity' || tabParam === 'audit') {
+        setActiveTab('activity');
+      } else if (tabParam === 'qa' || tabParam === 'review') {
+        setActiveTab('qa');
       } else if (tabParam === 'language') {
         setActiveTab('language');
       } else if (tabParam === 'engineering') {
@@ -393,17 +405,20 @@ export default function SettingsPage() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 border-b border-gray-800">
+      <div className="flex gap-1 border-b border-gray-800 overflow-x-auto custom-scrollbar">
         {([
           { key: 'engineering' as const, label: t('settings.engineering', 'Engineering Defaults'), icon: Settings },
           { key: 'company' as const, label: t('settings.company', 'Company & Branding'), icon: Building2 },
+          { key: 'team' as const, label: t('settings.team', 'Project Team'), icon: Users },
+          { key: 'activity' as const, label: t('settings.activity', 'Activity Log'), icon: History },
+          { key: 'qa' as const, label: t('settings.qa', 'QA & Compliance'), icon: ClipboardCheck },
           { key: 'language' as const, label: t('common.language', 'Language & RTL'), icon: Globe },
           { key: 'account' as const, label: t('settings.account', 'Account & Security'), icon: Shield },
         ]).map(({ key, label, icon: Icon }) => (
           <button
             key={key}
             onClick={() => setActiveTab(key)}
-            className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${
+            className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
               activeTab === key
                 ? 'border-orange-500 text-orange-400'
                 : 'border-transparent text-gray-500 hover:text-gray-300'
@@ -1029,6 +1044,15 @@ export default function SettingsPage() {
           </div>
         </div>
       )}
+
+      {/* Project Team Tab */}
+      {activeTab === 'team' && <ProjectTeamTab />}
+
+      {/* Activity Log Tab */}
+      {activeTab === 'activity' && <ActivityLogTab />}
+
+      {/* QA & Compliance Tab */}
+      {activeTab === 'qa' && <QAReviewTab />}
     </div>
   );
 }

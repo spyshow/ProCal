@@ -98,6 +98,59 @@ export interface Building {
   buildingLoads: BuildingLoad[];
 }
 
+export interface ProjectMember {
+  id: string;
+  projectId: string;
+  userId: string;
+  name?: string;
+  email?: string | null;
+  username?: string;
+  role: "PROJECT_MANAGER" | "ENGINEER" | "QA";
+  permissions?: Record<string, "VIEW" | "EDIT" | "NONE">;
+  isOwner?: boolean;
+  createdAt: string;
+}
+
+export interface ProjectInvite {
+  id: string;
+  email: string;
+  name: string;
+  role: "PROJECT_MANAGER" | "ENGINEER" | "QA";
+  permissions?: Record<string, "VIEW" | "EDIT" | "NONE">;
+  status: "PENDING" | "ACCEPTED" | "REVOKED" | "EXPIRED";
+  expiresAt: string;
+  createdAt: string;
+  invitedBy?: string;
+}
+
+export interface ProjectAuditLog {
+  id: string;
+  projectId: string;
+  userId?: string | null;
+  userName: string;
+  userRole: string;
+  action: string;
+  entityType: string;
+  entityId?: string | null;
+  description: string;
+  details?: string | null;
+  createdAt: string;
+}
+
+export interface ProjectReviewItem {
+  id: string;
+  projectId: string;
+  createdById: string;
+  createdBy?: { id: string; name: string; username: string };
+  pageKey: string;
+  severity: "CRITICAL" | "WARNING" | "NOTE";
+  title: string;
+  description: string;
+  status: "OPEN" | "RESOLVED" | "WONT_FIX";
+  createdAt: string;
+  resolvedAt?: string | null;
+}
+
 export interface Project {
   id: string;
   name: string;
@@ -128,6 +181,9 @@ export interface Project {
   buildings: Building[];
   apartmentTemplates: ApartmentTemplate[];
   loadLibraryItems: LoadLibraryItem[];
+  currentMemberRole?: "PROJECT_MANAGER" | "ENGINEER" | "QA";
+  currentMemberPermissions?: Record<string, "VIEW" | "EDIT" | "NONE">;
+  isOwner?: boolean;
 }
 
 /**

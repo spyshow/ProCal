@@ -22,6 +22,9 @@ import { PageSkeleton } from '@/components/ui/skeleton';
 import { Cable, RefreshCw, AlertTriangle, Check, Settings, SlidersHorizontal, Save, HelpCircle, Layers } from 'lucide-react';
 import type { Project } from '@/types';
 import WorkflowStepper from '@/components/layout/WorkflowStepper';
+import { AccessRestricted } from '@/components/AccessRestricted';
+import { ReadOnlyBanner } from '@/components/ReadOnlyBanner';
+import { QAReviewDrawer } from '@/components/QAReviewDrawer';
 
 interface CableEntry {
   id: string;
@@ -57,7 +60,7 @@ interface CableEntry {
 }
 
 export default function CableSchedulePage() {
-  const { selectedProjectId, selectedProject, loading: contextLoading, refreshProject } = useProject();
+  const { selectedProjectId, selectedProject, loading: contextLoading, refreshProject, canView, canEdit } = useProject();
   const { t } = useTranslation();
   const pathname = usePathname();
   const router = useRouter();
@@ -747,10 +750,20 @@ export default function CableSchedulePage() {
     return parseInt(a.replace('Floor ', ''), 10) - parseInt(b.replace('Floor ', ''), 10);
   });
 
+  if (selectedProject && !canView('cableSchedule')) {
+    return <AccessRestricted pageTitle="Cable Schedule" />;
+  }
+
   return (
     <div className="p-3 sm:p-5 space-y-4 w-full max-w-[1680px] mx-auto min-h-[80vh]">
       {/* Workflow Stepper: Step 4 */}
       <WorkflowStepper currentStep={4} />
+
+      {/* Read-Only Mode Banner */}
+      <ReadOnlyBanner pageKey="cableSchedule" />
+
+      {/* Floating QA Review Tool */}
+      <QAReviewDrawer pageKey="cableSchedule" pageTitle="Cable Schedule" />
 
       {/* Unsaved Changes Banner */}
       {cablesNeedingUpsize.length > 0 && (

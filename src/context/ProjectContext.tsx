@@ -6,6 +6,9 @@ import type { Project } from "@/types";
 
 export type PreferredManufacturer = "ABB" | "SCHNEIDER" | "EATON" | "SIEMENS" | "LEGRAND" | "ISKRA" | "MIXED";
 
+export type ProjectMemberRole = "PROJECT_MANAGER" | "ENGINEER" | "QA";
+export type PagePermissionAction = "VIEW" | "EDIT" | "NONE";
+
 interface ProjectContextType {
   selectedProjectId: string | null;
   selectedProject: Project | null;
@@ -16,6 +19,12 @@ interface ProjectContextType {
   completeOnboarding: () => void;
   refreshProject: () => Promise<void>;
   loading: boolean;
+  currentMemberRole: ProjectMemberRole | null;
+  currentMemberPermissions: Record<string, PagePermissionAction>;
+  isProjectManager: boolean;
+  isQA: boolean;
+  canView: (pageKey: string) => boolean;
+  canEdit: (pageKey: string) => boolean;
 }
 
 const ProjectContext = createContext<ProjectContextType | undefined>(undefined);
@@ -38,11 +47,7 @@ export function ProjectProvider({ children }: { children: React.ReactNode }) {
     if (savedOnboarding === "true") setHasCompletedOnboarding(true);
   }, []);
 
-  // Dedupe concurrent fetches for the same project: on first mount the context
-  // fetch and a page's loadProject can both fire before either resolves, which
-  // used to download the (large) project payload twice. Callers racing for the
-  // same projectId now share one in-flight request; sequential calls (after the
-  // map entry is cleared) always fetch fresh.
+  // Dedupe concurrent fetches for the same project
   const inflightFetches = useRef<Map<string, Promise<void>>>(new Map());
 
   const fetchProjectDetails = useCallback(async (projectId: string) => {
@@ -125,6 +130,37 @@ export function ProjectProvider({ children }: { children: React.ReactNode }) {
     }
   }, [selectedProjectId, fetchProjectDetails]);
 
+  const currentMemberRole: ProjectMemberRole | null =
+    selectedProject?.currentMemberRole || (selectedProject?.isOwner ? "PROJECT_MANAGER" : null);
+
+  const currentMemberPermissions: Record<string, PagePermissionAction> =
+    selectedProject?.currentMemberPermissions || {};
+
+  const isProjectManager = currentMemberRole === "PROJECT_MANAGER";
+  const isQA = currentMemberRole === "QA";
+
+  const canView = useCallback(
+    (pageKey: string): boolean => {
+      if (!selectedProject) return true; // Default viewable if no project loaded
+      if (isProjectManager) return true;
+      if (isQA) return true;
+      const perm = currentMemberPermissions[pageKey];
+      return perm === "VIEW" || perm === "EDIT" || perm === undefined;
+    },
+    [selectedProject, isProjectManager, isQA, currentMemberPermissions]
+  );
+
+  const canEdit = useCallback(
+    (pageKey: string): boolean => {
+      if (!selectedProject) return true;
+      if (isProjectManager) return true;
+      if (isQA) return false;
+      const perm = currentMemberPermissions[pageKey];
+      return perm === "EDIT" || perm === undefined;
+    },
+    [selectedProject, isProjectManager, isQA, currentMemberPermissions]
+  );
+
   return (
     <ProjectContext.Provider
       value={{
@@ -137,6 +173,12 @@ export function ProjectProvider({ children }: { children: React.ReactNode }) {
         completeOnboarding,
         refreshProject,
         loading,
+        currentMemberRole,
+        currentMemberPermissions,
+        isProjectManager,
+        isQA,
+        canView,
+        canEdit,
       }}
     >
       {children}

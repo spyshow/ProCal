@@ -251,6 +251,10 @@ export type UserWhereInput = {
   projects?: Prisma.ProjectListRelationFilter
   revisions?: Prisma.ProjectRevisionListRelationFilter
   contactRequests?: Prisma.ContactRequestListRelationFilter
+  projectMembers?: Prisma.ProjectMemberListRelationFilter
+  sentInvites?: Prisma.ProjectInviteListRelationFilter
+  reviewItems?: Prisma.ProjectReviewItemListRelationFilter
+  auditLogs?: Prisma.ProjectAuditLogListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -266,6 +270,10 @@ export type UserOrderByWithRelationInput = {
   projects?: Prisma.ProjectOrderByRelationAggregateInput
   revisions?: Prisma.ProjectRevisionOrderByRelationAggregateInput
   contactRequests?: Prisma.ContactRequestOrderByRelationAggregateInput
+  projectMembers?: Prisma.ProjectMemberOrderByRelationAggregateInput
+  sentInvites?: Prisma.ProjectInviteOrderByRelationAggregateInput
+  reviewItems?: Prisma.ProjectReviewItemOrderByRelationAggregateInput
+  auditLogs?: Prisma.ProjectAuditLogOrderByRelationAggregateInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -284,6 +292,10 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   projects?: Prisma.ProjectListRelationFilter
   revisions?: Prisma.ProjectRevisionListRelationFilter
   contactRequests?: Prisma.ContactRequestListRelationFilter
+  projectMembers?: Prisma.ProjectMemberListRelationFilter
+  sentInvites?: Prisma.ProjectInviteListRelationFilter
+  reviewItems?: Prisma.ProjectReviewItemListRelationFilter
+  auditLogs?: Prisma.ProjectAuditLogListRelationFilter
 }, "id" | "username">
 
 export type UserOrderByWithAggregationInput = {
@@ -331,6 +343,10 @@ export type UserCreateInput = {
   projects?: Prisma.ProjectCreateNestedManyWithoutUserInput
   revisions?: Prisma.ProjectRevisionCreateNestedManyWithoutCreatedByInput
   contactRequests?: Prisma.ContactRequestCreateNestedManyWithoutUserInput
+  projectMembers?: Prisma.ProjectMemberCreateNestedManyWithoutUserInput
+  sentInvites?: Prisma.ProjectInviteCreateNestedManyWithoutInvitedByInput
+  reviewItems?: Prisma.ProjectReviewItemCreateNestedManyWithoutCreatedByInput
+  auditLogs?: Prisma.ProjectAuditLogCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -346,6 +362,10 @@ export type UserUncheckedCreateInput = {
   projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutUserInput
   revisions?: Prisma.ProjectRevisionUncheckedCreateNestedManyWithoutCreatedByInput
   contactRequests?: Prisma.ContactRequestUncheckedCreateNestedManyWithoutUserInput
+  projectMembers?: Prisma.ProjectMemberUncheckedCreateNestedManyWithoutUserInput
+  sentInvites?: Prisma.ProjectInviteUncheckedCreateNestedManyWithoutInvitedByInput
+  reviewItems?: Prisma.ProjectReviewItemUncheckedCreateNestedManyWithoutCreatedByInput
+  auditLogs?: Prisma.ProjectAuditLogUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserUpdateInput = {
@@ -361,6 +381,10 @@ export type UserUpdateInput = {
   projects?: Prisma.ProjectUpdateManyWithoutUserNestedInput
   revisions?: Prisma.ProjectRevisionUpdateManyWithoutCreatedByNestedInput
   contactRequests?: Prisma.ContactRequestUpdateManyWithoutUserNestedInput
+  projectMembers?: Prisma.ProjectMemberUpdateManyWithoutUserNestedInput
+  sentInvites?: Prisma.ProjectInviteUpdateManyWithoutInvitedByNestedInput
+  reviewItems?: Prisma.ProjectReviewItemUpdateManyWithoutCreatedByNestedInput
+  auditLogs?: Prisma.ProjectAuditLogUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -376,6 +400,10 @@ export type UserUncheckedUpdateInput = {
   projects?: Prisma.ProjectUncheckedUpdateManyWithoutUserNestedInput
   revisions?: Prisma.ProjectRevisionUncheckedUpdateManyWithoutCreatedByNestedInput
   contactRequests?: Prisma.ContactRequestUncheckedUpdateManyWithoutUserNestedInput
+  projectMembers?: Prisma.ProjectMemberUncheckedUpdateManyWithoutUserNestedInput
+  sentInvites?: Prisma.ProjectInviteUncheckedUpdateManyWithoutInvitedByNestedInput
+  reviewItems?: Prisma.ProjectReviewItemUncheckedUpdateManyWithoutCreatedByNestedInput
+  auditLogs?: Prisma.ProjectAuditLogUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -463,6 +491,11 @@ export type UserScalarRelationFilter = {
   isNot?: Prisma.UserWhereInput
 }
 
+export type UserNullableScalarRelationFilter = {
+  is?: Prisma.UserWhereInput | null
+  isNot?: Prisma.UserWhereInput | null
+}
+
 export type StringFieldUpdateOperationsInput = {
   set?: string
 }
@@ -515,6 +548,64 @@ export type UserUpdateOneRequiredWithoutProjectsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutProjectsInput, Prisma.UserUpdateWithoutProjectsInput>, Prisma.UserUncheckedUpdateWithoutProjectsInput>
 }
 
+export type UserCreateNestedOneWithoutProjectMembersInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutProjectMembersInput, Prisma.UserUncheckedCreateWithoutProjectMembersInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutProjectMembersInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutProjectMembersNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutProjectMembersInput, Prisma.UserUncheckedCreateWithoutProjectMembersInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutProjectMembersInput
+  upsert?: Prisma.UserUpsertWithoutProjectMembersInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutProjectMembersInput, Prisma.UserUpdateWithoutProjectMembersInput>, Prisma.UserUncheckedUpdateWithoutProjectMembersInput>
+}
+
+export type UserCreateNestedOneWithoutSentInvitesInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutSentInvitesInput, Prisma.UserUncheckedCreateWithoutSentInvitesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutSentInvitesInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutSentInvitesNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutSentInvitesInput, Prisma.UserUncheckedCreateWithoutSentInvitesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutSentInvitesInput
+  upsert?: Prisma.UserUpsertWithoutSentInvitesInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutSentInvitesInput, Prisma.UserUpdateWithoutSentInvitesInput>, Prisma.UserUncheckedUpdateWithoutSentInvitesInput>
+}
+
+export type UserCreateNestedOneWithoutAuditLogsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutAuditLogsInput, Prisma.UserUncheckedCreateWithoutAuditLogsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutAuditLogsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneWithoutAuditLogsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutAuditLogsInput, Prisma.UserUncheckedCreateWithoutAuditLogsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutAuditLogsInput
+  upsert?: Prisma.UserUpsertWithoutAuditLogsInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutAuditLogsInput, Prisma.UserUpdateWithoutAuditLogsInput>, Prisma.UserUncheckedUpdateWithoutAuditLogsInput>
+}
+
+export type UserCreateNestedOneWithoutReviewItemsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutReviewItemsInput, Prisma.UserUncheckedCreateWithoutReviewItemsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutReviewItemsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutReviewItemsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutReviewItemsInput, Prisma.UserUncheckedCreateWithoutReviewItemsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutReviewItemsInput
+  upsert?: Prisma.UserUpsertWithoutReviewItemsInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutReviewItemsInput, Prisma.UserUpdateWithoutReviewItemsInput>, Prisma.UserUncheckedUpdateWithoutReviewItemsInput>
+}
+
 export type UserCreateNestedOneWithoutRevisionsInput = {
   create?: Prisma.XOR<Prisma.UserCreateWithoutRevisionsInput, Prisma.UserUncheckedCreateWithoutRevisionsInput>
   connectOrCreate?: Prisma.UserCreateOrConnectWithoutRevisionsInput
@@ -541,6 +632,10 @@ export type UserCreateWithoutContactRequestsInput = {
   createdAt?: Date | string
   projects?: Prisma.ProjectCreateNestedManyWithoutUserInput
   revisions?: Prisma.ProjectRevisionCreateNestedManyWithoutCreatedByInput
+  projectMembers?: Prisma.ProjectMemberCreateNestedManyWithoutUserInput
+  sentInvites?: Prisma.ProjectInviteCreateNestedManyWithoutInvitedByInput
+  reviewItems?: Prisma.ProjectReviewItemCreateNestedManyWithoutCreatedByInput
+  auditLogs?: Prisma.ProjectAuditLogCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutContactRequestsInput = {
@@ -555,6 +650,10 @@ export type UserUncheckedCreateWithoutContactRequestsInput = {
   createdAt?: Date | string
   projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutUserInput
   revisions?: Prisma.ProjectRevisionUncheckedCreateNestedManyWithoutCreatedByInput
+  projectMembers?: Prisma.ProjectMemberUncheckedCreateNestedManyWithoutUserInput
+  sentInvites?: Prisma.ProjectInviteUncheckedCreateNestedManyWithoutInvitedByInput
+  reviewItems?: Prisma.ProjectReviewItemUncheckedCreateNestedManyWithoutCreatedByInput
+  auditLogs?: Prisma.ProjectAuditLogUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutContactRequestsInput = {
@@ -585,6 +684,10 @@ export type UserUpdateWithoutContactRequestsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   projects?: Prisma.ProjectUpdateManyWithoutUserNestedInput
   revisions?: Prisma.ProjectRevisionUpdateManyWithoutCreatedByNestedInput
+  projectMembers?: Prisma.ProjectMemberUpdateManyWithoutUserNestedInput
+  sentInvites?: Prisma.ProjectInviteUpdateManyWithoutInvitedByNestedInput
+  reviewItems?: Prisma.ProjectReviewItemUpdateManyWithoutCreatedByNestedInput
+  auditLogs?: Prisma.ProjectAuditLogUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutContactRequestsInput = {
@@ -599,6 +702,10 @@ export type UserUncheckedUpdateWithoutContactRequestsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   projects?: Prisma.ProjectUncheckedUpdateManyWithoutUserNestedInput
   revisions?: Prisma.ProjectRevisionUncheckedUpdateManyWithoutCreatedByNestedInput
+  projectMembers?: Prisma.ProjectMemberUncheckedUpdateManyWithoutUserNestedInput
+  sentInvites?: Prisma.ProjectInviteUncheckedUpdateManyWithoutInvitedByNestedInput
+  reviewItems?: Prisma.ProjectReviewItemUncheckedUpdateManyWithoutCreatedByNestedInput
+  auditLogs?: Prisma.ProjectAuditLogUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutProjectsInput = {
@@ -613,6 +720,10 @@ export type UserCreateWithoutProjectsInput = {
   createdAt?: Date | string
   revisions?: Prisma.ProjectRevisionCreateNestedManyWithoutCreatedByInput
   contactRequests?: Prisma.ContactRequestCreateNestedManyWithoutUserInput
+  projectMembers?: Prisma.ProjectMemberCreateNestedManyWithoutUserInput
+  sentInvites?: Prisma.ProjectInviteCreateNestedManyWithoutInvitedByInput
+  reviewItems?: Prisma.ProjectReviewItemCreateNestedManyWithoutCreatedByInput
+  auditLogs?: Prisma.ProjectAuditLogCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutProjectsInput = {
@@ -627,6 +738,10 @@ export type UserUncheckedCreateWithoutProjectsInput = {
   createdAt?: Date | string
   revisions?: Prisma.ProjectRevisionUncheckedCreateNestedManyWithoutCreatedByInput
   contactRequests?: Prisma.ContactRequestUncheckedCreateNestedManyWithoutUserInput
+  projectMembers?: Prisma.ProjectMemberUncheckedCreateNestedManyWithoutUserInput
+  sentInvites?: Prisma.ProjectInviteUncheckedCreateNestedManyWithoutInvitedByInput
+  reviewItems?: Prisma.ProjectReviewItemUncheckedCreateNestedManyWithoutCreatedByInput
+  auditLogs?: Prisma.ProjectAuditLogUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutProjectsInput = {
@@ -657,6 +772,10 @@ export type UserUpdateWithoutProjectsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   revisions?: Prisma.ProjectRevisionUpdateManyWithoutCreatedByNestedInput
   contactRequests?: Prisma.ContactRequestUpdateManyWithoutUserNestedInput
+  projectMembers?: Prisma.ProjectMemberUpdateManyWithoutUserNestedInput
+  sentInvites?: Prisma.ProjectInviteUpdateManyWithoutInvitedByNestedInput
+  reviewItems?: Prisma.ProjectReviewItemUpdateManyWithoutCreatedByNestedInput
+  auditLogs?: Prisma.ProjectAuditLogUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutProjectsInput = {
@@ -671,6 +790,362 @@ export type UserUncheckedUpdateWithoutProjectsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   revisions?: Prisma.ProjectRevisionUncheckedUpdateManyWithoutCreatedByNestedInput
   contactRequests?: Prisma.ContactRequestUncheckedUpdateManyWithoutUserNestedInput
+  projectMembers?: Prisma.ProjectMemberUncheckedUpdateManyWithoutUserNestedInput
+  sentInvites?: Prisma.ProjectInviteUncheckedUpdateManyWithoutInvitedByNestedInput
+  reviewItems?: Prisma.ProjectReviewItemUncheckedUpdateManyWithoutCreatedByNestedInput
+  auditLogs?: Prisma.ProjectAuditLogUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutProjectMembersInput = {
+  id?: string
+  username: string
+  passwordHash: string
+  name: string
+  email?: string | null
+  role?: string
+  credits?: number
+  disabled?: boolean
+  createdAt?: Date | string
+  projects?: Prisma.ProjectCreateNestedManyWithoutUserInput
+  revisions?: Prisma.ProjectRevisionCreateNestedManyWithoutCreatedByInput
+  contactRequests?: Prisma.ContactRequestCreateNestedManyWithoutUserInput
+  sentInvites?: Prisma.ProjectInviteCreateNestedManyWithoutInvitedByInput
+  reviewItems?: Prisma.ProjectReviewItemCreateNestedManyWithoutCreatedByInput
+  auditLogs?: Prisma.ProjectAuditLogCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutProjectMembersInput = {
+  id?: string
+  username: string
+  passwordHash: string
+  name: string
+  email?: string | null
+  role?: string
+  credits?: number
+  disabled?: boolean
+  createdAt?: Date | string
+  projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutUserInput
+  revisions?: Prisma.ProjectRevisionUncheckedCreateNestedManyWithoutCreatedByInput
+  contactRequests?: Prisma.ContactRequestUncheckedCreateNestedManyWithoutUserInput
+  sentInvites?: Prisma.ProjectInviteUncheckedCreateNestedManyWithoutInvitedByInput
+  reviewItems?: Prisma.ProjectReviewItemUncheckedCreateNestedManyWithoutCreatedByInput
+  auditLogs?: Prisma.ProjectAuditLogUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutProjectMembersInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutProjectMembersInput, Prisma.UserUncheckedCreateWithoutProjectMembersInput>
+}
+
+export type UserUpsertWithoutProjectMembersInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutProjectMembersInput, Prisma.UserUncheckedUpdateWithoutProjectMembersInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutProjectMembersInput, Prisma.UserUncheckedCreateWithoutProjectMembersInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutProjectMembersInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutProjectMembersInput, Prisma.UserUncheckedUpdateWithoutProjectMembersInput>
+}
+
+export type UserUpdateWithoutProjectMembersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.StringFieldUpdateOperationsInput | string
+  credits?: Prisma.IntFieldUpdateOperationsInput | number
+  disabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  projects?: Prisma.ProjectUpdateManyWithoutUserNestedInput
+  revisions?: Prisma.ProjectRevisionUpdateManyWithoutCreatedByNestedInput
+  contactRequests?: Prisma.ContactRequestUpdateManyWithoutUserNestedInput
+  sentInvites?: Prisma.ProjectInviteUpdateManyWithoutInvitedByNestedInput
+  reviewItems?: Prisma.ProjectReviewItemUpdateManyWithoutCreatedByNestedInput
+  auditLogs?: Prisma.ProjectAuditLogUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutProjectMembersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.StringFieldUpdateOperationsInput | string
+  credits?: Prisma.IntFieldUpdateOperationsInput | number
+  disabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  projects?: Prisma.ProjectUncheckedUpdateManyWithoutUserNestedInput
+  revisions?: Prisma.ProjectRevisionUncheckedUpdateManyWithoutCreatedByNestedInput
+  contactRequests?: Prisma.ContactRequestUncheckedUpdateManyWithoutUserNestedInput
+  sentInvites?: Prisma.ProjectInviteUncheckedUpdateManyWithoutInvitedByNestedInput
+  reviewItems?: Prisma.ProjectReviewItemUncheckedUpdateManyWithoutCreatedByNestedInput
+  auditLogs?: Prisma.ProjectAuditLogUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutSentInvitesInput = {
+  id?: string
+  username: string
+  passwordHash: string
+  name: string
+  email?: string | null
+  role?: string
+  credits?: number
+  disabled?: boolean
+  createdAt?: Date | string
+  projects?: Prisma.ProjectCreateNestedManyWithoutUserInput
+  revisions?: Prisma.ProjectRevisionCreateNestedManyWithoutCreatedByInput
+  contactRequests?: Prisma.ContactRequestCreateNestedManyWithoutUserInput
+  projectMembers?: Prisma.ProjectMemberCreateNestedManyWithoutUserInput
+  reviewItems?: Prisma.ProjectReviewItemCreateNestedManyWithoutCreatedByInput
+  auditLogs?: Prisma.ProjectAuditLogCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutSentInvitesInput = {
+  id?: string
+  username: string
+  passwordHash: string
+  name: string
+  email?: string | null
+  role?: string
+  credits?: number
+  disabled?: boolean
+  createdAt?: Date | string
+  projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutUserInput
+  revisions?: Prisma.ProjectRevisionUncheckedCreateNestedManyWithoutCreatedByInput
+  contactRequests?: Prisma.ContactRequestUncheckedCreateNestedManyWithoutUserInput
+  projectMembers?: Prisma.ProjectMemberUncheckedCreateNestedManyWithoutUserInput
+  reviewItems?: Prisma.ProjectReviewItemUncheckedCreateNestedManyWithoutCreatedByInput
+  auditLogs?: Prisma.ProjectAuditLogUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutSentInvitesInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutSentInvitesInput, Prisma.UserUncheckedCreateWithoutSentInvitesInput>
+}
+
+export type UserUpsertWithoutSentInvitesInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutSentInvitesInput, Prisma.UserUncheckedUpdateWithoutSentInvitesInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutSentInvitesInput, Prisma.UserUncheckedCreateWithoutSentInvitesInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutSentInvitesInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutSentInvitesInput, Prisma.UserUncheckedUpdateWithoutSentInvitesInput>
+}
+
+export type UserUpdateWithoutSentInvitesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.StringFieldUpdateOperationsInput | string
+  credits?: Prisma.IntFieldUpdateOperationsInput | number
+  disabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  projects?: Prisma.ProjectUpdateManyWithoutUserNestedInput
+  revisions?: Prisma.ProjectRevisionUpdateManyWithoutCreatedByNestedInput
+  contactRequests?: Prisma.ContactRequestUpdateManyWithoutUserNestedInput
+  projectMembers?: Prisma.ProjectMemberUpdateManyWithoutUserNestedInput
+  reviewItems?: Prisma.ProjectReviewItemUpdateManyWithoutCreatedByNestedInput
+  auditLogs?: Prisma.ProjectAuditLogUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutSentInvitesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.StringFieldUpdateOperationsInput | string
+  credits?: Prisma.IntFieldUpdateOperationsInput | number
+  disabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  projects?: Prisma.ProjectUncheckedUpdateManyWithoutUserNestedInput
+  revisions?: Prisma.ProjectRevisionUncheckedUpdateManyWithoutCreatedByNestedInput
+  contactRequests?: Prisma.ContactRequestUncheckedUpdateManyWithoutUserNestedInput
+  projectMembers?: Prisma.ProjectMemberUncheckedUpdateManyWithoutUserNestedInput
+  reviewItems?: Prisma.ProjectReviewItemUncheckedUpdateManyWithoutCreatedByNestedInput
+  auditLogs?: Prisma.ProjectAuditLogUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutAuditLogsInput = {
+  id?: string
+  username: string
+  passwordHash: string
+  name: string
+  email?: string | null
+  role?: string
+  credits?: number
+  disabled?: boolean
+  createdAt?: Date | string
+  projects?: Prisma.ProjectCreateNestedManyWithoutUserInput
+  revisions?: Prisma.ProjectRevisionCreateNestedManyWithoutCreatedByInput
+  contactRequests?: Prisma.ContactRequestCreateNestedManyWithoutUserInput
+  projectMembers?: Prisma.ProjectMemberCreateNestedManyWithoutUserInput
+  sentInvites?: Prisma.ProjectInviteCreateNestedManyWithoutInvitedByInput
+  reviewItems?: Prisma.ProjectReviewItemCreateNestedManyWithoutCreatedByInput
+}
+
+export type UserUncheckedCreateWithoutAuditLogsInput = {
+  id?: string
+  username: string
+  passwordHash: string
+  name: string
+  email?: string | null
+  role?: string
+  credits?: number
+  disabled?: boolean
+  createdAt?: Date | string
+  projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutUserInput
+  revisions?: Prisma.ProjectRevisionUncheckedCreateNestedManyWithoutCreatedByInput
+  contactRequests?: Prisma.ContactRequestUncheckedCreateNestedManyWithoutUserInput
+  projectMembers?: Prisma.ProjectMemberUncheckedCreateNestedManyWithoutUserInput
+  sentInvites?: Prisma.ProjectInviteUncheckedCreateNestedManyWithoutInvitedByInput
+  reviewItems?: Prisma.ProjectReviewItemUncheckedCreateNestedManyWithoutCreatedByInput
+}
+
+export type UserCreateOrConnectWithoutAuditLogsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutAuditLogsInput, Prisma.UserUncheckedCreateWithoutAuditLogsInput>
+}
+
+export type UserUpsertWithoutAuditLogsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutAuditLogsInput, Prisma.UserUncheckedUpdateWithoutAuditLogsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutAuditLogsInput, Prisma.UserUncheckedCreateWithoutAuditLogsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutAuditLogsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutAuditLogsInput, Prisma.UserUncheckedUpdateWithoutAuditLogsInput>
+}
+
+export type UserUpdateWithoutAuditLogsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.StringFieldUpdateOperationsInput | string
+  credits?: Prisma.IntFieldUpdateOperationsInput | number
+  disabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  projects?: Prisma.ProjectUpdateManyWithoutUserNestedInput
+  revisions?: Prisma.ProjectRevisionUpdateManyWithoutCreatedByNestedInput
+  contactRequests?: Prisma.ContactRequestUpdateManyWithoutUserNestedInput
+  projectMembers?: Prisma.ProjectMemberUpdateManyWithoutUserNestedInput
+  sentInvites?: Prisma.ProjectInviteUpdateManyWithoutInvitedByNestedInput
+  reviewItems?: Prisma.ProjectReviewItemUpdateManyWithoutCreatedByNestedInput
+}
+
+export type UserUncheckedUpdateWithoutAuditLogsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.StringFieldUpdateOperationsInput | string
+  credits?: Prisma.IntFieldUpdateOperationsInput | number
+  disabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  projects?: Prisma.ProjectUncheckedUpdateManyWithoutUserNestedInput
+  revisions?: Prisma.ProjectRevisionUncheckedUpdateManyWithoutCreatedByNestedInput
+  contactRequests?: Prisma.ContactRequestUncheckedUpdateManyWithoutUserNestedInput
+  projectMembers?: Prisma.ProjectMemberUncheckedUpdateManyWithoutUserNestedInput
+  sentInvites?: Prisma.ProjectInviteUncheckedUpdateManyWithoutInvitedByNestedInput
+  reviewItems?: Prisma.ProjectReviewItemUncheckedUpdateManyWithoutCreatedByNestedInput
+}
+
+export type UserCreateWithoutReviewItemsInput = {
+  id?: string
+  username: string
+  passwordHash: string
+  name: string
+  email?: string | null
+  role?: string
+  credits?: number
+  disabled?: boolean
+  createdAt?: Date | string
+  projects?: Prisma.ProjectCreateNestedManyWithoutUserInput
+  revisions?: Prisma.ProjectRevisionCreateNestedManyWithoutCreatedByInput
+  contactRequests?: Prisma.ContactRequestCreateNestedManyWithoutUserInput
+  projectMembers?: Prisma.ProjectMemberCreateNestedManyWithoutUserInput
+  sentInvites?: Prisma.ProjectInviteCreateNestedManyWithoutInvitedByInput
+  auditLogs?: Prisma.ProjectAuditLogCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutReviewItemsInput = {
+  id?: string
+  username: string
+  passwordHash: string
+  name: string
+  email?: string | null
+  role?: string
+  credits?: number
+  disabled?: boolean
+  createdAt?: Date | string
+  projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutUserInput
+  revisions?: Prisma.ProjectRevisionUncheckedCreateNestedManyWithoutCreatedByInput
+  contactRequests?: Prisma.ContactRequestUncheckedCreateNestedManyWithoutUserInput
+  projectMembers?: Prisma.ProjectMemberUncheckedCreateNestedManyWithoutUserInput
+  sentInvites?: Prisma.ProjectInviteUncheckedCreateNestedManyWithoutInvitedByInput
+  auditLogs?: Prisma.ProjectAuditLogUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutReviewItemsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutReviewItemsInput, Prisma.UserUncheckedCreateWithoutReviewItemsInput>
+}
+
+export type UserUpsertWithoutReviewItemsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutReviewItemsInput, Prisma.UserUncheckedUpdateWithoutReviewItemsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutReviewItemsInput, Prisma.UserUncheckedCreateWithoutReviewItemsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutReviewItemsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutReviewItemsInput, Prisma.UserUncheckedUpdateWithoutReviewItemsInput>
+}
+
+export type UserUpdateWithoutReviewItemsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.StringFieldUpdateOperationsInput | string
+  credits?: Prisma.IntFieldUpdateOperationsInput | number
+  disabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  projects?: Prisma.ProjectUpdateManyWithoutUserNestedInput
+  revisions?: Prisma.ProjectRevisionUpdateManyWithoutCreatedByNestedInput
+  contactRequests?: Prisma.ContactRequestUpdateManyWithoutUserNestedInput
+  projectMembers?: Prisma.ProjectMemberUpdateManyWithoutUserNestedInput
+  sentInvites?: Prisma.ProjectInviteUpdateManyWithoutInvitedByNestedInput
+  auditLogs?: Prisma.ProjectAuditLogUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutReviewItemsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.StringFieldUpdateOperationsInput | string
+  credits?: Prisma.IntFieldUpdateOperationsInput | number
+  disabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  projects?: Prisma.ProjectUncheckedUpdateManyWithoutUserNestedInput
+  revisions?: Prisma.ProjectRevisionUncheckedUpdateManyWithoutCreatedByNestedInput
+  contactRequests?: Prisma.ContactRequestUncheckedUpdateManyWithoutUserNestedInput
+  projectMembers?: Prisma.ProjectMemberUncheckedUpdateManyWithoutUserNestedInput
+  sentInvites?: Prisma.ProjectInviteUncheckedUpdateManyWithoutInvitedByNestedInput
+  auditLogs?: Prisma.ProjectAuditLogUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutRevisionsInput = {
@@ -685,6 +1160,10 @@ export type UserCreateWithoutRevisionsInput = {
   createdAt?: Date | string
   projects?: Prisma.ProjectCreateNestedManyWithoutUserInput
   contactRequests?: Prisma.ContactRequestCreateNestedManyWithoutUserInput
+  projectMembers?: Prisma.ProjectMemberCreateNestedManyWithoutUserInput
+  sentInvites?: Prisma.ProjectInviteCreateNestedManyWithoutInvitedByInput
+  reviewItems?: Prisma.ProjectReviewItemCreateNestedManyWithoutCreatedByInput
+  auditLogs?: Prisma.ProjectAuditLogCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutRevisionsInput = {
@@ -699,6 +1178,10 @@ export type UserUncheckedCreateWithoutRevisionsInput = {
   createdAt?: Date | string
   projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutUserInput
   contactRequests?: Prisma.ContactRequestUncheckedCreateNestedManyWithoutUserInput
+  projectMembers?: Prisma.ProjectMemberUncheckedCreateNestedManyWithoutUserInput
+  sentInvites?: Prisma.ProjectInviteUncheckedCreateNestedManyWithoutInvitedByInput
+  reviewItems?: Prisma.ProjectReviewItemUncheckedCreateNestedManyWithoutCreatedByInput
+  auditLogs?: Prisma.ProjectAuditLogUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutRevisionsInput = {
@@ -729,6 +1212,10 @@ export type UserUpdateWithoutRevisionsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   projects?: Prisma.ProjectUpdateManyWithoutUserNestedInput
   contactRequests?: Prisma.ContactRequestUpdateManyWithoutUserNestedInput
+  projectMembers?: Prisma.ProjectMemberUpdateManyWithoutUserNestedInput
+  sentInvites?: Prisma.ProjectInviteUpdateManyWithoutInvitedByNestedInput
+  reviewItems?: Prisma.ProjectReviewItemUpdateManyWithoutCreatedByNestedInput
+  auditLogs?: Prisma.ProjectAuditLogUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutRevisionsInput = {
@@ -743,6 +1230,10 @@ export type UserUncheckedUpdateWithoutRevisionsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   projects?: Prisma.ProjectUncheckedUpdateManyWithoutUserNestedInput
   contactRequests?: Prisma.ContactRequestUncheckedUpdateManyWithoutUserNestedInput
+  projectMembers?: Prisma.ProjectMemberUncheckedUpdateManyWithoutUserNestedInput
+  sentInvites?: Prisma.ProjectInviteUncheckedUpdateManyWithoutInvitedByNestedInput
+  reviewItems?: Prisma.ProjectReviewItemUncheckedUpdateManyWithoutCreatedByNestedInput
+  auditLogs?: Prisma.ProjectAuditLogUncheckedUpdateManyWithoutUserNestedInput
 }
 
 
@@ -754,12 +1245,20 @@ export type UserCountOutputType = {
   projects: number
   revisions: number
   contactRequests: number
+  projectMembers: number
+  sentInvites: number
+  reviewItems: number
+  auditLogs: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   projects?: boolean | UserCountOutputTypeCountProjectsArgs
   revisions?: boolean | UserCountOutputTypeCountRevisionsArgs
   contactRequests?: boolean | UserCountOutputTypeCountContactRequestsArgs
+  projectMembers?: boolean | UserCountOutputTypeCountProjectMembersArgs
+  sentInvites?: boolean | UserCountOutputTypeCountSentInvitesArgs
+  reviewItems?: boolean | UserCountOutputTypeCountReviewItemsArgs
+  auditLogs?: boolean | UserCountOutputTypeCountAuditLogsArgs
 }
 
 /**
@@ -793,6 +1292,34 @@ export type UserCountOutputTypeCountContactRequestsArgs<ExtArgs extends runtime.
   where?: Prisma.ContactRequestWhereInput
 }
 
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountProjectMembersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ProjectMemberWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountSentInvitesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ProjectInviteWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountReviewItemsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ProjectReviewItemWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountAuditLogsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ProjectAuditLogWhereInput
+}
+
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -807,6 +1334,10 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   projects?: boolean | Prisma.User$projectsArgs<ExtArgs>
   revisions?: boolean | Prisma.User$revisionsArgs<ExtArgs>
   contactRequests?: boolean | Prisma.User$contactRequestsArgs<ExtArgs>
+  projectMembers?: boolean | Prisma.User$projectMembersArgs<ExtArgs>
+  sentInvites?: boolean | Prisma.User$sentInvitesArgs<ExtArgs>
+  reviewItems?: boolean | Prisma.User$reviewItemsArgs<ExtArgs>
+  auditLogs?: boolean | Prisma.User$auditLogsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -851,6 +1382,10 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   projects?: boolean | Prisma.User$projectsArgs<ExtArgs>
   revisions?: boolean | Prisma.User$revisionsArgs<ExtArgs>
   contactRequests?: boolean | Prisma.User$contactRequestsArgs<ExtArgs>
+  projectMembers?: boolean | Prisma.User$projectMembersArgs<ExtArgs>
+  sentInvites?: boolean | Prisma.User$sentInvitesArgs<ExtArgs>
+  reviewItems?: boolean | Prisma.User$reviewItemsArgs<ExtArgs>
+  auditLogs?: boolean | Prisma.User$auditLogsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -862,6 +1397,10 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     projects: Prisma.$ProjectPayload<ExtArgs>[]
     revisions: Prisma.$ProjectRevisionPayload<ExtArgs>[]
     contactRequests: Prisma.$ContactRequestPayload<ExtArgs>[]
+    projectMembers: Prisma.$ProjectMemberPayload<ExtArgs>[]
+    sentInvites: Prisma.$ProjectInvitePayload<ExtArgs>[]
+    reviewItems: Prisma.$ProjectReviewItemPayload<ExtArgs>[]
+    auditLogs: Prisma.$ProjectAuditLogPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1270,6 +1809,10 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   projects<T extends Prisma.User$projectsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$projectsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProjectPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   revisions<T extends Prisma.User$revisionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$revisionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProjectRevisionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   contactRequests<T extends Prisma.User$contactRequestsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$contactRequestsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ContactRequestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  projectMembers<T extends Prisma.User$projectMembersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$projectMembersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProjectMemberPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  sentInvites<T extends Prisma.User$sentInvitesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$sentInvitesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProjectInvitePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  reviewItems<T extends Prisma.User$reviewItemsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$reviewItemsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProjectReviewItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  auditLogs<T extends Prisma.User$auditLogsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$auditLogsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProjectAuditLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1770,6 +2313,102 @@ export type User$contactRequestsArgs<ExtArgs extends runtime.Types.Extensions.In
   take?: number
   skip?: number
   distinct?: Prisma.ContactRequestScalarFieldEnum | Prisma.ContactRequestScalarFieldEnum[]
+}
+
+/**
+ * User.projectMembers
+ */
+export type User$projectMembersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ProjectMember
+   */
+  select?: Prisma.ProjectMemberSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ProjectMember
+   */
+  omit?: Prisma.ProjectMemberOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProjectMemberInclude<ExtArgs> | null
+  where?: Prisma.ProjectMemberWhereInput
+  orderBy?: Prisma.ProjectMemberOrderByWithRelationInput | Prisma.ProjectMemberOrderByWithRelationInput[]
+  cursor?: Prisma.ProjectMemberWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ProjectMemberScalarFieldEnum | Prisma.ProjectMemberScalarFieldEnum[]
+}
+
+/**
+ * User.sentInvites
+ */
+export type User$sentInvitesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ProjectInvite
+   */
+  select?: Prisma.ProjectInviteSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ProjectInvite
+   */
+  omit?: Prisma.ProjectInviteOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProjectInviteInclude<ExtArgs> | null
+  where?: Prisma.ProjectInviteWhereInput
+  orderBy?: Prisma.ProjectInviteOrderByWithRelationInput | Prisma.ProjectInviteOrderByWithRelationInput[]
+  cursor?: Prisma.ProjectInviteWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ProjectInviteScalarFieldEnum | Prisma.ProjectInviteScalarFieldEnum[]
+}
+
+/**
+ * User.reviewItems
+ */
+export type User$reviewItemsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ProjectReviewItem
+   */
+  select?: Prisma.ProjectReviewItemSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ProjectReviewItem
+   */
+  omit?: Prisma.ProjectReviewItemOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProjectReviewItemInclude<ExtArgs> | null
+  where?: Prisma.ProjectReviewItemWhereInput
+  orderBy?: Prisma.ProjectReviewItemOrderByWithRelationInput | Prisma.ProjectReviewItemOrderByWithRelationInput[]
+  cursor?: Prisma.ProjectReviewItemWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ProjectReviewItemScalarFieldEnum | Prisma.ProjectReviewItemScalarFieldEnum[]
+}
+
+/**
+ * User.auditLogs
+ */
+export type User$auditLogsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ProjectAuditLog
+   */
+  select?: Prisma.ProjectAuditLogSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ProjectAuditLog
+   */
+  omit?: Prisma.ProjectAuditLogOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProjectAuditLogInclude<ExtArgs> | null
+  where?: Prisma.ProjectAuditLogWhereInput
+  orderBy?: Prisma.ProjectAuditLogOrderByWithRelationInput | Prisma.ProjectAuditLogOrderByWithRelationInput[]
+  cursor?: Prisma.ProjectAuditLogWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ProjectAuditLogScalarFieldEnum | Prisma.ProjectAuditLogScalarFieldEnum[]
 }
 
 /**

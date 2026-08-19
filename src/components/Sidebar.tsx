@@ -23,6 +23,7 @@ import {
   PanelLeftClose,
   PanelLeftOpen,
   HelpCircle,
+  Lock,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -224,6 +225,7 @@ export default function Sidebar() {
   const pathname = usePathname();
   const { user: currentUser } = useUser();
   const { isCollapsed, toggleSidebar } = useSidebar();
+  const { selectedProject, currentMemberRole, canView } = useProject();
   const { t, isRtl } = useTranslation();
   const [loggingOut, setLoggingOut] = useState(false);
 
@@ -281,24 +283,42 @@ export default function Sidebar() {
       {/* Navigation */}
       <nav className="flex-1 overflow-y-auto px-2 space-y-0.5 custom-scrollbar" aria-label="Main navigation">
         {!isCollapsed && (
-          <p className="px-2 pt-1 pb-2 text-[10px] font-semibold uppercase tracking-widest text-slate-400">
-            {t('common.actions', 'Navigation')}
-          </p>
+          <div className="flex items-center justify-between px-2 pt-1 pb-2">
+            <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400">
+              {t('common.actions', 'Navigation')}
+            </p>
+            {selectedProject && (
+              <span className={cn(
+                "text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded border",
+                currentMemberRole === "PROJECT_MANAGER"
+                  ? "bg-orange-500/10 text-orange-400 border-orange-500/30"
+                  : currentMemberRole === "QA"
+                  ? "bg-blue-500/10 text-blue-400 border-blue-500/30"
+                  : "bg-slate-800 text-slate-400 border-slate-700"
+              )}>
+                {currentMemberRole === "PROJECT_MANAGER" ? t('team.roles.pm', 'PM') : currentMemberRole === "QA" ? t('team.roles.qa', 'QA') : t('team.roles.engineer', 'Engineer')}
+              </span>
+            )}
+          </div>
         )}
         {NAV_ITEMS.map(({ id, labelKey, href, icon: Icon, stepNumber }) => {
           const isActive = pathname === href || pathname.startsWith(`${href}/`);
           const tourKey = `tour-${href.replace("/", "")}`;
           const label = t(labelKey);
+          const isRestricted = id !== "dashboard" && id !== "projects" && id !== "settings" && !canView(id);
+
           return (
             <Link
               key={href}
               href={href}
               data-tour={tourKey}
-              title={isCollapsed ? label : undefined}
+              title={isCollapsed ? (isRestricted ? `${label} (Restricted)` : label) : undefined}
               className={cn(
                 "group flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 outline-none",
                 isCollapsed ? "justify-center px-0 py-2.5" : "",
-                isActive
+                isRestricted
+                  ? "opacity-60 text-slate-500 hover:text-slate-400 hover:bg-slate-900/40"
+                  : isActive
                   ? isRtl
                     ? "bg-gradient-to-l from-orange-600/25 to-amber-600/10 text-orange-300 border-r-2 border-orange-500 shadow-[0_0_15px_rgba(234,88,12,0.15)] font-semibold"
                     : "bg-gradient-to-r from-orange-600/25 to-amber-600/10 text-orange-300 border-l-2 border-orange-500 shadow-[0_0_15px_rgba(234,88,12,0.15)] font-semibold"
@@ -312,11 +332,18 @@ export default function Sidebar() {
                 size={18}
                 className={cn(
                   "flex-shrink-0 transition-colors duration-200",
-                  isActive ? "text-orange-400" : "text-slate-500"
+                  isRestricted ? "text-slate-600" : isActive ? "text-orange-400" : "text-slate-500"
                 )}
               />
-              {!isCollapsed && <span className="truncate flex-1">{label}</span>}
-              {!isCollapsed && stepNumber && (
+              {!isCollapsed && (
+                <span className={cn("truncate flex-1", isRestricted && "text-slate-500")}>
+                  {label}
+                </span>
+              )}
+              {!isCollapsed && isRestricted && (
+                <Lock size={12} className="text-slate-500 shrink-0" />
+              )}
+              {!isCollapsed && !isRestricted && stepNumber && (
                 <span className={cn(
                   "text-[10px] font-mono font-bold w-4 h-4 rounded flex items-center justify-center shrink-0 transition-colors",
                   isActive
@@ -326,7 +353,7 @@ export default function Sidebar() {
                   {stepNumber}
                 </span>
               )}
-              {!isCollapsed && isActive && !stepNumber && (
+              {!isCollapsed && !isRestricted && isActive && !stepNumber && (
                 <span className={cn(
                   "w-1.5 h-1.5 rounded-full bg-orange-500 shadow-[0_0_8px_rgba(234,88,12,0.9)] flex-shrink-0",
                   isRtl ? "mr-auto" : "ml-auto"

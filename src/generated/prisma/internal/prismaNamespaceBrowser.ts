@@ -54,6 +54,10 @@ export const ModelName = {
   User: 'User',
   ContactRequest: 'ContactRequest',
   Project: 'Project',
+  ProjectMember: 'ProjectMember',
+  ProjectInvite: 'ProjectInvite',
+  ProjectAuditLog: 'ProjectAuditLog',
+  ProjectReviewItem: 'ProjectReviewItem',
   ProjectRevision: 'ProjectRevision',
   Building: 'Building',
   BuildingLoad: 'BuildingLoad',
@@ -144,6 +148,69 @@ export const ProjectScalarFieldEnum = {
 } as const
 
 export type ProjectScalarFieldEnum = (typeof ProjectScalarFieldEnum)[keyof typeof ProjectScalarFieldEnum]
+
+
+export const ProjectMemberScalarFieldEnum = {
+  id: 'id',
+  projectId: 'projectId',
+  userId: 'userId',
+  role: 'role',
+  permissions: 'permissions',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ProjectMemberScalarFieldEnum = (typeof ProjectMemberScalarFieldEnum)[keyof typeof ProjectMemberScalarFieldEnum]
+
+
+export const ProjectInviteScalarFieldEnum = {
+  id: 'id',
+  projectId: 'projectId',
+  email: 'email',
+  name: 'name',
+  role: 'role',
+  permissions: 'permissions',
+  token: 'token',
+  invitedById: 'invitedById',
+  expiresAt: 'expiresAt',
+  status: 'status',
+  createdAt: 'createdAt'
+} as const
+
+export type ProjectInviteScalarFieldEnum = (typeof ProjectInviteScalarFieldEnum)[keyof typeof ProjectInviteScalarFieldEnum]
+
+
+export const ProjectAuditLogScalarFieldEnum = {
+  id: 'id',
+  projectId: 'projectId',
+  userId: 'userId',
+  userName: 'userName',
+  userRole: 'userRole',
+  action: 'action',
+  entityType: 'entityType',
+  entityId: 'entityId',
+  description: 'description',
+  details: 'details',
+  createdAt: 'createdAt'
+} as const
+
+export type ProjectAuditLogScalarFieldEnum = (typeof ProjectAuditLogScalarFieldEnum)[keyof typeof ProjectAuditLogScalarFieldEnum]
+
+
+export const ProjectReviewItemScalarFieldEnum = {
+  id: 'id',
+  projectId: 'projectId',
+  createdById: 'createdById',
+  pageKey: 'pageKey',
+  severity: 'severity',
+  title: 'title',
+  description: 'description',
+  status: 'status',
+  createdAt: 'createdAt',
+  resolvedAt: 'resolvedAt'
+} as const
+
+export type ProjectReviewItemScalarFieldEnum = (typeof ProjectReviewItemScalarFieldEnum)[keyof typeof ProjectReviewItemScalarFieldEnum]
 
 
 export const ProjectRevisionScalarFieldEnum = {

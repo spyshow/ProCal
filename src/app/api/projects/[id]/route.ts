@@ -1,21 +1,19 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { getSessionUser } from "@/lib/auth";
+import { verifyProjectAccess } from "@/lib/project-auth";
+import { logProjectActivity } from "@/lib/audit-logger";
 
 export async function GET(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const user = await getSessionUser();
-    if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
     const { id } = await params;
+    const auth = await verifyProjectAccess(id);
+    if (auth instanceof NextResponse) return auth;
 
     const project = await db.project.findUnique({
-      where: { id, userId: user.id },
+      where: { id },
       include: {
         buildings: {
           include: {
@@ -42,6 +40,11 @@ export async function GET(
           include: { rooms: true },
         },
         loadLibraryItems: true,
+        members: {
+          include: {
+            user: { select: { id: true, name: true, email: true, username: true } },
+          },
+        },
       },
     });
 
@@ -49,7 +52,12 @@ export async function GET(
       return NextResponse.json({ error: "Project not found" }, { status: 404 });
     }
 
-    return NextResponse.json(project);
+    return NextResponse.json({
+      ...project,
+      currentMemberRole: auth.member.role,
+      currentMemberPermissions: auth.member.permissions,
+      isOwner: auth.project.userId === auth.user.id,
+    });
   } catch (error) {
     console.error("GET Project Details Error:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
@@ -61,21 +69,17 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const user = await getSessionUser();
-    if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
     const { id } = await params;
-    const data = await request.json();
+    const auth = await verifyProjectAccess(id);
+    if (auth instanceof NextResponse) return auth;
 
-    const existingProject = await db.project.findUnique({
-      where: { id, userId: user.id },
-    });
-
-    if (!existingProject) {
-      return NextResponse.json({ error: "Project not found" }, { status: 404 });
+    // Only PM or Engineers with permission can edit project settings
+    if (auth.member.role === "QA") {
+      return NextResponse.json({ error: "Forbidden: QA role is view-only" }, { status: 403 });
     }
+
+    const data = (await request.json()) as Record<string, any>;
+    const existingProject = auth.project;
 
     const updatedProject = await db.project.update({
       where: { id },
@@ -87,24 +91,36 @@ export async function PUT(
         location: data.location ?? existingProject.location,
         engineer: data.engineer ?? existingProject.engineer,
         date: data.date ?? existingProject.date,
-        voltage: data.voltage ? parseFloat(data.voltage) : existingProject.voltage,
-        frequency: data.frequency ? parseFloat(data.frequency) : existingProject.frequency,
-        powerFactor: data.powerFactor ? parseFloat(data.powerFactor) : existingProject.powerFactor,
-        maxDemandFactor: data.maxDemandFactor ? parseFloat(data.maxDemandFactor) : existingProject.maxDemandFactor,
+        voltage: data.voltage !== undefined ? parseFloat(String(data.voltage)) : existingProject.voltage,
+        frequency: data.frequency !== undefined ? parseFloat(String(data.frequency)) : existingProject.frequency,
+        powerFactor: data.powerFactor !== undefined ? parseFloat(String(data.powerFactor)) : existingProject.powerFactor,
+        maxDemandFactor: data.maxDemandFactor !== undefined ? parseFloat(String(data.maxDemandFactor)) : existingProject.maxDemandFactor,
         preferredManufacturer: data.preferredManufacturer ?? existingProject.preferredManufacturer,
         logoUrl: data.logoUrl !== undefined ? data.logoUrl : existingProject.logoUrl,
         notes: data.notes ?? existingProject.notes,
-        maxVoltageDropLighting: data.maxVoltageDropLighting ? parseFloat(data.maxVoltageDropLighting) : existingProject.maxVoltageDropLighting,
-        maxVoltageDropPower: data.maxVoltageDropPower ? parseFloat(data.maxVoltageDropPower) : existingProject.maxVoltageDropPower,
+        maxVoltageDropLighting: data.maxVoltageDropLighting !== undefined ? parseFloat(String(data.maxVoltageDropLighting)) : existingProject.maxVoltageDropLighting,
+        maxVoltageDropPower: data.maxVoltageDropPower !== undefined ? parseFloat(String(data.maxVoltageDropPower)) : existingProject.maxVoltageDropPower,
         calculationStandard:
           data.calculationStandard === "NEMA" || data.calculationStandard === "IEC"
             ? data.calculationStandard
-            : existingProject.calculationStandard ?? "IEC",
-        transformerSize: data.transformerSize ? parseFloat(data.transformerSize) : existingProject.transformerSize,
+            : (existingProject.calculationStandard as string) ?? "IEC",
+        transformerSize: data.transformerSize !== undefined ? (data.transformerSize === null ? null : parseFloat(String(data.transformerSize))) : existingProject.transformerSize,
         defaultAcbFamilyId: data.defaultAcbFamilyId !== undefined ? data.defaultAcbFamilyId : existingProject.defaultAcbFamilyId,
         defaultMccbFamilyId: data.defaultMccbFamilyId !== undefined ? data.defaultMccbFamilyId : existingProject.defaultMccbFamilyId,
         defaultMcbFamilyId: data.defaultMcbFamilyId !== undefined ? data.defaultMcbFamilyId : existingProject.defaultMcbFamilyId,
       },
+    });
+
+    await logProjectActivity({
+      projectId: id,
+      userId: auth.user.id,
+      userName: auth.user.name || auth.user.username,
+      userRole: auth.member.role,
+      action: "UPDATE",
+      entityType: "PROJECT",
+      entityId: id,
+      description: `Updated project parameters${data.preferredManufacturer ? ` (Manufacturer: ${data.preferredManufacturer})` : ""}`,
+      details: data,
     });
 
     return NextResponse.json(updatedProject);
@@ -119,19 +135,16 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const user = await getSessionUser();
-    if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
     const { id } = await params;
+    const auth = await verifyProjectAccess(id, { requiredRole: "PROJECT_MANAGER" });
+    if (auth instanceof NextResponse) return auth;
 
-    const project = await db.project.findUnique({
-      where: { id, userId: user.id },
-    });
-
-    if (!project) {
-      return NextResponse.json({ error: "Project not found" }, { status: 404 });
+    // Only owner or system ADMIN can delete project
+    if (auth.project.userId !== auth.user.id && auth.user.role !== "ADMIN") {
+      return NextResponse.json(
+        { error: "Forbidden: Only the primary project creator can delete the project" },
+        { status: 403 }
+      );
     }
 
     await db.project.delete({
@@ -144,3 +157,4 @@ export async function DELETE(
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
+

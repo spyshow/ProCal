@@ -23,6 +23,10 @@ import TccPlotModal from '@/components/coordination/TccPlotModal';
 import { BreakerSizingGuideModal } from '@/components/breaker/BreakerSizingGuideModal';
 import InfoTooltip from '@/components/InfoTooltip';
 import type { Project, PanelFeeder, BreakerAlternativeSuggestion, FallbackType, GenericBreakerSpec } from '@/types';
+import WorkflowStepper from '@/components/layout/WorkflowStepper';
+import { AccessRestricted } from '@/components/AccessRestricted';
+import { ReadOnlyBanner } from '@/components/ReadOnlyBanner';
+import { QAReviewDrawer } from '@/components/QAReviewDrawer';
 
 interface BreakerFamilyOption {
   id: string;
@@ -30,8 +34,6 @@ interface BreakerFamilyOption {
   category: string;
   name: string;
 }
-
-import WorkflowStepper from '@/components/layout/WorkflowStepper';
 
 interface BreakerEntry {
   id: string;
@@ -74,7 +76,7 @@ interface BreakerEntry {
 }
 
 export default function BreakerSchedulePage() {
-  const { selectedProjectId, selectedProject, loading: contextLoading, preferredManufacturer, refreshProject } = useProject();
+  const { selectedProjectId, selectedProject, loading: contextLoading, preferredManufacturer, refreshProject, canView, canEdit } = useProject();
   const { t } = useTranslation();
   const [project, setProject] = useState<Project | null>(selectedProject);
   const [loading, setLoading] = useState(!selectedProject);
@@ -493,10 +495,20 @@ export default function BreakerSchedulePage() {
     }
   };
 
+  if (selectedProject && !canView('breakerSchedule')) {
+    return <AccessRestricted pageTitle="Breaker Schedule" />;
+  }
+
   return (
     <div className="p-6 space-y-5 max-w-7xl mx-auto">
       {/* Workflow Stepper: Step 2 */}
       <WorkflowStepper currentStep={2} />
+
+      {/* Read-Only Mode Banner */}
+      <ReadOnlyBanner pageKey="breakerSchedule" />
+
+      {/* Floating QA Review Tool */}
+      <QAReviewDrawer pageKey="breakerSchedule" pageTitle="Breaker Schedule" />
 
       <div data-tour="breaker-header" className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>

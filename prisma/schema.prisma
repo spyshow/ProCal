@@ -8,18 +8,22 @@ datasource db {
 }
 
 model User {
-  id              String           @id @default(uuid())
-  username        String           @unique
+  id              String              @id @default(uuid())
+  username        String              @unique
   passwordHash    String
   name            String
-  email           String?          // collected at signup; pre-fills /billing + SMTP Reply-To (eng-review D3/OV-γ)
-  role            String           @default("USER") // "USER" | "ADMIN" — gates /api/admin/*
-  credits         Int              @default(0)      // project credits; decremented on project create
-  disabled        Boolean          @default(false)  // soft-delete; preserves project history
-  createdAt       DateTime         @default(now())
+  email           String?             // collected at signup; pre-fills /billing + SMTP Reply-To (eng-review D3/OV-γ)
+  role            String              @default("USER") // "USER" | "ADMIN" — gates /api/admin/*
+  credits         Int                 @default(0)      // project credits; decremented on project create
+  disabled        Boolean             @default(false)  // soft-delete; preserves project history
+  createdAt       DateTime            @default(now())
   projects        Project[]
   revisions       ProjectRevision[]
   contactRequests ContactRequest[]
+  projectMembers  ProjectMember[]
+  sentInvites     ProjectInvite[]     @relation("SentInvites")
+  reviewItems     ProjectReviewItem[]
+  auditLogs       ProjectAuditLog[]
 }
 
 // Captured-lead billing loop (Approach B). One OPEN per user is enforced in-app
@@ -79,8 +83,89 @@ model Project {
   apartmentTemplates    ApartmentTemplate[]
   loadLibraryItems      LoadLibraryItem[]
   revisions             ProjectRevision[]
+  members               ProjectMember[]
+  invites               ProjectInvite[]
+  auditLogs             ProjectAuditLog[]
+  reviewItems           ProjectReviewItem[]
   createdAt             DateTime            @default(now())
   updatedAt             DateTime            @updatedAt
+}
+
+// Join table connecting Users to Projects with granular roles & page permissions
+model ProjectMember {
+  id          String   @id @default(uuid())
+  projectId   String
+  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role        String   @default("ENGINEER") // "PROJECT_MANAGER" | "ENGINEER" | "QA"
+  permissions String?  // JSON-serialized map of page permissions, e.g. {"calculator":"EDIT","cableSchedule":"VIEW"}
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([projectId, userId])
+  @@index([userId])
+  @@index([projectId])
+}
+
+// Pending invitations sent via email
+model ProjectInvite {
+  id          String   @id @default(uuid())
+  projectId   String
+  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  email       String
+  name        String
+  role        String   @default("ENGINEER") // "PROJECT_MANAGER" | "ENGINEER" | "QA"
+  permissions String?  // JSON-serialized initial permissions assigned by PM
+  token       String   @unique
+  invitedById String
+  invitedBy   User     @relation("SentInvites", fields: [invitedById], references: [id], onDelete: Cascade)
+  expiresAt   DateTime
+  status      String   @default("PENDING") // "PENDING" | "ACCEPTED" | "REVOKED" | "EXPIRED"
+  createdAt   DateTime @default(now())
+
+  @@index([projectId])
+  @@index([token])
+  @@index([email])
+}
+
+// Activity & Audit Log: track who changed what in the project
+model ProjectAuditLog {
+  id          String   @id @default(uuid())
+  projectId   String
+  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  userId      String?
+  user        User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  userName    String   // Snapshot of user name (retained even if user is removed)
+  userRole    String   // Role snapshot at the time of change
+  action      String   // "CREATE" | "UPDATE" | "DELETE" | "INVITE" | "REVISION" | "MEMBER_REMOVE" | "MEMBER_ROLE"
+  entityType  String   // "PROJECT" | "CABLE" | "BREAKER" | "BUILDING_LOAD" | "PANEL" | "TEAM" | "SLD" | "QA_NOTE"
+  entityId    String?
+  description String   // e.g. "Changed Main Incomer breaker rating to 1600A ACB"
+  details     String?  // JSON-serialized optional before/after diff snapshot
+  createdAt   DateTime @default(now())
+
+  @@index([projectId, createdAt])
+  @@index([projectId, entityType])
+  @@index([projectId, userId])
+}
+
+// QA Discrepancy / Compliance Punch List
+model ProjectReviewItem {
+  id          String    @id @default(uuid())
+  projectId   String
+  project     Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  createdById String
+  createdBy   User      @relation(fields: [createdById], references: [id], onDelete: Cascade)
+  pageKey     String    // "cableSchedule" | "breakerSchedule" | "calculator" | "sld" | "general"
+  severity    String    @default("WARNING") // "CRITICAL" | "WARNING" | "NOTE"
+  title       String    // e.g. "Voltage drop exceeds 5% on Feeder L3-Power"
+  description String
+  status      String    @default("OPEN")    // "OPEN" | "RESOLVED" | "WONT_FIX"
+  createdAt   DateTime  @default(now())
+  resolvedAt  DateTime?
+
+  @@index([projectId, status])
 }
 
 /**

@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getSessionUser } from "@/lib/auth";
+import { parseMemberPermissions } from "@/lib/project-permissions";
+import { logProjectActivity } from "@/lib/audit-logger";
 
 export async function GET() {
   try {
@@ -10,16 +12,42 @@ export async function GET() {
     }
 
     const projects = await db.project.findMany({
-      where: { userId: user.id },
+      where:
+        user.role === "ADMIN"
+          ? {}
+          : {
+              OR: [
+                { userId: user.id },
+                { members: { some: { userId: user.id } } },
+              ],
+            },
       include: {
         buildings: true,
         apartmentTemplates: true,
         loadLibraryItems: true,
+        members: {
+          where: { userId: user.id },
+          select: { role: true, permissions: true },
+        },
       },
       orderBy: { updatedAt: "desc" },
     });
 
-    return NextResponse.json(projects);
+    const enriched = projects.map((p) => {
+      const isOwner = p.userId === user.id || user.role === "ADMIN";
+      const memberEntry = p.members?.[0];
+      const role = isOwner ? "PROJECT_MANAGER" : memberEntry?.role || "ENGINEER";
+      const perms = parseMemberPermissions(memberEntry?.permissions, role);
+
+      return {
+        ...p,
+        currentMemberRole: role,
+        currentMemberPermissions: perms,
+        isOwner,
+      };
+    });
+
+    return NextResponse.json(enriched);
   } catch (error) {
     console.error("GET Projects Error:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
@@ -98,9 +126,30 @@ export async function POST(request: Request) {
       ]);
     }
 
+    // Automatically create ProjectMember record for creator as PROJECT_MANAGER
+    await db.projectMember.create({
+      data: {
+        projectId: project.id,
+        userId: user.id,
+        role: "PROJECT_MANAGER",
+      },
+    });
+
+    await logProjectActivity({
+      projectId: project.id,
+      userId: user.id,
+      userName: user.name || user.username,
+      userRole: "PROJECT_MANAGER",
+      action: "CREATE",
+      entityType: "PROJECT",
+      entityId: project.id,
+      description: `Created project "${project.name}"`,
+    });
+
     return NextResponse.json(project);
   } catch (error) {
     console.error("POST Project Error:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
+

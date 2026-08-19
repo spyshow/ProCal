@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getSessionUser } from "@/lib/auth";
+import { verifyProjectAccess } from "@/lib/project-auth";
 
 export async function GET() {
   try {
@@ -48,6 +49,31 @@ export async function POST(request: Request) {
         { error: "breakerId, model, manufacturer, and frameSize are required" },
         { status: 400 }
       );
+    }
+
+    // Breaker settings are keyed per-project ("<projectId>-..."): verify the
+    // caller holds EDIT on a breaker-related module before mutating.
+    const projectId = breakerId.match(
+      /^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/
+    )?.[1];
+
+    if (!projectId) {
+      return NextResponse.json(
+        { error: "breakerId must be scoped to a project" },
+        { status: 400 }
+      );
+    }
+
+    const breakerAuth = await verifyProjectAccess(projectId, {
+      requiredAction: "EDIT",
+      pageKey: "breakerSchedule",
+    });
+    if (breakerAuth instanceof NextResponse) {
+      const coordinationAuth = await verifyProjectAccess(projectId, {
+        requiredAction: "EDIT",
+        pageKey: "coordination",
+      });
+      if (coordinationAuth instanceof NextResponse) return coordinationAuth;
     }
 
     // Upsert: update if exists, create if not

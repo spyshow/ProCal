@@ -1,6 +1,34 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getSessionUser } from "@/lib/auth";
+import { verifyProjectAccess } from "@/lib/project-auth";
+
+async function verifyBreakerEdit(breakerId: string | null) {
+  const projectId = breakerId?.match(
+    /^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/
+  )?.[1];
+
+  if (!projectId) {
+    return NextResponse.json(
+      { error: "breakerId must be scoped to a project" },
+      { status: 400 }
+    );
+  }
+
+  const breakerAuth = await verifyProjectAccess(projectId, {
+    requiredAction: "EDIT",
+    pageKey: "breakerSchedule",
+  });
+  if (breakerAuth instanceof NextResponse) {
+    const coordinationAuth = await verifyProjectAccess(projectId, {
+      requiredAction: "EDIT",
+      pageKey: "coordination",
+    });
+    if (coordinationAuth instanceof NextResponse) return coordinationAuth;
+  }
+
+  return null;
+}
 
 export async function PUT(
   request: Request,
@@ -28,6 +56,9 @@ export async function PUT(
       ig,
       tg,
     } = data;
+
+    const denied = await verifyBreakerEdit(breakerId ?? null);
+    if (denied) return denied;
 
     const settings = await db.breakerSettings.update({
       where: { id },
@@ -65,6 +96,14 @@ export async function DELETE(
     }
 
     const { id } = await params;
+
+    const existing = await db.breakerSettings.findUnique({ where: { id } });
+    if (!existing) {
+      return NextResponse.json({ error: "Not found" }, { status: 404 });
+    }
+
+    const denied = await verifyBreakerEdit(existing.breakerId);
+    if (denied) return denied;
 
     await db.breakerSettings.delete({
       where: { id },

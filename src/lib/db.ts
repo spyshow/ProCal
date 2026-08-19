@@ -16,17 +16,19 @@ const isRemoteDb =
   connectionString.includes("sslmode=");
 
 function getPool(): Pool {
+  const poolConfig = {
+    connectionString,
+    ssl: isRemoteDb ? { rejectUnauthorized: false } : undefined,
+    max: 10,
+    idleTimeoutMillis: 30000,
+    connectionTimeoutMillis: 5000,
+  };
+
   if (process.env.NODE_ENV === "production") {
-    return new Pool({
-      connectionString,
-      ssl: isRemoteDb ? { rejectUnauthorized: false } : undefined,
-    });
+    return new Pool(poolConfig);
   }
   if (!globalForPrisma.pool) {
-    globalForPrisma.pool = new Pool({
-      connectionString,
-      ssl: isRemoteDb ? { rejectUnauthorized: false } : undefined,
-    });
+    globalForPrisma.pool = new Pool(poolConfig);
   }
   return globalForPrisma.pool;
 }

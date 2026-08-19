@@ -39,12 +39,47 @@ export async function GET(
     }
 
     const { id } = await params;
+    const url = new URL(request.url);
+    const summary = url.searchParams.get("summary") === "true";
+
     const project = await db.project.findUnique({
       where: { id, userId: user.id },
       select: { id: true },
     });
     if (!project) {
       return NextResponse.json({ error: "Project not found" }, { status: 404 });
+    }
+
+    // Summary mode: skip snapshotJson (each snapshot is a full serialized
+    // project — hundreds of KB). The cover-page revision block only needs the
+    // rev / date / description / author columns, so callers that don't diff
+    // (reports page, RevisionsPanel list) pass ?summary=true.
+    if (summary) {
+      const revisions = await db.projectRevision.findMany({
+        where: { projectId: id },
+        select: {
+          id: true,
+          projectId: true,
+          rev: true,
+          description: true,
+          createdById: true,
+          createdAt: true,
+          createdBy: { select: { username: true } },
+        },
+        orderBy: { createdAt: "asc" },
+      });
+      return NextResponse.json(
+        revisions.map((r) => ({
+          id: r.id,
+          projectId: r.projectId,
+          rev: r.rev,
+          description: r.description,
+          createdById: r.createdById,
+          createdByUsername: r.createdBy.username,
+          snapshotJson: "",
+          createdAt: r.createdAt.toISOString(),
+        }))
+      );
     }
 
     const revisions = await db.projectRevision.findMany({

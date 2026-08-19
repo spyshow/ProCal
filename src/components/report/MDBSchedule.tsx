@@ -1,5 +1,6 @@
-import { useEffect, useState, useMemo } from 'react';
-import { computeFeeders, createFindBreaker, type EquipmentItem, type FindBreaker } from '@/lib/calculations/feeders';
+import { useMemo } from 'react';
+import { computeFeeders, createFindBreaker, type FindBreaker } from '@/lib/calculations/feeders';
+import { useEquipmentCatalog } from '@/hooks/useEquipmentCatalog';
 import type { Project } from '@/types';
 
 export interface MDBScheduleProps {
@@ -31,37 +32,14 @@ interface MDBRow {
  * and downstream circuit breaker matching the rest of the application.
  */
 export default function MDBSchedule({ project, buildingId, showHeader = true }: MDBScheduleProps) {
-  const [equipment, setEquipment] = useState<EquipmentItem[]>([]);
-  // Catalog arrives async; until it resolves, createFindBreaker([]) would label
-  // every feeder GENERIC_SPEC. Gate the table so that flash never renders.
-  const [catalogLoaded, setCatalogLoaded] = useState(false);
-
-  useEffect(() => {
-    let cancelled = false;
+  const query = useMemo(() => {
     const params = new URLSearchParams();
     if (project.preferredManufacturer && project.preferredManufacturer !== 'MIXED') {
       params.set('manufacturer', project.preferredManufacturer);
     }
-
-    fetch(`/api/equipment?${params.toString()}`)
-      .then((res) => (res.ok ? res.json() : []))
-      .then((data) => {
-        if (!cancelled) {
-          setEquipment(data);
-          setCatalogLoaded(true);
-        }
-      })
-      .catch(() => {
-        if (!cancelled) {
-          setEquipment([]);
-          setCatalogLoaded(true);
-        }
-      });
-
-    return () => {
-      cancelled = true;
-    };
+    return params.toString();
   }, [project.preferredManufacturer]);
+  const { equipment, catalogLoaded } = useEquipmentCatalog(query);
 
   const findBreaker: FindBreaker = useMemo(
     () =>

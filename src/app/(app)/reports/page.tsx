@@ -52,33 +52,14 @@ export default function ReportsPage() {
     }
   }, [selectedProject, selectedProjectId, selectedBuilding]);
 
+  // The project comes from ProjectContext (which dedupes concurrent fetches).
+  // On a stale/missing context copy, refresh through the context rather than
+  // fetching the (large) payload again — the sync effect above copies the result.
   useEffect(() => {
-    let cancelled = false;
-    const run = async () => {
-      if (!selectedProjectId) { setLoading(false); return; }
-      if (selectedProject?.id === selectedProjectId) {
-        setProject(selectedProject);
-        if (!selectedBuilding && selectedProject.buildings.length > 0) {
-          setSelectedBuilding(selectedProject.buildings[0].id);
-        }
-        setLoading(false);
-        return;
-      }
-      try {
-        const res = await fetch(`/api/projects/${selectedProjectId}`);
-        if (res.ok) {
-          const data = await res.json();
-          if (cancelled) return;
-          setProject(data);
-          if (!selectedBuilding && data.buildings.length > 0) setSelectedBuilding(data.buildings[0].id);
-        }
-      } catch (err) { console.error(err); } finally { if (!cancelled) setLoading(false); }
-    };
     if (!selectedProject || selectedProject.id !== selectedProjectId) {
-      run();
+      refreshProject();
     }
-    return () => { cancelled = true; };
-  }, [selectedProjectId, selectedProject, selectedBuilding]);
+  }, [selectedProjectId, selectedProject, refreshProject]);
 
   useEffect(() => {
     fetch("/api/settings")
@@ -91,7 +72,9 @@ export default function ReportsPage() {
   const loadRevisions = useCallback(async () => {
     if (!project) return;
     try {
-      const r = await fetch(`/api/projects/${project.id}/revisions?t=${Date.now()}`, { cache: 'no-store' });
+      // Summary mode — the cover block only needs rev/date/description/author;
+      // omitting snapshotJson keeps this (historically ~500KB) fetch tiny.
+      const r = await fetch(`/api/projects/${project.id}/revisions?summary=true&t=${Date.now()}`, { cache: 'no-store' });
       const data = await r.json();
       if (Array.isArray(data)) setRevisions(data);
     } catch { /* ignore */ }
@@ -144,15 +127,60 @@ export default function ReportsPage() {
     documentTitle: project?.name ? `${project.name} - Report` : 'Report',
   });
 
-  if (!project && (loading || contextLoading || selectedProjectId)) {
-    return <PageSkeleton titleWidth="w-56" rowCount={6} />;
-  }
+  const pageHeader = (
+    <div className="flex items-center justify-between print:hidden">
+      <div>
+        <h1 className="text-2xl font-bold text-white flex items-center gap-2">
+          <FileText size={22} className="text-orange-500" />
+          {t('reports.title', 'Reports & Schedules')}
+        </h1>
+        <p className="text-sm text-gray-400 mt-1">{project ? project.name : ''}</p>
+      </div>
+      <div className="flex items-center gap-2">
+        <button
+          onClick={() => setShowRevisions(true)}
+          className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-200 text-sm font-semibold"
+        >
+          <History size={14} />
+          Revisions
+        </button>
+        <button
+          onClick={handleExportExcel}
+          disabled={exporting || !project}
+          className="flex items-center gap-2 px-3 py-2 rounded-lg bg-emerald-700 hover:bg-emerald-600 text-white text-sm font-semibold disabled:opacity-50"
+        >
+          {exporting ? <Loader2 size={14} className="animate-spin" /> : <FileSpreadsheet size={14} />}
+          {exporting ? 'Exporting…' : t('reports.downloadExcel', 'Export Excel')}
+        </button>
+        <button
+          onClick={handlePrint}
+          disabled={!project}
+          className="flex items-center gap-2 px-3 py-2 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-sm font-semibold disabled:opacity-50"
+        >
+          <FileDown size={14} />
+          {t('reports.downloadPdf', 'Export PDF')}
+        </button>
+      </div>
+    </div>
+  );
 
+  // Header renders immediately (server HTML) — only the schedules below wait
+  // for the project payload, so first paint isn't gated behind the fetch.
   if (!project) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] text-center p-8">
-        <FileText size={40} className="text-gray-600 mb-3" />
-        <p className="text-gray-400 text-sm">{t('projects.selectProjectPrompt', 'No project data. Select a project first.')}</p>
+      <div className="p-6 space-y-5 max-w-7xl mx-auto print:p-0 print:w-full print:max-w-none print:m-0">
+        <div className="print:hidden">
+          <WorkflowStepper currentStep={8} />
+        </div>
+        {pageHeader}
+        {loading || contextLoading || selectedProjectId ? (
+          <PageSkeleton titleWidth="w-56" rowCount={6} />
+        ) : (
+          <div className="flex flex-col items-center justify-center min-h-[60vh] text-center p-8">
+            <FileText size={40} className="text-gray-600 mb-3" />
+            <p className="text-gray-400 text-sm">{t('projects.selectProjectPrompt', 'No project data. Select a project first.')}</p>
+          </div>
+        )}
       </div>
     );
   }
@@ -330,39 +358,7 @@ export default function ReportsPage() {
         <WorkflowStepper currentStep={8} />
       </div>
 
-      <div className="flex items-center justify-between print:hidden">
-        <div>
-          <h1 className="text-2xl font-bold text-white flex items-center gap-2">
-            <FileText size={22} className="text-orange-500" />
-            {t('reports.title', 'Reports & Schedules')}
-          </h1>
-          <p className="text-sm text-gray-400 mt-1">{project.name}</p>
-        </div>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => setShowRevisions(true)}
-            className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-200 text-sm font-semibold"
-          >
-            <History size={14} />
-            Revisions
-          </button>
-          <button
-            onClick={handleExportExcel}
-            disabled={exporting}
-            className="flex items-center gap-2 px-3 py-2 rounded-lg bg-emerald-700 hover:bg-emerald-600 text-white text-sm font-semibold disabled:opacity-50"
-          >
-            {exporting ? <Loader2 size={14} className="animate-spin" /> : <FileSpreadsheet size={14} />}
-            {exporting ? 'Exporting…' : t('reports.downloadExcel', 'Export Excel')}
-          </button>
-          <button
-            onClick={handlePrint}
-            className="flex items-center gap-2 px-3 py-2 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-sm font-semibold"
-          >
-            <FileDown size={14} />
-            {t('reports.downloadPdf', 'Export PDF')}
-          </button>
-        </div>
-      </div>
+      {pageHeader}
 
       <RevisionsPanel projectId={project.id} open={showRevisions} onClose={() => setShowRevisions(false)} onChanged={handleRevisionsChanged} />
 
@@ -373,7 +369,7 @@ export default function ReportsPage() {
               key={b.id}
               onClick={() => setSelectedBuilding(b.id)}
               className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-                selectedBuilding === b.id ? 'bg-orange-600 text-white' : 'bg-gray-800 text-gray-400'
+                selectedBuilding === b.id ? 'bg-orange-600 text-slate-950' : 'bg-gray-800 text-gray-400'
               }`}
             >
               {b.name}
@@ -388,7 +384,7 @@ export default function ReportsPage() {
             key={key}
             onClick={() => setActiveTab(key)}
             className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${
-              activeTab === key ? 'border-orange-500 text-orange-400' : 'border-transparent text-gray-500 hover:text-gray-300'
+              activeTab === key ? 'border-orange-500 text-orange-400' : 'border-transparent text-gray-400 hover:text-gray-200'
             }`}
           >
             <Icon size={14} />

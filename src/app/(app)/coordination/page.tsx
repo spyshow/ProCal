@@ -690,7 +690,7 @@ export default function CoordinationPage() {
               onClick={() => setMode('project')}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-medium transition-all ${
                 mode === 'project'
-                  ? 'bg-orange-500 text-white shadow-sm'
+                  ? 'bg-orange-500 text-slate-950 shadow-sm'
                   : 'text-gray-400 hover:text-gray-200'
               }`}
             >
@@ -701,7 +701,7 @@ export default function CoordinationPage() {
               onClick={() => setMode('playground')}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-medium transition-all ${
                 mode === 'playground'
-                  ? 'bg-orange-500 text-white shadow-sm'
+                  ? 'bg-orange-500 text-slate-950 shadow-sm'
                   : 'text-gray-400 hover:text-gray-200'
               }`}
             >
@@ -726,8 +726,9 @@ export default function CoordinationPage() {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
               <div className="flex items-center gap-2">
-                <span className="text-xs font-semibold text-gray-400">Select Feeder to Analyze:</span>
+                <label htmlFor="coordination-feeder" className="text-xs font-semibold text-gray-400">Select Feeder to Analyze:</label>
                 <select
+                  id="coordination-feeder"
                   value={selectedFeederName}
                   onChange={(e) => setSelectedFeederName(e.target.value)}
                   className="dense-input rounded-lg text-xs bg-gray-950 border border-gray-700 text-white font-medium min-w-[280px]"
@@ -743,7 +744,7 @@ export default function CoordinationPage() {
 
             <div className="text-xs text-gray-400 flex items-center gap-2">
               <span>Upstream Parent: <strong className="text-blue-400">{upstreamFeederLabel}</strong></span>
-              <ArrowRight size={12} className="text-gray-500" />
+              <ArrowRight size={12} className="text-gray-400" />
               <span>Downstream: <strong className="text-orange-400">{downstreamFeederLabel}</strong></span>
             </div>
           </div>
@@ -751,7 +752,7 @@ export default function CoordinationPage() {
           {/* Feeder Hierarchy Banner */}
           <div className="bg-gray-950/70 rounded-lg p-2.5 border border-gray-800 text-xs flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-2">
-              <span className="text-gray-500">Selected Breaker:</span>
+              <span className="text-gray-400">Selected Breaker:</span>
               <span className="text-gray-200 font-semibold">{downstream.model || `${downstream.inRating}A`}</span>
             </div>
             <div className="flex items-center gap-4 text-gray-400 font-mono">
@@ -773,9 +774,9 @@ export default function CoordinationPage() {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 rounded-full bg-blue-500" />
-                <h3 className="text-sm font-bold text-blue-400">
+                <h2 className="text-sm font-bold text-blue-400">
                   Upstream ({upstreamFeederLabel})
-                </h3>
+                </h2>
               </div>
               <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-blue-500/10 text-blue-300 border border-blue-500/20">
                 In = {upstream.inRating}A ({upstream.category || 'MCCB'})
@@ -788,11 +789,12 @@ export default function CoordinationPage() {
 
             <div className="grid grid-cols-2 gap-2 text-xs">
               <div>
-                <label className="text-gray-500 flex justify-between">
+                <label htmlFor="upstream-ir" className="text-gray-400 flex justify-between">
                   <span>Ir (A)</span>
                   <span className="text-gray-400 font-mono">{(upstream.ir / upstream.inRating).toFixed(2)}x</span>
                 </label>
                 <input
+                  id="upstream-ir"
                   type="number"
                   value={upstream.ir}
                   onChange={(e) => setUpstream({ ...upstream, ir: parseFloat(e.target.value) || 0 })}
@@ -800,8 +802,9 @@ export default function CoordinationPage() {
                 />
               </div>
               <div>
-                <label className="text-gray-500">tr (s)</label>
+                <label htmlFor="upstream-tr" className="text-gray-400">tr (s)</label>
                 <input
+                  id="upstream-tr"
                   type="number"
                   step="0.5"
                   value={upstream.tr}
@@ -810,11 +813,12 @@ export default function CoordinationPage() {
                 />
               </div>
               <div>
-                <label className="text-gray-500 flex justify-between">
+                <label htmlFor="upstream-isd" className="text-gray-400 flex justify-between">
                   <span>Isd (A)</span>
                   <span className="text-gray-400 font-mono">{upstream.isd ? `${(upstream.isd / upstream.ir).toFixed(1)}x` : '—'}</span>
                 </label>
                 <input
+                  id="upstream-isd"
                   type="number"
                   value={upstream.isd ?? ''}
                   onChange={(e) => setUpstream({ ...upstream, isd: parseFloat(e.target.value) || undefined })}
@@ -822,8 +826,9 @@ export default function CoordinationPage() {
                 />
               </div>
               <div>
-                <label className="text-gray-500">tsd (s)</label>
+                <label htmlFor="upstream-tsd" className="text-gray-400">tsd (s)</label>
                 <input
+                  id="upstream-tsd"
                   type="number"
                   step="0.01"
                   value={upstream.tsd ?? ''}
@@ -832,8 +837,9 @@ export default function CoordinationPage() {
                 />
               </div>
               <div>
-                <label className="text-gray-500">Ii (A)</label>
+                <label htmlFor="upstream-ii" className="text-gray-400">Ii (A)</label>
                 <input
+                  id="upstream-ii"
                   type="number"
                   value={upstream.ii ?? ''}
                   onChange={(e) => setUpstream({ ...upstream, ii: parseFloat(e.target.value) || undefined })}
@@ -841,8 +847,9 @@ export default function CoordinationPage() {
                 />
               </div>
               <div>
-                <label className="text-gray-500">I²t Curve</label>
+                <label htmlFor="upstream-i2t" className="text-gray-400">I²t Curve</label>
                 <select
+                  id="upstream-i2t"
                   value={upstream.i2t ? 'on' : 'off'}
                   onChange={(e) => setUpstream({ ...upstream, i2t: e.target.value === 'on' })}
                   className="dense-input w-full rounded font-mono"
@@ -859,9 +866,9 @@ export default function CoordinationPage() {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 rounded-full bg-orange-500" />
-                <h3 className="text-sm font-bold text-orange-400">
+                <h2 className="text-sm font-bold text-orange-400">
                   Downstream ({downstreamFeederLabel})
-                </h3>
+                </h2>
               </div>
               <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-orange-500/10 text-orange-300 border border-orange-500/20">
                 In = {downstream.inRating}A ({downstream.category || 'MCCB'})
@@ -874,11 +881,12 @@ export default function CoordinationPage() {
 
             <div className="grid grid-cols-2 gap-2 text-xs">
               <div>
-                <label className="text-gray-500 flex justify-between">
+                <label htmlFor="downstream-ir" className="text-gray-400 flex justify-between">
                   <span>Ir (A)</span>
                   <span className="text-gray-400 font-mono">{(downstream.ir / downstream.inRating).toFixed(2)}x</span>
                 </label>
                 <input
+                  id="downstream-ir"
                   type="number"
                   value={downstream.ir}
                   onChange={(e) => setDownstream({ ...downstream, ir: parseFloat(e.target.value) || 0 })}
@@ -886,8 +894,9 @@ export default function CoordinationPage() {
                 />
               </div>
               <div>
-                <label className="text-gray-500">tr (s)</label>
+                <label htmlFor="downstream-tr" className="text-gray-400">tr (s)</label>
                 <input
+                  id="downstream-tr"
                   type="number"
                   step="0.5"
                   value={downstream.tr}
@@ -896,11 +905,12 @@ export default function CoordinationPage() {
                 />
               </div>
               <div>
-                <label className="text-gray-500 flex justify-between">
+                <label htmlFor="downstream-isd" className="text-gray-400 flex justify-between">
                   <span>Isd (A)</span>
                   <span className="text-gray-400 font-mono">{downstream.isd ? `${(downstream.isd / downstream.ir).toFixed(1)}x` : '—'}</span>
                 </label>
                 <input
+                  id="downstream-isd"
                   type="number"
                   value={downstream.isd ?? ''}
                   onChange={(e) => setDownstream({ ...downstream, isd: parseFloat(e.target.value) || undefined })}
@@ -908,8 +918,9 @@ export default function CoordinationPage() {
                 />
               </div>
               <div>
-                <label className="text-gray-500">tsd (s)</label>
+                <label htmlFor="downstream-tsd" className="text-gray-400">tsd (s)</label>
                 <input
+                  id="downstream-tsd"
                   type="number"
                   step="0.01"
                   value={downstream.tsd ?? ''}
@@ -918,8 +929,9 @@ export default function CoordinationPage() {
                 />
               </div>
               <div>
-                <label className="text-gray-500">Ii (A)</label>
+                <label htmlFor="downstream-ii" className="text-gray-400">Ii (A)</label>
                 <input
+                  id="downstream-ii"
                   type="number"
                   value={downstream.ii ?? ''}
                   onChange={(e) => setDownstream({ ...downstream, ii: parseFloat(e.target.value) || undefined })}
@@ -927,8 +939,9 @@ export default function CoordinationPage() {
                 />
               </div>
               <div>
-                <label className="text-gray-500">I²t Curve</label>
+                <label htmlFor="downstream-i2t" className="text-gray-400">I²t Curve</label>
                 <select
+                  id="downstream-i2t"
                   value={downstream.i2t ? 'on' : 'off'}
                   onChange={(e) => setDownstream({ ...downstream, i2t: e.target.value === 'on' })}
                   className="dense-input w-full rounded font-mono"
@@ -942,7 +955,7 @@ export default function CoordinationPage() {
 
           {/* Fault & Cable Card */}
           <div className="rounded-xl border border-gray-800 bg-gray-900/60 p-4 space-y-3">
-            <h3 className="text-sm font-semibold text-gray-300 flex items-center justify-between">
+            <h2 className="text-sm font-semibold text-gray-300 flex items-center justify-between">
               <span>Cable & Fault Parameters</span>
               <span
                 className={`text-[10px] font-bold px-2 py-0.5 rounded ${
@@ -950,13 +963,13 @@ export default function CoordinationPage() {
                 }`}
               >
                 {result.cableDamageOk ? '✓ Cable Protected' : '✗ Thermal Damage Risk'}
-              </span>
-            </h3>
+              </span>                  </h2>
 
             <div className="grid grid-cols-2 gap-2 text-xs">
               <div>
-                <label className="text-gray-500">Cable Size (mm²)</label>
+                <label htmlFor="cable-size" className="text-gray-400">Cable Size (mm²)</label>
                 <input
+                  id="cable-size"
                   type="number"
                   value={cableSize}
                   onChange={(e) => setCableSize(parseFloat(e.target.value) || 10)}
@@ -964,8 +977,9 @@ export default function CoordinationPage() {
                 />
               </div>
               <div>
-                <label className="text-gray-500">Fault Isc (A)</label>
+                <label htmlFor="fault-isc" className="text-gray-400">Fault Isc (A)</label>
                 <input
+                  id="fault-isc"
                   type="number"
                   value={faultCurrent}
                   onChange={(e) => setFaultCurrent(parseInt(e.target.value) || 15000)}
@@ -990,10 +1004,10 @@ export default function CoordinationPage() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Sparkles size={18} className="text-orange-400" />
-                  <h3 className="text-sm font-bold text-orange-300">
+                  <h2 className="text-sm font-bold text-orange-300">
                     Alternative Breaker & Coordination Solutions
-                  </h3>
-                </div>
+            </h2>
+          </div>
                 <button
                   onClick={applyAutoTune}
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold shadow-md transition-all"
@@ -1054,9 +1068,9 @@ export default function CoordinationPage() {
           {/* TCC SVG Chart */}
           <div className="rounded-xl border border-gray-800 bg-gray-900/60 p-4 space-y-3">
             <div className="flex items-center justify-between">
-              <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wider">
+              <h2 className="text-sm font-semibold text-gray-300 uppercase tracking-wider">
                 {t('coordination.tccTitle', 'Time-Current Characteristic (TCC) — Log-Log Scale')}
-              </h3>
+              </h2>
               <div className="text-xs text-gray-400 font-mono">
                 IEC 60947-2 &bull; IEC 60898 &bull; IEC 60364-5-54
               </div>

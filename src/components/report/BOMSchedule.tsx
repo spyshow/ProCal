@@ -1,8 +1,9 @@
 'use client';
 
-import { useEffect, useState, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { parseMm2, getItemCableLength, getBuildingLoadCableLength } from '@/lib/calculations/cables';
-import { computeFeeders, createFindBreaker, type EquipmentItem } from '@/lib/calculations/feeders';
+import { computeFeeders, createFindBreaker } from '@/lib/calculations/feeders';
+import { useEquipmentCatalog } from '@/hooks/useEquipmentCatalog';
 import type { FloorItem, Project, FallbackType, GenericBreakerSpec } from '@/types';
 import { FileText, ChevronDown, ChevronRight, ShieldCheck, AlertTriangle } from 'lucide-react';
 
@@ -38,32 +39,10 @@ interface BreakerBOMItem {
  * in the project, with a dedicated Procurement Annex for technical purchasing specs.
  */
 export default function BOMSchedule({ project, buildingId, showHeader = true }: BOMScheduleProps) {
-  const [equipment, setEquipment] = useState<EquipmentItem[]>([]);
   const [annexOpen, setAnnexOpen] = useState(true);
   // Catalog arrives async; until it resolves, createFindBreaker([]) would label
   // every feeder GENERIC_SPEC. Gate the table so that flash never renders.
-  const [catalogLoaded, setCatalogLoaded] = useState(false);
-
-  useEffect(() => {
-    let cancelled = false;
-    fetch(`/api/equipment?category=ACB,MCCB,MCB`)
-      .then((res) => (res.ok ? res.json() : []))
-      .then((data) => {
-        if (!cancelled) {
-          setEquipment(data);
-          setCatalogLoaded(true);
-        }
-      })
-      .catch(() => {
-        if (!cancelled) {
-          setEquipment([]);
-          setCatalogLoaded(true);
-        }
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  const { equipment, catalogLoaded } = useEquipmentCatalog('category=ACB,MCCB,MCB');
 
   const findBreaker = useMemo(
     () =>

@@ -1,7 +1,8 @@
 'use client';
 
-import { useEffect, useState, useMemo } from 'react';
-import { computeFeeders, createFindBreaker, type EquipmentItem, type FindBreaker } from '@/lib/calculations/feeders';
+import { useMemo } from 'react';
+import { computeFeeders, createFindBreaker, type FindBreaker } from '@/lib/calculations/feeders';
+import { useEquipmentCatalog } from '@/hooks/useEquipmentCatalog';
 import type { Project } from '@/types';
 
 export interface BreakerScheduleProps {
@@ -44,37 +45,14 @@ export default function BreakerSchedule({
   manufacturer,
   showHeader = true,
 }: BreakerScheduleProps) {
-  const [equipment, setEquipment] = useState<EquipmentItem[]>([]);
-  // Catalog arrives async; until it resolves, createFindBreaker([]) would label
-  // every feeder GENERIC_SPEC. Gate the table so that flash never renders.
-  const [catalogLoaded, setCatalogLoaded] = useState(false);
-
-  useEffect(() => {
-    let cancelled = false;
+  const query = useMemo(() => {
     const params = new URLSearchParams();
     if (manufacturer && manufacturer !== 'MIXED') {
       params.set('manufacturer', manufacturer);
     }
-
-    fetch(`/api/equipment?${params.toString()}`)
-      .then((res) => (res.ok ? res.json() : []))
-      .then((data) => {
-        if (!cancelled) {
-          setEquipment(data);
-          setCatalogLoaded(true);
-        }
-      })
-      .catch(() => {
-        if (!cancelled) {
-          setEquipment([]);
-          setCatalogLoaded(true);
-        }
-      });
-
-    return () => {
-      cancelled = true;
-    };
+    return params.toString();
   }, [manufacturer]);
+  const { equipment, catalogLoaded } = useEquipmentCatalog(query);
 
   const findBreaker: FindBreaker = useMemo(
     () =>

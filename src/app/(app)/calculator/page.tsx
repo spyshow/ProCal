@@ -139,7 +139,7 @@ function CalculatorContent() {
   const [copying, setCopying] = useState(false);
 
   const handleCopyToFloors = async () => {
-    if (!copySourceFloor || copyTargetFloors.length === 0) return;
+    if (!bldg || !copySourceFloor || copyTargetFloors.length === 0) return;
     setCopying(true);
 
     const sourceFloor = bldg.floorDesigns.find((fd) => fd.id === copySourceFloor);
@@ -171,68 +171,62 @@ function CalculatorContent() {
     loadProject();
   };
 
-  if (!project && (loading || contextLoading || selectedProjectId)) {
-    return <PageSkeleton titleWidth="w-64" rowCount={8} />;
-  }
-
-  if (!project || project.buildings.length === 0) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] text-center p-8">
-        <Building2 size={40} className="text-gray-600 mb-3" />
-        <p className="text-gray-400 text-sm">
-          {project ? 'No buildings in this project. Add buildings from the project settings.' : 'Select a project first.'}
-        </p>
-      </div>
-    );
-  }
-
-  const bldg = project.buildings.find((b) => b.id === selectedBuilding) || project.buildings[0];
-  const sortedFloors = [...bldg.floorDesigns].sort((a, b) => a.floorNumber - b.floorNumber);
+  const bldg = project
+    ? project.buildings.find((b) => b.id === selectedBuilding) || project.buildings[0]
+    : null;
+  const sortedFloors = bldg ? [...bldg.floorDesigns].sort((a, b) => a.floorNumber - b.floorNumber) : [];
 
   // Detect stale apartment calculations: compare template room loads with stored values.
-  const needsRecalculation = project.buildings.some((b) =>
-    b.floorDesigns.some((fd) =>
-      fd.items.some((item) => {
-        if (item.type !== 'APARTMENT' || !item.apartmentTemplate?.rooms) return false;
-        const expectedLoad = item.apartmentTemplate.rooms.reduce(
-          (sum, r) => sum + r.connectedLoad, 0
-        ) / 1000;
-        return Math.abs(expectedLoad - item.calculatedConnectedLoad) > 0.01;
-      })
-    )
-  );
+  const needsRecalculation = project
+    ? project.buildings.some((b) =>
+        b.floorDesigns.some((fd) =>
+          fd.items.some((item) => {
+            if (item.type !== 'APARTMENT' || !item.apartmentTemplate?.rooms) return false;
+            const expectedLoad = item.apartmentTemplate.rooms.reduce(
+              (sum, r) => sum + r.connectedLoad, 0
+            ) / 1000;
+            return Math.abs(expectedLoad - item.calculatedConnectedLoad) > 0.01;
+          })
+        )
+      )
+    : false;
 
   // Per-building aggregate balance (all floor items + building loads).
   // Single combined balance so 1-phase loads auto-assign across the full board,
   // not within separate groups (which would pile them onto the same phase).
-  const allItems = [
-    ...bldg.floorDesigns.flatMap((fd) => fd.items),
-    ...(bldg.buildingLoads ?? []),
-  ];
-  const buildingBalance = phaseBalance(allItems as any, project);
+  const allItems = bldg
+    ? [...bldg.floorDesigns.flatMap((fd) => fd.items), ...(bldg.buildingLoads ?? [])]
+    : [];
+  const buildingBalance = project && bldg
+    ? phaseBalance(allItems as any, project)
+    : null;
 
   // Create a map of item ID → assigned phase from building-level balance.
   // This ensures per-floor balance uses the building-level assignments.
   const buildingPhaseMap = new Map<string, number>(
-    buildingBalance.assignments
+    (buildingBalance?.assignments ?? [])
       .filter((a) => a.phaseCount === 1)
       .map((a) => [a.id, a.assignedPhase])
   );
 
   // Summary totals
-  const totalConnectedLoad = sortedFloors.reduce(
-    (sum, fd) => sum + fd.items.reduce((s, i) => s + i.calculatedConnectedLoad, 0),
-    0
-  ) + (bldg.buildingLoads ?? []).reduce((sum, bl) => sum + (bl.loadLibraryItem?.power ?? 0) * bl.quantity, 0);
-  const totalMaxDemand = sortedFloors.reduce(
-    (sum, fd) => sum + fd.items.reduce((s, i) => s + i.calculatedMaxDemand, 0),
-    0
-  ) + (bldg.buildingLoads ?? []).reduce((sum, bl) => sum + (bl.loadLibraryItem?.power ?? 0) * bl.quantity, 0);
+  const totalConnectedLoad = bldg
+    ? sortedFloors.reduce(
+        (sum, fd) => sum + fd.items.reduce((s, i) => s + i.calculatedConnectedLoad, 0),
+        0
+      ) + (bldg.buildingLoads ?? []).reduce((sum, bl) => sum + (bl.loadLibraryItem?.power ?? 0) * bl.quantity, 0)
+    : 0;
+  const totalMaxDemand = bldg
+    ? sortedFloors.reduce(
+        (sum, fd) => sum + fd.items.reduce((s, i) => s + i.calculatedMaxDemand, 0),
+        0
+      ) + (bldg.buildingLoads ?? []).reduce((sum, bl) => sum + (bl.loadLibraryItem?.power ?? 0) * bl.quantity, 0)
+    : 0;
   // Building mechanical loads (elevators, fire/booster pumps) carry no inter-load
   // diversity — worst case they run together — so no demandFactor here. This keeps
   // Max Demand consistent with the per-phase current (phaseBalance also omits it).
   // Incomer current = max phase current from the combined building balance (correct for mixed 1φ/3φ boards).
-  const totalCurrent3Ph = buildingBalance.maxPhaseCurrent;
+  const totalCurrent3Ph = buildingBalance?.maxPhaseCurrent ?? 0;
 
   return (
     <div className="p-6 space-y-5 max-w-7xl mx-auto">
@@ -247,7 +241,7 @@ function CalculatorContent() {
             {t('calculator.title', 'Load Calculator & Floor Designer')}
           </h1>
           <p className="text-sm text-gray-400 mt-1">
-            {project.name} — {project.voltage}V, PF {project.powerFactor}
+            {project ? `${project.name} — ${project.voltage}V, PF ${project.powerFactor}` : ''}
           </p>
         </div>
 
@@ -262,6 +256,7 @@ function CalculatorContent() {
               const file = e.target.files?.[0];
               e.target.value = '';
               if (!file || importing) return;
+              if (!bldg || !project) return;
               setImporting(true);
               try {
                 const form = new FormData();
@@ -312,7 +307,7 @@ function CalculatorContent() {
             {t('cableSchedule.pageTour', 'Page Tour')}
           </button>
 
-          {bldg.floorDesigns.some(fd => fd.items.some(i => i.type === 'APARTMENT')) && (
+          {bldg && bldg.floorDesigns.some(fd => fd.items.some(i => i.type === 'APARTMENT')) && (
             <div className="flex items-center gap-2">
               <button
                 onClick={async () => {
@@ -357,6 +352,8 @@ function CalculatorContent() {
         </div>
       </div>
 
+      {project && bldg && buildingBalance ? (
+        <>
       {/* Building Tabs */}
       {project.buildings.length > 1 && (
         <div className="flex gap-2 flex-wrap">
@@ -921,7 +918,22 @@ function CalculatorContent() {
           );
         })}
       </div>
-
+        </>
+      ) : project ? (
+        <div className="flex flex-col items-center justify-center min-h-[60vh] text-center p-8">
+          <Building2 size={40} className="text-gray-600 mb-3" />
+          <p className="text-gray-400 text-sm">
+            No buildings in this project. Add buildings from the project settings.
+          </p>
+        </div>
+      ) : (loading || contextLoading || selectedProjectId) ? (
+        <PageSkeleton titleWidth="w-64" rowCount={8} />
+      ) : (
+        <div className="flex flex-col items-center justify-center min-h-[60vh] text-center p-8">
+          <Building2 size={40} className="text-gray-600 mb-3" />
+          <p className="text-gray-400 text-sm">Select a project first.</p>
+        </div>
+      )}
     </div>
   );
 }

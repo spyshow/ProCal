@@ -709,23 +709,10 @@ export default function CableSchedulePage() {
 
   const cablesNeedingUpsize = cables.filter(c => c.changed);
 
-  if (loading || contextLoading) {
-    return <PageSkeleton titleWidth="w-56" rowCount={8} />;
-  }
-
-  if (!project) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] text-center p-8">
-        <Cable size={40} className="text-slate-600 mb-3" />
-        <p className="text-slate-400 text-sm">{t('common.selectProject', 'Select a project first.')}</p>
-      </div>
-    );
-  }
-
   const cablesByFloor = cables.reduce((acc, cable) => {
     let key: string;
     const subKey = cable.kind === 'building' ? 'Building Loads' : cable.kind === 'sdb' ? 'SDBs' : `Floor ${cable.floor}`;
-    if (!selectedBuilding && project.buildings.length > 1) {
+    if (!selectedBuilding && (project?.buildings.length ?? 0) > 1) {
       key = `${cable.building} — ${subKey}`;
     } else {
       key = subKey;
@@ -736,12 +723,12 @@ export default function CableSchedulePage() {
   }, {} as Record<string, CableEntry[]>);
 
   const floorKeys = Object.keys(cablesByFloor).sort((a, b) => {
-    if (!selectedBuilding && project.buildings.length > 1) {
+    if (!selectedBuilding && (project?.buildings.length ?? 0) > 1) {
       const [bldgA, subA] = a.split(' — ');
       const [bldgB, subB] = b.split(' — ');
       if (bldgA !== bldgB) {
-        const idxA = project.buildings.findIndex((b) => b.name === bldgA);
-        const idxB = project.buildings.findIndex((b) => b.name === bldgB);
+        const idxA = project?.buildings.findIndex((b) => b.name === bldgA) ?? -1;
+        const idxB = project?.buildings.findIndex((b) => b.name === bldgB) ?? -1;
         return idxA - idxB;
       }
       if (subA === 'Building Loads') return -1;
@@ -800,7 +787,7 @@ export default function CableSchedulePage() {
             </h1>
           </div>
           <p className="text-sm text-gray-400 mt-1">
-            {project.name} &mdash; {t('cableSchedule.subtitle', 'Cable lengths & voltage drop calculator')}
+            {project ? `${project.name} — ` : ''}{t('cableSchedule.subtitle', 'Cable lengths & voltage drop calculator')}
           </p>
         </div>
 
@@ -844,6 +831,8 @@ export default function CableSchedulePage() {
         </div>
       </div>
 
+      {project ? (
+        <>
       {/* Default Settings Drawer */}
       {showSettings && (
         <div className="rounded-xl border border-gray-800 bg-gray-900/90 p-4 grid grid-cols-2 sm:grid-cols-6 gap-3 items-end">
@@ -1291,6 +1280,15 @@ export default function CableSchedulePage() {
               </button>
             </div>
           </div>
+        </div>
+      )}
+        </>
+      ) : loading || contextLoading ? (
+        <PageSkeleton titleWidth="w-56" rowCount={8} />
+      ) : (
+        <div className="flex flex-col items-center justify-center min-h-[60vh] text-center p-8">
+          <Cable size={40} className="text-slate-600 mb-3" />
+          <p className="text-slate-400 text-sm">{t('common.selectProject', 'Select a project first.')}</p>
         </div>
       )}
     </div>

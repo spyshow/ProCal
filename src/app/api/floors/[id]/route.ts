@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { verifyProjectAccess } from "@/lib/project-auth";
 
 export async function PUT(
   request: Request,
@@ -9,10 +10,19 @@ export async function PUT(
     const { id } = await params;
     const data = await request.json();
 
-    const floor = await db.floorDesign.findUnique({ where: { id } });
+    const floor = await db.floorDesign.findUnique({
+      where: { id },
+      include: { building: { include: { project: true } } },
+    });
     if (!floor) {
       return NextResponse.json({ error: "Floor not found" }, { status: 404 });
     }
+
+    const auth = await verifyProjectAccess(floor.building.projectId, {
+      requiredAction: "EDIT",
+      pageKey: "calculator",
+    });
+    if (auth instanceof NextResponse) return auth;
 
     const updated = await db.floorDesign.update({
       where: { id },
@@ -36,10 +46,19 @@ export async function PATCH(
     const { id } = await params;
     const data = await request.json();
 
-    const floor = await db.floorDesign.findUnique({ where: { id } });
+    const floor = await db.floorDesign.findUnique({
+      where: { id },
+      include: { building: { include: { project: true } } },
+    });
     if (!floor) {
       return NextResponse.json({ error: "Floor not found" }, { status: 404 });
     }
+
+    const auth = await verifyProjectAccess(floor.building.projectId, {
+      requiredAction: "EDIT",
+      pageKey: "calculator",
+    });
+    if (auth instanceof NextResponse) return auth;
 
     const updated = await db.floorDesign.update({
       where: { id },

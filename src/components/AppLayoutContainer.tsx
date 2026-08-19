@@ -10,6 +10,11 @@ import { FeedbackFloatingButton } from '@/components/FeedbackFloatingButton';
 function LayoutInner({ children }: { children: React.ReactNode }) {
   const { isCollapsed } = useSidebar();
   const { isRtl } = useTranslation();
+  const [mounted, setMounted] = React.useState(false);
+
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
 
   return (
     <div className="flex h-screen overflow-hidden print:h-auto print:overflow-visible">
@@ -17,7 +22,9 @@ function LayoutInner({ children }: { children: React.ReactNode }) {
         <Sidebar />
       </div>
       <main
-        className={`flex-1 overflow-y-auto bg-slate-950 print:overflow-visible print:w-full print:h-auto print:m-0 transition-all duration-200 ${
+        className={`flex-1 overflow-y-auto bg-slate-950 print:overflow-visible print:w-full print:h-auto print:m-0 ${
+          mounted ? 'transition-[margin] duration-200' : ''
+        } ${
           isRtl
             ? isCollapsed
               ? 'md:mr-[64px] md:ml-0'

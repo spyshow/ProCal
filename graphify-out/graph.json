@@ -7698,21 +7698,8 @@
       "_origin": "ast",
       "id": "agents_skills_ui_ux_pro_max_scripts_tests_test_core_testdomaindetection",
       "community": 116,
-      "community_name": "test_core.py",
+      "community_name": "detect_domain",
       "norm_label": "testdomaindetection"
-    },
-    {
-      "label": "TestPersistence",
-      "file_type": "code",
-      "source_file": ".agents/skills/ui-ux-pro-max/scripts/tests/test_core.py",
-      "source_location": "L95",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "agents_skills_ui_ux_pro_max_scripts_tests_test_core_testpersistence",
-      "community": 116,
-      "community_name": "test_core.py",
-      "norm_label": "testpersistence"
     },
     {
       "label": "TestPaletteSelection",
@@ -20845,6 +20832,19 @@
       "norm_label": "panelfeeder"
     },
     {
+      "label": "TestPersistence",
+      "file_type": "code",
+      "source_file": ".agents/skills/ui-ux-pro-max/scripts/tests/test_core.py",
+      "source_location": "L95",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "agents_skills_ui_ux_pro_max_scripts_tests_test_core_testpersistence",
+      "community": 36,
+      "community_name": "design_system.py",
+      "norm_label": "testpersistence"
+    },
+    {
       "label": "ValidationResult",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/scripts/html-token-validator.py",
@@ -31043,32 +31043,8 @@
       "_origin": "ast",
       "id": "agents_skills_ui_ux_pro_max_scripts_core_detect_domain",
       "community": 116,
-      "community_name": "test_core.py",
+      "community_name": "detect_domain",
       "norm_label": "detect_domain()"
-    },
-    {
-      "label": "format_markdown()",
-      "file_type": "code",
-      "source_file": ".agents/skills/ui-ux-pro-max/scripts/design_system.py",
-      "source_location": "L636",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "agents_skills_ui_ux_pro_max_scripts_design_system_format_markdown",
-      "community": 116,
-      "community_name": "test_core.py",
-      "norm_label": "format_markdown()"
-    },
-    {
-      "label": "generate_design_system()",
-      "file_type": "code",
-      "source_file": ".agents/skills/ui-ux-pro-max/scripts/design_system.py",
-      "source_location": "L776",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "agents_skills_ui_ux_pro_max_scripts_design_system_generate_design_system",
-      "community": 116,
-      "community_name": "test_core.py",
-      "norm_label": "generate_design_system()"
     },
     {
       "label": ".test_accessibility_keywords_route_to_ux()",
@@ -31079,7 +31055,7 @@
       "_origin": "ast",
       "id": "agents_skills_ui_ux_pro_max_scripts_tests_test_core_testdomaindetection_test_accessibility_keywords_route_to_ux",
       "community": 116,
-      "community_name": "test_core.py",
+      "community_name": "detect_domain",
       "norm_label": ".test_accessibility_keywords_route_to_ux()"
     },
     {
@@ -31091,7 +31067,7 @@
       "_origin": "ast",
       "id": "agents_skills_ui_ux_pro_max_scripts_tests_test_core_testdomaindetection_test_ambiguous_query_returns_runner_up",
       "community": 116,
-      "community_name": "test_core.py",
+      "community_name": "detect_domain",
       "norm_label": ".test_ambiguous_query_returns_runner_up()"
     },
     {
@@ -31103,7 +31079,7 @@
       "_origin": "ast",
       "id": "agents_skills_ui_ux_pro_max_scripts_tests_test_core_testdomaindetection_test_empty_query_falls_back_to_style",
       "community": 116,
-      "community_name": "test_core.py",
+      "community_name": "detect_domain",
       "norm_label": ".test_empty_query_falls_back_to_style()"
     },
     {
@@ -31115,32 +31091,8 @@
       "_origin": "ast",
       "id": "agents_skills_ui_ux_pro_max_scripts_tests_test_core_testdomaindetection_test_style_keywords_route_to_style",
       "community": 116,
-      "community_name": "test_core.py",
+      "community_name": "detect_domain",
       "norm_label": ".test_style_keywords_route_to_style()"
-    },
-    {
-      "label": ".test_persist_then_skip_then_force()",
-      "file_type": "code",
-      "source_file": ".agents/skills/ui-ux-pro-max/scripts/tests/test_core.py",
-      "source_location": "L96",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "agents_skills_ui_ux_pro_max_scripts_tests_test_core_testpersistence_test_persist_then_skip_then_force",
-      "community": 116,
-      "community_name": "test_core.py",
-      "norm_label": ".test_persist_then_skip_then_force()"
-    },
-    {
-      "label": ".test_persist_writes_only_under_output_dir()",
-      "file_type": "code",
-      "source_file": ".agents/skills/ui-ux-pro-max/scripts/tests/test_core.py",
-      "source_location": "L113",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "agents_skills_ui_ux_pro_max_scripts_tests_test_core_testpersistence_test_persist_writes_only_under_output_dir",
-      "community": 116,
-      "community_name": "test_core.py",
-      "norm_label": ".test_persist_writes_only_under_output_dir()"
     },
     {
       "label": "_select_palette_for_mode()",
@@ -33135,16 +33087,16 @@
       "norm_label": "usei18n()"
     },
     {
-      "label": ".test_add_components_no_components()",
+      "label": ".test_add_components_already_installed()",
       "file_type": "code",
       "source_file": ".agents/skills/ui-styling/scripts/tests/test_shadcn_add.py",
-      "source_location": "L95",
+      "source_location": "L111",
       "_callable": true,
       "_origin": "ast",
-      "id": "agents_skills_ui_styling_scripts_tests_test_shadcn_add_testshadcninstaller_test_add_components_no_components",
+      "id": "agents_skills_ui_styling_scripts_tests_test_shadcn_add_testshadcninstaller_test_add_components_already_installed",
       "community": 168,
-      "community_name": ".test_add_components_no_components",
-      "norm_label": ".test_add_components_no_components()"
+      "community_name": ".test_add_components_already_installed",
+      "norm_label": ".test_add_components_already_installed()"
     },
     {
       "label": ".__init__()",
@@ -33546,7 +33498,7 @@
       "label": "AppLayoutContainer()",
       "file_type": "code",
       "source_file": "src/components/AppLayoutContainer.tsx",
-      "source_location": "L38",
+      "source_location": "L45",
       "_callable": true,
       "_origin": "ast",
       "id": "src_components_applayoutcontainer_applayoutcontainer",
@@ -37935,6 +37887,18 @@
       "norm_label": "format_ascii_box()"
     },
     {
+      "label": "format_markdown()",
+      "file_type": "code",
+      "source_file": ".agents/skills/ui-ux-pro-max/scripts/design_system.py",
+      "source_location": "L636",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "agents_skills_ui_ux_pro_max_scripts_design_system_format_markdown",
+      "community": 36,
+      "community_name": "design_system.py",
+      "norm_label": "format_markdown()"
+    },
+    {
       "label": "format_master_md()",
       "file_type": "code",
       "source_file": ".agents/skills/ui-ux-pro-max/scripts/design_system.py",
@@ -37957,6 +37921,18 @@
       "community": 36,
       "community_name": "design_system.py",
       "norm_label": "format_page_override_md()"
+    },
+    {
+      "label": "generate_design_system()",
+      "file_type": "code",
+      "source_file": ".agents/skills/ui-ux-pro-max/scripts/design_system.py",
+      "source_location": "L776",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "agents_skills_ui_ux_pro_max_scripts_design_system_generate_design_system",
+      "community": 36,
+      "community_name": "design_system.py",
+      "norm_label": "generate_design_system()"
     },
     {
       "label": "_generate_intelligent_overrides()",
@@ -38017,6 +37993,30 @@
       "community": 36,
       "community_name": "design_system.py",
       "norm_label": "section_header()"
+    },
+    {
+      "label": ".test_persist_then_skip_then_force()",
+      "file_type": "code",
+      "source_file": ".agents/skills/ui-ux-pro-max/scripts/tests/test_core.py",
+      "source_location": "L96",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "agents_skills_ui_ux_pro_max_scripts_tests_test_core_testpersistence_test_persist_then_skip_then_force",
+      "community": 36,
+      "community_name": "design_system.py",
+      "norm_label": ".test_persist_then_skip_then_force()"
+    },
+    {
+      "label": ".test_persist_writes_only_under_output_dir()",
+      "file_type": "code",
+      "source_file": ".agents/skills/ui-ux-pro-max/scripts/tests/test_core.py",
+      "source_location": "L113",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "agents_skills_ui_ux_pro_max_scripts_tests_test_core_testpersistence_test_persist_writes_only_under_output_dir",
+      "community": 36,
+      "community_name": "design_system.py",
+      "norm_label": ".test_persist_writes_only_under_output_dir()"
     },
     {
       "label": "get_context()",
@@ -43671,16 +43671,16 @@
       "norm_label": "main()"
     },
     {
-      "label": ".test_add_components_already_installed()",
+      "label": ".test_add_components_no_components()",
       "file_type": "code",
       "source_file": ".agents/skills/ui-styling/scripts/tests/test_shadcn_add.py",
-      "source_location": "L111",
+      "source_location": "L95",
       "_callable": true,
       "_origin": "ast",
-      "id": "agents_skills_ui_styling_scripts_tests_test_shadcn_add_testshadcninstaller_test_add_components_already_installed",
+      "id": "agents_skills_ui_styling_scripts_tests_test_shadcn_add_testshadcninstaller_test_add_components_no_components",
       "community": 85,
       "community_name": "ShadcnInstaller",
-      "norm_label": ".test_add_components_already_installed()"
+      "norm_label": ".test_add_components_no_components()"
     },
     {
       "label": ".test_get_installed_components_no_config()",
@@ -46589,17 +46589,6 @@
       "norm_label": "website"
     },
     {
-      "label": "test_core.py",
-      "file_type": "code",
-      "source_file": ".agents/skills/ui-ux-pro-max/scripts/tests/test_core.py",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "agents_skills_ui_ux_pro_max_scripts_tests_test_core",
-      "community": 116,
-      "community_name": "test_core.py",
-      "norm_label": "test_core.py"
-    },
-    {
       "label": "Auto-detect the most relevant domain from query. Matches are weighted by\u2026",
       "file_type": "rationale",
       "source_file": ".agents/skills/ui-ux-pro-max/scripts/core.py",
@@ -46607,30 +46596,8 @@
       "_origin": "ast",
       "id": "agents_skills_ui_ux_pro_max_scripts_core_rationale_378",
       "community": 116,
-      "community_name": "test_core.py",
+      "community_name": "detect_domain",
       "norm_label": "auto-detect the most relevant domain from query. matches are weighted by..."
-    },
-    {
-      "label": "Format design system as markdown.",
-      "file_type": "rationale",
-      "source_file": ".agents/skills/ui-ux-pro-max/scripts/design_system.py",
-      "source_location": "L637",
-      "_origin": "ast",
-      "id": "agents_skills_ui_ux_pro_max_scripts_design_system_rationale_637",
-      "community": 116,
-      "community_name": "test_core.py",
-      "norm_label": "format design system as markdown."
-    },
-    {
-      "label": "Main entry point for design system generation. Args: query: Search query (e.g.,\u2026",
-      "file_type": "rationale",
-      "source_file": ".agents/skills/ui-ux-pro-max/scripts/design_system.py",
-      "source_location": "L780",
-      "_origin": "ast",
-      "id": "agents_skills_ui_ux_pro_max_scripts_design_system_rationale_780",
-      "community": 116,
-      "community_name": "test_core.py",
-      "norm_label": "main entry point for design system generation. args: query: search query (e.g.,..."
     },
     {
       "label": "Pick the highest-ranked palette matching the resolved mode. Only the dark case\u2026",
@@ -50010,15 +49977,15 @@
       "norm_label": "$value"
     },
     {
-      "label": "Test adding components with empty list.",
+      "label": "Test adding components that are already installed.",
       "file_type": "rationale",
       "source_file": ".agents/skills/ui-styling/scripts/tests/test_shadcn_add.py",
-      "source_location": "L96",
+      "source_location": "L112",
       "_origin": "ast",
-      "id": "agents_skills_ui_styling_scripts_tests_test_shadcn_add_rationale_96",
+      "id": "agents_skills_ui_styling_scripts_tests_test_shadcn_add_rationale_112",
       "community": 168,
-      "community_name": ".test_add_components_no_components",
-      "norm_label": "test adding components with empty list."
+      "community_name": ".test_add_components_already_installed",
+      "norm_label": "test adding components that are already installed."
     },
     {
       "label": "Path",
@@ -53351,26 +53318,26 @@
       "norm_label": "$value"
     },
     {
-      "label": "bcryptjs",
+      "label": "@radix-ui/react-dropdown-menu",
       "file_type": "code",
       "source_file": "package.json",
-      "source_location": "L31",
+      "source_location": "L20",
       "_origin": "ast",
-      "id": "package_dependencies_bcryptjs",
+      "id": "package_dependencies_radix_ui_react_dropdown_menu",
       "community": 247,
-      "community_name": "bcryptjs",
-      "norm_label": "bcryptjs"
+      "community_name": "@radix-ui/react-dropdown-menu",
+      "norm_label": "@radix-ui/react-dropdown-menu"
     },
     {
-      "label": "bcryptjs",
+      "label": "@radix-ui/react-dropdown-menu",
       "file_type": "concept",
       "source_file": "package.json",
-      "source_location": "L31",
+      "source_location": "L20",
       "_origin": "ast",
-      "id": "bcryptjs",
+      "id": "radix_ui_react_dropdown_menu",
       "community": 247,
-      "community_name": "bcryptjs",
-      "norm_label": "bcryptjs"
+      "community_name": "@radix-ui/react-dropdown-menu",
+      "norm_label": "@radix-ui/react-dropdown-menu"
     },
     {
       "label": "motion-icons-react",
@@ -56783,6 +56750,17 @@
       "norm_label": "design_system.py"
     },
     {
+      "label": "test_core.py",
+      "file_type": "code",
+      "source_file": ".agents/skills/ui-ux-pro-max/scripts/tests/test_core.py",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "agents_skills_ui_ux_pro_max_scripts_tests_test_core",
+      "community": 36,
+      "community_name": "design_system.py",
+      "norm_label": "test_core.py"
+    },
+    {
       "label": "Format a page-specific override file with intelligent AI-generated content.",
       "file_type": "rationale",
       "source_file": ".agents/skills/ui-ux-pro-max/scripts/design_system.py",
@@ -56858,6 +56836,28 @@
       "community": 36,
       "community_name": "design_system.py",
       "norm_label": "format design system as unicode box with ansi color swatches."
+    },
+    {
+      "label": "Format design system as markdown.",
+      "file_type": "rationale",
+      "source_file": ".agents/skills/ui-ux-pro-max/scripts/design_system.py",
+      "source_location": "L637",
+      "_origin": "ast",
+      "id": "agents_skills_ui_ux_pro_max_scripts_design_system_rationale_637",
+      "community": 36,
+      "community_name": "design_system.py",
+      "norm_label": "format design system as markdown."
+    },
+    {
+      "label": "Main entry point for design system generation. Args: query: Search query (e.g.,\u2026",
+      "file_type": "rationale",
+      "source_file": ".agents/skills/ui-ux-pro-max/scripts/design_system.py",
+      "source_location": "L780",
+      "_origin": "ast",
+      "id": "agents_skills_ui_ux_pro_max_scripts_design_system_rationale_780",
+      "community": 36,
+      "community_name": "design_system.py",
+      "norm_label": "main entry point for design system generation. args: query: search query (e.g.,..."
     },
     {
       "label": "Slugify a name into a single safe path segment. Only [a-z0-9_-] survives; every\u2026",
@@ -61315,17 +61315,6 @@
       "norm_label": "tests for shadcn_add.py"
     },
     {
-      "label": "Test adding components that are already installed.",
-      "file_type": "rationale",
-      "source_file": ".agents/skills/ui-styling/scripts/tests/test_shadcn_add.py",
-      "source_location": "L112",
-      "_origin": "ast",
-      "id": "agents_skills_ui_styling_scripts_tests_test_shadcn_add_rationale_112",
-      "community": 85,
-      "community_name": "ShadcnInstaller",
-      "norm_label": "test adding components that are already installed."
-    },
-    {
       "label": "Test listing installed components when they exist.",
       "file_type": "rationale",
       "source_file": ".agents/skills/ui-styling/scripts/tests/test_shadcn_add.py",
@@ -61346,6 +61335,17 @@
       "community": 85,
       "community_name": "ShadcnInstaller",
       "norm_label": "test getting installed components without config."
+    },
+    {
+      "label": "Test adding components with empty list.",
+      "file_type": "rationale",
+      "source_file": ".agents/skills/ui-styling/scripts/tests/test_shadcn_add.py",
+      "source_location": "L96",
+      "_origin": "ast",
+      "id": "agents_skills_ui_styling_scripts_tests_test_shadcn_add_rationale_96",
+      "community": 85,
+      "community_name": "ShadcnInstaller",
+      "norm_label": "test adding components with empty list."
     },
     {
       "label": "Add all available shadcn/ui components. Args: overwrite: If True, overwrite\u2026",
@@ -62239,6 +62239,17 @@
       "norm_label": "dependencies"
     },
     {
+      "label": "bcryptjs",
+      "file_type": "code",
+      "source_file": "package.json",
+      "source_location": "L31",
+      "_origin": "ast",
+      "id": "package_dependencies_bcryptjs",
+      "community": 93,
+      "community_name": "dependencies",
+      "norm_label": "bcryptjs"
+    },
+    {
       "label": "class-variance-authority",
       "file_type": "code",
       "source_file": "package.json",
@@ -62314,17 +62325,6 @@
       "community": 93,
       "community_name": "dependencies",
       "norm_label": "print-js"
-    },
-    {
-      "label": "@radix-ui/react-dropdown-menu",
-      "file_type": "code",
-      "source_file": "package.json",
-      "source_location": "L20",
-      "_origin": "ast",
-      "id": "package_dependencies_radix_ui_react_dropdown_menu",
-      "community": 93,
-      "community_name": "dependencies",
-      "norm_label": "@radix-ui/react-dropdown-menu"
     },
     {
       "label": "@radix-ui/react-popover",
@@ -62415,6 +62415,17 @@
       "norm_label": "xlsx"
     },
     {
+      "label": "bcryptjs",
+      "file_type": "concept",
+      "source_file": "package.json",
+      "source_location": "L31",
+      "_origin": "ast",
+      "id": "bcryptjs",
+      "community": 93,
+      "community_name": "dependencies",
+      "norm_label": "bcryptjs"
+    },
+    {
       "label": "class-variance-authority",
       "file_type": "concept",
       "source_file": "package.json",
@@ -62501,17 +62512,6 @@
       "community": 93,
       "community_name": "dependencies",
       "norm_label": "print-js"
-    },
-    {
-      "label": "@radix-ui/react-dropdown-menu",
-      "file_type": "concept",
-      "source_file": "package.json",
-      "source_location": "L20",
-      "_origin": "ast",
-      "id": "radix_ui_react_dropdown_menu",
-      "community": 93,
-      "community_name": "dependencies",
-      "norm_label": "@radix-ui/react-dropdown-menu"
     },
     {
       "label": "@radix-ui/react-popover",
@@ -73464,7 +73464,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/components/Sidebar.tsx",
-      "source_location": "L248",
+      "source_location": "L254",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_components_sidebar_sidebar",
@@ -111333,7 +111333,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/components/AppLayoutContainer.tsx",
-      "source_location": "L38",
+      "source_location": "L45",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_components_applayoutcontainer",
@@ -152993,5 +152993,5 @@
       "source_file": "public/slides/slide_load_calc.webp"
     }
   ],
-  "built_at_commit": "cb4a0f43bd3d03c40b55adb34550f6fb1e18f298"
+  "built_at_commit": "45a9708707967473b78a036eff50c27ce4b51135"
 }

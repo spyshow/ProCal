@@ -242,11 +242,18 @@ export default function Sidebar() {
     }
   };
 
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   return (
     <aside
       style={{ width: isCollapsed ? "64px" : "240px" }}
       className={cn(
-        "fixed top-0 h-screen flex flex-col bg-slate-950/95 backdrop-blur-xl z-40 select-none shadow-2xl transition-all duration-200",
+        "fixed top-0 h-screen flex flex-col bg-slate-950/95 backdrop-blur-xl z-40 select-none shadow-2xl",
+        mounted && "transition-all duration-200",
         isRtl ? "right-0 border-l border-slate-800/80" : "left-0 border-r border-slate-800/80"
       )}
     >

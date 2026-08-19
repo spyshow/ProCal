@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { RoomList } from '@/components/RoomList';
 import InfoTooltip from '@/components/InfoTooltip';
+import { PageSkeleton } from '@/components/ui/skeleton';
 import type { RoomData } from '@/components/RoomInput';
 
 interface FloorDesign {
@@ -86,11 +87,16 @@ export default function ProjectDetailPage() {
   const params = useParams();
   const router = useRouter();
   const projectId = params.id as string;
-  const { selectProject, refreshProject } = useProject();
+  const { selectedProject, selectedProjectId, selectProject, refreshProject } = useProject();
   const { t, isRtl } = useTranslation();
 
-  const [project, setProject] = useState<Project | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [project, setProject] = useState<Project | null>(() => {
+    if (selectedProject && selectedProject.id === projectId) {
+      return selectedProject as any;
+    }
+    return null;
+  });
+  const [loading, setLoading] = useState(() => !(selectedProject && selectedProject.id === projectId));
   const [activeTab, setActiveTab] = useState<'buildings' | 'templates' | 'loads'>('buildings');
   const [expandedBuilding, setExpandedBuilding] = useState<string | null>(null);
   const [showNewBuilding, setShowNewBuilding] = useState(false);
@@ -117,7 +123,9 @@ export default function ProjectDetailPage() {
       if (res.ok) {
         const data = await res.json();
         setProject(data);
-        selectProject(projectId);
+        if (selectedProjectId !== projectId) {
+          selectProject(projectId);
+        }
       } else {
         router.push('/projects');
       }
@@ -129,9 +137,14 @@ export default function ProjectDetailPage() {
   }
 
   useEffect(() => {
-    loadProject();
+    if (selectedProject && selectedProject.id === projectId) {
+      setProject(selectedProject as any);
+      setLoading(false);
+    } else {
+      loadProject();
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [projectId]);
+  }, [projectId, selectedProject?.id]);
 
   const handleSaveProject = async () => {
     await fetch(`/api/projects/${projectId}`, {
@@ -318,11 +331,7 @@ export default function ProjectDetailPage() {
   };
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center h-full">
-        <div className="text-gray-500 text-sm">Loading project…</div>
-      </div>
-    );
+    return <PageSkeleton titleWidth="w-72" subtitleWidth="w-96" rowCount={5} />;
   }
 
   if (!project) return null;

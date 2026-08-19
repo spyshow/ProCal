@@ -173,7 +173,7 @@ export function ActivityLogTab() {
         <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-800/80">
           <div className="flex items-center gap-1.5 text-xs text-slate-400">
             <Filter size={12} />
-            <span>{t('common.filter', 'Filters')}:</span>
+            <span>{t('activity.filters', 'Filters')}:</span>
           </div>
 
           <select
@@ -210,11 +210,11 @@ export function ActivityLogTab() {
             className="dense-input rounded-lg text-[11px] py-1 bg-slate-950/80 border-slate-800"
           >
             <option value="">{t('activity.allActions', 'All Actions')}</option>
-            <option value="CREATE">{t('common.create', 'Create')}</option>
-            <option value="UPDATE">{t('common.update', 'Update')}</option>
-            <option value="DELETE">{t('common.delete', 'Delete')}</option>
-            <option value="INVITE">{t('team.inviteMember', 'Invite')}</option>
-            <option value="REVISION">{t('workflow.step', 'Revision')}</option>
+            <option value="CREATE">{t('activity.create', 'Create')}</option>
+            <option value="UPDATE">{t('activity.update', 'Update')}</option>
+            <option value="DELETE">{t('activity.delete', 'Delete')}</option>
+            <option value="INVITE">{t('activity.invite', 'Invite')}</option>
+            <option value="REVISION">{t('activity.revision', 'Revision')}</option>
           </select>
 
           {(search || selectedUser || selectedEntity || selectedAction) && (
@@ -268,7 +268,17 @@ export function ActivityLogTab() {
                         log.action
                       )}`}
                     >
-                      {log.action}
+                      {log.action === "CREATE"
+                        ? t('activity.create', 'CREATE')
+                        : log.action === "UPDATE"
+                        ? t('activity.update', 'UPDATE')
+                        : log.action === "DELETE"
+                        ? t('activity.delete', 'DELETE')
+                        : log.action === "INVITE"
+                        ? t('activity.invite', 'INVITE')
+                        : log.action === "REVISION"
+                        ? t('activity.revision', 'REVISION')
+                        : log.action}
                     </span>
                     <span className="text-[10px] font-medium text-slate-400 uppercase bg-slate-800/80 px-1.5 py-0.2 rounded">
                       {log.entityType}

@@ -840,6 +840,7 @@
     "removeMember": "Rimuovi Membro",
     "resendInvite": "Reinvia Invito",
     "revokeInvite": "Revoca Invito",
+    "invitedBy": "Invitato da",
     "inviteModalTitle": "Invita Membro nel Team",
     "inviteModalSubtitle": "Invia un invito via email con link sicuro e assegna i ruoli per l'area di lavoro.",
     "fullName": "Nome Completo",

@@ -144,7 +144,7 @@ export function ActivityLogTab() {
   }
 
   return (
-    <div className="space-y-4 max-w-4xl">
+    <div className="space-y-4 w-full">
       {/* Top Controls: Search, Filters & Export */}
       <div className="p-4 rounded-xl border border-slate-800 bg-slate-900/40 space-y-3">
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">

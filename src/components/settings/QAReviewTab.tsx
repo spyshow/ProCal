@@ -97,7 +97,7 @@ export function QAReviewTab() {
   });
 
   return (
-    <div className="space-y-6 max-w-4xl">
+    <div className="space-y-6 w-full">
       {/* Metric Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <div className="p-4 rounded-xl border border-slate-800 bg-slate-900/40">

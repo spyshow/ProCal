@@ -224,13 +224,13 @@ export function ProjectTeamTab() {
   }
 
   return (
-    <div className="space-y-6 max-w-3xl">
+    <div className="space-y-6 w-full">
       {/* Header & Seat Pill */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-xl border border-slate-800 bg-slate-900/40">
         <div>
           <h2 className="text-base font-bold text-white flex items-center gap-2">
             <Users size={18} className="text-orange-500" />
-            {selectedProject?.name || t('team.title', 'Project')} — {t('team.title', 'Team & Access')}
+            {selectedProject?.name ? `${selectedProject.name} — ` : ""}{t('team.title', 'Team & Access Control')}
           </h2>
           <p className="text-xs text-slate-400 mt-1">
             {t('team.subtitle', 'Manage project members, roles, and granular page permissions.')}
@@ -369,7 +369,7 @@ export function ProjectTeamTab() {
                     </span>
                   </div>
                   <p className="text-xs text-slate-400 mt-0.5">
-                    {inv.email} • {t('team.roles.pm', 'Invited by')} {inv.invitedBy || "PM"}
+                    {inv.email} • {t('team.invitedBy', 'Invited by')} {inv.invitedBy || "PM"}
                   </p>
                 </div>
 

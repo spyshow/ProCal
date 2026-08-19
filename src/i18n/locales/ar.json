@@ -869,6 +869,7 @@
     "removeMember": "إزالة العضو",
     "resendInvite": "إعادة إرسال الدعوة",
     "revokeInvite": "إلغاء الدعوة",
+    "invitedBy": "تمت الدعوة بواسطة",
     "inviteModalTitle": "دعوة عضو إلى المشروع",
     "inviteModalSubtitle": "أرسل دعوة عبر البريد الإلكتروني مع رابط آمن وحدد دور المستخدم وصلاحياته.",
     "fullName": "الاسم الكامل",

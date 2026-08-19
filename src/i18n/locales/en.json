@@ -864,6 +864,7 @@
     "removeMember": "Remove Member",
     "resendInvite": "Resend Invite",
     "revokeInvite": "Revoke Invite",
+    "invitedBy": "Invited by",
     "inviteModalTitle": "Invite Team Member",
     "inviteModalSubtitle": "Send an email invitation with a secure link and assign workspace roles.",
     "fullName": "Full Name",

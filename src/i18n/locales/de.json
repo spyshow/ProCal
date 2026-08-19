@@ -839,6 +839,7 @@
     "removeMember": "Mitglied entfernen",
     "resendInvite": "Einladung erneut senden",
     "revokeInvite": "Einladung widerrufen",
+    "invitedBy": "Eingeladen von",
     "inviteModalTitle": "Teammitglied einladen",
     "inviteModalSubtitle": "Senden Sie eine E-Mail-Einladung mit sicherem Link und weisen Sie Arbeitsbereichsrollen zu.",
     "fullName": "Vollständiger Name",

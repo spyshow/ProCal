@@ -20,8 +20,6 @@ import {
   RefreshCw,
   AlertTriangle,
   HelpCircle,
-  FileSpreadsheet,
-  Loader2,
 } from 'lucide-react';
 import InfoTooltip from '@/components/InfoTooltip';
 import { PageSkeleton } from '@/components/ui/skeleton';
@@ -50,8 +48,6 @@ function CalculatorContent() {
   const [expandedFloor, setExpandedFloor] = useState<string | null>(focusFloorId || null);
   const [expandedBuildingLoads, setExpandedBuildingLoads] = useState(true);
   const [showAddItem, setShowAddItem] = useState<string | null>(null);
-  const [importing, setImporting] = useState(false);
-  const importInputRef = useRef<HTMLInputElement>(null);
   const [addForm, setAddForm] = useState({
     type: 'APARTMENT',
     name: '',
@@ -246,55 +242,6 @@ function CalculatorContent() {
         </div>
 
         <div className="flex items-center gap-3">
-          {/* Import loads from Excel (client load list) */}
-          <input
-            ref={importInputRef}
-            type="file"
-            accept=".xlsx,.xls"
-            className="hidden"
-            onChange={async (e) => {
-              const file = e.target.files?.[0];
-              e.target.value = '';
-              if (!file || importing) return;
-              if (!bldg || !project) return;
-              setImporting(true);
-              try {
-                const form = new FormData();
-                form.append('file', file);
-                form.append('buildingId', bldg.id);
-                const res = await fetch(`/api/projects/${project.id}/import-loads`, {
-                  method: 'POST',
-                  body: form,
-                });
-                if (!res.ok) {
-                  const err = await res.json().catch(() => ({}));
-                  alert(err.error || 'Import failed');
-                  return;
-                }
-                const result = await res.json();
-                const skipMsg = result.skipped?.length
-                  ? `\nSkipped ${result.skipped.length} row(s):\n` + result.skipped.slice(0, 5).map((s: { row: number; reason: string }) => `  • Row ${s.row}: ${s.reason}`).join('\n')
-                  : '';
-                alert(`Imported ${result.created} load(s) into ${bldg.name}.${skipMsg}`);
-                loadProject();
-              } catch (err) {
-                console.error(err);
-                alert('Import failed — network error');
-              } finally {
-                setImporting(false);
-              }
-            }}
-          />
-          <button
-            onClick={() => importInputRef.current?.click()}
-            disabled={importing}
-            className="flex items-center gap-2 px-3.5 py-2 rounded-lg bg-emerald-700 hover:bg-emerald-600 disabled:opacity-50 text-white text-xs font-semibold shadow-sm transition-all shrink-0"
-            title="Import a client load list (.xlsx: Floor, Name, kW, Type, Quantity, Material)"
-          >
-            {importing ? <Loader2 size={15} className="animate-spin" /> : <FileSpreadsheet size={15} />}
-            {importing ? 'Importing…' : t('calculator.importExcel', 'Import Excel')}
-          </button>
-
           {/* Page-Specific Tour Button */}
           <button
             onClick={() => {

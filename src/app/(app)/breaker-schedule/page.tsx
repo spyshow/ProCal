@@ -231,7 +231,66 @@ export default function BreakerSchedulePage() {
     if (!project) return [];
     const list: BreakerEntry[] = [];
     for (const bldg of project.buildings) {
-      const { mdbFeeders, smdbFloorNumbers, smdbFeeders } = computeFeeders(bldg, project, findBreaker);
+      const {
+        mdbFeeders,
+        smdbFloorNumbers,
+        smdbFeeders,
+        mainIncomerSettings,
+        mainBreakerIn,
+        mainCableSize,
+        mainParallelRuns,
+        mainCableIz,
+        mainIncomerCurrent,
+        transformerIscKa,
+      } = computeFeeders(bldg, project, findBreaker);
+
+      // 1. Add Main Incomer for the building
+      const incomerSaved = breakerSettings.find(
+        (s) =>
+          s.breakerId === `${project.id}-main-incomer-${bldg.id}` ||
+          s.breakerId === `${project.id}-main-incomer` ||
+          s.breakerId === `main-incomer-${bldg.id}` ||
+          s.breakerId === 'main-incomer'
+      );
+      const effectiveIncomerModel = resolveBreakerDisplayName(
+        incomerSaved?.model,
+        mainIncomerSettings.model
+      );
+
+      list.push({
+        id: `${bldg.id}-incomer`,
+        name: project.buildings.length > 1 ? `${bldg.name} – Main Incomer` : 'Main Incomer',
+        type: 'INCOMER',
+        floor: 0,
+        buildingId: bldg.id,
+        buildingName: bldg.name,
+        current: mainIncomerCurrent || mainIncomerSettings.ir,
+        breakerSize: mainBreakerIn,
+        baseBreakerSize: mainBreakerIn,
+        isBreakerUpsized: false,
+        cableSize: mainCableSize,
+        parallelRuns: mainParallelRuns,
+        formattedCableSize:
+          mainParallelRuns > 1
+            ? `${mainParallelRuns} × (4 × ${mainCableSize} mm²)`
+            : `4 × ${mainCableSize} mm²`,
+        cableIz: mainCableIz,
+        isUnderProtected: false,
+        breakerModel: effectiveIncomerModel,
+        manufacturer: mainIncomerSettings.manufacturer,
+        familyName: undefined,
+        fallback: mainIncomerSettings.isGeneric,
+        fallbackType: mainIncomerSettings.isGeneric ? 'GENERIC_SPEC' : 'SAME_FAMILY',
+        isThreePhase: true,
+        parentFeederName: 'Utility / Transformer Supply',
+        faultCurrentKa: transformerIscKa,
+        selectivityStatus: 'FULL',
+        selectivityLimitKa: null,
+        cableDamageOk: true,
+        selectivityReason: 'Main incoming protective device (IEC 60947-2 Category B)',
+        suggestedAlternative: null,
+        alternativeSuggestions: [],
+      });
 
       const feederFloor = (feederName: string): number => {
         const m = feederName.match(/^F(\d+)/);
@@ -795,7 +854,8 @@ export default function BreakerSchedulePage() {
         const upstreamFeederForModal = selectedFeederForModal.parentFeederName
           ? breakers.find(
               (b) =>
-                b.name === selectedFeederForModal.parentFeederName &&
+                (b.name === selectedFeederForModal.parentFeederName ||
+                  (selectedFeederForModal.parentFeederName === 'Main Incomer' && b.type === 'INCOMER')) &&
                 b.buildingId === selectedFeederForModal.buildingId
             )
           : null;

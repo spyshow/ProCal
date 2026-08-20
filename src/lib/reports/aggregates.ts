@@ -203,11 +203,29 @@ export function aggregateBreakerRows(
   const rows: BreakerRow[] = [];
 
   for (const bldg of project.buildings) {
-    const { mdbFeeders, smdbFeeders, smdbFloorNumbers } = computeFeeders(
-      bldg,
-      project,
-      findBreaker
-    );
+    const {
+      mdbFeeders,
+      smdbFeeders,
+      smdbFloorNumbers,
+      mainIncomerSettings,
+      mainBreakerIn,
+      mainCableSize,
+      mainIncomerCurrent,
+    } = computeFeeders(bldg, project, findBreaker);
+
+    // 1. Main Incomer Row
+    rows.push({
+      feeder: project.buildings.length > 1 ? `${bldg.name} – Main Incomer` : 'Main Incomer',
+      buildingName: bldg.name,
+      buildingId: bldg.id,
+      floor: 0,
+      type: 'INCOMER',
+      current: mainIncomerCurrent || mainIncomerSettings.ir,
+      breakerAmps: mainBreakerIn,
+      cableMm2: mainCableSize,
+      breakerModel: mainIncomerSettings.model,
+      isThreePhase: true,
+    });
 
     const feederFloor = (feederName: string): number => {
       const m = feederName.match(/^F(\d+)/);

@@ -372,7 +372,7 @@ describe('aggregateCableRows', () => {
 // ---------------------------------------------------------------------------
 
 describe('aggregateBreakerRows', () => {
-  it('creates breaker rows for MDB and SMDB feeders', () => {
+  it('creates breaker rows for Main Incomer, MDB, and SMDB feeders', () => {
     const bldg = building({
       floorDesigns: [{
         id: 'f1', floorNumber: 2, hasFloorSubPanels: true,
@@ -382,8 +382,12 @@ describe('aggregateBreakerRows', () => {
 
     const rows = aggregateBreakerRows(projectWithBuildings([bldg]), findBreaker);
 
+    const incomerRow = rows.find((r) => r.type === 'INCOMER');
     const mdbRow = rows.find((r) => r.type === 'SMDB');
     const smdbRow = rows.find((r) => r.feeder === 'F2 – Apt A');
+    expect(incomerRow).toBeDefined();
+    expect(incomerRow!.floor).toBe(0);
+    expect(incomerRow!.isThreePhase).toBe(true);
     expect(mdbRow).toBeDefined();
     expect(mdbRow!.floor).toBe(2);
     expect(smdbRow).toBeDefined();
@@ -413,10 +417,11 @@ describe('aggregateBreakerRows', () => {
 
     const rows = aggregateBreakerRows(projectWithBuildings([bldg]), noBreaker);
 
-    expect(rows[0].breakerModel).toMatch(/^(MCB|MCCB) \d+$/);
+    const branchRow = rows.find((r) => r.type === 'APARTMENT');
+    expect(branchRow?.breakerModel).toMatch(/^(MCB|MCCB) \d+$/);
   });
 
-  it('marks apartment rows as non-three-phase', () => {
+  it('marks apartment rows as non-three-phase and incomer as three-phase', () => {
     const bldg = building({
       floorDesigns: [{
         id: 'f1', floorNumber: 1, hasFloorSubPanels: false,
@@ -426,7 +431,10 @@ describe('aggregateBreakerRows', () => {
 
     const rows = aggregateBreakerRows(projectWithBuildings([bldg]), findBreaker);
 
-    expect(rows[0].isThreePhase).toBe(false);
+    const branchRow = rows.find((r) => r.type === 'APARTMENT');
+    expect(branchRow?.isThreePhase).toBe(false);
+    const incomerRow = rows.find((r) => r.type === 'INCOMER');
+    expect(incomerRow?.isThreePhase).toBe(true);
   });
 });
 

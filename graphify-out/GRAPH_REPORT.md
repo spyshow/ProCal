@@ -1,16 +1,16 @@
 # Graph Report - ProCal  (2026-08-20)
 
 ## Corpus Check
-- 415 files · ~574,045 words
+- 415 files · ~577,612 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 5466 nodes · 7831 edges · 298 communities (180 shown, 118 thin omitted)
+- 5466 nodes · 7831 edges · 297 communities (179 shown, 118 thin omitted)
 - Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 49 edges (avg confidence: 0.72)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `e80b307b`
+- Built from commit: `cbc947c5`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -131,7 +131,7 @@
 - Logo Usage Rules
 - Prisma__BreakerFamilyClient
 - Claude Project Guidelines
-- detect_domain
+- test_core.py
 - _select_palette_for_mode
 - Prisma__ApartmentTemplateClient
 - Prisma__BuildingClient
@@ -151,7 +151,7 @@
 - Load Calculation & Per-Phase Balancing
 - leads/page.tsx
 - admin/page.tsx
-- padding-y
+- none
 - .test_add_components_no_config
 - profile/route.ts
 - Prisma__ApartmentRoomClient
@@ -189,7 +189,7 @@
 - SLD Panel Designer Implementation Plan
 - next.config.ts
 - db-sync.ts
-- md
+- 0
 - print-js.d.ts
 - ui-styling Python Requirements
 - Knowledge Graph Generation Pipeline
@@ -199,7 +199,7 @@
 - $type
 - .test_init_dry_run
 - ProjectRevisionDelegate
-- 4
+- primary
 - .test_get_installed_components_with_files
 - 6
 - .test_add_fonts
@@ -258,9 +258,9 @@
 - zod
 - .test_check_shadcn_config_exists
 - Prisma__ProjectRevisionClient
-- clsx
+- .test_add_components_no_components
 - secondary-foreground
-- destructive
+- bcryptjs
 - @radix-ui/react-dropdown-menu
 - motion-icons-react
 - .test_init_default_project_root
@@ -291,7 +291,6 @@
 - Tailwind Integration
 - update.md
 - Token Architecture
-- .test_add_components_already_installed
 - Primitive Tokens
 - Core Visual Elements
 - pagedjs
@@ -326,25 +325,25 @@
   research/riser-diagram-purpose/findings/F1-research.md → docs/reference-calc-engine.md
 
 ## Import Cycles
-- 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/FloorItem.ts -> src/generated/prisma/internal/prismaNamespace.ts`
-- 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/ProjectRevision.ts -> src/generated/prisma/internal/prismaNamespace.ts`
-- 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/ProjectInvite.ts -> src/generated/prisma/internal/prismaNamespace.ts`
+- 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/FloorDesign.ts -> src/generated/prisma/internal/prismaNamespace.ts`
+- 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/BuildingLoad.ts -> src/generated/prisma/internal/prismaNamespace.ts`
 - 3-file cycle: `src/generated/prisma/commonInputTypes.ts -> src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/commonInputTypes.ts`
+- 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/User.ts -> src/generated/prisma/internal/prismaNamespace.ts`
+- 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/BreakerFamily.ts -> src/generated/prisma/internal/prismaNamespace.ts`
+- 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/LoadLibraryItem.ts -> src/generated/prisma/internal/prismaNamespace.ts`
 - 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/ApartmentRoom.ts -> src/generated/prisma/internal/prismaNamespace.ts`
 - 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/ApartmentTemplate.ts -> src/generated/prisma/internal/prismaNamespace.ts`
-- 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/BreakerFamily.ts -> src/generated/prisma/internal/prismaNamespace.ts`
 - 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/BreakerSettings.ts -> src/generated/prisma/internal/prismaNamespace.ts`
 - 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/Building.ts -> src/generated/prisma/internal/prismaNamespace.ts`
-- 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/BuildingLoad.ts -> src/generated/prisma/internal/prismaNamespace.ts`
 - 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/ContactRequest.ts -> src/generated/prisma/internal/prismaNamespace.ts`
 - 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/EquipmentCatalog.ts -> src/generated/prisma/internal/prismaNamespace.ts`
-- 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/FloorDesign.ts -> src/generated/prisma/internal/prismaNamespace.ts`
-- 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/LoadLibraryItem.ts -> src/generated/prisma/internal/prismaNamespace.ts`
+- 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/FloorItem.ts -> src/generated/prisma/internal/prismaNamespace.ts`
 - 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/Project.ts -> src/generated/prisma/internal/prismaNamespace.ts`
 - 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/ProjectAuditLog.ts -> src/generated/prisma/internal/prismaNamespace.ts`
+- 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/ProjectInvite.ts -> src/generated/prisma/internal/prismaNamespace.ts`
 - 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/ProjectMember.ts -> src/generated/prisma/internal/prismaNamespace.ts`
 - 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/ProjectReviewItem.ts -> src/generated/prisma/internal/prismaNamespace.ts`
-- 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/User.ts -> src/generated/prisma/internal/prismaNamespace.ts`
+- 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/ProjectRevision.ts -> src/generated/prisma/internal/prismaNamespace.ts`
 
 ## Hyperedges (group relationships)
 - **Complete Brand Identity Generation Flow** — agents_skills_design_skill_unified_design, agents_skills_design_references_logo_design_logo_generation_workflow, agents_skills_design_references_cip_design_cip_workflow, agents_skills_design_references_slides_slides_reference [EXTRACTED 1.00]
@@ -363,7 +362,7 @@
 - **Phase Balancing & Neutral Accounting Pipeline** — docs_explanation_phase_balancing_total_angle_neutral, docs_explanation_phase_balancing_current_unbalance_proxy, docs_explanation_phase_balancing_greedy_assignment_on_read, docs_reference_calc_engine_calc_engine_reference, uploads_3phase_pdh_course_e336, uploads_en50160_en_50160_standard [INFERRED 0.95]
 - **ProCal Core Engineering Workflow Feature Slides** — public_slides_slide_load_calc, public_slides_slide_cable_sizing, public_slides_slide_sld_diagram, public_slides_slide_breaker_schedule, public_slides_slide_pdf_reports [INFERRED 0.95]
 
-## Communities (298 total, 118 thin omitted)
+## Communities (297 total, 118 thin omitted)
 
 ### Community 0 - "Project.ts"
 Cohesion: 0.01
@@ -510,8 +509,8 @@ Cohesion: 0.16
 Nodes (25): CoordinationPage(), TccPlotModal(), TccPlotModalProps, ComputeFeedersResult, BreakerCurveSettings, calculateCableWithstandTime(), checkCableProtection(), CoordinationResult (+17 more)
 
 ### Community 36 - "design_system.py"
-Cohesion: 0.10
-Nodes (27): ansi_ljust(), _detect_page_type(), format_ascii_box(), format_markdown(), format_master_md(), format_page_override_md(), generate_design_system(), _generate_intelligent_overrides() (+19 more)
+Cohesion: 0.13
+Nodes (20): ansi_ljust(), _detect_page_type(), format_ascii_box(), format_master_md(), format_page_override_md(), _generate_intelligent_overrides(), hex_to_ansi(), persist_design_system() (+12 more)
 
 ### Community 37 - "compilerOptions"
 Cohesion: 0.07
@@ -562,8 +561,8 @@ Cohesion: 0.10
 Nodes (12): main(), Add custom font families. Args: fonts: Dict of font_type: [font_names] e.g.,…, Add custom spacing values. Args: spacing: Dict of name: value e.g., {'18':…, Add custom breakpoints. Args: breakpoints: Dict of name: width e.g., {'3xl':…, Add plugin requirements. Args: plugins: List of plugin names e.g.,…, Get plugin recommendations based on configuration. Returns: List of recommended…, Generate Tailwind CSS configuration files., Validate configuration. Returns: Tuple of (valid, message) (+4 more)
 
 ### Community 49 - "DesignSystemGenerator"
-Cohesion: 0.14
-Nodes (10): DesignSystemGenerator, Generates design system recommendations from aggregated searches., Load reasoning rules from CSV., Execute searches across multiple domains., Find matching reasoning rule for a category., Apply reasoning rules to search results., Select best matching result based on priority keywords., Extract results list from search result dict. (+2 more)
+Cohesion: 0.13
+Nodes (12): DesignSystemGenerator, Generates design system recommendations from aggregated searches., Load reasoning rules from CSV., Execute searches across multiple domains., Find matching reasoning rule for a category., Apply reasoning rules to search results., Select best matching result based on priority keywords., Extract results list from search result dict. (+4 more)
 
 ### Community 51 - "revisions-diff.ts"
 Cohesion: 0.07
@@ -579,7 +578,7 @@ Nodes (24): POST(), mocks, post(), GET(), POST(), create, findFirst, mocks (+16 
 
 ### Community 54 - "color"
 Cohesion: 0.11
-Nodes (19): $type, $value, background, foreground, muted-foreground, primary, primary-hover, secondary (+11 more)
+Nodes (19): $type, $value, background, destructive, foreground, muted-foreground, primary-hover, secondary (+11 more)
 
 ### Community 55 - "test_design_system_mode.py"
 Cohesion: 0.16
@@ -651,7 +650,7 @@ Nodes (9): assert(), runE2ETests(), TestContext, POST(), POST(), POST(), mocks, 
 
 ### Community 85 - "ShadcnInstaller"
 Cohesion: 0.20
-Nodes (7): main(), Handle shadcn/ui component installation., ShadcnInstaller, Tests for shadcn_add.py, Test listing installed components when they exist., Test getting installed components without config., Test adding components with empty list.
+Nodes (7): main(), Handle shadcn/ui component installation., ShadcnInstaller, Tests for shadcn_add.py, Test adding components that are already installed., Test listing installed components when they exist., Test getting installed components without config.
 
 ### Community 86 - ".check_shadcn_config"
 Cohesion: 0.21
@@ -683,7 +682,7 @@ Nodes (8): Tests for tailwind_config_gen.py, Reduce a generated TS/JS config to 
 
 ### Community 93 - "dependencies"
 Cohesion: 0.06
-Nodes (33): bcryptjs, class-variance-authority, @hookform/resolvers, jose, lucide-react, next, nodemailer, dependencies (+25 more)
+Nodes (33): class-variance-authority, clsx, @hookform/resolvers, jose, lucide-react, next, nodemailer, dependencies (+25 more)
 
 ### Community 94 - "ProCal Electrical Load & MDB Designer"
 Cohesion: 0.18
@@ -742,8 +741,8 @@ Cohesion: 0.20
 Nodes (8): ADMIN, catalogCount, contactCount, groupBy, projectCount, projectFindMany, userAggregate, userFindMany
 
 ### Community 109 - "input"
-Cohesion: 0.29
-Nodes (8): padding-x, input, $type, $value, focus-ring, padding-x, $type, $value
+Cohesion: 0.20
+Nodes (12): padding-x, padding-y, input, $type, $value, focus-ring, padding-x, padding-y (+4 more)
 
 ### Community 110 - "Banner Design - Multi-Format Creative Banner System"
 Cohesion: 0.14
@@ -765,9 +764,9 @@ Nodes (28): Absolute Don'ts, Approved Backgrounds, Before Using Logo, Clear Spac
 Cohesion: 0.29
 Nodes (7): Next.js Breaking Changes Agent Rules, Next.js Version Breaking Changes Guard, Claude Project Guidelines, Diataxis Documentation Structure, Frontend Design Stack Guidelines, gstack Workflow & Skills Suite, Pure-TS Calculation Drift Prevention
 
-### Community 116 - "detect_domain"
-Cohesion: 0.43
-Nodes (3): detect_domain(), Auto-detect the most relevant domain from query. Matches are weighted by…, TestDomainDetection
+### Community 116 - "test_core.py"
+Cohesion: 0.19
+Nodes (8): detect_domain(), Auto-detect the most relevant domain from query. Matches are weighted by…, format_markdown(), generate_design_system(), Format design system as markdown., Main entry point for design system generation. Args: query: Search query (e.g.,…, TestDomainDetection, TestPersistence
 
 ### Community 117 - "_select_palette_for_mode"
 Cohesion: 0.43
@@ -813,9 +812,9 @@ Nodes (5): Load Calculation & Per-Phase Balancing, TODO-1: FloorItem.calculatedC
 Cohesion: 0.40
 Nodes (3): Lead, LeadUser, StatusFilter
 
-### Community 136 - "padding-y"
+### Community 136 - "none"
 Cohesion: 0.67
-Nodes (4): padding-y, padding-y, $type, $value
+Nodes (4): $type, $value, none, none
 
 ### Community 138 - "profile/route.ts"
 Cohesion: 0.43
@@ -909,9 +908,9 @@ Nodes (7): GET(), POST(), get(), mocks, post(), toRevisionDto(), PROJECT_SNAPSHO
 Cohesion: 0.67
 Nodes (3): Interactive Cable Editor & Recalculation, Schematex DSL Generator Design, SLD Panel Designer Implementation Plan
 
-### Community 174 - "md"
+### Community 174 - "0"
 Cohesion: 0.67
-Nodes (4): $type, $value, md, md
+Nodes (3): $type, $value, 0
 
 ### Community 181 - "Design System"
 Cohesion: 0.09
@@ -921,9 +920,9 @@ Nodes (22): Best Practices, Chart.js Integration, Command, Component Spec Patter
 Cohesion: 0.60
 Nodes (5): $type, $value, border, border, border
 
-### Community 185 - "4"
+### Community 185 - "primary"
 Cohesion: 0.67
-Nodes (3): $type, $value, 4
+Nodes (3): primary, $type, $value
 
 ### Community 187 - "6"
 Cohesion: 0.67
@@ -976,10 +975,6 @@ Nodes (3): primary-foreground, $type, $value
 ### Community 245 - "secondary-foreground"
 Cohesion: 0.67
 Nodes (3): secondary-foreground, $type, $value
-
-### Community 246 - "destructive"
-Cohesion: 0.67
-Nodes (3): destructive, $type, $value
 
 ### Community 282 - "Design Principles"
 Cohesion: 0.12

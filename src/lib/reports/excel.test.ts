@@ -129,8 +129,9 @@ describe('buildReportWorkbook', () => {
     const wb = buildReportWorkbook(projectWith([bldg]), findBreaker);
     const rows = XLSX.utils.sheet_to_json<Record<string, string | number>>(wb.Sheets['Breaker Schedule']);
 
-    expect(rows).toHaveLength(1);
-    expect(rows[0]['Breaker']).toBe(25);
+    expect(rows).toHaveLength(2);
+    expect(rows[0]['Feeder']).toBe('Main Incomer');
+    expect(rows[1]['Breaker']).toBe(25);
   });
 
   it('writes voltage-drop rows with a status', () => {

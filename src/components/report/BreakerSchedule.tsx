@@ -76,7 +76,35 @@ export default function BreakerSchedule({
 
     for (const bldg of project.buildings) {
       if (buildingId && bldg.id !== buildingId) continue;
-      const { mdbFeeders, smdbFloorNumbers, smdbFeeders } = computeFeeders(bldg, project, findBreaker);
+      const {
+        mdbFeeders,
+        smdbFloorNumbers,
+        smdbFeeders,
+        mainIncomerSettings,
+        mainBreakerIn,
+        mainCableSize,
+        mainIncomerCurrent,
+        transformerIscKa,
+      } = computeFeeders(bldg, project, findBreaker);
+
+      // 1. Main Incomer Row
+      list.push({
+        id: `${bldg.id}-incomer`,
+        name: project.buildings.length > 1 ? `${bldg.name} – Main Incomer` : 'Main Incomer',
+        type: 'INCOMER',
+        floor: 0,
+        buildingName: bldg.name,
+        current: mainIncomerCurrent || mainIncomerSettings.ir,
+        breakerSize: mainBreakerIn,
+        baseBreakerSize: mainBreakerIn,
+        cableSize: mainCableSize,
+        breakerModel: mainIncomerSettings.model,
+        isThreePhase: true,
+        parentFeederName: 'Utility / Transformer Supply',
+        faultCurrentKa: transformerIscKa,
+        selectivityStatus: 'FULL',
+        cableDamageOk: true,
+      });
 
       const feederFloor = (feederName: string): number => {
         const m = feederName.match(/^F(\d+)/);

@@ -683,6 +683,10 @@ export interface ComputeFeedersResult {
   mainCableIz: number;
   /** Actual catalog breaker rating (In) of the main incomer. */
   mainBreakerIn: number;
+  /** Design load current (A) for the whole building incoming supply. */
+  mainIncomerCurrent: number;
+  /** Prospective secondary short-circuit current (kA) at the main incomer. */
+  transformerIscKa: number;
 }
 
 /**
@@ -1204,5 +1208,7 @@ export function computeFeeders(
     mainParallelRuns: mainFinalSizing.parallelRuns,
     mainCableIz: mainFinalSizing.deratedAmpacity,
     mainBreakerIn,
+    mainIncomerCurrent,
+    transformerIscKa,
   };
 }

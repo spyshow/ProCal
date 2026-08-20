@@ -132,8 +132,8 @@ export function QAReviewDrawer({ pageKey, pageTitle }: QAReviewDrawerProps) {
     <>
       {/* Floating Trigger Button */}
       <div
-        className={`fixed bottom-5 z-40 ${
-          isRtl ? "left-40 sm:left-44" : "right-40 sm:right-44"
+        className={`fixed bottom-18 z-40 ${
+          isRtl ? "left-5" : "right-5"
         } print:hidden`}
       >
         <button

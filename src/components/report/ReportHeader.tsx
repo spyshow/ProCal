@@ -118,7 +118,7 @@ export default function ReportHeader({
   return (
     <header
       aria-label="Report header"
-      className="w-full border-b-2 border-slate-900 bg-slate-900 text-white p-2.5 rounded-lg shadow-sm mb-2.5 box-border"
+      className="report-header w-full border-b-2 border-slate-900 bg-slate-900 text-white p-2.5 rounded-lg shadow-sm mb-2.5 box-border"
     >
       <div className="flex items-center justify-between gap-4">
         <div>

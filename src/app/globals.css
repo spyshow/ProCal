@@ -344,9 +344,6 @@ html[dir="rtl"] .font-mono {
     color: black !important;
     overflow: visible !important;
     height: auto !important;
-    width: 277mm !important;
-    max-width: 277mm !important;
-    margin: 0 auto !important;
     padding: 0 !important;
     box-sizing: border-box !important;
   }
@@ -362,8 +359,8 @@ html[dir="rtl"] .font-mono {
     margin-left: auto !important;
     margin-right: auto !important;
     padding: 0 !important;
-    width: 277mm !important;
-    max-width: 277mm !important;
+    width: 100% !important;
+    max-width: 100% !important;
   }
 
   nav, aside, [class*="sidebar"], .print\:hidden, header:not(.report-header), .screen-only-report {
@@ -463,27 +460,9 @@ html[dir="rtl"] .font-mono {
     padding: 0 !important;
   }
 
-  #print-all-tabs,
-  #print-all-tabs * {
-    background: white !important;
-    color: black !important;
-  }
-
   #print-all-tabs header.report-header,
   header.report-header {
     display: block !important;
-  }
-
-  .cover-page {
-    width: 210mm !important;
-    min-height: 297mm !important;
-    max-height: none !important;
-    box-sizing: border-box !important;
-    margin: 0 !important;
-    padding: 15mm !important;
-    page-break-after: auto !important;
-    break-after: auto !important;
-    overflow: visible !important;
   }
 
   .report-section,
@@ -495,43 +474,6 @@ html[dir="rtl"] .font-mono {
   h1, h2, h3 {
     break-after: avoid;
     page-break-after: avoid;
-  }
-
-  table {
-    width: 100% !important;
-    table-layout: auto !important;
-    border-collapse: collapse !important;
-    max-width: 100% !important;
-    page-break-inside: auto;
-    break-inside: auto;
-  }
-
-  thead {
-    display: table-header-group !important;
-  }
-
-  tr {
-    page-break-inside: avoid;
-    break-inside: avoid;
-  }
-
-  th, td {
-    padding: 3px 5px !important;
-    font-size: 7.5pt !important;
-    border: 1px solid #d1d5db !important;
-    overflow-wrap: break-word !important;
-    word-break: break-word !important;
-    white-space: normal !important;
-  }
-
-  th {
-    background-color: #e5e7eb !important;
-    color: #111827 !important;
-    font-weight: 700 !important;
-  }
-
-  td {
-    background-color: white !important;
   }
 
   .report-section table,

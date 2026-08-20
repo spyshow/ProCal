@@ -64,8 +64,7 @@ Mixing kVA-magnitudes (no PF) with kW-magnitudes (with PF) produces a kVA-neutra
 
 **Why:** Revisions and contact leads have no delete endpoints (by design). Leaving them pollutes the fixture project's revision history and the admin feedback list.
 
-**Option A (preferred):** Add `DELETE /api/projects/[id]/revisions/[revisionId]` (owner-only, same RBAC as restore) and `DELETE /api/admin/leads/[id]` — then delete via API.
-**Option B:** One-off direct DB cleanup of the three ids above.
+**Status:** DONE 2026-08-20 (commit `d13aaf3`). Added `DELETE /api/projects/[id]/revisions/[revisionId]` (owner-only, opaque 404) and `DELETE /api/admin/leads/[id]` (admin-only), wired Delete buttons into the Revisions panel and admin feedback page, and purged all three artifacts via the new endpoints. Revisions list is back to 0; the two remaining leads are intentional prior-session test records.
 
 ---
 

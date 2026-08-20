@@ -239,25 +239,67 @@ html[dir="rtl"] .font-mono {
 }
 
 /* ---------------------------------------------------------------------------
-   Print styles - Professional PDF report output
+   Print styles - Professional PDF report output (Landscape A4: 297mm x 210mm)
    --------------------------------------------------------------------------- */
 
 @page {
-  size: A4;
-  margin: 15mm;
-
-  @bottom-center {
-    content: counter(page) " / " counter(pages);
-    font-size: 9pt;
-    color: #6b7280;
-  }
+  size: 297mm 210mm !important;
+  margin: 15mm 12mm 15mm 12mm !important;
 }
 
-@page :first {
-  margin: 0;
+@media print {
+  @page {
+    size: 297mm 210mm !important;
+    margin: 15mm 12mm 15mm 12mm !important;
+  }
 
-  @bottom-center {
-    content: none;
+  *, *::before, *::after {
+    box-sizing: border-box !important;
+  }
+
+  html, body {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background-color: white !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .screen-only-report {
+    display: none !important;
+  }
+
+  #print-all-tabs {
+    position: static !important;
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .print-page-container {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    padding: 0 !important;
+  }
+
+  .cover-page {
+    width: 100% !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  thead {
+    display: table-header-group !important;
+  }
+
+  tr {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
   }
 }
 
@@ -286,11 +328,6 @@ html[dir="rtl"] .font-mono {
 .avoid-break {
   break-inside: avoid;
   page-break-inside: avoid;
-}
-
-@page {
-  size: 297mm 210mm !important;
-  margin: 10mm !important;
 }
 
 @media print {

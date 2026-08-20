@@ -529,7 +529,7 @@ export default function SLDPage() {
     if (!styleEl) {
       styleEl = document.createElement('style');
       styleEl.id = 'print-landscape-override';
-      styleEl.innerHTML = '@page { size: 297mm 210mm !important; margin: 10mm !important; }';
+      styleEl.innerHTML = '@page { size: 297mm 210mm !important; margin: 18mm 10mm 15mm 10mm !important; }';
       document.head.appendChild(styleEl);
     }
     window.print();

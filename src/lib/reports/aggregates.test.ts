@@ -130,6 +130,38 @@ describe('aggregateBOM', () => {
     expect(breaker25!.count).toBe(1);
   });
 
+  it('differentiates between 2 cores for 1-phase and 4 cores for 3-phase cables', () => {
+    const bldg = building({
+      floorDesigns: [{
+        id: 'f1', floorNumber: 1, hasFloorSubPanels: false,
+        items: [
+          // 1-phase apartment load: 4 mm² -> 2C × 4 mm²
+          item({ type: 'APARTMENT', cableSize: '4 mm²', apartmentTemplate: { id: 't1', name: '1P', phases: 1 } as any, cableLength: 20 }),
+          // 3-phase manual or elevator load: 4 mm² -> 4C × 4 mm²
+          item({ type: 'ELEVATOR', cableSize: '4 mm²', apartmentTemplate: null, cableLength: 35 }),
+        ],
+      }],
+    });
+
+    const result = aggregateBOM(projectWithBuildings([bldg]));
+
+    expect(result.cables).toHaveLength(2);
+    const cable1P = result.cables.find((c) => c.cores === 2);
+    const cable3P = result.cables.find((c) => c.cores === 4);
+
+    expect(cable1P).toBeDefined();
+    expect(cable1P!.size).toBe(4);
+    expect(cable1P!.cores).toBe(2);
+    expect(cable1P!.description).toBe('2C × 4 mm²');
+    expect(cable1P!.totalLength).toBe(20);
+
+    expect(cable3P).toBeDefined();
+    expect(cable3P!.size).toBe(4);
+    expect(cable3P!.cores).toBe(4);
+    expect(cable3P!.description).toBe('4C × 4 mm²');
+    expect(cable3P!.totalLength).toBe(35);
+  });
+
   it('falls back to estimated length when cableLength is not set', () => {
     const bldg = building({
       floorDesigns: [

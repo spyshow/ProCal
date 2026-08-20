@@ -315,4 +315,12 @@ export interface BreakerAlternativeSuggestion {
   actionText?: string;
 }
 
-export type ReportTab = 'bom' | 'mdb' | 'cable' | 'vd' | 'summary';
+export type ReportTab =
+  | 'summary'
+  | 'loads'
+  | 'mdb'
+  | 'cable'
+  | 'breaker'
+  | 'vd'
+  | 'shortCircuit'
+  | 'bom';

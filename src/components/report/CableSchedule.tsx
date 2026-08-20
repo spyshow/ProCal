@@ -1,6 +1,6 @@
 'use client';
 
-import { isThreePhaseForItem } from '@/lib/calculations/feeders';
+import { isThreePhaseForItem, computeFeeders } from '@/lib/calculations/feeders';
 import type { Project } from '@/types';
 
 export interface CableScheduleProps {
@@ -21,6 +21,7 @@ interface CableRow {
   method: string;
   insulation: string;
   material: string;
+  isMainIncomer?: boolean;
 }
 
 /**
@@ -34,6 +35,32 @@ export default function CableSchedule({ project, buildingId, showHeader = true }
 
   for (const b of project.buildings) {
     if (buildingId && b.id !== buildingId) continue;
+
+    // 1. Main Incomer Feeder Cable
+    const { mainIncomerSettings, mainBreakerIn, mainCableSize, mainParallelRuns, mainIncomerCurrent } = computeFeeders(b, project, () => ({
+      model: null,
+      manufacturer: null,
+      familyName: null,
+      ratedCurrent: null,
+      fallback: true,
+      fallbackType: 'GENERIC_SPEC',
+    }));
+
+    rows.push({
+      id: `${b.id}-main-incomer-cable`,
+      buildingName: b.name,
+      floor: 0,
+      circuit: project.buildings.length > 1 ? `${b.name} – Main Incomer Feeder` : 'Main Incomer Feeder',
+      phaseLabel: '3Φ',
+      current: mainIncomerCurrent || mainIncomerSettings.ir,
+      breaker: `${mainBreakerIn}A`,
+      cable: mainParallelRuns > 1 ? `${mainParallelRuns} × (4C × ${mainCableSize} mm²)` : `4C × ${mainCableSize} mm²`,
+      method: 'E',
+      insulation: 'XLPE',
+      material: 'copper',
+      isMainIncomer: true,
+    });
+
     for (const fd of b.floorDesigns) {
       for (const item of fd.items) {
         const isThreePhase = isThreePhaseForItem(item);
@@ -77,41 +104,75 @@ export default function CableSchedule({ project, buildingId, showHeader = true }
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 font-sans text-slate-900">
       {showHeader && (
-        <div className="flex items-center justify-between text-xs text-gray-500 mb-1">
-          <span className="font-semibold">{project.name}</span>
+        <div className="flex items-center justify-between text-xs text-slate-500 mb-1 font-mono">
+          <span className="font-semibold text-slate-900">{project.name}</span>
           <span>{project.date || new Date().toLocaleDateString()}</span>
         </div>
       )}
-      <h2 className="text-lg font-bold border-b pb-2">Cable Sizing Schedule</h2>
-      <table className="w-full text-sm border-collapse">
+      <div className="flex items-center justify-between border-b pb-2">
+        <h2 className="text-xs font-bold uppercase tracking-wider text-slate-900 border-l-4 border-amber-500 pl-2.5">
+          Cable Sizing, Derating &amp; Installation Schedule
+        </h2>
+        <span className="text-[11px] font-mono text-slate-600">
+          Standard: <span className="font-bold text-slate-900">IEC 60364-5-52 / BS 7671</span>
+        </span>
+      </div>
+      <table className="w-full text-left text-xs border border-slate-300 rounded-lg overflow-hidden">
         <thead>
-          <tr className="bg-gray-100">
-            <th className="border p-2 text-left">Building</th>
-            <th className="border p-2 text-center">Floor</th>
-            <th className="border p-2 text-left">Circuit</th>
-            <th className="border p-2 text-center">Phase</th>
-            <th className="border p-2 text-right">Current (A)</th>
-            <th className="border p-2 text-center">Breaker (A)</th>
-            <th className="border p-2 text-center">Cable (mm²)</th>
-            <th className="border p-2 text-center">Method</th>
-            <th className="border p-2 text-center">Insulation / Material</th>
+          <tr className="bg-slate-900 text-white text-[10px] font-bold uppercase tracking-wider">
+            <th className="p-2 border-r border-slate-800">#</th>
+            <th className="p-2 border-r border-slate-800">Building</th>
+            <th className="p-2 border-r border-slate-800 text-center">Floor</th>
+            <th className="p-2 border-r border-slate-800">Circuit / Feeder</th>
+            <th className="p-2 border-r border-slate-800 text-center">Phase</th>
+            <th className="p-2 border-r border-slate-800 text-right">Design Ib (A)</th>
+            <th className="p-2 border-r border-slate-800 text-center">Breaker (In)</th>
+            <th className="p-2 border-r border-slate-800 text-center">Cable Size</th>
+            <th className="p-2 border-r border-slate-800 text-center">Install Method</th>
+            <th className="p-2 text-center">Insulation &amp; Material</th>
           </tr>
         </thead>
-        <tbody>
-          {rows.map((row) => (
-            <tr key={row.id} className="hover:bg-gray-50">
-              <td className="border p-2 text-gray-600">{row.buildingName}</td>
-              <td className="border p-2 text-center font-mono text-orange-600">F{row.floor}</td>
-              <td className="border p-2 font-semibold">{row.circuit}</td>
-              <td className="border p-2 text-center font-mono">{row.phaseLabel}</td>
-              <td className="border p-2 text-right font-mono">{row.current.toFixed(1)}</td>
-              <td className="border p-2 text-center font-mono text-blue-600">{row.breaker}</td>
-              <td className="border p-2 text-center font-mono text-green-600">{row.cable}</td>
-              <td className="border p-2 text-center text-xs text-gray-500">{row.method}</td>
-              <td className="border p-2 text-center text-xs text-gray-500">
-                {row.insulation} · {row.material === 'aluminum' ? 'Al' : 'Cu'}
+        <tbody className="divide-y divide-slate-200 text-slate-800">
+          {rows.map((row, idx) => (
+            <tr
+              key={row.id}
+              className={
+                row.isMainIncomer
+                  ? 'bg-amber-50/90 font-bold border-b-2 border-amber-300'
+                  : idx % 2 === 0
+                  ? 'bg-white'
+                  : 'bg-slate-50/80'
+              }
+            >
+              <td className="p-2 border-r border-slate-200 font-mono text-slate-500">{idx + 1}</td>
+              <td className="p-2 border-r border-slate-200 font-medium">{row.buildingName}</td>
+              <td className="p-2 border-r border-slate-200 text-center font-mono">
+                {row.floor === 0 ? 'MDB' : `F${row.floor}`}
+              </td>
+              <td className="p-2 border-r border-slate-200 font-bold text-slate-900">{row.circuit}</td>
+              <td className="p-2 border-r border-slate-200 text-center font-mono font-bold text-amber-700">
+                {row.phaseLabel}
+              </td>
+              <td className="p-2 border-r border-slate-200 text-right font-mono font-bold text-slate-900">
+                {row.current.toFixed(1)} A
+              </td>
+              <td className="p-2 border-r border-slate-200 text-center font-mono font-bold text-slate-900">
+                {row.breaker}
+              </td>
+              <td className="p-2 border-r border-slate-200 text-center font-mono font-bold text-slate-900">
+                {row.cable}
+              </td>
+              <td className="p-2 border-r border-slate-200 text-center text-xs font-mono">
+                <span className="px-1.5 py-0.5 rounded bg-slate-100 border border-slate-200">
+                  Method {row.method}
+                </span>
+              </td>
+              <td className="p-2 text-center text-xs font-mono">
+                <span className="px-1.5 py-0.5 rounded bg-slate-100 border border-slate-200 font-semibold text-slate-800">
+                  {row.insulation} / {row.material === 'aluminum' ? 'Al' : 'Cu'}
+                </span>
               </td>
             </tr>
           ))}

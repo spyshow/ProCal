@@ -146,66 +146,88 @@ export default function MDBSchedule({ project, buildingId, showHeader = true }: 
 
   if (!catalogLoaded) {
     return (
-      <div className="space-y-4">
-        <div className="flex items-center justify-between text-xs text-gray-500 mb-1">
-          <span className="font-semibold">{project.name}</span>
-          <span>{project.date || new Date().toLocaleDateString()}</span>
+      <div className="space-y-4 font-sans text-slate-900">
+        {showHeader && (
+          <div className="flex items-center justify-between text-xs text-slate-500 mb-1 font-mono">
+            <span className="font-semibold text-slate-900">{project.name}</span>
+            <span>{project.date || new Date().toLocaleDateString()}</span>
+          </div>
+        )}
+        <div className="flex items-center justify-between border-b pb-2">
+          <h2 className="text-xs font-bold uppercase tracking-wider text-slate-900 border-l-4 border-amber-500 pl-2.5">
+            Main Distribution Board (MDB) Schedule
+          </h2>
+          <span className="text-[11px] font-mono text-slate-600">
+            Total Feeders: <span className="font-bold text-slate-900">{mdbRows.length}</span>
+          </span>
         </div>
-        <h2 className="text-lg font-bold border-b pb-2">MDB Feeder Schedule</h2>
-        <div className="p-6 text-center text-sm text-gray-400">Loading breaker catalog…</div>
+        <div className="p-6 text-center text-sm text-slate-400 font-mono">Loading breaker catalog…</div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 font-sans text-slate-900">
       {showHeader && (
-        <div className="flex items-center justify-between text-xs text-gray-500 mb-1">
-          <span className="font-semibold">{project.name}</span>
+        <div className="flex items-center justify-between text-xs text-slate-500 mb-1 font-mono">
+          <span className="font-semibold text-slate-900">{project.name}</span>
           <span>{project.date || new Date().toLocaleDateString()}</span>
         </div>
       )}
-      <h2 className="text-lg font-bold border-b pb-2">MDB Feeder Schedule</h2>
-      <table className="w-full text-sm border-collapse">
+      <div className="flex items-center justify-between border-b pb-2">
+        <h2 className="text-xs font-bold uppercase tracking-wider text-slate-900 border-l-4 border-amber-500 pl-2.5">
+          Main Distribution Board (MDB) Schedule
+        </h2>
+        <span className="text-[11px] font-mono text-slate-600">
+          Standard: <span className="font-bold text-slate-900">{project.calculationStandard ?? 'IEC 60364'}</span>
+        </span>
+      </div>
+      <table className="w-full text-left text-xs border border-slate-300 rounded-lg overflow-hidden">
         <thead>
-          <tr className="bg-gray-100">
-            <th className="border p-2 text-left">#</th>
-            <th className="border p-2 text-left">Building</th>
-            <th className="border p-2 text-center">Floor</th>
-            <th className="border p-2 text-left">Feeder</th>
-            <th className="border p-2 text-center">Type</th>
-            <th className="border p-2 text-right">Demand (kW)</th>
-            <th className="border p-2 text-right">Current (A)</th>
-            <th className="border p-2 text-center">Breaker</th>
-            <th className="border p-2 text-center">Cable</th>
-            <th className="border p-2 text-right">Iz (A)</th>
+          <tr className="bg-slate-900 text-white text-[10px] font-bold uppercase tracking-wider">
+            <th className="p-2 border-r border-slate-800">#</th>
+            <th className="p-2 border-r border-slate-800">Building</th>
+            <th className="p-2 border-r border-slate-800 text-center">Floor</th>
+            <th className="p-2 border-r border-slate-800">Feeder Description</th>
+            <th className="p-2 border-r border-slate-800 text-center">Type</th>
+            <th className="p-2 border-r border-slate-800 text-right">Demand (kW)</th>
+            <th className="p-2 border-r border-slate-800 text-right">Current (A)</th>
+            <th className="p-2 border-r border-slate-800 text-center">Protection (In)</th>
+            <th className="p-2 border-r border-slate-800 text-center">Feeder Cable</th>
+            <th className="p-2 text-right">Iz (A)</th>
           </tr>
         </thead>
-        <tbody>
-          {mdbRows.map((row) => (
+        <tbody className="divide-y divide-slate-200 text-slate-800">
+          {mdbRows.map((row, idx) => (
             <tr
               key={row.idx}
               className={
-                row.isSubPanel
-                  ? 'bg-orange-50 font-semibold'
-                  : row.isMainIncomer
-                    ? 'bg-gray-100 font-bold'
-                    : 'hover:bg-gray-50'
+                row.isMainIncomer
+                  ? 'bg-amber-50/90 font-bold border-b-2 border-amber-300'
+                  : row.isSubPanel
+                  ? 'bg-sky-50/60 font-semibold'
+                  : idx % 2 === 0
+                  ? 'bg-white'
+                  : 'bg-slate-50/80'
               }
             >
-              <td className="border p-2 font-mono text-gray-500">{row.idx}</td>
-              <td className="border p-2">{row.building}</td>
-              <td className="border p-2 text-center font-mono">{row.isMainIncomer ? '—' : `F${row.floor}`}</td>
-              <td className="border p-2 font-semibold">{row.feeder}</td>
-              <td className="border p-2 text-center text-xs">{row.type.replace('_', ' ')}</td>
-              <td className="border p-2 text-right font-mono">{row.demand.toFixed(2)}</td>
-              <td className="border p-2 text-right font-mono text-orange-600">
+              <td className="p-2 border-r border-slate-200 font-mono text-slate-500">{row.idx}</td>
+              <td className="p-2 border-r border-slate-200">{row.building}</td>
+              <td className="p-2 border-r border-slate-200 text-center font-mono">{row.isMainIncomer ? '—' : `F${row.floor}`}</td>
+              <td className="p-2 border-r border-slate-200 font-bold text-slate-900">{row.feeder}</td>
+              <td className="p-2 border-r border-slate-200 text-center text-[10px] font-mono">
+                <span className="px-1.5 py-0.5 rounded bg-slate-100 border border-slate-200">
+                  {row.type.replace('_', ' ')}
+                </span>
+              </td>
+              <td className="p-2 border-r border-slate-200 text-right font-mono font-bold text-slate-900">{row.demand.toFixed(1)}</td>
+              <td className="p-2 border-r border-slate-200 text-right font-mono font-bold text-amber-700">
                 {row.current.toFixed(1)}
               </td>
-              <td className="border p-2 text-center font-mono text-blue-600">{row.breaker}</td>
-              <td className="border p-2 text-center font-mono text-green-600">{row.cable}</td>
-              <td className="border p-2 text-right font-mono text-gray-700">
-                {row.cableIz != null ? row.cableIz.toFixed(0) : '—'}
+              <td className="p-2 border-r border-slate-200 text-center font-mono font-bold text-slate-900">{row.breaker}</td>
+              <td className="p-2 border-r border-slate-200 text-center font-mono text-slate-800">{row.cable}</td>
+              <td className="p-2 text-right font-mono text-slate-700">
+                {row.cableIz != null ? `${row.cableIz.toFixed(0)}` : '—'}
               </td>
             </tr>
           ))}

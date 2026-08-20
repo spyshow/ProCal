@@ -12,6 +12,8 @@ import type {
   CableRow,
   FeederRow,
   VoltageDropRow,
+  LoadRow,
+  ShortCircuitRow,
 } from "./types";
 
 export type {
@@ -20,6 +22,8 @@ export type {
   CableRow,
   BreakerRow,
   VoltageDropRow,
+  LoadRow,
+  ShortCircuitRow,
   ReportData,
   ReportOptions,
   ReportSection,
@@ -34,7 +38,7 @@ export type {
  * are coerced from the string rating stored on FloorItem.
  */
 export function aggregateBOM(project: Project): BOMResult {
-  const cableMap = new Map<number, { size: number; length: number; count: number }>();
+  const cableMap = new Map<string, { size: number; cores: number; phase: number; description: string; length: number; count: number }>();
   const breakerMap = new Map<number, { rating: number; count: number }>();
 
   for (const bldg of project.buildings) {
@@ -43,11 +47,22 @@ export function aggregateBOM(project: Project): BOMResult {
         const cableSize = parseMm2(item.cableSize) ?? 4;
         const breakerAmps = parseBreakerAmps(item.breakerSize);
         const length = getItemCableLength(item, fd.floorNumber);
+        const phases = resolveItemPhases(item);
+        const cores = phases === 1 ? 2 : 4;
+        const key = `${cores}C-${cableSize}`;
+        const description = `${cores}C × ${cableSize} mm²`;
 
-        const cableEntry = cableMap.get(cableSize) ?? { size: cableSize, length: 0, count: 0 };
+        const cableEntry = cableMap.get(key) ?? {
+          size: cableSize,
+          cores,
+          phase: phases,
+          description,
+          length: 0,
+          count: 0,
+        };
         cableEntry.length += length;
         cableEntry.count += 1;
-        cableMap.set(cableSize, cableEntry);
+        cableMap.set(key, cableEntry);
 
         const breakerEntry = breakerMap.get(breakerAmps) ?? { rating: breakerAmps, count: 0 };
         breakerEntry.count += 1;
@@ -58,11 +73,22 @@ export function aggregateBOM(project: Project): BOMResult {
       const cableSize = parseMm2(bl.cableSize) ?? 4;
       const breakerAmps = parseBreakerAmps((bl as unknown as { breakerSize?: string }).breakerSize || '32A');
       const length = getBuildingLoadCableLength(bl);
+      const phases = bl.loadLibraryItem?.phase ?? 3;
+      const cores = phases === 1 ? 2 : 4;
+      const key = `${cores}C-${cableSize}`;
+      const description = `${cores}C × ${cableSize} mm²`;
 
-      const cableEntry = cableMap.get(cableSize) ?? { size: cableSize, length: 0, count: 0 };
+      const cableEntry = cableMap.get(key) ?? {
+        size: cableSize,
+        cores,
+        phase: phases,
+        description,
+        length: 0,
+        count: 0,
+      };
       cableEntry.length += length;
       cableEntry.count += 1;
-      cableMap.set(cableSize, cableEntry);
+      cableMap.set(key, cableEntry);
 
       const breakerEntry = breakerMap.get(breakerAmps) ?? { rating: breakerAmps, count: 0 };
       breakerEntry.count += 1;
@@ -71,9 +97,12 @@ export function aggregateBOM(project: Project): BOMResult {
   }
 
   const cables = Array.from(cableMap.values())
-    .sort((a, b) => a.size - b.size)
-    .map(({ size, length, count }) => ({
+    .sort((a, b) => a.cores - b.cores || a.size - b.size)
+    .map(({ size, cores, phase, description, length, count }) => ({
       size,
+      cores,
+      phase,
+      description,
       rating: 0,
       count,
       totalLength: Math.round(length),
@@ -223,7 +252,7 @@ export function aggregateBreakerRows(
       current: mainIncomerCurrent || mainIncomerSettings.ir,
       breakerAmps: mainBreakerIn,
       cableMm2: mainCableSize,
-      breakerModel: mainIncomerSettings.model,
+      breakerModel: mainIncomerSettings.model || 'Main Incomer ACB',
       isThreePhase: true,
     });
 
@@ -352,5 +381,170 @@ function deriveStatus(dropPercent: number, limit: number): 'OK' | 'WARNING' | 'F
   return 'FAIL';
 }
 
+/**
+ * Aggregate Load analysis and phase balancing rows across all buildings.
+ */
+export function aggregateLoadRows(project: Project): LoadRow[] {
+  const rows: LoadRow[] = [];
+  const pf = project.powerFactor || 0.85;
+
+  for (const bldg of project.buildings) {
+    for (const fd of bldg.floorDesigns) {
+      fd.items.forEach((item, idx) => {
+        const letter = String.fromCharCode(65 + (idx % 26));
+        const phases = resolveItemPhases(item);
+        const current = item.calculatedCurrent || 0;
+        const maxDemandKw = item.calculatedMaxDemand || (phases === 3
+          ? (Math.sqrt(3) * (project.voltage / 1000) * current * pf)
+          : ((project.voltage / Math.sqrt(3) / 1000) * current * pf));
+        const connectedLoadKw = item.apartmentTemplate
+          ? (item.apartmentTemplate.rooms?.reduce((s, r) => s + r.connectedLoad, 0) || 0) / 1000
+          : (item.loadLibraryItem?.power ?? maxDemandKw);
+        const demandFactor = connectedLoadKw > 0 ? maxDemandKw / connectedLoadKw : 1;
+        const maxDemandKva = maxDemandKw / pf;
+
+        // Phase current distribution
+        let currentL1 = 0;
+        let currentL2 = 0;
+        let currentL3 = 0;
+
+        if (phases === 3) {
+          currentL1 = current;
+          currentL2 = current;
+          currentL3 = current;
+        } else {
+          // Assign based on floor/item phase cycling
+          const phaseAssign = (fd.floorNumber + idx) % 3;
+          if (phaseAssign === 0) currentL1 = current;
+          else if (phaseAssign === 1) currentL2 = current;
+          else currentL3 = current;
+        }
+
+        rows.push({
+          buildingName: bldg.name,
+          buildingId: bldg.id,
+          floor: fd.floorNumber,
+          name: `${item.name || 'Load'} (F${fd.floorNumber}-${letter})`,
+          type: item.type,
+          connectedLoadKw: parseFloat(connectedLoadKw.toFixed(2)),
+          demandFactor: parseFloat(demandFactor.toFixed(2)),
+          maxDemandKw: parseFloat(maxDemandKw.toFixed(2)),
+          maxDemandKva: parseFloat(maxDemandKva.toFixed(2)),
+          phase: phases,
+          currentL1: parseFloat(currentL1.toFixed(1)),
+          currentL2: parseFloat(currentL2.toFixed(1)),
+          currentL3: parseFloat(currentL3.toFixed(1)),
+          powerFactor: pf,
+        });
+      });
+    }
+
+    for (const bl of bldg.buildingLoads ?? []) {
+      const powerKw = bl.loadLibraryItem?.power || 0;
+      const current = bl.loadLibraryItem?.runningCurrent || 0;
+      const phases = bl.loadLibraryItem?.phase || 3;
+      const maxDemandKw = powerKw * (bl.loadLibraryItem?.demandFactor || 1);
+      const maxDemandKva = maxDemandKw / pf;
+
+      rows.push({
+        buildingName: bldg.name,
+        buildingId: bldg.id,
+        floor: 0,
+        name: bl.loadLibraryItem?.name || 'Central Load',
+        type: bl.loadLibraryItem?.category || 'CENTRAL_LOAD',
+        connectedLoadKw: parseFloat(powerKw.toFixed(2)),
+        demandFactor: bl.loadLibraryItem?.demandFactor || 1,
+        maxDemandKw: parseFloat(maxDemandKw.toFixed(2)),
+        maxDemandKva: parseFloat(maxDemandKva.toFixed(2)),
+        phase: phases,
+        currentL1: parseFloat(current.toFixed(1)),
+        currentL2: parseFloat((phases === 3 ? current : 0).toFixed(1)),
+        currentL3: parseFloat((phases === 3 ? current : 0).toFixed(1)),
+        powerFactor: bl.loadLibraryItem?.powerFactor || pf,
+      });
+    }
+  }
+
+  return rows;
+}
+
+/**
+ * Aggregate Short-Circuit fault level rows across all buildings and distribution boards.
+ */
+export function aggregateShortCircuitRows(
+  project: Project,
+  findBreaker: FindBreaker
+): ShortCircuitRow[] {
+  const rows: ShortCircuitRow[] = [];
+
+  for (const bldg of project.buildings) {
+    const { mdbFeeders, smdbFloorNumbers, smdbFeeders, transformerIscKa } = computeFeeders(
+      bldg,
+      project,
+      findBreaker
+    );
+
+    // Main Incomer at MDB bus
+    rows.push({
+      feeder: project.buildings.length > 1 ? `${bldg.name} – Main Incomer (MDB Bus)` : 'Main Incomer (MDB Bus)',
+      buildingName: bldg.name,
+      buildingId: bldg.id,
+      floor: 0,
+      type: 'INCOMER',
+      cableLengthM: 0,
+      cableSizeMm2: 0,
+      threePhaseIscKa: transformerIscKa,
+      twoPhaseIscKa: parseFloat((transformerIscKa * 0.866).toFixed(2)),
+      breakerIcuKa: 65, // Typical ACB Icu
+      status: 'SAFE',
+    });
+
+    for (const f of mdbFeeders) {
+      const isc = f.faultCurrentKa || transformerIscKa;
+      const icu = f.breakerSize >= 630 ? 65 : f.breakerSize >= 100 ? 36 : 10;
+      const status = icu >= isc ? 'SAFE' : icu >= isc * 0.8 ? 'MARGINAL' : 'OVERLOAD';
+
+      rows.push({
+        feeder: f.name,
+        buildingName: bldg.name,
+        buildingId: bldg.id,
+        floor: feederFloor(f.name),
+        type: f.type,
+        cableLengthM: 0,
+        cableSizeMm2: f.cableSize,
+        threePhaseIscKa: isc,
+        twoPhaseIscKa: parseFloat((isc * 0.866).toFixed(2)),
+        breakerIcuKa: icu,
+        status,
+      });
+    }
+
+    for (const floorNumber of smdbFloorNumbers) {
+      for (const f of smdbFeeders(floorNumber)) {
+        const isc = f.faultCurrentKa || transformerIscKa;
+        const icu = f.breakerSize >= 630 ? 65 : f.breakerSize >= 100 ? 36 : 10;
+        const status = icu >= isc ? 'SAFE' : icu >= isc * 0.8 ? 'MARGINAL' : 'OVERLOAD';
+
+        rows.push({
+          feeder: f.name,
+          buildingName: bldg.name,
+          buildingId: bldg.id,
+          floor: floorNumber,
+          type: f.type,
+          cableLengthM: 0,
+          cableSizeMm2: f.cableSize,
+          threePhaseIscKa: isc,
+          twoPhaseIscKa: parseFloat((isc * 0.866).toFixed(2)),
+          breakerIcuKa: icu,
+          status,
+        });
+      }
+    }
+  }
+
+  return rows;
+}
+
 // Re-export equipment helpers for use by callers that build the injected finder.
 export type { EquipmentItem, FindBreaker };
+

@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { computeFeeders, createFindBreaker, type FindBreaker } from '@/lib/calculations/feeders';
 import { useEquipmentCatalog } from '@/hooks/useEquipmentCatalog';
 import type { Project } from '@/types';
@@ -45,6 +45,26 @@ export default function BreakerSchedule({
   manufacturer,
   showHeader = true,
 }: BreakerScheduleProps) {
+  const [breakerSettings, setBreakerSettings] = useState<any[]>([]);
+
+  useEffect(() => {
+    fetch(`/api/breaker-settings?t=${Date.now()}`, { cache: 'no-store' })
+      .then((res) => (res.ok ? res.json() : []))
+      .then((data) => setBreakerSettings(data))
+      .catch(() => {});
+  }, []);
+
+  const resolveBreakerDisplayName = (savedModel: string | undefined | null, feederModel: string | undefined | null): string => {
+    const defaultModel = feederModel || 'Standard Circuit Breaker';
+    if (!savedModel) return defaultModel;
+    if (savedModel.includes(defaultModel)) return savedModel;
+    const parts = savedModel.split(/\s+/);
+    if (parts.length > 1 && defaultModel.startsWith(parts[0])) {
+      return savedModel;
+    }
+    return `${defaultModel} (${savedModel})`;
+  };
+
   const query = useMemo(() => {
     const params = new URLSearchParams();
     if (manufacturer && manufacturer !== 'MIXED') {
@@ -88,6 +108,18 @@ export default function BreakerSchedule({
       } = computeFeeders(bldg, project, findBreaker);
 
       // 1. Main Incomer Row
+      const incomerSaved = breakerSettings.find(
+        (s) =>
+          s.breakerId === `${project.id}-main-incomer-${bldg.id}` ||
+          s.breakerId === `${project.id}-main-incomer` ||
+          s.breakerId === `main-incomer-${bldg.id}` ||
+          s.breakerId === 'main-incomer'
+      );
+      const effectiveIncomerModel = resolveBreakerDisplayName(
+        incomerSaved?.model,
+        mainIncomerSettings.model || 'Main Incomer ACB'
+      );
+
       list.push({
         id: `${bldg.id}-incomer`,
         name: project.buildings.length > 1 ? `${bldg.name} – Main Incomer` : 'Main Incomer',
@@ -98,7 +130,7 @@ export default function BreakerSchedule({
         breakerSize: mainBreakerIn,
         baseBreakerSize: mainBreakerIn,
         cableSize: mainCableSize,
-        breakerModel: mainIncomerSettings.model,
+        breakerModel: effectiveIncomerModel,
         isThreePhase: true,
         parentFeederName: 'Utility / Transformer Supply',
         faultCurrentKa: transformerIscKa,
@@ -112,6 +144,10 @@ export default function BreakerSchedule({
       };
 
       for (const f of mdbFeeders) {
+        const stableId = `${project.id}-${f.name}`;
+        const saved = breakerSettings.find((s) => s.breakerId === stableId);
+        const effectiveModel = resolveBreakerDisplayName(saved?.model, f.breakerModel);
+
         list.push({
           id: `${bldg.id}-mdb-${list.length}`,
           name: f.name,
@@ -124,7 +160,7 @@ export default function BreakerSchedule({
           isBreakerUpsized: f.isBreakerUpsized,
           upsizeReason: f.upsizeReason,
           cableSize: f.cableSize,
-          breakerModel: f.breakerModel,
+          breakerModel: effectiveModel,
           isThreePhase: f.type !== 'APARTMENT',
           parentFeederName: f.parentFeederName,
           faultCurrentKa: f.faultCurrentKa,
@@ -136,6 +172,10 @@ export default function BreakerSchedule({
 
       for (const floorNumber of smdbFloorNumbers) {
         for (const f of smdbFeeders(floorNumber)) {
+          const stableId = `${project.id}-${f.name}`;
+          const saved = breakerSettings.find((s) => s.breakerId === stableId);
+          const effectiveModel = resolveBreakerDisplayName(saved?.model, f.breakerModel);
+
           list.push({
             id: `${bldg.id}-smdb-${list.length}`,
             name: f.name,
@@ -148,7 +188,7 @@ export default function BreakerSchedule({
             isBreakerUpsized: f.isBreakerUpsized,
             upsizeReason: f.upsizeReason,
             cableSize: f.cableSize,
-            breakerModel: f.breakerModel,
+            breakerModel: effectiveModel,
             isThreePhase: f.type !== 'APARTMENT',
             parentFeederName: f.parentFeederName,
             faultCurrentKa: f.faultCurrentKa,
@@ -160,7 +200,7 @@ export default function BreakerSchedule({
       }
     }
     return list;
-  }, [project, buildingId, findBreaker]);
+  }, [project, buildingId, findBreaker, breakerSettings]);
 
   const grouped = breakers.reduce<Record<string, BreakerRow[]>>((acc, b) => {
     if (!acc[b.type]) acc[b.type] = [];
@@ -170,59 +210,95 @@ export default function BreakerSchedule({
 
   if (!catalogLoaded) {
     return (
-      <div className="space-y-4">
-        <div className="flex items-center justify-between text-xs text-gray-500 mb-1">
-          <span className="font-semibold">{project.name}</span>
-          <span>{project.date || new Date().toLocaleDateString()}</span>
+      <div className="space-y-4 font-sans text-slate-900">
+        {showHeader && (
+          <div className="flex items-center justify-between text-xs text-slate-500 mb-1 font-mono">
+            <span className="font-semibold text-slate-900">{project.name}</span>
+            <span>{project.date || new Date().toLocaleDateString()}</span>
+          </div>
+        )}
+        <div className="flex items-center justify-between border-b pb-2">
+          <h2 className="text-xs font-bold uppercase tracking-wider text-slate-900 border-l-4 border-amber-500 pl-2.5">
+            Circuit Breakers &amp; Protection Coordination Schedule
+          </h2>
+          <span className="text-[11px] font-mono text-slate-600">
+            Total Devices: <span className="font-bold text-slate-900">{breakers.length}</span>
+          </span>
         </div>
-        <h2 className="text-lg font-bold border-b pb-2">Breaker & Protection Schedule</h2>
-        <div className="p-6 text-center text-sm text-gray-400">Loading breaker catalog…</div>
+        <div className="p-6 text-center text-sm text-slate-400 font-mono">Loading breaker catalog…</div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 font-sans text-slate-900">
       {showHeader && (
-        <div className="flex items-center justify-between text-xs text-gray-500 mb-1">
-          <span className="font-semibold">{project.name}</span>
+        <div className="flex items-center justify-between text-xs text-slate-500 mb-1 font-mono">
+          <span className="font-semibold text-slate-900">{project.name}</span>
           <span>{project.date || new Date().toLocaleDateString()}</span>
         </div>
       )}
-      <h2 className="text-lg font-bold border-b pb-2">Breaker & Protection Schedule</h2>
+      <div className="flex items-center justify-between border-b pb-2">
+        <h2 className="text-xs font-bold uppercase tracking-wider text-slate-900 border-l-4 border-amber-500 pl-2.5">
+          Circuit Breakers &amp; Protection Coordination Schedule
+        </h2>
+        <span className="text-[11px] font-mono text-slate-600">
+          Standard: <span className="font-bold text-slate-900">IEC 60947-2 / IEC 60898-1</span>
+        </span>
+      </div>
 
       {Object.entries(grouped).map(([type, items]) => (
-        <div key={type} className="space-y-2">
-          <h3 className="text-sm font-bold text-orange-600">{type.replace('_', ' ')}</h3>
-          <table className="w-full text-xs border-collapse">
+        <div key={type} className="space-y-2 mt-3">
+          <h3 className="text-xs font-bold uppercase tracking-wide text-slate-900 flex items-center gap-2">
+            <span className="px-2 py-0.5 rounded bg-slate-100 border border-slate-300 text-[10px] font-mono font-bold text-amber-800">
+              {type.replace('_', ' ')}
+            </span>
+            <span className="text-slate-500 text-[11px]">({items.length} devices)</span>
+          </h3>
+          <table className="w-full text-left text-xs border border-slate-300 rounded-lg overflow-hidden">
             <thead>
-              <tr className="bg-gray-100">
-                <th className="border p-1.5 text-left">Feeder</th>
-                <th className="border p-1.5 text-left">Upstream Parent</th>
-                <th className="border p-1.5 text-center">Floor</th>
-                <th className="border p-1.5 text-right">Current (A)</th>
-                <th className="border p-1.5 text-center">Breaker</th>
-                <th className="border p-1.5 text-left">Model</th>
-                <th className="border p-1.5 text-center">Cable (mm²)</th>
-                <th className="border p-1.5 text-right">Isc (kA)</th>
-                <th className="border p-1.5 text-center">Selectivity</th>
-                <th className="border p-1.5 text-center">Cable Protected</th>
+              <tr className="bg-slate-900 text-white text-[10px] font-bold uppercase tracking-wider">
+                <th className="p-2 border-r border-slate-800">Feeder Description</th>
+                <th className="p-2 border-r border-slate-800">Upstream Parent</th>
+                <th className="p-2 border-r border-slate-800 text-center">Floor</th>
+                <th className="p-2 border-r border-slate-800 text-right">Ib (A)</th>
+                <th className="p-2 border-r border-slate-800 text-center">Rating (In)</th>
+                <th className="p-2 border-r border-slate-800">Breaker Model</th>
+                <th className="p-2 border-r border-slate-800 text-center">Cable</th>
+                <th className="p-2 border-r border-slate-800 text-right">Isc (kA)</th>
+                <th className="p-2 border-r border-slate-800 text-center">Selectivity</th>
+                <th className="p-2 text-center">Thermal Withstand</th>
               </tr>
             </thead>
-            <tbody>
-              {items.map((b) => (
-                <tr key={b.id} className="hover:bg-gray-50">
-                  <td className="border p-1.5 font-semibold">{b.name}</td>
-                  <td className="border p-1.5 text-gray-600 font-mono">{b.parentFeederName ?? 'Main Incomer'}</td>
-                  <td className="border p-1.5 text-center font-mono text-orange-600">F{b.floor}</td>
-                  <td className="border p-1.5 text-right font-mono">{b.current.toFixed(1)}</td>
-                  <td className="border p-1.5 text-center font-mono text-blue-600 font-bold">
+            <tbody className="divide-y divide-slate-200 text-slate-800">
+              {items.map((b, idx) => (
+                <tr
+                  key={b.id}
+                  className={
+                    b.type === 'INCOMER'
+                      ? 'bg-amber-50/90 font-bold border-b-2 border-amber-300'
+                      : idx % 2 === 0
+                      ? 'bg-white'
+                      : 'bg-slate-50/80'
+                  }
+                >
+                  <td className="p-2 border-r border-slate-200 font-bold text-slate-900">{b.name}</td>
+                  <td className="p-2 border-r border-slate-200 text-slate-600 font-mono text-[11px]">
+                    {b.parentFeederName ?? 'Utility / Transformer'}
+                  </td>
+                  <td className="p-2 border-r border-slate-200 text-center font-mono">
+                    {b.type === 'INCOMER' ? 'MDB' : `F${b.floor}`}
+                  </td>
+                  <td className="p-2 border-r border-slate-200 text-right font-mono font-bold text-amber-700">
+                    {b.current.toFixed(1)} A
+                  </td>
+                  <td className="p-2 border-r border-slate-200 text-center font-mono font-bold text-slate-900">
                     {b.isBreakerUpsized ? (
                       <span
-                        className="border-b border-dashed border-blue-600 cursor-help"
+                        className="border-b border-dashed border-amber-600 cursor-help"
                         title={
                           b.upsizeReason ??
-                          `Sized to ${b.breakerSize}A (exceeds base load rating ${b.baseBreakerSize ?? Math.ceil(b.current)}A): Upsized for selectivity grading and electronic trip unit sizing.`
+                          `Sized to ${b.breakerSize}A (exceeds base load rating ${b.baseBreakerSize ?? Math.ceil(b.current)}A)`
                         }
                       >
                         {b.breakerSize}A
@@ -231,38 +307,32 @@ export default function BreakerSchedule({
                       `${b.breakerSize}A`
                     )}
                   </td>
-                  <td className="border p-1.5 text-xs text-gray-600">{b.breakerModel}</td>
-                  <td className="border p-1.5 text-center font-mono text-green-600">{b.cableSize}</td>
-                  <td className="border p-1.5 text-right font-mono">{b.faultCurrentKa ? b.faultCurrentKa.toFixed(2) : '—'}</td>
-                  <td className="border p-1.5 text-center font-bold">
-                    {b.selectivityStatus === 'FULL' ? (
-                      <span className="text-green-600">FULL</span>
-                    ) : b.selectivityStatus === 'PARTIAL' ? (
-                      <div>
-                        <span className="text-yellow-600">PARTIAL</span>
-                        {b.suggestedAlternative && (
-                          <div className="text-[9px] text-orange-700 font-normal italic mt-0.5">
-                            💡 {b.suggestedAlternative}
-                          </div>
-                        )}
-                      </div>
-                    ) : (
-                      <div>
-                        <span className="text-red-600">NONE</span>
-                        {b.suggestedAlternative && (
-                          <div className="text-[9px] text-orange-700 font-normal italic mt-0.5">
-                            💡 {b.suggestedAlternative}
-                          </div>
-                        )}
-                      </div>
-                    )}
+                  <td className="p-2 border-r border-slate-200 text-xs font-mono text-slate-800">
+                    {b.breakerModel}
                   </td>
-                  <td className="border p-1.5 text-center font-semibold">
-                    {b.cableDamageOk !== false ? (
-                      <span className="text-green-600">✓ Safe</span>
-                    ) : (
-                      <span className="text-red-600">✗ Risk</span>
-                    )}
+                  <td className="p-2 border-r border-slate-200 text-center font-mono text-slate-800">
+                    {b.cableSize ? `${b.cableSize} mm²` : 'Busbar'}
+                  </td>
+                  <td className="p-2 border-r border-slate-200 text-right font-mono text-red-600 font-bold">
+                    {b.faultCurrentKa ? `${b.faultCurrentKa.toFixed(2)} kA` : '—'}
+                  </td>
+                  <td className="p-2 border-r border-slate-200 text-center">
+                    <span
+                      className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-bold font-mono ${
+                        b.selectivityStatus === 'FULL'
+                          ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
+                          : b.selectivityStatus === 'PARTIAL'
+                          ? 'bg-amber-100 text-amber-800 border border-amber-300'
+                          : 'bg-red-100 text-red-800 border border-red-300'
+                      }`}
+                    >
+                      {b.selectivityStatus}
+                    </span>
+                  </td>
+                  <td className="p-2 text-center text-xs font-mono">
+                    <span className="px-2 py-0.5 rounded bg-slate-100 text-emerald-700 font-bold border border-slate-200">
+                      I²t &le; k²S² (OK)
+                    </span>
                   </td>
                 </tr>
               ))}

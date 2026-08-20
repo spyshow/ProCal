@@ -204,11 +204,12 @@ export default function BreakerSchedulePage() {
     [equipment, defaults, preferredManufacturer]
   );
 
-  const resolveBreakerDisplayName = (savedModel: string | undefined | null, feederModel: string): string => {
-    if (!savedModel) return feederModel;
+  const resolveBreakerDisplayName = (savedModel: string | undefined | null, feederModel: string | undefined | null): string => {
+    const defaultModel = feederModel || 'Standard Circuit Breaker';
+    if (!savedModel) return defaultModel;
     const trimmedSaved = savedModel.trim();
     if (/^(?:ACB|MCCB|MCB)\s+\d+A?$/i.test(trimmedSaved)) {
-      return feederModel || savedModel;
+      return defaultModel;
     }
     const bareTripUnitMatch = trimmedSaved.match(/^(?:ACB|MCCB|MCB)\s+\d+A?\s+(.+)$/i);
     if (bareTripUnitMatch && feederModel) {
@@ -254,7 +255,7 @@ export default function BreakerSchedulePage() {
       );
       const effectiveIncomerModel = resolveBreakerDisplayName(
         incomerSaved?.model,
-        mainIncomerSettings.model
+        mainIncomerSettings.model || 'Main Incomer ACB'
       );
 
       list.push({
@@ -277,9 +278,9 @@ export default function BreakerSchedulePage() {
         cableIz: mainCableIz,
         isUnderProtected: false,
         breakerModel: effectiveIncomerModel,
-        manufacturer: mainIncomerSettings.manufacturer,
-        familyName: undefined,
-        fallback: mainIncomerSettings.isGeneric,
+        manufacturer: mainIncomerSettings.manufacturer || null,
+        familyName: null,
+        fallback: !!mainIncomerSettings.isGeneric,
         fallbackType: mainIncomerSettings.isGeneric ? 'GENERIC_SPEC' : 'SAME_FAMILY',
         isThreePhase: true,
         parentFeederName: 'Utility / Transformer Supply',

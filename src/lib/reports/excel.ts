@@ -1,22 +1,25 @@
 import * as XLSX from "xlsx";
 import type { Project } from "@/types";
-import type { FindBreaker } from "@/lib/calculations/feeders";import { aggregateBOM,
+import {
+  aggregateBOM,
   aggregateFeederRows,
   aggregateCableRows,
   aggregateBreakerRows,
   aggregateVoltageDropRows,
+  aggregateLoadRows,
+  aggregateShortCircuitRows,
 } from "./aggregates";
 import { phaseBalance } from "@/lib/calculations/phaseBalance";
 import { sizeTransformer } from "@/lib/calculations/loads";
+import type { FindBreaker } from "@/lib/calculations/feeders";
 
 export type { FindBreaker };
 
 /**
  * Build a multi-sheet .xlsx workbook from a project's report schedules.
  *
- * Sheets: Project (summary), BOM, MDB Schedule, Cable Schedule, Breaker
- * Schedule, Voltage Drop. Uses the same aggregates as the printable report so
- * the Excel export and the PDF always agree.
+ * Sheets: Project (summary), Load Analysis, MDB Schedule, Cable Schedule,
+ * Breaker Schedule, Voltage Drop, Short-Circuit, BOM.
  */
 export function buildReportWorkbook(
   project: Project,
@@ -25,7 +28,25 @@ export function buildReportWorkbook(
   const wb = XLSX.utils.book_new();
 
   appendSheet(wb, "Project", buildProjectRows(project));
-  appendSheet(wb, "BOM", buildBomRows(project));
+  appendSheet(
+    wb,
+    "Load Analysis",
+    aggregateLoadRows(project).map((r) => ({
+      Building: r.buildingName,
+      Floor: r.floor === 0 ? "MDB" : `F${r.floor}`,
+      "Load Name": r.name,
+      Type: r.type,
+      "Connected (kW)": round(r.connectedLoadKw, 2),
+      "Demand Factor": round(r.demandFactor, 2),
+      "Max Demand (kW)": round(r.maxDemandKw, 2),
+      "Max Demand (kVA)": round(r.maxDemandKva, 2),
+      Phase: `${r.phase}Φ`,
+      "L1 (A)": round(r.currentL1, 1),
+      "L2 (A)": round(r.currentL2, 1),
+      "L3 (A)": round(r.currentL3, 1),
+      PF: round(r.powerFactor, 2),
+    }))
+  );
   appendSheet(
     wb,
     "MDB Schedule",
@@ -88,6 +109,22 @@ export function buildReportWorkbook(
       Status: r.status,
     }))
   );
+  appendSheet(
+    wb,
+    "Short-Circuit",
+    aggregateShortCircuitRows(project, findBreaker).map((r) => ({
+      "Feeder / Bus": r.feeder,
+      Building: r.buildingName,
+      Floor: r.floor === 0 ? "MDB" : `F${r.floor}`,
+      Type: r.type,
+      "Cable (mm²)": r.cableSizeMm2 || "Busbar",
+      "3Φ Isc (kA)": round(r.threePhaseIscKa, 2),
+      "2Φ Isc (kA)": round(r.twoPhaseIscKa, 2),
+      "Breaker Icu (kA)": r.breakerIcuKa ?? "—",
+      Status: r.status,
+    }))
+  );
+  appendSheet(wb, "BOM", buildBomRows(project));
 
   return wb;
 }
@@ -138,8 +175,11 @@ function buildBomRows(project: Project): Record<string, string | number>[] {
   rows.push({ "BOM — Cables": "" });
   for (const c of bom.cables) {
     rows.push({
-      "Cable (mm²)": c.size,
-      Count: c.count,
+      "Cable Specification": c.description ?? `${c.cores ?? 4}C × ${c.size} mm²`,
+      "Cores": `${c.cores ?? (c.phase === 1 ? 2 : 4)} Cores`,
+      "Phase System": c.phase === 1 ? "1-Phase (1φ)" : "3-Phase (3φ)",
+      "Conductor Size (mm²)": c.size,
+      "Circuits": c.count,
       "Total Length (m)": c.totalLength,
     });
   }
@@ -148,8 +188,7 @@ function buildBomRows(project: Project): Record<string, string | number>[] {
   for (const b of bom.breakers) {
     rows.push({
       "Breaker (A)": b.rating,
-      Count: b.count,
-      "Total Length (m)": b.totalLength,
+      "Quantity": b.count,
     });
   }
 

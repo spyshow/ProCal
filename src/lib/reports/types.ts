@@ -5,6 +5,9 @@ import type { Project } from "@/types";
  */
 export interface BOMRow {
   size: number;
+  cores?: number;
+  phase?: number;
+  description?: string;
   rating: number;
   count: number;
   totalLength: number;
@@ -84,6 +87,43 @@ export interface VoltageDropRow {
 }
 
 /**
+ * Load analysis and phase balancing row.
+ */
+export interface LoadRow {
+  buildingName: string;
+  buildingId: string;
+  floor: number;
+  name: string;
+  type: string;
+  connectedLoadKw: number;
+  demandFactor: number;
+  maxDemandKw: number;
+  maxDemandKva: number;
+  phase: number;
+  currentL1: number;
+  currentL2: number;
+  currentL3: number;
+  powerFactor: number;
+}
+
+/**
+ * Short-circuit analysis row per feeder / distribution board.
+ */
+export interface ShortCircuitRow {
+  feeder: string;
+  buildingName: string;
+  buildingId: string;
+  floor: number;
+  type: string;
+  cableLengthM: number;
+  cableSizeMm2: number;
+  threePhaseIscKa: number;
+  twoPhaseIscKa: number;
+  breakerIcuKa?: number;
+  status: 'SAFE' | 'MARGINAL' | 'OVERLOAD';
+}
+
+/**
  * Complete set of report schedules derived from a project.
  */
 export interface ReportData {
@@ -93,12 +133,22 @@ export interface ReportData {
   cables: CableRow[];
   breakers: BreakerRow[];
   voltageDrops: VoltageDropRow[];
+  loads?: LoadRow[];
+  shortCircuits?: ShortCircuitRow[];
 }
 
 /**
  * Report sections that can be toggled individually.
  */
-export type ReportSection = 'cover' | 'bom' | 'mdb' | 'cable' | 'breaker' | 'vd';
+export type ReportSection =
+  | 'cover'
+  | 'loads'
+  | 'mdb'
+  | 'cable'
+  | 'breaker'
+  | 'vd'
+  | 'shortCircuit'
+  | 'bom';
 
 /**
  * Options controlling the generated report output.

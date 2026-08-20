@@ -109,55 +109,80 @@ export default function VDSchedule({ project, buildingId, showHeader = true }: V
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 font-sans text-slate-900">
       {showHeader && (
-        <div className="flex items-center justify-between text-xs text-gray-500 mb-1">
-          <span className="font-semibold">{project.name}</span>
+        <div className="flex items-center justify-between text-xs text-slate-500 mb-1 font-mono">
+          <span className="font-semibold text-slate-900">{project.name}</span>
           <span>{project.date || new Date().toLocaleDateString()}</span>
         </div>
       )}
-      <h2 className="text-lg font-bold border-b pb-2">Voltage Drop Schedule</h2>
-      <table className="w-full text-sm border-collapse">
+      <div className="flex items-center justify-between border-b pb-2">
+        <h2 className="text-xs font-bold uppercase tracking-wider text-slate-900 border-l-4 border-amber-500 pl-2.5">
+          Voltage Drop &amp; Compliance Analysis Schedule
+        </h2>
+        <span className="text-[11px] font-mono text-slate-600">
+          Standard: <span className="font-bold text-slate-900">IEC 60364-5-52</span>
+        </span>
+      </div>
+      <table className="w-full text-left text-xs border border-slate-300 rounded-lg overflow-hidden">
         <thead>
-          <tr className="bg-gray-100">
-            <th className="border p-2 text-left">Building</th>
-            <th className="border p-2 text-center">Floor</th>
-            <th className="border p-2 text-left">Circuit</th>
-            <th className="border p-2 text-right">Current (A)</th>
-            <th className="border p-2 text-center">Cable (mm²)</th>
-            <th className="border p-2 text-right">Length (m)</th>
-            <th className="border p-2 text-right">VDrop (%)</th>
-            <th className="border p-2 text-center">Status</th>
+          <tr className="bg-slate-900 text-white text-[10px] font-bold uppercase tracking-wider">
+            <th className="p-2 border-r border-slate-800">#</th>
+            <th className="p-2 border-r border-slate-800">Building</th>
+            <th className="p-2 border-r border-slate-800 text-center">Floor</th>
+            <th className="p-2 border-r border-slate-800">Circuit / Feeder</th>
+            <th className="p-2 border-r border-slate-800 text-right">Ib (A)</th>
+            <th className="p-2 border-r border-slate-800 text-center">Cable Size</th>
+            <th className="p-2 border-r border-slate-800 text-right">Length (m)</th>
+            <th className="p-2 border-r border-slate-800 text-right">Voltage Drop (&Delta;V %)</th>
+            <th className="p-2 text-center">Compliance Status</th>
           </tr>
         </thead>
-        <tbody>
-          {rows.map((row) => (
-            <tr key={row.id} className="hover:bg-gray-50">
-              <td className="border p-2 text-gray-600">{row.buildingName}</td>
-              <td className="border p-2 text-center font-mono text-orange-600">F{row.floor}</td>
-              <td className="border p-2 font-semibold">{row.circuit}</td>
-              <td className="border p-2 text-right font-mono">{row.current.toFixed(1)}</td>
-              <td className="border p-2 text-center font-mono">{row.cable}</td>
-              <td className="border p-2 text-right font-mono">{row.length}</td>
-              <td className="border p-2 text-right font-mono">{row.vd.toFixed(2)}%</td>
-              <td
-                className={`border p-2 text-center font-semibold ${
-                  row.status === 'OK'
-                    ? 'text-green-600'
-                    : row.status === 'WARNING'
-                    ? 'text-yellow-600'
-                    : 'text-red-600'
-                }`}
-              >
-                {row.status}
+        <tbody className="divide-y divide-slate-200 text-slate-800">
+          {rows.map((row, idx) => (
+            <tr
+              key={row.id}
+              className={idx % 2 === 0 ? 'bg-white' : 'bg-slate-50/80'}
+            >
+              <td className="p-2 border-r border-slate-200 font-mono text-slate-500">{idx + 1}</td>
+              <td className="p-2 border-r border-slate-200 font-medium">{row.buildingName}</td>
+              <td className="p-2 border-r border-slate-200 text-center font-mono">
+                {row.floor === 0 ? 'MDB' : `F${row.floor}`}
+              </td>
+              <td className="p-2 border-r border-slate-200 font-bold text-slate-900">{row.circuit}</td>
+              <td className="p-2 border-r border-slate-200 text-right font-mono font-bold text-slate-900">
+                {row.current.toFixed(1)} A
+              </td>
+              <td className="p-2 border-r border-slate-200 text-center font-mono font-bold text-slate-900">
+                {row.cable}
+              </td>
+              <td className="p-2 border-r border-slate-200 text-right font-mono text-slate-700">
+                {row.length} m
+              </td>
+              <td className="p-2 border-r border-slate-200 text-right font-mono font-bold text-slate-900">
+                {row.vd.toFixed(2)} %
+              </td>
+              <td className="p-2 text-center">
+                <span
+                  className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-bold font-mono ${
+                    row.status === 'OK'
+                      ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
+                      : row.status === 'WARNING'
+                      ? 'bg-amber-100 text-amber-800 border border-amber-300'
+                      : 'bg-red-100 text-red-800 border border-red-300'
+                  }`}
+                >
+                  {row.status === 'OK' ? 'PASS (<= 4%)' : row.status === 'WARNING' ? 'MARGINAL' : 'FAIL (> 5%)'}
+                </span>
               </td>
             </tr>
           ))}
         </tbody>
       </table>
-      <p className="text-xs text-gray-500 mt-2">
-        IEC 60364-5-52 limits: 3% for lighting, 5% for power loads.
-      </p>
+      <div className="text-[10px] text-slate-500 font-mono mt-2 flex justify-between">
+        <span>IEC 60364-5-52 / BS 7671 limits: Max 3% for lighting circuits, Max 5% for general power &amp; motor loads.</span>
+        <span>Total Circuits Checked: {rows.length}</span>
+      </div>
     </div>
   );
 }

@@ -50,14 +50,23 @@ function projectWith(buildings: Building[]): Project {
 }
 
 describe('buildReportWorkbook', () => {
-  it('creates the six expected sheets', () => {
+  it('creates the eight expected sheets', () => {
     const bldg = building({
       floorDesigns: [{ id: 'f1', floorNumber: 1, hasFloorSubPanels: false, items: [item()] }],
     });
     const wb = buildReportWorkbook(projectWith([bldg]), findBreaker);
 
     expect(wb.SheetNames).toEqual(
-      expect.arrayContaining(['Project', 'BOM', 'MDB Schedule', 'Cable Schedule', 'Breaker Schedule', 'Voltage Drop'])
+      expect.arrayContaining([
+        'Project',
+        'Load Analysis',
+        'MDB Schedule',
+        'Cable Schedule',
+        'Breaker Schedule',
+        'Voltage Drop',
+        'Short-Circuit',
+        'BOM',
+      ])
     );
   });
 
@@ -82,10 +91,10 @@ describe('buildReportWorkbook', () => {
     const wb = buildReportWorkbook(projectWith([bldg]), findBreaker);
     const rows = XLSX.utils.sheet_to_json<Record<string, string | number>>(wb.Sheets['BOM']);
 
-    const cable4 = rows.find((r) => r['Cable (mm²)'] === 4);
-    expect(cable4?.Count).toBe(1);
-    const cable6 = rows.find((r) => r['Cable (mm²)'] === 6);
-    expect(cable6?.Count).toBe(1);
+    const cable4 = rows.find((r) => r['Conductor Size (mm²)'] === 4);
+    expect(cable4?.Circuits).toBe(1);
+    const cable6 = rows.find((r) => r['Conductor Size (mm²)'] === 6);
+    expect(cable6?.Circuits).toBe(1);
   });
 
   it('writes MDB feeder rows with building name and breaker model', () => {

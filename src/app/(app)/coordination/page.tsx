@@ -150,11 +150,12 @@ export default function CoordinationPage() {
     [equipment, defaults, project?.preferredManufacturer]
   );
 
-  const resolveBreakerDisplayName = (savedModel: string | undefined | null, feederModel: string): string => {
-    if (!savedModel) return feederModel;
+  const resolveBreakerDisplayName = (savedModel: string | undefined | null, feederModel: string | undefined | null): string => {
+    const defaultModel = feederModel || 'Standard Circuit Breaker';
+    if (!savedModel) return defaultModel;
     const trimmedSaved = savedModel.trim();
     if (/^(?:ACB|MCCB|MCB)\s+\d+A?$/i.test(trimmedSaved)) {
-      return feederModel || savedModel;
+      return defaultModel;
     }
     const bareTripUnitMatch = trimmedSaved.match(/^(?:ACB|MCCB|MCB)\s+\d+A?\s+(.+)$/i);
     if (bareTripUnitMatch && feederModel) {

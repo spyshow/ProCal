@@ -18,6 +18,7 @@ interface ProjectContextType {
   setManufacturer: (mfg: PreferredManufacturer) => void;
   completeOnboarding: () => void;
   refreshProject: () => Promise<void>;
+  mutateProject: (updater: (prev: Project | null) => Project | null) => void;
   loading: boolean;
   currentMemberRole: ProjectMemberRole | null;
   currentMemberPermissions: Record<string, PagePermissionAction>;
@@ -127,6 +128,10 @@ export function ProjectProvider({ children }: { children: React.ReactNode }) {
     }
   }, [selectedProjectId, fetchProjectDetails]);
 
+  const mutateProject = useCallback((updater: (prev: Project | null) => Project | null) => {
+    setSelectedProject((prev) => updater(prev));
+  }, []);
+
   const currentMemberRole: ProjectMemberRole | null =
     selectedProject?.currentMemberRole || (selectedProject?.isOwner ? "PROJECT_MANAGER" : null);
 
@@ -169,6 +174,7 @@ export function ProjectProvider({ children }: { children: React.ReactNode }) {
         setManufacturer,
         completeOnboarding,
         refreshProject,
+        mutateProject,
         loading,
         currentMemberRole,
         currentMemberPermissions,

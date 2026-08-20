@@ -90,7 +90,7 @@ export default function ProjectDetailPage() {
   const params = useParams();
   const router = useRouter();
   const projectId = params.id as string;
-  const { selectedProject, selectedProjectId, selectProject, refreshProject, isQA, canEdit, isProjectManager, currentMemberRole } = useProject();
+  const { selectedProject, selectedProjectId, selectProject, refreshProject, mutateProject, isQA, canEdit, isProjectManager, currentMemberRole } = useProject();
   const { t, isRtl } = useTranslation();
 
   const isReadOnly = isQA || !canEdit('calculator') || currentMemberRole === 'QA';
@@ -250,12 +250,35 @@ export default function ProjectDetailPage() {
   };
 
   const handleUpdateBuildingLoadPhase = async (loadId: string, assignedPhase: number | null) => {
-    await fetch(`/api/building-loads/${loadId}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ assignedPhase }),
-    });
-    loadProject();
+    const updateFn = (prev: any) => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        buildings: prev.buildings.map((b: any) => ({
+          ...b,
+          buildingLoads: (b.buildingLoads || []).map((bl: any) =>
+            bl.id === loadId ? { ...bl, assignedPhase } : bl
+          ),
+        })),
+      };
+    };
+
+    setProject(updateFn);
+    if (mutateProject) {
+      mutateProject(updateFn);
+    }
+
+    try {
+      const res = await fetch(`/api/building-loads/${loadId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ assignedPhase }),
+      });
+      if (!res.ok) throw new Error('Failed to update building load phase');
+    } catch (err) {
+      console.error('Failed to update building load phase:', err);
+      loadProject();
+    }
   };
 
   // Template CRUD

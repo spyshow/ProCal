@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { verifyProjectAccess } from "@/lib/project-auth";
-import { sizeCableAndBreaker } from "@/lib/calculations/cables";
 import { getApartmentDiversityFactor } from "@/lib/calculations/loads";
 
 export async function POST(
@@ -41,8 +40,6 @@ export async function POST(
     let calculatedConnectedLoad = 0;
     let calculatedMaxDemand = 0;
     let calculatedCurrent = 0;
-    let breakerSize = "";
-    let cableSize = "";
     let resolvedLibraryItemId: string | null = null;
 
     if (type === "APARTMENT") {
@@ -78,19 +75,6 @@ export async function POST(
         // 1-phase: use V_LN = V_LL / √3 (e.g. 230V for a 400V system)
         calculatedCurrent = calculatedMaxDemand / ((voltageKv / Math.sqrt(3)) * powerFactor);
       }
-
-      // Size breaker and cable based on calculated current
-      const sizing = sizeCableAndBreaker(calculatedCurrent, isThreePhase, {
-        material,
-        insulation: "XLPE",
-        ambientTemp: 30,
-        groupingCount: 1,
-        installMethod: "C",
-      });
-      breakerSize = `${sizing.breakerSize}A`;
-      // formattedCableSize keeps parallel runs ("2 × 120 mm²"); the bare
-      // per-run size alone would evaluate as a single under-sized run.
-      cableSize = sizing.formattedCableSize;
     } else if (loadLibraryItemId) {
       // Use Load Library item for calculations
       const libraryItem = await db.loadLibraryItem.findUnique({
@@ -113,23 +97,10 @@ export async function POST(
         calculatedCurrent = calculatedMaxDemand / ((libraryItem.voltage / 1000) * libraryItem.powerFactor);
       }
       calculatedCurrent = parseFloat(calculatedCurrent.toFixed(2));
-
-      const sizing = sizeCableAndBreaker(calculatedCurrent, isThreePhase, {
-        material,
-        insulation: "XLPE",
-        ambientTemp: 30,
-        groupingCount: 2,
-        installMethod: "C",
-      });
-
-      breakerSize = `${sizing.breakerSize}A`;
-      // formattedCableSize keeps parallel runs ("2 × 120 mm²").
-      cableSize = sizing.formattedCableSize;
     } else {
       // Manual kW entry (fallback)
       let kw = parseFloat(customKw) || 0;
       let df = 1.0;
-      const isThreePhase = true;
 
       if (type === "SERVICE_PANEL") {
         kw = kw || 15;
@@ -147,17 +118,6 @@ export async function POST(
 
       calculatedCurrent = calculatedMaxDemand / (Math.sqrt(3) * voltageKv * powerFactor);
       calculatedCurrent = parseFloat(calculatedCurrent.toFixed(2));
-
-      const sizing = sizeCableAndBreaker(calculatedCurrent, isThreePhase, {
-        material,
-        insulation: "XLPE",
-        ambientTemp: 30,
-        groupingCount: 2,
-        installMethod: "C",
-      });
-
-      breakerSize = `${sizing.breakerSize}A`;
-      cableSize = sizing.formattedCableSize;
     }
 
     const item = await db.floorItem.create({
@@ -170,10 +130,7 @@ export async function POST(
         calculatedConnectedLoad,
         calculatedMaxDemand,
         calculatedCurrent,
-        breakerSize,
-        cableSize,
         cableMaterial: material,
-        voltageDrop: 0.1,
       },
     });
 

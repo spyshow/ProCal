@@ -43,7 +43,7 @@ export default function CalculatorPage() {
 function CalculatorContent() {
   const searchParams = useSearchParams();
   const focusFloorId = searchParams.get('floor');
-  const { selectedProjectId, selectedProject, loading: contextLoading, refreshProject, isQA, canView, canEdit, currentMemberRole } = useProject();
+  const { selectedProjectId, selectedProject, loading: contextLoading, refreshProject, mutateProject, isQA, canView, canEdit, currentMemberRole } = useProject();
   const { t, isRtl } = useTranslation();
 
   const isReadOnly = isQA || !canEdit('calculator') || currentMemberRole === 'QA';
@@ -138,12 +138,41 @@ function CalculatorContent() {
   };
 
   const handleUpdateAssignedPhase = async (itemId: string, assignedPhase: number | null) => {
-    await fetch(`/api/floor-items/${itemId}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ assignedPhase }),
-    });
-    loadProject();
+    const updateFn = (prev: Project | null) => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        buildings: prev.buildings.map((b) => ({
+          ...b,
+          floorDesigns: b.floorDesigns.map((fd) => ({
+            ...fd,
+            items: fd.items.map((item) =>
+              item.id === itemId ? { ...item, assignedPhase } : item
+            ),
+          })),
+        })),
+      };
+    };
+
+    // Immediate optimistic local & context update
+    setProject(updateFn);
+    if (mutateProject) {
+      mutateProject(updateFn);
+    }
+
+    try {
+      const res = await fetch(`/api/floor-items/${itemId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ assignedPhase }),
+      });
+      if (!res.ok) {
+        throw new Error('Failed to update phase');
+      }
+    } catch (err) {
+      console.error('Failed to update assigned phase:', err);
+      loadProject();
+    }
   };
 
   const handleRebalanceFloor = async (floorDesignId: string) => {
@@ -522,9 +551,6 @@ function CalculatorContent() {
                           <th className="text-end">{t('calculator.loadKw', 'Load (kW)')}</th>
                           <th className="text-end">{t('calculator.demandKw', 'Demand (kW)')}</th>
                           <th className="text-end">{t('cableSchedule.current', 'Current (A)')}</th>
-                          <th className="text-center">{t('common.breaker', 'Breaker')}</th>
-                          <th className="text-center">{t('common.cable', 'Cable')}</th>
-                          <th className="text-center">{t('cableSchedule.vd', 'VDrop')}</th>
                           <th className="text-center"></th>
                         </tr>
                       </thead>
@@ -584,11 +610,6 @@ function CalculatorContent() {
                               <td className="text-right font-mono text-sm">{item.calculatedConnectedLoad.toFixed(2)}</td>
                               <td className="text-right font-mono text-sm text-orange-400">{item.calculatedMaxDemand.toFixed(2)}</td>
                               <td className="text-right font-mono text-sm">{item.calculatedCurrent.toFixed(1)}</td>
-                              <td className="text-center font-mono text-sm text-blue-400">{item.breakerSize}</td>
-                              <td className="text-center font-mono text-sm text-green-400">{item.cableSize}</td>
-                              <td className="text-center font-mono text-xs text-gray-500">
-                                {item.voltageDrop != null ? `${item.voltageDrop}%` : '—'}
-                              </td>
                               <td className="text-center">
                                 {!isReadOnly ? (
                                   <button
@@ -791,7 +812,7 @@ function CalculatorContent() {
                                   Power (kW)
                                   <InfoTooltip
                                     label="Custom Power"
-                                    helper="Enter the installed active power in kilowatts. The calculator applies power factor and demand factor to size the breaker and cable."
+                                    helper="Enter the installed active power in kilowatts. The calculator applies power factor and demand factor to calculate the demand and current."
                                   />
                                 </label>
                                 <input

@@ -6,13 +6,14 @@ import { NextResponse } from "next/server";
 
 let gateResult: unknown = null;
 const update = vi.fn();
+const remove = vi.fn();
 
 vi.mock("@/lib/auth", () => ({
   requireAdmin: vi.fn(async () => gateResult),
 }));
 
 vi.mock("@/lib/db", () => ({
-  db: { contactRequest: { update } },
+  db: { contactRequest: { update, delete: remove } },
 }));
 
 const ADMIN = { id: "a1", username: "boss", name: "Boss", role: "ADMIN", credits: 99, email: "boss@procal.io" };
@@ -31,7 +32,15 @@ async function patch(id: string, body: unknown) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
     }),
-    { params: Promise.resolve({ id }) } as any,
+    { params: Promise.resolve({ id }) }
+  );
+}
+
+async function del(id: string) {
+  const { DELETE } = await import("./route");
+  return DELETE(
+    new Request(`http://localhost/api/admin/leads/${id}`, { method: "DELETE" }),
+    { params: Promise.resolve({ id }) }
   );
 }
 
@@ -71,5 +80,36 @@ describe("PATCH /api/admin/leads/[id]", () => {
     gateResult = NextResponse.json({ error: "Forbidden" }, { status: 403 });
     const res = await patch("cr1", { status: "CLOSED" });
     expect(res.status).toBe(403);
+  });
+});
+
+describe("DELETE /api/admin/leads/[id]", () => {
+  it("T7c 401 when unauthed", async () => {
+    gateResult = NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    const res = await del("cr1");
+    expect(res.status).toBe(401);
+    expect(remove).not.toHaveBeenCalled();
+  });
+
+  it("T7d 403 when non-admin", async () => {
+    gateResult = NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    const res = await del("cr1");
+    expect(res.status).toBe(403);
+    expect(remove).not.toHaveBeenCalled();
+  });
+
+  it("deletes the lead and returns ok", async () => {
+    remove.mockResolvedValue({ id: "cr1" });
+    const res = await del("cr1");
+    expect(res.status).toBe(200);
+    expect(remove).toHaveBeenCalledWith({ where: { id: "cr1" } });
+    const data = await res.json();
+    expect(data).toEqual({ ok: true });
+  });
+
+  it("404 when the lead does not exist", async () => {
+    remove.mockRejectedValue(Object.assign(new Error("P2025"), { code: "P2025" }));
+    const res = await del("cr1");
+    expect(res.status).toBe(404);
   });
 });

@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { X, History, Loader2, Plus, RotateCcw, FileDiff } from 'lucide-react';
+import { X, History, Loader2, Plus, RotateCcw, FileDiff, Trash2 } from 'lucide-react';
 import type { ProjectRevision } from '@/types';
 import RevisionDiffModal from '@/components/report/RevisionDiffModal';
 
@@ -18,6 +18,7 @@ export default function RevisionsPanel({ projectId, open, onClose, onChanged }: 
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [restoringId, setRestoringId] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const [diffTarget, setDiffTarget] = useState<ProjectRevision | null>(null);
   const [description, setDescription] = useState('');
   const [error, setError] = useState('');
@@ -107,6 +108,31 @@ export default function RevisionsPanel({ projectId, open, onClose, onChanged }: 
       setError('Network error while restoring revision');
     } finally {
       setRestoringId(null);
+    }
+  };
+
+  const handleDelete = async (r: ProjectRevision) => {
+    const confirmed = window.confirm(
+      `Delete revision ${r.rev} (${r.description})?\n\nThis permanently removes it from the report cover and history. It cannot be undone.`
+    );
+    if (!confirmed) return;
+    setDeletingId(r.id);
+    setError('');
+    try {
+      const res = await fetch(`/api/projects/${projectId}/revisions/${r.id}`, {
+        method: 'DELETE',
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        setError(err.error || 'Failed to delete revision');
+        return;
+      }
+      setRevisions((prev) => prev.filter((x) => x.id !== r.id));
+      onChanged?.();
+    } catch {
+      setError('Network error while deleting revision');
+    } finally {
+      setDeletingId(null);
     }
   };
 
@@ -208,6 +234,20 @@ export default function RevisionsPanel({ projectId, open, onClose, onChanged }: 
                               <RotateCcw size={12} />
                             )}
                             {restoringId === r.id ? 'Restoring…' : 'Restore'}
+                          </button>
+                          <button
+                            onClick={() => handleDelete(r)}
+                            disabled={deletingId === r.id || saving}
+                            title={`Delete revision ${r.rev}`}
+                            aria-label={`Delete ${r.rev}`}
+                            className="flex items-center gap-1.5 rounded-md border border-gray-700 px-2 py-1 text-xs font-semibold text-gray-400 hover:border-red-500 hover:text-red-400 disabled:opacity-40"
+                          >
+                            {deletingId === r.id ? (
+                              <Loader2 size={12} className="animate-spin" />
+                            ) : (
+                              <Trash2 size={12} />
+                            )}
+                            {deletingId === r.id ? 'Deleting…' : 'Delete'}
                           </button>
                         </div>
                       </td>

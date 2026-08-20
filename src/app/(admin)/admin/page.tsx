@@ -4,6 +4,11 @@ import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { Users, FolderOpen, Coins, Database, CreditCard, ShieldCheck, RefreshCw, MessageSquareWarning } from "lucide-react";
 
+interface WeeklyPoint {
+  week: string;
+  count: number;
+}
+
 interface Stats {
   users: { total: number; enabled: number; disabled: number; admins: number };
   projects: number;
@@ -11,6 +16,25 @@ interface Stats {
   catalogItems: number;
   openLeads?: number;
   totalLeads?: number;
+  usersTrend?: WeeklyPoint[];
+  projectsTrend?: WeeklyPoint[];
+}
+
+/** Inline SVG sparkline — no charting dependency. */
+function Sparkline({ data, color = "#f97316" }: { data: number[]; color?: string }) {
+  if (!data.length) return null;
+  const w = 96;
+  const h = 24;
+  const max = Math.max(...data, 1);
+  const pts = data.map((v, i) => `${(i / Math.max(data.length - 1, 1)) * w},${h - (v / max) * h}`);
+  const line = pts.join(" ");
+  const area = `0,${h} ${line} ${w},${h}`;
+  return (
+    <svg viewBox={`0 0 ${w} ${h}`} className="w-full h-6" aria-hidden="true" preserveAspectRatio="none">
+      <polygon points={area} fill={color} opacity="0.12" />
+      <polyline points={line} fill="none" stroke={color} strokeWidth="1.5" strokeLinejoin="round" strokeLinecap="round" />
+    </svg>
+  );
 }
 
 function StatTile({
@@ -146,6 +170,37 @@ export default function AdminDashboard() {
           Manage users →
         </Link>
       </section>
+
+      {/* Signups / Projects trend */}
+      {!loading && (stats?.usersTrend || stats?.projectsTrend) && (
+        <section className="space-y-3">
+          <h2 className="text-xs font-semibold text-gray-500 uppercase tracking-wider flex items-center gap-2">
+            <RefreshCw size={13} /> Growth — last 12 weeks
+          </h2>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div className="rounded-xl border border-gray-800 bg-gray-900/40 p-5 space-y-2">
+              <div className="flex items-center gap-2 text-gray-400 text-sm">
+                <Users size={15} className="text-orange-500" />
+                New signups per week
+              </div>
+              <Sparkline data={(stats?.usersTrend ?? []).map((p) => p.count)} />
+              <div className="text-xs text-gray-500">
+                Total this window: {(stats?.usersTrend ?? []).reduce((s, p) => s + p.count, 0)}
+              </div>
+            </div>
+            <div className="rounded-xl border border-gray-800 bg-gray-900/40 p-5 space-y-2">
+              <div className="flex items-center gap-2 text-gray-400 text-sm">
+                <FolderOpen size={15} className="text-orange-500" />
+                New projects per week
+              </div>
+              <Sparkline data={(stats?.projectsTrend ?? []).map((p) => p.count)} color="#38bdf8" />
+              <div className="text-xs text-gray-500">
+                Total this window: {(stats?.projectsTrend ?? []).reduce((s, p) => s + p.count, 0)}
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Projects & Catalog */}
       <section className="space-y-3">

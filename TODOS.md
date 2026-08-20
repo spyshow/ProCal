@@ -58,6 +58,17 @@ Mixing kVA-magnitudes (no PF) with kW-magnitudes (with PF) produces a kVA-neutra
 
 ---
 
+## TODO-4: Purge QA artifacts from E2E fixture project (P3)
+
+**What:** Full-app QA pass (2026-08-20, `.gstack/qa-reports/qa-report-control-hod-2026-08-20.md`) left three records with no DELETE API: project revision `2a1f931e-4d4f-4954-918a-263b3b1e4c5f` ("QA test revision"), auto-undo revision `3b0668e8-4e39-42c1-9170-de113862f5ef` (R1, created by the restore test), and closed contact lead `9e888182-4240-44cb-9ad4-1ed4cd9c1986` ("QA full pass test message"). All confined to the E2E project `a2abb0ca-8920-47ba-9ac8-1e515c921988`.
+
+**Why:** Revisions and contact leads have no delete endpoints (by design). Leaving them pollutes the fixture project's revision history and the admin feedback list.
+
+**Option A (preferred):** Add `DELETE /api/projects/[id]/revisions/[revisionId]` (owner-only, same RBAC as restore) and `DELETE /api/admin/leads/[id]` — then delete via API.
+**Option B:** One-off direct DB cleanup of the three ids above.
+
+---
+
 ## TODO-3: Admin dashboard signups/projects trend sparkline (P3)
 
 **What:** Add a small inline sparkline to the admin dashboard (`src/app/(admin)/admin/page.tsx`) showing new users and new projects per week. Extend `GET /api/admin/stats` (`src/app/api/admin/stats/route.ts`) to group `User.createdAt` and `Project.createdAt` by week and return time-series arrays alongside the point-in-time counts.

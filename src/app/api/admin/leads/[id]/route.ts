@@ -46,3 +46,28 @@ export async function PATCH(
     return NextResponse.json({ error: "Lead not found" }, { status: 404 });
   }
 }
+
+/**
+ * DELETE /api/admin/leads/[id] — permanently remove a captured lead.
+ *
+ * Housekeeping path (spam, QA artifacts, GDPR-style erasure). Unlike PATCH
+ * there is no reopen — the row is gone. Admin-only.
+ */
+export async function DELETE(
+  _request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const gate = await requireAdmin();
+  if (gate instanceof NextResponse) return gate;
+
+  const { id } = await params;
+
+  try {
+    await db.contactRequest.delete({ where: { id } });
+    return NextResponse.json({ ok: true });
+  } catch (error) {
+    // P2025 = record not found (Prisma's code). Everything else is a real 500.
+    console.error("DELETE Lead Error:", error);
+    return NextResponse.json({ error: "Lead not found" }, { status: 404 });
+  }
+}

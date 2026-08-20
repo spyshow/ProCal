@@ -23,6 +23,7 @@ import {
   FileCode2,
   AlertTriangle,
   Send,
+  Trash2,
 } from 'lucide-react';
 import { useTranslation } from '@/i18n';
 
@@ -140,6 +141,7 @@ export default function AdminFeedbackPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [updatingId, setUpdatingId] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
@@ -180,6 +182,24 @@ export default function AdminFeedbackPage() {
       setError('Network error updating status');
     } finally {
       setUpdatingId(null);
+    }
+  };
+
+  const handleDelete = async (lead: Lead) => {
+    if (!window.confirm(`Permanently delete this message from ${lead.user.name}? This cannot be undone.`)) return;
+    setDeletingId(lead.id);
+    try {
+      const res = await fetch(`/api/admin/leads/${lead.id}`, { method: 'DELETE' });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setError(data?.error || 'Could not delete message');
+        return;
+      }
+      await loadLeads();
+    } catch {
+      setError('Network error deleting message');
+    } finally {
+      setDeletingId(null);
     }
   };
 
@@ -470,7 +490,7 @@ export default function AdminFeedbackPage() {
                     <button
                       type="button"
                       onClick={() => handleToggleClose(lead)}
-                      disabled={updatingId === lead.id}
+                      disabled={updatingId === lead.id || deletingId === lead.id}
                       className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all border ${
                         lead.status === 'OPEN'
                           ? 'bg-green-600/20 text-green-300 hover:bg-green-600/30 border-green-500/40 shadow-sm'
@@ -490,6 +510,20 @@ export default function AdminFeedbackPage() {
                           <span>Reopen</span>
                         </>
                       )}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleDelete(lead)}
+                      disabled={updatingId === lead.id || deletingId === lead.id}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium bg-red-950/40 hover:bg-red-900/50 text-red-300 border border-red-500/30 transition-colors"
+                      title="Permanently delete this message"
+                    >
+                      {deletingId === lead.id ? (
+                        <Loader2 size={13} className="animate-spin" />
+                      ) : (
+                        <Trash2 size={13} />
+                      )}
+                      <span>Delete</span>
                     </button>
                   </div>
                 </div>

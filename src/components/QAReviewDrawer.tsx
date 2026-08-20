@@ -132,19 +132,19 @@ export function QAReviewDrawer({ pageKey, pageTitle }: QAReviewDrawerProps) {
     <>
       {/* Floating Trigger Button */}
       <div
-        className={`fixed bottom-18 z-40 ${
+        className={`fixed bottom-[66px] z-40 ${
           isRtl ? "left-5" : "right-5"
         } print:hidden`}
       >
         <button
           onClick={() => setIsOpen(true)}
-          className="flex items-center gap-2 px-3.5 py-2.5 rounded-full bg-slate-900/95 hover:bg-slate-800 text-slate-200 border border-slate-700/80 shadow-2xl hover:shadow-orange-500/10 hover:border-orange-500/50 transition-all duration-200 text-xs font-semibold backdrop-blur-md group"
+          className="group flex items-center justify-center gap-2 w-[142px] h-[40px] px-3.5 py-2 rounded-full bg-slate-900/95 hover:bg-slate-800 text-slate-200 border border-slate-700/80 shadow-lg shadow-black/40 hover:shadow-orange-500/10 hover:border-orange-500/50 transition-all duration-200 transform hover:scale-105 active:scale-95 text-xs font-semibold backdrop-blur-md focus:outline-none focus:ring-2 focus:ring-orange-400"
           title={t("rbac.qaReviewNotes", "QA Review Notes")}
         >
-          <ClipboardCheck size={16} className="text-orange-400 group-hover:scale-110 transition-transform" />
-          <span className="hidden sm:inline">{t("rbac.qaNotes", "QA Notes")}</span>
+          <ClipboardCheck size={17} className="text-orange-400 group-hover:scale-110 transition-transform shrink-0" />
+          <span className="whitespace-nowrap font-medium text-xs">{t("rbac.qaNotes", "QA Notes")}</span>
           {openCount > 0 && (
-            <span className="w-5 h-5 rounded-full bg-orange-500 text-white text-[10px] font-bold flex items-center justify-center animate-pulse">
+            <span className="w-4 h-4 rounded-full bg-orange-500 text-white text-[10px] font-bold flex items-center justify-center animate-pulse shrink-0 ml-0.5">
               {openCount}
             </span>
           )}

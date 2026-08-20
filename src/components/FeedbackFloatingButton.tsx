@@ -186,20 +186,20 @@ export function FeedbackFloatingButton() {
         <button
           type="button"
           onClick={handleOpen}
-          className="group flex items-center gap-2.5 px-3.5 py-2.5 rounded-full bg-gradient-to-r from-orange-600 via-orange-500 to-amber-600 hover:from-orange-500 hover:to-amber-500 text-white font-semibold shadow-lg shadow-orange-950/50 hover:shadow-orange-500/30 border border-orange-400/40 transition-all duration-200 transform hover:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:ring-offset-2 focus:ring-offset-slate-950"
+          className="group flex items-center justify-center gap-2 w-[142px] h-[40px] px-3.5 py-2 rounded-full bg-gradient-to-r from-orange-600 via-orange-500 to-amber-600 hover:from-orange-500 hover:to-amber-500 text-white font-semibold shadow-lg shadow-orange-950/50 hover:shadow-orange-500/30 border border-orange-400/40 transition-all duration-200 transform hover:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:ring-offset-2 focus:ring-offset-slate-950 text-xs"
           title={t('feedback.tooltip', 'Report an Error or Send Feedback to Admin')}
           aria-haspopup="dialog"
           aria-expanded={isOpen}
         >
-          <div className="relative flex items-center justify-center">
-            <MessageSquareWarning size={18} className="text-white group-hover:rotate-6 transition-transform" />
+          <div className="relative flex items-center justify-center shrink-0">
+            <MessageSquareWarning size={17} className="text-white group-hover:rotate-6 transition-transform" />
             <span className="absolute -top-1 -right-1 flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-200 opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-300"></span>
             </span>
           </div>
-          <span className="text-xs tracking-wide whitespace-nowrap font-medium pr-0.5">
-            {t('feedback.buttonLabel', 'Feedback / Error')}
+          <span className="text-xs tracking-wide whitespace-nowrap font-medium">
+            {t('feedback.buttonLabel', 'Feedback')}
           </span>
         </button>
       </aside>

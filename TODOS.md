@@ -70,6 +70,8 @@ Mixing kVA-magnitudes (no PF) with kW-magnitudes (with PF) produces a kVA-neutra
 
 ## TODO-3: Admin dashboard signups/projects trend sparkline (P3)
 
+**Status:** DONE 2026-08-20 (commit `d13aaf3`). `GET /api/admin/stats` now returns `usersTrend` / `projectsTrend` (12-week, Monday-anchored, zero-filled series bucketed in-app — portable across SQLite/Postgres, no raw SQL). Admin dashboard renders both as inline-SVG sparklines under "Growth — last 12 weeks".
+
 **What:** Add a small inline sparkline to the admin dashboard (`src/app/(admin)/admin/page.tsx`) showing new users and new projects per week. Extend `GET /api/admin/stats` (`src/app/api/admin/stats/route.ts`) to group `User.createdAt` and `Project.createdAt` by week and return time-series arrays alongside the point-in-time counts.
 
 **Why:** The dashboard today answers "how many users now" but not "are we growing." A trend line turns the ops hub from a snapshot into a signal.

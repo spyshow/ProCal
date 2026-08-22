@@ -495,7 +495,20 @@ function feederFromItem(
   const ambientTemp = item.ambientTemp ?? project.ambientTemp ?? 30;
   const groupingCount = item.groupingCount ?? project.groupingCount ?? 1;
   const installMethod = item.installMethod ?? undefined;
-  const sizing = sizeCableAndBreaker(item.calculatedCurrent, isThreePhase, {
+  // Branch protection must carry the dwelling's OWN installed load: the
+  // building-wide diversity factor belongs to the upstream aggregation
+  // (riser/MDB/incomer), not to a single apartment's final circuit. The stored
+  // calculatedCurrent is diversified, so apartments re-derive their branch
+  // design current from the undiversified connected load.
+  const pf = Math.max(0.1, Math.min(1, pfForFloorItem(item, project) || 0.85));
+  const connectedKw = item.calculatedConnectedLoad ?? 0;
+  const designCurrent =
+    item.type === "APARTMENT" && connectedKw > 0
+      ? isThreePhase
+        ? connectedKw / (Math.sqrt(3) * (project.voltage / 1000) * pf)
+        : connectedKw / ((project.voltage / Math.sqrt(3) / 1000) * pf)
+      : item.calculatedCurrent;
+  const sizing = sizeCableAndBreaker(designCurrent, isThreePhase, {
     material,
     insulation,
     ambientTemp,
@@ -533,6 +546,15 @@ function feederFromItem(
     installMethod,
   });
 
+  const warnings = [
+    ...sizing.warnings,
+    ...finalSizing.warnings,
+    ...protEval.warnings,
+    ...(manualBreaker && !isNaN(manualBreaker) && manualBreaker < designCurrent - 1e-9
+      ? [`Manual breaker ${manualBreaker} A is below the ${designCurrent.toFixed(1)} A design current — continuous overload risk (Ib > In).`]
+      : []),
+  ];
+
   const isBreakerUpsized = actualBreakerSize > sizing.breakerSize;
   const upsizeReason = isBreakerUpsized
     ? `Sized to ${actualBreakerSize}A (exceeds minimal ${sizing.breakerSize}A rating): Selected catalog frame rating for ${item.calculatedCurrent.toFixed(1)}A load.`
@@ -542,10 +564,12 @@ function feederFromItem(
     name: `F${floorNumber} – ${item.name}`,
     type: item.type,
     current: item.calculatedCurrent,
+    designCurrent,
     breakerSize: actualBreakerSize,
     baseBreakerSize: sizing.breakerSize,
     isBreakerUpsized,
     upsizeReason,
+    warnings,
     cableSize: effectiveCableSize,
     parallelRuns: protEval.parallelRuns,
     formattedCableSize: protEval.formattedCableSize,
@@ -628,6 +652,15 @@ function feederFromBuildingLoad(
     installMethod,
   });
 
+  const warnings = [
+    ...sizing.warnings,
+    ...finalSizing.warnings,
+    ...protEval.warnings,
+    ...(manualBreaker && !isNaN(manualBreaker) && manualBreaker < current - 1e-9
+      ? [`Manual breaker ${manualBreaker} A is below the ${current.toFixed(1)} A design current — continuous overload risk (Ib > In).`]
+      : []),
+  ];
+
   const isBreakerUpsized = actualBreakerSize > sizing.breakerSize;
   const upsizeReason = isBreakerUpsized
     ? `Sized to ${actualBreakerSize}A (exceeds minimal ${sizing.breakerSize}A rating): Selected catalog frame rating with electronic trip unit protection for ${current.toFixed(1)}A design current.`
@@ -637,10 +670,12 @@ function feederFromBuildingLoad(
     name,
     type,
     current,
+    designCurrent: current,
     breakerSize: actualBreakerSize,
     baseBreakerSize: sizing.breakerSize,
     isBreakerUpsized,
     upsizeReason,
+    warnings,
     cableSize: effectiveCableSize,
     parallelRuns: protEval.parallelRuns,
     formattedCableSize: protEval.formattedCableSize,
@@ -688,6 +723,8 @@ export interface ComputeFeedersResult {
   mainBreakerIn: number;
   /** Design load current (A) for the whole building incoming supply. */
   mainIncomerCurrent: number;
+  /** Icu (kA) of the selected main incomer device; null when generic/unknown. */
+  mainBreakingCapacityKa: number | null;
   /** Prospective secondary short-circuit current (kA) at the main incomer. */
   transformerIscKa: number;
 }
@@ -1006,7 +1043,17 @@ export function computeFeeders(
     }
   };
 
-  // 3. Process MDB Feeders against Main Incomer
+  // 3. Process MDB Feeders against Main Incomer.
+  // Cable metadata resolves by ID (itemId / buildingLoadId), never by display
+  // name — duplicate library names used to attach the wrong cable to a feeder.
+  const buildingLoadById = new Map(
+    (building.buildingLoads ?? []).map((bl) => [bl.id, bl])
+  );
+  const itemIndex = new Map<string, { it: (typeof building.floorDesigns)[number]["items"][number]; floorNumber: number }>();
+  for (const fd of building.floorDesigns) {
+    for (const it of fd.items) itemIndex.set(it.id, { it, floorNumber: fd.floorNumber });
+  }
+
   for (const f of mdbFeeders) {
     f.parentFeederName = 'Main Incomer';
 
@@ -1016,20 +1063,20 @@ export function computeFeeders(
     let cableMaterial: 'copper' | 'aluminum' = 'copper';
 
     if (f.type === 'SMDB') {
-      const matchFloor = building.floorDesigns.find((fd) => `F${fd.floorNumber} – SMDB` === f.name);
+      const matchFloor = f.floorDesignId
+        ? building.floorDesigns.find((fd) => fd.id === f.floorDesignId)
+        : undefined;
       cableLength = getRiserCableLength(matchFloor, matchFloor?.floorNumber ?? 1);
       cableInsulation = (matchFloor?.riserCableInsulation as 'PVC' | 'XLPE') || 'XLPE';
       cableMaterial = (matchFloor?.riserCableMaterial as 'copper' | 'aluminum') || 'copper';
     } else {
-      const matchBl = (building.buildingLoads ?? []).find((bl) => bl.loadLibraryItem?.name === f.name || bl.loadLibraryItem?.category === f.type);
+      const matchBl = f.buildingLoadId ? buildingLoadById.get(f.buildingLoadId) : undefined;
       if (matchBl) {
         cableLength = getBuildingLoadCableLength(matchBl);
         cableInsulation = (matchBl.cableInsulation as 'PVC' | 'XLPE') || 'XLPE';
         cableMaterial = (matchBl.cableMaterial as 'copper' | 'aluminum') || 'copper';
       } else {
-        const matchItem = building.floorDesigns
-          .flatMap((fd) => fd.items.map((it) => ({ it, floorNumber: fd.floorNumber })))
-          .find(({ it, floorNumber }) => `F${floorNumber} – ${it.name}` === f.name);
+        const matchItem = f.itemId ? itemIndex.get(f.itemId) : undefined;
         if (matchItem) {
           cableLength = getItemCableLength(matchItem.it, matchItem.floorNumber);
           cableInsulation = (matchItem.it.cableInsulation as 'PVC' | 'XLPE') || 'XLPE';
@@ -1042,9 +1089,11 @@ export function computeFeeders(
     enforceFeederIcu(f, terminalIscKa);
 
     const dsInRating = Math.max(6, f.breakerSize || 10);
-    // Ir cannot exceed the frame rating In: a manual breaker set below the
-    // load current must not produce an invalid Ir > In trip setting.
-    const dsIr = Math.max(6, Math.min(f.current > 0 ? f.current : dsInRating, dsInRating));
+    // Ir cannot exceed the frame rating In, and must not sit below the branch's
+    // undiversified design current: a manual breaker smaller than the load must
+    // not masquerade as a valid long-time setting.
+    const designAmps = f.designCurrent ?? f.current;
+    const dsIr = Math.max(6, Math.min(designAmps > 0 ? designAmps : dsInRating, dsInRating));
 
     const downstreamSettings: BreakerCurveSettings = {
       inRating: dsInRating,
@@ -1156,7 +1205,10 @@ export function computeFeeders(
       enforceFeederIcu(feeder, branchFaultIsc);
 
       const branchInRating = Math.max(6, feeder.breakerSize || 10);
-      const branchIr = Math.max(6, Math.min(feeder.current > 0 ? feeder.current : branchInRating, branchInRating));
+      const branchIr = Math.max(6, Math.min(
+        ((feeder.designCurrent ?? feeder.current) > 0 ? (feeder.designCurrent ?? feeder.current) : branchInRating),
+        branchInRating
+      ));
 
       const branchSettings: BreakerCurveSettings = {
         inRating: branchInRating,
@@ -1230,6 +1282,7 @@ export function computeFeeders(
     mainCableUnderProtected,
     mainBreakerIn,
     mainIncomerCurrent,
+    mainBreakingCapacityKa: mainMatch.breakingCapacity ?? null,
     transformerIscKa,
   };
 }

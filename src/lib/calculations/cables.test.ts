@@ -9,6 +9,7 @@ import {
   formatCableSize,
 } from './cables';
 import { temperatureDeratingFactor, groupingDeratingFactor } from './cablesData';
+import { getAmpacity } from './installationMethods';
 import { CalculationError } from './validate';
 
 describe('sizeCableAndBreaker', () => {
@@ -205,6 +206,57 @@ describe('Parallel multi-conductor sizing in sizeCableAndBreaker', () => {
     expect(result.cableSize).toBeLessThanOrEqual(300);
     expect(result.deratedAmpacity).toBeGreaterThanOrEqual(900);
     expect(result.formattedCableSize).toContain('×');
+  });
+
+  it('counts touching parallel runs in the grouping factor (IEC B.52.17)', () => {
+    // 2 runs of the same cable with grouping=1 must derate as a group of 2
+    // (×0.80), not ×1.0 — 2 × 96 A = 192 A nominal is only 153.6 A derated.
+    const one = sizeCableAndBreaker(100, true, {
+      material: 'copper', insulation: 'XLPE', ambientTemp: 30, groupingCount: 1, manualBreakerRating: 125,
+    });
+    expect(one.parallelRuns).toBe(1);
+    expect(one.warnings).toEqual([]);
+
+    // Force a 2-run arrangement via targetRuns and check the penalty applies.
+    const two = sizeCableAndBreaker(150, true, {
+      material: 'copper', insulation: 'XLPE', ambientTemp: 30, groupingCount: 1, targetRuns: 2, manualBreakerRating: 160,
+    });
+    expect(two.parallelRuns).toBe(2);
+    expect(two.groupFactor).toBeCloseTo(0.80);
+    // 16 mm² XLPE 3PH C = 96 A/run → 2×96×0.80 = 153.6 A < 160 → steps to 25 mm².
+    expect(two.cableSize).toBe(25);
+  });
+
+  it('uses the published per-method table AND the soil-temperature table for ground methods', () => {
+    // D2 direct-buried XLPE 3PH @ 70 mm² = 203 A (table value); the deleted
+    // flat-factor path credited 229×1.00 = 229 A (+13 % overrated).
+    expect(getAmpacity(70, '72', 'XLPE', true)).toBe(203);
+    // Sizing through D2 applies BOTH the real D2 column and the 20 °C-soil
+    // correction (30 °C soil → ×0.93): 70 mm² derates to 203×0.93 ≈ 189 A
+    // < In 200 A, so the engine correctly steps up to 95 mm²
+    // (239×0.93 ≈ 222 A >= 200 A). The old path sized 70 mm² here.
+    const result = sizeCableAndBreaker(200, true, {
+      material: 'copper', insulation: 'XLPE', ambientTemp: 30, groupingCount: 1, installMethod: '72',
+    });
+    expect(result.breakerSize).toBe(200);
+    expect(result.cableSize).toBe(95);
+    expect(result.deratedAmpacity).toBeGreaterThanOrEqual(200);
+    expect(result.warnings).toEqual([]);
+  });
+
+  it('emits warnings for clamped breakers and catalog-exhausted fallbacks', () => {
+    // Beyond-range design current: breaker clamps to the largest frame.
+    const clamped = sizeCableAndBreaker(2600, true, {
+      material: 'copper', insulation: 'XLPE', ambientTemp: 30, groupingCount: 1,
+    });
+    expect(clamped.breakerSize).toBe(2500);
+    expect(clamped.warnings.some((w) => w.includes('largest standard breaker'))).toBe(true);
+
+    // Catalog exhausted: even 6 runs cannot reach an unsatisfiable target.
+    const exhausted = sizeCableAndBreaker(2500, true, {
+      material: 'copper', insulation: 'XLPE', ambientTemp: 30, groupingCount: 6,
+    });
+    expect(exhausted.warnings.some((w) => w.includes('Catalog exhausted'))).toBe(true);
   });
 
   it('honors maxCableSize threshold (e.g. 185 mm²)', () => {

@@ -115,9 +115,15 @@ export function calculateShortCircuitCurrent(
   // Total impedance to fault point
   const totalZ = transformerZ + sourceZ;
 
+  // IEC 60909-0 voltage factor c_max: the utility may sit up to +6 % (LV) /
+  // +10 % (other levels) above nominal when the fault occurs. Omitting c
+  // understates Isc by that margin — the non-conservative direction for
+  // breaker Icu verification.
+  const voltageFactor = voltageSecondary <= 1000 ? 1.05 : 1.10;
+
   // Three-phase short-circuit current (kA)
-  const threePhaseIsc = totalZ > 0 
-    ? (voltageSecondary / (Math.sqrt(3) * totalZ)) / 1000 
+  const threePhaseIsc = totalZ > 0
+    ? (voltageFactor * voltageSecondary / (Math.sqrt(3) * totalZ)) / 1000
     : 0;
 
   // Phase-to-phase short-circuit current (typically 0.866 * three-phase)
@@ -146,7 +152,7 @@ export function calculateShortCircuitCurrent(
     // For TT: earth-fault loop impedance (default 0.5 Ω) is in series with fault path
     earthFaultImpedanceOhms = transformer.earthFaultImpedanceOhms ?? 0.5;
     const totalFaultZ = transformerZ + earthFaultImpedanceOhms;
-    phaseToNeutralIsc = totalFaultZ > 0 ? (voltageLN / totalFaultZ) / 1000 : 0;
+    phaseToNeutralIsc = totalFaultZ > 0 ? (voltageFactor * voltageLN / totalFaultZ) / 1000 : 0;
     itFirstFault = false;
   } else {
     // TN-S, TN-C, TN-C-S (solidly grounded): phaseToNeutralIsc ≈ threePhaseIsc

@@ -246,8 +246,12 @@ describe('computeFeeders', () => {
 describe('regression: three-phase classification', () => {
   it('REGRESSION: SMDB feeder for a 3-phase apartment uses THREE-PHASE sizing (panel/page.tsx:184 was inverted)', () => {
     const findBreaker = createFindBreaker(equipment, {}, 'ABB');
+    // Branch sizing now derives apartments from their UNDIVERSIFIED connected
+    // load (Ib = kW / (√3·kV·PF)), so the fixture's connected load must be
+    // consistent with the 40 A it asserts: 40 × √3 × 0.4 × 0.85 ≈ 23.56 kW.
     const threePhaseItem = item({
       calculatedCurrent: 40,
+      calculatedConnectedLoad: 40 * Math.sqrt(3) * 0.4 * 0.85,
       apartmentTemplate: { id: 't', name: 'T', phases: 3, rooms: [], createdAt: '', updatedAt: '' },
     });
     const bldg = building({

@@ -554,16 +554,19 @@ describe('Mixed-Use Multi-Building Integration (loads → breakers → selectivi
     expect(b.mainIncomerSettings.category).toBe('MCCB');
     // Main incomer cables are re-sized to their frames (fix #4): Iz >= In,
     // with parallel runs on the ACB. Tower A's 240 mm² single run is exactly
-    // Iz = In = 500; Tower B 185 mm² Iz 424 >= 400; Mall 3 × 185 mm² Iz 1272 >= 1250.
+    // Iz = In = 500; Tower B 185 mm² Iz 424 >= 400; the Mall's touching
+    // parallel runs join the grouping table (IEC B.52.17), so 3 × 185 mm²
+    // (Iz 3×424×0.70 = 890 < 1250) no longer suffices — the engine steps up
+    // to 4 × 240 mm² (4×500×0.65 = 1300 >= 1250).
     expect(a.mainCableIz).toBeGreaterThanOrEqual(a.mainBreakerIn);
     expect(b.mainCableIz).toBeGreaterThanOrEqual(b.mainBreakerIn);
     expect(m.mainCableIz).toBeGreaterThanOrEqual(m.mainBreakerIn);
     expect(a.mainParallelRuns).toBe(1);
     expect(b.mainParallelRuns).toBe(1);
-    expect(m.mainParallelRuns).toBe(3);
+    expect(m.mainParallelRuns).toBe(4);
     expect(a.mainCableSize).toBe(240);
     expect(b.mainCableSize).toBe(185);
-    expect(m.mainCableSize).toBe(185);
+    expect(m.mainCableSize).toBe(240);
 
     // SMDB floor sets reflect each building's design.
     expect(a.smdbFloorNumbers).toEqual([5, 6, 7, 8]);
@@ -577,9 +580,11 @@ describe('Mixed-Use Multi-Building Integration (loads → breakers → selectivi
     expect(hvac).toBeDefined();
     expect(hvac!.breakerSize).toBe(500); // current unchanged by material
     // Aluminum XLPE 3-phase: single 300 mm² = 497 A < 500 A, so the sizing
-    // engine drops to parallel runs: 2 × 120 mm² (2 × 276 = 552 A). The stored
+    // engine drops to parallel runs. Touching runs join the grouping table
+    // (IEC B.52.17): 2 × 120 mm² derates to 2×276×0.80 = 442 A < 500 A, so the
+    // engine steps up to 2 × 150 mm² (2×319×0.80 = 510 A >= 500 A). The stored
     // cable keeps the "2 ×" prefix so the evaluation sees both runs.
-    expect(hvac!.formattedCableSize).toContain('2 × 120 mm²');
+    expect(hvac!.formattedCableSize).toContain('2 × 150 mm²');
     expect(hvac!.parallelRuns).toBe(2);
     expect(hvac!.cableIz!).toBeGreaterThanOrEqual(hvac!.breakerSize);
     expect(hvac!.isUnderProtected).toBe(false);

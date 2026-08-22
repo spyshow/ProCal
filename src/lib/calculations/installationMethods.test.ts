@@ -3,7 +3,8 @@ import {
   INSTALLATION_METHODS,
   resolveReferenceMethod,
   getAmpacity,
-  METHOD_AMPACITY_FACTORS,
+  isGroundMethod,
+  groundTemperatureDeratingFactor,
 } from './installationMethods';
 
 describe('IEC 60364-5-52 Installation Methods Catalogue', () => {
@@ -94,11 +95,47 @@ describe('IEC 60364-5-52 Installation Methods Catalogue', () => {
     expect(amp72).toBe(164);
   });
 
-  it('has ampacity factors for all reference codes', () => {
+  it('resolves ampacity for every reference code, including derived 1-phase tables', () => {
     const expectedCodes = ['A1', 'A2', 'B1', 'B2', 'C', 'E', 'F', 'G', 'D1', 'D2'];
     for (const code of expectedCodes) {
-      expect(METHOD_AMPACITY_FACTORS[code]).toBeDefined();
-      expect(METHOD_AMPACITY_FACTORS[code]).toBeGreaterThan(0);
+      // 3-phase
+      expect(getAmpacity(50, code, 'XLPE', true)).toBeGreaterThan(0);
+      expect(getAmpacity(50, code, 'PVC', true)).toBeGreaterThan(0);
+      // 1-phase — explicit (A1/B1/C) or derived from the 3-phase table × C ratio
+      expect(getAmpacity(50, code, 'XLPE', false)).toBeGreaterThan(0);
+      expect(getAmpacity(50, code, 'PVC', false)).toBeGreaterThan(0);
     }
+  });
+
+  it('derives missing 1-phase tables with the C-table shape (2 loaded conductors run above 3)', () => {
+    // Method E has no published 1PH table here: derived = E_3PH × (C_1PH/C_3PH).
+    // 50 mm² XLPE: E=193A, C ratio 207/179 ≈ 1.1565 → round(193×1.1565) = 223.
+    expect(getAmpacity(50, 'E', 'XLPE', false)).toBe(223);
+    // Like every explicit IEC pair (C: 107 vs 96 @ 16 mm²), the derived
+    // "2-loaded-conductor" column sits ABOVE the same method's 3-phase column.
+    for (const size of [16, 70, 150]) {
+      expect(getAmpacity(size, 'E', 'XLPE', false)).toBeGreaterThanOrEqual(getAmpacity(size, 'E', 'XLPE', true));
+    }
+    // And tracks the C-ratio per size exactly.
+    const cRatio70 = getAmpacity(70, 'C', 'PVC', false) / getAmpacity(70, 'C', 'PVC', true);
+    expect(getAmpacity(70, 'E', 'PVC', false)).toBe(Math.round(getAmpacity(70, 'E', 'PVC', true) * cRatio70));
+  });
+
+  it('flags ground methods and uses the 20°C-soil correction table', () => {
+    expect(isGroundMethod('72')).toBe(true);
+    expect(isGroundMethod('D2')).toBe(true);
+    expect(isGroundMethod('31-E')).toBe(false);
+    expect(isGroundMethod(undefined)).toBe(false);
+
+    // BS 7671 Table 4B2 / IEC B.52.15 reference points.
+    expect(groundTemperatureDeratingFactor('XLPE', 20)).toBeCloseTo(1.0);
+    expect(groundTemperatureDeratingFactor('XLPE', 30)).toBeCloseTo(0.93);
+    expect(groundTemperatureDeratingFactor('PVC', 30)).toBeCloseTo(0.90);
+    // Interpolated between steps: XLPE 27 °C → 0.96 + (0.93-0.96)·(2/5) = 0.948.
+    expect(groundTemperatureDeratingFactor('XLPE', 27)).toBeCloseTo(0.948);
+    // Ground factors must be stricter than the air table at the same ambient.
+    expect(groundTemperatureDeratingFactor('XLPE', 40)).toBeLessThan(
+      0.91 // air-table XLPE factor at 40 °C
+    );
   });
 });

@@ -4,7 +4,6 @@ import { phaseBalance } from './phaseBalance';
 import { computeFloorRiserVd } from './riser';
 import { calculateVoltageDrop, parseMm2 } from './cables';
 import { CABLE_CATALOG, temperatureDeratingFactor, groupingDeratingFactor } from './cablesData';
-import { METHOD_AMPACITY_FACTORS } from './installationMethods';
 import { calculateThreePhaseCurrent } from './loads';
 import type { Building, FloorDesign, FloorItem, Project } from '@/types';
 
@@ -422,8 +421,7 @@ describe('Golden Path Cross-Module Integration Test', () => {
       const groupingCount = project.groupingCount ?? 1;
       const tempFactor = temperatureDeratingFactor('XLPE', ambientTemp);
       const groupFactor = groupingDeratingFactor(groupingCount);
-      const installFactor = METHOD_AMPACITY_FACTORS['C'] ?? 1.0;
-      const totalDerating = tempFactor * groupFactor * installFactor;
+      const totalDerating = tempFactor * groupFactor;
 
       const baseAmpacity = feeder.isThreePhase ? spec.copperXlpe3Ph : spec.copperXlpe1Ph;
       const deratedAmpacity = baseAmpacity * totalDerating;

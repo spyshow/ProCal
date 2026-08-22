@@ -1,5 +1,5 @@
 import { CABLE_CATALOG, temperatureDeratingFactor, groupingDeratingFactor, CableSpec } from "./cablesData";
-import { METHOD_AMPACITY_FACTORS, resolveReferenceMethod } from "./installationMethods";
+import { getAmpacity, isGroundMethod, groundTemperatureDeratingFactor } from "./installationMethods";
 import { assertNonNegative, assertPositive, assertInRange, assertOneOf, clampPowerFactor } from "./validate";
 
 export interface SizingResult {
@@ -13,6 +13,10 @@ export interface SizingResult {
   groupFactor: number;
   neutralSize: number;
   earthSize: number;
+  /** Non-fatal engineering caveats (clamped breaker, catalog-exhausted
+   *  fallbacks, unsatisfiable target runs). Surfaced to the UI/reports so
+   *  degraded sizing is never silent. */
+  warnings: string[];
 }
 
 // Standard breaker ratings (Amperes)
@@ -118,22 +122,38 @@ export function sizeCableAndBreaker(
 
   const { material, insulation, ambientTemp, groupingCount, neutralCurrent, installMethod } = options;
   const maxCableSize = options.maxCableSize ?? 300;
+  const warnings: string[] = [];
+  const methodId = installMethod ?? 'C';
 
   // 1. Select breaker size (In >= Ib)
   const breakerSize = options.manualBreakerRating ?? (STANDARD_BREAKERS.find((rating) => rating >= ib) || STANDARD_BREAKERS[STANDARD_BREAKERS.length - 1]);
+  if (breakerSize < ib - 1e-9) {
+    warnings.push(
+      `Design current ${ib.toFixed(1)} A exceeds the largest standard breaker (${breakerSize} A); sized to the frame limit — split the load across multiple feeders.`
+    );
+  }
 
-  // 2. Calculate derating factors
-  const tempFactor = temperatureDeratingFactor(insulation, ambientTemp);
+  // 2. Derating factors. Ground methods (D1/D2) are tabulated against 20 °C
+  // soil, not 30 °C air, so they use their own correction table.
+  const tempFactor = isGroundMethod(methodId)
+    ? groundTemperatureDeratingFactor(insulation, ambientTemp)
+    : temperatureDeratingFactor(insulation, ambientTemp);
   const groupFactor = groupingDeratingFactor(groupingCount);
-  const installFactor = (installMethod ? METHOD_AMPACITY_FACTORS[resolveReferenceMethod(installMethod)] : undefined) ?? 1.0;
-  const totalDerating = tempFactor * groupFactor * installFactor;
+
+  // Ampacity comes straight from the published per-method tables (IEC
+  // 60364-5-52 B.52.2–B.52.5, B.52.10–B.52.12) instead of a flat multiplier on
+  // Method C — a single ratio cannot track methods whose gap to C widens with
+  // conductor size (buried cables were overrated by up to ~29 %).
+  const nominalFor = (size: number): number => {
+    const tableValue = getAmpacity(size, methodId, insulation, isThreePhase, material);
+    if (tableValue > 0) return tableValue;
+    const spec = CABLE_CATALOG.find((c) => c.size === size);
+    return spec ? getCableAmpacityColumn(spec, material, insulation, isThreePhase) : 0;
+  };
 
   // Available catalog subset up to maxCableSize
   const availableCatalog = CABLE_CATALOG.filter((c) => c.size <= maxCableSize);
   const catalogToUse = availableCatalog.length > 0 ? availableCatalog : CABLE_CATALOG;
-
-  const getCableNominalAmpacity = (cable: CableSpec): number =>
-    getCableAmpacityColumn(cable, material, insulation, isThreePhase);
 
   let selectedCable: CableSpec = catalogToUse[catalogToUse.length - 1];
   let selectedRuns = 1;
@@ -141,12 +161,15 @@ export function sizeCableAndBreaker(
   let deratedAmpacity = 0;
 
   if (options.targetRuns && options.targetRuns > 1) {
-    // User specified exact run count
+    // User specified exact run count. Touching parallel cables count as
+    // separate grouped circuits (IEC B.52.17), so the grouping factor grows
+    // with the run count: effective circuits = other circuits + runs.
     selectedRuns = options.targetRuns;
+    const effGroupFactor = groupingDeratingFactor(Math.max(1, groupingCount - 1 + selectedRuns));
+    const totalDerating = tempFactor * effGroupFactor;
     for (const cable of catalogToUse) {
-      const singleNominal = getCableNominalAmpacity(cable);
-      const singleIz = singleNominal * totalDerating;
-      const totalIz = selectedRuns * singleIz;
+      const singleNominal = nominalFor(cable.size);
+      const totalIz = selectedRuns * singleNominal * totalDerating;
       if (totalIz >= breakerSize) {
         selectedCable = cable;
         nominalAmpacity = selectedRuns * singleNominal;
@@ -156,16 +179,19 @@ export function sizeCableAndBreaker(
     }
     if (deratedAmpacity === 0) {
       selectedCable = catalogToUse[catalogToUse.length - 1];
-      const singleNominal = getCableNominalAmpacity(selectedCable);
+      const singleNominal = nominalFor(selectedCable.size);
       nominalAmpacity = selectedRuns * singleNominal;
       deratedAmpacity = selectedRuns * singleNominal * totalDerating;
+      warnings.push(
+        `${selectedRuns} × ${selectedCable.size} mm² still cannot carry ${breakerSize} A under ${tempFactor.toFixed(2)}×${effGroupFactor.toFixed(2)} derating — increase runs or improve the installation.`
+      );
     }
   } else {
     // Pass 1: Try single conductor (runs = 1) up to maxCableSize
     let foundSingle = false;
     for (const cable of catalogToUse) {
-      const singleNominal = getCableNominalAmpacity(cable);
-      const testIz = singleNominal * totalDerating;
+      const singleNominal = nominalFor(cable.size);
+      const testIz = singleNominal * tempFactor * groupFactor;
       if (testIz >= breakerSize) {
         selectedCable = cable;
         selectedRuns = 1;
@@ -176,15 +202,18 @@ export function sizeCableAndBreaker(
       }
     }
 
-    // Pass 2: If single conductor is insufficient, find optimal parallel runs (N = 2, 3, 4, 5, 6)
-    // Prioritizing minimum parallel runs first, then smallest cable size within that run count.
+    // Pass 2: If single conductor is insufficient, find optimal parallel runs (N = 2..6),
+    // minimum runs first, then smallest cable within that run count. Each run's
+    // cables add to the grouping count (touching-set rule), which is why the
+    // factor is recomputed per candidate N.
     if (!foundSingle) {
       let foundParallel = false;
       for (let runs = 2; runs <= 6; runs++) {
+        const effGroupFactor = groupingDeratingFactor(Math.max(1, groupingCount - 1 + runs));
+        const runDerating = tempFactor * effGroupFactor;
         for (const cable of catalogToUse) {
-          const singleNominal = getCableNominalAmpacity(cable);
-          const singleIz = singleNominal * totalDerating;
-          const totalIz = runs * singleIz;
+          const singleNominal = nominalFor(cable.size);
+          const totalIz = runs * singleNominal * runDerating;
           if (totalIz >= breakerSize) {
             selectedCable = cable;
             selectedRuns = runs;
@@ -197,18 +226,31 @@ export function sizeCableAndBreaker(
         if (foundParallel) break;
       }
 
-      // Fallback: If even 6 runs is insufficient, use largest available with calculated runs
+      // Fallback: If even 6 runs is insufficient, use largest available with calculated runs.
+      // Reported Iz keeps the run-aware grouping penalty so callers see the
+      // shortfall honestly (paired with a warning) instead of an unpenalized
+      // number that silently claims the cable can carry the frame.
       if (!foundParallel) {
         const largest = catalogToUse[catalogToUse.length - 1];
-        const largestNominal = getCableNominalAmpacity(largest);
-        const largestIz = largestNominal * totalDerating;
+        const largestNominal = nominalFor(largest.size);
+        const largestIz = largestNominal * tempFactor * groupFactor;
         selectedRuns = Math.max(2, Math.ceil(breakerSize / (largestIz > 0 ? largestIz : 1)));
         selectedCable = largest;
         nominalAmpacity = selectedRuns * largestNominal;
-        deratedAmpacity = selectedRuns * largestIz;
+        const fallbackGroupFactor = groupingDeratingFactor(Math.max(1, groupingCount - 1 + selectedRuns));
+        deratedAmpacity = selectedRuns * largestNominal * tempFactor * fallbackGroupFactor;
+        warnings.push(
+          `Catalog exhausted: even 6 parallel ${largest.size} mm² runs fall short of ${breakerSize} A after derating — showing best-available ${selectedRuns}-run arrangement (${Math.round(deratedAmpacity)} A Iz).`
+        );
       }
     }
   }
+
+  // Effective derating of the SELECTED arrangement — parallel cables join the
+  // touching group (B.52.17), so recompute the grouping factor with the final
+  // run count before sizing neutrals or reporting Iz.
+  const effGroupFactor = groupingDeratingFactor(Math.max(1, groupingCount - 1 + selectedRuns));
+  const totalDerating = tempFactor * effGroupFactor;
 
   // 4. Conductor sizing for Neutral and Earth (PE) according to IEC 60364-5-54
   const phaseSize = selectedCable.size;
@@ -220,10 +262,16 @@ export function sizeCableAndBreaker(
     const reducedSize = closestSpec ? closestSpec.size : phaseSize;
 
     if (neutralCurrent != null) {
-      const reducedAmpacity = CABLE_CATALOG.find((c) => c.size === reducedSize);
-      const neutralAmpacity = (reducedAmpacity
-        ? getCableAmpacityColumn(reducedAmpacity, material, insulation, false) * totalDerating
-        : 0) * selectedRuns;
+      const neutralNominal = getAmpacity(reducedSize, methodId, insulation, false, material);
+      const neutralAmpacity =
+        (neutralNominal > 0
+          ? neutralNominal
+          : (() => {
+              const spec = CABLE_CATALOG.find((c) => c.size === reducedSize);
+              return spec ? getCableAmpacityColumn(spec, material, insulation, false) : 0;
+            })()) *
+        totalDerating *
+        selectedRuns;
 
       if (neutralCurrent > neutralAmpacity) {
         neutralSize = phaseSize;
@@ -254,9 +302,10 @@ export function sizeCableAndBreaker(
     nominalAmpacity: Math.round(nominalAmpacity * 10) / 10,
     deratedAmpacity: Math.round(deratedAmpacity * 10) / 10,
     tempFactor,
-    groupFactor,
+    groupFactor: effGroupFactor,
     neutralSize,
     earthSize,
+    warnings,
   };
 }
 
@@ -371,6 +420,7 @@ export interface CableProtectionEvaluation {
   recommendedParallelRuns: number;
   recommendedCableSizeFormatted: string;
   reason?: string;
+  warnings: string[];
 }
 
 /**
@@ -395,12 +445,14 @@ export function calculateCableAmpacity(
   parallelRuns: number;
   cableSize: number;
   formattedCableSize: string;
+  warnings: string[];
 } {
   const material = options.material ?? "copper";
   const insulation = options.insulation ?? "XLPE";
   const ambientTemp = options.ambientTemp ?? 30;
   const groupingCount = options.groupingCount ?? 1;
   const installMethod = options.installMethod ?? "C";
+  const warnings: string[] = [];
 
   let cableSize = typeof cableInput === 'number' ? cableInput : 16;
   let runs = options.parallelRuns ?? 1;
@@ -410,6 +462,8 @@ export function calculateCableAmpacity(
     if (parsed) {
       cableSize = parsed.size;
       if (!options.parallelRuns) runs = parsed.runs;
+    } else {
+      warnings.push(`Unparseable cable size "${cableInput}" — evaluated against a 16 mm² default.`);
     }
   }
 
@@ -417,12 +471,17 @@ export function calculateCableAmpacity(
   // declared size. Rounding UP made a non-standard 18 mm² cable claim 25 mm²
   // ampacity, so evaluateCableProtection missed under-protected cables.
   const spec = CABLE_CATALOG.filter((c) => c.size <= cableSize).pop() ?? CABLE_CATALOG[0];
-  const singleNominal = getCableAmpacityColumn(spec, material, insulation, isThreePhase);
+  const tableNominal = getAmpacity(spec.size, installMethod, insulation, isThreePhase, material);
+  const singleNominal =
+    tableNominal > 0 ? tableNominal : getCableAmpacityColumn(spec, material, insulation, isThreePhase);
 
-  const tempFactor = temperatureDeratingFactor(insulation, ambientTemp);
-  const groupFactor = groupingDeratingFactor(groupingCount);
-  const installFactor = (installMethod ? METHOD_AMPACITY_FACTORS[resolveReferenceMethod(installMethod)] : undefined) ?? 1.0;
-  const totalDerating = tempFactor * groupFactor * installFactor;
+  // Ground methods (D1/D2) derate against 20 °C soil, not 30 °C air.
+  const tempFactor = isGroundMethod(installMethod)
+    ? groundTemperatureDeratingFactor(insulation, ambientTemp)
+    : temperatureDeratingFactor(insulation, ambientTemp);
+  // Touching parallel cables count as separate grouped circuits (B.52.17).
+  const groupFactor = groupingDeratingFactor(Math.max(1, groupingCount - 1 + runs));
+  const totalDerating = tempFactor * groupFactor;
 
   const singleDerated = Math.round(singleNominal * totalDerating * 10) / 10;
   const nominalAmpacity = Math.round(singleNominal * runs * 10) / 10;
@@ -436,6 +495,7 @@ export function calculateCableAmpacity(
     parallelRuns: runs,
     cableSize,
     formattedCableSize: formatCableSize(cableSize, runs),
+    warnings,
   };
 }
 
@@ -485,6 +545,53 @@ export function evaluateCableProtection(
     reason: isUnderProtected
       ? `Cable ampacity Iz (${amp.deratedAmpacity}A) is less than breaker rating In (${breakerAmps}A). Risk of cable thermal overload.`
       : undefined,
+    warnings: [...amp.warnings, ...requiredSizing.warnings],
   };
+}
+
+/**
+ * Single source of truth for per-circuit voltage-drop rows in schedules and
+ * reports. Parses the stored cable-size string (including "2 × 240 mm²"
+ * parallel notation — a raw parseFloat would read "2"), applies the run count
+ * and conductor material to the impedance, and evaluates single-phase circuits
+ * against Uo = U_LL/√3 (their formula is the L-N path; dividing by U_LL
+ * understates the percentage by √3).
+ *
+ * Returns null when the circuit lacks computable data so callers can skip or
+ * flag the row instead of printing a fabricated number.
+ */
+export function computeItemVoltageDrop(opts: {
+  current: number | null | undefined;
+  lengthMeters: number | null | undefined;
+  cableSizeInput: string | number | null | undefined;
+  powerFactor: number | null | undefined;
+  isThreePhase: boolean;
+  systemVoltageLL: number;
+  material?: 'copper' | 'aluminum';
+}): { dropVolts: number; dropPercent: number } | null {
+  const parsed = parseCableSize(opts.cableSizeInput);
+  if (!parsed || parsed.size <= 0) return null;
+  if (!opts.current || opts.current <= 0) return null;
+  if (!opts.lengthMeters || opts.lengthMeters <= 0) return null;
+  if (!opts.systemVoltageLL || opts.systemVoltageLL <= 0) return null;
+
+  const systemVoltage = opts.isThreePhase
+    ? opts.systemVoltageLL
+    : opts.systemVoltageLL / Math.sqrt(3);
+
+  try {
+    return calculateVoltageDrop(
+      opts.current,
+      opts.lengthMeters,
+      parsed.size,
+      clampPowerFactor(opts.powerFactor ?? 0.85),
+      opts.isThreePhase,
+      systemVoltage,
+      parsed.runs,
+      opts.material ?? 'copper'
+    );
+  } catch {
+    return null;
+  }
 }
 

@@ -251,6 +251,12 @@ export interface PanelFeeder {
   name: string;
   type: string;
   current: number;
+  /** Undiversified branch design current (apartments carry their full
+   *  connected load; `current` stays diversified for board aggregation). */
+  designCurrent?: number;
+  /** Non-fatal engineering caveats from sizing (clamped frames, catalog
+   *  fallbacks, manual breaker below load). Surfaced in UI/reports. */
+  warnings?: string[];
   breakerSize: number;
   cableSize: number;
   breakerModel: string;

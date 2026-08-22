@@ -1,5 +1,7 @@
-// IEC 60364-5-52 Installation Methods for Cable Sizing
-// Current-carrying capacities (Ampacity) in air at 30°C ambient, ground at 20°C ambient
+// IEC 60364-5-52 Reference Data for Cable Sizing — installation methods,
+// per-method ampacity tables, and ambient correction factors.
+
+import { CABLE_CATALOG } from "./cablesData";
 
 export type MethodCategory = 'conduit' | 'surface' | 'tray' | 'void' | 'ground';
 
@@ -628,20 +630,84 @@ export function resolveReferenceMethod(methodId: string): string {
   return 'C';
 }
 
-// Ampacity multipliers relative to Method C (clipped directly)
-// Method C = 1.0 (reference)
-export const METHOD_AMPACITY_FACTORS: Record<string, number> = {
-  A1: 0.72,  // In conduit in insulated wall
-  A2: 0.72,  // Multi-core in conduit in insulated wall
-  B1: 0.78,  // In conduit on wall
-  B2: 0.78,  // Multi-core in conduit on wall
-  C: 1.00,   // Clipped directly (reference)
-  E: 1.08,   // Spaced from surface / Perforated tray multicore
-  F: 1.12,   // On perforated tray single-core
-  G: 1.15,   // On ladder/insulators
-  D1: 0.90,  // In ground conduit/duct
-  D2: 1.00,  // Direct buried in ground (20°C ambient baseline)
+// Ambient-temperature correction for GROUND methods (D1/D2), whose ampacity
+// tables are referenced to 20 °C soil rather than 30 °C air (IEC 60364-5-52
+// Table B.52.15 / BS 7671 Table 4B2). Applying the air table to buried cables
+// mis-derates them by up to ~7 % at typical ambients.
+export const GROUND_TEMP_DERATING: Record<string, Record<number, number>> = {
+  PVC: {
+    10: 1.10,
+    15: 1.05,
+    20: 1.00,
+    25: 0.95,
+    30: 0.90,
+    35: 0.84,
+    40: 0.79,
+    45: 0.74,
+    50: 0.68,
+    55: 0.62,
+    60: 0.55,
+  },
+  XLPE: {
+    10: 1.07,
+    15: 1.04,
+    20: 1.00,
+    25: 0.96,
+    30: 0.93,
+    35: 0.89,
+    40: 0.85,
+    45: 0.80,
+    50: 0.76,
+    55: 0.71,
+    60: 0.65,
+  },
 };
+
+/** Linear interpolation over a correction-factor table keyed by number. */
+function interpolateFactor(table: Record<number, number>, x: number): number {
+  const keys = Object.keys(table).map(Number).sort((a, b) => a - b);
+  if (keys.length === 0) return 1.0;
+  if (x <= keys[0]) return table[keys[0]];
+  if (x >= keys[keys.length - 1]) return table[keys[keys.length - 1]];
+  for (let i = 0; i < keys.length - 1; i++) {
+    const k1 = keys[i];
+    const k2 = keys[i + 1];
+    if (x <= k2) {
+      const f1 = table[k1];
+      const f2 = table[k2];
+      return f1 + (f2 - f1) * ((x - k1) / (k2 - k1));
+    }
+  }
+  return table[keys[keys.length - 1]];
+}
+
+/**
+ * True when the resolved reference method is a ground installation (D1/D2),
+ * whose ambient correction must use the 20 °C-soil table instead of the 30 °C
+ * air table.
+ */
+export function isGroundMethod(methodInput?: string): boolean {
+  const ref = resolveReferenceMethod(methodInput ?? '');
+  return ref === 'D1' || ref === 'D2';
+}
+
+/**
+ * Ground (20 °C soil) ambient correction factor, linearly interpolated between
+ * the tabulated 5 °C steps like its air counterpart.
+ */
+export function groundTemperatureDeratingFactor(
+  insulation: 'PVC' | 'XLPE',
+  soilTemp: number
+): number {
+  const table = GROUND_TEMP_DERATING[insulation];
+  if (!table) return 1.0;
+  return interpolateFactor(table, soilTemp);
+}
+
+// Ampacity multipliers relative to Method C were REMOVED — a single flat
+// multiplier cannot represent methods whose ratio to C varies strongly with
+// conductor size (e.g. D2/C ranges 0.95 at 16 mm² down to 0.77 at 300 mm²).
+// Sizing now reads the published per-method tables directly via getAmpacity().
 
 // Ampacity tables (A) for copper cables at standard ambient (30°C in air, 20°C in ground)
 
@@ -785,6 +851,54 @@ export const AMPACITY_D2_XLPE_3PH: Record<number, number> = {
   50: 164, 70: 203, 95: 239, 120: 271, 150: 306, 185: 343, 240: 395, 300: 446,
 };
 
+// Derived 1-phase tables. The IEC publishes separate "2 loaded conductors"
+// columns for every method; this catalog only carries explicit ones for
+// A1/B1/C. The rest are reconstructed from their published 3-phase table
+// scaled by the per-size 1PH/3PH ratio of Method C (same insulation), which
+// preserves the standard's size-dependent shape instead of silently returning
+// the higher 3-phase value.
+const DERIVED_ONE_PHASE_TABLES = new Map<string, Record<number, number>>();
+
+/**
+ * Exact per-size aluminum/copper ampacity ratio taken from the Method C
+ * catalog columns (alXlpe3Ph / copperXlpe3Ph, etc.). Applied to every
+ * method's copper table so aluminum values stay consistent with — and for
+ * Method C exactly equal to — the published catalog columns.
+ */
+function aluminumRatio(
+  insulation: 'PVC' | 'XLPE',
+  isThreePhase: boolean,
+  size: number
+): number {
+  const spec = CABLE_CATALOG.find((c) => c.size === size);
+  if (!spec) return 0.85;
+  const copper = isThreePhase
+    ? (insulation === 'PVC' ? spec.copperPvc3Ph : spec.copperXlpe3Ph)
+    : (insulation === 'PVC' ? spec.copperPvc1Ph : spec.copperXlpe1Ph);
+  const al = isThreePhase
+    ? (insulation === 'PVC' ? spec.alPvc3Ph : spec.alXlpe3Ph)
+    : (insulation === 'PVC' ? spec.alPvc1Ph : spec.alXlpe1Ph);
+  return copper > 0 ? al / copper : 0.85;
+}
+
+function onePhaseRatio(insulation: 'PVC' | 'XLPE', size: number): number {
+  const c3 = insulation === 'PVC' ? AMPACITY_C_PVC_3PH : AMPACITY_C_XLPE_3PH;
+  const c1 = insulation === 'PVC' ? AMPACITY_C_PVC_1PH : AMPACITY_C_XLPE_1PH;
+  return c3[size] ? c1[size] / c3[size] : 1;
+}
+
+function deriveOnePhaseTable(
+  threeTable: Record<number, number>,
+  insulation: 'PVC' | 'XLPE'
+): Record<number, number> {
+  const out: Record<number, number> = {};
+  for (const sizeStr of Object.keys(threeTable)) {
+    const size = Number(sizeStr);
+    out[size] = Math.round(threeTable[size] * onePhaseRatio(insulation, size));
+  }
+  return out;
+}
+
 /**
  * Get ampacity for a given cable size, method, insulation, and phase count
  */
@@ -827,13 +941,30 @@ export function getAmpacity(
   };
 
   const key = `${refMethod}_${insulation}_${isThreePhase ? '3PH' : '1PH'}`;
-  const table = tables[key] || tables[`${refMethod}_${insulation}_3PH`] || tables['C_XLPE_3PH'];
+  let table = tables[key];
+  if (!table && !isThreePhase) {
+    const threeKey = `${refMethod}_${insulation}_3PH`;
+    if (tables[threeKey]) {
+      const cacheKey = `${refMethod}_${insulation}`;
+      let derived = DERIVED_ONE_PHASE_TABLES.get(cacheKey);
+      if (!derived) {
+        derived = deriveOnePhaseTable(tables[threeKey], insulation);
+        DERIVED_ONE_PHASE_TABLES.set(cacheKey, derived);
+      }
+      table = derived;
+    }
+  }
+  if (!table) return 0;
   const copperAmpacity = table[cableSize] || 0;
   if (copperAmpacity === 0) return 0;
 
-  // The per-method tables above are COPPER only. Aluminum ampacity is ~0.85×
-  // the copper value for the same conductor size (matches the alXlpe3Ph column
-  // ratios in cablesData.ts), so we scale rather than duplicate 32 tables.
-  if (material === 'aluminum') return Math.round(copperAmpacity * 0.85);
+  // The per-method tables above are COPPER only. Aluminum scales by the exact
+  // per-size aluminum/copper ratio of the Method C catalog columns (cablesData
+  // derives alXlpe3Ph/alXlpe1Ph/alPvc3Ph/alPvc1Ph there) — the ratio drifts
+  // between ~0.82 and ~0.86 across the size range, so a single flat factor
+  // missed published values by up to ±2 A and disagreed with Method C sizing.
+  if (material === 'aluminum') {
+    return Math.round(copperAmpacity * aluminumRatio(insulation, isThreePhase, cableSize));
+  }
   return copperAmpacity;
 }

@@ -44,6 +44,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { AccessRestricted } from '@/components/AccessRestricted';
 import { ReadOnlyBanner } from '@/components/ReadOnlyBanner';
+import { QAReviewDrawer } from '@/components/QAReviewDrawer';
 import type { Project } from '@/types';
 
 export interface ComponentProperty {
@@ -727,6 +728,9 @@ export default function SLDPage() {
     <div className="sld-workstation-root flex flex-col h-screen bg-slate-950 text-slate-100 overflow-hidden font-sans select-none print:h-auto print:bg-white print:text-black print:overflow-visible">
       {/* Read-Only Mode Banner */}
       <ReadOnlyBanner pageKey="sldDesigner" />
+
+      {/* Floating QA Review Tool */}
+      <QAReviewDrawer pageKey="sldDesigner" pageTitle="Single Line Diagram (SLD)" />
 
       {/* Top Workstation Window Bar & Header */}
       <header data-tour="sld-header" className="h-14 border-b border-white/10 bg-slate-950/90 backdrop-blur-xl px-4 flex items-center justify-between z-30 shrink-0 print:hidden">

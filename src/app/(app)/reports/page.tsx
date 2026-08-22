@@ -36,6 +36,7 @@ import { createFindBreaker, computeFeeders, type EquipmentItem } from '@/lib/cal
 import WorkflowStepper from '@/components/layout/WorkflowStepper';
 import { AccessRestricted } from '@/components/AccessRestricted';
 import { ReadOnlyBanner } from '@/components/ReadOnlyBanner';
+import { QAReviewDrawer } from '@/components/QAReviewDrawer';
 
 export default function ReportsPage() {
   const { selectedProjectId, selectedProject, loading: contextLoading, preferredManufacturer, refreshProject, canView, canEdit } = useProject();
@@ -482,6 +483,9 @@ export default function ReportsPage() {
 
       {/* Read-Only Mode Banner */}
       <ReadOnlyBanner pageKey="reports" />
+
+      {/* Floating QA Review Tool */}
+      <QAReviewDrawer pageKey="reports" pageTitle="Reports & Revisions" />
 
       {pageHeader}
 

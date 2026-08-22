@@ -293,7 +293,10 @@ describe('aggregateFeederRows', () => {
 
     const rows = aggregateFeederRows(projectWithBuildings([bldg]), findBreaker);
 
-    const expectedKw = 1.73205 * 0.4 * 100 * 0.85;
+    // The fixture item is a 1-PHASE apartment (default factory): its demand
+    // draws through one winding, so kW = Uo·I·PF with Uo = 400/√3. The old
+    // √3·U·I·PF formula overstated every 1-phase row by 73%.
+    const expectedKw = (0.4 / Math.sqrt(3)) * 100 * 0.85;
     expect(rows[0].demandKw).toBeCloseTo(expectedKw, 1);
   });
 

@@ -1,9 +1,10 @@
 import {
-  calculateVoltageDrop,
+  computeItemVoltageDrop,
   parseMm2,
   getItemCableLength,
   getBuildingLoadCableLength,
 } from "@/lib/calculations/cables";
+import { phaseBalance } from "@/lib/calculations/phaseBalance";
 import { computeFeeders, type EquipmentItem, type FindBreaker } from "@/lib/calculations/feeders";
 import type { FloorItem, Project } from "@/types";
 import type {
@@ -151,7 +152,7 @@ export function aggregateFeederRows(
         floor,
         feeder: f.name,
         type: f.type,
-        demandKw: currentToKw(f.current, project),
+        demandKw: currentToKw(f.current, project, f.isThreePhase),
         current: f.current,
         breakerAmps: f.breakerSize,
         cableMm2: f.cableSize,
@@ -171,7 +172,7 @@ export function aggregateFeederRows(
           floor: floorNumber,
           feeder: f.name,
           type: f.type,
-          demandKw: currentToKw(f.current, project),
+          demandKw: currentToKw(f.current, project, f.isThreePhase),
           current: f.current,
           breakerAmps: f.breakerSize,
           cableMm2: f.cableSize,
@@ -309,22 +310,26 @@ export function aggregateVoltageDropRows(project: Project): VoltageDropRow[] {
 
   for (const bldg of project.buildings) {
     for (const fd of bldg.floorDesigns) {
-      fd.items.forEach((item, idx) => {
+      let idx = 0;
+      for (const item of fd.items) {
         const letter = String.fromCharCode(97 + idx);
-        const length = item.cableLength ?? 10 + (fd.floorNumber - 1) * 5;
-        const cableSize = parseFloat(item.cableSize) || 4;
+        idx += 1;
         const phases = resolveItemPhases(item);
         const isThreePhase = phases === 3;
-        const systemVoltage = project.voltage === 400 ? 400 : 230;
-
-        const vd = calculateVoltageDrop(
-          item.calculatedCurrent,
-          length,
-          cableSize,
-          project.powerFactor,
+        // Shared helper: parses "2 × 240 mm²" correctly (a raw parseFloat read
+        // "2"), applies parallel runs + conductor material, and evaluates
+        // single-phase circuits against Uo = U_LL/√3 — the raw call divided
+        // the L-N drop by U_LL, understating every 1-phase row by √3.
+        const vd = computeItemVoltageDrop({
+          current: item.calculatedCurrent,
+          lengthMeters: item.cableLength ?? 10 + (fd.floorNumber - 1) * 5,
+          cableSizeInput: item.cableSize,
+          powerFactor: project.powerFactor,
           isThreePhase,
-          systemVoltage
-        );
+          systemVoltageLL: project.voltage,
+          material: (item.cableMaterial as 'copper' | 'aluminum' | undefined) || 'copper',
+        });
+        if (!vd) continue; // no computable cable data — skip rather than fabricate
 
         const limit = item.type === 'APARTMENT' ? project.maxVoltageDropLighting : project.maxVoltageDropPower;
         const status = deriveStatus(vd.dropPercent, limit);
@@ -334,12 +339,12 @@ export function aggregateVoltageDropRows(project: Project): VoltageDropRow[] {
           buildingName: bldg.name,
           floor: fd.floorNumber,
           current: item.calculatedCurrent,
-          cableMm2: cableSize,
-          lengthMeters: length,
+          cableMm2: parseMm2(item.cableSize) ?? 0,
+          lengthMeters: item.cableLength ?? 10 + (fd.floorNumber - 1) * 5,
           voltageDropPercent: vd.dropPercent,
           status,
         });
-      });
+      }
     }
   }
 
@@ -370,9 +375,13 @@ function feederFloor(feederName: string): number {
   return m ? parseInt(m[1], 10) : 0;
 }
 
-function currentToKw(current: number, project: Project): number {
-  // kW = sqrt(3) * V * I * PF / 1000
-  return (Math.sqrt(3) * (project.voltage / 1000) * current * project.powerFactor);
+function currentToKw(current: number, project: Project, isThreePhase: boolean): number {
+  // 3-phase: √3·U_LL·I·PF. A 1-phase feeder draws through one winding —
+  // kW = Uo·I·PF with Uo = U_LL/√3; the old √3 formula overstated it by 73%.
+  if (isThreePhase) {
+    return Math.sqrt(3) * (project.voltage / 1000) * current * project.powerFactor;
+  }
+  return (project.voltage / Math.sqrt(3) / 1000) * current * project.powerFactor;
 }
 
 function deriveStatus(dropPercent: number, limit: number): 'OK' | 'WARNING' | 'FAIL' {
@@ -390,6 +399,14 @@ export function aggregateLoadRows(project: Project): LoadRow[] {
 
   for (const bldg of project.buildings) {
     for (const fd of bldg.floorDesigns) {
+      // Phase assignment comes from the SAME balance the panel uses, so the
+      // report's L1/L2/L3 columns match the board instead of an independent
+      // (floor+index)%3 cycling that disagreed with it.
+      const balance = phaseBalance(fd.items, project as never);
+      const phaseById = new Map(
+        balance.assignments.filter((a) => a.phaseCount === 1).map((a) => [a.id, a.assignedPhase])
+      );
+
       fd.items.forEach((item, idx) => {
         const letter = String.fromCharCode(65 + (idx % 26));
         const phases = resolveItemPhases(item);
@@ -403,7 +420,6 @@ export function aggregateLoadRows(project: Project): LoadRow[] {
         const demandFactor = connectedLoadKw > 0 ? maxDemandKw / connectedLoadKw : 1;
         const maxDemandKva = maxDemandKw / pf;
 
-        // Phase current distribution
         let currentL1 = 0;
         let currentL2 = 0;
         let currentL3 = 0;
@@ -413,10 +429,9 @@ export function aggregateLoadRows(project: Project): LoadRow[] {
           currentL2 = current;
           currentL3 = current;
         } else {
-          // Assign based on floor/item phase cycling
-          const phaseAssign = (fd.floorNumber + idx) % 3;
-          if (phaseAssign === 0) currentL1 = current;
-          else if (phaseAssign === 1) currentL2 = current;
+          const assigned = phaseById.get(item.id) ?? 1;
+          if (assigned === 1) currentL1 = current;
+          else if (assigned === 2) currentL2 = current;
           else currentL3 = current;
         }
 
@@ -439,28 +454,50 @@ export function aggregateLoadRows(project: Project): LoadRow[] {
       });
     }
 
-    for (const bl of bldg.buildingLoads ?? []) {
-      const powerKw = bl.loadLibraryItem?.power || 0;
-      const current = bl.loadLibraryItem?.runningCurrent || 0;
-      const phases = bl.loadLibraryItem?.phase || 3;
-      const maxDemandKw = powerKw * (bl.loadLibraryItem?.demandFactor || 1);
+    // Building mechanical loads — same balance-driven phase columns.
+    const blLoads = bldg.buildingLoads ?? [];
+    const blBalance = phaseBalance(blLoads, project as never);
+    const blPhaseById = new Map(
+      blBalance.assignments.filter((a) => a.phaseCount === 1).map((a) => [a.id, a.assignedPhase])
+    );
+
+    for (const bl of blLoads) {
+      const lib = bl.loadLibraryItem;
+      const powerKw = lib?.power || 0;
+      const current = lib?.runningCurrent || 0;
+      const phases = lib?.phase || 3;
+      const maxDemandKw = powerKw * (lib?.demandFactor || 1);
       const maxDemandKva = maxDemandKw / pf;
+
+      let currentL1 = 0;
+      let currentL2 = 0;
+      let currentL3 = 0;
+      if (phases === 3) {
+        currentL1 = current;
+        currentL2 = current;
+        currentL3 = current;
+      } else {
+        const assigned = blPhaseById.get(bl.id) ?? 1;
+        if (assigned === 1) currentL1 = current;
+        else if (assigned === 2) currentL2 = current;
+        else currentL3 = current;
+      }
 
       rows.push({
         buildingName: bldg.name,
         buildingId: bldg.id,
         floor: 0,
-        name: bl.loadLibraryItem?.name || 'Central Load',
-        type: bl.loadLibraryItem?.category || 'CENTRAL_LOAD',
+        name: lib?.name || 'Central Load',
+        type: lib?.category || 'CENTRAL_LOAD',
         connectedLoadKw: parseFloat(powerKw.toFixed(2)),
-        demandFactor: bl.loadLibraryItem?.demandFactor || 1,
+        demandFactor: lib?.demandFactor || 1,
         maxDemandKw: parseFloat(maxDemandKw.toFixed(2)),
         maxDemandKva: parseFloat(maxDemandKva.toFixed(2)),
         phase: phases,
-        currentL1: parseFloat(current.toFixed(1)),
-        currentL2: parseFloat((phases === 3 ? current : 0).toFixed(1)),
-        currentL3: parseFloat((phases === 3 ? current : 0).toFixed(1)),
-        powerFactor: bl.loadLibraryItem?.powerFactor || pf,
+        currentL1: parseFloat(currentL1.toFixed(1)),
+        currentL2: parseFloat(currentL2.toFixed(1)),
+        currentL3: parseFloat(currentL3.toFixed(1)),
+        powerFactor: lib?.powerFactor || pf,
       });
     }
   }
@@ -478,13 +515,16 @@ export function aggregateShortCircuitRows(
   const rows: ShortCircuitRow[] = [];
 
   for (const bldg of project.buildings) {
-    const { mdbFeeders, smdbFloorNumbers, smdbFeeders, transformerIscKa } = computeFeeders(
+    const { mdbFeeders, smdbFloorNumbers, smdbFeeders, transformerIscKa, mainBreakingCapacityKa } = computeFeeders(
       bldg,
       project,
       findBreaker
     );
 
-    // Main Incomer at MDB bus
+    // Main Incomer at MDB bus — Icu of the ACTUAL selected device (the old
+    // hardcoded "65 kA typical ACB" could mark a failing device SAFE while the
+    // breaker-schedule page flagged it).
+    const incomerIcu = mainBreakingCapacityKa ?? 65;
     rows.push({
       feeder: project.buildings.length > 1 ? `${bldg.name} – Main Incomer (MDB Bus)` : 'Main Incomer (MDB Bus)',
       buildingName: bldg.name,
@@ -495,15 +535,13 @@ export function aggregateShortCircuitRows(
       cableSizeMm2: 0,
       threePhaseIscKa: transformerIscKa,
       twoPhaseIscKa: parseFloat((transformerIscKa * 0.866).toFixed(2)),
-      breakerIcuKa: 65, // Typical ACB Icu
-      status: 'SAFE',
+      breakerIcuKa: incomerIcu,
+      status: scStatus(incomerIcu, transformerIscKa),
     });
 
     for (const f of mdbFeeders) {
       const isc = f.faultCurrentKa || transformerIscKa;
-      const icu = f.breakerSize >= 630 ? 65 : f.breakerSize >= 100 ? 36 : 10;
-      const status = icu >= isc ? 'SAFE' : icu >= isc * 0.8 ? 'MARGINAL' : 'OVERLOAD';
-
+      const icu = f.breakingCapacityKa ?? fallbackIcuKa(f.breakerSize);
       rows.push({
         feeder: f.name,
         buildingName: bldg.name,
@@ -515,16 +553,14 @@ export function aggregateShortCircuitRows(
         threePhaseIscKa: isc,
         twoPhaseIscKa: parseFloat((isc * 0.866).toFixed(2)),
         breakerIcuKa: icu,
-        status,
+        status: scStatus(icu, isc),
       });
     }
 
     for (const floorNumber of smdbFloorNumbers) {
       for (const f of smdbFeeders(floorNumber)) {
         const isc = f.faultCurrentKa || transformerIscKa;
-        const icu = f.breakerSize >= 630 ? 65 : f.breakerSize >= 100 ? 36 : 10;
-        const status = icu >= isc ? 'SAFE' : icu >= isc * 0.8 ? 'MARGINAL' : 'OVERLOAD';
-
+        const icu = f.breakingCapacityKa ?? fallbackIcuKa(f.breakerSize);
         rows.push({
           feeder: f.name,
           buildingName: bldg.name,
@@ -536,13 +572,24 @@ export function aggregateShortCircuitRows(
           threePhaseIscKa: isc,
           twoPhaseIscKa: parseFloat((isc * 0.866).toFixed(2)),
           breakerIcuKa: icu,
-          status,
+          status: scStatus(icu, isc),
         });
       }
     }
   }
 
   return rows;
+}
+
+/** Tiered typical-Icu estimate used only when a feeder has no catalog device. */
+function fallbackIcuKa(breakerSize: number): number {
+  return breakerSize >= 630 ? 65 : breakerSize >= 100 ? 36 : 10;
+}
+
+function scStatus(icuKa: number, iscKa: number): 'SAFE' | 'MARGINAL' | 'OVERLOAD' {
+  if (icuKa >= iscKa) return 'SAFE';
+  if (icuKa >= iscKa * 0.8) return 'MARGINAL';
+  return 'OVERLOAD';
 }
 
 // Re-export equipment helpers for use by callers that build the injected finder.

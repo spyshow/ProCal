@@ -1,6 +1,5 @@
 import {
-  calculateVoltageDrop,
-  parseMm2,
+  computeItemVoltageDrop,
   getItemCableLength,
   getBuildingLoadCableLength,
 } from '@/lib/calculations/cables';
@@ -40,19 +39,21 @@ export default function VDSchedule({ project, buildingId, showHeader = true }: V
       for (const item of fd.items) {
         const isThreePhase = isThreePhaseForItem(item);
         const length = getItemCableLength(item, fd.floorNumber);
-        const cableSizeNum = parseMm2(item.cableSize) ?? 4;
-        const systemVoltage = project.voltage === 400 ? 400 : 230;
-
-        const calculatedVD = calculateVoltageDrop(
-          item.calculatedCurrent,
-          length,
-          cableSizeNum,
-          project.powerFactor || 0.85,
+        // Shared engine helper: parses "2 × 240 mm²" parallel notation,
+        // applies runs + conductor material, and uses Uo = U_LL/√3 as the
+        // denominator for single-phase circuits.
+        const calculatedVD = computeItemVoltageDrop({
+          current: item.calculatedCurrent,
+          lengthMeters: length,
+          cableSizeInput: item.cableSize,
+          powerFactor: project.powerFactor || 0.85,
           isThreePhase,
-          systemVoltage
-        ).dropPercent;
+          systemVoltageLL: project.voltage,
+          material: (item.cableMaterial as 'copper' | 'aluminum' | undefined) || 'copper',
+        })?.dropPercent;
+        if (calculatedVD == null && !(item.voltageDrop && item.voltageDrop > 0)) continue;
 
-        const vd = item.voltageDrop && item.voltageDrop > 0 ? item.voltageDrop : calculatedVD;
+        const vd = item.voltageDrop && item.voltageDrop > 0 ? item.voltageDrop : (calculatedVD ?? 0);
         const limit = item.type === 'APARTMENT' ? (project.maxVoltageDropLighting || 3) : (project.maxVoltageDropPower || 5);
         const status = vd <= limit ? 'OK' : vd <= limit * 1.2 ? 'WARNING' : 'FAIL';
 
@@ -79,18 +80,20 @@ export default function VDSchedule({ project, buildingId, showHeader = true }: V
         ? totalKw / (Math.sqrt(3) * (lib.voltage / 1000) * lib.powerFactor)
         : totalKw / ((lib.voltage / 1000) * lib.powerFactor);
       const length = getBuildingLoadCableLength(bl);
-      const cableSizeNum = parseMm2(bl.cableSize) ?? 4;
-      const systemVoltage = project.voltage === 400 ? 400 : 230;
 
-      const vd = calculateVoltageDrop(
+      const calculatedVD = computeItemVoltageDrop({
         current,
-        length,
-        cableSizeNum,
-        lib.powerFactor || project.powerFactor || 0.85,
+        lengthMeters: length,
+        cableSizeInput: bl.cableSize,
+        powerFactor: lib.powerFactor || project.powerFactor || 0.85,
         isThreePhase,
-        systemVoltage
-      ).dropPercent;
+        systemVoltageLL: project.voltage,
+        material: (bl.cableMaterial as 'copper' | 'aluminum' | undefined) || 'copper',
+      })?.dropPercent;
+      // BuildingLoad rows carry no persisted override — computed only.
+      if (calculatedVD == null) continue;
 
+      const vd = calculatedVD;
       const limit = project.maxVoltageDropPower || 5;
       const status = vd <= limit ? 'OK' : vd <= limit * 1.2 ? 'WARNING' : 'FAIL';
 
@@ -172,7 +175,7 @@ export default function VDSchedule({ project, buildingId, showHeader = true }: V
                       : 'bg-red-100 text-red-800 border border-red-300'
                   }`}
                 >
-                  {row.status === 'OK' ? 'PASS (<= 4%)' : row.status === 'WARNING' ? 'MARGINAL' : 'FAIL (> 5%)'}
+                  {row.status === 'OK' ? 'PASS' : row.status === 'WARNING' ? 'MARGINAL' : 'FAIL'}
                 </span>
               </td>
             </tr>
@@ -180,7 +183,9 @@ export default function VDSchedule({ project, buildingId, showHeader = true }: V
         </tbody>
       </table>
       <div className="text-[10px] text-slate-500 font-mono mt-2 flex justify-between">
-        <span>IEC 60364-5-52 / BS 7671 limits: Max 3% for lighting circuits, Max 5% for general power &amp; motor loads.</span>
+        <span>
+          IEC 60364-5-52 project limits: Max {project.maxVoltageDropLighting || 3}% lighting / {project.maxVoltageDropPower || 5}% power (single-phase rows evaluated against Uo = {Math.round((project.voltage || 400) / Math.sqrt(3))} V).
+        </span>
         <span>Total Circuits Checked: {rows.length}</span>
       </div>
     </div>

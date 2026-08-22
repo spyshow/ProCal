@@ -709,7 +709,7 @@ function CalculatorContent() {
                                       const totalLoad = t.rooms?.reduce((sum, r) => sum + r.connectedLoad, 0) || 0;
                                       return (
                                         <option key={t.id} value={t.id}>
-                                          {t.name} — {t.phases === 3 ? '3Φ' : '1Φ'} — {totalArea.toFixed(0)}m² ({(totalLoad / 1000).toFixed(1)}kW)
+                                          {t.name} — {t.phases === 3 ? '3Φ' : '1Φ'} — {totalArea.toFixed(0)}m² ({(totalLoad / 1000).toFixed(1)}kVA)
                                         </option>
                                       );
                                     })}
@@ -742,7 +742,7 @@ function CalculatorContent() {
                                           {selectedTpl.rooms.length} rooms · {totalArea.toFixed(0)}m²
                                         </span>
                                         <span className="text-orange-400 font-mono">
-                                          {(totalLoad / 1000).toFixed(2)} kW
+                                          {(totalLoad / 1000).toFixed(2)} kVA
                                         </span>
                                         {acRooms.length > 0 && (
                                           <span className="text-blue-400">

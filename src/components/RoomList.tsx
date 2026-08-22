@@ -107,8 +107,8 @@ export function RoomList({ rooms, onChange, country = 'Syria', acRules }: RoomLi
           <p className="text-base font-mono font-bold text-sky-400 mt-0.5">{totalAcLoad.toFixed(0)} VA</p>
         </div>
         <div>
-          <span className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">{t('calculator.connectedPower', 'Connected Power')}</span>
-          <p className="text-base font-mono font-bold text-emerald-400 mt-0.5">{(totalLoad / 1000).toFixed(2)} kW</p>
+          <span className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">{t('calculator.connectedPower', 'Connected Load')}</span>
+          <p className="text-base font-mono font-bold text-emerald-400 mt-0.5">{(totalLoad / 1000).toFixed(2)} kVA</p>
         </div>
       </div>
     </div>

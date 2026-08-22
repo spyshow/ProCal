@@ -1208,7 +1208,7 @@ export default function ProjectDetailPage() {
                                 {tpl.rooms?.length || 0} rooms · {totalArea.toFixed(1)} m²
                               </span>
                               <span className="text-xs text-orange-400 font-mono">
-                                {(totalLoad / 1000).toFixed(2)} kW
+                                {(totalLoad / 1000).toFixed(2)} kVA
                               </span>
                             </div>
                           </div>

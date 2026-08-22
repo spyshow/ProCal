@@ -3,6 +3,7 @@
 import { useMemo } from 'react';
 import type { Project } from '@/types';
 import { sizeTransformer } from '@/lib/calculations/loads';
+import { phaseBalance } from '@/lib/calculations/phaseBalance';
 import { calculateShortCircuitCurrent, getTypicalImpedance } from '@/lib/calculations/shortCircuit';
 import { aggregateShortCircuitRows } from '@/lib/reports/aggregates';
 import { useEquipmentCatalog } from '@/hooks/useEquipmentCatalog';
@@ -51,12 +52,19 @@ export default function ShortCircuitSchedule({
 
   // Overall transformer source short-circuit metrics
   const scSummary = useMemo(() => {
-    const totalKw = project.buildings.reduce((sum, b) => {
-      const items = [...b.floorDesigns.flatMap((fd) => fd.items), ...(b.buildingLoads ?? [])];
-      return sum + (items.reduce((is, i) => is + (('calculatedMaxDemand' in i ? i.calculatedMaxDemand : (i as any).kw) || 0), 0) || 0);
-    }, 0);
-    const demandKva = totalKw / (project.powerFactor || 0.85);
-    const transformerKva = project.transformerSize || sizeTransformer(demandKva || 500);
+    const allItems = project.buildings.flatMap((b) => [
+      ...b.floorDesigns.flatMap((fd) => fd.items),
+      ...(b.buildingLoads ?? []),
+    ]);
+    const balance = phaseBalance(allItems as any, project as any);
+    const pf = project.powerFactor || 0.85;
+    const demandKva = balance.totalKw / pf;
+    const perPhaseKva: [number, number, number] = [
+      balance.phaseKw[0] / pf,
+      balance.phaseKw[1] / pf,
+      balance.phaseKw[2] / pf,
+    ];
+    const transformerKva = project.transformerSize || sizeTransformer(demandKva || 500, 1.2, perPhaseKva);
 
     return calculateShortCircuitCurrent({
       ratedPower: transformerKva,

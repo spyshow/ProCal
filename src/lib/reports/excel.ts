@@ -131,6 +131,20 @@ export function buildReportWorkbook(
 
 /** Project metadata + per-building summary sheet. */
 function buildProjectRows(project: Project): Record<string, string | number>[] {
+  const allProjectItems = project.buildings.flatMap((b) => [
+    ...b.floorDesigns.flatMap((fd) => fd.items),
+    ...(b.buildingLoads ?? []),
+  ]);
+  const overallBalance = phaseBalance(allProjectItems as never, project as never);
+  const pf = project.powerFactor || 0.85;
+  const demandKva = overallBalance.totalKw / pf;
+  const perPhaseKva: [number, number, number] = [
+    overallBalance.phaseKw[0] / pf,
+    overallBalance.phaseKw[1] / pf,
+    overallBalance.phaseKw[2] / pf,
+  ];
+  const transformerKva = project.transformerSize ?? sizeTransformer(demandKva, 1.2, perPhaseKva);
+
   const rows: Record<string, string | number>[] = [
     { Field: "Project", Value: project.name },
     { Field: "Client", Value: project.client },
@@ -141,12 +155,7 @@ function buildProjectRows(project: Project): Record<string, string | number>[] {
     { Field: "Date", Value: project.date || new Date().toLocaleDateString() },
     { Field: "System", Value: `${project.voltage}V / ${project.frequency}Hz / PF ${project.powerFactor}` },
     { Field: "Calculation Standard", Value: project.calculationStandard ?? "IEC" },
-    { Field: "Transformer", Value: `${project.transformerSize ?? sizeTransformer(
-      (project.buildings.reduce((sum, b) => {
-        const items = [...b.floorDesigns.flatMap((fd) => fd.items), ...(b.buildingLoads ?? [])];
-        return sum + phaseBalance(items as never, project as never).totalKw;
-      }, 0) / (project.powerFactor || 0.85))
-    )} kVA` },
+    { Field: "Transformer", Value: `${transformerKva} kVA` },
     { Field: "", Value: "" },
   ];
 

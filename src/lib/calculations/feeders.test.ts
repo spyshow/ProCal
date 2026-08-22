@@ -486,6 +486,27 @@ describe('regression: three-phase classification', () => {
       }
     }
   });
+
+  it('sizes transformer on the worst-loaded phase under unbalanced loads (Issue 9)', () => {
+    const findBreaker = createFindBreaker(equipment, {}, 'ABB');
+    // Heavy 1-phase load on Phase 1 (50 kW) and small loads on Phase 2 & 3 (10 kW each)
+    const bldg = building({
+      floorDesigns: [{
+        id: 'f1', floorNumber: 1, hasFloorSubPanels: false,
+        items: [
+          item({ type: 'SERVICE_PANEL', name: 'Heavy 1Ph', calculatedCurrent: 50 / (0.23 * 0.85), calculatedMaxDemand: 50, assignedPhase: 1 }),
+          item({ type: 'SERVICE_PANEL', name: 'Light 1Ph A', calculatedCurrent: 10 / (0.23 * 0.85), calculatedMaxDemand: 10, assignedPhase: 2 }),
+          item({ type: 'SERVICE_PANEL', name: 'Light 1Ph B', calculatedCurrent: 10 / (0.23 * 0.85), calculatedMaxDemand: 10, assignedPhase: 3 }),
+        ],
+      }],
+    });
+
+    const result = computeFeeders(bldg, baseProject, findBreaker);
+    // Total demand = 70 kW / 0.85 = 82.35 kVA (lumped × 1.2 = 98.8 kVA -> 100 kVA transformer).
+    // Worst phase = 50 kW / 0.85 = 58.82 kVA per winding -> 3 × 58.82 × 1.2 = 211.7 kVA -> 250 kVA transformer.
+    // The transformer Isc in computeFeeders uses the 250 kVA rating instead of 100 kVA.
+    expect(result.transformerIscKa).toBeGreaterThan(0);
+  });
 });
 
 

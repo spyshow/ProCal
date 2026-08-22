@@ -31,8 +31,14 @@ export default function CoverPage({
   const totalBalance = phaseBalance(allProjectItems as any, project as any);
   const totalDemandKw = totalBalance.totalKw;
   const totalCurrentA = totalBalance.maxPhaseCurrent;
-  const demandKva = totalDemandKw / (project.powerFactor || 0.85);
-  const transformerKva = project.transformerSize || sizeTransformer(demandKva);
+  const pf = project.powerFactor || 0.85;
+  const demandKva = totalDemandKw / pf;
+  const perPhaseKva: [number, number, number] = [
+    totalBalance.phaseKw[0] / pf,
+    totalBalance.phaseKw[1] / pf,
+    totalBalance.phaseKw[2] / pf,
+  ];
+  const transformerKva = project.transformerSize || sizeTransformer(demandKva, 1.2, perPhaseKva);
 
   return (
     <section

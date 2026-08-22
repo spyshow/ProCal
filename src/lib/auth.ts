@@ -2,8 +2,9 @@ import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { db } from "./db";
+import { getJwtSecret } from "@/lib/env";
 
-const secretKey = process.env.JWT_SECRET || "procal-jwt-secret-key-default-development";
+const secretKey = getJwtSecret();
 const JWT_SECRET = new TextEncoder().encode(secretKey);
 
 export async function signJWT(payload: { userId: string; username: string; role: string }) {

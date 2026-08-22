@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getSessionUser } from "@/lib/auth";
 import { sendLeadNotification } from "@/lib/notify";
 import { db } from "@/lib/db";
+import { rateLimit, clientKey } from "@/lib/rate-limit";
 
 /**
  * GET /api/contact — does this user already have an OPEN lead?
@@ -34,6 +35,14 @@ export async function GET() {
  * resolves {ok:false} we return 502 and write nothing (the tested invariant T2).
  */
 export async function POST(request: Request) {
+  // Mail-relay mitigation: 5 lead emails / hour per IP (each POST triggers SMTP).
+  const rl = rateLimit(clientKey(request, "contact"), 5, 60 * 60 * 1000);
+  if (!rl.allowed) {
+    return NextResponse.json(
+      { error: `Too many requests. Try again in ${rl.retryAfterSeconds}s.` },
+      { status: 429, headers: { "Retry-After": String(rl.retryAfterSeconds) } }
+    );
+  }
   const user = await getSessionUser();
   if (!user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

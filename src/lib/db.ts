@@ -15,10 +15,16 @@ const isRemoteDb =
   connectionString.includes("pooler.supabase.com") ||
   connectionString.includes("sslmode=");
 
+// Verify server certificates by default. Managed providers (Supabase, RDS,
+// Neon) present valid certs, so rejectUnauthorized:false was only inviting
+// MITM. Set DATABASE_SSL_REJECT_UNAUTHORIZED=false explicitly for a local
+// self-signed setup.
+const dbSslRejectUnauthorized = process.env.DATABASE_SSL_REJECT_UNAUTHORIZED !== "false";
+
 function getPool(): Pool {
   const poolConfig = {
     connectionString,
-    ssl: isRemoteDb ? { rejectUnauthorized: false } : undefined,
+    ssl: isRemoteDb ? { rejectUnauthorized: dbSslRejectUnauthorized } : undefined,
     max: 10,
     idleTimeoutMillis: 30000,
     connectionTimeoutMillis: 5000,

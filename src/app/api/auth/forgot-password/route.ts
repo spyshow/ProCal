@@ -2,8 +2,17 @@ import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { signPasswordResetToken } from "@/lib/auth";
 import { sendPasswordResetNotification } from "@/lib/notify";
+import { rateLimit, clientKey } from "@/lib/rate-limit";
 
 export async function POST(request: Request) {
+  // Mail-relay mitigation: 5 reset emails / hour per IP.
+  const rl = rateLimit(clientKey(request, "forgot-password"), 5, 60 * 60 * 1000);
+  if (!rl.allowed) {
+    return NextResponse.json(
+      { error: `Too many reset requests. Try again in ${rl.retryAfterSeconds}s.` },
+      { status: 429, headers: { "Retry-After": String(rl.retryAfterSeconds) } }
+    );
+  }
   try {
     const body = await request.json().catch(() => null);
     if (!body || !body.identifier || typeof body.identifier !== "string") {

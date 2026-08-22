@@ -2,8 +2,17 @@ import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { db } from "@/lib/db";
 import { signJWT } from "@/lib/auth";
+import { rateLimit, clientKey } from "@/lib/rate-limit";
 
 export async function POST(request: Request) {
+  // Brute-force mitigation: 10 attempts / 5 min per IP.
+  const rl = rateLimit(clientKey(request, "login"), 10, 5 * 60 * 1000);
+  if (!rl.allowed) {
+    return NextResponse.json(
+      { error: `Too many login attempts. Try again in ${rl.retryAfterSeconds}s.` },
+      { status: 429, headers: { "Retry-After": String(rl.retryAfterSeconds) } }
+    );
+  }
   try {
     const { username, password } = await request.json();
 

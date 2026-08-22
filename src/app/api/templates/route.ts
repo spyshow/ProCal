@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { errorResponse } from "@/lib/api-errors";
 import { db } from "@/lib/db";
 import { verifyProjectAccess } from "@/lib/project-auth";
 import { sizeCableAndBreaker } from "@/lib/calculations/cables";
@@ -116,7 +117,6 @@ export async function POST(request: Request) {
       },
     });
   } catch (error) {
-    console.error("POST Template Error:", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    return errorResponse(error, "POST Template Error");
   }
 }

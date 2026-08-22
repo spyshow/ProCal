@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { errorResponse } from "@/lib/api-errors";
 import { db } from "@/lib/db";
 import { getSessionUser } from "@/lib/auth";
 import { sizeCableAndBreaker } from "@/lib/calculations/cables";
@@ -72,7 +73,6 @@ export async function POST(
 
     return NextResponse.json(created);
   } catch (error) {
-    console.error("POST Building Load Error:", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    return errorResponse(error, "POST Building Load Error");
   }
 }

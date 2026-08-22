@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { verifyProjectAccess } from "@/lib/project-auth";
 import { getApartmentDiversityFactor } from "@/lib/calculations/loads";
 import { sizeCableAndBreaker } from "@/lib/calculations/cables";
+import { errorResponse } from "@/lib/api-errors";
 
 export async function POST(
   request: Request,
@@ -162,7 +163,6 @@ export async function POST(
       targetFloorsCount: validTargetFloorIds.length,
     });
   } catch (error) {
-    console.error("POST /api/floors/[id]/copy-items error:", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    return errorResponse(error, "POST copy-items Error");
   }
 }

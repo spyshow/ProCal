@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { errorResponse } from "@/lib/api-errors";
 import { db } from "@/lib/db";
 import { verifyProjectAccess } from "@/lib/project-auth";
 import { getApartmentDiversityFactor } from "@/lib/calculations/loads";
@@ -81,7 +82,6 @@ export async function POST(
 
     return NextResponse.json({ success: true, updated: updates.length, diversityFactor });
   } catch (error) {
-    console.error("Recalculate Error:", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    return errorResponse(error, "Floor Recalculate Error");
   }
 }

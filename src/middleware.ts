@@ -2,8 +2,17 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { jwtVerify } from "jose";
 
-const secretKey = process.env.JWT_SECRET || "procal-jwt-secret-key-default-development";
-const JWT_SECRET = new TextEncoder().encode(secretKey);
+// Fail-fast: a missing JWT_SECRET in production would let anyone forge session
+// cookies with the well-known development default (see src/lib/env.ts).
+const JWT_SECRET = new TextEncoder().encode(
+  (() => {
+    const secret = process.env.JWT_SECRET;
+    if (!secret && process.env.NODE_ENV === "production") {
+      throw new Error("JWT_SECRET is not set. Refusing to start without a session signing secret in production.");
+    }
+    return secret || "procal-jwt-secret-key-default-development";
+  })()
+);
 
 export async function middleware(request: NextRequest) {
   const token = request.cookies.get("session_token")?.value;

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
-import { errorResponse } from "@/lib/api-errors";
 import { db } from "@/lib/db";
+import { verifyProjectAccess } from "@/lib/project-auth";
+import { errorResponse } from "@/lib/api-errors";
 import { getApartmentDiversityFactor } from "@/lib/calculations/loads";
 
 export async function POST(
@@ -17,6 +18,16 @@ export async function POST(
     if (!building) {
       return NextResponse.json({ error: "Building not found" }, { status: 404 });
     }
+
+    // This route is middleware-excluded (matcher skips /api/buildings), so it
+    // MUST self-guard: recalculation rewrites every apartment's stored demand
+    // and was previously reachable with no session at all.
+    const auth = await verifyProjectAccess(building.projectId, {
+      requiredAction: "EDIT",
+      pageKey: "calculator",
+    });
+    if (auth instanceof NextResponse) return auth;
+
     const project = building.project;
     const voltageKv = project.voltage / 1000;
     const powerFactor = project.powerFactor;

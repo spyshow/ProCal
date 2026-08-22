@@ -68,7 +68,8 @@ export const ModelName = {
   FloorItem: 'FloorItem',
   EquipmentCatalog: 'EquipmentCatalog',
   BreakerFamily: 'BreakerFamily',
-  BreakerSettings: 'BreakerSettings'
+  BreakerSettings: 'BreakerSettings',
+  AppSetting: 'AppSetting'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -402,6 +403,15 @@ export const BreakerSettingsScalarFieldEnum = {
 } as const
 
 export type BreakerSettingsScalarFieldEnum = (typeof BreakerSettingsScalarFieldEnum)[keyof typeof BreakerSettingsScalarFieldEnum]
+
+
+export const AppSettingScalarFieldEnum = {
+  key: 'key',
+  value: 'value',
+  updatedAt: 'updatedAt'
+} as const
+
+export type AppSettingScalarFieldEnum = (typeof AppSettingScalarFieldEnum)[keyof typeof AppSettingScalarFieldEnum]
 
 
 export const SortOrder = {

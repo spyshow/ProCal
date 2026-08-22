@@ -1,9 +1,7 @@
 import { NextResponse } from "next/server";
 import { getSessionUser } from "@/lib/auth";
-import { writeFile, mkdir } from "fs/promises";
-import path from "path";
+import { saveLogoAsset } from "@/lib/app-settings";
 
-const UPLOAD_DIR = path.join(process.cwd(), "public", "uploads");
 const MAX_SIZE = 2 * 1024 * 1024; // 2MB
 const ALLOWED_TYPES = ["image/png", "image/jpeg", "image/webp", "image/svg+xml"];
 
@@ -27,13 +25,13 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "File too large (max 2MB)" }, { status: 400 });
     }
 
-    await mkdir(UPLOAD_DIR, { recursive: true });
-    const ext = file.name.split(".").pop() || "png";
-    const filename = `${Date.now()}-${Math.random().toString(36).substring(2, 9)}.${ext}`;
-    const buffer = Buffer.from(await file.arrayBuffer());
-    await writeFile(path.join(UPLOAD_DIR, filename), buffer);
+    // Stored durably in the AppSetting table and served by /api/assets/[key].
+    // Falls back to public/uploads (ephemeral on serverless) when the table
+    // has not been migrated yet.
+    const buffer = new Uint8Array(await file.arrayBuffer());
+    const url = await saveLogoAsset(file.type, buffer);
 
-    return NextResponse.json({ url: `/uploads/${filename}` });
+    return NextResponse.json({ url });
   } catch (error) {
     console.error("Upload Error:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });

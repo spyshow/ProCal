@@ -134,3 +134,8 @@ export type BreakerFamily = Prisma.BreakerFamilyModel
  * 
  */
 export type BreakerSettings = Prisma.BreakerSettingsModel
+/**
+ * Model AppSetting
+ * 
+ */
+export type AppSetting = Prisma.AppSettingModel

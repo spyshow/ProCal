@@ -370,3 +370,9 @@ model BreakerSettings {
   ig           Float? // G pickup setting
   tg           Float? // G delay setting
 }
+
+model AppSetting {
+  key       String   @id
+  value     String // JSON-encoded payload
+  updatedAt DateTime @updatedAt
+}

@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { sizeCableAndBreaker } from '@/lib/calculations/cables';
 import { calculateThreePhaseCurrent, sizeTransformer } from '@/lib/calculations/loads';
+import { phaseBalance } from '@/lib/calculations/phaseBalance';
 import { computeFloorRiserVd, type RiserFloorVd } from '@/lib/calculations/riser';
 import { PageSkeleton } from '@/components/ui/skeleton';
 import type { FloorDesign, Project } from '@/types';
@@ -138,8 +139,20 @@ export default function RiserPage() {
     groupingCount: 1,
   });
 
-  // Transformer sizing: use building-specific rating if set, or auto-size for this building's demand
-  const transformerKva = bldg.transformer || (project.buildings.length === 1 && project.transformerSize ? project.transformerSize : null) || sizeTransformer(totalDemandKva, 1.2);
+  // Transformer sizing: use building-specific rating if set, or auto-size for this building's demand.
+  // Auto-size uses the worst-loaded winding (max phase × 3) so an unbalanced
+  // building is not under-provisioned — same rule as panel/page.tsx and computeFeeders.
+  const transformerPf = project.powerFactor || 0.85;
+  const overallBalance = phaseBalance(
+    [...sortedFloors.flatMap((fd) => fd.items), ...(bldg.buildingLoads || [])],
+    project as never
+  );
+  const perPhaseKva: [number, number, number] = [
+    overallBalance.phaseKw[0] / transformerPf,
+    overallBalance.phaseKw[1] / transformerPf,
+    overallBalance.phaseKw[2] / transformerPf,
+  ];
+  const transformerKva = bldg.transformer || (project.buildings.length === 1 && project.transformerSize ? project.transformerSize : null) || sizeTransformer(totalDemandKva, 1.2, perPhaseKva);
   const transformerImpedance = 5; // Default 5% if not stored
 
   // Per-floor riser ΔV via the shared helper (pure, tested) — see

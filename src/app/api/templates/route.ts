@@ -63,18 +63,26 @@ export async function POST(request: Request) {
       };
     });
 
-    // Calculate total connected load for sizing
-    const totalConnectedLoad = roomsWithLoad.reduce((sum, room) => sum + room.connectedLoad, 0);
-
-    // Engineering Sizing logic
+    // Engineering Sizing preview — uses the SAME convention as the floor-items
+    // route (connected watts → kW, PF applied, phase-aware project voltage).
+    // The old preview treated connected W as VA, divided by a hardcoded 230 V
+    // and ignored PF/phases — ~17.6% off the stored calculatedCurrent for
+    // every apartment built from this template.
+    const totalConnectedLoadW = roomsWithLoad.reduce((sum, room) => sum + room.connectedLoad, 0);
     const demandFactor = 0.4; // standard residential apartment demand factor
-    const maxDemandKva = (totalConnectedLoad * demandFactor) / 1000;
-    const ib = maxDemandKva / 0.23; // 230V single phase current
+    const powerFactor = project.powerFactor || 0.85;
+    const voltageLL = project.voltage || 400;
+    const isThreePhase = Number(phases) === 3;
+    const connectedLoadKw = totalConnectedLoadW / 1000;
+    const maxDemandKw = connectedLoadKw * demandFactor;
+    const estimatedCurrentA = isThreePhase
+      ? maxDemandKw / (Math.sqrt(3) * (voltageLL / 1000) * powerFactor)
+      : maxDemandKw / ((voltageLL / Math.sqrt(3) / 1000) * powerFactor);
 
-    sizeCableAndBreaker(ib, false, {
+    const sizingPreview = sizeCableAndBreaker(estimatedCurrentA, isThreePhase, {
       material: "copper",
       insulation: "XLPE",
-      ambientTemp: 30,
+      ambientTemp: project.ambientTemp ?? 30,
       groupingCount: 1,
     });
 
@@ -93,7 +101,20 @@ export async function POST(request: Request) {
       },
     });
 
-    return NextResponse.json(template);
+    return NextResponse.json({
+      ...template,
+      sizingPreview: {
+        connectedLoadKw,
+        demandFactor,
+        maxDemandKw,
+        phases: isThreePhase ? 3 : 1,
+        voltageLL,
+        powerFactor,
+        estimatedCurrentA: parseFloat(estimatedCurrentA.toFixed(2)),
+        recommendedBreakerA: sizingPreview.breakerSize,
+        recommendedCableSize: sizingPreview.formattedCableSize,
+      },
+    });
   } catch (error) {
     console.error("POST Template Error:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });

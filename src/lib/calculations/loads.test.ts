@@ -97,6 +97,24 @@ describe('sizeTransformer', () => {
     expect(() => sizeTransformer(100, 0.5)).toThrow(CalculationError);
     expect(() => sizeTransformer(100, 1.2, [-10, 20, 20])).toThrow(CalculationError);
   });
+
+  it('matches lumped sizing when phases are balanced', () => {
+    // 70 kW total at PF 0.85 → 82.35 kVA; ×1.2 = 98.8 → 100 kVA either way.
+    const lumped = sizeTransformer(82.35, 1.2);
+    const perPhase = sizeTransformer(82.35, 1.2, [27.45, 27.45, 27.45]);
+    expect(lumped).toBe(100);
+    expect(perPhase).toBe(100);
+  });
+
+  it('sizes on the worst-loaded winding when unbalanced (max phase × 3)', () => {
+    // One heavy phase: 50/10/10 kW at PF 0.85 → max winding 58.8 kVA.
+    // Lumped total is only 82.4 kVA → 100 kVA transformer would be chosen and
+    // overload the heavy winding (needs ≥ 58.8×3×1.2 ≈ 212 → 250 kVA).
+    const lumped = sizeTransformer(82.35, 1.2);
+    const perPhase = sizeTransformer(82.35, 1.2, [50 / 0.85, 10 / 0.85, 10 / 0.85]);
+    expect(lumped).toBe(100);
+    expect(perPhase).toBe(250);
+  });
 });
 
 describe('sizeGenerator', () => {

@@ -61,11 +61,16 @@ export async function POST(
       );
 
       calculatedConnectedLoad = totalConnectedLoadVA / 1000; // Convert to kW
-      // Apply IEC diversity factor based on total apartment count in building.
-      const aptCount = await db.floorItem.count({
+      // Apply the IEC diversity factor for the POST-INSERT apartment count:
+      // this request creates exactly one more APARTMENT, so every apartment in
+      // the building resolves against the same final count and shares one
+      // factor. The pre-insert count gave the Nth apartment the factor of an
+      // N-1 apartment building until the next recalculate healed it.
+      const aptCountBeforeInsert = await db.floorItem.count({
         where: { floorDesign: { buildingId: floorDesign.buildingId }, type: "APARTMENT" },
       });
-      calculatedMaxDemand = calculatedConnectedLoad * getApartmentDiversityFactor(aptCount);
+      calculatedMaxDemand =
+        calculatedConnectedLoad * getApartmentDiversityFactor(aptCountBeforeInsert + 1);
 
       // Phase-aware current calculation (kW-based, PF applied)
       const isThreePhase = template.phases === 3;

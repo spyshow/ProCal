@@ -262,8 +262,16 @@ export default function ReportsPage() {
   const totalBalance = phaseBalance(allProjectItems as never, project as never);
   const totalDemandKw = totalBalance.totalKw;
   const totalCurrentA = totalBalance.maxPhaseCurrent;
-  const demandKva = totalDemandKw / (project.powerFactor || 0.85);
-  const transformerKva = project.transformerSize || sizeTransformer(demandKva);
+  const reportPf = project.powerFactor || 0.85;
+  const demandKva = totalDemandKw / reportPf;
+  // Size on the worst-loaded winding so an unbalanced multi-building portfolio
+  // is not under-provisioned (same rule as computeFeeders and the panel page).
+  const perPhaseKva: [number, number, number] = [
+    totalBalance.phaseKw[0] / reportPf,
+    totalBalance.phaseKw[1] / reportPf,
+    totalBalance.phaseKw[2] / reportPf,
+  ];
+  const transformerKva = project.transformerSize || sizeTransformer(demandKva, 1.2, perPhaseKva);
 
   const renderSummary = () => (
     <div className="space-y-6 font-sans text-slate-900">

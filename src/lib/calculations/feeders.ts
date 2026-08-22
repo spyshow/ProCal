@@ -681,6 +681,9 @@ export interface ComputeFeedersResult {
   mainParallelRuns: number;
   /** Derated ampacity (Iz) of the incomer cable — must be >= mainBreakerIn. */
   mainCableIz: number;
+  /** True when the incomer cable's Iz is below the breaker rating In (IEC
+   *  60364-5-52 violation) — only reachable via the catalog-exhausted fallback. */
+  mainCableUnderProtected: boolean;
   /** Actual catalog breaker rating (In) of the main incomer. */
   mainBreakerIn: number;
   /** Design load current (A) for the whole building incoming supply. */
@@ -873,8 +876,18 @@ export function computeFeeders(
     ...(building.buildingLoads ?? []),
   ];
   const overallBalance = phaseBalance(allItems, project);
-  const totalDemandKva = overallBalance.totalKw / (project.powerFactor || 0.85);
-  const transformerSizeKva = project.transformerSize || sizeTransformer(totalDemandKva, 1.2) || 500;
+  const transformerPf = project.powerFactor || 0.85;
+  const totalDemandKva = overallBalance.totalKw / transformerPf;
+  // Size on the worst-loaded winding, not the lumped total: a transformer
+  // rated S kVA delivers S/3 per winding, so an unbalanced board is limited by
+  // its heaviest phase. Mirrors the per-phase call in panel/page.tsx (TODO-2).
+  const perPhaseKva: [number, number, number] = [
+    overallBalance.phaseKw[0] / transformerPf,
+    overallBalance.phaseKw[1] / transformerPf,
+    overallBalance.phaseKw[2] / transformerPf,
+  ];
+  const transformerSizeKva =
+    project.transformerSize || sizeTransformer(totalDemandKva, 1.2, perPhaseKva) || 500;
 
   const earthingSystem = building.earthingSystem || 'TN-S';
   const scResult = calculateShortCircuitCurrent({
@@ -916,6 +929,13 @@ export function computeFeeders(
     mainBreakerIn > mainSizing.breakerSize
       ? sizeCableAndBreaker(mainBreakerIn, true, mainCableOptions)
       : mainSizing;
+
+  // Explicit Iz >= In guard for the incomer cable (IEC 60364-5-52). Sizing to
+  // the breaker covers In by construction, but the largest-cable fallback in
+  // sizeCableAndBreaker can return a cable below In when even 6 parallel runs
+  // cannot reach the frame — surface that degenerate case instead of silently
+  // shipping an unprotected main.
+  const mainCableUnderProtected = mainFinalSizing.deratedAmpacity < mainBreakerIn;
 
   // A generic spec self-requires the fault level, so it counts as compliant.
   const mainIncomerIcuOk =
@@ -1207,6 +1227,7 @@ export function computeFeeders(
     mainCableSize: mainFinalSizing.cableSize,
     mainParallelRuns: mainFinalSizing.parallelRuns,
     mainCableIz: mainFinalSizing.deratedAmpacity,
+    mainCableUnderProtected,
     mainBreakerIn,
     mainIncomerCurrent,
     transformerIscKa,

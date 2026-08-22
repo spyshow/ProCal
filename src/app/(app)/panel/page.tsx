@@ -241,7 +241,7 @@ export default function PanelDesignerPage() {
 
   const bldg = activeBldg!;
 
-  const { mdbFeeders, smdbFeeders, smdbFloorNumbers, mainIncomerSettings, mainBreakerIn, mainCableSize, mainParallelRuns } = feederResult!;
+  const { mdbFeeders, smdbFeeders, smdbFloorNumbers, mainIncomerSettings, mainBreakerIn, mainCableSize, mainParallelRuns, mainCableIz, mainCableUnderProtected } = feederResult!;
 
   const activeSmdbFloor = selectedFloor || (smdbFloorNumbers.length > 0 ? smdbFloorNumbers[0] : null);
   const smdbFeedersForActive = activeSmdbFloor ? smdbFeeders(activeSmdbFloor) : [];
@@ -421,9 +421,14 @@ export default function PanelDesignerPage() {
           </div>
           <div className="rounded-lg border border-gray-800 bg-gray-800/30 p-3">
             <p className="text-[10px] text-gray-500 uppercase">{t('common.cable', 'Main Cable')}</p>
-            <p className="text-lg font-bold text-green-400 font-mono">{mainCable.size} mm²</p>
+            <p className={`text-lg font-bold font-mono ${mainCableUnderProtected ? 'text-red-400' : 'text-green-400'}`}>{mainCable.size} mm²</p>
             <p className="text-[10px] text-gray-500">{cablesPerPhase}×{mainCable.size}mm²</p>
             <p className="text-[10px] text-gray-500">N: {neutralCables}×{neutralSize}mm²</p>
+            {mainCableUnderProtected && (
+              <p className="text-[10px] text-red-400 font-semibold">
+                {t('panel.cableUnderProtected', 'Iz {{iz}}A < In {{in}}A — increase cable or runs', { iz: mainCableIz, in: mainBreakerIn })}
+              </p>
+            )}
           </div>
           <div className="rounded-lg border border-gray-800 bg-gray-800/30 p-3">
             <p className="text-[10px] text-gray-500 uppercase">{t('dashboard.transformerSize', 'Transformer')}</p>

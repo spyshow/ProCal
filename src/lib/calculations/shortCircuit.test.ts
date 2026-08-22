@@ -230,6 +230,21 @@ describe('calculateIscWithCable', () => {
     expect(result).toBe(baseIsc);
   });
 
+  it('raises fault current for parallel runs (2×240 halves the cable loop impedance)', () => {
+    const baseIsc = 10; // kA at transformer terminals
+    const single = calculateIscWithCable(baseIsc, 30, 240, 400, true, false, 'XLPE', 1);
+    const parallel = calculateIscWithCable(baseIsc, 30, 240, 400, true, false, 'XLPE', 2);
+
+    expect(parallel).toBeGreaterThan(single);
+
+    // Hand check: Zt = 400/(√3·10000) ≈ 23.09 mΩ. Per run:
+    // R = 0.0172·1.28·30/240 ≈ 2.75 mΩ, X = 0.08·30 = 2.4 mΩ → Zrun ≈ 3.65 mΩ.
+    // Single: Isc = 400/(√3·(23.09+3.65)mΩ) ≈ 8.64 kA.
+    // Parallel: Zcable/2 = 1.83 mΩ → Isc = 400/(√3·24.92mΩ) ≈ 9.26 kA.
+    expect(single).toBeCloseTo(8.64, 1);
+    expect(parallel).toBeCloseTo(9.26, 1);
+  });
+
   it('throws CalculationError for invalid parameters', () => {
     expect(() => calculateIscWithCable(0, 50, 95, 400)).toThrow(CalculationError);
     expect(() => calculateIscWithCable(-25, 50, 95, 400)).toThrow(CalculationError);

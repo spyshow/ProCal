@@ -302,6 +302,22 @@ describe('evaluateCableProtection with parallel runs', () => {
     expect(evalResult.recommendedParallelRuns).toBeGreaterThanOrEqual(2);
     expect(evalResult.recommendedCableSizeFormatted).toContain('×');
   });
+
+  it('flags an undersized cable when a main or feeder breaker is upsized (e.g. 400A cable on 630A breaker)', () => {
+    // 240 mm² Cu XLPE 3-ph has Iz ≈ 464 A.
+    // Paired with an upsized 630 A breaker, Iz (464 A) < In (630 A), which is unsafe.
+    const evalResult = evaluateCableProtection(240, 630, true, {
+      material: 'copper',
+      insulation: 'XLPE',
+      ambientTemp: 30,
+      groupingCount: 1,
+    });
+
+    expect(evalResult.isUnderProtected).toBe(true);
+    expect(evalResult.deratedAmpacity).toBeLessThan(630);
+    // Sizing recommendation should provide sufficient ampacity (e.g. 2 x 185 mm² or larger single)
+    expect(evalResult.recommendedCableSizeFormatted).toBeDefined();
+  });
 });
 
 describe('calculateCableAmpacity never rounds a size UP', () => {

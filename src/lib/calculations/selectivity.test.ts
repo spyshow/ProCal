@@ -421,11 +421,11 @@ describe('verifyCoordination (4-Phase Protection Engine)', () => {
     // With generic specs, tested tables are skipped -> selectivity is limited by magnetic crossover (4.0 kA < 10 kA).
     const genericUpstream: BreakerCurveSettings = {
       inRating: 400, ir: 320, tr: 12, isd: 1600, tsd: 0.3, ii: 4000,
-      category: 'MCCB', manufacturer: null, isGeneric: true,
+      category: 'MCCB', manufacturer: undefined, isGeneric: true,
     };
     const genericDownstream: BreakerCurveSettings = {
       inRating: 63, ir: 50, tr: 12, ii: 630,
-      category: 'MCB', manufacturer: null, isGeneric: true,
+      category: 'MCB', manufacturer: undefined, isGeneric: true,
     };
     const genericRes = verifyCoordination(genericUpstream, genericDownstream, 10000, {});
     expect(genericRes.energySelectivityApplied).toBe(false);
@@ -489,6 +489,49 @@ describe('verifyCoordination (4-Phase Protection Engine)', () => {
     expect(result.timeGradingOk).toBe(false);
     expect(result.status).toBe('PARTIAL');
     expect(result.overlapDetails).toMatch(/Grading rules violated/);
+  });
+
+  it('evaluates current grading boundary (1.58x vs 1.60x) correctly (Boundary Grading)', () => {
+    const downstream = {
+      inRating: 100, ir: 100, tr: 12, isd: 500, tsd: 0.1, ii: 1000, category: 'MCCB' as const,
+    };
+
+    // 158A < 100A * 1.59 -> violates current grading
+    const upstreamFail = {
+      inRating: 250, ir: 158, tr: 12, isd: 1000, tsd: 0.4, ii: 2500, category: 'MCCB' as const,
+    };
+    const resFail = verifyCoordination(upstreamFail, downstream, 2000, { cableSizeMm2: 35 });
+    expect(resFail.currentGradingOk).toBe(false);
+
+    // 160A >= 100A * 1.59 -> satisfies current grading
+    const upstreamPass = {
+      inRating: 250, ir: 160, tr: 12, isd: 1000, tsd: 0.4, ii: 2500, category: 'MCCB' as const,
+    };
+    const resPass = verifyCoordination(upstreamPass, downstream, 2000, { cableSizeMm2: 35 });
+    expect(resPass.currentGradingOk).toBe(true);
+  });
+
+  it('strictly isolates generic specs from tested selectivity tables even if same brand is selected', () => {
+    const catalogUpstream = {
+      inRating: 400, ir: 320, tr: 12, isd: 1600, tsd: 0.3, ii: 4000,
+      category: 'MCCB' as const, manufacturer: 'ABB', isGeneric: false,
+    };
+    const catalogDownstream = {
+      inRating: 63, ir: 50, tr: 12, ii: 630,
+      category: 'MCB' as const, manufacturer: 'ABB', isGeneric: false,
+    };
+    const catalogRes = verifyCoordination(catalogUpstream, catalogDownstream, 10000, {
+      manufacturerPair: { upstreamMfg: 'ABB', downstreamMfg: 'ABB' },
+    });
+    expect(catalogRes.energySelectivityApplied).toBe(true);
+    expect(catalogRes.cascadingSupported).toBe(true);
+
+    const genericUpstream = { ...catalogUpstream, isGeneric: true };
+    const genericRes = verifyCoordination(genericUpstream, catalogDownstream, 10000, {
+      manufacturerPair: { upstreamMfg: 'ABB', downstreamMfg: 'ABB' },
+    });
+    expect(genericRes.energySelectivityApplied).toBe(false);
+    expect(genericRes.cascadingSupported).toBe(false);
   });
 });
 

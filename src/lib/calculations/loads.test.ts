@@ -115,6 +115,24 @@ describe('sizeTransformer', () => {
     expect(lumped).toBe(100);
     expect(perPhase).toBe(250);
   });
+
+  it('correctly handles severe phase imbalance (60/10/10 kW) requiring 400 kVA transformer', () => {
+    // Phase 1 = 60 kW / 0.85 = 70.588 kVA
+    // Phase 2 = 10 kW / 0.85 = 11.765 kVA
+    // Phase 3 = 10 kW / 0.85 = 11.765 kVA
+    // Total lumped = 80 kW / 0.85 = 94.118 kVA -> lumped × 1.2 = 112.94 kVA (would pick 160 kVA, causing overload on Phase 1)
+    // 3 × max(70.588) × 1.2 = 254.1 kVA -> picks 400 kVA standard transformer
+    const lumped = sizeTransformer(80 / 0.85, 1.2);
+    const perPhase = sizeTransformer(80 / 0.85, 1.2, [60 / 0.85, 10 / 0.85, 10 / 0.85]);
+    expect(lumped).toBe(160);
+    expect(perPhase).toBe(400);
+  });
+
+  it('correctly sizes balanced 270 kW load (90/90/90 kW) to 400 kVA transformer', () => {
+    // 90 kW / 0.9 per phase = 100 kVA -> 3 × 100 = 300 kVA -> × 1.2 = 360 kVA -> 400 kVA transformer
+    const perPhase = sizeTransformer(270 / 0.9, 1.2, [90 / 0.9, 90 / 0.9, 90 / 0.9]);
+    expect(perPhase).toBe(400);
+  });
 });
 
 describe('sizeGenerator', () => {

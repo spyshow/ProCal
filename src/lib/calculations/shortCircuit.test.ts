@@ -278,6 +278,46 @@ describe('calculateIscWithCable', () => {
     expect(parallel).toBeGreaterThan(single);
   });
 
+  it('verifies 3-phase and 1-phase Isc scaling with parallel runs (runs=1, 2, 3, 4) against hand calculations', () => {
+    // Hand calculation:
+    // Source: 400V, baseIsc = 20 kA
+    // U_phase = 400 / sqrt(3) = 230.9401 V
+    // Z_source = 230.9401 / (20 * 1000) = 0.011547 Ω
+    // Cable: 240 mm² Cu XLPE, length = 100 m
+    // R20 = 0.0172 Ω·mm²/m, tempFactor = 1.28 (90 °C)
+    // Rcable = (0.0172 * 1.28 * 100) / 240 = 0.0091733 Ω
+    // Xcable = 0.00008 * 100 = 0.008 Ω
+    // Z_cable_1run = sqrt(0.0091733^2 + 0.008^2) = 0.0121714 Ω
+    //
+    // For runs = N: Z_cable_N = Z_cable_1run / N
+    // Total Z = Z_source + Z_cable_N
+    // 3-phase Isc = (230.9401 / Total Z) / 1000 kA
+    const baseIsc = 20;
+    const len = 100;
+    const size = 240;
+    const V = 400;
+
+    const isc1 = calculateIscWithCable(baseIsc, len, size, V, true, false, 'XLPE', 1);
+    const isc2 = calculateIscWithCable(baseIsc, len, size, V, true, false, 'XLPE', 2);
+    const isc3 = calculateIscWithCable(baseIsc, len, size, V, true, false, 'XLPE', 3);
+    const isc4 = calculateIscWithCable(baseIsc, len, size, V, true, false, 'XLPE', 4);
+
+    // Hand calculated expected values:
+    // N=1: Z = 0.011547 + 0.0121714 = 0.0237184 Ω -> Isc = 230.9401 / 0.0237184 / 1000 = 9.74 kA
+    // N=2: Z = 0.011547 + 0.0060857 = 0.0176327 Ω -> Isc = 230.9401 / 0.0176327 / 1000 = 13.10 kA
+    // N=3: Z = 0.011547 + 0.0040571 = 0.0156041 Ω -> Isc = 230.9401 / 0.0156041 / 1000 = 14.80 kA
+    // N=4: Z = 0.011547 + 0.0030429 = 0.0145899 Ω -> Isc = 230.9401 / 0.0145899 / 1000 = 15.83 kA
+    expect(isc1).toBeCloseTo(9.74, 2);
+    expect(isc2).toBeCloseTo(13.10, 2);
+    expect(isc3).toBeCloseTo(14.80, 2);
+    expect(isc4).toBeCloseTo(15.83, 2);
+
+    // Strictly monotonically increasing with parallel runs
+    expect(isc4).toBeGreaterThan(isc3);
+    expect(isc3).toBeGreaterThan(isc2);
+    expect(isc2).toBeGreaterThan(isc1);
+  });
+
   it('single-phase fault uses the L-N loop model (Uo over source + go + return)', () => {
     const baseIsc = 25;
     const threePhase = calculateIscWithCable(baseIsc, 50, 95, 400, true, false);

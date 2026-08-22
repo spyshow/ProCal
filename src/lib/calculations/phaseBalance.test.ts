@@ -270,7 +270,6 @@ describe('phaseBalance', () => {
   // ==========================================================================
 
   it('changes unbalance limit when calculationStandard switches', () => {
-    const project = projectFixture({ calculationStandard: 'NEMA' });
     const apt1 = item('apt1', 100, 23, 'APARTMENT');
 
     const bIEC = phaseBalance([apt1], projectFixture({ calculationStandard: 'IEC' }));
@@ -497,6 +496,7 @@ describe('phaseBalance', () => {
       ],
       project
     );
+    expect(b2.neutralOversized).toBe(false);
     // 20+20 = 40 on L1, 2 on L2. neutral ≈ |40 + 2∠−120| > 2*40? Probably ~39.2,
     // so still false in this specific case. Instead test boundary:
     const b3 = phaseBalance(

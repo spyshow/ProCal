@@ -63,8 +63,14 @@ npx prisma generate        # regenerate the client into src/generated/prisma
 
 ```bash
 npx tsx prisma/seed.ts
-# → engineer / password123   (role: ADMIN, has the ABB/Sneider equipment catalog)
 ```
+
+The seed creates an `engineer` ADMIN (with the full equipment catalog) using
+`SEED_ADMIN_PASSWORD` from your `.env`. If that variable is unset, a random
+one-time password is generated and printed to the console exactly once.
+Re-running the seed is safe: it skips the admin entirely once any ADMIN
+account exists. (The old hardcoded `engineer / password123` was removed — a
+publicly-known admin password must never be re-seeded.)
 
 Optional — a full mixed-use demo project (towers + mall, 112 apartments):
 

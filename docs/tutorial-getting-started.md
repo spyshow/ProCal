@@ -16,15 +16,17 @@ diagram, and a printable report.
 
 Run ProCal locally ([How-to: run locally](./how-to-run-locally.md)). You need:
 the dev server on `:3000`, Postgres + Mailpit up (`docker compose up -d`),
-migrations applied, the client generated, and the seed run (gives you the
-`engineer` / `password123` admin + the ABB/Schneider catalog).
+migrations applied, the client generated, and the seed run (gives you an
+`engineer` admin — set `SEED_ADMIN_PASSWORD` in `.env` to choose its password,
+otherwise the seed prints a random one-time password — plus the ABB/Schneider
+catalog).
 
 ## 0. Log in
 
 Open `http://localhost:3000` — it redirects to `/login` (the middleware
 matcher sends every non-auth route there; see
-[Auth & admin reference](./reference-auth-admin.md)). Log in as
-`engineer` / `password123`.
+[Auth & admin reference](./reference-auth-admin.md)). Log in as `engineer`
+with your `SEED_ADMIN_PASSWORD` (or the one-time password the seed printed).
 
 You land on `/dashboard`. The sidebar groups the app into: **project setup**
 (dashboard, projects, settings), **engineering** (calculator, panel, riser,

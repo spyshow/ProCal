@@ -1,4 +1,5 @@
 import "dotenv/config";
+import { randomBytes } from "crypto";
 import { PrismaClient } from "../src/generated/prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { Pool } from "pg";
@@ -13,7 +14,11 @@ const isRemoteDb =
 
 const pool = new Pool({
   connectionString,
-  ssl: isRemoteDb ? { rejectUnauthorized: false } : undefined,
+  // Verify server certificates by default; opt out explicitly for a local
+  // self-signed setup (mirrors src/lib/db.ts).
+  ssl: isRemoteDb
+    ? { rejectUnauthorized: process.env.DATABASE_SSL_REJECT_UNAUTHORIZED !== "false" }
+    : undefined,
 });
 const adapter = new PrismaPg(pool);
 const db = new PrismaClient({ adapter });
@@ -21,20 +26,59 @@ const db = new PrismaClient({ adapter });
 async function main() {
   console.log("Seeding database...");
 
-  // 1. Create default engineer user
-  const passwordHash = await bcrypt.hash("password123", 10);
-  const user = await db.user.upsert({
-    where: { username: "engineer" },
+  await seedBootstrapAdmin();
+  await seedEquipmentCatalog();
+
+  console.log("Seeding completed successfully.");
+}
+
+/**
+ * Bootstrap admin — SAFE BY DEFAULT:
+ * - No-op when ANY ADMIN already exists, so re-running the seed (or an old
+ *   deploy pipeline that still calls it) can never resurrect a known account.
+ * - The password comes from SEED_ADMIN_PASSWORD, or is generated randomly and
+ *   printed exactly once. The historical hardcoded "password123" is gone — it
+ *   was publicly documented in this repo and must never grant admin again.
+ */
+async function seedBootstrapAdmin(): Promise<void> {
+  const existingAdmin = await db.user.findFirst({ where: { role: "ADMIN" } });
+  if (existingAdmin) {
+    console.log(`ADMIN user "${existingAdmin.username}" already exists — skipping bootstrap account.`);
+    return;
+  }
+
+  const username = "engineer";
+  const envPassword = process.env.SEED_ADMIN_PASSWORD;
+  const generatedPassword = !envPassword ? randomBytes(18).toString("base64url") : null;
+  const password = envPassword || generatedPassword;
+
+  if (!password) {
+    throw new Error("SEED_ADMIN_PASSWORD was empty; set it or unset it to auto-generate.");
+  }
+
+  await db.user.upsert({
+    where: { username },
     update: {},
     create: {
-      username: "engineer",
+      username,
       name: "Lead Electrical Engineer",
-      passwordHash,
+      passwordHash: await bcrypt.hash(password, 10),
       role: "ADMIN",
     },
   });
-  console.log("User seeded:", user.username);
 
+  if (generatedPassword) {
+    // Bootstrap handoff: shown once, never stored or logged elsewhere.
+    console.log("==========================================================");
+    console.log(`Bootstrap ADMIN created: ${username}`);
+    console.log(`One-time password (change after first login): ${generatedPassword}`);
+    console.log("==========================================================");
+  } else {
+    console.log(`Bootstrap ADMIN created: ${username} (password from SEED_ADMIN_PASSWORD).`);
+  }
+}
+
+async function seedEquipmentCatalog(): Promise<void> {
   // 2. Equipment Catalog list with complete verified manufacturer selectivity parameters
   const catalogData = [
     // =========================================================================
@@ -3722,7 +3766,6 @@ async function main() {
 
   console.log(`Seeded ${familyIdByKey.size} breaker families.`);
   console.log(`Seeded ${catalogData.length} equipment items with verified selectivity data.`);
-  console.log("Seeding completed successfully.");
 }
 
 main()

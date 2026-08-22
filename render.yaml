@@ -4,7 +4,13 @@ services:
     runtime: node
     plan: free
     region: frankfurt
-    buildCommand: npm install && npx prisma generate && npx prisma migrate deploy && npx tsx prisma/seed.ts && npm run build
+    # NOTE: no `prisma/seed.ts` here on purpose. Seeding on every deploy used
+    # to re-create the documented bootstrap admin with a publicly-known
+    # password. Seed ONCE via a manual shell/job instead:
+    #   npx tsx prisma/seed.ts
+    # The script is guarded (no-op when an ADMIN already exists) and takes the
+    # password from SEED_ADMIN_PASSWORD or prints a random one once.
+    buildCommand: npm install && npx prisma generate && npx prisma migrate deploy && npm run build
     startCommand: npm run start
     envVars:
       - key: NODE_ENV

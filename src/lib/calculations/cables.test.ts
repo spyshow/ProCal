@@ -7,8 +7,9 @@ import {
   calculateCableAmpacity,
   parseCableSize,
   formatCableSize,
+  getCableAmpacityColumn,
 } from './cables';
-import { temperatureDeratingFactor, groupingDeratingFactor } from './cablesData';
+import { temperatureDeratingFactor, groupingDeratingFactor, CABLE_CATALOG } from './cablesData';
 import { getAmpacity } from './installationMethods';
 import { CalculationError } from './validate';
 
@@ -439,4 +440,46 @@ describe('aluminum cables (PVC + XLPE, 1-phase + 3-phase)', () => {
     const cu = sizeCableAndBreaker(200, false, { ...opts('copper', 'XLPE'), manualBreakerRating: 250 });
     expect(al.cableSize).toBeGreaterThanOrEqual(cu.cableSize);
   });
+
+  it('getCableAmpacityColumn correctly returns all 8 material × insulation × phase combinations (Issue 8)', () => {
+    const spec = CABLE_CATALOG.find((c) => c.size === 70)!;
+    expect(spec).toBeDefined();
+
+    // Copper
+    expect(getCableAmpacityColumn(spec, 'copper', 'PVC', true)).toBe(spec.copperPvc3Ph);
+    expect(getCableAmpacityColumn(spec, 'copper', 'XLPE', true)).toBe(spec.copperXlpe3Ph);
+    expect(getCableAmpacityColumn(spec, 'copper', 'PVC', false)).toBe(spec.copperPvc1Ph);
+    expect(getCableAmpacityColumn(spec, 'copper', 'XLPE', false)).toBe(spec.copperXlpe1Ph);
+
+    // Aluminum
+    expect(getCableAmpacityColumn(spec, 'aluminum', 'PVC', true)).toBe(spec.alPvc3Ph);
+    expect(getCableAmpacityColumn(spec, 'aluminum', 'XLPE', true)).toBe(spec.alXlpe3Ph);
+    expect(getCableAmpacityColumn(spec, 'aluminum', 'PVC', false)).toBe(spec.alPvc1Ph);
+    expect(getCableAmpacityColumn(spec, 'aluminum', 'XLPE', false)).toBe(spec.alXlpe1Ph);
+
+    // Verify ordering: 1-phase > 3-phase, and XLPE > PVC, and copper > aluminum
+    expect(spec.copperXlpe3Ph).toBeGreaterThan(spec.copperPvc3Ph);
+    expect(spec.copperXlpe1Ph).toBeGreaterThan(spec.copperXlpe3Ph);
+    expect(spec.alXlpe3Ph).toBeGreaterThan(spec.alPvc3Ph);
+    expect(spec.alXlpe1Ph).toBeGreaterThan(spec.alXlpe3Ph);
+    expect(spec.copperXlpe3Ph).toBeGreaterThan(spec.alXlpe3Ph);
+    expect(spec.copperPvc3Ph).toBeGreaterThan(spec.alPvc3Ph);
+  });
+
+  it('getAmpacity handles aluminum for various IEC installation methods (B1, C, E, D1)', () => {
+    // 70 mm² cable across methods
+    const b1_xlpe_3ph_al = getAmpacity(70, 'B1', 'XLPE', true, 'aluminum');
+    const b1_pvc_3ph_al = getAmpacity(70, 'B1', 'PVC', true, 'aluminum');
+    const b1_xlpe_3ph_cu = getAmpacity(70, 'B1', 'XLPE', true, 'copper');
+
+    expect(b1_xlpe_3ph_al).toBeGreaterThan(0);
+    expect(b1_pvc_3ph_al).toBeGreaterThan(0);
+    expect(b1_xlpe_3ph_al).toBeGreaterThan(b1_pvc_3ph_al);
+    expect(b1_xlpe_3ph_cu).toBeGreaterThan(b1_xlpe_3ph_al);
+
+    const c_xlpe_1ph_al = getAmpacity(70, 'C', 'XLPE', false, 'aluminum');
+    const c_pvc_1ph_al = getAmpacity(70, 'C', 'PVC', false, 'aluminum');
+    expect(c_xlpe_1ph_al).toBeGreaterThan(c_pvc_1ph_al);
+  });
 });
+

@@ -1361,8 +1361,8 @@ function LoadLibrary({ projectId, onRefresh, loads, isReadOnly = false }: { proj
       {showNew && !isReadOnly && (
         <form onSubmit={handleSubmit} className="rounded-xl border border-gray-800 bg-gray-900/60 p-4 space-y-3">
           <h4 className="text-sm font-semibold text-gray-300">New Load Item</h4>
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-            <div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-8 gap-3">
+            <div className="col-span-2">
               <label className="block text-xs text-gray-400 mb-1">Name *</label>
               <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required className="dense-input w-full rounded" />
             </div>
@@ -1376,18 +1376,51 @@ function LoadLibrary({ projectId, onRefresh, loads, isReadOnly = false }: { proj
             </div>
             <div>
               <label className="block text-xs text-gray-400 mb-1">Power (kW) *</label>
-              <input type="number" step="0.01" value={form.power} onChange={(e) => setForm({ ...form, power: e.target.value })} required className="dense-input w-full rounded" />
+              <input type="number" step="0.01" min="0.01" value={form.power} onChange={(e) => setForm({ ...form, power: e.target.value })} required className="dense-input w-full rounded" />
             </div>
             <div>
               <label className="block text-xs text-gray-400 mb-1">Phase</label>
-              <select value={form.phase} onChange={(e) => setForm({ ...form, phase: e.target.value })} className="dense-input w-full rounded">
+              <select
+                value={form.phase}
+                onChange={(e) => {
+                  const p = e.target.value;
+                  setForm({ ...form, phase: p, voltage: p === '3' ? '400' : '230' });
+                }}
+                className="dense-input w-full rounded"
+              >
                 <option value="1">1-Phase</option>
                 <option value="3">3-Phase</option>
               </select>
             </div>
             <div>
+              <label className="block text-xs text-gray-400 mb-1" title="Power Factor (cos φ)">PF</label>
+              <input
+                type="number"
+                step="0.01"
+                min="0.1"
+                max="1.0"
+                value={form.powerFactor}
+                onChange={(e) => setForm({ ...form, powerFactor: e.target.value })}
+                className="dense-input w-full rounded"
+                placeholder="0.85"
+              />
+            </div>
+            <div>
+              <label className="block text-xs text-gray-400 mb-1" title="Demand Factor (0.05 - 1.0)">DF</label>
+              <input
+                type="number"
+                step="0.05"
+                min="0.05"
+                max="1.0"
+                value={form.demandFactor}
+                onChange={(e) => setForm({ ...form, demandFactor: e.target.value })}
+                className="dense-input w-full rounded"
+                placeholder="1.0"
+              />
+            </div>
+            <div>
               <label className="block text-xs text-gray-400 mb-1">Quantity</label>
-              <input type="number" value={form.quantity} onChange={(e) => setForm({ ...form, quantity: e.target.value })} className="dense-input w-full rounded" />
+              <input type="number" min="1" value={form.quantity} onChange={(e) => setForm({ ...form, quantity: e.target.value })} className="dense-input w-full rounded" />
             </div>
           </div>
           <div className="flex gap-2">
@@ -1408,8 +1441,8 @@ function LoadLibrary({ projectId, onRefresh, loads, isReadOnly = false }: { proj
                 <th className="text-center">Category</th>
                 <th className="text-right">Power (kW)</th>
                 <th className="text-center">Phase</th>
-                <th className="text-right">PF</th>
-                <th className="text-right">DF</th>
+                <th className="text-right" title="Power Factor (cos φ)">PF</th>
+                <th className="text-right" title="Demand Factor (Operating/Duty Ratio)">DF</th>
                 <th className="text-right">Qty</th>
                 <th className="text-right">Running I (A)</th>
                 <th className="text-center">Action</th>
@@ -1421,8 +1454,8 @@ function LoadLibrary({ projectId, onRefresh, loads, isReadOnly = false }: { proj
                   <tr key={item.id} className="bg-gray-800/50">
                     <td colSpan={9} className="p-3">
                       <form onSubmit={handleUpdate} className="space-y-3">
-                        <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-                          <div>
+                        <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-8 gap-3">
+                          <div className="col-span-2">
                             <label className="block text-[10px] text-gray-500 mb-1">Name *</label>
                             <input value={editForm.name} onChange={(e) => setEditForm({ ...editForm, name: e.target.value })} required className="dense-input w-full rounded text-xs" />
                           </div>
@@ -1436,18 +1469,51 @@ function LoadLibrary({ projectId, onRefresh, loads, isReadOnly = false }: { proj
                           </div>
                           <div>
                             <label className="block text-[10px] text-gray-500 mb-1">Power (kW) *</label>
-                            <input type="number" step="0.01" value={editForm.power} onChange={(e) => setEditForm({ ...editForm, power: e.target.value })} required className="dense-input w-full rounded text-xs" />
+                            <input type="number" step="0.01" min="0.01" value={editForm.power} onChange={(e) => setEditForm({ ...editForm, power: e.target.value })} required className="dense-input w-full rounded text-xs" />
                           </div>
                           <div>
                             <label className="block text-[10px] text-gray-500 mb-1">Phase</label>
-                            <select value={editForm.phase} onChange={(e) => setEditForm({ ...editForm, phase: e.target.value })} className="dense-input w-full rounded text-xs">
+                            <select
+                              value={editForm.phase}
+                              onChange={(e) => {
+                                const p = e.target.value;
+                                setEditForm({ ...editForm, phase: p, voltage: p === '3' ? '400' : '230' });
+                              }}
+                              className="dense-input w-full rounded text-xs"
+                            >
                               <option value="1">1-Phase</option>
                               <option value="3">3-Phase</option>
                             </select>
                           </div>
                           <div>
+                            <label className="block text-[10px] text-gray-500 mb-1" title="Power Factor (cos φ)">PF</label>
+                            <input
+                              type="number"
+                              step="0.01"
+                              min="0.1"
+                              max="1.0"
+                              value={editForm.powerFactor}
+                              onChange={(e) => setEditForm({ ...editForm, powerFactor: e.target.value })}
+                              className="dense-input w-full rounded text-xs"
+                              placeholder="0.85"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-[10px] text-gray-500 mb-1" title="Demand Factor (0.05 - 1.0)">DF</label>
+                            <input
+                              type="number"
+                              step="0.05"
+                              min="0.05"
+                              max="1.0"
+                              value={editForm.demandFactor}
+                              onChange={(e) => setEditForm({ ...editForm, demandFactor: e.target.value })}
+                              className="dense-input w-full rounded text-xs"
+                              placeholder="1.0"
+                            />
+                          </div>
+                          <div>
                             <label className="block text-[10px] text-gray-500 mb-1">Quantity</label>
-                            <input type="number" value={editForm.quantity} onChange={(e) => setEditForm({ ...editForm, quantity: e.target.value })} className="dense-input w-full rounded text-xs" />
+                            <input type="number" min="1" value={editForm.quantity} onChange={(e) => setEditForm({ ...editForm, quantity: e.target.value })} className="dense-input w-full rounded text-xs" />
                           </div>
                         </div>
                         <div className="flex gap-2">

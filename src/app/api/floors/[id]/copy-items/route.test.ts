@@ -6,7 +6,10 @@ const mocks = {
   floorFindUnique: vi.fn(),
   floorFindMany: vi.fn(),
   floorItemCount: vi.fn(),
+  floorItemFindMany: vi.fn(),
   floorItemCreateMany: vi.fn(),
+  floorItemUpdate: vi.fn(),
+  transaction: vi.fn(),
 };
 
 vi.mock("@/lib/project-auth", () => ({
@@ -21,8 +24,11 @@ vi.mock("@/lib/db", () => ({
     },
     floorItem: {
       count: vi.fn(async (...args) => mocks.floorItemCount(...args)),
+      findMany: vi.fn(async (...args) => mocks.floorItemFindMany(...args)),
       createMany: vi.fn(async (...args) => mocks.floorItemCreateMany(...args)),
+      update: vi.fn(async (...args) => mocks.floorItemUpdate(...args)),
     },
+    $transaction: vi.fn(async (...args) => mocks.transaction(...args)),
   },
 }));
 
@@ -47,7 +53,10 @@ describe("POST /api/floors/[id]/copy-items", () => {
       memberRole: "ENGINEER",
     });
     mocks.floorItemCount.mockResolvedValue(0);
+    mocks.floorItemFindMany.mockResolvedValue([]);
     mocks.floorItemCreateMany.mockResolvedValue({ count: 4 });
+    mocks.floorItemUpdate.mockReturnValue({});
+    mocks.transaction.mockResolvedValue([]);
   });
 
   it("returns 400 when targetFloorIds is missing or empty", async () => {

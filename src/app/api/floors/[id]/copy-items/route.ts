@@ -157,6 +157,41 @@ export async function POST(
       data: itemsToCreate,
     });
 
+    // If apartments were copied, sync all pre-existing apartments in the building
+    // to the new unified diversity factor.
+    if (aptItemsInSource > 0) {
+      const existingApartments = await db.floorItem.findMany({
+        where: {
+          floorDesign: {
+            buildingId: sourceFloor.buildingId,
+            id: { notIn: validTargetFloorIds },
+          },
+          type: "APARTMENT",
+        },
+        include: {
+          apartmentTemplate: true,
+        },
+      });
+
+      if (existingApartments.length > 0) {
+        const syncUpdates = existingApartments.map((other) => {
+          const is3Ph = other.apartmentTemplate?.phases === 3;
+          const maxDem = other.calculatedConnectedLoad * diversityFactor;
+          const curr = is3Ph
+            ? maxDem / (Math.sqrt(3) * voltageKv * powerFactor)
+            : maxDem / ((voltageKv / Math.sqrt(3)) * powerFactor);
+          return db.floorItem.update({
+            where: { id: other.id },
+            data: {
+              calculatedMaxDemand: maxDem,
+              calculatedCurrent: parseFloat(curr.toFixed(2)),
+            },
+          });
+        });
+        await db.$transaction(syncUpdates);
+      }
+    }
+
     return NextResponse.json({
       success: true,
       copiedItemsCount: itemsToCreate.length,

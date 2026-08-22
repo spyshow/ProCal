@@ -140,6 +140,40 @@ export async function POST(
       },
     });
 
+    // If an apartment was added, ensure all existing apartments in the building
+    // are synced to the new unified diversity factor.
+    if (type === "APARTMENT") {
+      const otherApartments = await db.floorItem.findMany({
+        where: {
+          id: { not: item.id },
+          floorDesign: { buildingId: floorDesign.buildingId },
+          type: "APARTMENT",
+        },
+        include: {
+          apartmentTemplate: true,
+        },
+      });
+
+      if (otherApartments.length > 0) {
+        const aptDiversityFactor = getApartmentDiversityFactor(otherApartments.length + 1);
+        const syncUpdates = otherApartments.map((other) => {
+          const is3Ph = other.apartmentTemplate?.phases === 3;
+          const maxDem = other.calculatedConnectedLoad * aptDiversityFactor;
+          const curr = is3Ph
+            ? maxDem / (Math.sqrt(3) * voltageKv * powerFactor)
+            : maxDem / ((voltageKv / Math.sqrt(3)) * powerFactor);
+          return db.floorItem.update({
+            where: { id: other.id },
+            data: {
+              calculatedMaxDemand: maxDem,
+              calculatedCurrent: parseFloat(curr.toFixed(2)),
+            },
+          });
+        });
+        await db.$transaction(syncUpdates);
+      }
+    }
+
     return NextResponse.json(item);
   } catch (error) {
     return errorResponse(error, "POST Floor Item Error");

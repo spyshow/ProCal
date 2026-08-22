@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { verifyProjectAccess } from "@/lib/project-auth";
+import { getApartmentDiversityFactor } from "@/lib/calculations/loads";
 
 export async function PATCH(
   request: Request,
@@ -73,9 +74,49 @@ export async function DELETE(
     });
     if (auth instanceof NextResponse) return auth;
 
-    await db.floorItem.delete({
-      where: { id },
-    });
+    if (item.type === "APARTMENT") {
+      const buildingId = item.floorDesign.buildingId;
+      const remainingApartments = await db.floorItem.findMany({
+        where: {
+          id: { not: id },
+          floorDesign: { buildingId },
+          type: "APARTMENT",
+        },
+        include: {
+          apartmentTemplate: true,
+        },
+      });
+
+      const newCount = remainingApartments.length;
+      const diversityFactor = getApartmentDiversityFactor(newCount);
+      const project = item.floorDesign.building.project;
+      const voltageKv = (project.voltage || 400) / 1000;
+      const powerFactor = project.powerFactor || 0.85;
+
+      const updates = remainingApartments.map((other) => {
+        const is3Ph = other.apartmentTemplate?.phases === 3;
+        const maxDem = other.calculatedConnectedLoad * diversityFactor;
+        const curr = is3Ph
+          ? maxDem / (Math.sqrt(3) * voltageKv * powerFactor)
+          : maxDem / ((voltageKv / Math.sqrt(3)) * powerFactor);
+        return db.floorItem.update({
+          where: { id: other.id },
+          data: {
+            calculatedMaxDemand: maxDem,
+            calculatedCurrent: parseFloat(curr.toFixed(2)),
+          },
+        });
+      });
+
+      await db.$transaction([
+        db.floorItem.delete({ where: { id } }),
+        ...updates,
+      ]);
+    } else {
+      await db.floorItem.delete({
+        where: { id },
+      });
+    }
 
     return NextResponse.json({ success: true });
   } catch (error) {

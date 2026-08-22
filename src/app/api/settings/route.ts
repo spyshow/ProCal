@@ -1,10 +1,7 @@
 import { NextResponse } from "next/server";
 import { getSessionUser } from "@/lib/auth";
-import { COUNTRY_DEFAULTS, CountryConfig } from "@/lib/country-defaults";
+import { getEffectiveCountrySettings, saveCountryOverride } from "@/lib/country-overrides";
 import { getCompanySettings, saveCompanySettings } from "@/lib/app-settings";
-
-// In-memory storage for country settings
-const globalSettings: Record<string, CountryConfig> = { ...COUNTRY_DEFAULTS };
 
 export async function GET() {
   try {
@@ -14,7 +11,8 @@ export async function GET() {
     }
 
     const company = await getCompanySettings();
-    return NextResponse.json({ countrySettings: globalSettings, company });
+    const countrySettings = await getEffectiveCountrySettings();
+    return NextResponse.json({ countrySettings, company });
   } catch (error) {
     console.error("GET Settings Error:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
@@ -30,12 +28,13 @@ export async function POST(request: Request) {
 
     const data = await request.json();
 
-    // Handle country settings update
+    // Handle country settings update — durable in AppSetting; degrades to
+    // in-memory (previous behavior) when the table is not migrated yet.
     if (data.country && data.settings) {
       if (!data.settings.roomDensities || !data.settings.acSizingRules) {
         return NextResponse.json({ error: "Invalid settings structure" }, { status: 400 });
       }
-      globalSettings[data.country] = data.settings;
+      await saveCountryOverride(data.country, data.settings);
     }
 
     // Handle company settings update — durable in AppSetting; legacy file

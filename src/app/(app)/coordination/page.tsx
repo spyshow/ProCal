@@ -56,6 +56,7 @@ export default function CoordinationPage() {
   const [applyingId, setApplyingId] = useState<string | null>(null);
 
   const [cableSize, setCableSize] = useState<number>(50);
+  const [cableRuns, setCableRuns] = useState<number>(1);
   const [cableInsulation, setCableInsulation] = useState<'XLPE' | 'PVC'>('XLPE');
   const [cableMaterial, setCableMaterial] = useState<'copper' | 'aluminum'>('copper');
 
@@ -355,6 +356,7 @@ export default function CoordinationPage() {
 
     // Cable & Fault
     setCableSize(Math.max(1.5, feeder.cableSize || 16));
+    setCableRuns(Math.max(1, feeder.parallelRuns || 1));
     setFaultCurrent((feeder.faultCurrentKa && feeder.faultCurrentKa > 0 ? feeder.faultCurrentKa : 15) * 1000);
   }, [selectedFeederName, selectedBuildingId, allProjectFeeders, mode, project?.preferredManufacturer, project, findBreaker, breakerSettings]);
 
@@ -374,6 +376,7 @@ export default function CoordinationPage() {
   }, [downstream]);
 
   const safeCableSize = Math.max(1.5, cableSize || 16);
+  const safeCableRuns = Math.max(1, cableRuns || 1);
   const safeFaultCurrent = Math.max(100, faultCurrent || 10000);
 
   // Generate curve data
@@ -398,12 +401,12 @@ export default function CoordinationPage() {
   // Cable damage curve
   const cableDamageCurve = useMemo(() => {
     try {
-      return generateCableDamageCurve(safeCableSize, cableMaterial, cableInsulation);
+      return generateCableDamageCurve(safeCableSize, cableMaterial, cableInsulation, safeCableRuns);
     } catch (err) {
       console.warn('Failed to generate cable damage curve:', err);
       return [];
     }
-  }, [safeCableSize, cableMaterial, cableInsulation]);
+  }, [safeCableSize, cableMaterial, cableInsulation, safeCableRuns]);
 
   // Live coordination check
   const result: CoordinationResult = useMemo(() => {
@@ -412,6 +415,7 @@ export default function CoordinationPage() {
         cableSizeMm2: safeCableSize,
         cableMaterial,
         cableInsulation,
+        cableRuns: safeCableRuns,
         manufacturerPair: {
           upstreamMfg: safeUpstream.manufacturer ?? '',
           downstreamMfg: safeDownstream.manufacturer ?? '',
@@ -982,7 +986,7 @@ export default function CoordinationPage() {
                 {result.cableDamageOk ? '✓ Cable Protected' : '✗ Thermal Damage Risk'}
               </span>                  </h2>
 
-            <div className="grid grid-cols-2 gap-2 text-xs">
+            <div className="grid grid-cols-3 gap-2 text-xs">
               <div>
                 <label htmlFor="cable-size" className="text-gray-400">Cable Size (mm²)</label>
                 <input
@@ -990,6 +994,17 @@ export default function CoordinationPage() {
                   type="number"
                   value={cableSize}
                   onChange={(e) => setCableSize(parseFloat(e.target.value) || 10)}
+                  className="dense-input w-full rounded font-mono"
+                />
+              </div>
+              <div>
+                <label htmlFor="cable-runs" className="text-gray-400">Runs</label>
+                <input
+                  id="cable-runs"
+                  type="number"
+                  min={1}
+                  value={cableRuns}
+                  onChange={(e) => setCableRuns(Math.max(1, parseInt(e.target.value) || 1))}
                   className="dense-input w-full rounded font-mono"
                 />
               </div>

@@ -289,7 +289,8 @@ export function calculateCableWithstandTime(
 export function generateCableDamageCurve(
   cableInput: number | string,
   material: 'copper' | 'aluminum' = 'copper',
-  insulation: 'PVC' | 'XLPE' = 'XLPE'
+  insulation: 'PVC' | 'XLPE' = 'XLPE',
+  parallelRuns: number = 1
 ): CurvePoint[] {
   const points: CurvePoint[] = [];
   const minI = 50;
@@ -301,7 +302,7 @@ export function generateCableDamageCurve(
 
   for (let i = 0; i <= steps; i++) {
     const current = Math.pow(10, logMin + i * step);
-    const time = calculateCableWithstandTime(cableInput, current, material, insulation);
+    const time = calculateCableWithstandTime(cableInput, current, material, insulation, parallelRuns);
     if (time >= 0.01 && time <= 10000) {
       points.push({
         current: parseFloat(current.toFixed(1)),

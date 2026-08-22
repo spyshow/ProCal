@@ -885,6 +885,7 @@ export default function BreakerSchedulePage() {
             downstreamBreakerSize={selectedFeederForModal.breakerSize}
             downstreamCurrent={selectedFeederForModal.current}
             downstreamCableSize={selectedFeederForModal.cableSize}
+            downstreamParallelRuns={selectedFeederForModal.parallelRuns}
             downstreamCategory={downstreamCategory}
             faultCurrentKa={selectedFeederForModal.faultCurrentKa}
             selectivityStatus={selectedFeederForModal.selectivityStatus}

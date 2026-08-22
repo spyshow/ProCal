@@ -19,6 +19,7 @@ export interface TccPlotModalProps {
   downstreamBreakerSize: number;
   downstreamCurrent: number;
   downstreamCableSize: number;
+  downstreamParallelRuns?: number;
   downstreamCategory?: 'MCB' | 'MCCB' | 'ACB';
   upstreamBreakerModel?: string;
   upstreamBreakerSize?: number;
@@ -43,6 +44,7 @@ export default function TccPlotModal({
   downstreamBreakerSize,
   downstreamCurrent,
   downstreamCableSize,
+  downstreamParallelRuns = 1,
   downstreamCategory,
   upstreamBreakerModel,
   upstreamBreakerSize = 400,
@@ -93,8 +95,8 @@ export default function TccPlotModal({
   const upstreamCurve = useMemo(() => generateCurvePoints(upstreamSettings), [upstreamSettings]);
   const downstreamCurve = useMemo(() => generateCurvePoints(downstreamSettings), [downstreamSettings]);
   const cableDamageCurve = useMemo(
-    () => generateCableDamageCurve(downstreamCableSize || 10, 'copper', 'XLPE'),
-    [downstreamCableSize]
+    () => generateCableDamageCurve(downstreamCableSize || 10, 'copper', 'XLPE', downstreamParallelRuns || 1),
+    [downstreamCableSize, downstreamParallelRuns]
   );
 
   // SVG Chart Geometry

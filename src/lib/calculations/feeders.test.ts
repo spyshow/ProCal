@@ -412,4 +412,34 @@ describe('regression: three-phase classification', () => {
     // Ir stays tuned to the load and below the cable ampacity
     expect(result.mainIncomerSettings.ir).toBeLessThanOrEqual(result.mainCableIz);
   });
+
+  it('incorporates parallel cable runs into terminal fault current calculation (Isc increases with parallel runs)', () => {
+    const findBreaker = createFindBreaker(equipment, {}, 'ABB');
+    const bldgSingle = building({
+      floorDesigns: [{
+        id: 'f1', floorNumber: 1, hasFloorSubPanels: true,
+        riserCableSize: '1 × 240 mm²',
+        items: [item({ calculatedCurrent: 50 })],
+      }],
+    });
+    const bldgParallel = building({
+      floorDesigns: [{
+        id: 'f1', floorNumber: 1, hasFloorSubPanels: true,
+        riserCableSize: '2 × 240 mm²',
+        items: [item({ calculatedCurrent: 50 })],
+      }],
+    });
+
+    const resSingle = computeFeeders(bldgSingle, baseProject, findBreaker);
+    const resParallel = computeFeeders(bldgParallel, baseProject, findBreaker);
+
+    const riserSingle = resSingle.mdbFeeders.find((f) => f.type === 'SMDB')!;
+    const riserParallel = resParallel.mdbFeeders.find((f) => f.type === 'SMDB')!;
+
+    expect(riserSingle.parallelRuns).toBe(1);
+    expect(riserParallel.parallelRuns).toBe(2);
+    // Loop impedance is halved for 2 runs, so terminal fault current is strictly higher
+    expect(riserParallel.faultCurrentKa!).toBeGreaterThan(riserSingle.faultCurrentKa!);
+  });
 });
+

@@ -462,6 +462,31 @@ describe('regression: three-phase classification', () => {
     expect(result.mainCableIz).toBeGreaterThanOrEqual(630);
     expect(result.mainCableUnderProtected).toBe(false);
   });
+
+  it('stores selectivityLimitKa in kiloamps (kA) and only for PARTIAL verdicts (Issue 7)', () => {
+    const findBreaker = createFindBreaker(equipment, {}, 'ABB');
+    const bldg = building({
+      floorDesigns: [{
+        id: 'f1', floorNumber: 1, hasFloorSubPanels: false,
+        items: [
+          item({ type: 'APARTMENT', name: 'Apt 1', calculatedCurrent: 25, calculatedMaxDemand: 20 }),
+          item({ type: 'SERVICE_PANEL', name: 'Maint', calculatedCurrent: 60, calculatedMaxDemand: 50 }),
+        ],
+      }],
+    });
+    const result = computeFeeders(bldg, baseProject, findBreaker);
+    for (const f of result.mdbFeeders) {
+      if (f.selectivityStatus === 'PARTIAL') {
+        expect(typeof f.selectivityLimitKa).toBe('number');
+        // Limit in kA is in reasonable fault range (< 100 kA)
+        expect(f.selectivityLimitKa!).toBeGreaterThan(0);
+        expect(f.selectivityLimitKa!).toBeLessThan(100);
+      } else {
+        expect(f.selectivityLimitKa).toBeNull();
+      }
+    }
+  });
 });
+
 
 

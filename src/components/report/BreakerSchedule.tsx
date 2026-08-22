@@ -29,6 +29,7 @@ interface BreakerRow {
   parentFeederName?: string | null;
   faultCurrentKa?: number;
   selectivityStatus?: 'FULL' | 'PARTIAL' | 'NONE' | null;
+  selectivityLimitKa?: number | null;
   cableDamageOk?: boolean;
   suggestedAlternative?: string | null;
 }
@@ -170,6 +171,7 @@ export default function BreakerSchedule({
           parentFeederName: f.parentFeederName,
           faultCurrentKa: f.faultCurrentKa,
           selectivityStatus: f.selectivityStatus,
+          selectivityLimitKa: f.selectivityLimitKa,
           cableDamageOk: f.cableDamageOk,
           suggestedAlternative: f.suggestedAlternative,
         });
@@ -198,6 +200,7 @@ export default function BreakerSchedule({
             parentFeederName: f.parentFeederName,
             faultCurrentKa: f.faultCurrentKa,
             selectivityStatus: f.selectivityStatus,
+            selectivityLimitKa: f.selectivityLimitKa,
             cableDamageOk: f.cableDamageOk,
             suggestedAlternative: f.suggestedAlternative,
           });
@@ -331,7 +334,7 @@ export default function BreakerSchedule({
                           : 'bg-red-100 text-red-800 border border-red-300'
                       }`}
                     >
-                      {b.selectivityStatus}
+                      {b.selectivityStatus}{b.selectivityStatus === 'PARTIAL' && b.selectivityLimitKa ? ` (${b.selectivityLimitKa} kA)` : ''}
                     </span>
                   </td>
                   <td className="p-2 text-center text-xs font-mono">

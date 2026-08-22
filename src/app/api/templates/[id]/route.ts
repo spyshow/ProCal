@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { verifyProjectAccess } from "@/lib/project-auth";
 import { calculateRoomLoad, getCountryDefaults } from "@/lib/country-defaults";
+import { getApartmentDiversityFactor } from "@/lib/calculations/loads";
 
 interface RoomInput {
   type: string;
@@ -125,6 +126,68 @@ export async function PUT(
         rooms: true,
       },
     });
+
+    // Recalculate any floor items that use this template across all buildings in the project
+    const affectedItems = await db.floorItem.findMany({
+      where: { apartmentTemplateId: id },
+      include: {
+        floorDesign: {
+          include: {
+            building: {
+              include: {
+                project: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (affectedItems.length > 0) {
+      const buildingIds = [...new Set(affectedItems.map((item) => item.floorDesign.buildingId))];
+      for (const buildingId of buildingIds) {
+        const totalAptCount = await db.floorItem.count({
+          where: {
+            floorDesign: { buildingId },
+            type: "APARTMENT",
+          },
+        });
+        const diversityFactor = getApartmentDiversityFactor(totalAptCount);
+        const totalConnectedLoadVA = roomsWithLoad.reduce((sum, r) => sum + r.connectedLoad, 0);
+        const calculatedConnectedLoad = totalConnectedLoadVA / 1000;
+        const calculatedMaxDemand = calculatedConnectedLoad * diversityFactor;
+        const isThreePhase = Number(phases) === 3;
+
+        const buildingItems = affectedItems.filter((item) => item.floorDesign.buildingId === buildingId);
+        const updates = [];
+        for (const item of buildingItems) {
+          const project = item.floorDesign.building.project;
+          const voltageKv = (project.voltage || 400) / 1000;
+          const powerFactor = project.powerFactor || 0.85;
+
+          let calculatedCurrent: number;
+          if (isThreePhase) {
+            calculatedCurrent = calculatedMaxDemand / (Math.sqrt(3) * voltageKv * powerFactor);
+          } else {
+            calculatedCurrent = calculatedMaxDemand / ((voltageKv / Math.sqrt(3)) * powerFactor);
+          }
+
+          updates.push(
+            db.floorItem.update({
+              where: { id: item.id },
+              data: {
+                calculatedConnectedLoad,
+                calculatedMaxDemand,
+                calculatedCurrent: parseFloat(calculatedCurrent.toFixed(2)),
+              },
+            })
+          );
+        }
+        if (updates.length > 0) {
+          await db.$transaction(updates);
+        }
+      }
+    }
 
     return NextResponse.json(updatedTemplate);
   } catch (error) {

@@ -91,4 +91,38 @@ describe('Template API - Room-based calculations', () => {
       expect(totalConnectedLoad).toBeLessThan(15000);
     });
   });
+
+  describe('Apartment Current Calculation Consistency (Issue 5)', () => {
+    it('ensures template route and floor items route calculate matching current for 1-phase and 3-phase', () => {
+      const voltageLL = 400;
+      const powerFactor = 0.85;
+      const demandFactor = 0.4;
+      const rooms = [
+        { area: 20, density: 100, hasAc: true }, // 20*100 + 12000 BTU (3516W) = 5516 W
+        { area: 15, density: 80, hasAc: false }, // 15*80 = 1200 W
+      ];
+
+      const totalConnectedLoadW = rooms.reduce(
+        (sum, r) => sum + calculateRoomLoad(r.area, r.density, r.hasAc, syriaDefaults.acSizingRules),
+        0
+      );
+      expect(totalConnectedLoadW).toBe(6716);
+
+      const connectedLoadKw = totalConnectedLoadW / 1000;
+      const maxDemandKw = connectedLoadKw * demandFactor;
+
+      // 1-Phase calculation: V_LN = V_LL / √3
+      const template1PhCurrent = maxDemandKw / ((voltageLL / Math.sqrt(3) / 1000) * powerFactor);
+      const floorItem1PhCurrent = maxDemandKw / (((voltageLL / 1000) / Math.sqrt(3)) * powerFactor);
+      expect(template1PhCurrent).toBeCloseTo(floorItem1PhCurrent, 4);
+      expect(parseFloat(template1PhCurrent.toFixed(2))).toBe(13.69);
+
+      // 3-Phase calculation: √3 * V_LL
+      const template3PhCurrent = maxDemandKw / (Math.sqrt(3) * (voltageLL / 1000) * powerFactor);
+      const floorItem3PhCurrent = maxDemandKw / (Math.sqrt(3) * (voltageLL / 1000) * powerFactor);
+      expect(template3PhCurrent).toBeCloseTo(floorItem3PhCurrent, 4);
+      expect(parseFloat(template3PhCurrent.toFixed(2))).toBe(4.56);
+    });
+  });
 });
+

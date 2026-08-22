@@ -5,20 +5,13 @@ import { PrismaPg } from "@prisma/adapter-pg";
 import { Pool } from "pg";
 import bcrypt from "bcryptjs";
 import { upsertBreakerFamilies, getFamilyKey } from "../src/lib/breaker-families";
+import { resolveDatabaseSsl } from "../src/lib/db-ssl";
 
 const connectionString = process.env.DATABASE_URL;
-const isRemoteDb =
-  connectionString?.includes("supabase.co") ||
-  connectionString?.includes("pooler.supabase.com") ||
-  connectionString?.includes("sslmode=");
 
 const pool = new Pool({
   connectionString,
-  // Verify server certificates by default; opt out explicitly for a local
-  // self-signed setup (mirrors src/lib/db.ts).
-  ssl: isRemoteDb
-    ? { rejectUnauthorized: process.env.DATABASE_SSL_REJECT_UNAUTHORIZED !== "false" }
-    : undefined,
+  ssl: resolveDatabaseSsl(connectionString),
 });
 const adapter = new PrismaPg(pool);
 const db = new PrismaClient({ adapter });

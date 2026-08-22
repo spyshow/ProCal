@@ -307,7 +307,7 @@ export default function SLDPage() {
                   rating: item.breakerSize || '16A MCB',
                   voltage: `${project.voltage}V`,
                   current: `${item.calculatedCurrent?.toFixed(1) || '0.0'} A`,
-                  power: `${item.calculatedMaxDemand?.toFixed(1) || '0.0'} kW`,
+                  power: `${item.calculatedMaxDemand?.toFixed(1) || '0.0'} kVA`,
                   cableSize: itemCable,
                   connections: [`Floor ${fd.floorNumber} Distribution Bus`],
                   upstream: [`Floor ${fd.floorNumber} Main Panel (DB-F${fd.floorNumber})`],
@@ -353,7 +353,7 @@ export default function SLDPage() {
                 rating: `${Math.ceil(floorCurrent)}A Main Breaker`,
                 voltage: `${project.voltage}V`,
                 current: `${floorCurrent.toFixed(1)} A`,
-                power: `${floorPower.toFixed(1)} kW`,
+                power: `${floorPower.toFixed(1)} kVA`,
                 cableSize: feederCable,
                 connections: ['MDB Busbar', ...fd.items.map((i) => i.name)],
                 upstream: [`Rising Main Busbar / Feeder from MDB`],
@@ -1453,7 +1453,7 @@ export default function SLDPage() {
               <div className="grid grid-cols-4 gap-3 mb-4">
                 <div className="border border-amber-200 rounded-xl p-2.5 text-center bg-amber-50/60">
                   <span className="text-[10px] font-bold uppercase text-amber-800 block">Total Max Demand</span>
-                  <span className="text-base font-black text-amber-950">{projectMetrics.totalPower.toFixed(1)} kW</span>
+                  <span className="text-base font-black text-amber-950">{projectMetrics.totalPower.toFixed(1)} kVA</span>
                 </div>
                 <div className="border border-sky-200 rounded-xl p-2.5 text-center bg-sky-50/60">
                   <span className="text-[10px] font-bold uppercase text-sky-800 block">Calculated Current</span>
@@ -1480,7 +1480,7 @@ export default function SLDPage() {
                     <th className="p-2 border-r border-slate-800">Floors</th>
                     <th className="p-2 border-r border-slate-800">Distribution Panels (SDB/DB)</th>
                     <th className="p-2 border-r border-slate-800">Feeder Cable Specs</th>
-                    <th className="p-2">Max Demand (kW)</th>
+                    <th className="p-2">Max Demand (kVA)</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-200 text-slate-800">
@@ -1503,7 +1503,7 @@ export default function SLDPage() {
                           Rising Main Busbar Trunking (800A)
                         </td>
                         <td className="p-2 font-bold text-slate-900">
-                          {bldgPower.toFixed(1)} kW <span className="text-amber-700 font-mono text-[11px]">({bldgCurrent.toFixed(1)}A)</span>
+                          {bldgPower.toFixed(1)} kVA <span className="text-amber-700 font-mono text-[11px]">({bldgCurrent.toFixed(1)}A)</span>
                         </td>
                       </tr>
                     );

@@ -733,7 +733,7 @@ export default function ProjectDetailPage() {
                                   {fd.items.length} item{fd.items.length !== 1 ? 's' : ''}
                                 </span>
                                 <span className="text-[10px] text-gray-600">
-                                  {fd.items.reduce((s: number, i: any) => s + (i.calculatedMaxDemand || 0), 0).toFixed(1)} kW
+                                  {fd.items.reduce((s: number, i: any) => s + (i.calculatedMaxDemand || 0), 0).toFixed(1)} kVA
                                 </span>
                                 <button
                                   onClick={async (e) => {

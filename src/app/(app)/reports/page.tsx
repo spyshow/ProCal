@@ -325,7 +325,7 @@ export default function ReportsPage() {
         <div className="grid grid-cols-4 gap-3 mb-2">
           <div className="border border-amber-200 rounded-xl p-2.5 text-center bg-amber-50/60">
             <span className="text-[10px] font-bold uppercase text-amber-800 block">Total Max Demand</span>
-            <span className="text-base font-black text-amber-950 font-mono">{totalDemandKw.toFixed(1)} kW</span>
+            <span className="text-base font-black text-amber-950 font-mono">{totalDemandKw.toFixed(1)} kVA</span>
           </div>
           <div className="border border-sky-200 rounded-xl p-2.5 text-center bg-sky-50/60">
             <span className="text-[10px] font-bold uppercase text-sky-800 block">Calculated Current</span>
@@ -355,7 +355,7 @@ export default function ReportsPage() {
               <th className="p-2 border-r border-slate-800 text-center">Main Incomer Breaker</th>
               <th className="p-2 border-r border-slate-800 text-center">Main Feeder Cable</th>
               <th className="p-2 border-r border-slate-800 text-center">Sub-Panels (DB/SMDB)</th>
-              <th className="p-2 text-right">Max Demand (kW)</th>
+              <th className="p-2 text-right">Max Demand (kVA)</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-200 text-slate-800">
@@ -395,7 +395,7 @@ export default function ReportsPage() {
                     {bldg.floorDesigns?.length || 0} Panels
                   </td>
                   <td className="p-2 text-right font-bold text-slate-900 font-mono">
-                    {bldgBalance.totalKw.toFixed(1)} kW{' '}
+                    {bldgBalance.totalKw.toFixed(1)} kVA{' '}
                     <span className="text-amber-700 font-normal text-[11px]">
                       ({bldgBalance.maxPhaseCurrent.toFixed(1)}A)
                     </span>

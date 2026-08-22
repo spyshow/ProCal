@@ -384,15 +384,15 @@ function CalculatorContent() {
         {[
           {
             label: t('common.connectedLoad', 'Connected Load'),
-            value: `${totalConnectedLoad.toFixed(1)} kW`,
+            value: `${totalConnectedLoad.toFixed(1)} kVA`,
             color: 'text-gray-200',
-            helper: 'Sum of all installed loads before applying demand diversity. Used as the starting kW for the project.'
+            helper: 'Sum of all installed loads (kVA) before applying demand diversity. Used as the starting apparent load for the project.'
           },
           {
             label: t('common.maxDemand', 'Max Demand'),
-            value: `${totalMaxDemand.toFixed(1)} kW`,
+            value: `${totalMaxDemand.toFixed(1)} kVA`,
             color: 'text-orange-400',
-            helper: 'Estimated realistic maximum load after IEC demand factors are applied. Basis for cable and breaker sizing.'
+            helper: 'Estimated realistic maximum apparent load after IEC demand factors are applied. Basis for transformer, cable and breaker sizing.'
           },
           {
             label: t('calculator.totalCurrent3Ph', 'Total Current (3Φ)'),
@@ -436,12 +436,12 @@ function CalculatorContent() {
         </div>
         <div className="grid grid-cols-2 md:grid-cols-6 gap-3">
           {[
-            { label: `L1 (${project.calculationStandard || 'IEC'})`, value: `${buildingBalance.phaseCurrent[0].toFixed(1)} A`, sub: `${buildingBalance.phaseKw[0].toFixed(1)} kW`, color: 'text-orange-400' },
-            { label: 'L2', value: `${buildingBalance.phaseCurrent[1].toFixed(1)} A`, sub: `${buildingBalance.phaseKw[1].toFixed(1)} kW`, color: 'text-orange-400' },
-            { label: 'L3', value: `${buildingBalance.phaseCurrent[2].toFixed(1)} A`, sub: `${buildingBalance.phaseKw[2].toFixed(1)} kW`, color: 'text-orange-400' },
+            { label: `L1 (${project.calculationStandard || 'IEC'})`, value: `${buildingBalance.phaseCurrent[0].toFixed(1)} A`, sub: `${buildingBalance.phaseKw[0].toFixed(1)} kVA`, color: 'text-orange-400' },
+            { label: 'L2', value: `${buildingBalance.phaseCurrent[1].toFixed(1)} A`, sub: `${buildingBalance.phaseKw[1].toFixed(1)} kVA`, color: 'text-orange-400' },
+            { label: 'L3', value: `${buildingBalance.phaseCurrent[2].toFixed(1)} A`, sub: `${buildingBalance.phaseKw[2].toFixed(1)} kVA`, color: 'text-orange-400' },
             { label: t('calculator.neutral', 'Neutral'), value: `${buildingBalance.neutralCurrent.toFixed(1)} A`, sub: buildingBalance.neutralOversized ? t('calculator.over2xMax', 'over 2×max') : t('calculator.ok', 'ok'), color: 'text-yellow-400' },
             { label: t('calculator.unbalance', 'Unbalance'), value: `${buildingBalance.unbalancePct.toFixed(1)}%`, sub: `${t('calculator.limit', 'limit')} ${buildingBalance.unbalanceLimitPct}%`, color: 'text-gray-300' },
-            { label: t('calculator.totalKw', 'Total kW'), value: `${buildingBalance.totalKw.toFixed(1)} kW`, sub: `max ${buildingBalance.maxPhaseCurrent.toFixed(0)} A`, color: 'text-blue-400' },
+            { label: t('calculator.totalKw', 'Total Power'), value: `${buildingBalance.totalKw.toFixed(1)} kVA`, sub: `max ${buildingBalance.maxPhaseCurrent.toFixed(0)} A`, color: 'text-blue-400' },
           ].map(({ label, value, sub, color }) => (
             <div key={label} className="rounded-lg border border-gray-800 bg-gray-950/30 p-3">
               <p className="text-[10px] text-gray-500 uppercase tracking-wider">{label}</p>
@@ -525,7 +525,7 @@ function CalculatorContent() {
                   </span>
                 </div>
                 <span className="text-xs font-mono text-gray-500">
-                  {floorConnected.toFixed(1)} kW / {floorDemand.toFixed(1)} kW {t('riser.demand', 'demand')}
+                  {floorConnected.toFixed(1)} kVA / {floorDemand.toFixed(1)} kVA {t('riser.demand', 'demand')}
                 </span>
                 <span className="text-[10px] font-mono text-gray-400 hidden sm:inline">
                   L1 {floorBalance.phaseCurrent[0].toFixed(0)}A · L2 {floorBalance.phaseCurrent[1].toFixed(0)}A · L3 {floorBalance.phaseCurrent[2].toFixed(0)}A

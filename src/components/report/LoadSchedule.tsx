@@ -65,11 +65,11 @@ export default function LoadSchedule({
       <div className="grid grid-cols-4 gap-2.5 my-3">
         <div className="border border-amber-200 rounded-xl p-2.5 text-center bg-amber-50/60">
           <span className="text-[10px] font-bold uppercase text-amber-800 block">Total Connected</span>
-          <span className="text-sm font-black text-amber-950">{totalConnectedKw.toFixed(1)} kW</span>
+          <span className="text-sm font-black text-amber-950">{totalConnectedKw.toFixed(1)} kVA</span>
         </div>
         <div className="border border-sky-200 rounded-xl p-2.5 text-center bg-sky-50/60">
           <span className="text-[10px] font-bold uppercase text-sky-800 block">Max Demand</span>
-          <span className="text-sm font-black text-sky-950">{totalDemandKw.toFixed(1)} kW</span>
+          <span className="text-sm font-black text-sky-950">{totalDemandKw.toFixed(1)} kVA</span>
         </div>
         <div className="border border-emerald-200 rounded-xl p-2.5 text-center bg-emerald-50/60">
           <span className="text-[10px] font-bold uppercase text-emerald-800 block">Phase Balance (L1/L2/L3)</span>
@@ -92,9 +92,9 @@ export default function LoadSchedule({
             <th className="p-2 border-r border-slate-800 text-center">Floor</th>
             <th className="p-2 border-r border-slate-800">Load / Circuit</th>
             <th className="p-2 border-r border-slate-800 text-center">Type</th>
-            <th className="p-2 border-r border-slate-800 text-right">Conn. (kW)</th>
+            <th className="p-2 border-r border-slate-800 text-right">Conn. (kVA)</th>
             <th className="p-2 border-r border-slate-800 text-center">DF</th>
-            <th className="p-2 border-r border-slate-800 text-right">Demand (kW)</th>
+            <th className="p-2 border-r border-slate-800 text-right">Demand (kVA)</th>
             <th className="p-2 border-r border-slate-800 text-center">Phase</th>
             <th className="p-2 border-r border-slate-800 text-right">L1 (A)</th>
             <th className="p-2 border-r border-slate-800 text-right">L2 (A)</th>
@@ -152,11 +152,11 @@ export default function LoadSchedule({
               Total System Max Demand:
             </td>
             <td className="p-2 border-r border-slate-800 text-right font-mono">
-              {totalConnectedKw.toFixed(1)} kW
+              {totalConnectedKw.toFixed(1)} kVA
             </td>
             <td className="p-2 border-r border-slate-800 text-center font-mono">—</td>
             <td className="p-2 border-r border-slate-800 text-right font-mono text-amber-400">
-              {totalDemandKw.toFixed(1)} kW
+              {totalDemandKw.toFixed(1)} kVA
             </td>
             <td className="p-2 border-r border-slate-800 text-center font-mono">3Φ</td>
             <td className="p-2 border-r border-slate-800 text-right font-mono">

@@ -114,7 +114,7 @@ export default function CoverPage({
           <div className="grid grid-cols-4 gap-2">
             <div className="border border-amber-200 rounded-lg p-1.5 text-center bg-amber-50/60">
               <span className="text-[8.5px] font-bold uppercase text-amber-800 block">Total Max Demand</span>
-              <span className="text-xs font-black text-amber-950 font-mono">{totalDemandKw.toFixed(1)} kW</span>
+              <span className="text-xs font-black text-amber-950 font-mono">{totalDemandKw.toFixed(1)} kVA</span>
             </div>
             <div className="border border-sky-200 rounded-lg p-1.5 text-center bg-sky-50/60">
               <span className="text-[8.5px] font-bold uppercase text-sky-800 block">Calculated Current</span>
@@ -144,7 +144,7 @@ export default function CoverPage({
                 <th className="p-1.5 border-r border-slate-800 text-center whitespace-nowrap">Main Incomer Breaker</th>
                 <th className="p-1.5 border-r border-slate-800 text-center whitespace-nowrap">Main Feeder Cable</th>
                 <th className="p-1.5 border-r border-slate-800 text-center whitespace-nowrap">Distribution Panels</th>
-                <th className="p-1.5 text-right whitespace-nowrap">Max Demand (kW / Amps)</th>
+                <th className="p-1.5 text-right whitespace-nowrap">Max Demand (kVA / Amps)</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-200 text-slate-800">
@@ -183,7 +183,7 @@ export default function CoverPage({
                       {bldg.floorDesigns?.length || 0} Sub-Panels
                     </td>
                     <td className="p-1.5 text-right font-bold text-slate-900 font-mono whitespace-nowrap">
-                      {bldgBalance.totalKw.toFixed(1)} kW{' '}
+                      {bldgBalance.totalKw.toFixed(1)} kVA{' '}
                       <span className="text-amber-700 text-[9px]">({bldgBalance.maxPhaseCurrent.toFixed(1)}A)</span>
                     </td>
                   </tr>

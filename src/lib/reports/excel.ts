@@ -36,7 +36,7 @@ export function buildReportWorkbook(
       Floor: r.floor === 0 ? "MDB" : `F${r.floor}`,
       "Load Name": r.name,
       Type: r.type,
-      "Connected (kW)": round(r.connectedLoadKw, 2),
+      "Connected (kVA)": round(r.connectedLoadKw, 2),
       "Demand Factor": round(r.demandFactor, 2),
       "Max Demand (kW)": round(r.maxDemandKw, 2),
       "Max Demand (kVA)": round(r.maxDemandKva, 2),
@@ -168,7 +168,7 @@ function buildProjectRows(project: Project): Record<string, string | number>[] {
       Floors: bldg.floors,
       "Apts/Floor": bldg.apartmentsPerFloor,
       "Total Apts": bldg.floors * bldg.apartmentsPerFloor,
-      "Demand (kW)": round(balance.totalKw, 1),
+      "Demand (kVA)": round(balance.totalKw, 1),
       "Main Current (A)": round(balance.maxPhaseCurrent, 1),
     });
   }

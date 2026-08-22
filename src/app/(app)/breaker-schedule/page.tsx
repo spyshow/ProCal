@@ -241,6 +241,7 @@ export default function BreakerSchedulePage() {
         mainCableSize,
         mainParallelRuns,
         mainCableIz,
+        mainCableUnderProtected,
         mainIncomerCurrent,
         transformerIscKa,
       } = computeFeeders(bldg, project, findBreaker);
@@ -257,6 +258,9 @@ export default function BreakerSchedulePage() {
         incomerSaved?.model,
         mainIncomerSettings.model || 'Main Incomer ACB'
       );
+      const savedIncomerFrame = incomerSaved?.frameSize ? parseInt(incomerSaved.frameSize, 10) : NaN;
+      const effectiveIncomerIn = !isNaN(savedIncomerFrame) && savedIncomerFrame > 0 ? savedIncomerFrame : mainBreakerIn;
+      const isUnderProtected = effectiveIncomerIn > mainCableIz || mainCableUnderProtected;
 
       list.push({
         id: `${bldg.id}-incomer`,
@@ -266,9 +270,9 @@ export default function BreakerSchedulePage() {
         buildingId: bldg.id,
         buildingName: bldg.name,
         current: mainIncomerCurrent || mainIncomerSettings.ir,
-        breakerSize: mainBreakerIn,
+        breakerSize: effectiveIncomerIn,
         baseBreakerSize: mainBreakerIn,
-        isBreakerUpsized: false,
+        isBreakerUpsized: effectiveIncomerIn > mainBreakerIn,
         cableSize: mainCableSize,
         parallelRuns: mainParallelRuns,
         formattedCableSize:
@@ -276,7 +280,7 @@ export default function BreakerSchedulePage() {
             ? `${mainParallelRuns} × (4 × ${mainCableSize} mm²)`
             : `4 × ${mainCableSize} mm²`,
         cableIz: mainCableIz,
-        isUnderProtected: false,
+        isUnderProtected,
         breakerModel: effectiveIncomerModel,
         manufacturer: mainIncomerSettings.manufacturer || null,
         familyName: null,
@@ -287,8 +291,10 @@ export default function BreakerSchedulePage() {
         faultCurrentKa: transformerIscKa,
         selectivityStatus: 'FULL',
         selectivityLimitKa: null,
-        cableDamageOk: true,
-        selectivityReason: 'Main incoming protective device (IEC 60947-2 Category B)',
+        cableDamageOk: !isUnderProtected,
+        selectivityReason: isUnderProtected
+          ? `Main cable ampacity Iz (${mainCableIz}A) < breaker In (${effectiveIncomerIn}A). Upsize incomer cable or increase parallel runs.`
+          : 'Main incoming protective device (IEC 60947-2 Category B)',
         suggestedAlternative: null,
         alternativeSuggestions: [],
       });

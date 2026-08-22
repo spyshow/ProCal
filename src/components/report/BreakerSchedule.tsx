@@ -103,6 +103,8 @@ export default function BreakerSchedule({
         mainIncomerSettings,
         mainBreakerIn,
         mainCableSize,
+        mainCableIz,
+        mainCableUnderProtected,
         mainIncomerCurrent,
         transformerIscKa,
       } = computeFeeders(bldg, project, findBreaker);
@@ -119,6 +121,9 @@ export default function BreakerSchedule({
         incomerSaved?.model,
         mainIncomerSettings.model || 'Main Incomer ACB'
       );
+      const savedIncomerFrame = incomerSaved?.frameSize ? parseInt(incomerSaved.frameSize, 10) : NaN;
+      const effectiveIncomerIn = !isNaN(savedIncomerFrame) && savedIncomerFrame > 0 ? savedIncomerFrame : mainBreakerIn;
+      const isUnderProtected = effectiveIncomerIn > mainCableIz || mainCableUnderProtected;
 
       list.push({
         id: `${bldg.id}-incomer`,
@@ -127,7 +132,7 @@ export default function BreakerSchedule({
         floor: 0,
         buildingName: bldg.name,
         current: mainIncomerCurrent || mainIncomerSettings.ir,
-        breakerSize: mainBreakerIn,
+        breakerSize: effectiveIncomerIn,
         baseBreakerSize: mainBreakerIn,
         cableSize: mainCableSize,
         breakerModel: effectiveIncomerModel,
@@ -135,7 +140,7 @@ export default function BreakerSchedule({
         parentFeederName: 'Utility / Transformer Supply',
         faultCurrentKa: transformerIscKa,
         selectivityStatus: 'FULL',
-        cableDamageOk: true,
+        cableDamageOk: !isUnderProtected,
       });
 
       const feederFloor = (feederName: string): number => {

@@ -441,5 +441,27 @@ describe('regression: three-phase classification', () => {
     // Loop impedance is halved for 2 runs, so terminal fault current is strictly higher
     expect(riserParallel.faultCurrentKa!).toBeGreaterThan(riserSingle.faultCurrentKa!);
   });
+
+  it('upsizes main incomer cable when catalog breaker frame jumps (400A -> 630A) and verifies mainCableUnderProtected is false', () => {
+    const customEquipment: EquipmentItem[] = [
+      { id: 'mccb630', category: 'MCCB', manufacturer: 'ABB', familyId: 'f_mccb', familyName: 'Tmax XT', series: 'XT5', model: 'XT5N 630 Ekip Dip LS/I 630 3p', ratedCurrent: 630, poles: 3, breakingCapacity: 50, tripUnit: null, settingsJson: null },
+    ];
+    // Building demand ~300A (load-based breaker would be 400A).
+    // The only available catalog MCCB is the 630A frame.
+    const findBreaker = createFindBreaker(customEquipment, { MCCB: 'f_mccb' }, 'ABB');
+    const bldg = building({
+      floorDesigns: [{
+        id: 'f1', floorNumber: 1, hasFloorSubPanels: false,
+        items: [item({ type: 'SERVICE_PANEL', name: 'Plant', calculatedCurrent: 300, calculatedMaxDemand: 200, apartmentTemplate: null, loadLibraryItem: null })],
+      }],
+    });
+    const result = computeFeeders(bldg, baseProject, findBreaker);
+
+    expect(result.mainBreakerIn).toBe(630);
+    // Cable ampacity must cover 630A breaker frame (Iz >= 630)
+    expect(result.mainCableIz).toBeGreaterThanOrEqual(630);
+    expect(result.mainCableUnderProtected).toBe(false);
+  });
 });
+
 

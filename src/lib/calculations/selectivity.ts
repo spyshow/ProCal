@@ -443,10 +443,8 @@ export function verifyCoordination(
   const cableMaterial = opts.cableMaterial ?? 'copper';
   const cableInsulation = opts.cableInsulation ?? 'XLPE';
   const cableRuns = opts.cableRuns ?? 1;
-  const manufacturerPair = opts.manufacturerPair ?? {
-    upstreamMfg: upstream.manufacturer ?? 'ABB',
-    downstreamMfg: downstream.manufacturer ?? 'ABB',
-  };
+  const upstreamMfg = opts.manufacturerPair?.upstreamMfg ?? upstream.manufacturer ?? null;
+  const downstreamMfg = opts.manufacturerPair?.downstreamMfg ?? downstream.manufacturer ?? null;
 
   // Phase 1: Current Grading Check
   // Upstream overload setting must be at least 1.6x downstream overload setting
@@ -483,11 +481,18 @@ export function verifyCoordination(
   let energySelectivityApplied = false;
   let testedLimitAmps: number | null = null;
 
-  const sameMfg = manufacturerPair.upstreamMfg.toUpperCase() === manufacturerPair.downstreamMfg.toUpperCase();
+  const sameMfg = Boolean(
+    upstreamMfg &&
+    downstreamMfg &&
+    upstreamMfg.trim().toUpperCase() === downstreamMfg.trim().toUpperCase()
+  );
   // The tested tables (ABB DOC / Schneider ECODIAL) only hold for real catalog
   // device pairs. A generic spec defaults its manufacturer to the project
   // preference, so same-brand alone must not unlock a tested limit.
-  const catalogDevices = !upstream.isGeneric && !downstream.isGeneric;
+  const catalogDevices =
+    !upstream.isGeneric &&
+    !downstream.isGeneric &&
+    Boolean(upstreamMfg && downstreamMfg);
   if (sameMfg && catalogDevices) {
     testedLimitAmps = lookupTestedSelectivity(upstream, downstream);
     if (testedLimitAmps !== null) {

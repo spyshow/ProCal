@@ -292,6 +292,7 @@ export default function CoordinationPage() {
         category: effectiveCategory,
         manufacturer: saved?.manufacturer ?? computedMainIncomer.manufacturer,
         model: effectiveModel,
+        isGeneric: saved ? false : !!computedMainIncomer.isGeneric,
       });
       setUpstreamFeederLabel('Main Incomer');
     } else {
@@ -320,6 +321,7 @@ export default function CoordinationPage() {
         category: upCat,
         manufacturer: savedUp?.manufacturer ?? mfg,
         model: upModel,
+        isGeneric: savedUp ? false : upstreamFeeder?.fallbackType === 'GENERIC_SPEC',
       });
       setUpstreamFeederLabel(parentName);
     }
@@ -347,6 +349,7 @@ export default function CoordinationPage() {
       manufacturer: savedDown?.manufacturer ?? mfg,
       model: downModel,
       curveType: 'C',
+      isGeneric: savedDown ? false : feeder.fallbackType === 'GENERIC_SPEC',
     });
     setDownstreamFeederLabel(feeder.name);
 
@@ -410,8 +413,8 @@ export default function CoordinationPage() {
         cableMaterial,
         cableInsulation,
         manufacturerPair: {
-          upstreamMfg: safeUpstream.manufacturer ?? 'ABB',
-          downstreamMfg: safeDownstream.manufacturer ?? 'ABB',
+          upstreamMfg: safeUpstream.manufacturer ?? '',
+          downstreamMfg: safeDownstream.manufacturer ?? '',
         },
       });
     } catch (err) {

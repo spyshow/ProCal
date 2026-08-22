@@ -374,6 +374,67 @@ describe('verifyCoordination (4-Phase Protection Engine)', () => {
     expect(result.cascadingIcu).toBeUndefined();
   });
 
+  it('disables tested selectivity when upstream is generic and downstream is catalog (or vice versa)', () => {
+    const upstreamGen: BreakerCurveSettings = {
+      inRating: 630, ir: 500, tr: 12, isd: 2500, tsd: 0.3, ii: 5000,
+      category: 'ACB', manufacturer: 'ABB', isGeneric: true,
+    };
+    const downstreamCat: BreakerCurveSettings = {
+      inRating: 100, ir: 80, tr: 12, isd: 400, tsd: 0.1, ii: 800,
+      category: 'MCCB', manufacturer: 'ABB', isGeneric: false,
+    };
+    const res1 = verifyCoordination(upstreamGen, downstreamCat, 10000, { upstreamMfg: 'ABB', downstreamMfg: 'ABB' });
+    expect(res1.energySelectivityApplied).toBe(false);
+    expect(res1.cascadingSupported).toBe(false);
+
+    const upstreamCat: BreakerCurveSettings = {
+      inRating: 630, ir: 500, tr: 12, isd: 2500, tsd: 0.3, ii: 5000,
+      category: 'ACB', manufacturer: 'ABB', isGeneric: false,
+    };
+    const downstreamGen: BreakerCurveSettings = {
+      inRating: 100, ir: 80, tr: 12, isd: 400, tsd: 0.1, ii: 800,
+      category: 'MCCB', manufacturer: 'ABB', isGeneric: true,
+    };
+    const res2 = verifyCoordination(upstreamCat, downstreamGen, 10000, { upstreamMfg: 'ABB', downstreamMfg: 'ABB' });
+    expect(res2.energySelectivityApplied).toBe(false);
+    expect(res2.cascadingSupported).toBe(false);
+  });
+
+  it('does not assume same-brand tested selectivity when manufacturers are null or generic', () => {
+    // MCCB 400A vs MCB 63A at 10 kA fault current:
+    // With real ABB catalog devices, tested matrix yields 25 kA (FULL selectivity + cascading supported).
+    const catalogUpstream: BreakerCurveSettings = {
+      inRating: 400, ir: 320, tr: 12, isd: 1600, tsd: 0.3, ii: 4000,
+      category: 'MCCB', manufacturer: 'ABB', isGeneric: false,
+    };
+    const catalogDownstream: BreakerCurveSettings = {
+      inRating: 63, ir: 50, tr: 12, ii: 630,
+      category: 'MCB', manufacturer: 'ABB', isGeneric: false,
+    };
+    const catalogRes = verifyCoordination(catalogUpstream, catalogDownstream, 10000, {
+      manufacturerPair: { upstreamMfg: 'ABB', downstreamMfg: 'ABB' },
+    });
+    expect(catalogRes.energySelectivityApplied).toBe(true);
+    expect(catalogRes.cascadingSupported).toBe(true);
+    expect(catalogRes.status).toBe('FULL');
+
+    // With generic specs, tested tables are skipped -> selectivity is limited by magnetic crossover (4.0 kA < 10 kA).
+    const genericUpstream: BreakerCurveSettings = {
+      inRating: 400, ir: 320, tr: 12, isd: 1600, tsd: 0.3, ii: 4000,
+      category: 'MCCB', manufacturer: null, isGeneric: true,
+    };
+    const genericDownstream: BreakerCurveSettings = {
+      inRating: 63, ir: 50, tr: 12, ii: 630,
+      category: 'MCB', manufacturer: null, isGeneric: true,
+    };
+    const genericRes = verifyCoordination(genericUpstream, genericDownstream, 10000, {});
+    expect(genericRes.energySelectivityApplied).toBe(false);
+    expect(genericRes.cascadingSupported).toBe(false);
+    expect(genericRes.status).toBe('PARTIAL');
+    expect(genericRes.limitCurrent).toBeGreaterThanOrEqual(4000);
+    expect(genericRes.limitCurrent).toBeLessThan(10000);
+  });
+
   it('throws CalculationError for negative fault current', () => {
     const upstream = { inRating: 630, ir: 500, tr: 12 };
     const downstream = { inRating: 100, ir: 80, tr: 12 };

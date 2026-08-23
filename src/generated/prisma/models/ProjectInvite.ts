@@ -29,6 +29,7 @@ export type ProjectInviteMinAggregateOutputType = {
   projectId: string | null
   email: string | null
   name: string | null
+  username: string | null
   role: string | null
   permissions: string | null
   token: string | null
@@ -43,6 +44,7 @@ export type ProjectInviteMaxAggregateOutputType = {
   projectId: string | null
   email: string | null
   name: string | null
+  username: string | null
   role: string | null
   permissions: string | null
   token: string | null
@@ -57,6 +59,7 @@ export type ProjectInviteCountAggregateOutputType = {
   projectId: number
   email: number
   name: number
+  username: number
   role: number
   permissions: number
   token: number
@@ -73,6 +76,7 @@ export type ProjectInviteMinAggregateInputType = {
   projectId?: true
   email?: true
   name?: true
+  username?: true
   role?: true
   permissions?: true
   token?: true
@@ -87,6 +91,7 @@ export type ProjectInviteMaxAggregateInputType = {
   projectId?: true
   email?: true
   name?: true
+  username?: true
   role?: true
   permissions?: true
   token?: true
@@ -101,6 +106,7 @@ export type ProjectInviteCountAggregateInputType = {
   projectId?: true
   email?: true
   name?: true
+  username?: true
   role?: true
   permissions?: true
   token?: true
@@ -188,6 +194,7 @@ export type ProjectInviteGroupByOutputType = {
   projectId: string
   email: string
   name: string
+  username: string | null
   role: string
   permissions: string | null
   token: string
@@ -223,6 +230,7 @@ export type ProjectInviteWhereInput = {
   projectId?: Prisma.StringFilter<"ProjectInvite"> | string
   email?: Prisma.StringFilter<"ProjectInvite"> | string
   name?: Prisma.StringFilter<"ProjectInvite"> | string
+  username?: Prisma.StringNullableFilter<"ProjectInvite"> | string | null
   role?: Prisma.StringFilter<"ProjectInvite"> | string
   permissions?: Prisma.StringNullableFilter<"ProjectInvite"> | string | null
   token?: Prisma.StringFilter<"ProjectInvite"> | string
@@ -239,6 +247,7 @@ export type ProjectInviteOrderByWithRelationInput = {
   projectId?: Prisma.SortOrder
   email?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  username?: Prisma.SortOrderInput | Prisma.SortOrder
   role?: Prisma.SortOrder
   permissions?: Prisma.SortOrderInput | Prisma.SortOrder
   token?: Prisma.SortOrder
@@ -259,6 +268,7 @@ export type ProjectInviteWhereUniqueInput = Prisma.AtLeast<{
   projectId?: Prisma.StringFilter<"ProjectInvite"> | string
   email?: Prisma.StringFilter<"ProjectInvite"> | string
   name?: Prisma.StringFilter<"ProjectInvite"> | string
+  username?: Prisma.StringNullableFilter<"ProjectInvite"> | string | null
   role?: Prisma.StringFilter<"ProjectInvite"> | string
   permissions?: Prisma.StringNullableFilter<"ProjectInvite"> | string | null
   invitedById?: Prisma.StringFilter<"ProjectInvite"> | string
@@ -274,6 +284,7 @@ export type ProjectInviteOrderByWithAggregationInput = {
   projectId?: Prisma.SortOrder
   email?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  username?: Prisma.SortOrderInput | Prisma.SortOrder
   role?: Prisma.SortOrder
   permissions?: Prisma.SortOrderInput | Prisma.SortOrder
   token?: Prisma.SortOrder
@@ -294,6 +305,7 @@ export type ProjectInviteScalarWhereWithAggregatesInput = {
   projectId?: Prisma.StringWithAggregatesFilter<"ProjectInvite"> | string
   email?: Prisma.StringWithAggregatesFilter<"ProjectInvite"> | string
   name?: Prisma.StringWithAggregatesFilter<"ProjectInvite"> | string
+  username?: Prisma.StringNullableWithAggregatesFilter<"ProjectInvite"> | string | null
   role?: Prisma.StringWithAggregatesFilter<"ProjectInvite"> | string
   permissions?: Prisma.StringNullableWithAggregatesFilter<"ProjectInvite"> | string | null
   token?: Prisma.StringWithAggregatesFilter<"ProjectInvite"> | string
@@ -307,6 +319,7 @@ export type ProjectInviteCreateInput = {
   id?: string
   email: string
   name: string
+  username?: string | null
   role?: string
   permissions?: string | null
   token: string
@@ -322,6 +335,7 @@ export type ProjectInviteUncheckedCreateInput = {
   projectId: string
   email: string
   name: string
+  username?: string | null
   role?: string
   permissions?: string | null
   token: string
@@ -335,6 +349,7 @@ export type ProjectInviteUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.StringFieldUpdateOperationsInput | string
   permissions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   token?: Prisma.StringFieldUpdateOperationsInput | string
@@ -350,6 +365,7 @@ export type ProjectInviteUncheckedUpdateInput = {
   projectId?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.StringFieldUpdateOperationsInput | string
   permissions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   token?: Prisma.StringFieldUpdateOperationsInput | string
@@ -364,6 +380,7 @@ export type ProjectInviteCreateManyInput = {
   projectId: string
   email: string
   name: string
+  username?: string | null
   role?: string
   permissions?: string | null
   token: string
@@ -377,6 +394,7 @@ export type ProjectInviteUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.StringFieldUpdateOperationsInput | string
   permissions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   token?: Prisma.StringFieldUpdateOperationsInput | string
@@ -390,6 +408,7 @@ export type ProjectInviteUncheckedUpdateManyInput = {
   projectId?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.StringFieldUpdateOperationsInput | string
   permissions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   token?: Prisma.StringFieldUpdateOperationsInput | string
@@ -414,6 +433,7 @@ export type ProjectInviteCountOrderByAggregateInput = {
   projectId?: Prisma.SortOrder
   email?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  username?: Prisma.SortOrder
   role?: Prisma.SortOrder
   permissions?: Prisma.SortOrder
   token?: Prisma.SortOrder
@@ -428,6 +448,7 @@ export type ProjectInviteMaxOrderByAggregateInput = {
   projectId?: Prisma.SortOrder
   email?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  username?: Prisma.SortOrder
   role?: Prisma.SortOrder
   permissions?: Prisma.SortOrder
   token?: Prisma.SortOrder
@@ -442,6 +463,7 @@ export type ProjectInviteMinOrderByAggregateInput = {
   projectId?: Prisma.SortOrder
   email?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  username?: Prisma.SortOrder
   role?: Prisma.SortOrder
   permissions?: Prisma.SortOrder
   token?: Prisma.SortOrder
@@ -539,6 +561,7 @@ export type ProjectInviteCreateWithoutInvitedByInput = {
   id?: string
   email: string
   name: string
+  username?: string | null
   role?: string
   permissions?: string | null
   token: string
@@ -553,6 +576,7 @@ export type ProjectInviteUncheckedCreateWithoutInvitedByInput = {
   projectId: string
   email: string
   name: string
+  username?: string | null
   role?: string
   permissions?: string | null
   token: string
@@ -595,6 +619,7 @@ export type ProjectInviteScalarWhereInput = {
   projectId?: Prisma.StringFilter<"ProjectInvite"> | string
   email?: Prisma.StringFilter<"ProjectInvite"> | string
   name?: Prisma.StringFilter<"ProjectInvite"> | string
+  username?: Prisma.StringNullableFilter<"ProjectInvite"> | string | null
   role?: Prisma.StringFilter<"ProjectInvite"> | string
   permissions?: Prisma.StringNullableFilter<"ProjectInvite"> | string | null
   token?: Prisma.StringFilter<"ProjectInvite"> | string
@@ -608,6 +633,7 @@ export type ProjectInviteCreateWithoutProjectInput = {
   id?: string
   email: string
   name: string
+  username?: string | null
   role?: string
   permissions?: string | null
   token: string
@@ -621,6 +647,7 @@ export type ProjectInviteUncheckedCreateWithoutProjectInput = {
   id?: string
   email: string
   name: string
+  username?: string | null
   role?: string
   permissions?: string | null
   token: string
@@ -661,6 +688,7 @@ export type ProjectInviteCreateManyInvitedByInput = {
   projectId: string
   email: string
   name: string
+  username?: string | null
   role?: string
   permissions?: string | null
   token: string
@@ -673,6 +701,7 @@ export type ProjectInviteUpdateWithoutInvitedByInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.StringFieldUpdateOperationsInput | string
   permissions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   token?: Prisma.StringFieldUpdateOperationsInput | string
@@ -687,6 +716,7 @@ export type ProjectInviteUncheckedUpdateWithoutInvitedByInput = {
   projectId?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.StringFieldUpdateOperationsInput | string
   permissions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   token?: Prisma.StringFieldUpdateOperationsInput | string
@@ -700,6 +730,7 @@ export type ProjectInviteUncheckedUpdateManyWithoutInvitedByInput = {
   projectId?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.StringFieldUpdateOperationsInput | string
   permissions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   token?: Prisma.StringFieldUpdateOperationsInput | string
@@ -712,6 +743,7 @@ export type ProjectInviteCreateManyProjectInput = {
   id?: string
   email: string
   name: string
+  username?: string | null
   role?: string
   permissions?: string | null
   token: string
@@ -725,6 +757,7 @@ export type ProjectInviteUpdateWithoutProjectInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.StringFieldUpdateOperationsInput | string
   permissions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   token?: Prisma.StringFieldUpdateOperationsInput | string
@@ -738,6 +771,7 @@ export type ProjectInviteUncheckedUpdateWithoutProjectInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.StringFieldUpdateOperationsInput | string
   permissions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   token?: Prisma.StringFieldUpdateOperationsInput | string
@@ -751,6 +785,7 @@ export type ProjectInviteUncheckedUpdateManyWithoutProjectInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.StringFieldUpdateOperationsInput | string
   permissions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   token?: Prisma.StringFieldUpdateOperationsInput | string
@@ -767,6 +802,7 @@ export type ProjectInviteSelect<ExtArgs extends runtime.Types.Extensions.Interna
   projectId?: boolean
   email?: boolean
   name?: boolean
+  username?: boolean
   role?: boolean
   permissions?: boolean
   token?: boolean
@@ -783,6 +819,7 @@ export type ProjectInviteSelectCreateManyAndReturn<ExtArgs extends runtime.Types
   projectId?: boolean
   email?: boolean
   name?: boolean
+  username?: boolean
   role?: boolean
   permissions?: boolean
   token?: boolean
@@ -799,6 +836,7 @@ export type ProjectInviteSelectUpdateManyAndReturn<ExtArgs extends runtime.Types
   projectId?: boolean
   email?: boolean
   name?: boolean
+  username?: boolean
   role?: boolean
   permissions?: boolean
   token?: boolean
@@ -815,6 +853,7 @@ export type ProjectInviteSelectScalar = {
   projectId?: boolean
   email?: boolean
   name?: boolean
+  username?: boolean
   role?: boolean
   permissions?: boolean
   token?: boolean
@@ -824,7 +863,7 @@ export type ProjectInviteSelectScalar = {
   createdAt?: boolean
 }
 
-export type ProjectInviteOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "projectId" | "email" | "name" | "role" | "permissions" | "token" | "invitedById" | "expiresAt" | "status" | "createdAt", ExtArgs["result"]["projectInvite"]>
+export type ProjectInviteOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "projectId" | "email" | "name" | "username" | "role" | "permissions" | "token" | "invitedById" | "expiresAt" | "status" | "createdAt", ExtArgs["result"]["projectInvite"]>
 export type ProjectInviteInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   project?: boolean | Prisma.ProjectDefaultArgs<ExtArgs>
   invitedBy?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -849,6 +888,7 @@ export type $ProjectInvitePayload<ExtArgs extends runtime.Types.Extensions.Inter
     projectId: string
     email: string
     name: string
+    username: string | null
     role: string
     permissions: string | null
     token: string
@@ -1285,6 +1325,7 @@ export interface ProjectInviteFieldRefs {
   readonly projectId: Prisma.FieldRef<"ProjectInvite", 'String'>
   readonly email: Prisma.FieldRef<"ProjectInvite", 'String'>
   readonly name: Prisma.FieldRef<"ProjectInvite", 'String'>
+  readonly username: Prisma.FieldRef<"ProjectInvite", 'String'>
   readonly role: Prisma.FieldRef<"ProjectInvite", 'String'>
   readonly permissions: Prisma.FieldRef<"ProjectInvite", 'String'>
   readonly token: Prisma.FieldRef<"ProjectInvite", 'String'>

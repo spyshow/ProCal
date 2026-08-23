@@ -7,7 +7,7 @@ import { logProjectActivity } from "@/lib/audit-logger";
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { token, password, confirmPassword, name } = body;
+    const { token, password, confirmPassword, name, username } = body;
 
     if (!token) {
       return NextResponse.json({ error: "Invitation token is required" }, { status: 400 });
@@ -96,8 +96,9 @@ export async function POST(request: Request) {
       const displayName = (name || invite.name || emailTrim.split("@")[0]).trim();
       const passwordHash = await bcrypt.hash(password, 10);
 
-      // Generate unique username
-      let baseUsername = emailTrim.split("@")[0].replace(/[^a-zA-Z0-9_-]/g, "");
+      // Determine requested username (respect provided username or invite.username)
+      const rawUsername = (username || invite.username || emailTrim.split("@")[0]).trim();
+      let baseUsername = rawUsername.replace(/[^a-zA-Z0-9_-]/g, "");
       if (baseUsername.length < 3) baseUsername = `user_${baseUsername}`;
       let candidateUsername = baseUsername;
       let counter = 1;

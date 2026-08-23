@@ -115,6 +115,7 @@ export interface ProjectInvite {
   id: string;
   email: string;
   name: string;
+  username?: string | null;
   role: "PROJECT_MANAGER" | "ENGINEER" | "QA";
   permissions?: Record<string, "VIEW" | "EDIT" | "NONE">;
   status: "PENDING" | "ACCEPTED" | "REVOKED" | "EXPIRED";

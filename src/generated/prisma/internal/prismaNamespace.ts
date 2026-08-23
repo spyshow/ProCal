@@ -1948,6 +1948,7 @@ export const ProjectInviteScalarFieldEnum = {
   projectId: 'projectId',
   email: 'email',
   name: 'name',
+  username: 'username',
   role: 'role',
   permissions: 'permissions',
   token: 'token',

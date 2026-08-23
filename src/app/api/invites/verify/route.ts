@@ -57,6 +57,7 @@ export async function GET(request: Request) {
         id: invite.id,
         email: invite.email,
         name: invite.name,
+        username: invite.username || existingUser?.username || invite.email.split("@")[0],
         role: invite.role,
         projectId: invite.project.id,
         projectName: invite.project.name,

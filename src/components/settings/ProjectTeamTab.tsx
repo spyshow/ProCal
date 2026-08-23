@@ -399,7 +399,10 @@ export function ProjectTeamTab() {
               <div key={inv.id} className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="text-sm font-semibold text-white">{inv.name}</span>
+                    <span className="text-sm font-semibold text-white">
+                      {inv.name}
+                      {inv.username ? <span className="text-slate-400 text-xs ml-1.5 font-normal">(@{inv.username})</span> : null}
+                    </span>
                     <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-amber-500/15 text-amber-300 border border-amber-500/30">
                       {inv.role === "PROJECT_MANAGER" ? t('team.roles.pm', 'PM') : inv.role === "QA" ? t('team.roles.qa', 'QA') : t('team.roles.engineer', 'Engineer')}
                     </span>

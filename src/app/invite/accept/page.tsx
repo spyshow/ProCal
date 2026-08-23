@@ -42,6 +42,7 @@ function InviteAcceptContent() {
 
   const [error, setError] = useState<string | null>(null);
   const [name, setName] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -63,6 +64,7 @@ function InviteAcceptContent() {
         if (res.ok && data.valid) {
           setInviteData(data.invite);
           setName(data.invite.name || "");
+          setUsername(data.invite.username || data.invite.email?.split("@")[0] || "");
         } else {
           setError(data.error || t("invite.invalidTokenDesc", "Invalid or expired invitation link."));
         }
@@ -102,6 +104,7 @@ function InviteAcceptContent() {
         body: JSON.stringify({
           token,
           name: name.trim(),
+          username: username.trim(),
           password,
           confirmPassword,
         }),
@@ -230,6 +233,21 @@ function InviteAcceptContent() {
                       value={name}
                       onChange={(e) => setName(e.target.value)}
                       placeholder={t("team.fullNamePlaceholder", "Your Full Name")}
+                      className="dense-input w-full pl-9 rounded-xl text-xs"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1">{t("team.username", "Username")}</label>
+                  <div className="relative">
+                    <User size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
+                    <input
+                      type="text"
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
+                      placeholder="e.g., samer99"
                       className="dense-input w-full pl-9 rounded-xl text-xs"
                       required
                     />

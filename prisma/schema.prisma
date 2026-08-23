@@ -115,6 +115,7 @@ model ProjectInvite {
   project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
   email       String
   name        String
+  username    String?  // Optional pre-assigned or requested username for the invitee
   role        String   @default("ENGINEER") // "PROJECT_MANAGER" | "ENGINEER" | "QA"
   permissions String?  // JSON-serialized initial permissions assigned by PM
   token       String   @unique

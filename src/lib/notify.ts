@@ -99,15 +99,17 @@ export async function sendLeadNotification(input: {
 
   try {
     const info = await getTransporter().sendMail({
-      from: to,        // OV-β: envelope From = our own address (rewriting-safe)
+      from,
       to,              // delivered to the leads mailbox
       replyTo: input.replyToEmail, // a reply reaches the lead directly
       subject,
       text: body,
     });
+    console.log("[SMTP Lead] Email sent successfully, messageId:", info.messageId);
     return { ok: true, messageId: info.messageId };
   } catch (err) {
     const error = err instanceof Error ? err.message : "SMTP send failed";
+    console.error("[SMTP Lead Error] Failed to send email:", error);
     return { ok: false, error };
   }
 }
@@ -163,9 +165,11 @@ export async function sendFeedbackNotification(input: {
       subject,
       text: body,
     });
+    console.log("[SMTP Feedback] Email sent successfully, messageId:", info.messageId);
     return { ok: true, messageId: info.messageId };
   } catch (err) {
     const error = err instanceof Error ? err.message : "SMTP send failed";
+    console.error("[SMTP Feedback Error] Failed to send email:", error);
     return { ok: false, error };
   }
 }
@@ -236,10 +240,11 @@ export async function sendProjectInviteNotification(input: {
       text: textBody,
       html: htmlBody,
     });
+    console.log("[SMTP Invite] Email sent successfully, messageId:", info.messageId);
     return { ok: true, messageId: info.messageId };
   } catch (err) {
     const error = err instanceof Error ? err.message : "SMTP send failed";
-    console.warn("Failed to send invite email via SMTP (proceeding with token):", error);
+    console.error("[SMTP Invite Error] Failed to send invite email via SMTP:", error);
     return { ok: false, error };
   }
 }
@@ -307,10 +312,11 @@ export async function sendPasswordResetNotification(input: {
       text: textBody,
       html: htmlBody,
     });
+    console.log("[SMTP Password Reset] Email sent successfully, messageId:", info.messageId);
     return { ok: true, messageId: info.messageId };
   } catch (err) {
     const error = err instanceof Error ? err.message : "SMTP send failed";
-    console.warn("Failed to send password reset email via SMTP:", error);
+    console.error("[SMTP Password Reset Error] Failed to send email:", error);
     return { ok: false, error };
   }
 }

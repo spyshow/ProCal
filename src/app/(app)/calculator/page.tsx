@@ -631,13 +631,13 @@ function CalculatorContent() {
 
                   {/* Add Item Button / Form */}
                   {showAddItem === fd.id ? (
-                    <div className="rounded-lg border border-gray-700 bg-gray-800/50 p-3 space-y-2">
-                      <p className="text-[11px] text-gray-400">
+                    <div className="rounded-xl border border-gray-700/80 bg-gray-900/90 p-4 space-y-3 shadow-lg">
+                      <p className="text-[11px] text-gray-400 font-medium">
                         Add an apartment from a template, or add a service/pump/elevator load from the library or as a custom kW value.
                       </p>
-                      <div className="flex gap-2 items-end">
-                        <div>
-                          <label className="flex items-center gap-1 text-[10px] text-gray-500 mb-1">
+                      <div className="flex flex-wrap items-end gap-3">
+                        <div className="w-36 shrink-0">
+                          <label className="flex items-center gap-1 text-[11px] font-medium text-gray-400 mb-1.5">
                             Type
                             <InfoTooltip
                               label="Item Type"
@@ -647,7 +647,7 @@ function CalculatorContent() {
                           <select
                             value={addForm.type}
                             onChange={(e) => setAddForm({ ...addForm, type: e.target.value })}
-                            className="dense-input rounded"
+                            className="dense-input w-full rounded-md border-gray-700 bg-gray-800 text-xs py-1.5"
                           >
                             <option value="APARTMENT">Apartment</option>
                             <option value="SERVICE_PANEL">Service Panel</option>
@@ -658,7 +658,7 @@ function CalculatorContent() {
                         {addForm.type === 'APARTMENT' ? (
                           <>
                             {(!project.apartmentTemplates || project.apartmentTemplates.length === 0) ? (
-                              <div className="col-span-2 p-3 rounded-lg bg-orange-950/30 border border-orange-800/50 text-xs">
+                              <div className="flex-1 min-w-[280px] p-3 rounded-lg bg-orange-950/30 border border-orange-800/50 text-xs">
                                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                                   <div>
                                     <p className="font-semibold text-orange-300">No Apartment Templates Found</p>
@@ -683,8 +683,8 @@ function CalculatorContent() {
                               </div>
                             ) : (
                               <>
-                                <div className="flex-1">
-                                  <label className="flex items-center gap-1 text-[10px] text-gray-500 mb-1">
+                                <div className="flex-1 min-w-[240px]">
+                                  <label className="flex items-center gap-1 text-[11px] font-medium text-gray-400 mb-1.5">
                                     Template
                                     <InfoTooltip
                                       label="Apartment Template"
@@ -701,7 +701,7 @@ function CalculatorContent() {
                                         name: tpl?.name || '',
                                       });
                                     }}
-                                    className="dense-input w-full rounded"
+                                    className="dense-input w-full rounded-md border-gray-700 bg-gray-800 text-xs py-1.5"
                                   >
                                     <option value="">Select template…</option>
                                     {project.apartmentTemplates.map((t) => {
@@ -715,54 +715,22 @@ function CalculatorContent() {
                                     })}
                                   </select>
                                 </div>
-                                <div className="flex-1">
-                                  <label className="block text-[10px] text-gray-500 mb-1">Name</label>
+                                <div className="w-56 shrink-0">
+                                  <label className="block text-[11px] font-medium text-gray-400 mb-1.5">Name / Label</label>
                                   <input
                                     value={addForm.name}
                                     onChange={(e) => setAddForm({ ...addForm, name: e.target.value })}
-                                    className="dense-input w-full rounded"
-                                    placeholder="Apt 1"
+                                    className="dense-input w-full rounded-md border-gray-700 bg-gray-800 text-xs py-1.5"
+                                    placeholder="e.g. Apt 101"
                                   />
                                 </div>
-                                {/* Room Breakdown Preview */}
-                                {addForm.apartmentTemplateId && (() => {
-                                  const selectedTpl = project.apartmentTemplates.find(
-                                    (t) => t.id === addForm.apartmentTemplateId
-                                  );
-                                  if (!selectedTpl?.rooms?.length) return null;
-
-                                  const totalArea = selectedTpl.rooms.reduce((sum, r) => sum + r.area, 0);
-                                  const totalLoad = selectedTpl.rooms.reduce((sum, r) => sum + r.connectedLoad, 0);
-                                  const acRooms = selectedTpl.rooms.filter((r) => r.hasAc);
-
-                                  return (
-                                    <div className="col-span-2 mt-2 p-2 rounded-lg bg-gray-800/50 border border-gray-700">
-                                      <div className="flex items-center gap-4 text-[10px]">
-                                        <span className="text-gray-500">
-                                          {selectedTpl.rooms.length} rooms · {totalArea.toFixed(0)}m²
-                                        </span>
-                                        <span className="text-orange-400 font-mono">
-                                          {(totalLoad / 1000).toFixed(2)} kVA
-                                        </span>
-                                        {acRooms.length > 0 && (
-                                          <span className="text-blue-400">
-                                            {acRooms.length}× AC
-                                          </span>
-                                        )}
-                                        <span className="text-gray-600">
-                                          {selectedTpl.rooms.map((r) => r.name).filter(Boolean).join(' · ')}
-                                        </span>
-                                      </div>
-                                    </div>
-                                  );
-                                })()}
                               </>
                             )}
                           </>
                         ) : (
                           <>
-                            <div className="flex-1">
-                              <label className="flex items-center gap-1 text-[10px] text-gray-500 mb-1">
+                            <div className="flex-1 min-w-[200px]">
+                              <label className="flex items-center gap-1 text-[11px] font-medium text-gray-400 mb-1.5">
                                 Source
                                 <InfoTooltip
                                   label="Load Source"
@@ -783,7 +751,7 @@ function CalculatorContent() {
                                     });
                                   }
                                 }}
-                                className="dense-input w-full rounded"
+                                className="dense-input w-full rounded-md border-gray-700 bg-gray-800 text-xs py-1.5"
                               >
                                 <option value="_custom">Custom kW…</option>
                                 {project.loadLibraryItems.length > 0 && (
@@ -797,18 +765,18 @@ function CalculatorContent() {
                                 )}
                               </select>
                             </div>
-                            <div className="flex-1">
-                              <label className="block text-[10px] text-gray-500 mb-1">Name</label>
+                            <div className="flex-1 min-w-[160px]">
+                              <label className="block text-[11px] font-medium text-gray-400 mb-1.5">Name / Label</label>
                               <input
                                 value={addForm.name}
                                 onChange={(e) => setAddForm({ ...addForm, name: e.target.value })}
-                                className="dense-input w-full rounded"
-                                placeholder="Service Board"
+                                className="dense-input w-full rounded-md border-gray-700 bg-gray-800 text-xs py-1.5"
+                                placeholder="e.g. Service Board"
                               />
                             </div>
                             {!addForm.loadLibraryItemId && (
-                              <div>
-                                <label className="flex items-center gap-1 text-[10px] text-gray-500 mb-1">
+                              <div className="w-28 shrink-0">
+                                <label className="flex items-center gap-1 text-[11px] font-medium text-gray-400 mb-1.5">
                                   Power (kW)
                                   <InfoTooltip
                                     label="Custom Power"
@@ -820,25 +788,60 @@ function CalculatorContent() {
                                   step="0.1"
                                   value={addForm.customKw}
                                   onChange={(e) => setAddForm({ ...addForm, customKw: e.target.value })}
-                                  className="dense-input w-20 rounded"
+                                  className="dense-input w-full rounded-md border-gray-700 bg-gray-800 text-xs py-1.5"
                                 />
                               </div>
                             )}
                           </>
                         )}
-                        <button
-                          onClick={() => handleAddItem(fd.id)}
-                          className="px-3 py-1.5 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-xs font-semibold"
-                        >
-                          Add
-                        </button>
-                        <button
-                          onClick={() => setShowAddItem(null)}
-                          className="px-3 py-1.5 rounded-lg bg-gray-700 text-gray-300 text-xs"
-                        >
-                          Cancel
-                        </button>
+                        <div className="flex items-center gap-2 shrink-0 pb-0.5">
+                          <button
+                            onClick={() => handleAddItem(fd.id)}
+                            className="px-4 py-1.5 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-xs font-semibold shadow-sm transition-colors cursor-pointer"
+                          >
+                            Add
+                          </button>
+                          <button
+                            onClick={() => setShowAddItem(null)}
+                            className="px-3 py-1.5 rounded-lg bg-gray-800 hover:bg-gray-700 border border-gray-700 text-gray-300 text-xs transition-colors cursor-pointer"
+                          >
+                            Cancel
+                          </button>
+                        </div>
                       </div>
+
+                      {/* Room Breakdown Preview (Separate full-width row below controls) */}
+                      {addForm.type === 'APARTMENT' && addForm.apartmentTemplateId && (() => {
+                        const selectedTpl = project.apartmentTemplates.find(
+                          (t) => t.id === addForm.apartmentTemplateId
+                        );
+                        if (!selectedTpl?.rooms?.length) return null;
+
+                        const totalArea = selectedTpl.rooms.reduce((sum, r) => sum + r.area, 0);
+                        const totalLoad = selectedTpl.rooms.reduce((sum, r) => sum + r.connectedLoad, 0);
+                        const acRooms = selectedTpl.rooms.filter((r) => r.hasAc);
+
+                        return (
+                          <div className="mt-2.5 p-2.5 rounded-lg bg-gray-950/80 border border-gray-800">
+                            <div className="flex flex-wrap items-center gap-3 text-xs">
+                              <span className="font-semibold text-gray-300">
+                                {selectedTpl.rooms.length} rooms · {totalArea.toFixed(0)}m²
+                              </span>
+                              <span className="text-orange-400 font-mono font-bold">
+                                {(totalLoad / 1000).toFixed(2)} kVA
+                              </span>
+                              {acRooms.length > 0 && (
+                                <span className="px-2 py-0.5 rounded bg-sky-500/10 text-sky-400 border border-sky-500/30 text-[11px] font-medium">
+                                  {acRooms.length}× AC
+                                </span>
+                              )}
+                              <span className="text-gray-400 text-xs border-l border-gray-800 pl-3">
+                                {selectedTpl.rooms.map((r) => r.name).filter(Boolean).join(' · ')}
+                              </span>
+                            </div>
+                          </div>
+                        );
+                      })()}
                     </div>
                   ) : !isReadOnly ? (
                     <div className="flex gap-2">

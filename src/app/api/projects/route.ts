@@ -64,9 +64,11 @@ export async function GET() {
     });
 
     return NextResponse.json(enriched);
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("GET Projects Error:", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    const message =
+      error instanceof Error ? error.message : "Internal Server Error";
+    return NextResponse.json({ error: `Failed to load projects: ${message}` }, { status: 500 });
   }
 }
 

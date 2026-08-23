@@ -21,26 +21,25 @@ let transporter: nodemailer.Transporter | null = null;
 
 function getTransporter(): nodemailer.Transporter {
   if (transporter) return transporter;
-  // Bounded timeouts (eng-review P1): a down relay fails fast (5s to connect,
-  // 10s per socket op) instead of hanging the request.
+  const port = Number(process.env.SMTP_PORT) || 465;
   transporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
-    port: Number(process.env.SMTP_PORT) || 587,
-    secure: (Number(process.env.SMTP_PORT) || 587) === 465,
+    host: process.env.SMTP_HOST || "smtp.resend.com",
+    port,
+    secure: port === 465,
     auth: process.env.SMTP_USER && process.env.SMTP_PASS
       ? { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS }
       : undefined,
-    connectionTimeout: 5000,
-    socketTimeout: 10000,
-    greetingTimeout: 5000,
+    connectionTimeout: 10000,
+    socketTimeout: 15000,
+    greetingTimeout: 10000,
   });
   return transporter;
 }
 
 /**
- * Resolves the outbound "From" address for SMTP delivery.
+ * Resolves the outbound "From" address for email delivery.
  * 1. Checks explicit SMTP_FROM_ADDRESS / EMAIL_FROM / SMTP_FROM env variables.
- * 2. If sending via Resend SMTP (smtp.resend.com), defaults to 'ProCal <onboarding@resend.dev>'
+ * 2. If sending via Resend (api or smtp), defaults to 'ProCal <onboarding@resend.dev>'
  *    to comply with Resend unverified test domain rules.
  * 3. Falls back to LEADS_TO_ADDRESS if it's a valid non-local email, or no-reply@procal.app.
  */
@@ -49,7 +48,11 @@ export function getFromAddress(): string {
   if (process.env.EMAIL_FROM) return process.env.EMAIL_FROM;
   if (process.env.SMTP_FROM) return process.env.SMTP_FROM;
 
-  if (process.env.SMTP_HOST?.toLowerCase().includes("resend")) {
+  if (
+    process.env.SMTP_HOST?.toLowerCase().includes("resend") ||
+    process.env.RESEND_API_KEY ||
+    process.env.SMTP_PASS?.startsWith("re_")
+  ) {
     return "ProCal <onboarding@resend.dev>";
   }
 
@@ -62,6 +65,77 @@ export function getFromAddress(): string {
 }
 
 export type SendResult = { ok: true; messageId: string } | { ok: false; error: string };
+
+export interface SendMailOptions {
+  from?: string;
+  to: string | string[];
+  replyTo?: string;
+  subject: string;
+  text?: string;
+  html?: string;
+}
+
+/**
+ * Unified email sender:
+ * Priority 1: Direct Resend HTTPS REST API (bypasses cloud socket/firewall blocks)
+ * Priority 2: Standard SMTP via Nodemailer
+ */
+export async function sendMailUnified(opts: SendMailOptions): Promise<SendResult> {
+  const from = opts.from || getFromAddress();
+  const to = Array.isArray(opts.to) ? opts.to : [opts.to];
+  const apiKey =
+    process.env.RESEND_API_KEY ||
+    (process.env.SMTP_PASS?.startsWith("re_") ? process.env.SMTP_PASS : undefined);
+
+  // 1. Try Resend HTTPS REST API if Resend API Key is configured
+  if (apiKey) {
+    try {
+      const res = await fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          from,
+          to,
+          reply_to: opts.replyTo,
+          subject: opts.subject,
+          text: opts.text,
+          html: opts.html,
+        }),
+      });
+
+      const data = await res.json();
+      if (res.ok && data?.id) {
+        console.log("[Resend API Success] Email sent, id:", data.id);
+        return { ok: true, messageId: data.id };
+      }
+
+      console.warn("[Resend API Response Error, attempting SMTP fallback]:", data);
+    } catch (apiErr) {
+      console.warn("[Resend API Request Failed, attempting SMTP fallback]:", apiErr);
+    }
+  }
+
+  // 2. SMTP Transport via Nodemailer
+  try {
+    const info = await getTransporter().sendMail({
+      from,
+      to: opts.to,
+      replyTo: opts.replyTo,
+      subject: opts.subject,
+      text: opts.text,
+      html: opts.html,
+    });
+    console.log("[SMTP Success] Email sent, messageId:", info.messageId);
+    return { ok: true, messageId: info.messageId };
+  } catch (err) {
+    const error = err instanceof Error ? err.message : "SMTP send failed";
+    console.error("[SMTP Error] Failed to send email:", error);
+    return { ok: false, error };
+  }
+}
 
 export async function sendLeadNotification(input: {
   /** The lead's email — Reply-To + embedded in the body (OV-β). */
@@ -77,11 +151,6 @@ export async function sendLeadNotification(input: {
     return { ok: false, error: "LEADS_TO_ADDRESS is not configured" };
   }
 
-  const from = getFromAddress();
-
-  // ponytail: full relay config present? If not, still attempt the send — many
-  // local/dev SMTP relays accept unauthenticated submit on 25/587. A missing
-  // var shouldn't hard-crash boot; the send itself reports what's wrong.
   const subject = `ProCal credit request — ${input.name || input.username}`;
   const body = [
     `New captured lead from ProCal.`,
@@ -97,21 +166,12 @@ export async function sendLeadNotification(input: {
     .filter(Boolean)
     .join("\r\n");
 
-  try {
-    const info = await getTransporter().sendMail({
-      from,
-      to,              // delivered to the leads mailbox
-      replyTo: input.replyToEmail, // a reply reaches the lead directly
-      subject,
-      text: body,
-    });
-    console.log("[SMTP Lead] Email sent successfully, messageId:", info.messageId);
-    return { ok: true, messageId: info.messageId };
-  } catch (err) {
-    const error = err instanceof Error ? err.message : "SMTP send failed";
-    console.error("[SMTP Lead Error] Failed to send email:", error);
-    return { ok: false, error };
-  }
+  return sendMailUnified({
+    to,
+    replyTo: input.replyToEmail,
+    subject,
+    text: body,
+  });
 }
 
 export async function sendFeedbackNotification(input: {
@@ -132,7 +192,7 @@ export async function sendFeedbackNotification(input: {
     return { ok: true, messageId: "dev-feedback-id" };
   }
 
-  const categoryTag = input.category ? `[${input.category}] ` : '[Feedback] ';
+  const categoryTag = input.category ? `[${input.category}] ` : "[Feedback] ";
   const subject = `ProCal Feedback: ${categoryTag}${input.subject || input.name || input.username || "User Report"}`;
   const body = [
     `New User Feedback / Error Report from ProCal`,
@@ -155,23 +215,12 @@ export async function sendFeedbackNotification(input: {
     .filter(Boolean)
     .join("\r\n");
 
-  const from = getFromAddress();
-
-  try {
-    const info = await getTransporter().sendMail({
-      from,
-      to,
-      replyTo: input.replyToEmail || undefined,
-      subject,
-      text: body,
-    });
-    console.log("[SMTP Feedback] Email sent successfully, messageId:", info.messageId);
-    return { ok: true, messageId: info.messageId };
-  } catch (err) {
-    const error = err instanceof Error ? err.message : "SMTP send failed";
-    console.error("[SMTP Feedback Error] Failed to send email:", error);
-    return { ok: false, error };
-  }
+  return sendMailUnified({
+    to,
+    replyTo: input.replyToEmail || undefined,
+    subject,
+    text: body,
+  });
 }
 
 export async function sendProjectInviteNotification(input: {
@@ -182,7 +231,6 @@ export async function sendProjectInviteNotification(input: {
   role: string;
   acceptUrl: string;
 }): Promise<SendResult> {
-  const from = getFromAddress();
   const roleLabel = input.role === "PROJECT_MANAGER" ? "Project Manager" : input.role === "QA" ? "QA Reviewer" : "Engineer";
   const subject = `Invitation to join project "${input.projectName}" on ProCal`;
 
@@ -227,26 +275,17 @@ export async function sendProjectInviteNotification(input: {
     </div>
   `;
 
-  if (!process.env.SMTP_HOST && !process.env.LEADS_TO_ADDRESS) {
+  if (!process.env.SMTP_HOST && !process.env.LEADS_TO_ADDRESS && !process.env.RESEND_API_KEY && !process.env.SMTP_PASS) {
     console.log("[DEV INVITE EMAIL] Would send invite to:", input.toEmail, "Accept URL:", input.acceptUrl);
     return { ok: true, messageId: "dev-invite-id" };
   }
 
-  try {
-    const info = await getTransporter().sendMail({
-      from,
-      to: input.toEmail,
-      subject,
-      text: textBody,
-      html: htmlBody,
-    });
-    console.log("[SMTP Invite] Email sent successfully, messageId:", info.messageId);
-    return { ok: true, messageId: info.messageId };
-  } catch (err) {
-    const error = err instanceof Error ? err.message : "SMTP send failed";
-    console.error("[SMTP Invite Error] Failed to send invite email via SMTP:", error);
-    return { ok: false, error };
-  }
+  return sendMailUnified({
+    to: input.toEmail,
+    subject,
+    text: textBody,
+    html: htmlBody,
+  });
 }
 
 export async function sendPasswordResetNotification(input: {
@@ -255,7 +294,6 @@ export async function sendPasswordResetNotification(input: {
   username: string;
   resetUrl: string;
 }): Promise<SendResult> {
-  const from = getFromAddress();
   const subject = `Reset your ProCal password`;
 
   const textBody = [
@@ -299,26 +337,17 @@ export async function sendPasswordResetNotification(input: {
     </div>
   `;
 
-  if (!process.env.SMTP_HOST && !process.env.LEADS_TO_ADDRESS) {
+  if (!process.env.SMTP_HOST && !process.env.LEADS_TO_ADDRESS && !process.env.RESEND_API_KEY && !process.env.SMTP_PASS) {
     console.log("[DEV RESET PASSWORD EMAIL] Would send reset email to:", input.toEmail, "Reset URL:", input.resetUrl);
     return { ok: true, messageId: "dev-reset-id" };
   }
 
-  try {
-    const info = await getTransporter().sendMail({
-      from,
-      to: input.toEmail,
-      subject,
-      text: textBody,
-      html: htmlBody,
-    });
-    console.log("[SMTP Password Reset] Email sent successfully, messageId:", info.messageId);
-    return { ok: true, messageId: info.messageId };
-  } catch (err) {
-    const error = err instanceof Error ? err.message : "SMTP send failed";
-    console.error("[SMTP Password Reset Error] Failed to send email:", error);
-    return { ok: false, error };
-  }
+  return sendMailUnified({
+    to: input.toEmail,
+    subject,
+    text: textBody,
+    html: htmlBody,
+  });
 }
 
 /** Test hook: reset the cached transporter between unit tests (t22 mocks us). */

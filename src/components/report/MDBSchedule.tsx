@@ -1,6 +1,13 @@
 import { useMemo } from 'react';
 import { computeFeeders, createFindBreaker, type FindBreaker } from '@/lib/calculations/feeders';
+import { parseCableSize } from '@/lib/calculations/cables';
 import { useEquipmentCatalog } from '@/hooks/useEquipmentCatalog';
+import { TraceableCell } from '@/components/common/TraceableCell';
+import {
+  buildDesignCurrentTrace,
+  buildBreakerSizingTrace,
+  buildCableAmpacityTrace,
+} from '@/lib/calculations/trace-engine';
 import type { Project } from '@/types';
 
 export interface MDBScheduleProps {
@@ -220,14 +227,114 @@ export default function MDBSchedule({ project, buildingId, showHeader = true }: 
                   {row.type.replace('_', ' ')}
                 </span>
               </td>
-              <td className="p-2 border-r border-slate-200 text-right font-mono font-bold text-slate-900">{row.demand.toFixed(1)}</td>
-              <td className="p-2 border-r border-slate-200 text-right font-mono font-bold text-amber-700">
-                {row.current.toFixed(1)}
+              <td className="p-2 border-r border-slate-200 text-right font-mono font-bold text-slate-900">
+                <TraceableCell
+                  getTrace={() =>
+                    buildDesignCurrentTrace({
+                      loadName: `${row.building} - ${row.feeder}`,
+                      powerKw: row.demand,
+                      powerFactor: project.powerFactor || 0.85,
+                      voltageV: project.voltage || 400,
+                      isThreePhase: true,
+                      calculatedCurrentA: row.current,
+                    })
+                  }
+                >
+                  {row.demand.toFixed(1)}
+                </TraceableCell>
               </td>
-              <td className="p-2 border-r border-slate-200 text-center font-mono font-bold text-slate-900">{row.breaker}</td>
-              <td className="p-2 border-r border-slate-200 text-center font-mono text-slate-800">{row.cable}</td>
+              <td className="p-2 border-r border-slate-200 text-right font-mono font-bold text-amber-700">
+                <TraceableCell
+                  getTrace={() =>
+                    buildDesignCurrentTrace({
+                      loadName: `${row.building} - ${row.feeder}`,
+                      powerKw: row.demand,
+                      powerFactor: project.powerFactor || 0.85,
+                      voltageV: project.voltage || 400,
+                      isThreePhase: true,
+                      calculatedCurrentA: row.current,
+                    })
+                  }
+                >
+                  {row.current.toFixed(1)}
+                </TraceableCell>
+              </td>
+              <td className="p-2 border-r border-slate-200 text-center font-mono font-bold text-slate-900">
+                <TraceableCell
+                  getTrace={() => {
+                    const breakerNumeric = parseInt(row.breaker.replace(/\D/g, ''), 10) || Math.ceil(row.current);
+                    return buildBreakerSizingTrace({
+                      circuitName: `${row.building} - ${row.feeder}`,
+                      designCurrentA: row.current,
+                      selectedTripA: breakerNumeric,
+                      frameSizeA: breakerNumeric >= 630 ? breakerNumeric : breakerNumeric > 160 ? 250 : 160,
+                      breakingCapacityKa: breakerNumeric >= 630 ? 65 : 36,
+                      cableAmpacityA: row.cableIz,
+                    });
+                  }}
+                >
+                  {row.breaker}
+                </TraceableCell>
+              </td>
+              <td className="p-2 border-r border-slate-200 text-center font-mono text-slate-800">
+                <TraceableCell
+                  getTrace={() => {
+                    const parsed = parseCableSize(row.cable);
+                    const cableSize = parsed ? parsed.size : 16;
+                    const runs = parsed ? parsed.runs : 1;
+                    return buildCableAmpacityTrace({
+                      circuitName: `${row.building} - ${row.feeder}`,
+                      cableSizeMm2: cableSize,
+                      parallelRuns: runs,
+                      material: 'copper',
+                      insulation: 'XLPE',
+                      installMethod: 'Method E',
+                      ambientTempC: project.ambientTemp || 45,
+                      groupingCount: project.groupingCount || 1,
+                      tempFactor: 0.87,
+                      groupFactor: 0.70,
+                      nominalAmpacityPerRun: row.cableIz ? Math.round(row.cableIz / runs / 0.6) : Math.round(row.current * 1.3),
+                      deratedAmpacityPerRun: row.cableIz ? Math.round(row.cableIz / runs) : Math.round(row.current * 1.1),
+                      totalDeratedAmpacity: row.cableIz || Math.round(row.current * 1.1) * runs,
+                      breakerSizeA: parseInt(row.breaker.replace(/\D/g, ''), 10) || undefined,
+                      designCurrentA: row.current,
+                    });
+                  }}
+                >
+                  {row.cable}
+                </TraceableCell>
+              </td>
               <td className="p-2 text-right font-mono text-slate-700">
-                {row.cableIz != null ? `${row.cableIz.toFixed(0)}` : '—'}
+                {row.cableIz != null ? (
+                  <TraceableCell
+                    getTrace={() => {
+                      const parsed = parseCableSize(row.cable);
+                      const cableSize = parsed ? parsed.size : 16;
+                      const runs = parsed ? parsed.runs : 1;
+                      return buildCableAmpacityTrace({
+                        circuitName: `${row.building} - ${row.feeder}`,
+                        cableSizeMm2: cableSize,
+                        parallelRuns: runs,
+                        material: 'copper',
+                        insulation: 'XLPE',
+                        installMethod: 'Method E',
+                        ambientTempC: project.ambientTemp || 45,
+                        groupingCount: project.groupingCount || 1,
+                        tempFactor: 0.87,
+                        groupFactor: 0.70,
+                        nominalAmpacityPerRun: Math.round((row.cableIz || 100) / runs / 0.6),
+                        deratedAmpacityPerRun: Math.round((row.cableIz || 100) / runs),
+                        totalDeratedAmpacity: row.cableIz || 100,
+                        breakerSizeA: parseInt(row.breaker.replace(/\D/g, ''), 10) || undefined,
+                        designCurrentA: row.current,
+                      });
+                    }}
+                  >
+                    {row.cableIz.toFixed(0)}
+                  </TraceableCell>
+                ) : (
+                  '—'
+                )}
               </td>
             </tr>
           ))}

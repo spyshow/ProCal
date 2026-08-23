@@ -3,6 +3,12 @@
 import { useMemo, useState, useEffect } from 'react';
 import { computeFeeders, createFindBreaker, type FindBreaker } from '@/lib/calculations/feeders';
 import { useEquipmentCatalog } from '@/hooks/useEquipmentCatalog';
+import { TraceableCell } from '@/components/common/TraceableCell';
+import {
+  buildDesignCurrentTrace,
+  buildBreakerSizingTrace,
+  buildShortCircuitTrace,
+} from '@/lib/calculations/trace-engine';
 import type { Project } from '@/types';
 
 export interface BreakerScheduleProps {
@@ -298,22 +304,53 @@ export default function BreakerSchedule({
                     {b.type === 'INCOMER' ? 'MDB' : `F${b.floor}`}
                   </td>
                   <td className="p-2 border-r border-slate-200 text-right font-mono font-bold text-amber-700">
-                    {b.current.toFixed(1)} A
+                    <TraceableCell
+                      getTrace={() => {
+                        const is3Ph = b.isThreePhase;
+                        const voltage = is3Ph ? (project.voltage || 400) : (project.voltage ? project.voltage / Math.sqrt(3) : 230);
+                        const powerKw = is3Ph
+                          ? (Math.sqrt(3) * (project.voltage || 400) * b.current * (project.powerFactor || 0.85)) / 1000
+                          : ((project.voltage ? project.voltage / Math.sqrt(3) : 230) * b.current * (project.powerFactor || 0.85)) / 1000;
+                        return buildDesignCurrentTrace({
+                          loadName: `${b.buildingName} - ${b.name}`,
+                          powerKw,
+                          powerFactor: project.powerFactor || 0.85,
+                          voltageV: Math.round(voltage),
+                          isThreePhase: is3Ph,
+                          calculatedCurrentA: b.current,
+                        });
+                      }}
+                    >
+                      {b.current.toFixed(1)} A
+                    </TraceableCell>
                   </td>
                   <td className="p-2 border-r border-slate-200 text-center font-mono font-bold text-slate-900">
-                    {b.isBreakerUpsized ? (
-                      <span
-                        className="border-b border-dashed border-amber-600 cursor-help"
-                        title={
-                          b.upsizeReason ??
-                          `Sized to ${b.breakerSize}A (exceeds base load rating ${b.baseBreakerSize ?? Math.ceil(b.current)}A)`
-                        }
-                      >
-                        {b.breakerSize}A
-                      </span>
-                    ) : (
-                      `${b.breakerSize}A`
-                    )}
+                    <TraceableCell
+                      getTrace={() => {
+                        return buildBreakerSizingTrace({
+                          circuitName: `${b.buildingName} - ${b.name}`,
+                          designCurrentA: b.current,
+                          selectedTripA: b.breakerSize,
+                          frameSizeA: b.breakerSize >= 630 ? b.breakerSize : b.breakerSize > 160 ? 250 : 160,
+                          breakingCapacityKa: b.breakerSize >= 630 ? 65 : 36,
+                          prospectiveFaultKa: b.faultCurrentKa,
+                        });
+                      }}
+                    >
+                      {b.isBreakerUpsized ? (
+                        <span
+                          className="border-b border-dashed border-amber-600 cursor-help"
+                          title={
+                            b.upsizeReason ??
+                            `Sized to ${b.breakerSize}A (exceeds base load rating ${b.baseBreakerSize ?? Math.ceil(b.current)}A)`
+                          }
+                        >
+                          {b.breakerSize}A
+                        </span>
+                      ) : (
+                        `${b.breakerSize}A`
+                      )}
+                    </TraceableCell>
                   </td>
                   <td className="p-2 border-r border-slate-200 text-xs font-mono text-slate-800">
                     {b.breakerModel}
@@ -322,7 +359,24 @@ export default function BreakerSchedule({
                     {b.cableSize ? `${b.cableSize} mm²` : 'Busbar'}
                   </td>
                   <td className="p-2 border-r border-slate-200 text-right font-mono text-red-600 font-bold">
-                    {b.faultCurrentKa ? `${b.faultCurrentKa.toFixed(2)} kA` : '—'}
+                    {b.faultCurrentKa ? (
+                      <TraceableCell
+                        getTrace={() => {
+                          return buildShortCircuitTrace({
+                            locationName: `${b.buildingName} - ${b.name}`,
+                            transformerKva: 1000,
+                            transformerZPercent: 5.5,
+                            voltageSecondaryV: project.voltage || 400,
+                            threePhaseIscKa: b.faultCurrentKa || 25,
+                            peakCurrentKa: (b.faultCurrentKa || 25) * 2.1,
+                          });
+                        }}
+                      >
+                        {b.faultCurrentKa.toFixed(2)} kA
+                      </TraceableCell>
+                    ) : (
+                      '—'
+                    )}
                   </td>
                   <td className="p-2 border-r border-slate-200 text-center">
                     <span

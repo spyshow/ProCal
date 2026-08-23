@@ -9,6 +9,8 @@ import { aggregateShortCircuitRows } from '@/lib/reports/aggregates';
 import { useEquipmentCatalog } from '@/hooks/useEquipmentCatalog';
 import { createFindBreaker } from '@/lib/calculations/feeders';
 import { ShieldCheck, Zap } from 'lucide-react';
+import { TraceableCell } from '@/components/common/TraceableCell';
+import { buildShortCircuitTrace } from '@/lib/calculations/trace-engine';
 
 export interface ShortCircuitScheduleProps {
   project: Project;
@@ -97,15 +99,53 @@ export default function ShortCircuitSchedule({
       <div className="grid grid-cols-4 gap-2.5 my-3">
         <div className="border border-red-200 rounded-xl p-2.5 text-center bg-red-50/60">
           <span className="text-[10px] font-bold uppercase text-red-800 block">3Φ Symmetrical Isc</span>
-          <span className="text-sm font-black text-red-950 font-mono">{scSummary.threePhaseIsc.toFixed(2)} kA</span>
+          <TraceableCell
+            getTrace={() =>
+              buildShortCircuitTrace({
+                locationName: "Main Transformer Secondary (3-Phase)",
+                transformerKva: scSummary.faultMVA ? Math.round(scSummary.faultMVA * 50) : 1000,
+                transformerZPercent: 5.5,
+                voltageSecondaryV: project.voltage || 400,
+                threePhaseIscKa: scSummary.threePhaseIsc,
+                peakCurrentKa: scSummary.peakCurrent,
+              })
+            }
+          >
+            <span className="text-sm font-black text-red-950 font-mono">{scSummary.threePhaseIsc.toFixed(2)} kA</span>
+          </TraceableCell>
         </div>
         <div className="border border-amber-200 rounded-xl p-2.5 text-center bg-amber-50/60">
           <span className="text-[10px] font-bold uppercase text-amber-800 block">2Φ Phase-to-Phase Isc</span>
-          <span className="text-sm font-black text-amber-950 font-mono">{scSummary.twoPhaseIsc.toFixed(2)} kA</span>
+          <TraceableCell
+            getTrace={() =>
+              buildShortCircuitTrace({
+                locationName: "Main Transformer Secondary (2-Phase)",
+                transformerKva: scSummary.faultMVA ? Math.round(scSummary.faultMVA * 50) : 1000,
+                transformerZPercent: 5.5,
+                voltageSecondaryV: project.voltage || 400,
+                threePhaseIscKa: scSummary.twoPhaseIsc,
+              })
+            }
+          >
+            <span className="text-sm font-black text-amber-950 font-mono">{scSummary.twoPhaseIsc.toFixed(2)} kA</span>
+          </TraceableCell>
         </div>
         <div className="border border-sky-200 rounded-xl p-2.5 text-center bg-sky-50/60">
           <span className="text-[10px] font-bold uppercase text-sky-800 block">Peak Dynamic Stress (Ip)</span>
-          <span className="text-sm font-black text-sky-950 font-mono">{scSummary.peakCurrent.toFixed(2)} kA</span>
+          <TraceableCell
+            getTrace={() =>
+              buildShortCircuitTrace({
+                locationName: "Peak Electrodynamic Stress",
+                transformerKva: scSummary.faultMVA ? Math.round(scSummary.faultMVA * 50) : 1000,
+                transformerZPercent: 5.5,
+                voltageSecondaryV: project.voltage || 400,
+                threePhaseIscKa: scSummary.threePhaseIsc,
+                peakCurrentKa: scSummary.peakCurrent,
+              })
+            }
+          >
+            <span className="text-sm font-black text-sky-950 font-mono">{scSummary.peakCurrent.toFixed(2)} kA</span>
+          </TraceableCell>
         </div>
         <div className="border border-purple-200 rounded-xl p-2.5 text-center bg-purple-50/60">
           <span className="text-[10px] font-bold uppercase text-purple-800 block">Secondary Fault Level</span>
@@ -153,10 +193,35 @@ export default function ShortCircuitSchedule({
                 {row.cableSizeMm2 > 0 ? `${row.cableSizeMm2} mm²` : 'Busbar'}
               </td>
               <td className="p-2 border-r border-slate-200 text-right font-mono font-bold text-red-600">
-                {row.threePhaseIscKa.toFixed(2)} kA
+                <TraceableCell
+                  getTrace={() =>
+                    buildShortCircuitTrace({
+                      locationName: `${row.buildingName} - ${row.feeder} (3-Phase Fault)`,
+                      transformerKva: 1000,
+                      transformerZPercent: 5.5,
+                      voltageSecondaryV: project.voltage || 400,
+                      threePhaseIscKa: row.threePhaseIscKa,
+                      peakCurrentKa: row.threePhaseIscKa * 2.1,
+                    })
+                  }
+                >
+                  {row.threePhaseIscKa.toFixed(2)} kA
+                </TraceableCell>
               </td>
               <td className="p-2 border-r border-slate-200 text-right font-mono text-amber-700">
-                {row.twoPhaseIscKa.toFixed(2)} kA
+                <TraceableCell
+                  getTrace={() =>
+                    buildShortCircuitTrace({
+                      locationName: `${row.buildingName} - ${row.feeder} (2-Phase Fault)`,
+                      transformerKva: 1000,
+                      transformerZPercent: 5.5,
+                      voltageSecondaryV: project.voltage || 400,
+                      threePhaseIscKa: row.twoPhaseIscKa,
+                    })
+                  }
+                >
+                  {row.twoPhaseIscKa.toFixed(2)} kA
+                </TraceableCell>
               </td>
               <td className="p-2 border-r border-slate-200 text-right font-mono font-bold text-slate-900">
                 {row.breakerIcuKa ? `${row.breakerIcuKa} kA` : '—'}

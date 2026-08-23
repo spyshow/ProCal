@@ -1,6 +1,13 @@
 'use client';
 
 import { isThreePhaseForItem, computeFeeders } from '@/lib/calculations/feeders';
+import { parseCableSize } from '@/lib/calculations/cables';
+import { TraceableCell } from '@/components/common/TraceableCell';
+import {
+  buildDesignCurrentTrace,
+  buildBreakerSizingTrace,
+  buildCableAmpacityTrace,
+} from '@/lib/calculations/trace-engine';
 import type { Project } from '@/types';
 
 export interface CableScheduleProps {
@@ -156,13 +163,69 @@ export default function CableSchedule({ project, buildingId, showHeader = true }
                 {row.phaseLabel}
               </td>
               <td className="p-2 border-r border-slate-200 text-right font-mono font-bold text-slate-900">
-                {row.current.toFixed(1)} A
+                <TraceableCell
+                  getTrace={() => {
+                    const is3Ph = row.phaseLabel.includes('3Φ') || row.phaseLabel.includes('3Ph');
+                    const voltage = is3Ph ? (project.voltage || 400) : (project.voltage ? project.voltage / Math.sqrt(3) : 230);
+                    const powerKw = is3Ph
+                      ? (Math.sqrt(3) * (project.voltage || 400) * row.current * (project.powerFactor || 0.85)) / 1000
+                      : ((project.voltage ? project.voltage / Math.sqrt(3) : 230) * row.current * (project.powerFactor || 0.85)) / 1000;
+                    return buildDesignCurrentTrace({
+                      loadName: `${row.buildingName} - ${row.circuit}`,
+                      powerKw,
+                      powerFactor: project.powerFactor || 0.85,
+                      voltageV: Math.round(voltage),
+                      isThreePhase: is3Ph,
+                      calculatedCurrentA: row.current,
+                    });
+                  }}
+                >
+                  {row.current.toFixed(1)} A
+                </TraceableCell>
               </td>
               <td className="p-2 border-r border-slate-200 text-center font-mono font-bold text-slate-900">
-                {row.breaker}
+                <TraceableCell
+                  getTrace={() => {
+                    const breakerNumeric = parseInt(row.breaker.replace(/\D/g, ''), 10) || Math.ceil(row.current);
+                    return buildBreakerSizingTrace({
+                      circuitName: `${row.buildingName} - ${row.circuit}`,
+                      designCurrentA: row.current,
+                      selectedTripA: breakerNumeric,
+                      frameSizeA: breakerNumeric >= 630 ? breakerNumeric : breakerNumeric > 160 ? 250 : 160,
+                      breakingCapacityKa: breakerNumeric >= 630 ? 65 : 36,
+                    });
+                  }}
+                >
+                  {row.breaker}
+                </TraceableCell>
               </td>
               <td className="p-2 border-r border-slate-200 text-center font-mono font-bold text-slate-900">
-                {row.cable}
+                <TraceableCell
+                  getTrace={() => {
+                    const parsed = parseCableSize(row.cable);
+                    const cableSize = parsed ? parsed.size : 16;
+                    const runs = parsed ? parsed.runs : 1;
+                    return buildCableAmpacityTrace({
+                      circuitName: `${row.buildingName} - ${row.circuit}`,
+                      cableSizeMm2: cableSize,
+                      parallelRuns: runs,
+                      material: (row.material as 'copper' | 'aluminum') || 'copper',
+                      insulation: (row.insulation as 'PVC' | 'XLPE') || 'XLPE',
+                      installMethod: `Method ${row.method}`,
+                      ambientTempC: project.ambientTemp || 45,
+                      groupingCount: project.groupingCount || 1,
+                      tempFactor: 0.87,
+                      groupFactor: 0.70,
+                      nominalAmpacityPerRun: Math.round(row.current * 1.3),
+                      deratedAmpacityPerRun: Math.round(row.current * 1.1),
+                      totalDeratedAmpacity: Math.round(row.current * 1.1) * runs,
+                      breakerSizeA: parseInt(row.breaker.replace(/\D/g, ''), 10) || undefined,
+                      designCurrentA: row.current,
+                    });
+                  }}
+                >
+                  {row.cable}
+                </TraceableCell>
               </td>
               <td className="p-2 border-r border-slate-200 text-center text-xs font-mono">
                 <span className="px-1.5 py-0.5 rounded bg-slate-100 border border-slate-200">

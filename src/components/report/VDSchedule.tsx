@@ -2,8 +2,14 @@ import {
   computeItemVoltageDrop,
   getItemCableLength,
   getBuildingLoadCableLength,
+  parseCableSize,
 } from '@/lib/calculations/cables';
 import { isThreePhaseForItem } from '@/lib/calculations/feeders';
+import { TraceableCell } from '@/components/common/TraceableCell';
+import {
+  buildVoltageDropTrace,
+  buildDesignCurrentTrace,
+} from '@/lib/calculations/trace-engine';
 import type { Project } from '@/types';
 
 export interface VDScheduleProps {
@@ -154,7 +160,25 @@ export default function VDSchedule({ project, buildingId, showHeader = true }: V
               </td>
               <td className="p-2 border-r border-slate-200 font-bold text-slate-900">{row.circuit}</td>
               <td className="p-2 border-r border-slate-200 text-right font-mono font-bold text-slate-900">
-                {row.current.toFixed(1)} A
+                <TraceableCell
+                  getTrace={() => {
+                    const is3Ph = (project.voltage || 400) >= 380;
+                    const voltage = is3Ph ? (project.voltage || 400) : (project.voltage ? project.voltage / Math.sqrt(3) : 230);
+                    const powerKw = is3Ph
+                      ? (Math.sqrt(3) * (project.voltage || 400) * row.current * (project.powerFactor || 0.85)) / 1000
+                      : ((project.voltage ? project.voltage / Math.sqrt(3) : 230) * row.current * (project.powerFactor || 0.85)) / 1000;
+                    return buildDesignCurrentTrace({
+                      loadName: `${row.buildingName} - ${row.circuit}`,
+                      powerKw,
+                      powerFactor: project.powerFactor || 0.85,
+                      voltageV: Math.round(voltage),
+                      isThreePhase: is3Ph,
+                      calculatedCurrentA: row.current,
+                    });
+                  }}
+                >
+                  {row.current.toFixed(1)} A
+                </TraceableCell>
               </td>
               <td className="p-2 border-r border-slate-200 text-center font-mono font-bold text-slate-900">
                 {row.cable}
@@ -163,20 +187,68 @@ export default function VDSchedule({ project, buildingId, showHeader = true }: V
                 {row.length} m
               </td>
               <td className="p-2 border-r border-slate-200 text-right font-mono font-bold text-slate-900">
-                {row.vd.toFixed(2)} %
+                <TraceableCell
+                  getTrace={() => {
+                    const parsed = parseCableSize(row.cable);
+                    const cableSize = parsed ? parsed.size : 4;
+                    const runs = parsed ? parsed.runs : 1;
+                    const is3Ph = (project.voltage || 400) >= 380;
+                    const sysVolt = is3Ph ? (project.voltage || 400) : Math.round((project.voltage || 400) / Math.sqrt(3));
+                    const dropVolts = (row.vd / 100) * sysVolt;
+                    return buildVoltageDropTrace({
+                      circuitName: `${row.buildingName} - ${row.circuit}`,
+                      currentA: row.current,
+                      lengthM: row.length,
+                      cableSizeMm2: cableSize,
+                      parallelRuns: runs,
+                      powerFactor: project.powerFactor || 0.85,
+                      systemVoltageV: sysVolt,
+                      isThreePhase: is3Ph,
+                      dropVolts,
+                      dropPercent: row.vd,
+                      maxDropPercentLimit: project.maxVoltageDropPower || 5.0,
+                    });
+                  }}
+                >
+                  {row.vd.toFixed(2)} %
+                </TraceableCell>
               </td>
               <td className="p-2 text-center">
-                <span
-                  className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-bold font-mono ${
-                    row.status === 'OK'
-                      ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
-                      : row.status === 'WARNING'
-                      ? 'bg-amber-100 text-amber-800 border border-amber-300'
-                      : 'bg-red-100 text-red-800 border border-red-300'
-                  }`}
+                <TraceableCell
+                  getTrace={() => {
+                    const parsed = parseCableSize(row.cable);
+                    const cableSize = parsed ? parsed.size : 4;
+                    const runs = parsed ? parsed.runs : 1;
+                    const is3Ph = (project.voltage || 400) >= 380;
+                    const sysVolt = is3Ph ? (project.voltage || 400) : Math.round((project.voltage || 400) / Math.sqrt(3));
+                    const dropVolts = (row.vd / 100) * sysVolt;
+                    return buildVoltageDropTrace({
+                      circuitName: `${row.buildingName} - ${row.circuit}`,
+                      currentA: row.current,
+                      lengthM: row.length,
+                      cableSizeMm2: cableSize,
+                      parallelRuns: runs,
+                      powerFactor: project.powerFactor || 0.85,
+                      systemVoltageV: sysVolt,
+                      isThreePhase: is3Ph,
+                      dropVolts,
+                      dropPercent: row.vd,
+                      maxDropPercentLimit: project.maxVoltageDropPower || 5.0,
+                    });
+                  }}
                 >
-                  {row.status === 'OK' ? 'PASS' : row.status === 'WARNING' ? 'MARGINAL' : 'FAIL'}
-                </span>
+                  <span
+                    className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-bold font-mono ${
+                      row.status === 'OK'
+                        ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
+                        : row.status === 'WARNING'
+                        ? 'bg-amber-100 text-amber-800 border border-amber-300'
+                        : 'bg-red-100 text-red-800 border border-red-300'
+                    }`}
+                  >
+                    {row.status === 'OK' ? 'PASS' : row.status === 'WARNING' ? 'MARGINAL' : 'FAIL'}
+                  </span>
+                </TraceableCell>
               </td>
             </tr>
           ))}

@@ -11485,71 +11485,6 @@
       "norm_label": "weeklypoint"
     },
     {
-      "label": "BreakerRow",
-      "file_type": "code",
-      "source_file": "src/components/report/BreakerSchedule.tsx",
-      "source_location": "L15",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_components_report_breakerschedule_breakerrow",
-      "community": 136,
-      "community_name": "feeders.ts",
-      "norm_label": "breakerrow"
-    },
-    {
-      "label": "BreakerScheduleProps",
-      "file_type": "code",
-      "source_file": "src/components/report/BreakerSchedule.tsx",
-      "source_location": "L8",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_components_report_breakerschedule_breakerscheduleprops",
-      "community": 136,
-      "community_name": "feeders.ts",
-      "norm_label": "breakerscheduleprops"
-    },
-    {
-      "label": "MDBRow",
-      "file_type": "code",
-      "source_file": "src/components/report/MDBSchedule.tsx",
-      "source_location": "L12",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_components_report_mdbschedule_mdbrow",
-      "community": 136,
-      "community_name": "feeders.ts",
-      "norm_label": "mdbrow"
-    },
-    {
-      "label": "MDBScheduleProps",
-      "file_type": "code",
-      "source_file": "src/components/report/MDBSchedule.tsx",
-      "source_location": "L6",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_components_report_mdbschedule_mdbscheduleprops",
-      "community": 136,
-      "community_name": "feeders.ts",
-      "norm_label": "mdbscheduleprops"
-    },
-    {
-      "label": "EquipmentItem",
-      "file_type": "code",
-      "source_file": "src/lib/calculations/feeders.ts",
-      "source_location": "L20",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_lib_calculations_feeders_equipmentitem",
-      "community": 136,
-      "community_name": "feeders.ts",
-      "norm_label": "equipmentitem"
-    },
-    {
       "label": "phaseBalance",
       "file_type": "code",
       "source_file": "src/lib/calculations/phaseBalance.ts",
@@ -11559,7 +11494,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_phasebalance_phasebalance",
       "community": 136,
-      "community_name": "feeders.ts",
+      "community_name": "computeFeeders",
       "norm_label": "phasebalance"
     },
     {
@@ -11572,7 +11507,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_shortcircuit_earthingsystem",
       "community": 136,
-      "community_name": "feeders.ts",
+      "community_name": "computeFeeders",
       "norm_label": "earthingsystem"
     },
     {
@@ -11585,7 +11520,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_shortcircuit_shortcircuitresult",
       "community": 136,
-      "community_name": "feeders.ts",
+      "community_name": "computeFeeders",
       "norm_label": "shortcircuitresult"
     },
     {
@@ -11598,7 +11533,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_shortcircuit_transformerparameters",
       "community": 136,
-      "community_name": "feeders.ts",
+      "community_name": "computeFeeders",
       "norm_label": "transformerparameters"
     },
     {
@@ -13565,19 +13500,6 @@
       "norm_label": "prisma__breakersettingsclient"
     },
     {
-      "label": "BreakerEntry",
-      "file_type": "code",
-      "source_file": "src/app/(app)/breaker-schedule/page.tsx",
-      "source_location": "L38",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_app_app_breaker_schedule_page_breakerentry",
-      "community": 155,
-      "community_name": "Project",
-      "norm_label": "breakerentry"
-    },
-    {
       "label": "CableEntry",
       "file_type": "code",
       "source_file": "src/app/(app)/cable-schedule/page.tsx",
@@ -13587,47 +13509,8 @@
       "_origin": "ast",
       "id": "src_app_app_cable_schedule_page_cableentry",
       "community": 155,
-      "community_name": "Project",
+      "community_name": "cable-schedule/page.tsx",
       "norm_label": "cableentry"
-    },
-    {
-      "label": "BOMScheduleProps",
-      "file_type": "code",
-      "source_file": "src/components/report/BOMSchedule.tsx",
-      "source_location": "L10",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_components_report_bomschedule_bomscheduleprops",
-      "community": 155,
-      "community_name": "Project",
-      "norm_label": "bomscheduleprops"
-    },
-    {
-      "label": "BreakerBOMItem",
-      "file_type": "code",
-      "source_file": "src/components/report/BOMSchedule.tsx",
-      "source_location": "L26",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_components_report_bomschedule_breakerbomitem",
-      "community": 155,
-      "community_name": "Project",
-      "norm_label": "breakerbomitem"
-    },
-    {
-      "label": "CableBOMItem",
-      "file_type": "code",
-      "source_file": "src/components/report/BOMSchedule.tsx",
-      "source_location": "L16",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_components_report_bomschedule_cablebomitem",
-      "community": 155,
-      "community_name": "Project",
-      "norm_label": "cablebomitem"
     },
     {
       "label": "CableRow",
@@ -13639,7 +13522,7 @@
       "_origin": "ast",
       "id": "src_components_report_cableschedule_cablerow",
       "community": 155,
-      "community_name": "Project",
+      "community_name": "cable-schedule/page.tsx",
       "norm_label": "cablerow"
     },
     {
@@ -13652,60 +13535,8 @@
       "_origin": "ast",
       "id": "src_components_report_cableschedule_cablescheduleprops",
       "community": 155,
-      "community_name": "Project",
+      "community_name": "cable-schedule/page.tsx",
       "norm_label": "cablescheduleprops"
-    },
-    {
-      "label": "CoverPageProps",
-      "file_type": "code",
-      "source_file": "src/components/report/CoverPage.tsx",
-      "source_location": "L9",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_components_report_coverpage_coverpageprops",
-      "community": 155,
-      "community_name": "Project",
-      "norm_label": "coverpageprops"
-    },
-    {
-      "label": "ReportHeaderProps",
-      "file_type": "code",
-      "source_file": "src/components/report/ReportHeader.tsx",
-      "source_location": "L10",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_components_report_reportheader_reportheaderprops",
-      "community": 155,
-      "community_name": "Project",
-      "norm_label": "reportheaderprops"
-    },
-    {
-      "label": "SectionHeaderProps",
-      "file_type": "code",
-      "source_file": "src/components/report/ReportHeader.tsx",
-      "source_location": "L18",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_components_report_reportheader_sectionheaderprops",
-      "community": 155,
-      "community_name": "Project",
-      "norm_label": "sectionheaderprops"
-    },
-    {
-      "label": "ShortCircuitScheduleProps",
-      "file_type": "code",
-      "source_file": "src/components/report/ShortCircuitSchedule.tsx",
-      "source_location": "L13",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_components_report_shortcircuitschedule_shortcircuitscheduleprops",
-      "community": 155,
-      "community_name": "Project",
-      "norm_label": "shortcircuitscheduleprops"
     },
     {
       "label": "VDRow",
@@ -13717,7 +13548,7 @@
       "_origin": "ast",
       "id": "src_components_report_vdschedule_vdrow",
       "community": 155,
-      "community_name": "Project",
+      "community_name": "cable-schedule/page.tsx",
       "norm_label": "vdrow"
     },
     {
@@ -13730,34 +13561,8 @@
       "_origin": "ast",
       "id": "src_components_report_vdschedule_vdscheduleprops",
       "community": 155,
-      "community_name": "Project",
+      "community_name": "cable-schedule/page.tsx",
       "norm_label": "vdscheduleprops"
-    },
-    {
-      "label": "ProjectContextType",
-      "file_type": "code",
-      "source_file": "src/context/ProjectContext.tsx",
-      "source_location": "L12",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_context_projectcontext_projectcontexttype",
-      "community": 155,
-      "community_name": "Project",
-      "norm_label": "projectcontexttype"
-    },
-    {
-      "label": "FoundBreaker",
-      "file_type": "code",
-      "source_file": "src/lib/calculations/feeders.ts",
-      "source_location": "L41",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_lib_calculations_feeders_foundbreaker",
-      "community": 155,
-      "community_name": "Project",
-      "norm_label": "foundbreaker"
     },
     {
       "label": "CableKind",
@@ -13769,47 +13574,8 @@
       "_origin": "ast",
       "id": "src_lib_sld_cablepersist_cablekind",
       "community": 155,
-      "community_name": "Project",
+      "community_name": "cable-schedule/page.tsx",
       "norm_label": "cablekind"
-    },
-    {
-      "label": "FallbackType",
-      "file_type": "code",
-      "source_file": "src/types/index.ts",
-      "source_location": "L238",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_types_index_fallbacktype",
-      "community": 155,
-      "community_name": "Project",
-      "norm_label": "fallbacktype"
-    },
-    {
-      "label": "GenericBreakerSpec",
-      "file_type": "code",
-      "source_file": "src/types/index.ts",
-      "source_location": "L240",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_types_index_genericbreakerspec",
-      "community": 155,
-      "community_name": "Project",
-      "norm_label": "genericbreakerspec"
-    },
-    {
-      "label": "Project",
-      "file_type": "code",
-      "source_file": "src/types/index.ts",
-      "source_location": "L154",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_types_index_project",
-      "community": 155,
-      "community_name": "Project",
-      "norm_label": "project"
     },
     {
       "label": "AggregateProjectReviewItem",
@@ -15006,19 +14772,6 @@
       "community": 168,
       "community_name": "aggregates.ts",
       "norm_label": "loadscheduleprops"
-    },
-    {
-      "label": "FindBreaker",
-      "file_type": "code",
-      "source_file": "src/lib/calculations/feeders.ts",
-      "source_location": "L191",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_lib_calculations_feeders_findbreaker",
-      "community": 168,
-      "community_name": "aggregates.ts",
-      "norm_label": "findbreaker"
     },
     {
       "label": "BOMResult",
@@ -24238,6 +23991,214 @@
       "norm_label": "logoasset"
     },
     {
+      "label": "BreakerEntry",
+      "file_type": "code",
+      "source_file": "src/app/(app)/breaker-schedule/page.tsx",
+      "source_location": "L38",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_app_app_breaker_schedule_page_breakerentry",
+      "community": 42,
+      "community_name": "feeders.ts",
+      "norm_label": "breakerentry"
+    },
+    {
+      "label": "BOMScheduleProps",
+      "file_type": "code",
+      "source_file": "src/components/report/BOMSchedule.tsx",
+      "source_location": "L10",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_components_report_bomschedule_bomscheduleprops",
+      "community": 42,
+      "community_name": "feeders.ts",
+      "norm_label": "bomscheduleprops"
+    },
+    {
+      "label": "BreakerBOMItem",
+      "file_type": "code",
+      "source_file": "src/components/report/BOMSchedule.tsx",
+      "source_location": "L26",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_components_report_bomschedule_breakerbomitem",
+      "community": 42,
+      "community_name": "feeders.ts",
+      "norm_label": "breakerbomitem"
+    },
+    {
+      "label": "CableBOMItem",
+      "file_type": "code",
+      "source_file": "src/components/report/BOMSchedule.tsx",
+      "source_location": "L16",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_components_report_bomschedule_cablebomitem",
+      "community": 42,
+      "community_name": "feeders.ts",
+      "norm_label": "cablebomitem"
+    },
+    {
+      "label": "BreakerRow",
+      "file_type": "code",
+      "source_file": "src/components/report/BreakerSchedule.tsx",
+      "source_location": "L15",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_components_report_breakerschedule_breakerrow",
+      "community": 42,
+      "community_name": "feeders.ts",
+      "norm_label": "breakerrow"
+    },
+    {
+      "label": "BreakerScheduleProps",
+      "file_type": "code",
+      "source_file": "src/components/report/BreakerSchedule.tsx",
+      "source_location": "L8",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_components_report_breakerschedule_breakerscheduleprops",
+      "community": 42,
+      "community_name": "feeders.ts",
+      "norm_label": "breakerscheduleprops"
+    },
+    {
+      "label": "CoverPageProps",
+      "file_type": "code",
+      "source_file": "src/components/report/CoverPage.tsx",
+      "source_location": "L9",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_components_report_coverpage_coverpageprops",
+      "community": 42,
+      "community_name": "feeders.ts",
+      "norm_label": "coverpageprops"
+    },
+    {
+      "label": "MDBRow",
+      "file_type": "code",
+      "source_file": "src/components/report/MDBSchedule.tsx",
+      "source_location": "L12",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_components_report_mdbschedule_mdbrow",
+      "community": 42,
+      "community_name": "feeders.ts",
+      "norm_label": "mdbrow"
+    },
+    {
+      "label": "MDBScheduleProps",
+      "file_type": "code",
+      "source_file": "src/components/report/MDBSchedule.tsx",
+      "source_location": "L6",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_components_report_mdbschedule_mdbscheduleprops",
+      "community": 42,
+      "community_name": "feeders.ts",
+      "norm_label": "mdbscheduleprops"
+    },
+    {
+      "label": "ReportHeaderProps",
+      "file_type": "code",
+      "source_file": "src/components/report/ReportHeader.tsx",
+      "source_location": "L10",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_components_report_reportheader_reportheaderprops",
+      "community": 42,
+      "community_name": "feeders.ts",
+      "norm_label": "reportheaderprops"
+    },
+    {
+      "label": "SectionHeaderProps",
+      "file_type": "code",
+      "source_file": "src/components/report/ReportHeader.tsx",
+      "source_location": "L18",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_components_report_reportheader_sectionheaderprops",
+      "community": 42,
+      "community_name": "feeders.ts",
+      "norm_label": "sectionheaderprops"
+    },
+    {
+      "label": "ShortCircuitScheduleProps",
+      "file_type": "code",
+      "source_file": "src/components/report/ShortCircuitSchedule.tsx",
+      "source_location": "L13",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_components_report_shortcircuitschedule_shortcircuitscheduleprops",
+      "community": 42,
+      "community_name": "feeders.ts",
+      "norm_label": "shortcircuitscheduleprops"
+    },
+    {
+      "label": "ProjectContextType",
+      "file_type": "code",
+      "source_file": "src/context/ProjectContext.tsx",
+      "source_location": "L12",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_context_projectcontext_projectcontexttype",
+      "community": 42,
+      "community_name": "feeders.ts",
+      "norm_label": "projectcontexttype"
+    },
+    {
+      "label": "EquipmentItem",
+      "file_type": "code",
+      "source_file": "src/lib/calculations/feeders.ts",
+      "source_location": "L20",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_lib_calculations_feeders_equipmentitem",
+      "community": 42,
+      "community_name": "feeders.ts",
+      "norm_label": "equipmentitem"
+    },
+    {
+      "label": "FindBreaker",
+      "file_type": "code",
+      "source_file": "src/lib/calculations/feeders.ts",
+      "source_location": "L191",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_lib_calculations_feeders_findbreaker",
+      "community": 42,
+      "community_name": "feeders.ts",
+      "norm_label": "findbreaker"
+    },
+    {
+      "label": "FoundBreaker",
+      "file_type": "code",
+      "source_file": "src/lib/calculations/feeders.ts",
+      "source_location": "L41",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_lib_calculations_feeders_foundbreaker",
+      "community": 42,
+      "community_name": "feeders.ts",
+      "norm_label": "foundbreaker"
+    },
+    {
       "label": "ApartmentRoom",
       "file_type": "code",
       "source_file": "src/types/index.ts",
@@ -24247,7 +24208,7 @@
       "_origin": "ast",
       "id": "src_types_index_apartmentroom",
       "community": 42,
-      "community_name": "types/index.ts",
+      "community_name": "feeders.ts",
       "norm_label": "apartmentroom"
     },
     {
@@ -24260,7 +24221,7 @@
       "_origin": "ast",
       "id": "src_types_index_apartmenttemplate",
       "community": 42,
-      "community_name": "types/index.ts",
+      "community_name": "feeders.ts",
       "norm_label": "apartmenttemplate"
     },
     {
@@ -24273,7 +24234,7 @@
       "_origin": "ast",
       "id": "src_types_index_assignedphase",
       "community": 42,
-      "community_name": "types/index.ts",
+      "community_name": "feeders.ts",
       "norm_label": "assignedphase"
     },
     {
@@ -24286,7 +24247,7 @@
       "_origin": "ast",
       "id": "src_types_index_building",
       "community": 42,
-      "community_name": "types/index.ts",
+      "community_name": "feeders.ts",
       "norm_label": "building"
     },
     {
@@ -24299,7 +24260,7 @@
       "_origin": "ast",
       "id": "src_types_index_buildingload",
       "community": 42,
-      "community_name": "types/index.ts",
+      "community_name": "feeders.ts",
       "norm_label": "buildingload"
     },
     {
@@ -24312,8 +24273,21 @@
       "_origin": "ast",
       "id": "src_types_index_earthingsystem",
       "community": 42,
-      "community_name": "types/index.ts",
+      "community_name": "feeders.ts",
       "norm_label": "earthingsystem"
+    },
+    {
+      "label": "FallbackType",
+      "file_type": "code",
+      "source_file": "src/types/index.ts",
+      "source_location": "L238",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_types_index_fallbacktype",
+      "community": 42,
+      "community_name": "feeders.ts",
+      "norm_label": "fallbacktype"
     },
     {
       "label": "FloorItem",
@@ -24325,8 +24299,21 @@
       "_origin": "ast",
       "id": "src_types_index_flooritem",
       "community": 42,
-      "community_name": "types/index.ts",
+      "community_name": "feeders.ts",
       "norm_label": "flooritem"
+    },
+    {
+      "label": "GenericBreakerSpec",
+      "file_type": "code",
+      "source_file": "src/types/index.ts",
+      "source_location": "L240",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_types_index_genericbreakerspec",
+      "community": 42,
+      "community_name": "feeders.ts",
+      "norm_label": "genericbreakerspec"
     },
     {
       "label": "LoadLibraryItem",
@@ -24338,8 +24325,21 @@
       "_origin": "ast",
       "id": "src_types_index_loadlibraryitem",
       "community": 42,
-      "community_name": "types/index.ts",
+      "community_name": "feeders.ts",
       "norm_label": "loadlibraryitem"
+    },
+    {
+      "label": "Project",
+      "file_type": "code",
+      "source_file": "src/types/index.ts",
+      "source_location": "L154",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_types_index_project",
+      "community": 42,
+      "community_name": "feeders.ts",
+      "norm_label": "project"
     },
     {
       "label": "ProjectAuditLog",
@@ -24351,7 +24351,7 @@
       "_origin": "ast",
       "id": "src_types_index_projectauditlog",
       "community": 42,
-      "community_name": "types/index.ts",
+      "community_name": "feeders.ts",
       "norm_label": "projectauditlog"
     },
     {
@@ -24364,7 +24364,7 @@
       "_origin": "ast",
       "id": "src_types_index_reporttab",
       "community": 42,
-      "community_name": "types/index.ts",
+      "community_name": "feeders.ts",
       "norm_label": "reporttab"
     },
     {
@@ -32787,7 +32787,7 @@
       "_origin": "ast",
       "id": "src_app_app_panel_page_getbreakercategory",
       "community": 136,
-      "community_name": "feeders.ts",
+      "community_name": "computeFeeders",
       "norm_label": "getbreakercategory()"
     },
     {
@@ -32799,7 +32799,7 @@
       "_origin": "ast",
       "id": "src_app_app_panel_page_paneldesignerpage",
       "community": 136,
-      "community_name": "feeders.ts",
+      "community_name": "computeFeeders",
       "norm_label": "paneldesignerpage()"
     },
     {
@@ -32811,7 +32811,7 @@
       "_origin": "ast",
       "id": "src_app_app_panel_page_wrapsvglines",
       "community": 136,
-      "community_name": "feeders.ts",
+      "community_name": "computeFeeders",
       "norm_label": "wrapsvglines()"
     },
     {
@@ -32823,7 +32823,7 @@
       "_origin": "ast",
       "id": "src_app_app_reports_page_reportspage",
       "community": 136,
-      "community_name": "feeders.ts",
+      "community_name": "computeFeeders",
       "norm_label": "reportspage()"
     },
     {
@@ -32835,20 +32835,8 @@
       "_origin": "ast",
       "id": "src_app_app_riser_page_riserpage",
       "community": 136,
-      "community_name": "feeders.ts",
+      "community_name": "computeFeeders",
       "norm_label": "riserpage()"
-    },
-    {
-      "label": "BreakerSchedule()",
-      "file_type": "code",
-      "source_file": "src/components/report/BreakerSchedule.tsx",
-      "source_location": "L43",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_components_report_breakerschedule_breakerschedule",
-      "community": 136,
-      "community_name": "feeders.ts",
-      "norm_label": "breakerschedule()"
     },
     {
       "label": "CoverPage()",
@@ -32859,20 +32847,8 @@
       "_origin": "ast",
       "id": "src_components_report_coverpage_coverpage",
       "community": 136,
-      "community_name": "feeders.ts",
+      "community_name": "computeFeeders",
       "norm_label": "coverpage()"
-    },
-    {
-      "label": "MDBSchedule()",
-      "file_type": "code",
-      "source_file": "src/components/report/MDBSchedule.tsx",
-      "source_location": "L34",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_components_report_mdbschedule_mdbschedule",
-      "community": 136,
-      "community_name": "feeders.ts",
-      "norm_label": "mdbschedule()"
     },
     {
       "label": "ShortCircuitSchedule()",
@@ -32883,44 +32859,8 @@
       "_origin": "ast",
       "id": "src_components_report_shortcircuitschedule_shortcircuitschedule",
       "community": 136,
-      "community_name": "feeders.ts",
+      "community_name": "computeFeeders",
       "norm_label": "shortcircuitschedule()"
-    },
-    {
-      "label": "fetchEquipmentCatalog()",
-      "file_type": "code",
-      "source_file": "src/hooks/useEquipmentCatalog.ts",
-      "source_location": "L19",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_hooks_useequipmentcatalog_fetchequipmentcatalog",
-      "community": 136,
-      "community_name": "feeders.ts",
-      "norm_label": "fetchequipmentcatalog()"
-    },
-    {
-      "label": "useEquipmentCatalog()",
-      "file_type": "code",
-      "source_file": "src/hooks/useEquipmentCatalog.ts",
-      "source_location": "L41",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_hooks_useequipmentcatalog_useequipmentcatalog",
-      "community": 136,
-      "community_name": "feeders.ts",
-      "norm_label": "useequipmentcatalog()"
-    },
-    {
-      "label": "categoryForFloorItem()",
-      "file_type": "code",
-      "source_file": "src/lib/calculations/feeders.ts",
-      "source_location": "L464",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_lib_calculations_feeders_categoryforflooritem",
-      "community": 136,
-      "community_name": "feeders.ts",
-      "norm_label": "categoryforflooritem()"
     },
     {
       "label": "computeFeeders()",
@@ -32931,32 +32871,8 @@
       "_origin": "ast",
       "id": "src_lib_calculations_feeders_computefeeders",
       "community": 136,
-      "community_name": "feeders.ts",
+      "community_name": "computeFeeders",
       "norm_label": "computefeeders()"
-    },
-    {
-      "label": "createFindBreaker()",
-      "file_type": "code",
-      "source_file": "src/lib/calculations/feeders.ts",
-      "source_location": "L222",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_lib_calculations_feeders_createfindbreaker",
-      "community": 136,
-      "community_name": "feeders.ts",
-      "norm_label": "createfindbreaker()"
-    },
-    {
-      "label": "formatBreakerModel()",
-      "file_type": "code",
-      "source_file": "src/lib/calculations/feeders.ts",
-      "source_location": "L207",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_lib_calculations_feeders_formatbreakermodel",
-      "community": 136,
-      "community_name": "feeders.ts",
-      "norm_label": "formatbreakermodel()"
     },
     {
       "label": "sizeTransformer()",
@@ -32967,7 +32883,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_loads_sizetransformer",
       "community": 136,
-      "community_name": "feeders.ts",
+      "community_name": "computeFeeders",
       "norm_label": "sizetransformer()"
     },
     {
@@ -32979,7 +32895,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_shortcircuit_calculateiscwithcable",
       "community": 136,
-      "community_name": "feeders.ts",
+      "community_name": "computeFeeders",
       "norm_label": "calculateiscwithcable()"
     },
     {
@@ -32991,7 +32907,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_shortcircuit_calculateshortcircuitcurrent",
       "community": 136,
-      "community_name": "feeders.ts",
+      "community_name": "computeFeeders",
       "norm_label": "calculateshortcircuitcurrent()"
     },
     {
@@ -33003,7 +32919,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_shortcircuit_calculatetransformerimpedance",
       "community": 136,
-      "community_name": "feeders.ts",
+      "community_name": "computeFeeders",
       "norm_label": "calculatetransformerimpedance()"
     },
     {
@@ -33015,7 +32931,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_shortcircuit_gettypicalimpedance",
       "community": 136,
-      "community_name": "feeders.ts",
+      "community_name": "computeFeeders",
       "norm_label": "gettypicalimpedance()"
     },
     {
@@ -33387,7 +33303,7 @@
       "_origin": "ast",
       "id": "src_app_app_cable_schedule_page_cableschedulepage",
       "community": 155,
-      "community_name": "Project",
+      "community_name": "cable-schedule/page.tsx",
       "norm_label": "cableschedulepage()"
     },
     {
@@ -33399,7 +33315,7 @@
       "_origin": "ast",
       "id": "src_components_report_bomschedule_bomschedule",
       "community": 155,
-      "community_name": "Project",
+      "community_name": "cable-schedule/page.tsx",
       "norm_label": "bomschedule()"
     },
     {
@@ -33411,56 +33327,8 @@
       "_origin": "ast",
       "id": "src_components_report_cableschedule_cableschedule",
       "community": 155,
-      "community_name": "Project",
+      "community_name": "cable-schedule/page.tsx",
       "norm_label": "cableschedule()"
-    },
-    {
-      "label": "LogoMark()",
-      "file_type": "code",
-      "source_file": "src/components/report/ReportHeader.tsx",
-      "source_location": "L29",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_components_report_reportheader_logomark",
-      "community": 155,
-      "community_name": "Project",
-      "norm_label": "logomark()"
-    },
-    {
-      "label": "MetaItem()",
-      "file_type": "code",
-      "source_file": "src/components/report/ReportHeader.tsx",
-      "source_location": "L51",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_components_report_reportheader_metaitem",
-      "community": 155,
-      "community_name": "Project",
-      "norm_label": "metaitem()"
-    },
-    {
-      "label": "ReportHeader()",
-      "file_type": "code",
-      "source_file": "src/components/report/ReportHeader.tsx",
-      "source_location": "L106",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_components_report_reportheader_reportheader",
-      "community": 155,
-      "community_name": "Project",
-      "norm_label": "reportheader()"
-    },
-    {
-      "label": "SectionHeader()",
-      "file_type": "code",
-      "source_file": "src/components/report/ReportHeader.tsx",
-      "source_location": "L76",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_components_report_reportheader_sectionheader",
-      "community": 155,
-      "community_name": "Project",
-      "norm_label": "sectionheader()"
     },
     {
       "label": "VDSchedule()",
@@ -33471,7 +33339,7 @@
       "_origin": "ast",
       "id": "src_components_report_vdschedule_vdschedule",
       "community": 155,
-      "community_name": "Project",
+      "community_name": "cable-schedule/page.tsx",
       "norm_label": "vdschedule()"
     },
     {
@@ -33483,7 +33351,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_cables_getbuildingloadcablelength",
       "community": 155,
-      "community_name": "Project",
+      "community_name": "cable-schedule/page.tsx",
       "norm_label": "getbuildingloadcablelength()"
     },
     {
@@ -33495,7 +33363,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_cables_getitemcablelength",
       "community": 155,
-      "community_name": "Project",
+      "community_name": "cable-schedule/page.tsx",
       "norm_label": "getitemcablelength()"
     },
     {
@@ -33507,7 +33375,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_cables_getrisercablelength",
       "community": 155,
-      "community_name": "Project",
+      "community_name": "cable-schedule/page.tsx",
       "norm_label": "getrisercablelength()"
     },
     {
@@ -33519,7 +33387,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_feeders_isthreephaseforitem",
       "community": 155,
-      "community_name": "Project",
+      "community_name": "cable-schedule/page.tsx",
       "norm_label": "isthreephaseforitem()"
     },
     {
@@ -33531,7 +33399,7 @@
       "_origin": "ast",
       "id": "src_lib_sld_cablepersist_cablepatchurl",
       "community": 155,
-      "community_name": "Project",
+      "community_name": "cable-schedule/page.tsx",
       "norm_label": "cablepatchurl()"
     },
     {
@@ -33543,7 +33411,7 @@
       "_origin": "ast",
       "id": "src_lib_sld_cablepersist_fieldeditbody",
       "community": 155,
-      "community_name": "Project",
+      "community_name": "cable-schedule/page.tsx",
       "norm_label": "fieldeditbody()"
     },
     {
@@ -33555,7 +33423,7 @@
       "_origin": "ast",
       "id": "src_lib_sld_cablepersist_upsizebody",
       "community": 155,
-      "community_name": "Project",
+      "community_name": "cable-schedule/page.tsx",
       "norm_label": "upsizebody()"
     },
     {
@@ -34037,54 +33905,6 @@
       "community": 168,
       "community_name": "aggregates.ts",
       "norm_label": "round()"
-    },
-    {
-      "label": "building()",
-      "file_type": "code",
-      "source_file": "src/lib/reports/excel.test.ts",
-      "source_location": "L39",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_lib_reports_excel_test_building",
-      "community": 168,
-      "community_name": "aggregates.ts",
-      "norm_label": "building()"
-    },
-    {
-      "label": "findBreaker()",
-      "file_type": "code",
-      "source_file": "src/lib/reports/excel.test.ts",
-      "source_location": "L7",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_lib_reports_excel_test_findbreaker",
-      "community": 168,
-      "community_name": "aggregates.ts",
-      "norm_label": "findbreaker()"
-    },
-    {
-      "label": "item()",
-      "file_type": "code",
-      "source_file": "src/lib/reports/excel.test.ts",
-      "source_location": "L30",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_lib_reports_excel_test_item",
-      "community": 168,
-      "community_name": "aggregates.ts",
-      "norm_label": "item()"
-    },
-    {
-      "label": "projectWith()",
-      "file_type": "code",
-      "source_file": "src/lib/reports/excel.test.ts",
-      "source_location": "L48",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_lib_reports_excel_test_projectwith",
-      "community": 168,
-      "community_name": "aggregates.ts",
-      "norm_label": "projectwith()"
     },
     {
       "label": ".__init__()",
@@ -36751,6 +36571,18 @@
       "norm_label": "should_use_full_bleed()"
     },
     {
+      "label": ".test_add_components_already_installed()",
+      "file_type": "code",
+      "source_file": ".agents/skills/ui-styling/scripts/tests/test_shadcn_add.py",
+      "source_location": "L111",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "agents_skills_ui_styling_scripts_tests_test_shadcn_add_testshadcninstaller_test_add_components_already_installed",
+      "community": 221,
+      "community_name": ".test_add_components_already_installed",
+      "norm_label": ".test_add_components_already_installed()"
+    },
+    {
       "label": "AdminLayout()",
       "file_type": "code",
       "source_file": "src/app/(admin)/layout.tsx",
@@ -37373,18 +37205,6 @@
       "community": 229,
       "community_name": "Prisma__ProjectAuditLogClient",
       "norm_label": ".user()"
-    },
-    {
-      "label": ".test_add_components_no_config()",
-      "file_type": "code",
-      "source_file": ".agents/skills/ui-styling/scripts/tests/test_shadcn_add.py",
-      "source_location": "L103",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "agents_skills_ui_styling_scripts_tests_test_shadcn_add_testshadcninstaller_test_add_components_no_config",
-      "community": 231,
-      "community_name": ".test_add_components_no_config",
-      "norm_label": ".test_add_components_no_config()"
     },
     {
       "label": ".catch()",
@@ -38158,7 +37978,7 @@
       "label": "POST()",
       "file_type": "code",
       "source_file": "src/app/api/projects/route.ts",
-      "source_location": "L73",
+      "source_location": "L75",
       "_callable": true,
       "_origin": "ast",
       "id": "src_app_api_projects_route_post",
@@ -39763,6 +39583,30 @@
       "norm_label": "savecountryoverride()"
     },
     {
+      "label": "BreakerSchedule()",
+      "file_type": "code",
+      "source_file": "src/components/report/BreakerSchedule.tsx",
+      "source_location": "L43",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_components_report_breakerschedule_breakerschedule",
+      "community": 42,
+      "community_name": "feeders.ts",
+      "norm_label": "breakerschedule()"
+    },
+    {
+      "label": "MDBSchedule()",
+      "file_type": "code",
+      "source_file": "src/components/report/MDBSchedule.tsx",
+      "source_location": "L34",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_components_report_mdbschedule_mdbschedule",
+      "community": 42,
+      "community_name": "feeders.ts",
+      "norm_label": "mdbschedule()"
+    },
+    {
       "label": "building()",
       "file_type": "code",
       "source_file": "src/components/report/MDBSchedule.test.tsx",
@@ -39771,7 +39615,7 @@
       "_origin": "ast",
       "id": "src_components_report_mdbschedule_test_building",
       "community": 42,
-      "community_name": "types/index.ts",
+      "community_name": "feeders.ts",
       "norm_label": "building()"
     },
     {
@@ -39783,8 +39627,116 @@
       "_origin": "ast",
       "id": "src_components_report_mdbschedule_test_item",
       "community": 42,
-      "community_name": "types/index.ts",
+      "community_name": "feeders.ts",
       "norm_label": "item()"
+    },
+    {
+      "label": "LogoMark()",
+      "file_type": "code",
+      "source_file": "src/components/report/ReportHeader.tsx",
+      "source_location": "L29",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_components_report_reportheader_logomark",
+      "community": 42,
+      "community_name": "feeders.ts",
+      "norm_label": "logomark()"
+    },
+    {
+      "label": "MetaItem()",
+      "file_type": "code",
+      "source_file": "src/components/report/ReportHeader.tsx",
+      "source_location": "L51",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_components_report_reportheader_metaitem",
+      "community": 42,
+      "community_name": "feeders.ts",
+      "norm_label": "metaitem()"
+    },
+    {
+      "label": "ReportHeader()",
+      "file_type": "code",
+      "source_file": "src/components/report/ReportHeader.tsx",
+      "source_location": "L106",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_components_report_reportheader_reportheader",
+      "community": 42,
+      "community_name": "feeders.ts",
+      "norm_label": "reportheader()"
+    },
+    {
+      "label": "SectionHeader()",
+      "file_type": "code",
+      "source_file": "src/components/report/ReportHeader.tsx",
+      "source_location": "L76",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_components_report_reportheader_sectionheader",
+      "community": 42,
+      "community_name": "feeders.ts",
+      "norm_label": "sectionheader()"
+    },
+    {
+      "label": "fetchEquipmentCatalog()",
+      "file_type": "code",
+      "source_file": "src/hooks/useEquipmentCatalog.ts",
+      "source_location": "L19",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_hooks_useequipmentcatalog_fetchequipmentcatalog",
+      "community": 42,
+      "community_name": "feeders.ts",
+      "norm_label": "fetchequipmentcatalog()"
+    },
+    {
+      "label": "useEquipmentCatalog()",
+      "file_type": "code",
+      "source_file": "src/hooks/useEquipmentCatalog.ts",
+      "source_location": "L41",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_hooks_useequipmentcatalog_useequipmentcatalog",
+      "community": 42,
+      "community_name": "feeders.ts",
+      "norm_label": "useequipmentcatalog()"
+    },
+    {
+      "label": "categoryForFloorItem()",
+      "file_type": "code",
+      "source_file": "src/lib/calculations/feeders.ts",
+      "source_location": "L464",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_lib_calculations_feeders_categoryforflooritem",
+      "community": 42,
+      "community_name": "feeders.ts",
+      "norm_label": "categoryforflooritem()"
+    },
+    {
+      "label": "createFindBreaker()",
+      "file_type": "code",
+      "source_file": "src/lib/calculations/feeders.ts",
+      "source_location": "L222",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_lib_calculations_feeders_createfindbreaker",
+      "community": 42,
+      "community_name": "feeders.ts",
+      "norm_label": "createfindbreaker()"
+    },
+    {
+      "label": "formatBreakerModel()",
+      "file_type": "code",
+      "source_file": "src/lib/calculations/feeders.ts",
+      "source_location": "L207",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_lib_calculations_feeders_formatbreakermodel",
+      "community": 42,
+      "community_name": "feeders.ts",
+      "norm_label": "formatbreakermodel()"
     },
     {
       "label": "building()",
@@ -39795,7 +39747,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_feeders_test_building",
       "community": 42,
-      "community_name": "types/index.ts",
+      "community_name": "feeders.ts",
       "norm_label": "building()"
     },
     {
@@ -39807,7 +39759,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_feeders_test_item",
       "community": 42,
-      "community_name": "types/index.ts",
+      "community_name": "feeders.ts",
       "norm_label": "item()"
     },
     {
@@ -39819,7 +39771,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_integration_multibuilding_test_apartmentitem",
       "community": 42,
-      "community_name": "types/index.ts",
+      "community_name": "feeders.ts",
       "norm_label": "apartmentitem()"
     },
     {
@@ -39831,7 +39783,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_integration_multibuilding_test_buildmall",
       "community": 42,
-      "community_name": "types/index.ts",
+      "community_name": "feeders.ts",
       "norm_label": "buildmall()"
     },
     {
@@ -39843,7 +39795,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_integration_multibuilding_test_buildtowera",
       "community": 42,
-      "community_name": "types/index.ts",
+      "community_name": "feeders.ts",
       "norm_label": "buildtowera()"
     },
     {
@@ -39855,7 +39807,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_integration_multibuilding_test_buildtowerb",
       "community": 42,
-      "community_name": "types/index.ts",
+      "community_name": "feeders.ts",
       "norm_label": "buildtowerb()"
     },
     {
@@ -39867,7 +39819,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_integration_multibuilding_test_expectedtotalkw",
       "community": 42,
-      "community_name": "types/index.ts",
+      "community_name": "feeders.ts",
       "norm_label": "expectedtotalkw()"
     },
     {
@@ -39879,7 +39831,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_integration_multibuilding_test_libraryload",
       "community": 42,
-      "community_name": "types/index.ts",
+      "community_name": "feeders.ts",
       "norm_label": "libraryload()"
     },
     {
@@ -39891,7 +39843,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_integration_multibuilding_test_servicepanelitem",
       "community": 42,
-      "community_name": "types/index.ts",
+      "community_name": "feeders.ts",
       "norm_label": "servicepanelitem()"
     },
     {
@@ -39903,7 +39855,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_integration_multibuilding_test_sweepfeeders",
       "community": 42,
-      "community_name": "types/index.ts",
+      "community_name": "feeders.ts",
       "norm_label": "sweepfeeders()"
     },
     {
@@ -39915,7 +39867,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_phasebalance_test_buildingloadfixture",
       "community": 42,
-      "community_name": "types/index.ts",
+      "community_name": "feeders.ts",
       "norm_label": "buildingloadfixture()"
     },
     {
@@ -39927,7 +39879,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_phasebalance_test_flooritemfixture",
       "community": 42,
-      "community_name": "types/index.ts",
+      "community_name": "feeders.ts",
       "norm_label": "flooritemfixture()"
     },
     {
@@ -39939,7 +39891,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_phasebalance_test_item",
       "community": 42,
-      "community_name": "types/index.ts",
+      "community_name": "feeders.ts",
       "norm_label": "item()"
     },
     {
@@ -39951,7 +39903,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_phasebalance_test_libitem",
       "community": 42,
-      "community_name": "types/index.ts",
+      "community_name": "feeders.ts",
       "norm_label": "libitem()"
     },
     {
@@ -39963,8 +39915,56 @@
       "_origin": "ast",
       "id": "src_lib_calculations_phasebalance_test_projectfixture",
       "community": 42,
-      "community_name": "types/index.ts",
+      "community_name": "feeders.ts",
       "norm_label": "projectfixture()"
+    },
+    {
+      "label": "building()",
+      "file_type": "code",
+      "source_file": "src/lib/reports/excel.test.ts",
+      "source_location": "L39",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_lib_reports_excel_test_building",
+      "community": 42,
+      "community_name": "feeders.ts",
+      "norm_label": "building()"
+    },
+    {
+      "label": "findBreaker()",
+      "file_type": "code",
+      "source_file": "src/lib/reports/excel.test.ts",
+      "source_location": "L7",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_lib_reports_excel_test_findbreaker",
+      "community": 42,
+      "community_name": "feeders.ts",
+      "norm_label": "findbreaker()"
+    },
+    {
+      "label": "item()",
+      "file_type": "code",
+      "source_file": "src/lib/reports/excel.test.ts",
+      "source_location": "L30",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_lib_reports_excel_test_item",
+      "community": 42,
+      "community_name": "feeders.ts",
+      "norm_label": "item()"
+    },
+    {
+      "label": "projectWith()",
+      "file_type": "code",
+      "source_file": "src/lib/reports/excel.test.ts",
+      "source_location": "L48",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_lib_reports_excel_test_projectwith",
+      "community": 42,
+      "community_name": "feeders.ts",
+      "norm_label": "projectwith()"
     },
     {
       "label": ".fit()",
@@ -45451,16 +45451,16 @@
       "norm_label": "main()"
     },
     {
-      "label": ".test_add_components_already_installed()",
+      "label": ".test_add_components_no_config()",
       "file_type": "code",
       "source_file": ".agents/skills/ui-styling/scripts/tests/test_shadcn_add.py",
-      "source_location": "L111",
+      "source_location": "L103",
       "_callable": true,
       "_origin": "ast",
-      "id": "agents_skills_ui_styling_scripts_tests_test_shadcn_add_testshadcninstaller_test_add_components_already_installed",
+      "id": "agents_skills_ui_styling_scripts_tests_test_shadcn_add_testshadcninstaller_test_add_components_no_config",
       "community": 85,
       "community_name": "ShadcnInstaller",
-      "norm_label": ".test_add_components_already_installed()"
+      "norm_label": ".test_add_components_no_config()"
     },
     {
       "label": ".test_get_installed_components_no_config()",
@@ -49458,17 +49458,6 @@
       "norm_label": "admin/page.tsx"
     },
     {
-      "label": "BreakerSchedule.tsx",
-      "file_type": "code",
-      "source_file": "src/components/report/BreakerSchedule.tsx",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "src_components_report_breakerschedule",
-      "community": 136,
-      "community_name": "feeders.ts",
-      "norm_label": "breakerschedule.tsx"
-    },
-    {
       "label": "CoverPage.tsx",
       "file_type": "code",
       "source_file": "src/components/report/CoverPage.tsx",
@@ -49476,19 +49465,8 @@
       "_origin": "ast",
       "id": "src_components_report_coverpage",
       "community": 136,
-      "community_name": "feeders.ts",
+      "community_name": "computeFeeders",
       "norm_label": "coverpage.tsx"
-    },
-    {
-      "label": "MDBSchedule.tsx",
-      "file_type": "code",
-      "source_file": "src/components/report/MDBSchedule.tsx",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "src_components_report_mdbschedule",
-      "community": 136,
-      "community_name": "feeders.ts",
-      "norm_label": "mdbschedule.tsx"
     },
     {
       "label": "ShortCircuitSchedule.tsx",
@@ -49498,52 +49476,8 @@
       "_origin": "ast",
       "id": "src_components_report_shortcircuitschedule",
       "community": 136,
-      "community_name": "feeders.ts",
+      "community_name": "computeFeeders",
       "norm_label": "shortcircuitschedule.tsx"
-    },
-    {
-      "label": "useEquipmentCatalog.ts",
-      "file_type": "code",
-      "source_file": "src/hooks/useEquipmentCatalog.ts",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "src_hooks_useequipmentcatalog",
-      "community": 136,
-      "community_name": "feeders.ts",
-      "norm_label": "useequipmentcatalog.ts"
-    },
-    {
-      "label": "cache",
-      "file_type": "code",
-      "source_file": "src/hooks/useEquipmentCatalog.ts",
-      "source_location": "L16",
-      "_origin": "ast",
-      "id": "src_hooks_useequipmentcatalog_cache",
-      "community": 136,
-      "community_name": "feeders.ts",
-      "norm_label": "cache"
-    },
-    {
-      "label": "inflight",
-      "file_type": "code",
-      "source_file": "src/hooks/useEquipmentCatalog.ts",
-      "source_location": "L15",
-      "_origin": "ast",
-      "id": "src_hooks_useequipmentcatalog_inflight",
-      "community": 136,
-      "community_name": "feeders.ts",
-      "norm_label": "inflight"
-    },
-    {
-      "label": "feeders.ts",
-      "file_type": "code",
-      "source_file": "src/lib/calculations/feeders.ts",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "src_lib_calculations_feeders",
-      "community": 136,
-      "community_name": "feeders.ts",
-      "norm_label": "feeders.ts"
     },
     {
       "label": "shortCircuit.ts",
@@ -49553,7 +49487,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_shortcircuit",
       "community": 136,
-      "community_name": "feeders.ts",
+      "community_name": "computeFeeders",
       "norm_label": "shortcircuit.ts"
     },
     {
@@ -49564,7 +49498,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_shortcircuit_test",
       "community": 136,
-      "community_name": "feeders.ts",
+      "community_name": "computeFeeders",
       "norm_label": "shortcircuit.test.ts"
     },
     {
@@ -49575,7 +49509,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_shortcircuit_transformer_impedance",
       "community": 136,
-      "community_name": "feeders.ts",
+      "community_name": "computeFeeders",
       "norm_label": "transformer_impedance"
     },
     {
@@ -50422,19 +50356,8 @@
       "_origin": "ast",
       "id": "src_app_app_cable_schedule_page",
       "community": 155,
-      "community_name": "Project",
+      "community_name": "cable-schedule/page.tsx",
       "norm_label": "cable-schedule/page.tsx"
-    },
-    {
-      "label": "BOMSchedule.tsx",
-      "file_type": "code",
-      "source_file": "src/components/report/BOMSchedule.tsx",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "src_components_report_bomschedule",
-      "community": 155,
-      "community_name": "Project",
-      "norm_label": "bomschedule.tsx"
     },
     {
       "label": "CableSchedule.tsx",
@@ -50444,19 +50367,8 @@
       "_origin": "ast",
       "id": "src_components_report_cableschedule",
       "community": 155,
-      "community_name": "Project",
+      "community_name": "cable-schedule/page.tsx",
       "norm_label": "cableschedule.tsx"
-    },
-    {
-      "label": "ReportHeader.tsx",
-      "file_type": "code",
-      "source_file": "src/components/report/ReportHeader.tsx",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "src_components_report_reportheader",
-      "community": 155,
-      "community_name": "Project",
-      "norm_label": "reportheader.tsx"
     },
     {
       "label": "VDSchedule.tsx",
@@ -50466,7 +50378,7 @@
       "_origin": "ast",
       "id": "src_components_report_vdschedule",
       "community": 155,
-      "community_name": "Project",
+      "community_name": "cable-schedule/page.tsx",
       "norm_label": "vdschedule.tsx"
     },
     {
@@ -50477,7 +50389,7 @@
       "_origin": "ast",
       "id": "src_lib_sld_cablepersist",
       "community": 155,
-      "community_name": "Project",
+      "community_name": "cable-schedule/page.tsx",
       "norm_label": "cablepersist.ts"
     },
     {
@@ -50488,7 +50400,7 @@
       "_origin": "ast",
       "id": "src_lib_sld_cablepersist_test",
       "community": 155,
-      "community_name": "Project",
+      "community_name": "cable-schedule/page.tsx",
       "norm_label": "cablepersist.test.ts"
     },
     {
@@ -52010,28 +51922,6 @@
       "norm_label": "excel.ts"
     },
     {
-      "label": "excel.test.ts",
-      "file_type": "code",
-      "source_file": "src/lib/reports/excel.test.ts",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "src_lib_reports_excel_test",
-      "community": 168,
-      "community_name": "aggregates.ts",
-      "norm_label": "excel.test.ts"
-    },
-    {
-      "label": "baseProject",
-      "file_type": "code",
-      "source_file": "src/lib/reports/excel.test.ts",
-      "source_location": "L22",
-      "_origin": "ast",
-      "id": "src_lib_reports_excel_test_baseproject",
-      "community": 168,
-      "community_name": "aggregates.ts",
-      "norm_label": "baseproject"
-    },
-    {
       "label": "types.ts",
       "file_type": "code",
       "source_file": "src/lib/reports/types.ts",
@@ -52527,26 +52417,37 @@
       "norm_label": "current.test.ts"
     },
     {
-      "label": "class-variance-authority",
+      "label": "$type",
       "file_type": "code",
-      "source_file": "package.json",
-      "source_location": "L30",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L41",
       "_origin": "ast",
-      "id": "package_dependencies_class_variance_authority",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_1_type",
       "community": 176,
-      "community_name": "class-variance-authority",
-      "norm_label": "class-variance-authority"
+      "community_name": "1",
+      "norm_label": "$type"
     },
     {
-      "label": "class-variance-authority",
-      "file_type": "concept",
-      "source_file": "package.json",
-      "source_location": "L30",
+      "label": "$value",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L41",
       "_origin": "ast",
-      "id": "class_variance_authority",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_1_value",
       "community": 176,
-      "community_name": "class-variance-authority",
-      "norm_label": "class-variance-authority"
+      "community_name": "1",
+      "norm_label": "$value"
+    },
+    {
+      "label": "1",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L41",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_spacing_1",
+      "community": 176,
+      "community_name": "1",
+      "norm_label": "1"
     },
     {
       "label": "cip/core.py",
@@ -54606,34 +54507,34 @@
       "label": "$type",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L42",
+      "source_location": "L43",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_2_type",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_3_type",
       "community": 219,
-      "community_name": "2",
+      "community_name": "3",
       "norm_label": "$type"
     },
     {
       "label": "$value",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L42",
+      "source_location": "L43",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_2_value",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_3_value",
       "community": 219,
-      "community_name": "2",
+      "community_name": "3",
       "norm_label": "$value"
     },
     {
-      "label": "2",
+      "label": "3",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L42",
+      "source_location": "L43",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_spacing_2",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_spacing_3",
       "community": 219,
-      "community_name": "2",
-      "norm_label": "2"
+      "community_name": "3",
+      "norm_label": "3"
     },
     {
       "label": "search-slides.py",
@@ -54889,37 +54790,15 @@
       "norm_label": "bcryptjs"
     },
     {
-      "label": "$type",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L46",
+      "label": "Test adding components that are already installed.",
+      "file_type": "rationale",
+      "source_file": ".agents/skills/ui-styling/scripts/tests/test_shadcn_add.py",
+      "source_location": "L112",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_6_type",
+      "id": "agents_skills_ui_styling_scripts_tests_test_shadcn_add_rationale_112",
       "community": 221,
-      "community_name": "6",
-      "norm_label": "$type"
-    },
-    {
-      "label": "$value",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L46",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_6_value",
-      "community": 221,
-      "community_name": "6",
-      "norm_label": "$value"
-    },
-    {
-      "label": "6",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L46",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_spacing_6",
-      "community": 221,
-      "community_name": "6",
-      "norm_label": "6"
+      "community_name": ".test_add_components_already_installed",
+      "norm_label": "test adding components that are already installed."
     },
     {
       "label": "destructive-foreground",
@@ -55703,15 +55582,26 @@
       "norm_label": "@radix-ui/react-switch"
     },
     {
-      "label": "Test adding components without shadcn config.",
-      "file_type": "rationale",
-      "source_file": ".agents/skills/ui-styling/scripts/tests/test_shadcn_add.py",
-      "source_location": "L104",
+      "label": "framer-motion",
+      "file_type": "code",
+      "source_file": "package.json",
+      "source_location": "L32",
       "_origin": "ast",
-      "id": "agents_skills_ui_styling_scripts_tests_test_shadcn_add_rationale_104",
+      "id": "package_dependencies_framer_motion",
       "community": 231,
-      "community_name": ".test_add_components_no_config",
-      "norm_label": "test adding components without shadcn config."
+      "community_name": "framer-motion",
+      "norm_label": "framer-motion"
+    },
+    {
+      "label": "framer-motion",
+      "file_type": "concept",
+      "source_file": "package.json",
+      "source_location": "L32",
+      "_origin": "ast",
+      "id": "framer_motion",
+      "community": 231,
+      "community_name": "framer-motion",
+      "norm_label": "framer-motion"
     },
     {
       "label": "@tanstack/react-table",
@@ -59916,6 +59806,39 @@
       "norm_label": "mocks"
     },
     {
+      "label": "BOMSchedule.tsx",
+      "file_type": "code",
+      "source_file": "src/components/report/BOMSchedule.tsx",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_components_report_bomschedule",
+      "community": 42,
+      "community_name": "feeders.ts",
+      "norm_label": "bomschedule.tsx"
+    },
+    {
+      "label": "BreakerSchedule.tsx",
+      "file_type": "code",
+      "source_file": "src/components/report/BreakerSchedule.tsx",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_components_report_breakerschedule",
+      "community": 42,
+      "community_name": "feeders.ts",
+      "norm_label": "breakerschedule.tsx"
+    },
+    {
+      "label": "MDBSchedule.tsx",
+      "file_type": "code",
+      "source_file": "src/components/report/MDBSchedule.tsx",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_components_report_mdbschedule",
+      "community": 42,
+      "community_name": "feeders.ts",
+      "norm_label": "mdbschedule.tsx"
+    },
+    {
       "label": "MDBSchedule.test.tsx",
       "file_type": "code",
       "source_file": "src/components/report/MDBSchedule.test.tsx",
@@ -59923,7 +59846,7 @@
       "_origin": "ast",
       "id": "src_components_report_mdbschedule_test",
       "community": 42,
-      "community_name": "types/index.ts",
+      "community_name": "feeders.ts",
       "norm_label": "mdbschedule.test.tsx"
     },
     {
@@ -59934,7 +59857,7 @@
       "_origin": "ast",
       "id": "src_components_report_mdbschedule_test_equipment",
       "community": 42,
-      "community_name": "types/index.ts",
+      "community_name": "feeders.ts",
       "norm_label": "equipment"
     },
     {
@@ -59945,7 +59868,7 @@
       "_origin": "ast",
       "id": "src_components_report_mdbschedule_test_fetchmock",
       "community": 42,
-      "community_name": "types/index.ts",
+      "community_name": "feeders.ts",
       "norm_label": "fetchmock"
     },
     {
@@ -59956,8 +59879,63 @@
       "_origin": "ast",
       "id": "src_components_report_mdbschedule_test_project",
       "community": 42,
-      "community_name": "types/index.ts",
+      "community_name": "feeders.ts",
       "norm_label": "project"
+    },
+    {
+      "label": "ReportHeader.tsx",
+      "file_type": "code",
+      "source_file": "src/components/report/ReportHeader.tsx",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_components_report_reportheader",
+      "community": 42,
+      "community_name": "feeders.ts",
+      "norm_label": "reportheader.tsx"
+    },
+    {
+      "label": "useEquipmentCatalog.ts",
+      "file_type": "code",
+      "source_file": "src/hooks/useEquipmentCatalog.ts",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_hooks_useequipmentcatalog",
+      "community": 42,
+      "community_name": "feeders.ts",
+      "norm_label": "useequipmentcatalog.ts"
+    },
+    {
+      "label": "cache",
+      "file_type": "code",
+      "source_file": "src/hooks/useEquipmentCatalog.ts",
+      "source_location": "L16",
+      "_origin": "ast",
+      "id": "src_hooks_useequipmentcatalog_cache",
+      "community": 42,
+      "community_name": "feeders.ts",
+      "norm_label": "cache"
+    },
+    {
+      "label": "inflight",
+      "file_type": "code",
+      "source_file": "src/hooks/useEquipmentCatalog.ts",
+      "source_location": "L15",
+      "_origin": "ast",
+      "id": "src_hooks_useequipmentcatalog_inflight",
+      "community": 42,
+      "community_name": "feeders.ts",
+      "norm_label": "inflight"
+    },
+    {
+      "label": "feeders.ts",
+      "file_type": "code",
+      "source_file": "src/lib/calculations/feeders.ts",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_lib_calculations_feeders",
+      "community": 42,
+      "community_name": "feeders.ts",
+      "norm_label": "feeders.ts"
     },
     {
       "label": "feeders.test.ts",
@@ -59967,7 +59945,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_feeders_test",
       "community": 42,
-      "community_name": "types/index.ts",
+      "community_name": "feeders.ts",
       "norm_label": "feeders.test.ts"
     },
     {
@@ -59978,7 +59956,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_feeders_test_baseproject",
       "community": 42,
-      "community_name": "types/index.ts",
+      "community_name": "feeders.ts",
       "norm_label": "baseproject"
     },
     {
@@ -59989,7 +59967,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_feeders_test_equipment",
       "community": 42,
-      "community_name": "types/index.ts",
+      "community_name": "feeders.ts",
       "norm_label": "equipment"
     },
     {
@@ -60000,7 +59978,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_integration_multibuilding_test",
       "community": 42,
-      "community_name": "types/index.ts",
+      "community_name": "feeders.ts",
       "norm_label": "integration-multibuilding.test.ts"
     },
     {
@@ -60011,7 +59989,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_integration_multibuilding_test_equipment",
       "community": 42,
-      "community_name": "types/index.ts",
+      "community_name": "feeders.ts",
       "norm_label": "equipment"
     },
     {
@@ -60022,7 +60000,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_integration_multibuilding_test_findbreaker",
       "community": 42,
-      "community_name": "types/index.ts",
+      "community_name": "feeders.ts",
       "norm_label": "findbreaker"
     },
     {
@@ -60033,7 +60011,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_integration_multibuilding_test_lib",
       "community": 42,
-      "community_name": "types/index.ts",
+      "community_name": "feeders.ts",
       "norm_label": "lib"
     },
     {
@@ -60044,7 +60022,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_integration_multibuilding_test_project",
       "community": 42,
-      "community_name": "types/index.ts",
+      "community_name": "feeders.ts",
       "norm_label": "project"
     },
     {
@@ -60055,8 +60033,30 @@
       "_origin": "ast",
       "id": "src_lib_calculations_phasebalance_test",
       "community": 42,
-      "community_name": "types/index.ts",
+      "community_name": "feeders.ts",
       "norm_label": "phasebalance.test.ts"
+    },
+    {
+      "label": "excel.test.ts",
+      "file_type": "code",
+      "source_file": "src/lib/reports/excel.test.ts",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_lib_reports_excel_test",
+      "community": 42,
+      "community_name": "feeders.ts",
+      "norm_label": "excel.test.ts"
+    },
+    {
+      "label": "baseProject",
+      "file_type": "code",
+      "source_file": "src/lib/reports/excel.test.ts",
+      "source_location": "L22",
+      "_origin": "ast",
+      "id": "src_lib_reports_excel_test_baseproject",
+      "community": 42,
+      "community_name": "feeders.ts",
+      "norm_label": "baseproject"
     },
     {
       "label": "types/index.ts",
@@ -60066,7 +60066,7 @@
       "_origin": "ast",
       "id": "src_types_index",
       "community": 42,
-      "community_name": "types/index.ts",
+      "community_name": "feeders.ts",
       "norm_label": "types/index.ts"
     },
     {
@@ -60887,9 +60887,9 @@
       "label": "$type",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L41",
+      "source_location": "L42",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_1_type",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_2_type",
       "community": 47,
       "community_name": "spacing",
       "norm_label": "$type"
@@ -60898,31 +60898,9 @@
       "label": "$value",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L41",
+      "source_location": "L42",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_1_value",
-      "community": 47,
-      "community_name": "spacing",
-      "norm_label": "$value"
-    },
-    {
-      "label": "$type",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L43",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_3_type",
-      "community": 47,
-      "community_name": "spacing",
-      "norm_label": "$type"
-    },
-    {
-      "label": "$value",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L43",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_3_value",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_2_value",
       "community": 47,
       "community_name": "spacing",
       "norm_label": "$value"
@@ -60972,6 +60950,28 @@
       "norm_label": "$value"
     },
     {
+      "label": "$type",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L46",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_6_type",
+      "community": 47,
+      "community_name": "spacing",
+      "norm_label": "$type"
+    },
+    {
+      "label": "$value",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L46",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_6_value",
+      "community": 47,
+      "community_name": "spacing",
+      "norm_label": "$value"
+    },
+    {
       "label": "spacing",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
@@ -60992,17 +60992,6 @@
       "community": 47,
       "community_name": "spacing",
       "norm_label": "0"
-    },
-    {
-      "label": "1",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L41",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_spacing_1",
-      "community": 47,
-      "community_name": "spacing",
-      "norm_label": "1"
     },
     {
       "label": "10",
@@ -61027,15 +61016,15 @@
       "norm_label": "12"
     },
     {
-      "label": "3",
+      "label": "2",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L43",
+      "source_location": "L42",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_spacing_3",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_spacing_2",
       "community": 47,
       "community_name": "spacing",
-      "norm_label": "3"
+      "norm_label": "2"
     },
     {
       "label": "4",
@@ -61058,6 +61047,17 @@
       "community": 47,
       "community_name": "spacing",
       "norm_label": "5"
+    },
+    {
+      "label": "6",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L46",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_spacing_6",
+      "community": 47,
+      "community_name": "spacing",
+      "norm_label": "6"
     },
     {
       "label": "tailwind_config_gen.py",
@@ -63491,15 +63491,15 @@
       "norm_label": "tests for shadcn_add.py"
     },
     {
-      "label": "Test adding components that are already installed.",
+      "label": "Test adding components without shadcn config.",
       "file_type": "rationale",
       "source_file": ".agents/skills/ui-styling/scripts/tests/test_shadcn_add.py",
-      "source_location": "L112",
+      "source_location": "L104",
       "_origin": "ast",
-      "id": "agents_skills_ui_styling_scripts_tests_test_shadcn_add_rationale_112",
+      "id": "agents_skills_ui_styling_scripts_tests_test_shadcn_add_rationale_104",
       "community": 85,
       "community_name": "ShadcnInstaller",
-      "norm_label": "test adding components that are already installed."
+      "norm_label": "test adding components without shadcn config."
     },
     {
       "label": "Test listing installed components when they exist.",
@@ -64415,15 +64415,15 @@
       "norm_label": "dependencies"
     },
     {
-      "label": "framer-motion",
+      "label": "class-variance-authority",
       "file_type": "code",
       "source_file": "package.json",
-      "source_location": "L32",
+      "source_location": "L30",
       "_origin": "ast",
-      "id": "package_dependencies_framer_motion",
+      "id": "package_dependencies_class_variance_authority",
       "community": 93,
       "community_name": "dependencies",
-      "norm_label": "framer-motion"
+      "norm_label": "class-variance-authority"
     },
     {
       "label": "@hookform/resolvers",
@@ -64580,15 +64580,15 @@
       "norm_label": "xlsx"
     },
     {
-      "label": "framer-motion",
+      "label": "class-variance-authority",
       "file_type": "concept",
       "source_file": "package.json",
-      "source_location": "L32",
+      "source_location": "L30",
       "_origin": "ast",
-      "id": "framer_motion",
+      "id": "class_variance_authority",
       "community": 93,
       "community_name": "dependencies",
-      "norm_label": "framer-motion"
+      "norm_label": "class-variance-authority"
     },
     {
       "label": "@hookform/resolvers",
@@ -74072,7 +74072,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/app/api/projects/route.ts",
-      "source_location": "L156",
+      "source_location": "L158",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_app_api_projects_route_post",
@@ -74084,7 +74084,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/app/api/projects/route.ts",
-      "source_location": "L157",
+      "source_location": "L159",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_app_api_projects_route_post",
@@ -74096,7 +74096,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/app/api/projects/route.ts",
-      "source_location": "L162",
+      "source_location": "L164",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_app_api_projects_route_post",
@@ -74108,7 +74108,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/app/api/projects/route.ts",
-      "source_location": "L75",
+      "source_location": "L77",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_app_api_projects_route_post",
@@ -116410,7 +116410,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/app/api/projects/route.ts",
-      "source_location": "L73",
+      "source_location": "L75",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_app_api_projects_route",
@@ -160434,5 +160434,5 @@
       "source_file": "public/slides/slide_load_calc.webp"
     }
   ],
-  "built_at_commit": "10986857e936fe754b096018645ed5b3afc49d85"
+  "built_at_commit": "b115250d1f1cb8a23c184860055cc191d572c0d8"
 }

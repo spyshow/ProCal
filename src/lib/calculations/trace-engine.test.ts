@@ -8,6 +8,29 @@ import {
   buildPhaseBalanceTrace,
   formatTraceAsPlainText,
 } from "./trace-engine";
+import { currentUnbalancePct } from "./phaseBalance";
+import { calculateVoltageDrop } from "./cables";
+
+describe("Trace/engine agreement (no drift)", () => {
+  it("voltage-drop trace impedance matches the engine's catalog lookup", () => {
+    const engine = calculateVoltageDrop(84.5, 45, 50, 0.85, true, 400, 1, "copper");
+    const trace = buildVoltageDropTrace({
+      currentA: 84.5,
+      lengthM: 45,
+      cableSizeMm2: 50,
+      parallelRuns: 1,
+      conductorMaterial: "copper",
+      powerFactor: 0.85,
+      systemVoltageV: 400,
+      isThreePhase: true,
+      dropVolts: engine.dropVolts,
+      dropPercent: engine.dropPercent,
+    });
+    // The substituted ΔV step must reproduce the engine's own number.
+    expect(trace.steps[1].substituted).toContain(`= ${engine.dropVolts.toFixed(2)} V`);
+    expect(trace.steps[2].substituted).toContain(`= ${engine.dropPercent.toFixed(2)}%`);
+  });
+});
 
 describe("Calculation Trace Engine", () => {
   it("builds a 3-phase Voltage Drop trace correctly", () => {
@@ -135,18 +158,30 @@ describe("Calculation Trace Engine", () => {
     expect(trace.compliance?.actual).toBe("160 A / 36 kA");
   });
 
-  it("builds Phase Balance trace and identifies unbalance percentage", () => {
+  it("builds Phase Balance trace on the engine's current-unbalance metric", () => {
+    // (max − min)/avg = (26 − 21.5)/24.33 × 100 ≈ 18.49% — the same proxy
+    // phaseBalance.currentUnbalancePct reports, not a kW deviation.
     const trace = buildPhaseBalanceTrace({
       panelName: "Distribution Board DB-01",
-      l1Kw: 24.5,
-      l2Kw: 22.0,
-      l3Kw: 21.5,
-      unbalancePercent: 8.07,
+      l1A: 26.0,
+      l2A: 25.5,
+      l3A: 21.5,
+      unbalancePercent: 18.49,
       maxAllowablePercent: 10.0,
     });
 
-    expect(trace.compliance?.status).toBe("PASS");
-    expect(trace.steps[0].label).toContain("Average Phase Load");
+    expect(trace.compliance?.status).toBe("WARN"); // unbalance flags as WARN, per engine convention
+    expect(trace.steps[0].label).toContain("Average Phase Current");
+    expect(trace.steps[2].formula).toContain("Imax − Imin");
+
+    const balanced = buildPhaseBalanceTrace({
+      l1A: 100,
+      l2A: 95,
+      l3A: 98,
+      unbalancePercent: currentUnbalancePct([100, 95, 98]),
+    });
+    expect(balanced.resultValue).toBe(`${currentUnbalancePct([100, 95, 98]).toFixed(2)}%`);
+    expect(balanced.compliance?.status).toBe("PASS");
   });
 
   it("formats trace as clean, readable plain text for clipboard copying", () => {

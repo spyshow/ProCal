@@ -6,6 +6,11 @@
  * and compliance checks for all engineering calculations across ProCal schedules.
  */
 
+import { CABLE_CATALOG } from "./cablesData";
+import { clampPowerFactor } from "./validate";
+import { sourceXrRatio, splitSourceImpedance } from "./shortCircuit";
+import { currentUnbalancePct } from "./phaseBalance";
+
 export interface TraceParameter {
   name: string;
   symbol: string;
@@ -71,14 +76,22 @@ export interface VoltageDropTraceInputs {
 export function buildVoltageDropTrace(inputs: VoltageDropTraceInputs): TraceDefinition {
   const is3Ph = inputs.isThreePhase;
   const runs = Math.max(1, inputs.parallelRuns || 1);
-  const cosPhi = Math.max(0.1, Math.min(1.0, inputs.powerFactor ?? 0.85));
+  const cosPhi = clampPowerFactor(inputs.powerFactor ?? 0.85);
   const sinPhi = Math.sqrt(Math.max(0, 1 - cosPhi * cosPhi));
   const b = is3Ph ? 1.732 : 2.0;
   const limit = inputs.maxDropPercentLimit ?? (is3Ph ? 5.0 : 3.0);
 
-  // Default standard resistance and reactance estimates if not supplied
-  const rNominal = inputs.rOhmPerKm ?? (inputs.conductorMaterial === "aluminum" ? (0.0283 / inputs.cableSizeMm2) * 1000 : (0.0175 / inputs.cableSizeMm2) * 1000);
-  const xNominal = inputs.xOhmPerKm ?? 0.08;
+  // Default R/X from the SAME catalog lookup calculateVoltageDrop uses
+  // (exact match, else floor to the nearest size below; aluminum pays the
+  // resistivity ratio) so the trace displays the impedance the engine
+  // actually used — not a parallel estimate that can drift from it.
+  const spec =
+    CABLE_CATALOG.find((c) => c.size === inputs.cableSizeMm2) ??
+    CABLE_CATALOG.filter((c) => c.size <= inputs.cableSizeMm2).pop() ??
+    CABLE_CATALOG[0];
+  const materialFactor = inputs.conductorMaterial === "aluminum" ? 0.0283 / 0.0172 : 1;
+  const rNominal = inputs.rOhmPerKm ?? spec.resistance * materialFactor;
+  const xNominal = inputs.xOhmPerKm ?? spec.reactance;
   const rEff = rNominal / runs;
   const xEff = xNominal / runs;
   const impedance = rEff * cosPhi + xEff * sinPhi;
@@ -324,21 +337,22 @@ export function buildShortCircuitTrace(inputs: ShortCircuitTraceInputs): TraceDe
   const zTrafoBase = (vSec * vSec) / (sKva * 1000); // Ohms
   const zTrafo = zTrafoBase * (zTrafoPercent / 100);
 
-  const rCable = inputs.cableROhms ?? 0;
-  const xCable = inputs.cableXOhms ?? 0;
-  const zTotal = Math.sqrt(Math.pow(zTrafo + rCable, 2) + Math.pow(xCable, 2));
-
-  const cFactor = 1.05; // Voltage factor per IEC 60909 for LV (+5%)
+  // Component-wise IEC 60909 addition via the SAME X/R split the engine uses
+  // in calculateIscWithCable — never a scalar |Zt| + |Zc| sum.
+  const { r: rTrafo, x: xTrafo } = splitSourceImpedance(zTrafo, sourceXrRatio(vSec));
+  const rTotal = rTrafo + (inputs.cableROhms ?? 0);
+  const xTotal = xTrafo + (inputs.cableXOhms ?? 0);
+  const zTotal = Math.sqrt(rTotal * rTotal + xTotal * xTotal);
 
   const steps: TraceStep[] = [
     {
       label: "Transformer Internal Impedance (Zt)",
-      formula: "Zt = (Un² / Sr) × (uk% / 100)",
-      substituted: `Zt = ((${vSec} V)² / ${sKva * 1000} VA) × (${zTrafoPercent}% / 100) = ${zTrafo.toFixed(4)} Ω`,
+      formula: "Zt = (Un² / Sr) × (uk% / 100), split as R + jX at typical X/R",
+      substituted: `Zt = ((${vSec} V)² / ${sKva * 1000} VA) × (${zTrafoPercent}% / 100) = ${zTrafo.toFixed(4)} Ω → R = ${rTrafo.toFixed(4)} Ω, X = ${xTrafo.toFixed(4)} Ω`,
     },
     {
       label: "Symmetrical Initial Short-Circuit Current (Ik\")",
-      formula: "Ik\" = (c · Un) / (√3 · Z_total)",
+      formula: "Z_total = √((Rt + Rc)² + (Xt + Xc)²),  Ik\" = (c · Un) / (√3 · Z_total)",
       substituted: `Ik\" = (1.05 × ${vSec} V) / (1.732 × ${zTotal.toFixed(4)} Ω) = ${(inputs.threePhaseIscKa * 1000).toFixed(0)} A = ${inputs.threePhaseIscKa.toFixed(2)} kA`,
     },
   ];
@@ -451,45 +465,48 @@ export function buildBreakerSizingTrace(inputs: BreakerSizingTraceInputs): Trace
 // ---------------------------------------------------------------------------
 export interface PhaseBalanceTraceInputs {
   panelName?: string;
-  l1Kw: number;
-  l2Kw: number;
-  l3Kw: number;
+  /** Per-phase RMS currents — the metric the engine balances on. */
+  l1A: number;
+  l2A: number;
+  l3A: number;
   unbalancePercent: number;
   maxAllowablePercent?: number; // default 10%
 }
 
 export function buildPhaseBalanceTrace(inputs: PhaseBalanceTraceInputs): TraceDefinition {
-  const l1 = inputs.l1Kw;
-  const l2 = inputs.l2Kw;
-  const l3 = inputs.l3Kw;
-  const avg = (l1 + l2 + l3) / 3;
-  const maxDev = Math.max(Math.abs(l1 - avg), Math.abs(l2 - avg), Math.abs(l3 - avg));
-  const calcUnbalance = avg > 0 ? (maxDev / avg) * 100 : 0;
+  const i1 = inputs.l1A;
+  const i2 = inputs.l2A;
+  const i3 = inputs.l3A;
+  const avg = (i1 + i2 + i3) / 3;
+  const maxDev = Math.max(Math.abs(i1 - avg), Math.abs(i2 - avg), Math.abs(i3 - avg));
+  // Same current-unbalance proxy as the phaseBalance engine:
+  // % = (max − min) / avg × 100.
+  const calcUnbalance = currentUnbalancePct([i1, i2, i3]);
   const limit = inputs.maxAllowablePercent ?? 10.0;
   const passed = inputs.unbalancePercent <= limit;
 
   const steps: TraceStep[] = [
     {
-      label: "Average Phase Load (P_avg)",
-      formula: "P_avg = (L1 + L2 + L3) / 3",
-      substituted: `P_avg = (${l1.toFixed(2)} + ${l2.toFixed(2)} + ${l3.toFixed(2)}) / 3 = ${avg.toFixed(2)} kW`,
+      label: "Average Phase Current (I_avg)",
+      formula: "I_avg = (I1 + I2 + I3) / 3",
+      substituted: `I_avg = (${i1.toFixed(2)} + ${i2.toFixed(2)} + ${i3.toFixed(2)}) / 3 = ${avg.toFixed(2)} A`,
     },
     {
-      label: "Maximum Phase Deviation (ΔP_max)",
-      formula: "ΔP_max = max(|L1 - P_avg|, |L2 - P_avg|, |L3 - P_avg|)",
-      substituted: `ΔP_max = ${maxDev.toFixed(2)} kW`,
+      label: "Maximum Phase Deviation (ΔI_max)",
+      formula: "ΔI_max = max(|I1 - I_avg|, |I2 - I_avg|, |I3 - I_avg|)",
+      substituted: `ΔI_max = ${maxDev.toFixed(2)} A`,
     },
     {
-      label: "Phase Unbalance Percentage",
-      formula: "% Unbalance = (ΔP_max / P_avg) × 100%",
-      substituted: `% Unbalance = (${maxDev.toFixed(2)} kW / ${avg.toFixed(2)} kW) × 100% = ${calcUnbalance.toFixed(2)}%`,
+      label: "Current Unbalance Percentage",
+      formula: "% Unbalance = (Imax − Imin) / I_avg × 100%",
+      substituted: `% Unbalance = ${calcUnbalance.toFixed(2)}%`,
     },
   ];
 
   const parameters: TraceParameter[] = [
-    { name: "Phase L1 Load", symbol: "L1", value: l1.toFixed(2), unit: "kW", source: "Sub-circuit aggregation" },
-    { name: "Phase L2 Load", symbol: "L2", value: l2.toFixed(2), unit: "kW", source: "Sub-circuit aggregation" },
-    { name: "Phase L3 Load", symbol: "L3", value: l3.toFixed(2), unit: "kW", source: "Sub-circuit aggregation" },
+    { name: "Phase L1 Current", symbol: "I1", value: i1.toFixed(2), unit: "A", source: "Sub-circuit aggregation" },
+    { name: "Phase L2 Current", symbol: "I2", value: i2.toFixed(2), unit: "A", source: "Sub-circuit aggregation" },
+    { name: "Phase L3 Current", symbol: "I3", value: i3.toFixed(2), unit: "A", source: "Sub-circuit aggregation" },
   ];
 
   return {

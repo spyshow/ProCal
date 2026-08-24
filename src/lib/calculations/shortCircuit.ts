@@ -10,6 +10,24 @@ import { assertPositive, assertNonNegative } from "./validate";
 
 export type EarthingSystem = 'TN-S' | 'TN-C' | 'TN-C-S' | 'TT' | 'IT';
 
+/**
+ * Typical X/R ratio of an LV distribution transformer (~6); HV sources are
+ * more reactive (~10). Single source of truth for splitting a source
+ * impedance magnitude into its resistive and reactive parts.
+ */
+export function sourceXrRatio(voltageSecondary: number): number {
+  return voltageSecondary <= 1000 ? 6 : 10;
+}
+
+/** Split an impedance magnitude Z into R + jX at the given X/R ratio. */
+export function splitSourceImpedance(
+  zOhms: number,
+  xrRatio: number
+): { r: number; x: number } {
+  const norm = Math.sqrt(1 + xrRatio * xrRatio);
+  return { r: zOhms / norm, x: (zOhms * xrRatio) / norm };
+}
+
 export interface TransformerParameters {
   ratedPower: number;     // kVA
   voltagePrimary: number; // V (Line-to-Line)
@@ -134,7 +152,7 @@ export function calculateShortCircuitCurrent(
   // same typical distribution-transformer X/R used in calculateIscWithCable
   // (≈6 LV, more reactive ≈10 HV). For X/R 6 this gives ip/I″k ≈ 2.28 — the
   // old flat 2.0 understated LV peak make-capacity requirements.
-  const peakXRRatio = voltageSecondary <= 1000 ? 6 : 10;
+  const peakXRRatio = sourceXrRatio(voltageSecondary);
   const kappa = 1.02 + 0.98 * Math.exp(-3 / peakXRRatio);
   const peakCurrent = threePhaseIsc * kappa * Math.SQRT2;
 
@@ -250,10 +268,10 @@ export function calculateIscWithCable(
   // Split the magnitude into R + jX via a typical LV distribution-transformer
   // X/R ratio (~6); between X/R 4 and 10 the result shifts < 2%, far below the
   // scalar error this fixes.
-  const XR_RATIO = 6;
-  const norm = Math.sqrt(1 + XR_RATIO * XR_RATIO);
-  const Rtransformer = Ztransformer / norm;
-  const Xtransformer = (Ztransformer * XR_RATIO) / norm;
+  const { r: Rtransformer, x: Xtransformer } = splitSourceImpedance(
+    Ztransformer,
+    sourceXrRatio(voltage)
+  );
 
   const Rtotal = Rtransformer + RcTotal;
   const Xtotal = Xtransformer + XcTotal;

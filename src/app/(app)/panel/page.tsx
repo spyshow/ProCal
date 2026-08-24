@@ -856,9 +856,9 @@ export default function PanelDesignerPage() {
                       getTrace={() =>
                         buildPhaseBalanceTrace({
                           panelName: f.name,
-                          l1Kw: ((f.phaseCurrent?.[0] ?? f.current) * 230) / 1000,
-                          l2Kw: ((f.phaseCurrent?.[1] ?? f.current) * 230) / 1000,
-                          l3Kw: ((f.phaseCurrent?.[2] ?? f.current) * 230) / 1000,
+                          l1A: f.phaseCurrent?.[0] ?? f.current,
+                          l2A: f.phaseCurrent?.[1] ?? f.current,
+                          l3A: f.phaseCurrent?.[2] ?? f.current,
                           unbalancePercent: f.unbalancePct ?? 0,
                           maxAllowablePercent: 10,
                         })

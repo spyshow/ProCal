@@ -99,7 +99,6 @@ export function computeFloorRiserVd(fd: FloorDesign, project: Project): RiserFlo
     }
   }
   const branchVdPercent = worstBranch?.dropPercent ?? 0;
-  const branchDropVolts = worstBranch?.dropVolts ?? 0;
   const branchNoData = worstBranch == null;
 
   if (fd.hasFloorSubPanels) {
@@ -119,9 +118,12 @@ export function computeFloorRiserVd(fd: FloorDesign, project: Project): RiserFlo
           (fd.riserCableMaterial as 'copper' | 'aluminum') ?? 'copper'
         );
     const riserVdPercent = riserVd.dropPercent;
-    const riserDropVolts = riserVd.dropVolts;
-    const totalDropVolts = riserDropVolts + branchDropVolts;
-    const totalVdPercent = project.voltage > 0 ? (totalDropVolts / project.voltage) * 100 : 0;
+    // Percentages sum — never raw volts. The riser leg drops against 400V
+    // (√3·I·L·Z) while a 1-phase branch drops against 230V (2·I·L·Z); adding
+    // volts then dividing by 400 understated the true total (a 2% riser +
+    // 4.5% branch reported 4.6% instead of 6.5%, flipping FAIL to PASS).
+    // Each leg's dropPercent is already referenced to its own base.
+    const totalVdPercent = riserVdPercent + branchVdPercent;
     return {
       hasRiser: true,
       riserVdPercent,

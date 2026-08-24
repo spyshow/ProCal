@@ -269,7 +269,10 @@ describe('Riser Diagram Voltage Drop Calculations', () => {
       const branchVd = calculateVoltageDrop(20, 10, 16, 0.85, false, V230);
       expect(r.riserVdPercent).toBe(riserVd.dropPercent);
       expect(r.branchVdPercent).toBe(branchVd.dropPercent);
-      const expectedTotal = ((riserVd.dropVolts + branchVd.dropVolts) / proj.voltage) * 100;
+      // Percentages sum: each leg's dropPercent is referenced to its own base
+      // (riser vs 400V line-line, 1-phase branch vs 230V line-neutral). Adding
+      // raw volts and dividing by 400 understated the branch by √3.
+      const expectedTotal = riserVd.dropPercent + branchVd.dropPercent;
       expect(r.totalVdPercent).toBeCloseTo(expectedTotal, 5);
       expect(r.hasRiser).toBe(true);
 
@@ -278,8 +281,11 @@ describe('Riser Diagram Voltage Drop Calculations', () => {
       expect(r.riserVdPercent).toBeLessThan(lumpedRiser);
     });
 
-    it('1-phase branch: proves old percentage addition was dimensionally inconsistent with absolute volts', () => {
-      // 1-phase branch has drop calculated at 230V, riser at 400V.
+    it('1-phase branch: total = percent sum (mixed voltage bases reconcile exactly in %, never in raw volts)', () => {
+      // 1-phase branch has drop calculated at 230V, riser at 400V. The branch's
+      // volts eat into a 230V supply, so its % stays on its own base — dividing
+      // its raw volts by 400 understated it by √3 and could flip FAIL to PASS
+      // (e.g. true 6.5% total reported as 4.6%).
       const a = apt({ id: 'a', name: 'A', cableLength: 50, calculatedCurrent: 30 });
       const fd = floor({
         hasFloorSubPanels: true,
@@ -288,16 +294,19 @@ describe('Riser Diagram Voltage Drop Calculations', () => {
         items: [a],
       });
       const r = computeFloorRiserVd(fd, proj);
-      const naivePercentSum = r.riserVdPercent + r.branchVdPercent;
-      // totalVdPercent computed from absolute volts must NOT equal the naive percentage sum
-      expect(r.totalVdPercent).not.toBeCloseTo(naivePercentSum, 1);
-      // Because branch is at 230V, its percentage relative to 400V base is smaller by factor of ~√3
-      expect(r.totalVdPercent).toBeLessThan(naivePercentSum);
+      const percentSum = r.riserVdPercent + r.branchVdPercent;
+      expect(r.totalVdPercent).toBeCloseTo(percentSum, 5);
 
-      const riserVd = calculateVoltageDrop(30, 30, 70, 0.85, true, 400);
-      const branchVd = calculateVoltageDrop(30, 50, 16, 0.85, false, V230);
-      const expectedTotal = ((riserVd.dropVolts + branchVd.dropVolts) / proj.voltage) * 100;
-      expect(r.totalVdPercent).toBeCloseTo(expectedTotal, 5);
+      // Cross-check via phase-referred volts: total L-N drop = riser/√3 + branch,
+      // over the engine's L-N base (project.voltage/√3 ≈ 230.94) — algebraically
+      // identical to the percent sum.
+      const vLN = proj.voltage / Math.sqrt(3);
+      const riserVd = calculateVoltageDrop(30, 30, 70, 0.85, true, proj.voltage);
+      const branchVd = calculateVoltageDrop(30, 50, 16, 0.85, false, vLN);
+      const expectedTotal =
+        (((riserVd.dropVolts / Math.sqrt(3)) + branchVd.dropVolts) / vLN) * 100;
+      // calculateVoltageDrop rounds its outputs to 2dp, so match at 2dp.
+      expect(r.totalVdPercent).toBeCloseTo(expectedTotal, 2);
     });
   });
 

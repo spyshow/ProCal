@@ -364,9 +364,11 @@ describe('Golden Path Cross-Module Integration Test', () => {
     }
 
     // -------------------------------------------------------------------------
-    // Assertion 3: Total Voltage Drop Math is absolute volts, NOT percentage sum
-    // For each SDB floor, totalVdPercent must equal the absolute-volt combination
-    // ((riserDropVolts + worstBranchDropVolts) / project.voltage) * 100.
+    // Assertion 3: Total Voltage Drop is a PERCENTAGE sum, never raw volts.
+    // The riser leg drops against 400V (line-line) and a 1-phase branch against
+    // 230V (line-neutral); each leg's dropPercent is already referenced to its
+    // own base, so total = riser% + branch%. Converting raw branch volts to the
+    // 400V base understates them by √3 and can flip FAIL to PASS.
     // -------------------------------------------------------------------------
     for (const fd of sdbFloors) {
       const riserVd = computeFloorRiserVd(fd, project);
@@ -395,13 +397,16 @@ describe('Golden Path Cross-Module Integration Test', () => {
         branchVoltage
       );
 
-      const expectedTotalVd = ((riserDrop.dropVolts + worstBranchDrop.dropVolts) / project.voltage) * 100;
+      const expectedTotalVd = riserDrop.dropPercent + worstBranchDrop.dropPercent;
       expect(riserVd.totalVdPercent).toBeCloseTo(expectedTotalVd, 3);
 
-      // Because the worst branch is a 1-phase apartment at 230V, naive percentage addition would fail
-      const naivePercentSum = riserVd.riserVdPercent + riserVd.branchVdPercent;
-      expect(riserVd.totalVdPercent).not.toBeCloseTo(naivePercentSum, 1);
-      expect(riserVd.totalVdPercent).toBeLessThan(naivePercentSum);
+      // Cross-check via phase-referred volts (2dp — calculateVoltageDrop rounds):
+      // total L-N drop = riser/√3 + branch, over the L-N base. Algebraically
+      // identical to the percent sum; raw-volts-over-400 would understate it.
+      const vLN = project.voltage / Math.sqrt(3);
+      const phaseReferred =
+        (((riserDrop.dropVolts / Math.sqrt(3)) + worstBranchDrop.dropVolts) / vLN) * 100;
+      expect(riserVd.totalVdPercent).toBeCloseTo(phaseReferred, 2);
     }
 
     // -------------------------------------------------------------------------

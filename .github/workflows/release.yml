@@ -1,0 +1,87 @@
+name: Production Release (Supabase & Vercel)
+
+on:
+  release:
+    types: [published]
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release Tag (optional, for manual release verification)'
+        required: false
+
+concurrency:
+  group: production-release
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Verify, Migrate Supabase & Trigger Vercel
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate Prisma client
+        run: npx prisma generate
+
+      - name: Typecheck
+        run: npx tsc --noEmit
+
+      - name: Run Test Suite
+        run: npm test
+
+      - name: Verify Production Next.js Build
+        env:
+          DATABASE_URL: "postgresql://postgres:postgres@localhost:5432/procal"
+          DIRECT_URL: "postgresql://postgres:postgres@localhost:5432/procal"
+          JWT_SECRET: "release-verification-temporary-jwt-secret-at-least-64-characters-long"
+        run: npm run build
+
+      - name: Run Supabase Production Database Migrations & Seed
+        if: env.SUPABASE_DATABASE_URL != ''
+        env:
+          DATABASE_URL: ${{ secrets.SUPABASE_DATABASE_URL }}
+          DIRECT_URL: ${{ secrets.SUPABASE_DIRECT_URL || secrets.SUPABASE_DATABASE_URL }}
+          SEED_ADMIN_PASSWORD: ${{ secrets.SEED_ADMIN_PASSWORD }}
+          DATABASE_SSL_REJECT_UNAUTHORIZED: "false"
+        run: |
+          echo "Applying Prisma migrations to Supabase Production DB..."
+          npx prisma migrate deploy
+          echo "Upserting catalog equipment data in Supabase Production DB..."
+          npx tsx prisma/seed.ts
+
+      - name: Fast-forward 'production' branch to trigger Vercel deployment
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          # Fetch or create production branch tracking origin
+          if git ls-remote --exit-code --heads origin production; then
+            git fetch origin production:production
+            git checkout production
+          else
+            git checkout -b production
+          fi
+          
+          # Fast-forward production branch to current release commit
+          git reset --hard ${{ github.sha }}
+          git push origin production --force
+          echo "Production branch updated successfully to commit ${{ github.sha }}. Vercel native deploy triggered!"

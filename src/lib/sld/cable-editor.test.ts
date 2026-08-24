@@ -147,7 +147,7 @@ describe('Cable recalculation', () => {
     expect(result.changed).toBe(false); // already safe, no upsize needed
   });
 
-  it('selects 3x 150mm2 when targetRuns is 3, yielding ampacity 915A (3x305A)', () => {
+  it('targetRuns 3 falls back to best-available 3x300mm2 with run-grouping derating (B.52.17)', () => {
     const result = recalculateCable({
       current: 902.1,
       isThreePhase: true,
@@ -165,14 +165,19 @@ describe('Cable recalculation', () => {
       targetRuns: 3,
     });
 
+    // Touching parallel cables count as grouped circuits: Cg(3) = 0.70.
+    // No arrangement reaches In = 1000 A at exactly 3 runs
+    // (even 3 x 472 x 0.70 = 991 A), so the sizer returns best-available
+    // 3 x 300 mm² — which still carries the 902.1 A load.
     expect(result.parallelRuns).toBe(3);
-    expect(result.cableSize).toBe(150);
-    expect(result.singleAmpacity).toBe(305);
-    expect(result.ampacity).toBe(915); // 3 * 305 = 915A >= 902.1A
-    expect(result.formattedCableSize).toBe('3 × 150 mm²');
+    expect(result.cableSize).toBe(300);
+    expect(result.singleAmpacity).toBe(330.4); // 472 x 0.70
+    expect(result.ampacity).toBe(991.2); // 3 x 472 x 0.70
+    expect(result.formattedCableSize).toBe('3 × 300 mm²');
+    expect(result.isOverloaded).toBe(false);
   });
 
-  it('re-evaluates to 2x 300mm2 (944A) when user switches targetRuns from 3 to 2', () => {
+  it('re-evaluates to 2x 300mm2 when user switches targetRuns from 3 to 2, flagging overload under Cg(2)=0.80', () => {
     const result = recalculateCable({
       current: 902.1,
       isThreePhase: true,
@@ -190,11 +195,14 @@ describe('Cable recalculation', () => {
       targetRuns: 2,
     });
 
+    // The old private loop ignored run-grouping derating and reported a raw
+    // 2 x 472 = 944 A. Touching-run sets derate at Cg(2) = 0.80:
+    // 2 x 472 x 0.80 = 755.2 A < 902.1 A — an honest OVERLOAD, flagged.
     expect(result.parallelRuns).toBe(2);
     expect(result.cableSize).toBe(300);
-    expect(result.singleAmpacity).toBe(472);
-    expect(result.ampacity).toBe(944); // 2 * 472 = 944A
+    expect(result.singleAmpacity).toBe(377.6); // 472 x 0.80
+    expect(result.ampacity).toBe(755.2);
     expect(result.formattedCableSize).toBe('2 × 300 mm²');
-    expect(result.isOverloaded).toBe(false);
+    expect(result.isOverloaded).toBe(true);
   });
 });

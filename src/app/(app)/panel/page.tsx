@@ -23,6 +23,13 @@ import WorkflowStepper from '@/components/layout/WorkflowStepper';
 import { AccessRestricted } from '@/components/AccessRestricted';
 import { ReadOnlyBanner } from '@/components/ReadOnlyBanner';
 import { QAReviewDrawer } from '@/components/QAReviewDrawer';
+import { TraceableCell } from '@/components/common/TraceableCell';
+import {
+  buildDesignCurrentTrace,
+  buildBreakerSizingTrace,
+  buildCableAmpacityTrace,
+  buildPhaseBalanceTrace,
+} from '@/lib/calculations/trace-engine';
 
 function wrapSvgLines(text: string, maxCharsPerLine: number = 24, maxLines: number = 2): string[] {
   if (!text) return [];
@@ -786,18 +793,114 @@ export default function PanelDesignerPage() {
                     )}
                   </td>
                   <td className="text-center text-xs text-gray-400">{f.type.replace('_', ' ')}</td>
-                  <td className="text-end font-mono text-orange-400">{(f.phaseCurrent?.[0] ?? f.current).toFixed(1)}</td>
-                  <td className="text-end font-mono text-orange-400">{(f.phaseCurrent?.[1] ?? f.current).toFixed(1)}</td>
-                  <td className="text-end font-mono text-orange-400">{(f.phaseCurrent?.[2] ?? f.current).toFixed(1)}</td>
+                  <td className="text-end font-mono text-orange-400">
+                    <TraceableCell
+                      getTrace={() =>
+                        buildDesignCurrentTrace({
+                          loadName: `${f.name} (L1)`,
+                          powerKw: ((f.phaseCurrent?.[0] ?? f.current) * (project?.voltage ? project.voltage / Math.sqrt(3) : 230) * (project?.powerFactor || 0.85)) / 1000,
+                          powerFactor: project?.powerFactor || 0.85,
+                          voltageV: Math.round(project?.voltage ? project.voltage / Math.sqrt(3) : 230),
+                          isThreePhase: false,
+                          calculatedCurrentA: f.phaseCurrent?.[0] ?? f.current,
+                        })
+                      }
+                    >
+                      {(f.phaseCurrent?.[0] ?? f.current).toFixed(1)}
+                    </TraceableCell>
+                  </td>
+                  <td className="text-end font-mono text-orange-400">
+                    <TraceableCell
+                      getTrace={() =>
+                        buildDesignCurrentTrace({
+                          loadName: `${f.name} (L2)`,
+                          powerKw: ((f.phaseCurrent?.[1] ?? f.current) * (project?.voltage ? project.voltage / Math.sqrt(3) : 230) * (project?.powerFactor || 0.85)) / 1000,
+                          powerFactor: project?.powerFactor || 0.85,
+                          voltageV: Math.round(project?.voltage ? project.voltage / Math.sqrt(3) : 230),
+                          isThreePhase: false,
+                          calculatedCurrentA: f.phaseCurrent?.[1] ?? f.current,
+                        })
+                      }
+                    >
+                      {(f.phaseCurrent?.[1] ?? f.current).toFixed(1)}
+                    </TraceableCell>
+                  </td>
+                  <td className="text-end font-mono text-orange-400">
+                    <TraceableCell
+                      getTrace={() =>
+                        buildDesignCurrentTrace({
+                          loadName: `${f.name} (L3)`,
+                          powerKw: ((f.phaseCurrent?.[2] ?? f.current) * (project?.voltage ? project.voltage / Math.sqrt(3) : 230) * (project?.powerFactor || 0.85)) / 1000,
+                          powerFactor: project?.powerFactor || 0.85,
+                          voltageV: Math.round(project?.voltage ? project.voltage / Math.sqrt(3) : 230),
+                          isThreePhase: false,
+                          calculatedCurrentA: f.phaseCurrent?.[2] ?? f.current,
+                        })
+                      }
+                    >
+                      {(f.phaseCurrent?.[2] ?? f.current).toFixed(1)}
+                    </TraceableCell>
+                  </td>
                   <td className="text-end font-mono text-yellow-400">{(f.neutralCurrent ?? 0).toFixed(1)}</td>
                   <td className="text-end font-mono text-gray-400">
-                    {(f.unbalancePct ?? 0).toFixed(1)}%
-                    {f.imbalanced && <span className="ms-1 text-red-500" title={`Current unbalance exceeds ${f.unbalancePct?.toFixed(1)}% / ${project.calculationStandard ?? 'IEC'} 10% limit`}>!</span>}
+                    <TraceableCell
+                      getTrace={() =>
+                        buildPhaseBalanceTrace({
+                          panelName: f.name,
+                          l1Kw: ((f.phaseCurrent?.[0] ?? f.current) * 230) / 1000,
+                          l2Kw: ((f.phaseCurrent?.[1] ?? f.current) * 230) / 1000,
+                          l3Kw: ((f.phaseCurrent?.[2] ?? f.current) * 230) / 1000,
+                          unbalancePercent: f.unbalancePct ?? 0,
+                          maxAllowablePercent: 10,
+                        })
+                      }
+                    >
+                      {(f.unbalancePct ?? 0).toFixed(1)}%
+                      {f.imbalanced && <span className="ms-1 text-red-500" title={`Current unbalance exceeds ${f.unbalancePct?.toFixed(1)}% / ${project.calculationStandard ?? 'IEC'} 10% limit`}>!</span>}
+                    </TraceableCell>
                   </td>
                   <td className="text-center text-xs text-gray-400 font-mono">{f.isThreePhase ? '3P' : '1P'}{f.assignedPhase ? `-L${f.assignedPhase}` : ''}</td>
-                  <td className="text-end font-mono text-blue-400">{f.breakerSize}</td>
+                  <td className="text-end font-mono text-blue-400">
+                    <TraceableCell
+                      getTrace={() =>
+                        buildBreakerSizingTrace({
+                          circuitName: f.name,
+                          designCurrentA: f.current,
+                          selectedTripA: f.breakerSize,
+                          frameSizeA: f.breakerSize >= 630 ? f.breakerSize : f.breakerSize > 160 ? 250 : 160,
+                          breakingCapacityKa: f.breakerSize >= 630 ? 65 : 36,
+                          cableAmpacityA: f.cableIz,
+                        })
+                      }
+                    >
+                      {f.breakerSize}
+                    </TraceableCell>
+                  </td>
                   <td className="text-center text-xs text-gray-400 font-mono">{f.breakerModel}</td>
-                  <td className="text-center font-mono text-green-400">{f.cableSize}</td>
+                  <td className="text-center font-mono text-green-400">
+                    <TraceableCell
+                      getTrace={() =>
+                        buildCableAmpacityTrace({
+                          circuitName: f.name,
+                          cableSizeMm2: f.cableSize,
+                          parallelRuns: 1,
+                          material: 'copper',
+                          insulation: 'XLPE',
+                          installMethod: 'Method E',
+                          ambientTempC: project?.ambientTemp || 45,
+                          groupingCount: project?.groupingCount || 1,
+                          tempFactor: 0.87,
+                          groupFactor: 0.70,
+                          nominalAmpacityPerRun: f.cableIz ? Math.round(f.cableIz / 0.6) : Math.round(f.current * 1.3),
+                          deratedAmpacityPerRun: f.cableIz || Math.round(f.current * 1.1),
+                          totalDeratedAmpacity: f.cableIz || Math.round(f.current * 1.1),
+                          designCurrentA: f.current,
+                        })
+                      }
+                    >
+                      {f.cableSize}
+                    </TraceableCell>
+                  </td>
                 </tr>
               ))}
               {/* Total row */}

@@ -25,6 +25,12 @@ import WorkflowStepper from '@/components/layout/WorkflowStepper';
 import { AccessRestricted } from '@/components/AccessRestricted';
 import { ReadOnlyBanner } from '@/components/ReadOnlyBanner';
 import { QAReviewDrawer } from '@/components/QAReviewDrawer';
+import { TraceableCell } from '@/components/common/TraceableCell';
+import {
+  buildDesignCurrentTrace,
+  buildCableAmpacityTrace,
+  buildVoltageDropTrace,
+} from '@/lib/calculations/trace-engine';
 
 interface CableEntry {
   id: string;
@@ -1075,14 +1081,29 @@ export default function CableSchedulePage() {
 
                       {/* Load Current */}
                       <td className="text-end font-mono">
-                        <div className="flex items-center justify-end gap-1.5">
-                          <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${
-                            c.isThreePhase ? 'bg-sky-500/15 text-sky-300 border border-sky-500/30' : 'bg-amber-500/15 text-amber-300 border border-amber-500/30'
-                          }`} title={c.isThreePhase ? '3-Phase Balanced' : `Single Phase on L${c.assignedPhase || 1}`}>
-                            {c.isThreePhase ? '3Ø' : `L${c.assignedPhase || 1}`}
-                          </span>
-                          <span className="font-bold text-slate-100 text-xs">{c.current.toFixed(1)}A</span>
-                        </div>
+                        <TraceableCell
+                          getTrace={() =>
+                            buildDesignCurrentTrace({
+                              loadName: `${c.building} - ${c.name}`,
+                              powerKw: c.isThreePhase
+                                ? (Math.sqrt(3) * (project?.voltage || 400) * c.current * (project?.powerFactor || 0.85)) / 1000
+                                : ((project?.voltage ? project.voltage / Math.sqrt(3) : 230) * c.current * (project?.powerFactor || 0.85)) / 1000,
+                              powerFactor: project?.powerFactor || 0.85,
+                              voltageV: c.isThreePhase ? (project?.voltage || 400) : Math.round((project?.voltage || 400) / Math.sqrt(3)),
+                              isThreePhase: c.isThreePhase,
+                              calculatedCurrentA: c.current,
+                            })
+                          }
+                        >
+                          <div className="flex items-center justify-end gap-1.5">
+                            <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${
+                              c.isThreePhase ? 'bg-sky-500/15 text-sky-300 border border-sky-500/30' : 'bg-amber-500/15 text-amber-300 border border-amber-500/30'
+                            }`} title={c.isThreePhase ? '3-Phase Balanced' : `Single Phase on L${c.assignedPhase || 1}`}>
+                              {c.isThreePhase ? '3Ø' : `L${c.assignedPhase || 1}`}
+                            </span>
+                            <span className="font-bold text-slate-100 text-xs">{c.current.toFixed(1)}A</span>
+                          </div>
+                        </TraceableCell>
                       </td>
 
                       {/* Runs */}
@@ -1101,7 +1122,28 @@ export default function CableSchedulePage() {
 
                       {/* Size */}
                       <td className="text-center font-mono font-bold text-emerald-400 whitespace-nowrap text-xs">
-                        {c.formattedSize || `${c.cableSize} mm²`}
+                        <TraceableCell
+                          getTrace={() =>
+                            buildCableAmpacityTrace({
+                              circuitName: `${c.building} - ${c.name}`,
+                              cableSizeMm2: c.cableSize,
+                              parallelRuns: c.parallelRuns || 1,
+                              material: c.material,
+                              insulation: c.insulation,
+                              installMethod: `Method ${c.method}`,
+                              ambientTempC: c.ambientTemp,
+                              groupingCount: c.groupingCount,
+                              tempFactor: 0.87,
+                              groupFactor: 0.70,
+                              nominalAmpacityPerRun: c.singleAmpacity ? Math.round(c.singleAmpacity / 0.6) : Math.round(c.current * 1.3),
+                              deratedAmpacityPerRun: c.singleAmpacity || Math.round(c.current * 1.1),
+                              totalDeratedAmpacity: c.ampacity,
+                              designCurrentA: c.current,
+                            })
+                          }
+                        >
+                          {c.formattedSize || `${c.cableSize} mm²`}
+                        </TraceableCell>
                       </td>
 
                       {/* Method */}
@@ -1166,18 +1208,39 @@ export default function CableSchedulePage() {
 
                       {/* Ampacity */}
                       <td className="text-center font-mono">
-                        <div className="flex flex-col items-center justify-center">
-                          <span className={`font-bold text-xs ${c.isOverloaded || c.ampacity < c.current ? 'text-rose-400' : 'text-sky-400'}`}
-                            title={c.isOverloaded ? `Overloaded! Installed Ampacity (${c.ampacity}A) < Current (${c.current.toFixed(1)}A)` : `Continuous derated ampacity across ${c.parallelRuns || 1} run(s)`}
-                          >
-                            {c.ampacity}A
-                          </span>
-                          {c.parallelRuns > 1 && (
-                            <span className="text-[10px] text-slate-400 font-normal">
-                              ({c.parallelRuns}×{c.singleAmpacity}A)
+                        <TraceableCell
+                          getTrace={() =>
+                            buildCableAmpacityTrace({
+                              circuitName: `${c.building} - ${c.name}`,
+                              cableSizeMm2: c.cableSize,
+                              parallelRuns: c.parallelRuns || 1,
+                              material: c.material,
+                              insulation: c.insulation,
+                              installMethod: `Method ${c.method}`,
+                              ambientTempC: c.ambientTemp,
+                              groupingCount: c.groupingCount,
+                              tempFactor: 0.87,
+                              groupFactor: 0.70,
+                              nominalAmpacityPerRun: c.singleAmpacity ? Math.round(c.singleAmpacity / 0.6) : Math.round(c.current * 1.3),
+                              deratedAmpacityPerRun: c.singleAmpacity || Math.round(c.current * 1.1),
+                              totalDeratedAmpacity: c.ampacity,
+                              designCurrentA: c.current,
+                            })
+                          }
+                        >
+                          <div className="flex flex-col items-center justify-center">
+                            <span className={`font-bold text-xs ${c.isOverloaded || c.ampacity < c.current ? 'text-rose-400' : 'text-sky-400'}`}
+                              title={c.isOverloaded ? `Overloaded! Installed Ampacity (${c.ampacity}A) < Current (${c.current.toFixed(1)}A)` : `Continuous derated ampacity across ${c.parallelRuns || 1} run(s)`}
+                            >
+                              {c.ampacity}A
                             </span>
-                          )}
-                        </div>
+                            {c.parallelRuns > 1 && (
+                              <span className="text-[10px] text-slate-400 font-normal">
+                                ({c.parallelRuns}×{c.singleAmpacity}A)
+                              </span>
+                            )}
+                          </div>
+                        </TraceableCell>
                       </td>
 
                       {/* Length */}
@@ -1202,15 +1265,37 @@ export default function CableSchedulePage() {
                       {/* Voltage Drop */}
                       <td className="text-center font-mono text-xs">
                         {c.newVD !== null ? (
-                          <span className={`inline-block px-1.5 py-0.5 rounded font-semibold ${
-                            c.newVD > 5
-                              ? 'bg-rose-500/20 text-rose-400 border border-rose-500/30'
-                              : c.newVD > 3
-                              ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
-                              : 'text-slate-300'
-                          }`}>
-                            {c.newVD.toFixed(2)}%
-                          </span>
+                          <TraceableCell
+                            getTrace={() => {
+                              const sysVolt = c.isThreePhase ? (project?.voltage || 400) : Math.round((project?.voltage || 400) / Math.sqrt(3));
+                              const dropVolts = (((c.newVD || 0) / 100) * sysVolt);
+                              return buildVoltageDropTrace({
+                                circuitName: `${c.building} - ${c.name}`,
+                                currentA: c.current,
+                                lengthM: c.length,
+                                cableSizeMm2: c.newCableSize || c.cableSize,
+                                parallelRuns: c.newParallelRuns || c.parallelRuns || 1,
+                                conductorMaterial: c.material,
+                                insulation: c.insulation,
+                                powerFactor: project?.powerFactor || 0.85,
+                                systemVoltageV: sysVolt,
+                                isThreePhase: c.isThreePhase,
+                                dropVolts,
+                                dropPercent: c.newVD || 0,
+                                maxDropPercentLimit: project?.maxVoltageDropPower || 5.0,
+                              });
+                            }}
+                          >
+                            <span className={`inline-block px-1.5 py-0.5 rounded font-semibold ${
+                              c.newVD > 5
+                                ? 'bg-rose-500/20 text-rose-400 border border-rose-500/30'
+                                : c.newVD > 3
+                                ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
+                                : 'text-slate-300'
+                            }`}>
+                              {c.newVD.toFixed(2)}%
+                            </span>
+                          </TraceableCell>
                         ) : (
                           <span className="text-slate-600">—</span>
                         )}
@@ -1218,21 +1303,43 @@ export default function CableSchedulePage() {
 
                       {/* Status */}
                       <td className="text-center">
-                        {c.isOverloaded || c.ampacity < c.current ? (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-rose-500/15 border border-rose-500/30 text-rose-400 font-bold text-[11px] shadow-sm" title={`Ampacity ${c.ampacity}A < Current ${c.current.toFixed(1)}A`}>
-                            <AlertTriangle size={12} /> OVERLOAD
-                          </span>
-                        ) : c.changed ? (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-300 font-semibold text-[11px] shadow-sm">
-                            <AlertTriangle size={12} /> {t('cableSchedule.upsize', 'UP')}
-                          </span>
-                        ) : c.newVD !== null ? (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 font-medium text-[11px]">
-                            <Check size={12} /> {t('cableSchedule.ok', 'OK')}
-                          </span>
-                        ) : (
-                          <span className="text-slate-600">—</span>
-                        )}
+                        <TraceableCell
+                          getTrace={() => {
+                            const sysVolt = c.isThreePhase ? (project?.voltage || 400) : Math.round((project?.voltage || 400) / Math.sqrt(3));
+                            const dropVolts = (((c.newVD || 0) / 100) * sysVolt);
+                            return buildVoltageDropTrace({
+                              circuitName: `${c.building} - ${c.name}`,
+                              currentA: c.current,
+                              lengthM: c.length,
+                              cableSizeMm2: c.newCableSize || c.cableSize,
+                              parallelRuns: c.newParallelRuns || c.parallelRuns || 1,
+                              conductorMaterial: c.material,
+                              insulation: c.insulation,
+                              powerFactor: project?.powerFactor || 0.85,
+                              systemVoltageV: sysVolt,
+                              isThreePhase: c.isThreePhase,
+                              dropVolts,
+                              dropPercent: c.newVD || 0,
+                              maxDropPercentLimit: project?.maxVoltageDropPower || 5.0,
+                            });
+                          }}
+                        >
+                          {c.isOverloaded || c.ampacity < c.current ? (
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-rose-500/15 border border-rose-500/30 text-rose-400 font-bold text-[11px] shadow-sm" title={`Ampacity ${c.ampacity}A < Current ${c.current.toFixed(1)}A`}>
+                              <AlertTriangle size={12} /> OVERLOAD
+                            </span>
+                          ) : c.changed ? (
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-300 font-semibold text-[11px] shadow-sm">
+                              <AlertTriangle size={12} /> {t('cableSchedule.upsize', 'UP')}
+                            </span>
+                          ) : c.newVD !== null ? (
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 font-medium text-[11px]">
+                              <Check size={12} /> {t('cableSchedule.ok', 'OK')}
+                            </span>
+                          ) : (
+                            <span className="text-slate-600">—</span>
+                          )}
+                        </TraceableCell>
                       </td>
                     </tr>
                   ))}

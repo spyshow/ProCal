@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { NextResponse } from "next/server";
 
 // GET /api/admin/stats — admin-gated snapshot + weekly users/projects trends.
@@ -31,6 +31,8 @@ const ADMIN = { id: "a1", username: "boss", name: "Boss", role: "ADMIN", credits
 const day = (offset: number) => new Date(Date.UTC(2026, 7, 20 - offset, 12));
 
 beforeEach(() => {
+  vi.useFakeTimers();
+  vi.setSystemTime(new Date(Date.UTC(2026, 7, 20, 12)));
   vi.resetModules();
   vi.clearAllMocks();
   gateResult = ADMIN;
@@ -45,6 +47,10 @@ beforeEach(() => {
   contactCount.mockResolvedValue(3);
   userFindMany.mockResolvedValue([{ createdAt: day(0) }, { createdAt: day(7) }]);
   projectFindMany.mockResolvedValue([{ createdAt: day(0) }, { createdAt: day(1) }, { createdAt: day(30) }]);
+});
+
+afterEach(() => {
+  vi.useRealTimers();
 });
 
 describe("weeklySeries", () => {

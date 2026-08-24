@@ -31,6 +31,8 @@ import WorkflowStepper from '@/components/layout/WorkflowStepper';
 import { AccessRestricted } from '@/components/AccessRestricted';
 import { ReadOnlyBanner } from '@/components/ReadOnlyBanner';
 import { QAReviewDrawer } from '@/components/QAReviewDrawer';
+import { TraceableCell } from '@/components/common/TraceableCell';
+import { buildDesignCurrentTrace } from '@/lib/calculations/trace-engine';
 
 export default function CalculatorPage() {
   return (
@@ -607,9 +609,56 @@ function CalculatorContent() {
                                   </span>
                                 )}
                               </td>
-                              <td className="text-right font-mono text-sm">{item.calculatedConnectedLoad.toFixed(2)}</td>
-                              <td className="text-right font-mono text-sm text-orange-400">{item.calculatedMaxDemand.toFixed(2)}</td>
-                              <td className="text-right font-mono text-sm">{item.calculatedCurrent.toFixed(1)}</td>
+                              <td className="text-right font-mono text-sm">
+                                <TraceableCell
+                                  getTrace={() =>
+                                    buildDesignCurrentTrace({
+                                      loadName: `${item.name} (Connected)`,
+                                      powerKw: item.calculatedConnectedLoad,
+                                      powerFactor: project?.powerFactor || 0.85,
+                                      voltageV: isThreePhase ? (project?.voltage || 400) : Math.round((project?.voltage || 400) / Math.sqrt(3)),
+                                      isThreePhase: isThreePhase || itemPhaseCount === 3,
+                                      calculatedCurrentA: item.calculatedCurrent,
+                                    })
+                                  }
+                                >
+                                  {item.calculatedConnectedLoad.toFixed(2)}
+                                </TraceableCell>
+                              </td>
+                              <td className="text-right font-mono text-sm text-orange-400">
+                                <TraceableCell
+                                  getTrace={() =>
+                                    buildDesignCurrentTrace({
+                                      loadName: `${item.name} (Demand)`,
+                                      powerKw: item.calculatedMaxDemand,
+                                      powerFactor: project?.powerFactor || 0.85,
+                                      voltageV: isThreePhase ? (project?.voltage || 400) : Math.round((project?.voltage || 400) / Math.sqrt(3)),
+                                      isThreePhase: isThreePhase || itemPhaseCount === 3,
+                                      demandFactor: item.calculatedConnectedLoad > 0 ? item.calculatedMaxDemand / item.calculatedConnectedLoad : 1.0,
+                                      calculatedCurrentA: item.calculatedCurrent,
+                                    })
+                                  }
+                                >
+                                  {item.calculatedMaxDemand.toFixed(2)}
+                                </TraceableCell>
+                              </td>
+                              <td className="text-right font-mono text-sm">
+                                <TraceableCell
+                                  getTrace={() =>
+                                    buildDesignCurrentTrace({
+                                      loadName: item.name,
+                                      powerKw: item.calculatedMaxDemand,
+                                      powerFactor: project?.powerFactor || 0.85,
+                                      voltageV: isThreePhase ? (project?.voltage || 400) : Math.round((project?.voltage || 400) / Math.sqrt(3)),
+                                      isThreePhase: isThreePhase || itemPhaseCount === 3,
+                                      demandFactor: item.calculatedConnectedLoad > 0 ? item.calculatedMaxDemand / item.calculatedConnectedLoad : 1.0,
+                                      calculatedCurrentA: item.calculatedCurrent,
+                                    })
+                                  }
+                                >
+                                  {item.calculatedCurrent.toFixed(1)}
+                                </TraceableCell>
+                              </td>
                               <td className="text-center">
                                 {!isReadOnly ? (
                                   <button

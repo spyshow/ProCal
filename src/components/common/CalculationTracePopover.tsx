@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import {
   Calculator,
   Copy,
@@ -33,9 +34,14 @@ export function CalculationTracePopover({
   onClose,
   anchorRect,
 }: CalculationTracePopoverProps) {
+  const [mounted, setMounted] = useState(false);
   const [copied, setCopied] = useState(false);
   const [isPinned, setIsPinned] = useState(false);
   const popoverRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Auto-close on escape key if not pinned
   useEffect(() => {
@@ -67,7 +73,7 @@ export function CalculationTracePopover({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [isOpen, isPinned, onClose]);
 
-  if (!isOpen || !trace) return null;
+  if (!isOpen || !trace || !mounted) return null;
 
   const handleCopy = async () => {
     try {
@@ -83,7 +89,7 @@ export function CalculationTracePopover({
   // Smart positioning calculation relative to anchor element or viewport center
   let stylePosition: React.CSSProperties = {
     position: "fixed",
-    zIndex: 9999,
+    zIndex: 99999,
   };
 
   if (anchorRect) {
@@ -119,7 +125,7 @@ export function CalculationTracePopover({
     };
   }
 
-  return (
+  const content = (
     <div
       ref={popoverRef}
       style={stylePosition}
@@ -325,4 +331,8 @@ export function CalculationTracePopover({
       </div>
     </div>
   );
+
+  return typeof document !== "undefined"
+    ? createPortal(content, document.body)
+    : content;
 }

@@ -27,6 +27,12 @@ import WorkflowStepper from '@/components/layout/WorkflowStepper';
 import { AccessRestricted } from '@/components/AccessRestricted';
 import { ReadOnlyBanner } from '@/components/ReadOnlyBanner';
 import { QAReviewDrawer } from '@/components/QAReviewDrawer';
+import { TraceableCell } from '@/components/common/TraceableCell';
+import {
+  buildDesignCurrentTrace,
+  buildBreakerSizingTrace,
+  buildShortCircuitTrace,
+} from '@/lib/calculations/trace-engine';
 
 interface BreakerFamilyOption {
   id: string;
@@ -740,21 +746,55 @@ export default function BreakerSchedulePage() {
                     <td className="text-gray-200 font-semibold">{b.name}</td>
                     <td className="text-gray-400 text-xs font-mono">{b.parentFeederName ?? 'Main Incomer'}</td>
                     <td className="text-center font-mono text-orange-400">F{b.floor}</td>
-                    <td className="text-end font-mono">{b.current.toFixed(1)}</td>
+                    <td className="text-end font-mono">
+                      <TraceableCell
+                        getTrace={() => {
+                          const is3Ph = b.isThreePhase;
+                          const voltage = is3Ph ? (project?.voltage || 400) : (project?.voltage ? project.voltage / Math.sqrt(3) : 230);
+                          const powerKw = is3Ph
+                            ? (Math.sqrt(3) * (project?.voltage || 400) * b.current * (project?.powerFactor || 0.85)) / 1000
+                            : ((project?.voltage ? project.voltage / Math.sqrt(3) : 230) * b.current * (project?.powerFactor || 0.85)) / 1000;
+                          return buildDesignCurrentTrace({
+                            loadName: `${b.buildingName} - ${b.name}`,
+                            powerKw,
+                            powerFactor: project?.powerFactor || 0.85,
+                            voltageV: Math.round(voltage),
+                            isThreePhase: is3Ph,
+                            calculatedCurrentA: b.current,
+                          });
+                        }}
+                      >
+                        {b.current.toFixed(1)}
+                      </TraceableCell>
+                    </td>
                     <td className="text-center font-mono text-blue-400 font-bold">
-                      {b.isBreakerUpsized ? (
-                        <span
-                          className="inline-block border-b border-dashed border-blue-400/80 cursor-help hover:text-blue-300 hover:border-blue-300 transition-colors pb-0.5"
-                          title={
-                            b.upsizeReason ??
-                            `Sized to ${b.breakerSize}A (exceeds base load rating ${b.baseBreakerSize ?? Math.ceil(b.current)}A): Upsized for selectivity grading (IEC 60947-2 ≥1.6× downstream MCBs) and electronic trip unit frame sizing, with dial Ir tuned to protect the ${b.current.toFixed(1)}A load.`
-                          }
-                        >
-                          {b.breakerSize}A
-                        </span>
-                      ) : (
-                        <span>{b.breakerSize}A</span>
-                      )}
+                      <TraceableCell
+                        getTrace={() =>
+                          buildBreakerSizingTrace({
+                            circuitName: `${b.buildingName} - ${b.name}`,
+                            designCurrentA: b.current,
+                            selectedTripA: b.breakerSize,
+                            frameSizeA: b.breakerSize >= 630 ? b.breakerSize : b.breakerSize > 160 ? 250 : 160,
+                            breakingCapacityKa: b.breakerSize >= 630 ? 65 : 36,
+                            prospectiveFaultKa: b.faultCurrentKa || undefined,
+                            cableAmpacityA: b.cableIz,
+                          })
+                        }
+                      >
+                        {b.isBreakerUpsized ? (
+                          <span
+                            className="inline-block border-b border-dashed border-blue-400/80 cursor-help hover:text-blue-300 hover:border-blue-300 transition-colors pb-0.5"
+                            title={
+                              b.upsizeReason ??
+                              `Sized to ${b.breakerSize}A (exceeds base load rating ${b.baseBreakerSize ?? Math.ceil(b.current)}A): Upsized for selectivity grading (IEC 60947-2 ≥1.6× downstream MCBs) and electronic trip unit frame sizing, with dial Ir tuned to protect the ${b.current.toFixed(1)}A load.`
+                            }
+                          >
+                            {b.breakerSize}A
+                          </span>
+                        ) : (
+                          <span>{b.breakerSize}A</span>
+                        )}
+                      </TraceableCell>
                     </td>
                     <td className="text-xs text-gray-300">
                       <div className="flex flex-col gap-0.5">
@@ -788,7 +828,24 @@ export default function BreakerSchedulePage() {
                       </div>
                     </td>
                     <td className="text-end font-mono text-gray-300">
-                      {b.faultCurrentKa ? b.faultCurrentKa.toFixed(2) : '—'}
+                      {b.faultCurrentKa ? (
+                        <TraceableCell
+                          getTrace={() =>
+                            buildShortCircuitTrace({
+                              locationName: `${b.buildingName} - ${b.name}`,
+                              transformerKva: 1000,
+                              transformerZPercent: 5.5,
+                              voltageSecondaryV: project?.voltage || 400,
+                              threePhaseIscKa: b.faultCurrentKa || 25,
+                              peakCurrentKa: (b.faultCurrentKa || 25) * 2.1,
+                            })
+                          }
+                        >
+                          {b.faultCurrentKa.toFixed(2)}
+                        </TraceableCell>
+                      ) : (
+                        '—'
+                      )}
                     </td>
                     <td className="text-center">
                       <div className="flex flex-col items-center gap-1">

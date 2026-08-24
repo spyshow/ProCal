@@ -35,6 +35,17 @@ export function parseCableSize(value: string | number | null | undefined): { siz
   const str = String(value).trim();
   if (!str || str.toLowerCase() === 'n/a') return null;
 
+  // Core-count notation ("4x35+16": a 4-core cable, 35 mm² phases + 16 mm²
+  // earth) is ONE cable — the phase conductor governs, runs = 1. Letting it
+  // fall into the parallel-run match credited the ampacity ×4.
+  const coresMatch = str.match(/^(\d+)\s*[*xX×]\s*(\d+(?:\.\d+)?)\s*\+/i);
+  if (coresMatch) {
+    const size = parseFloat(coresMatch[2]);
+    if (size > 0) {
+      return { size, runs: 1, formatted: `${size} mm²` };
+    }
+  }
+
   // Match parallel notation e.g. "2 × 240 mm²", "2x240", "2 x 300 mm²", "3*(4x185)", "3 × 185"
   const parallelMatch = str.match(/^(\d+)\s*[*xX×]\s*(?:\(\s*\d+\s*[*xX×]\s*|\(\s*)?(\d+(?:\.\d+)?)/i);
   if (parallelMatch) {

@@ -186,6 +186,14 @@ describe('parseCableSize and formatCableSize', () => {
     expect(parseCableSize('4 * 120 mm2')).toEqual({ size: 120, runs: 4, formatted: '4 × 120 mm²' });
   });
 
+  it('treats core-count notation (4x35+16) as ONE cable: phase core governs, runs = 1', () => {
+    // "4x35+16" is a single 4-core cable (35 mm² phases + 16 mm² earth), not
+    // four parallel runs — the old parser credited its ampacity ×4.
+    expect(parseCableSize('4x35+16')).toEqual({ size: 35, runs: 1, formatted: '35 mm²' });
+    expect(parseCableSize('3x95+50')).toEqual({ size: 95, runs: 1, formatted: '95 mm²' });
+    expect(parseCableSize('4 X 25 + 16 mm2')).toEqual({ size: 25, runs: 1, formatted: '25 mm²' });
+  });
+
   it('formats single and multi-run cables accurately', () => {
     expect(formatCableSize(300, 1)).toBe('300 mm²');
     expect(formatCableSize(240, 2)).toBe('2 × 240 mm²');

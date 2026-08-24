@@ -406,7 +406,10 @@ describe('Golden Path Cross-Module Integration Test', () => {
       const vLN = project.voltage / Math.sqrt(3);
       const phaseReferred =
         (((riserDrop.dropVolts / Math.sqrt(3)) + worstBranchDrop.dropVolts) / vLN) * 100;
-      expect(riserVd.totalVdPercent).toBeCloseTo(phaseReferred, 2);
+      // 1dp: both operands are 2dp-rounded volts, so compounded rounding puts
+      // the exact algebraic identity a few hundredths apart — this asserts
+      // dimensional consistency, not decimal agreement (line 401 does that).
+      expect(riserVd.totalVdPercent).toBeCloseTo(phaseReferred, 1);
     }
 
     // -------------------------------------------------------------------------

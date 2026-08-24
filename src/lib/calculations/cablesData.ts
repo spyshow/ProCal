@@ -63,7 +63,7 @@ export const TEMP_DERATING: Record<string, Record<number, number>> = {
   },
   XLPE: {
     10: 1.15,
-    15: 1.11,
+    15: 1.12,
     20: 1.07,
     25: 1.04,
     30: 1.00,

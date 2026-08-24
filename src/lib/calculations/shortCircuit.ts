@@ -129,10 +129,14 @@ export function calculateShortCircuitCurrent(
   // Phase-to-phase short-circuit current (typically 0.866 * three-phase)
   const twoPhaseIsc = threePhaseIsc * 0.866;
 
-  // Peak short-circuit current (for mechanical stress calculations)
-  // Typical factor: 2.5 * RMS for HV, 2.0 * RMS for LV
-  const peakFactor = voltageSecondary <= 1000 ? 2.0 : 2.5;
-  const peakCurrent = threePhaseIsc * peakFactor;
+  // Peak short-circuit current (mechanical stress), IEC 60909:
+  // ip = κ·√2·I″k with κ = 1.02 + 0.98·e^(−3R/X). The R/X split assumes the
+  // same typical distribution-transformer X/R used in calculateIscWithCable
+  // (≈6 LV, more reactive ≈10 HV). For X/R 6 this gives ip/I″k ≈ 2.28 — the
+  // old flat 2.0 understated LV peak make-capacity requirements.
+  const peakXRRatio = voltageSecondary <= 1000 ? 6 : 10;
+  const kappa = 1.02 + 0.98 * Math.exp(-3 / peakXRRatio);
+  const peakCurrent = threePhaseIsc * kappa * Math.SQRT2;
 
   // Fault level in MVA
   const faultMVA = (Math.sqrt(3) * voltageSecondary * threePhaseIsc * 1000) / 1e6;

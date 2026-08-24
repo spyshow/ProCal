@@ -150,9 +150,9 @@ describe('computeFeeders', () => {
     expect(smdb[0].name).toBe('F1 – SMDB');
     // PR1: per-phase balance assigns the 1-phase loads to phases; the riser
     // is sized by the max-loaded phase, not the flat sum (20+30=50).
-    // With simple round-robin, first load (20) goes to L1, second (30) to L2.
+    // LPT sort places the larger load first: 30→L1, then 20→L2.
     expect(smdb[0].current).toBe(30);
-    expect(smdb[0].phaseCurrent).toEqual([20, 30, 0]);
+    expect(smdb[0].phaseCurrent).toEqual([30, 20, 0]);
     expect(smdb[0].manufacturer).toBe('ABB');
   });
 

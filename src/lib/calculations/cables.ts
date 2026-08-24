@@ -20,7 +20,7 @@ export interface SizingResult {
 }
 
 // Standard breaker ratings (Amperes)
-export const STANDARD_BREAKERS = [10, 16, 20, 25, 32, 40, 50, 63, 80, 100, 125, 160, 200, 250, 320, 400, 500, 630, 800, 1000, 1250, 1600, 2000, 2500];
+export const STANDARD_BREAKERS = [6, 10, 13, 16, 20, 25, 32, 40, 50, 63, 80, 100, 125, 160, 200, 250, 320, 400, 500, 630, 800, 1000, 1250, 1600, 2000, 2500];
 
 /**
  * Parses a cable-size string or number (e.g. "300 mm²", 16, "2 × 240 mm²", "2x300")

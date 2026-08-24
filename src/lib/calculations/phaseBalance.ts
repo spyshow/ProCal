@@ -247,8 +247,12 @@ function compute(loads: PhaseLoad[], project: Project, buildingPhaseMap?: Map<st
   }
 
   // Auto-assign 1-phase loads: use building-level assignments if provided,
-  // otherwise use simple round-robin (least-loaded phase).
-  for (const load of toAutoAssign) {
+  // otherwise use simple round-robin (least-loaded phase). Sort largest-first
+  // (LPT — Longest Processing Time) so big loads land before the board fills
+  // up; assigning in input order can strand a heavy load on an already-maxed
+  // phase and leave a visible imbalance.
+  const autoSorted = [...toAutoAssign].sort((a, b) => b.current - a.current);
+  for (const load of autoSorted) {
     // Check if we have a pre-computed assignment from building-level balance
     const buildingPhase = buildingPhaseMap?.get(load.id);
     let phase: PhaseIdx;

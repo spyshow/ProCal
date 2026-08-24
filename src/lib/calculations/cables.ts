@@ -1,6 +1,7 @@
 import { CABLE_CATALOG, temperatureDeratingFactor, groupingDeratingFactor, CableSpec } from "./cablesData";
 import { getAmpacity, isGroundMethod, groundTemperatureDeratingFactor } from "./installationMethods";
 import { assertNonNegative, assertPositive, assertInRange, assertOneOf, clampPowerFactor } from "./validate";
+import { nextBreakerRating, IEC_BREAKER_RATINGS, type CodeStandard } from "./codes";
 
 export interface SizingResult {
   cableSize: number;
@@ -34,8 +35,9 @@ export interface VoltageDropConstraint {
   maxPercent: number;
 }
 
-// Standard breaker ratings (Amperes)
-export const STANDARD_BREAKERS = [6, 10, 13, 16, 20, 25, 32, 40, 50, 63, 80, 100, 125, 160, 200, 250, 320, 400, 500, 630, 800, 1000, 1250, 1600, 2000, 2500];
+// Standard breaker ratings (Amperes) — IEC list; NEC projects use
+// nextBreakerRating(ib, 'NEC') from ./codes instead.
+export const STANDARD_BREAKERS = IEC_BREAKER_RATINGS;
 
 /**
  * Parses a cable-size string or number (e.g. "300 mm²", 16, "2 × 240 mm²", "2x300")
@@ -135,6 +137,8 @@ export function sizeCableAndBreaker(
     maxCableSize?: number;
     targetRuns?: number;
     manualBreakerRating?: number;
+    /** Breaker-rating catalog — defaults to IEC; NEC projects pass "NEC". */
+    code?: CodeStandard;
     voltageDrop?: VoltageDropConstraint;
   }
 ): SizingResult {
@@ -168,8 +172,8 @@ export function sizeCableAndBreaker(
   const warnings: string[] = [];
   const methodId = installMethod ?? 'C';
 
-  // 1. Select breaker size (In >= Ib)
-  const breakerSize = options.manualBreakerRating ?? (STANDARD_BREAKERS.find((rating) => rating >= ib) || STANDARD_BREAKERS[STANDARD_BREAKERS.length - 1]);
+  // 1. Select breaker size (In >= Ib) from the project's code catalog
+  const breakerSize = options.manualBreakerRating ?? nextBreakerRating(ib, options.code);
   if (breakerSize < ib - 1e-9) {
     warnings.push(
       `Design current ${ib.toFixed(1)} A exceeds the largest standard breaker (${breakerSize} A); sized to the frame limit — split the load across multiple feeders.`

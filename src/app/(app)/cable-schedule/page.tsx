@@ -15,6 +15,7 @@ import {
   getRiserCableLength,
   systemVoltageBase,
 } from '@/lib/calculations/cables';
+import { codeOf } from '@/lib/calculations/codes';
 import { isThreePhaseForItem } from '@/lib/calculations/feeders';
 import { phaseBalance } from '@/lib/calculations/phaseBalance';
 import MethodSelector from '@/components/MethodSelector';
@@ -233,6 +234,7 @@ export default function CableSchedulePage() {
             ambientTemp,
             groupingCount,
             maxCableSize: defaultMaxCableSize,
+            code: codeOf(project?.calculationStandard),
           });
 
           cableList.push({
@@ -318,6 +320,7 @@ export default function CableSchedulePage() {
           ambientTemp,
           groupingCount,
           maxCableSize: defaultMaxCableSize,
+          code: codeOf(project?.calculationStandard),
         });
 
         cableList.push({
@@ -388,6 +391,7 @@ export default function CableSchedulePage() {
           ambientTemp,
           groupingCount,
           maxCableSize: defaultMaxCableSize,
+          code: codeOf(project?.calculationStandard),
         });
 
         cableList.push({
@@ -456,6 +460,7 @@ export default function CableSchedulePage() {
         ambientTemp: newAmbientTemp,
         groupingCount: newGroupingCount,
         maxCableSize: defaultMaxCableSize,
+        code: codeOf(project?.calculationStandard),
         targetRuns,
       });
 
@@ -539,6 +544,7 @@ export default function CableSchedulePage() {
         ambientTemp: c.ambientTemp,
         groupingCount: c.groupingCount,
         maxCableSize: defaultMaxCableSize,
+        code: codeOf(project?.calculationStandard),
       });
       return {
         ...c,
@@ -600,6 +606,7 @@ export default function CableSchedulePage() {
             ambientTemp: c.ambientTemp,
             groupingCount: c.groupingCount,
             maxCableSize: defaultMaxCableSize,
+            code: codeOf(project?.calculationStandard),
           });
           return {
             ...c,
@@ -678,6 +685,7 @@ export default function CableSchedulePage() {
           ambientTemp: defaultAmbientTemp,
           groupingCount: defaultGroupingCount,
           maxCableSize: defaultMaxCableSize,
+          code: codeOf(project?.calculationStandard),
         });
         return {
           ...c,

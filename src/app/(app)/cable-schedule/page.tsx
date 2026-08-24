@@ -1028,13 +1028,13 @@ export default function CableSchedulePage() {
               <table className="cable-schedule-table">
                 <thead>
                   <tr>
-                    <th className="text-start">{t('cableSchedule.load', 'CIRCUIT & TAG')}</th>
+                    <th className="text-center">{t('cableSchedule.load', 'CIRCUIT & TAG')}</th>
                     {showPhaseDetails && (
                       <>
-                        <th className="text-end">{t('cableSchedule.l1', 'L1 (A)')}</th>
-                        <th className="text-end">{t('cableSchedule.l2', 'L2 (A)')}</th>
-                        <th className="text-end">{t('cableSchedule.l3', 'L3 (A)')}</th>
-                        <th className="text-end">{t('cableSchedule.neutral', 'N (A)')}</th>
+                        <th className="text-center">{t('cableSchedule.l1', 'L1 (A)')}</th>
+                        <th className="text-center">{t('cableSchedule.l2', 'L2 (A)')}</th>
+                        <th className="text-center">{t('cableSchedule.l3', 'L3 (A)')}</th>
+                        <th className="text-center">{t('cableSchedule.neutral', 'N (A)')}</th>
                       </>
                     )}
                     <th className="text-center">{t('cableSchedule.current', 'LOAD (A)')}</th>
@@ -1046,7 +1046,7 @@ export default function CableSchedulePage() {
                     <th className="text-center">{t('cableSchedule.ambientTemp', 'TEMP')}</th>
                     <th className="text-center">{t('cableSchedule.groupingCount', 'GRP')}</th>
                     <th className="text-center">{t('cableSchedule.ampacity', 'AMPACITY (Iz)')}</th>
-                    <th className="text-end">{t('cableSchedule.length', 'LENGTH')}</th>
+                    <th className="text-center">{t('cableSchedule.length', 'LENGTH')}</th>
                     <th className="text-center">{t('cableSchedule.newCable', 'NEW CABLE')}</th>
                     <th className="text-center">{t('cableSchedule.vd', 'V.DROP')}</th>
                     <th className="text-center">{t('cableSchedule.status', 'STATUS')}</th>
@@ -1056,10 +1056,10 @@ export default function CableSchedulePage() {
                   {groupCables.map((c) => (
                     <tr key={c.id} className="hover:bg-slate-800/40 transition-colors">
                       {/* Circuit Name & Tag combined */}
-                      <td className="text-start">
-                        <div className="flex flex-col">
+                      <td className="text-center">
+                        <div className="flex flex-col items-center justify-center">
                           <span className="font-semibold text-slate-100 text-xs">{c.name}</span>
-                          <div className="flex items-center gap-1.5 mt-0.5">
+                          <div className="flex items-center justify-center gap-1.5 mt-0.5">
                             <span className="font-mono text-[10px] text-slate-400 bg-slate-800/70 border border-slate-700/50 px-1.5 py-0.2 rounded">
                               {c.cableName}
                             </span>
@@ -1072,10 +1072,10 @@ export default function CableSchedulePage() {
 
                       {showPhaseDetails && (
                         <>
-                          <td className="text-end font-mono text-orange-400">{c.phaseCurrent[0].toFixed(1)}</td>
-                          <td className="text-end font-mono text-orange-400">{c.phaseCurrent[1].toFixed(1)}</td>
-                          <td className="text-end font-mono text-orange-400">{c.phaseCurrent[2].toFixed(1)}</td>
-                          <td className="text-end font-mono text-yellow-400">{c.neutralCurrent.toFixed(1)}</td>
+                          <td className="text-center font-mono text-orange-400">{c.phaseCurrent[0].toFixed(1)}</td>
+                          <td className="text-center font-mono text-orange-400">{c.phaseCurrent[1].toFixed(1)}</td>
+                          <td className="text-center font-mono text-orange-400">{c.phaseCurrent[2].toFixed(1)}</td>
+                          <td className="text-center font-mono text-yellow-400">{c.neutralCurrent.toFixed(1)}</td>
                         </>
                       )}
 
@@ -1244,13 +1244,13 @@ export default function CableSchedulePage() {
                       </td>
 
                       {/* Length */}
-                      <td className="text-end">
-                        <div className="inline-flex items-center gap-1 bg-slate-800/80 border border-slate-700/80 rounded-md px-2 py-0.5">
+                      <td className="text-center">
+                        <div className="inline-flex items-center justify-center gap-1 bg-slate-800/80 border border-slate-700/80 rounded-md px-2 py-0.5">
                           <input
                             type="number"
                             value={c.length}
                             onChange={(e) => updateCableField(c.id, 'length', parseFloat(e.target.value) || (10 + (c.floor - 1) * 5))}
-                            className="w-12 bg-transparent text-end text-xs font-mono font-medium text-slate-100 focus:outline-none"
+                            className="w-12 bg-transparent text-center text-xs font-mono font-medium text-slate-100 focus:outline-none"
                             min="1"
                           />
                           <span className="text-[10px] text-slate-400 font-medium select-none">m</span>

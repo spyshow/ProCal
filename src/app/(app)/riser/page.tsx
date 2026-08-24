@@ -533,41 +533,41 @@ export default function RiserPage() {
       <div className="rounded-xl border border-gray-800 bg-gray-900/60 p-4">
         <h3 className="text-sm font-semibold text-gray-300 mb-3">{t('riser.floorSummary', 'Floor Summary')}</h3>
         <div className="overflow-x-auto">
-          <table className="w-full text-xs">
+          <table className="w-full text-xs text-center">
             <thead>
               <tr className="border-b border-gray-700">
-                <th className="text-start py-2 px-3 text-gray-400">{t('riser.floor', 'Floor')}</th>
-                <th className="text-start py-2 px-3 text-gray-400">{t('riser.panel', 'Panel')}</th>
-                <th className="text-end py-2 px-3 text-gray-400">{t('riser.demand', 'Demand')}</th>
-                <th className="text-end py-2 px-3 text-gray-400">ΣkVA</th>
-                <th className="text-end py-2 px-3 text-gray-400">DF%</th>
-                <th className="text-end py-2 px-3 text-gray-400">{t('riser.current', 'Current')}</th>
-                <th className="text-end py-2 px-3 text-gray-400">{t('riser.riserVd', 'Riser ΔV')}<span className="block font-normal opacity-70">{'<1%'}</span></th>
-                <th className="text-end py-2 px-3 text-gray-400">{t('riser.branchVd', 'Branch ΔV')}<span className="block font-normal opacity-70">{'<3%'}</span></th>
-                <th className="text-end py-2 px-3 text-gray-400">{t('riser.totalVd', 'Total ΔV')}<span className="block font-normal opacity-70">{'<4%'}</span></th>
-                <th className="text-end py-2 px-3 text-gray-400">{t('riser.voltage', 'Voltage')}</th>
+                <th className="text-center py-2 px-3 text-gray-400">{t('riser.floor', 'Floor')}</th>
+                <th className="text-center py-2 px-3 text-gray-400">{t('riser.panel', 'Panel')}</th>
+                <th className="text-center py-2 px-3 text-gray-400">{t('riser.demand', 'Demand')}</th>
+                <th className="text-center py-2 px-3 text-gray-400">ΣkVA</th>
+                <th className="text-center py-2 px-3 text-gray-400">DF%</th>
+                <th className="text-center py-2 px-3 text-gray-400">{t('riser.current', 'Current')}</th>
+                <th className="text-center py-2 px-3 text-gray-400">{t('riser.riserVd', 'Riser ΔV')}<span className="block font-normal opacity-70">{'<1%'}</span></th>
+                <th className="text-center py-2 px-3 text-gray-400">{t('riser.branchVd', 'Branch ΔV')}<span className="block font-normal opacity-70">{'<3%'}</span></th>
+                <th className="text-center py-2 px-3 text-gray-400">{t('riser.totalVd', 'Total ΔV')}<span className="block font-normal opacity-70">{'<4%'}</span></th>
+                <th className="text-center py-2 px-3 text-gray-400">{t('riser.voltage', 'Voltage')}</th>
                 <th className="text-center py-2 px-3 text-gray-400">{t('riser.status', 'Status')}</th>
               </tr>
             </thead>
             <tbody>
               {floorData.map((fd) => (
                 <tr key={fd.id} className="border-b border-gray-800">
-                  <td className="py-2 px-3 text-orange-500 font-semibold">FL {fd.floorNumber}</td>
-                  <td className="py-2 px-3 text-gray-300">{fd.hasFloorSubPanels ? `SDB-${fd.floorNumber}` : 'Direct'}</td>
-                  <td className="py-2 px-3 text-gray-300 text-end">{fd.floorDemand.toFixed(1)} kW</td>
-                  <td className="py-2 px-3 text-gray-300 text-end">{fd.floorKva.toFixed(1)} kVA</td>
-                  <td className="py-2 px-3 text-gray-300 text-end">{fd.diversityPct.toFixed(0)}%</td>
-                  <td className="py-2 px-3 text-gray-300 text-end">{fd.floorCurrent.toFixed(0)} A</td>
-                  <td className="py-2 px-3 text-end" style={{ color: bandColor(fd.riserVdPercent, 1, fd.hasRiser && !fd.riserNoData) }}>
+                  <td className="py-2 px-3 text-orange-500 font-semibold text-center">FL {fd.floorNumber}</td>
+                  <td className="py-2 px-3 text-gray-300 text-center">{fd.hasFloorSubPanels ? `SDB-${fd.floorNumber}` : 'Direct'}</td>
+                  <td className="py-2 px-3 text-gray-300 text-center">{fd.floorDemand.toFixed(1)} kW</td>
+                  <td className="py-2 px-3 text-gray-300 text-center">{fd.floorKva.toFixed(1)} kVA</td>
+                  <td className="py-2 px-3 text-gray-300 text-center">{fd.diversityPct.toFixed(0)}%</td>
+                  <td className="py-2 px-3 text-gray-300 text-center">{fd.floorCurrent.toFixed(0)} A</td>
+                  <td className="py-2 px-3 text-center" style={{ color: bandColor(fd.riserVdPercent, 1, fd.hasRiser && !fd.riserNoData) }}>
                     {fd.hasRiser ? (fd.riserNoData ? '—' : `${fd.riserVdPercent.toFixed(2)}%`) : '—'}
                   </td>
-                  <td className="py-2 px-3 text-end" style={{ color: bandColor(fd.branchVdPercent, 3, !fd.branchNoData) }}>
+                  <td className="py-2 px-3 text-center" style={{ color: bandColor(fd.branchVdPercent, 3, !fd.branchNoData) }}>
                     {fd.branchNoData ? '—' : `${fd.branchVdPercent.toFixed(2)}%`}
                   </td>
-                  <td className="py-2 px-3 text-end font-semibold" style={{ color: bandColor(fd.totalVdPercent, 4, !fd.totalNoData) }}>
+                  <td className="py-2 px-3 text-center font-semibold" style={{ color: bandColor(fd.totalVdPercent, 4, !fd.totalNoData) }}>
                     {fd.totalNoData ? '—' : `${fd.totalVdPercent.toFixed(2)}%`}
                   </td>
-                  <td className="py-2 px-3 text-gray-300 text-end">{fd.totalNoData ? '—' : `${fd.actualVoltage.toFixed(1)} V`}</td>
+                  <td className="py-2 px-3 text-gray-300 text-center">{fd.totalNoData ? '—' : `${fd.actualVoltage.toFixed(1)} V`}</td>
                   <td className="py-2 px-3 text-center">
                     <span className={`px-2 py-0.5 rounded text-xs font-medium ${
                       fd.totalNoData ? 'bg-gray-800/50 text-gray-500' :

@@ -149,37 +149,37 @@ export default function AdminUsersPage() {
         <p className="text-sm text-gray-500">Loading…</p>
       ) : (
         <div className="overflow-x-auto rounded-xl border border-gray-800">
-          <table className="w-full text-sm text-gray-300">
+          <table className="w-full text-sm text-gray-300 text-center">
             <thead className="bg-gray-900/60 text-gray-400 text-xs uppercase">
               <tr>
                 {["User", "Email", "Role", "Credits", "Projects", "Status", ""].map((h) => (
-                  <th key={h} className="px-4 py-3 text-left font-medium">{h}</th>
+                  <th key={h} className="px-4 py-3 text-center font-medium">{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-800">
               {users.map((u) => (
                 <tr key={u.id} className={u.disabled ? "opacity-50" : ""}>
-                  <td className="px-4 py-3">
+                  <td className="px-4 py-3 text-center">
                     <div className="font-medium text-gray-200">{u.name}</div>
                     <div className="text-xs text-gray-500">@{u.username}</div>
                   </td>
-                  <td className="px-4 py-3 text-gray-300 font-mono text-xs">
+                  <td className="px-4 py-3 text-gray-300 font-mono text-xs text-center">
                     {u.email || <span className="text-gray-600 italic">No email</span>}
                   </td>
-                  <td className="px-4 py-3">
+                  <td className="px-4 py-3 text-center">
                     <span className={`rounded px-2 py-0.5 text-xs font-medium ${u.role === "ADMIN" ? "bg-orange-500/20 text-orange-400" : "bg-gray-800 text-gray-400"}`}>
                       {u.role}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-gray-300">{u.credits}</td>
-                  <td className="px-4 py-3 text-gray-400">{u._count.projects}</td>
-                  <td className="px-4 py-3">
+                  <td className="px-4 py-3 text-gray-300 text-center">{u.credits}</td>
+                  <td className="px-4 py-3 text-gray-400 text-center">{u._count.projects}</td>
+                  <td className="px-4 py-3 text-center">
                     <span className={`rounded px-2 py-0.5 text-xs font-medium ${u.disabled ? "bg-red-500/20 text-red-400" : "bg-green-500/20 text-green-400"}`}>
                       {u.disabled ? "Disabled" : "Active"}
                     </span>
                   </td>
-                  <td className="px-4 py-3">
+                  <td className="px-4 py-3 text-center">
                     <button onClick={() => openEdit(u)} className="text-gray-500 hover:text-orange-400 transition-colors">
                       <Pencil size={14} />
                     </button>

@@ -84,21 +84,21 @@ export default function LoadSchedule({
       </div>
 
       {/* Engineering Load Table */}
-      <table className="w-full text-left text-xs border border-slate-300 rounded-lg overflow-hidden">
+      <table className="w-full text-center text-xs border border-slate-300 rounded-lg overflow-hidden">
         <thead>
           <tr className="bg-slate-900 text-white text-[10px] font-bold uppercase tracking-wider">
-            <th className="p-2 border-r border-slate-800">#</th>
-            <th className="p-2 border-r border-slate-800">Building</th>
+            <th className="p-2 border-r border-slate-800 text-center">#</th>
+            <th className="p-2 border-r border-slate-800 text-center">Building</th>
             <th className="p-2 border-r border-slate-800 text-center">Floor</th>
-            <th className="p-2 border-r border-slate-800">Load / Circuit</th>
+            <th className="p-2 border-r border-slate-800 text-center">Load / Circuit</th>
             <th className="p-2 border-r border-slate-800 text-center">Type</th>
-            <th className="p-2 border-r border-slate-800 text-right">Conn. (kVA)</th>
+            <th className="p-2 border-r border-slate-800 text-center">Conn. (kVA)</th>
             <th className="p-2 border-r border-slate-800 text-center">DF</th>
-            <th className="p-2 border-r border-slate-800 text-right">Demand (kVA)</th>
+            <th className="p-2 border-r border-slate-800 text-center">Demand (kVA)</th>
             <th className="p-2 border-r border-slate-800 text-center">Phase</th>
-            <th className="p-2 border-r border-slate-800 text-right">L1 (A)</th>
-            <th className="p-2 border-r border-slate-800 text-right">L2 (A)</th>
-            <th className="p-2 border-r border-slate-800 text-right">L3 (A)</th>
+            <th className="p-2 border-r border-slate-800 text-center">L1 (A)</th>
+            <th className="p-2 border-r border-slate-800 text-center">L2 (A)</th>
+            <th className="p-2 border-r border-slate-800 text-center">L3 (A)</th>
             <th className="p-2 text-center">PF</th>
           </tr>
         </thead>
@@ -108,36 +108,36 @@ export default function LoadSchedule({
               key={`${row.buildingId}-${row.floor}-${idx}`}
               className={idx % 2 === 0 ? 'bg-white' : 'bg-slate-50/80'}
             >
-              <td className="p-2 border-r border-slate-200 font-mono text-slate-500">{idx + 1}</td>
-              <td className="p-2 border-r border-slate-200 font-medium">{row.buildingName}</td>
+              <td className="p-2 border-r border-slate-200 font-mono text-slate-500 text-center">{idx + 1}</td>
+              <td className="p-2 border-r border-slate-200 font-medium text-center">{row.buildingName}</td>
               <td className="p-2 border-r border-slate-200 text-center font-mono">
                 {row.floor === 0 ? 'MDB' : `F${row.floor}`}
               </td>
-              <td className="p-2 border-r border-slate-200 font-bold text-slate-900">{row.name}</td>
+              <td className="p-2 border-r border-slate-200 font-bold text-slate-900 text-center">{row.name}</td>
               <td className="p-2 border-r border-slate-200 text-center text-[10px] font-mono">
                 <span className="px-1.5 py-0.5 rounded bg-slate-100 border border-slate-200">
                   {row.type}
                 </span>
               </td>
-              <td className="p-2 border-r border-slate-200 text-right font-mono text-slate-700">
+              <td className="p-2 border-r border-slate-200 text-center font-mono text-slate-700">
                 {row.connectedLoadKw.toFixed(1)}
               </td>
               <td className="p-2 border-r border-slate-200 text-center font-mono text-slate-600">
                 {row.demandFactor.toFixed(2)}
               </td>
-              <td className="p-2 border-r border-slate-200 text-right font-mono font-bold text-slate-900">
+              <td className="p-2 border-r border-slate-200 text-center font-mono font-bold text-slate-900">
                 {row.maxDemandKw.toFixed(1)}
               </td>
               <td className="p-2 border-r border-slate-200 text-center font-mono font-bold text-amber-700">
                 {row.phase === 3 ? '3Φ' : '1Φ'}
               </td>
-              <td className="p-2 border-r border-slate-200 text-right font-mono text-slate-800">
+              <td className="p-2 border-r border-slate-200 text-center font-mono text-slate-800">
                 {row.currentL1 > 0 ? row.currentL1.toFixed(1) : '—'}
               </td>
-              <td className="p-2 border-r border-slate-200 text-right font-mono text-slate-800">
+              <td className="p-2 border-r border-slate-200 text-center font-mono text-slate-800">
                 {row.currentL2 > 0 ? row.currentL2.toFixed(1) : '—'}
               </td>
-              <td className="p-2 border-r border-slate-200 text-right font-mono text-slate-800">
+              <td className="p-2 border-r border-slate-200 text-center font-mono text-slate-800">
                 {row.currentL3 > 0 ? row.currentL3.toFixed(1) : '—'}
               </td>
               <td className="p-2 text-center font-mono text-slate-600">
@@ -148,24 +148,24 @@ export default function LoadSchedule({
         </tbody>
         <tfoot>
           <tr className="bg-slate-900 text-white font-bold text-xs">
-            <td colSpan={5} className="p-2 border-r border-slate-800 uppercase tracking-wider text-right">
+            <td colSpan={5} className="p-2 border-r border-slate-800 uppercase tracking-wider text-center">
               Total System Max Demand:
             </td>
-            <td className="p-2 border-r border-slate-800 text-right font-mono">
+            <td className="p-2 border-r border-slate-800 text-center font-mono">
               {totalConnectedKw.toFixed(1)} kVA
             </td>
             <td className="p-2 border-r border-slate-800 text-center font-mono">—</td>
-            <td className="p-2 border-r border-slate-800 text-right font-mono text-amber-400">
+            <td className="p-2 border-r border-slate-800 text-center font-mono text-amber-400">
               {totalDemandKw.toFixed(1)} kVA
             </td>
             <td className="p-2 border-r border-slate-800 text-center font-mono">3Φ</td>
-            <td className="p-2 border-r border-slate-800 text-right font-mono">
+            <td className="p-2 border-r border-slate-800 text-center font-mono">
               {l1Current.toFixed(1)}A
             </td>
-            <td className="p-2 border-r border-slate-800 text-right font-mono">
+            <td className="p-2 border-r border-slate-800 text-center font-mono">
               {l2Current.toFixed(1)}A
             </td>
-            <td className="p-2 border-r border-slate-800 text-right font-mono">
+            <td className="p-2 border-r border-slate-800 text-center font-mono">
               {l3Current.toFixed(1)}A
             </td>
             <td className="p-2 text-center font-mono">

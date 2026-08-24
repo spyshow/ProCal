@@ -111,48 +111,48 @@ export default function AdminLeadsPage() {
         </div>
       ) : (
         <div className="overflow-x-auto rounded-xl border border-gray-800 bg-gray-900/40">
-          <table className="engineering-table w-full text-left">
+          <table className="engineering-table w-full text-center">
             <thead>
               <tr>
-                <th>Submitted</th>
-                <th>User</th>
-                <th>Email</th>
-                <th>Credits</th>
-                <th>Message</th>
-                <th>Status</th>
-                <th></th>
+                <th className="text-center">Submitted</th>
+                <th className="text-center">User</th>
+                <th className="text-center">Email</th>
+                <th className="text-center">Credits</th>
+                <th className="text-center">Message</th>
+                <th className="text-center">Status</th>
+                <th className="text-center"></th>
               </tr>
             </thead>
             <tbody className="text-gray-300">
               {filtered.map((lead) => (
                 <tr key={lead.id}>
-                  <td className="text-gray-500 whitespace-nowrap">
+                  <td className="text-gray-500 whitespace-nowrap text-center">
                     {new Date(lead.createdAt).toLocaleDateString()}{' '}
                     <span className="text-gray-600">{new Date(lead.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                   </td>
-                  <td>
+                  <td className="text-center">
                     <span className="text-gray-200 font-medium">{lead.user.name}</span>
                     <span className="block text-xs text-gray-500">{lead.user.username}</span>
                   </td>
-                  <td className="text-gray-400">
+                  <td className="text-gray-400 text-center">
                     {/* JSX children, NOT dangerouslySetInnerHTML — user-supplied, never interpreted as HTML */}
                     {lead.email ?? lead.user.email ?? <span className="text-gray-600">—</span>}
                   </td>
-                  <td className="text-orange-300 font-mono">
+                  <td className="text-orange-300 font-mono text-center">
                     {lead.requestedCredits != null ? lead.requestedCredits : <span className="text-gray-600">—</span>}
                   </td>
-                  <td className="max-w-md text-gray-300">
+                  <td className="max-w-md text-gray-300 text-center">
                     {/* Same: children keep this inert even if it contains < or & */}
                     <span className="block max-h-20 overflow-y-auto custom-scrollbar">{lead.message}</span>
                   </td>
-                  <td>
+                  <td className="text-center">
                     {lead.status === 'OPEN' ? (
                       <span className="inline-flex items-center gap-1 text-xs text-amber-400"><Clock size={13} /> Open</span>
                     ) : (
                       <span className="inline-flex items-center gap-1 text-xs text-green-400"><CheckCircle2 size={13} /> Closed</span>
                     )}
                   </td>
-                  <td className="whitespace-nowrap">
+                  <td className="whitespace-nowrap text-center">
                     <button
                       onClick={() => handleToggleClose(lead)}
                       disabled={closingId === lead.id}

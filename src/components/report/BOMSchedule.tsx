@@ -290,20 +290,20 @@ export default function BOMSchedule({ project, buildingId, showHeader = true }: 
           <span>1. Cable Drums &amp; Total Conductor Sizing Bill of Quantities</span>
           <span className="font-mono text-slate-500 text-[11px]">Total Estimated Run: {totalCableLength} m</span>
         </h3>
-        <table className="w-full text-left text-xs border border-slate-300 rounded-lg overflow-hidden">
+        <table className="w-full text-center text-xs border border-slate-300 rounded-lg overflow-hidden">
           <thead>
             <tr className="bg-slate-900 text-white text-[10px] font-bold uppercase tracking-wider">
-              <th className="p-2 border-r border-slate-800">Cable Specification</th>
+              <th className="p-2 border-r border-slate-800 text-center">Cable Specification</th>
               <th className="p-2 border-r border-slate-800 text-center">Cores / System</th>
               <th className="p-2 border-r border-slate-800 text-center">Conductor Size</th>
               <th className="p-2 border-r border-slate-800 text-center">Connected Circuits</th>
-              <th className="p-2 text-right">Total Estimated Length (m)</th>
+              <th className="p-2 text-center">Total Estimated Length (m)</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-200 text-slate-800">
             {cableRows.map((entry, idx) => (
               <tr key={entry.key} className={idx % 2 === 0 ? 'bg-white' : 'bg-slate-50/80'}>
-                <td className="p-2 border-r border-slate-200 font-mono font-bold text-slate-900">{entry.sizeLabel}</td>
+                <td className="p-2 border-r border-slate-200 font-mono font-bold text-slate-900 text-center">{entry.sizeLabel}</td>
                 <td className="p-2 border-r border-slate-200 text-center font-mono text-[11px] font-semibold">
                   <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${entry.cores === 2 ? 'bg-blue-50 text-blue-700 border border-blue-200' : 'bg-orange-50 text-orange-700 border border-orange-200'}`}>
                     {entry.cores === 2 ? '2-Core (1φ)' : '4-Core (3φ)'}
@@ -311,13 +311,13 @@ export default function BOMSchedule({ project, buildingId, showHeader = true }: 
                 </td>
                 <td className="p-2 border-r border-slate-200 text-center font-mono text-slate-700">{entry.sizeNum} mm²</td>
                 <td className="p-2 border-r border-slate-200 text-center font-mono text-slate-700">{entry.count}</td>
-                <td className="p-2 text-right font-mono font-bold text-amber-700">{Math.round(entry.length)} m</td>
+                <td className="p-2 text-center font-mono font-bold text-amber-700">{Math.round(entry.length)} m</td>
               </tr>
             ))}
             <tr className="bg-slate-900 text-white font-bold text-xs">
-              <td className="p-2 border-r border-slate-800 uppercase tracking-wider" colSpan={3}>Total Aggregated Cables</td>
+              <td className="p-2 border-r border-slate-800 uppercase tracking-wider text-center" colSpan={3}>Total Aggregated Cables</td>
               <td className="p-2 border-r border-slate-800 text-center font-mono">{allItems.length} circuits</td>
-              <td className="p-2 text-right font-mono text-amber-400">{totalCableLength} m</td>
+              <td className="p-2 text-center font-mono text-amber-400">{totalCableLength} m</td>
             </tr>
           </tbody>
         </table>
@@ -331,24 +331,24 @@ export default function BOMSchedule({ project, buildingId, showHeader = true }: 
           </h3>
           <span className="text-[11px] text-slate-600 font-mono">Total Units: <strong className="text-slate-900">{totalBreakers}</strong></span>
         </div>
-        <table className="w-full text-left text-xs border border-slate-300 rounded-lg overflow-hidden">
+        <table className="w-full text-center text-xs border border-slate-300 rounded-lg overflow-hidden">
           <thead>
             <tr className="bg-slate-900 text-white text-[10px] font-bold uppercase tracking-wider">
-              <th className="p-2 border-r border-slate-800">Rating (In)</th>
+              <th className="p-2 border-r border-slate-800 text-center">Rating (In)</th>
               <th className="p-2 border-r border-slate-800 text-center">Category</th>
               <th className="p-2 border-r border-slate-800 text-center">Poles</th>
-              <th className="p-2 border-r border-slate-800">Model &amp; Manufacturer</th>
+              <th className="p-2 border-r border-slate-800 text-center">Model &amp; Manufacturer</th>
               <th className="p-2 border-r border-slate-800 text-center">Sourcing Status</th>
-              <th className="p-2 text-right">Quantity</th>
+              <th className="p-2 text-center">Quantity</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-200 text-slate-800">
             {breakerRows.map((entry, idx) => (
               <tr key={idx} className={idx % 2 === 0 ? 'bg-white' : 'bg-slate-50/80'}>
-                <td className="p-2 border-r border-slate-200 font-mono font-bold text-slate-900">{entry.ratingLabel}</td>
+                <td className="p-2 border-r border-slate-200 font-mono font-bold text-slate-900 text-center">{entry.ratingLabel}</td>
                 <td className="p-2 border-r border-slate-200 text-center font-bold text-slate-800">{entry.category}</td>
                 <td className="p-2 border-r border-slate-200 text-center font-mono font-bold text-amber-700">{entry.poles}</td>
-                <td className="p-2 border-r border-slate-200 font-medium text-slate-900">{entry.model}</td>
+                <td className="p-2 border-r border-slate-200 font-medium text-slate-900 text-center">{entry.model}</td>
                 <td className="p-2 border-r border-slate-200 text-center">
                   <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold font-mono bg-slate-100 border border-slate-200 text-slate-800">
                     {entry.fallbackType === 'SAME_FAMILY' || !entry.fallbackType
@@ -360,7 +360,7 @@ export default function BOMSchedule({ project, buildingId, showHeader = true }: 
                       : 'Generic Spec'}
                   </span>
                 </td>
-                <td className="p-2 text-right font-mono font-bold text-amber-700">{entry.count}</td>
+                <td className="p-2 text-center font-mono font-bold text-amber-700">{entry.count}</td>
               </tr>
             ))}
           </tbody>

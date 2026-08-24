@@ -765,16 +765,16 @@ export default function PanelDesignerPage() {
           <table className="w-full engineering-table">
             <thead>
               <tr>
-                <th className="text-start">#</th>
-                <th className="text-start">{t('common.feeder', 'Feeder')}</th>
+                <th className="text-center">#</th>
+                <th className="text-center">{t('common.feeder', 'Feeder')}</th>
                 <th className="text-center">{t('common.type', 'Type')}</th>
-                <th className="text-end">L1 (A)</th>
-                <th className="text-end">L2 (A)</th>
-                <th className="text-end">L3 (A)</th>
-                <th className="text-end">{t('calculator.neutral', 'Neutral')} (A)</th>
-                <th className="text-end">{t('calculator.unbalance', 'Unbal')} %</th>
+                <th className="text-center">L1 (A)</th>
+                <th className="text-center">L2 (A)</th>
+                <th className="text-center">L3 (A)</th>
+                <th className="text-center">{t('calculator.neutral', 'Neutral')} (A)</th>
+                <th className="text-center">{t('calculator.unbalance', 'Unbal')} %</th>
                 <th className="text-center">{t('common.poles', 'Poles')}</th>
-                <th className="text-end">{t('common.breaker', 'Breaker (A)')}</th>
+                <th className="text-center">{t('common.breaker', 'Breaker (A)')}</th>
                 <th className="text-center">{t('common.breakerModel', 'Breaker Model')}</th>
                 <th className="text-center">{t('common.cable', 'Cable (mm²)')}</th>
               </tr>
@@ -782,8 +782,8 @@ export default function PanelDesignerPage() {
             <tbody>
               {activeFeeders.map((f, i) => (
                 <tr key={i} className="hover:bg-gray-800/30">
-                  <td className="font-mono text-gray-500">{i + 1}</td>
-                  <td className="text-gray-200">
+                  <td className="text-center font-mono text-gray-500">{i + 1}</td>
+                  <td className="text-center text-gray-200">
                     {f.name}
                     {f.internalImbalanceNotModeled && (
                       <span className="ms-2 inline-flex items-center text-[10px] text-yellow-500" title="3-phase apartment treated as balanced; per-room imbalance not modeled">
@@ -793,7 +793,7 @@ export default function PanelDesignerPage() {
                     )}
                   </td>
                   <td className="text-center text-xs text-gray-400">{f.type.replace('_', ' ')}</td>
-                  <td className="text-end font-mono text-orange-400">
+                  <td className="text-center font-mono text-orange-400">
                     <TraceableCell
                       getTrace={() =>
                         buildDesignCurrentTrace({
@@ -809,7 +809,7 @@ export default function PanelDesignerPage() {
                       {(f.phaseCurrent?.[0] ?? f.current).toFixed(1)}
                     </TraceableCell>
                   </td>
-                  <td className="text-end font-mono text-orange-400">
+                  <td className="text-center font-mono text-orange-400">
                     <TraceableCell
                       getTrace={() =>
                         buildDesignCurrentTrace({
@@ -825,7 +825,7 @@ export default function PanelDesignerPage() {
                       {(f.phaseCurrent?.[1] ?? f.current).toFixed(1)}
                     </TraceableCell>
                   </td>
-                  <td className="text-end font-mono text-orange-400">
+                  <td className="text-center font-mono text-orange-400">
                     <TraceableCell
                       getTrace={() =>
                         buildDesignCurrentTrace({
@@ -841,8 +841,8 @@ export default function PanelDesignerPage() {
                       {(f.phaseCurrent?.[2] ?? f.current).toFixed(1)}
                     </TraceableCell>
                   </td>
-                  <td className="text-end font-mono text-yellow-400">{(f.neutralCurrent ?? 0).toFixed(1)}</td>
-                  <td className="text-end font-mono text-gray-400">
+                  <td className="text-center font-mono text-yellow-400">{(f.neutralCurrent ?? 0).toFixed(1)}</td>
+                  <td className="text-center font-mono text-gray-400">
                     <TraceableCell
                       getTrace={() =>
                         buildPhaseBalanceTrace({
@@ -860,7 +860,7 @@ export default function PanelDesignerPage() {
                     </TraceableCell>
                   </td>
                   <td className="text-center text-xs text-gray-400 font-mono">{f.isThreePhase ? '3P' : '1P'}{f.assignedPhase ? `-L${f.assignedPhase}` : ''}</td>
-                  <td className="text-end font-mono text-blue-400">
+                  <td className="text-center font-mono text-blue-400">
                     <TraceableCell
                       getTrace={() =>
                         buildBreakerSizingTrace({

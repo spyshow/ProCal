@@ -1434,17 +1434,17 @@ function LoadLibrary({ projectId, onRefresh, loads, isReadOnly = false }: { proj
         <div className="text-center py-12 text-gray-500 text-sm rounded-xl border border-gray-800 bg-gray-900/40">No load items yet</div>
       ) : (
         <div className="overflow-x-auto rounded-xl border border-gray-800">
-          <table className="w-full engineering-table">
+          <table className="w-full engineering-table text-center">
             <thead className="bg-gray-900">
               <tr>
-                <th className="text-left">Name</th>
+                <th className="text-center">Name</th>
                 <th className="text-center">Category</th>
-                <th className="text-right">Power (kW)</th>
+                <th className="text-center">Power (kW)</th>
                 <th className="text-center">Phase</th>
-                <th className="text-right" title="Power Factor (cos φ)">PF</th>
-                <th className="text-right" title="Demand Factor (Operating/Duty Ratio)">DF</th>
-                <th className="text-right">Qty</th>
-                <th className="text-right">Running I (A)</th>
+                <th className="text-center" title="Power Factor (cos φ)">PF</th>
+                <th className="text-center" title="Demand Factor (Operating/Duty Ratio)">DF</th>
+                <th className="text-center">Qty</th>
+                <th className="text-center">Running I (A)</th>
                 <th className="text-center">Action</th>
               </tr>
             </thead>
@@ -1452,7 +1452,7 @@ function LoadLibrary({ projectId, onRefresh, loads, isReadOnly = false }: { proj
               {loads.map((item: any) => (
                 editingId === item.id && !isReadOnly ? (
                   <tr key={item.id} className="bg-gray-800/50">
-                    <td colSpan={9} className="p-3">
+                    <td colSpan={9} className="p-3 text-center">
                       <form onSubmit={handleUpdate} className="space-y-3">
                         <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-8 gap-3">
                           <div className="col-span-2">
@@ -1516,7 +1516,7 @@ function LoadLibrary({ projectId, onRefresh, loads, isReadOnly = false }: { proj
                             <input type="number" min="1" value={editForm.quantity} onChange={(e) => setEditForm({ ...editForm, quantity: e.target.value })} className="dense-input w-full rounded text-xs" />
                           </div>
                         </div>
-                        <div className="flex gap-2">
+                        <div className="flex gap-2 justify-center">
                           <button type="submit" className="px-3 py-1.5 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-xs font-semibold">Save</button>
                           <button type="button" onClick={() => setEditingId(null)} className="px-3 py-1.5 rounded-lg bg-gray-800 text-gray-300 text-xs">Cancel</button>
                         </div>
@@ -1525,14 +1525,14 @@ function LoadLibrary({ projectId, onRefresh, loads, isReadOnly = false }: { proj
                   </tr>
                 ) : (
                   <tr key={item.id} className="hover:bg-gray-800/30">
-                    <td className="font-medium text-gray-200">{item.name}</td>
+                    <td className="font-medium text-gray-200 text-center">{item.name}</td>
                     <td className="text-center text-xs text-gray-400">{item.category}</td>
-                    <td className="text-right font-mono">{item.power}</td>
+                    <td className="text-center font-mono">{item.power}</td>
                     <td className="text-center font-mono">{item.phase}Φ</td>
-                    <td className="text-right font-mono">{item.powerFactor}</td>
-                    <td className="text-right font-mono">{item.demandFactor}</td>
-                    <td className="text-right font-mono">{item.quantity}</td>
-                    <td className="text-right font-mono text-orange-400">{item.runningCurrent}A</td>
+                    <td className="text-center font-mono">{item.powerFactor}</td>
+                    <td className="text-center font-mono">{item.demandFactor}</td>
+                    <td className="text-center font-mono">{item.quantity}</td>
+                    <td className="text-center font-mono text-orange-400">{item.runningCurrent}A</td>
                     <td className="text-center">
                       {!isReadOnly ? (
                         <div className="flex items-center justify-center gap-1">

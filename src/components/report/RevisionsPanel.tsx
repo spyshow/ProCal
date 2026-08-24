@@ -190,27 +190,27 @@ export default function RevisionsPanel({ projectId, open, onClose, onChanged }: 
                 No revisions issued yet. Issue one to snapshot the current design on the report cover.
               </p>
             ) : (
-              <table className="w-full text-sm">
+              <table className="w-full text-sm text-center">
                 <thead>
-                  <tr className="border-b border-gray-800 text-left text-xs uppercase text-gray-400">
-                    <th className="py-1.5 pr-2">Rev</th>
-                    <th className="py-1.5 pr-2">Date</th>
-                    <th className="py-1.5 pr-2">Description</th>
-                    <th className="py-1.5 pr-2">By</th>
-                    <th className="py-1.5"></th>
+                  <tr className="border-b border-gray-800 text-center text-xs uppercase text-gray-400">
+                    <th className="py-1.5 px-2 text-center">Rev</th>
+                    <th className="py-1.5 px-2 text-center">Date</th>
+                    <th className="py-1.5 px-2 text-center">Description</th>
+                    <th className="py-1.5 px-2 text-center">By</th>
+                    <th className="py-1.5 text-center"></th>
                   </tr>
                 </thead>
                 <tbody>
                   {sorted.map((r) => (
                     <tr key={r.id} className="border-b border-gray-800/60">
-                      <td className="py-2 pr-2 font-mono font-bold text-orange-400">{r.rev}</td>
-                      <td className="py-2 pr-2 text-gray-300">
+                      <td className="py-2 px-2 font-mono font-bold text-orange-400 text-center">{r.rev}</td>
+                      <td className="py-2 px-2 text-gray-300 text-center">
                         {new Date(r.createdAt).toLocaleDateString()}
                       </td>
-                      <td className="py-2 pr-2 text-gray-300">{r.description}</td>
-                      <td className="py-2 pr-2 text-gray-400">{r.createdByUsername}</td>
-                      <td className="py-2 text-right">
-                        <div className="flex items-center justify-end gap-1.5">
+                      <td className="py-2 px-2 text-gray-300 text-center">{r.description}</td>
+                      <td className="py-2 px-2 text-gray-400 text-center">{r.createdByUsername}</td>
+                      <td className="py-2 text-center">
+                        <div className="flex items-center justify-center gap-1.5">
                           <button
                             onClick={() => setDiffTarget(r)}
                             disabled={restoringId === r.id || saving}

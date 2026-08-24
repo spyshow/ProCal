@@ -713,8 +713,8 @@ export default function BreakerSchedulePage() {
             <table className="w-full engineering-table text-xs">
               <thead>
                 <tr>
-                  <th className="text-start">{t('cableSchedule.load', 'Feeder')}</th>
-                  <th className="text-start">Upstream Parent</th>
+                  <th className="text-center">{t('cableSchedule.load', 'Feeder')}</th>
+                  <th className="text-center">Upstream Parent</th>
                   <th className="text-center">{t('calculator.floor', 'Floor')}</th>
                   <th className="text-center">{t('cableSchedule.current', 'Current (A)')}</th>
                   <th className="text-center">
@@ -726,8 +726,8 @@ export default function BreakerSchedulePage() {
                       />
                     </div>
                   </th>
-                  <th className="text-start">{t('breakerSchedule.title', 'Breaker Model')}</th>
-                  <th className="text-end">Isc (kA)</th>
+                  <th className="text-center">{t('breakerSchedule.title', 'Breaker Model')}</th>
+                  <th className="text-center">Isc (kA)</th>
                   <th data-tour="breaker-selectivity-col" className="text-center">
                     <div className="flex items-center justify-center gap-1">
                       <span>Selectivity</span>
@@ -743,8 +743,8 @@ export default function BreakerSchedulePage() {
               <tbody>
                 {items.map((b) => (
                   <tr key={b.id} className="hover:bg-gray-800/30">
-                    <td className="text-gray-200 font-semibold">{b.name}</td>
-                    <td className="text-gray-400 text-xs font-mono">{b.parentFeederName ?? 'Main Incomer'}</td>
+                    <td className="text-center text-gray-200 font-semibold">{b.name}</td>
+                    <td className="text-center text-gray-400 text-xs font-mono">{b.parentFeederName ?? 'Main Incomer'}</td>
                     <td className="text-center font-mono text-orange-400">F{b.floor}</td>
                     <td className="text-center font-mono">
                       <TraceableCell
@@ -796,9 +796,9 @@ export default function BreakerSchedulePage() {
                         )}
                       </TraceableCell>
                     </td>
-                    <td className="text-xs text-gray-300">
-                      <div className="flex flex-col gap-0.5">
-                        <div className="flex items-center gap-1.5 flex-wrap">
+                    <td className="text-center text-xs text-gray-300">
+                      <div className="flex flex-col items-center justify-center gap-0.5">
+                        <div className="flex items-center justify-center gap-1.5 flex-wrap">
                           <span className="font-medium">{b.breakerModel}</span>
                           {b.fallbackType === 'OTHER_FAMILY' && (
                             <span
@@ -827,7 +827,7 @@ export default function BreakerSchedulePage() {
                         </div>
                       </div>
                     </td>
-                    <td className="text-end font-mono text-gray-300">
+                    <td className="text-center font-mono text-gray-300">
                       {b.faultCurrentKa ? (
                         <TraceableCell
                           getTrace={() =>

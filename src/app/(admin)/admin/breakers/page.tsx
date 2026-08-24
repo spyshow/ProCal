@@ -627,16 +627,16 @@ export default function AdminBreakersPage() {
             <table className="w-full engineering-table text-xs">
               <thead>
                 <tr>
-                  <th className="text-left">Manufacturer</th>
-                  <th className="text-left">Category</th>
-                  <th className="text-left">Family</th>
-                  <th className="text-left">Series</th>
-                  <th className="text-left">Model</th>
-                  <th className="text-right">In (A)</th>
+                  <th className="text-center">Manufacturer</th>
+                  <th className="text-center">Category</th>
+                  <th className="text-center">Family</th>
+                  <th className="text-center">Series</th>
+                  <th className="text-center">Model</th>
+                  <th className="text-center">In (A)</th>
                   <th className="text-center">Poles</th>
-                  <th className="text-right">Icu (kA)</th>
-                  <th className="text-left">Trip</th>
-                  <th className="text-left">Selectivity & Settings</th>
+                  <th className="text-center">Icu (kA)</th>
+                  <th className="text-center">Trip</th>
+                  <th className="text-center">Selectivity & Settings</th>
                   <th className="text-center">Datasheet</th>
                   <th className="text-center">Actions</th>
                 </tr>
@@ -658,20 +658,20 @@ export default function AdminBreakersPage() {
                 ) : (
                   breakers.map((b) => (
                     <tr key={b.id} className="hover:bg-gray-800/30">
-                      <td className="text-gray-300 font-semibold">{b.manufacturer}</td>
-                      <td className="text-gray-300">
+                      <td className="text-center text-gray-300 font-semibold">{b.manufacturer}</td>
+                      <td className="text-center text-gray-300">
                         <span className="px-1.5 py-0.5 rounded text-[10px] font-mono bg-gray-800 text-gray-300 border border-gray-700">
                           {b.category}
                         </span>
                       </td>
-                      <td className="text-gray-400">{b.familyName ?? '—'}</td>
-                      <td className="text-gray-400">{b.series}</td>
-                      <td className="text-gray-200 font-medium">{b.model}</td>
-                      <td className="text-right font-mono text-blue-400 font-bold">{b.ratedCurrent}</td>
+                      <td className="text-center text-gray-400">{b.familyName ?? '—'}</td>
+                      <td className="text-center text-gray-400">{b.series}</td>
+                      <td className="text-center text-gray-200 font-medium">{b.model}</td>
+                      <td className="text-center font-mono text-blue-400 font-bold">{b.ratedCurrent}</td>
                       <td className="text-center font-mono">{b.poles}</td>
-                      <td className="text-right font-mono text-emerald-400">{b.breakingCapacity}</td>
-                      <td className="text-gray-400">{b.tripUnit ?? '—'}</td>
-                      <td className="text-left">{renderSelectivityBadge(b)}</td>
+                      <td className="text-center font-mono text-emerald-400">{b.breakingCapacity}</td>
+                      <td className="text-center text-gray-400">{b.tripUnit ?? '—'}</td>
+                      <td className="text-center">{renderSelectivityBadge(b)}</td>
                       <td className="text-center">
                         <button
                           type="button"

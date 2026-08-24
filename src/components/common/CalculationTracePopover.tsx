@@ -252,24 +252,24 @@ export function CalculationTracePopover({
             </h5>
 
             <div className="rounded-xl border border-slate-800 bg-slate-900/40 overflow-hidden text-[11px]">
-              <table className="w-full text-left">
+              <table className="w-full text-center">
                 <thead className="bg-slate-900/90 text-slate-400 text-[10px] font-bold uppercase border-b border-slate-800">
                   <tr>
-                    <th className="py-1.5 px-3">Parameter</th>
-                    <th className="py-1.5 px-2">Symbol</th>
-                    <th className="py-1.5 px-2">Value</th>
-                    <th className="py-1.5 px-3">Source / Origin</th>
+                    <th className="py-1.5 px-3 text-center">Parameter</th>
+                    <th className="py-1.5 px-2 text-center">Symbol</th>
+                    <th className="py-1.5 px-2 text-center">Value</th>
+                    <th className="py-1.5 px-3 text-center">Source / Origin</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-800/60 text-slate-300">
                   {trace.parameters.map((p, i) => (
                     <tr key={i} className="hover:bg-slate-800/30 transition-colors">
-                      <td className="py-1.5 px-3 font-medium text-white">{p.name}</td>
-                      <td className="py-1.5 px-2 font-mono text-orange-400">{p.symbol}</td>
-                      <td className="py-1.5 px-2 font-mono text-slate-100">
+                      <td className="py-1.5 px-3 font-medium text-white text-center">{p.name}</td>
+                      <td className="py-1.5 px-2 font-mono text-orange-400 text-center">{p.symbol}</td>
+                      <td className="py-1.5 px-2 font-mono text-slate-100 text-center">
                         {p.value} {p.unit ? <span className="text-slate-400 text-[10px]">{p.unit}</span> : null}
                       </td>
-                      <td className="py-1.5 px-3 text-[10px] text-slate-400">
+                      <td className="py-1.5 px-3 text-[10px] text-center text-slate-400">
                         <span className="px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700 text-slate-300 inline-block truncate max-w-[150px]" title={p.source}>
                           {p.source}
                         </span>

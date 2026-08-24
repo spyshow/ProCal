@@ -546,12 +546,12 @@ function CalculatorContent() {
                     <table className="w-full engineering-table">
                       <thead>
                         <tr>
-                          <th className="text-start">{t('common.type', 'Type')}</th>
-                          <th className="text-start">{t('common.name', 'Name')}</th>
+                          <th className="text-center">{t('common.type', 'Type')}</th>
+                          <th className="text-center">{t('common.name', 'Name')}</th>
                           <th className="text-center">{t('calculator.phase', 'Phase')}</th>
                           <th className="text-center">{t('calculator.assigned', 'Assigned')}</th>
-                          <th className="text-end">{t('calculator.loadKw', 'Load (kW)')}</th>
-                          <th className="text-end">{t('calculator.demandKw', 'Demand (kW)')}</th>
+                          <th className="text-center">{t('calculator.loadKw', 'Load (kW)')}</th>
+                          <th className="text-center">{t('calculator.demandKw', 'Demand (kW)')}</th>
                           <th className="text-center">{t('cableSchedule.current', 'Current (A)')}</th>
                           <th className="text-center"></th>
                         </tr>
@@ -569,14 +569,14 @@ function CalculatorContent() {
                             : null;
                           return (
                             <tr key={item.id} className="hover:bg-gray-800/30">
-                              <td>
+                              <td className="text-center">
                                 <Icon size={12} className="text-gray-500 inline mr-1" />
                                 <span className="text-xs text-gray-400">{item.type.replace('_', ' ')}</span>
                                 {item.loadLibraryItem && (
                                   <span className="text-[10px] text-gray-600 ml-1">({item.loadLibraryItem.category})</span>
                                 )}
                               </td>
-                              <td className="text-gray-200 text-sm">{item.name}</td>
+                              <td className="text-center text-gray-200 text-sm">{item.name}</td>
                               <td className="text-center font-mono text-xs text-gray-400">
                                 {itemPhaseCount === 3 ? '3Φ' : '1Φ'}
                               </td>
@@ -609,7 +609,7 @@ function CalculatorContent() {
                                   </span>
                                 )}
                               </td>
-                              <td className="text-right font-mono text-sm">
+                              <td className="text-center font-mono text-sm">
                                 <TraceableCell
                                   getTrace={() =>
                                     buildDesignCurrentTrace({
@@ -625,7 +625,7 @@ function CalculatorContent() {
                                   {item.calculatedConnectedLoad.toFixed(2)}
                                 </TraceableCell>
                               </td>
-                              <td className="text-right font-mono text-sm text-orange-400">
+                              <td className="text-center font-mono text-sm text-orange-400">
                                 <TraceableCell
                                   getTrace={() =>
                                     buildDesignCurrentTrace({

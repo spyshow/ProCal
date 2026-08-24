@@ -154,18 +154,18 @@ export default function ShortCircuitSchedule({
       </div>
 
       {/* Downstream Distribution Short-Circuit Table */}
-      <table className="w-full text-left text-xs border border-slate-300 rounded-lg overflow-hidden">
+      <table className="w-full text-center text-xs border border-slate-300 rounded-lg overflow-hidden">
         <thead>
           <tr className="bg-slate-900 text-white text-[10px] font-bold uppercase tracking-wider">
-            <th className="p-2 border-r border-slate-800">#</th>
-            <th className="p-2 border-r border-slate-800">Feeder / Panel Bus</th>
-            <th className="p-2 border-r border-slate-800">Building</th>
+            <th className="p-2 border-r border-slate-800 text-center">#</th>
+            <th className="p-2 border-r border-slate-800 text-center">Feeder / Panel Bus</th>
+            <th className="p-2 border-r border-slate-800 text-center">Building</th>
             <th className="p-2 border-r border-slate-800 text-center">Floor</th>
             <th className="p-2 border-r border-slate-800 text-center">Type</th>
             <th className="p-2 border-r border-slate-800 text-center">Cable</th>
-            <th className="p-2 border-r border-slate-800 text-right">3Φ Isc (kA)</th>
-            <th className="p-2 border-r border-slate-800 text-right">2Φ Isc (kA)</th>
-            <th className="p-2 border-r border-slate-800 text-right">Breaker Icu</th>
+            <th className="p-2 border-r border-slate-800 text-center">3Φ Isc (kA)</th>
+            <th className="p-2 border-r border-slate-800 text-center">2Φ Isc (kA)</th>
+            <th className="p-2 border-r border-slate-800 text-center">Breaker Icu</th>
             <th className="p-2 text-center">Protection Margin</th>
           </tr>
         </thead>
@@ -175,12 +175,14 @@ export default function ShortCircuitSchedule({
               key={`${row.buildingId}-${row.floor}-${idx}`}
               className={idx % 2 === 0 ? 'bg-white' : 'bg-slate-50/80'}
             >
-              <td className="p-2 border-r border-slate-200 font-mono text-slate-500">{idx + 1}</td>
-              <td className="p-2 border-r border-slate-200 font-bold text-slate-900 flex items-center gap-1.5">
-                <Zap size={12} className="text-amber-500 shrink-0" />
-                <span>{row.feeder}</span>
+              <td className="p-2 border-r border-slate-200 font-mono text-slate-500 text-center">{idx + 1}</td>
+              <td className="p-2 border-r border-slate-200 font-bold text-slate-900 text-center">
+                <div className="flex items-center justify-center gap-1.5">
+                  <Zap size={12} className="text-amber-500 shrink-0" />
+                  <span>{row.feeder}</span>
+                </div>
               </td>
-              <td className="p-2 border-r border-slate-200">{row.buildingName}</td>
+              <td className="p-2 border-r border-slate-200 text-center">{row.buildingName}</td>
               <td className="p-2 border-r border-slate-200 text-center font-mono">
                 {row.floor === 0 ? 'MDB' : `F${row.floor}`}
               </td>
@@ -192,7 +194,7 @@ export default function ShortCircuitSchedule({
               <td className="p-2 border-r border-slate-200 text-center font-mono text-slate-700">
                 {row.cableSizeMm2 > 0 ? `${row.cableSizeMm2} mm²` : 'Busbar'}
               </td>
-              <td className="p-2 border-r border-slate-200 text-right font-mono font-bold text-red-600">
+              <td className="p-2 border-r border-slate-200 text-center font-mono font-bold text-red-600">
                 <TraceableCell
                   getTrace={() =>
                     buildShortCircuitTrace({
@@ -208,7 +210,7 @@ export default function ShortCircuitSchedule({
                   {row.threePhaseIscKa.toFixed(2)} kA
                 </TraceableCell>
               </td>
-              <td className="p-2 border-r border-slate-200 text-right font-mono text-amber-700">
+              <td className="p-2 border-r border-slate-200 text-center font-mono text-amber-700">
                 <TraceableCell
                   getTrace={() =>
                     buildShortCircuitTrace({
@@ -223,7 +225,7 @@ export default function ShortCircuitSchedule({
                   {row.twoPhaseIscKa.toFixed(2)} kA
                 </TraceableCell>
               </td>
-              <td className="p-2 border-r border-slate-200 text-right font-mono font-bold text-slate-900">
+              <td className="p-2 border-r border-slate-200 text-center font-mono font-bold text-slate-900">
                 {row.breakerIcuKa ? `${row.breakerIcuKa} kA` : '—'}
               </td>
               <td className="p-2 text-center">

@@ -737,6 +737,9 @@ export default function CoordinationPage() {
             <span className={`text-xs font-bold ${statusConfig.color}`}>
               {statusConfig.label} {result.limitCurrent ? `(${(result.limitCurrent / 1000).toFixed(1)} kA)` : ''}
             </span>
+            <span className="text-[10px] text-gray-500 italic ml-auto hidden sm:inline">
+              Indicative — verify against manufacturer time-current curves before final coordination sign-off
+            </span>
           </div>
         </div>
       </div>

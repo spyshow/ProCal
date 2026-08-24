@@ -77,6 +77,7 @@ model Project {
   maxVoltageDropPower    Float              @default(5) // % — IEC 60364-5-52 for power
   ambientTemp           Float?              @default(30) // °C — default ambient temperature
   groupingCount         Int?                @default(1)  // default number of grouped circuits
+  engineVersion         String?             // ENGINE_VERSION stamped by the last recalculate; null = pre-versioning design
   userId                String
   user                  User                @relation(fields: [userId], references: [id], onDelete: Cascade)
   buildings             Building[]

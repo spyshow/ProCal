@@ -6,6 +6,7 @@ const mocks = {
   buildingFindUnique: vi.fn(),
   floorItemFindMany: vi.fn(),
   floorItemUpdate: vi.fn(),
+  projectUpdate: vi.fn(),
   transaction: vi.fn(),
 };
 
@@ -21,6 +22,9 @@ vi.mock("@/lib/db", () => ({
     floorItem: {
       findMany: vi.fn(async (...args) => mocks.floorItemFindMany(...args)),
       update: vi.fn(async (...args) => mocks.floorItemUpdate(...args)),
+    },
+    project: {
+      update: vi.fn(async (...args) => mocks.projectUpdate(...args)),
     },
     $transaction: vi.fn(async (...args) => mocks.transaction(...args)),
   },
@@ -121,5 +125,12 @@ describe("POST /api/buildings/[id]/recalculate", () => {
     const [firstUpdate] = mocks.floorItemUpdate.mock.calls[0];
     expect(firstUpdate.where).toEqual({ id: "item-1" });
     expect(firstUpdate.data.calculatedMaxDemand).toBeCloseTo(8, 5);
+
+    // The recalculation stamps the project with the current engine version.
+    expect(mocks.projectUpdate).toHaveBeenCalledTimes(1);
+    const [projectUpdate] = mocks.projectUpdate.mock.calls[0];
+    expect(projectUpdate.where).toEqual({ id: "proj-1" });
+    expect(typeof projectUpdate.data.engineVersion).toBe("string");
+    expect(projectUpdate.data.engineVersion.length).toBeGreaterThan(0);
   });
 });

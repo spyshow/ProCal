@@ -3,6 +3,7 @@ import { errorResponse } from "@/lib/api-errors";
 import { db } from "@/lib/db";
 import { verifyProjectAccess } from "@/lib/project-auth";
 import { getApartmentDiversityFactor } from "@/lib/calculations/loads";
+import { ENGINE_VERSION } from "@/lib/calculations/version";
 
 export async function POST(
   request: Request,
@@ -76,11 +77,18 @@ export async function POST(
       );
     }
 
-    if (updates.length > 0) {
-      await db.$transaction(updates);
-    }
+    const itemCount = updates.length;
+    // Stamp the engine version so stale designs (computed under older calc
+    // semantics) can be flagged until a recalculate heals them.
+    updates.push(
+      db.project.update({
+        where: { id: floorDesign.building.projectId },
+        data: { engineVersion: ENGINE_VERSION },
+      })
+    );
+    await db.$transaction(updates);
 
-    return NextResponse.json({ success: true, updated: updates.length, diversityFactor });
+    return NextResponse.json({ success: true, updated: itemCount, diversityFactor });
   } catch (error) {
     return errorResponse(error, "Floor Recalculate Error");
   }

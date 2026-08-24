@@ -13,10 +13,25 @@ export interface SizingResult {
   groupFactor: number;
   neutralSize: number;
   earthSize: number;
+  /** Voltage drop of the selected arrangement, when a voltageDrop constraint
+   *  was supplied. Undefined otherwise. */
+  dropPercent?: number;
+  dropVolts?: number;
   /** Non-fatal engineering caveats (clamped breaker, catalog-exhausted
    *  fallbacks, unsatisfiable target runs). Surfaced to the UI/reports so
    *  degraded sizing is never silent. */
   warnings: string[];
+}
+
+/** Optional ΔU constraint for sizeCableAndBreaker. When present, every
+ *  candidate arrangement must ALSO satisfy %ΔV ≤ maxPercent — the sizer
+ *  becomes the single compliance authority for both ampacity (Ib ≤ In ≤ Iz)
+ *  and voltage drop (IEC 60364-5-52 §525). */
+export interface VoltageDropConstraint {
+  lengthMeters: number;
+  powerFactor: number;
+  systemVoltage: number;
+  maxPercent: number;
 }
 
 // Standard breaker ratings (Amperes)
@@ -120,6 +135,7 @@ export function sizeCableAndBreaker(
     maxCableSize?: number;
     targetRuns?: number;
     manualBreakerRating?: number;
+    voltageDrop?: VoltageDropConstraint;
   }
 ): SizingResult {
   assertNonNegative('designCurrent', ib);
@@ -130,6 +146,22 @@ export function sizeCableAndBreaker(
   if (options.neutralCurrent != null) {
     assertNonNegative('neutralCurrent', options.neutralCurrent);
   }
+  const vd = options.voltageDrop;
+  if (vd) {
+    assertPositive('voltageDrop.lengthMeters', vd.lengthMeters);
+    assertPositive('voltageDrop.systemVoltage', vd.systemVoltage);
+    assertPositive('voltageDrop.maxPercent', vd.maxPercent);
+  }
+
+  // ΔU gate for a candidate arrangement (IEC 60364-5-52 §525). With no
+  // constraint supplied the sizer is ampacity-only, as before.
+  const vdOk = (size: number, runs: number): boolean => {
+    if (!vd) return true;
+    return (
+      calculateVoltageDrop(ib, vd.lengthMeters, size, vd.powerFactor, isThreePhase, vd.systemVoltage, runs, material)
+        .dropPercent <= vd.maxPercent
+    );
+  };
 
   const { material, insulation, ambientTemp, groupingCount, neutralCurrent, installMethod } = options;
   const maxCableSize = options.maxCableSize ?? 300;
@@ -181,7 +213,7 @@ export function sizeCableAndBreaker(
     for (const cable of catalogToUse) {
       const singleNominal = nominalFor(cable.size);
       const totalIz = selectedRuns * singleNominal * totalDerating;
-      if (totalIz >= breakerSize) {
+      if (totalIz >= breakerSize && vdOk(cable.size, selectedRuns)) {
         selectedCable = cable;
         nominalAmpacity = selectedRuns * singleNominal;
         deratedAmpacity = totalIz;
@@ -203,7 +235,7 @@ export function sizeCableAndBreaker(
     for (const cable of catalogToUse) {
       const singleNominal = nominalFor(cable.size);
       const testIz = singleNominal * tempFactor * groupFactor;
-      if (testIz >= breakerSize) {
+      if (testIz >= breakerSize && vdOk(cable.size, 1)) {
         selectedCable = cable;
         selectedRuns = 1;
         nominalAmpacity = singleNominal;
@@ -225,7 +257,7 @@ export function sizeCableAndBreaker(
         for (const cable of catalogToUse) {
           const singleNominal = nominalFor(cable.size);
           const totalIz = runs * singleNominal * runDerating;
-          if (totalIz >= breakerSize) {
+          if (totalIz >= breakerSize && vdOk(cable.size, runs)) {
             selectedCable = cable;
             selectedRuns = runs;
             nominalAmpacity = runs * singleNominal;
@@ -305,6 +337,22 @@ export function sizeCableAndBreaker(
     earthSize = closestSpec ? closestSpec.size : 16;
   }
 
+  // Report the ΔU of the FINAL arrangement; if no candidate satisfied both
+  // ampacity and the drop limit, say so instead of silently shipping an
+  // ampacity-only pick that busts the limit.
+  let dropPercent: number | undefined;
+  let dropVolts: number | undefined;
+  if (vd) {
+    const finalVd = calculateVoltageDrop(ib, vd.lengthMeters, phaseSize, vd.powerFactor, isThreePhase, vd.systemVoltage, selectedRuns, material);
+    dropPercent = finalVd.dropPercent;
+    dropVolts = finalVd.dropVolts;
+    if (finalVd.dropPercent > vd.maxPercent) {
+      warnings.push(
+        `Voltage drop ${finalVd.dropPercent.toFixed(2)}% exceeds the ${vd.maxPercent}% limit even at the best available arrangement (${formatCableSize(phaseSize, selectedRuns)}) — shorten the run, raise the limit, or accept the shortfall.`
+      );
+    }
+  }
+
   return {
     cableSize: phaseSize,
     parallelRuns: selectedRuns,
@@ -316,6 +364,7 @@ export function sizeCableAndBreaker(
     groupFactor: effGroupFactor,
     neutralSize,
     earthSize,
+    ...(vd ? { dropPercent, dropVolts } : {}),
     warnings,
   };
 }

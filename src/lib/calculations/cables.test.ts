@@ -114,6 +114,59 @@ describe('sizeCableAndBreaker', () => {
         groupingCount: 0,
       })
     ).toThrow(CalculationError);
+
+    expect(() =>
+      sizeCableAndBreaker(30, false, {
+        material: 'copper',
+        insulation: 'XLPE',
+        ambientTemp: 30,
+        groupingCount: 1,
+        voltageDrop: { lengthMeters: 0, powerFactor: 0.85, systemVoltage: 230, maxPercent: 5 },
+      })
+    ).toThrow(CalculationError);
+  });
+
+  it('voltageDrop constraint upsizes beyond the ampacity-only pick when ΔU governs', () => {
+    const base = {
+      material: 'copper' as const,
+      insulation: 'XLPE' as const,
+      ambientTemp: 30,
+      groupingCount: 1,
+    };
+    // Long run: ampacity alone is satisfied by a small cable, but the drop
+    // over 200 m forces a larger conductor.
+    const withoutVd = sizeCableAndBreaker(30, true, { ...base });
+    const withVd = sizeCableAndBreaker(30, true, {
+      ...base,
+      voltageDrop: { lengthMeters: 200, powerFactor: 0.85, systemVoltage: 400, maxPercent: 5 },
+    });
+    expect(withoutVd.cableSize).toBeLessThan(withVd.cableSize);
+    expect(withVd.dropPercent!).toBeLessThanOrEqual(5);
+    expect(withVd.dropVolts!).toBeGreaterThan(0);
+  });
+
+  it('voltageDrop constraint falls back to best-available with a warning when unsatisfiable', () => {
+    const result = sizeCableAndBreaker(30, true, {
+      material: 'copper',
+      insulation: 'XLPE',
+      ambientTemp: 30,
+      groupingCount: 1,
+      maxCableSize: 10, // tiny catalog window — even 6 × 10 mm² busts ΔU over 500 m
+      voltageDrop: { lengthMeters: 500, powerFactor: 0.85, systemVoltage: 400, maxPercent: 1 },
+    });
+    expect(result.warnings.some((w) => /voltage drop/i.test(w))).toBe(true);
+    expect(result.dropPercent!).toBeGreaterThan(1);
+  });
+
+  it('no voltageDrop option leaves results and warnings unchanged (ampacity-only)', () => {
+    const result = sizeCableAndBreaker(30, true, {
+      material: 'copper',
+      insulation: 'XLPE',
+      ambientTemp: 30,
+      groupingCount: 1,
+    });
+    expect(result.dropPercent).toBeUndefined();
+    expect(result.dropVolts).toBeUndefined();
   });
 });
 

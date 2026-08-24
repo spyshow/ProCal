@@ -140,7 +140,7 @@ export default function VDSchedule({ project, buildingId, showHeader = true }: V
             <th className="p-2 border-r border-slate-800">Building</th>
             <th className="p-2 border-r border-slate-800 text-center">Floor</th>
             <th className="p-2 border-r border-slate-800">Circuit / Feeder</th>
-            <th className="p-2 border-r border-slate-800 text-right">Ib (A)</th>
+            <th className="p-2 border-r border-slate-800 text-center">Ib (A)</th>
             <th className="p-2 border-r border-slate-800 text-center">Cable Size</th>
             <th className="p-2 border-r border-slate-800 text-right">Length (m)</th>
             <th className="p-2 border-r border-slate-800 text-right">Voltage Drop (&Delta;V %)</th>
@@ -159,7 +159,7 @@ export default function VDSchedule({ project, buildingId, showHeader = true }: V
                 {row.floor === 0 ? 'MDB' : `F${row.floor}`}
               </td>
               <td className="p-2 border-r border-slate-200 font-bold text-slate-900">{row.circuit}</td>
-              <td className="p-2 border-r border-slate-200 text-right font-mono font-bold text-slate-900">
+              <td className="p-2 border-r border-slate-200 text-center font-mono font-bold text-slate-900">
                 <TraceableCell
                   getTrace={() => {
                     const is3Ph = (project.voltage || 400) >= 380;

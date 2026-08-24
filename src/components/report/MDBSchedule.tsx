@@ -198,7 +198,7 @@ export default function MDBSchedule({ project, buildingId, showHeader = true }: 
             <th className="p-2 border-r border-slate-800">Feeder Description</th>
             <th className="p-2 border-r border-slate-800 text-center">Type</th>
             <th className="p-2 border-r border-slate-800 text-right">Demand (kW)</th>
-            <th className="p-2 border-r border-slate-800 text-right">Current (A)</th>
+            <th className="p-2 border-r border-slate-800 text-center">Current (A)</th>
             <th className="p-2 border-r border-slate-800 text-center">Protection (In)</th>
             <th className="p-2 border-r border-slate-800 text-center">Feeder Cable</th>
             <th className="p-2 text-right">Iz (A)</th>
@@ -243,7 +243,7 @@ export default function MDBSchedule({ project, buildingId, showHeader = true }: 
                   {row.demand.toFixed(1)}
                 </TraceableCell>
               </td>
-              <td className="p-2 border-r border-slate-200 text-right font-mono font-bold text-amber-700">
+              <td className="p-2 border-r border-slate-200 text-center font-mono font-bold text-amber-700">
                 <TraceableCell
                   getTrace={() =>
                     buildDesignCurrentTrace({

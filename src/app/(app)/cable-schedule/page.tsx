@@ -1037,7 +1037,7 @@ export default function CableSchedulePage() {
                         <th className="text-end">{t('cableSchedule.neutral', 'N (A)')}</th>
                       </>
                     )}
-                    <th className="text-end">{t('cableSchedule.current', 'LOAD (A)')}</th>
+                    <th className="text-center">{t('cableSchedule.current', 'LOAD (A)')}</th>
                     <th className="text-center">{t('cableSchedule.runs', 'RUNS')}</th>
                     <th className="text-center">{t('cableSchedule.size', 'SIZE')}</th>
                     <th className="text-center">{t('cableSchedule.method', 'METHOD')}</th>
@@ -1080,7 +1080,7 @@ export default function CableSchedulePage() {
                       )}
 
                       {/* Load Current */}
-                      <td className="text-end font-mono">
+                      <td className="text-center font-mono">
                         <TraceableCell
                           getTrace={() =>
                             buildDesignCurrentTrace({
@@ -1095,7 +1095,7 @@ export default function CableSchedulePage() {
                             })
                           }
                         >
-                          <div className="flex items-center justify-end gap-1.5">
+                          <div className="flex items-center justify-center gap-1.5">
                             <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${
                               c.isThreePhase ? 'bg-sky-500/15 text-sky-300 border border-sky-500/30' : 'bg-amber-500/15 text-amber-300 border border-amber-500/30'
                             }`} title={c.isThreePhase ? '3-Phase Balanced' : `Single Phase on L${c.assignedPhase || 1}`}>

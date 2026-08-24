@@ -275,7 +275,7 @@ export default function BreakerSchedule({
                 <th className="p-2 border-r border-slate-800">Feeder Description</th>
                 <th className="p-2 border-r border-slate-800">Upstream Parent</th>
                 <th className="p-2 border-r border-slate-800 text-center">Floor</th>
-                <th className="p-2 border-r border-slate-800 text-right">Ib (A)</th>
+                <th className="p-2 border-r border-slate-800 text-center">Ib (A)</th>
                 <th className="p-2 border-r border-slate-800 text-center">Rating (In)</th>
                 <th className="p-2 border-r border-slate-800">Breaker Model</th>
                 <th className="p-2 border-r border-slate-800 text-center">Cable</th>
@@ -303,7 +303,7 @@ export default function BreakerSchedule({
                   <td className="p-2 border-r border-slate-200 text-center font-mono">
                     {b.type === 'INCOMER' ? 'MDB' : `F${b.floor}`}
                   </td>
-                  <td className="p-2 border-r border-slate-200 text-right font-mono font-bold text-amber-700">
+                  <td className="p-2 border-r border-slate-200 text-center font-mono font-bold text-amber-700">
                     <TraceableCell
                       getTrace={() => {
                         const is3Ph = b.isThreePhase;

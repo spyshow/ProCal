@@ -552,7 +552,7 @@ function CalculatorContent() {
                           <th className="text-center">{t('calculator.assigned', 'Assigned')}</th>
                           <th className="text-end">{t('calculator.loadKw', 'Load (kW)')}</th>
                           <th className="text-end">{t('calculator.demandKw', 'Demand (kW)')}</th>
-                          <th className="text-end">{t('cableSchedule.current', 'Current (A)')}</th>
+                          <th className="text-center">{t('cableSchedule.current', 'Current (A)')}</th>
                           <th className="text-center"></th>
                         </tr>
                       </thead>
@@ -642,7 +642,7 @@ function CalculatorContent() {
                                   {item.calculatedMaxDemand.toFixed(2)}
                                 </TraceableCell>
                               </td>
-                              <td className="text-right font-mono text-sm">
+                              <td className="text-center font-mono text-sm">
                                 <TraceableCell
                                   getTrace={() =>
                                     buildDesignCurrentTrace({

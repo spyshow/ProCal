@@ -134,7 +134,7 @@ export default function CableSchedule({ project, buildingId, showHeader = true }
             <th className="p-2 border-r border-slate-800 text-center">Floor</th>
             <th className="p-2 border-r border-slate-800">Circuit / Feeder</th>
             <th className="p-2 border-r border-slate-800 text-center">Phase</th>
-            <th className="p-2 border-r border-slate-800 text-right">Design Ib (A)</th>
+            <th className="p-2 border-r border-slate-800 text-center">Design Ib (A)</th>
             <th className="p-2 border-r border-slate-800 text-center">Breaker (In)</th>
             <th className="p-2 border-r border-slate-800 text-center">Cable Size</th>
             <th className="p-2 border-r border-slate-800 text-center">Install Method</th>
@@ -162,7 +162,7 @@ export default function CableSchedule({ project, buildingId, showHeader = true }
               <td className="p-2 border-r border-slate-200 text-center font-mono font-bold text-amber-700">
                 {row.phaseLabel}
               </td>
-              <td className="p-2 border-r border-slate-200 text-right font-mono font-bold text-slate-900">
+              <td className="p-2 border-r border-slate-200 text-center font-mono font-bold text-slate-900">
                 <TraceableCell
                   getTrace={() => {
                     const is3Ph = row.phaseLabel.includes('3Φ') || row.phaseLabel.includes('3Ph');

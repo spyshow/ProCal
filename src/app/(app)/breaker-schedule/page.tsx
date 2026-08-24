@@ -716,7 +716,7 @@ export default function BreakerSchedulePage() {
                   <th className="text-start">{t('cableSchedule.load', 'Feeder')}</th>
                   <th className="text-start">Upstream Parent</th>
                   <th className="text-center">{t('calculator.floor', 'Floor')}</th>
-                  <th className="text-end">{t('cableSchedule.current', 'Current (A)')}</th>
+                  <th className="text-center">{t('cableSchedule.current', 'Current (A)')}</th>
                   <th className="text-center">
                     <div className="flex items-center justify-center gap-1">
                       <span>{t('breakers.frameSize', 'Breaker (A)')}</span>
@@ -746,7 +746,7 @@ export default function BreakerSchedulePage() {
                     <td className="text-gray-200 font-semibold">{b.name}</td>
                     <td className="text-gray-400 text-xs font-mono">{b.parentFeederName ?? 'Main Incomer'}</td>
                     <td className="text-center font-mono text-orange-400">F{b.floor}</td>
-                    <td className="text-end font-mono">
+                    <td className="text-center font-mono">
                       <TraceableCell
                         getTrace={() => {
                           const is3Ph = b.isThreePhase;

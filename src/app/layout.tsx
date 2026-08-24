@@ -21,6 +21,13 @@ export const metadata: Metadata = {
   title: "ProCal – Electrical Load & MDB Designer",
   description:
     "Professional electrical engineering software for residential and commercial building load calculations, MDB panel design, cable sizing, and protection coordination.",
+  icons: {
+    icon: [
+      { url: "/icon.svg", type: "image/svg+xml" },
+      { url: "/icon.svg", sizes: "32x32" },
+    ],
+    apple: [{ url: "/icon.svg" }],
+  },
 };
 
 export default function RootLayout({

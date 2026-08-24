@@ -3,6 +3,7 @@ import { errorResponse } from "@/lib/api-errors";
 import { db } from "@/lib/db";
 import { verifyProjectAccess } from "@/lib/project-auth";
 import { getApartmentDiversityFactor } from "@/lib/calculations/loads";
+import { assertNonNegative } from "@/lib/calculations/validate";
 
 export async function POST(
   request: Request,
@@ -106,6 +107,9 @@ export async function POST(
     } else {
       // Manual kW entry (fallback)
       let kw = parseFloat(customKw) || 0;
+      // NaN already coerced to 0 above; block negative entries so a negative
+      // current never persists. CalculationError → 400 via errorResponse.
+      assertNonNegative("customKw", kw);
       let df = 1.0;
 
       if (type === "SERVICE_PANEL") {

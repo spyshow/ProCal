@@ -1,6 +1,12 @@
 import { NextResponse } from "next/server";
+import { errorResponse } from "@/lib/api-errors";
 import { db } from "@/lib/db";
 import { verifyProjectAccess } from "@/lib/project-auth";
+import {
+  assertOneOf,
+  assertPositive,
+  clampPowerFactor,
+} from "@/lib/calculations/validate";
 
 export async function POST(request: Request) {
   try {
@@ -29,12 +35,18 @@ export async function POST(request: Request) {
     });
     if (auth instanceof NextResponse) return auth;
 
+    // Trust-boundary validation: these values persist and feed every downstream
+    // sizing calc, so reject garbage here instead of storing NaN/negative data.
+    // CalculationError → 400 via errorResponse.
     const kw = parseFloat(power);
-    const qty = parseInt(quantity) || 1;
-    const pf = parseFloat(powerFactor) || 0.85;
-    const df = parseFloat(demandFactor) || 1.0;
+    assertPositive("power (kW)", kw);
     const ph = parseInt(phase) || 1;
+    assertOneOf("phase", ph, [1, 3]);
+    const pf = clampPowerFactor(parseFloat(powerFactor));
+    const df = Math.max(0, parseFloat(demandFactor) || 1.0);
+    const qty = Math.max(1, parseInt(quantity) || 1);
     const volt = parseFloat(voltage) || (ph === 3 ? 400 : 230);
+    assertPositive("voltage", volt);
 
     // Calculate running current
     // I = (kW * qty * df) / (V_phase * pf)
@@ -65,7 +77,6 @@ export async function POST(request: Request) {
 
     return NextResponse.json(loadItem);
   } catch (error) {
-    console.error("POST Load Error:", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    return errorResponse(error, "POST Load Error");
   }
 }

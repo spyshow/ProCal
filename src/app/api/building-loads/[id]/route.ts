@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { verifyProjectAccess } from "@/lib/project-auth";
+import { parseCableSize } from "@/lib/calculations/cables";
 
 // Update a building load (quantity and/or cable fields).
 export async function PATCH(
@@ -29,7 +30,14 @@ export async function PATCH(
     if (body.quantity !== undefined) updateData.quantity = Math.max(1, parseInt(body.quantity) || 1);
     if (body.breakerSize !== undefined) updateData.breakerSize = body.breakerSize;
     if (body.cableLength !== undefined) updateData.cableLength = body.cableLength;
-    if (body.cableSize !== undefined) updateData.cableSize = body.cableSize;
+    if (body.cableSize !== undefined) {
+      // Reject strings the engine's grammar can't parse — a stored garbage
+      // cable size silently falls back to catalog defaults downstream.
+      if (parseCableSize(body.cableSize) === null) {
+        return NextResponse.json({ error: `Invalid cable size: ${body.cableSize}` }, { status: 400 });
+      }
+      updateData.cableSize = body.cableSize;
+    }
     if (body.installMethod !== undefined) updateData.installMethod = body.installMethod;
     if (body.cableInsulation !== undefined) updateData.cableInsulation = body.cableInsulation;
     if (body.cableMaterial !== undefined) updateData.cableMaterial = body.cableMaterial;

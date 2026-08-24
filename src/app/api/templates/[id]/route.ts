@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
+import { errorResponse } from "@/lib/api-errors";
 import { db } from "@/lib/db";
 import { verifyProjectAccess } from "@/lib/project-auth";
+import { assertOneOf } from "@/lib/calculations/validate";
 import { calculateRoomLoad, getCountryDefaults } from "@/lib/country-defaults";
 import { getApartmentDiversityFactor } from "@/lib/calculations/loads";
 
@@ -75,6 +77,8 @@ export async function PUT(
 
     const name = data.name ?? template.name;
     const phases = data.phases !== undefined ? Number(data.phases) : template.phases;
+    // phases persists and gates every downstream 1φ/3φ branch — only 1 or 3.
+    assertOneOf("phases", phases, [1, 3]);
     const rooms = data.rooms;
 
     if (!rooms || !Array.isArray(rooms) || rooms.length === 0) {
@@ -191,8 +195,7 @@ export async function PUT(
 
     return NextResponse.json(updatedTemplate);
   } catch (error) {
-    console.error("PUT Template Error:", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    return errorResponse(error, "PUT Template Error");
   }
 }
 

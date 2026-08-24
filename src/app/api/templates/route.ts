@@ -3,6 +3,7 @@ import { errorResponse } from "@/lib/api-errors";
 import { db } from "@/lib/db";
 import { verifyProjectAccess } from "@/lib/project-auth";
 import { sizeCableAndBreaker } from "@/lib/calculations/cables";
+import { assertOneOf } from "@/lib/calculations/validate";
 import { calculateRoomLoad, getCountryDefaults } from "@/lib/country-defaults";
 
 interface RoomInput {
@@ -21,6 +22,11 @@ export async function POST(request: Request) {
     if (!projectId || !name || !rooms || !Array.isArray(rooms) || rooms.length === 0) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
+
+    // phases persists and gates every downstream 1φ/3φ branch — only 1 or 3
+    // are valid. CalculationError → 400 via errorResponse.
+    const phasesNum = Number(phases) || 1;
+    assertOneOf("phases", phasesNum, [1, 3]);
 
     const auth = await verifyProjectAccess(projectId, {
       requiredAction: "EDIT",
@@ -73,7 +79,7 @@ export async function POST(request: Request) {
     const demandFactor = 0.4; // standard residential apartment demand factor
     const powerFactor = project.powerFactor || 0.85;
     const voltageLL = project.voltage || 400;
-    const isThreePhase = Number(phases) === 3;
+    const isThreePhase = phasesNum === 3;
     const connectedLoadKw = totalConnectedLoadW / 1000;
     const maxDemandKw = connectedLoadKw * demandFactor;
     const estimatedCurrentA = isThreePhase
@@ -91,7 +97,7 @@ export async function POST(request: Request) {
     const template = await db.apartmentTemplate.create({
       data: {
         name,
-        phases: Number(phases) || 1,
+        phases: phasesNum,
         projectId,
         rooms: {
           create: roomsWithLoad,

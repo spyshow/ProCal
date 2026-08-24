@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
+import { errorResponse } from "@/lib/api-errors";
 import { db } from "@/lib/db";
 import { verifyProjectAccess } from "@/lib/project-auth";
+import { assertOneOf, assertPositive, clampPowerFactor } from "@/lib/calculations/validate";
 
 export async function PUT(
   request: Request,
@@ -32,16 +34,24 @@ export async function PUT(
     const phase = data.phase !== undefined ? parseInt(data.phase) : loadItem.phase;
     const powerFactor = data.powerFactor !== undefined ? parseFloat(data.powerFactor) : loadItem.powerFactor;
     const demandFactor = data.demandFactor !== undefined ? parseFloat(data.demandFactor) : loadItem.demandFactor;
-    const quantity = data.quantity !== undefined ? parseInt(data.quantity) : loadItem.quantity;
+    const quantity = data.quantity !== undefined ? Math.max(1, parseInt(data.quantity) || 1) : loadItem.quantity;
     const startingCurrent = data.startingCurrent !== undefined ? (data.startingCurrent ? parseFloat(data.startingCurrent) : null) : loadItem.startingCurrent;
     const notes = data.notes ?? loadItem.notes;
+
+    // Trust-boundary validation on the merged values (CalculationError → 400
+    // via errorResponse): these persist and feed every downstream sizing calc.
+    assertPositive("power (kW)", power);
+    assertPositive("voltage", voltage);
+    assertOneOf("phase", phase, [1, 3]);
+    const safePowerFactor = clampPowerFactor(powerFactor);
+    const safeDemandFactor = Math.max(0, demandFactor ?? 1.0);
 
     // Recalculate running current
     let runningCurrent = 0;
     if (phase === 3) {
-      runningCurrent = (power * quantity * demandFactor) / (Math.sqrt(3) * (voltage / 1000) * powerFactor);
+      runningCurrent = (power * quantity * safeDemandFactor) / (Math.sqrt(3) * (voltage / 1000) * safePowerFactor);
     } else {
-      runningCurrent = (power * quantity * demandFactor) / ((voltage / 1000) * powerFactor);
+      runningCurrent = (power * quantity * safeDemandFactor) / ((voltage / 1000) * safePowerFactor);
     }
     runningCurrent = parseFloat(runningCurrent.toFixed(2));
 
@@ -53,8 +63,8 @@ export async function PUT(
         power,
         voltage,
         phase,
-        powerFactor,
-        demandFactor,
+        powerFactor: safePowerFactor,
+        demandFactor: safeDemandFactor,
         quantity,
         runningCurrent,
         startingCurrent,
@@ -64,8 +74,7 @@ export async function PUT(
 
     return NextResponse.json(updatedLoadItem);
   } catch (error) {
-    console.error("PUT Load Error:", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    return errorResponse(error, "PUT Load Error");
   }
 }
 

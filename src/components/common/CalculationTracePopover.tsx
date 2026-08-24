@@ -37,11 +37,75 @@ export function CalculationTracePopover({
   const [mounted, setMounted] = useState(false);
   const [copied, setCopied] = useState(false);
   const [isPinned, setIsPinned] = useState(false);
+  const [coords, setCoords] = useState<{
+    top?: number;
+    bottom?: number;
+    left: number;
+    maxHeight: number;
+  }>({
+    left: 20,
+    maxHeight: 600,
+  });
   const popoverRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  // Compute position and bounded maxHeight so the popover never clips off-screen
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const updatePosition = () => {
+      if (typeof window === "undefined") return;
+      const vWidth = window.innerWidth;
+      const vHeight = window.innerHeight;
+      const popoverWidth = Math.min(480, vWidth - 32);
+
+      let left = anchorRect ? anchorRect.left : (vWidth - popoverWidth) / 2;
+      // Clamp left so it stays inside the viewport with margin
+      left = Math.max(16, Math.min(left, vWidth - popoverWidth - 16));
+
+      let top: number | undefined = undefined;
+      let bottom: number | undefined = undefined;
+      let maxHeight = vHeight - 32;
+
+      if (anchorRect) {
+        const spaceBelow = vHeight - anchorRect.bottom - 16;
+        const spaceAbove = anchorRect.top - 16;
+        const measuredHeight = popoverRef.current ? popoverRef.current.offsetHeight : 540;
+
+        if (spaceBelow >= Math.min(measuredHeight, 460) || spaceBelow >= spaceAbove) {
+          // Open below anchor
+          top = anchorRect.bottom + 8;
+          maxHeight = Math.max(260, vHeight - top - 16);
+        } else if (spaceAbove >= 280) {
+          // Open above anchor
+          bottom = vHeight - anchorRect.top + 8;
+          maxHeight = Math.max(260, anchorRect.top - 16);
+        } else {
+          // Both spaces are cramped (e.g. small screen): center vertically in viewport
+          top = Math.max(16, (vHeight - Math.min(measuredHeight, vHeight - 32)) / 2);
+          maxHeight = vHeight - 32;
+        }
+      } else {
+        // Center in viewport
+        top = Math.max(16, (vHeight - Math.min(600, vHeight - 32)) / 2);
+        maxHeight = vHeight - 32;
+      }
+
+      setCoords({ top, bottom, left, maxHeight });
+    };
+
+    updatePosition();
+    window.addEventListener("resize", updatePosition);
+    window.addEventListener("scroll", updatePosition, true);
+
+    return () => {
+      window.removeEventListener("resize", updatePosition);
+      window.removeEventListener("scroll", updatePosition, true);
+    };
+  }, [isOpen, anchorRect, trace]);
 
   // Auto-close on escape key if not pinned
   useEffect(() => {
@@ -86,50 +150,18 @@ export function CalculationTracePopover({
     }
   };
 
-  // Smart positioning calculation relative to anchor element or viewport center
-  let stylePosition: React.CSSProperties = {
-    position: "fixed",
-    zIndex: 99999,
-  };
-
-  if (anchorRect) {
-    const viewportWidth = typeof window !== "undefined" ? window.innerWidth : 1200;
-    const viewportHeight = typeof window !== "undefined" ? window.innerHeight : 800;
-    const popoverWidth = 480;
-    const popoverHeight = 520;
-
-    let top = anchorRect.bottom + 8;
-    let left = anchorRect.left;
-
-    // Flip to top if overflowing bottom
-    if (top + popoverHeight > viewportHeight - 20) {
-      top = Math.max(20, anchorRect.top - popoverHeight - 8);
-    }
-
-    // Shift left if overflowing right
-    if (left + popoverWidth > viewportWidth - 20) {
-      left = Math.max(20, viewportWidth - popoverWidth - 20);
-    }
-
-    stylePosition = {
-      ...stylePosition,
-      top: `${top}px`,
-      left: `${left}px`,
-    };
-  } else {
-    stylePosition = {
-      ...stylePosition,
-      top: "50%",
-      left: "50%",
-      transform: "translate(-50%, -50%)",
-    };
-  }
-
   const content = (
     <div
       ref={popoverRef}
-      style={stylePosition}
-      className="w-[92vw] sm:w-[480px] max-h-[85vh] flex flex-col rounded-2xl border border-orange-500/40 bg-slate-950/95 backdrop-blur-md shadow-[0_10px_40px_rgba(0,0,0,0.8),0_0_20px_rgba(234,88,12,0.15)] text-slate-100 overflow-hidden animate-in fade-in zoom-in-95 duration-150"
+      style={{
+        position: "fixed",
+        zIndex: 99999,
+        left: `${coords.left}px`,
+        ...(coords.top !== undefined ? { top: `${coords.top}px` } : {}),
+        ...(coords.bottom !== undefined ? { bottom: `${coords.bottom}px` } : {}),
+        maxHeight: `${coords.maxHeight}px`,
+      }}
+      className="w-[92vw] sm:w-[480px] flex flex-col rounded-2xl border border-orange-500/40 bg-slate-950/95 backdrop-blur-md shadow-[0_10px_40px_rgba(0,0,0,0.8),0_0_20px_rgba(234,88,12,0.15)] text-slate-100 overflow-hidden animate-in fade-in zoom-in-95 duration-150"
     >
       {/* Popover Header */}
       <div className="p-3.5 px-4 bg-gradient-to-r from-slate-900 via-slate-900/90 to-slate-950 border-b border-slate-800 flex items-center justify-between gap-3 select-none">
@@ -200,7 +232,7 @@ export function CalculationTracePopover({
       </div>
 
       {/* Scrollable Body */}
-      <div className="p-4 space-y-4 overflow-y-auto max-h-[calc(85vh-120px)] custom-scrollbar">
+      <div className="p-4 space-y-4 overflow-y-auto flex-1 min-h-0 custom-scrollbar">
         {/* Step-by-step Math Formulas */}
         <div className="space-y-3">
           <h5 className="text-[11px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">

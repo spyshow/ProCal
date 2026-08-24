@@ -341,8 +341,13 @@ export function calculateVoltageDrop(
 
   const runs = Math.max(1, parallelRuns);
 
-  // Find cable spec
-  const spec = CABLE_CATALOG.find((c) => c.size === cableSizeSqMm) || CABLE_CATALOG[0];
+  // Find cable spec. Non-standard sizes (e.g. an 18 mm² entry) fall back to
+  // the largest catalog size that does not exceed the declared size — falling
+  // back to the smallest (1.5 mm²) overstated every drop for such entries.
+  const spec =
+    CABLE_CATALOG.find((c) => c.size === cableSizeSqMm) ??
+    CABLE_CATALOG.filter((c) => c.size <= cableSizeSqMm).pop() ??
+    CABLE_CATALOG[0];
   // The catalog resistance column holds COPPER AC resistance at operating
   // temperature. Aluminum has ~1.64× the resistivity of copper (0.0283 vs
   // 0.0172 Ω·mm²/m), so an aluminum run drops that much more voltage.

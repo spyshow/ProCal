@@ -10,6 +10,10 @@ export default defineConfig({
     seed: "npx tsx prisma/seed.ts",
   },
   datasource: {
-    url: process.env["DIRECT_URL"] || process.env["DATABASE_URL"],
+    url:
+      process.env["DIRECT_URL"] ||
+      process.env["DATABASE_URL"]?.replace(":6543", ":5432") ||
+      process.env["DATABASE_URL"],
   },
 });
+

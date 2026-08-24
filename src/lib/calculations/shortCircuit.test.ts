@@ -237,12 +237,13 @@ describe('calculateIscWithCable', () => {
 
     expect(parallel).toBeGreaterThan(single);
 
-    // Hand check: Zt = 400/(√3·10000) ≈ 23.09 mΩ. Per run:
-    // R = 0.0172·1.28·30/240 ≈ 2.75 mΩ, X = 0.08·30 = 2.4 mΩ → Zrun ≈ 3.65 mΩ.
-    // Single: Isc = 400/(√3·(23.09+3.65)mΩ) ≈ 8.64 kA.
-    // Parallel: Zcable/2 = 1.83 mΩ → Isc = 400/(√3·24.92mΩ) ≈ 9.26 kA.
-    expect(single).toBeCloseTo(8.64, 1);
-    expect(parallel).toBeCloseTo(9.26, 1);
+    // Hand check (component-wise per IEC 60909, X/R = 6):
+    // Zt = 400/(√3·10000) ≈ 23.09 mΩ → Rt = Zt/√37 ≈ 3.80 mΩ, Xt ≈ 22.78 mΩ. Per run:
+    // Rc = 0.0172·1.28·30/240 ≈ 2.75 mΩ, Xc = 2.4 mΩ.
+    // Single: R = 6.55 mΩ, X = 25.18 mΩ → Z = 26.02 mΩ → Isc ≈ 8.88 kA.
+    // Parallel: Rc/2, Xc/2 → R = 5.17 mΩ, X = 23.98 mΩ → Z = 24.54 mΩ → Isc ≈ 9.41 kA.
+    expect(single).toBeCloseTo(8.88, 1);
+    expect(parallel).toBeCloseTo(9.41, 1);
   });
 
   it('throws CalculationError for invalid parameters', () => {
@@ -259,10 +260,11 @@ describe('calculateIscWithCable', () => {
     const single = calculateIscWithCable(baseIsc, 50, 95, 400, true, false, 'XLPE', 1);
     const parallel = calculateIscWithCable(baseIsc, 50, 95, 400, true, false, 'XLPE', 2);
 
-    // Single run: Zt = 0.00924 Ω, Zcable = 0.01226 Ω → 10.74 kA (see above).
-    // Two runs: Zcable/2 = 0.00613 Ω → 230.94 / (0.00924 + 0.00613) / 1000 ≈ 15.03 kA.
-    expect(single).toBeCloseTo(10.74, 1);
-    expect(parallel).toBeCloseTo(15.03, 1);
+    // Component-wise (X/R = 6): Zt = 9.24 mΩ → Rt 1.52, Xt 9.11 mΩ.
+    // Cable/run: Rc 11.59, Xc 4 mΩ. Single: R 13.11, X 13.11 → Z 18.54 mΩ → 12.46 kA.
+    // Two runs: Rc/2, Xc/2 → R 7.31, X 11.11 → Z 13.30 mΩ → ≈ 17.36 kA.
+    expect(single).toBeCloseTo(12.46, 1);
+    expect(parallel).toBeCloseTo(17.36, 1);
     // Fault current at the far end is HIGHER with parallel runs — ignoring them
     // understates the fault, which is the non-conservative direction for Icu.
     expect(parallel).toBeGreaterThan(single);
@@ -273,25 +275,19 @@ describe('calculateIscWithCable', () => {
     const single = calculateIscWithCable(baseIsc, 50, 95, 400, true, true, 'XLPE', 1);
     const parallel = calculateIscWithCable(baseIsc, 50, 95, 400, true, true, 'XLPE', 2);
 
-    // Loop impedance with 2 runs: Zt + 2·(Zcable/2) = Zt + Zcable → 10.74 kA
-    expect(parallel).toBeCloseTo(10.74, 1);
+    // Loop with 2 runs: the ×runs and ×loop factors cancel (halve then double),
+    // so R = Rt + Rc = 13.11 mΩ, X = Xt + Xc = 13.11 mΩ → Z 18.54 mΩ → ≈ 12.46 kA
+    expect(parallel).toBeCloseTo(12.46, 1);
     expect(parallel).toBeGreaterThan(single);
   });
 
   it('verifies 3-phase and 1-phase Isc scaling with parallel runs (runs=1, 2, 3, 4) against hand calculations', () => {
-    // Hand calculation:
-    // Source: 400V, baseIsc = 20 kA
-    // U_phase = 400 / sqrt(3) = 230.9401 V
-    // Z_source = 230.9401 / (20 * 1000) = 0.011547 Ω
+    // Hand calculation (component-wise per IEC 60909, X/R = 6):
+    // Source: 400V, baseIsc = 20 kA → Zt = 230.9401/20000 = 0.011547 Ω
+    // Split: Rt = Zt/√37 = 1.898 mΩ, Xt = 6·Zt/√37 = 11.390 mΩ
     // Cable: 240 mm² Cu XLPE, length = 100 m
-    // R20 = 0.0172 Ω·mm²/m, tempFactor = 1.28 (90 °C)
-    // Rcable = (0.0172 * 1.28 * 100) / 240 = 0.0091733 Ω
-    // Xcable = 0.00008 * 100 = 0.008 Ω
-    // Z_cable_1run = sqrt(0.0091733^2 + 0.008^2) = 0.0121714 Ω
-    //
-    // For runs = N: Z_cable_N = Z_cable_1run / N
-    // Total Z = Z_source + Z_cable_N
-    // 3-phase Isc = (230.9401 / Total Z) / 1000 kA
+    // Rc = (0.0172 × 1.28 × 100)/240 = 9.173 mΩ/run; Xc = 8 mΩ/run
+    // For runs = N both cable components divide by N.
     const baseIsc = 20;
     const len = 100;
     const size = 240;
@@ -302,15 +298,15 @@ describe('calculateIscWithCable', () => {
     const isc3 = calculateIscWithCable(baseIsc, len, size, V, true, false, 'XLPE', 3);
     const isc4 = calculateIscWithCable(baseIsc, len, size, V, true, false, 'XLPE', 4);
 
-    // Hand calculated expected values:
-    // N=1: Z = 0.011547 + 0.0121714 = 0.0237184 Ω -> Isc = 230.9401 / 0.0237184 / 1000 = 9.74 kA
-    // N=2: Z = 0.011547 + 0.0060857 = 0.0176327 Ω -> Isc = 230.9401 / 0.0176327 / 1000 = 13.10 kA
-    // N=3: Z = 0.011547 + 0.0040571 = 0.0156041 Ω -> Isc = 230.9401 / 0.0156041 / 1000 = 14.80 kA
-    // N=4: Z = 0.011547 + 0.0030429 = 0.0145899 Ω -> Isc = 230.9401 / 0.0145899 / 1000 = 15.83 kA
-    expect(isc1).toBeCloseTo(9.74, 2);
-    expect(isc2).toBeCloseTo(13.10, 2);
-    expect(isc3).toBeCloseTo(14.80, 2);
-    expect(isc4).toBeCloseTo(15.83, 2);
+    // Hand calculated expected values (Z = √((Rt+Rc/N)² + (Xt+Xc/N)²)):
+    // N=1: R 11.072, X 19.390 mΩ → Z 22.328 mΩ → Isc = 10.34 kA
+    // N=2: R  6.485, X 15.390 mΩ → Z 16.700 mΩ → Isc = 13.83 kA
+    // N=3: R  4.956, X 14.057 mΩ → Z 14.905 mΩ → Isc = 15.49 kA
+    // N=4: R  4.192, X 13.390 mΩ → Z 14.031 mΩ → Isc = 16.46 kA
+    expect(isc1).toBeCloseTo(10.34, 2);
+    expect(isc2).toBeCloseTo(13.83, 2);
+    expect(isc3).toBeCloseTo(15.49, 2);
+    expect(isc4).toBeCloseTo(16.46, 2);
 
     // Strictly monotonically increasing with parallel runs
     expect(isc4).toBeGreaterThan(isc3);
@@ -323,9 +319,11 @@ describe('calculateIscWithCable', () => {
     const threePhase = calculateIscWithCable(baseIsc, 50, 95, 400, true, false);
     const onePhase = calculateIscWithCable(baseIsc, 50, 95, 400, true, true);
 
-    // Closed-form: Uo = 230.94 V, Zt = 0.00924 Ω, Zcable = 0.01226 Ω/conductor
-    expect(threePhase).toBeCloseTo(10.74, 1);
-    expect(onePhase).toBeCloseTo(6.84, 1);
+    // Closed-form (X/R = 6): Rt 1.52, Xt 9.11 mΩ; cable Rc 11.59, Xc 4 mΩ/conductor.
+    // 3φ single conductor: R 13.11, X 13.11 → Z 18.54 mΩ → 12.46 kA.
+    // 1φ loop doubles the cable: R 24.69, X 17.11 → Z 30.04 mΩ → 7.69 kA.
+    expect(threePhase).toBeCloseTo(12.46, 1);
+    expect(onePhase).toBeCloseTo(7.69, 1);
     // The loop includes both conductors, so 1φ decays faster along the cable
     expect(onePhase).toBeLessThan(threePhase);
   });

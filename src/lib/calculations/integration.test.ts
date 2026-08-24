@@ -568,7 +568,7 @@ describe('Icu breaking-capacity verification', () => {
               calculatedCurrent: 20,
               breakerSize: '32A',
               cableSize: '10 mm²',
-              cableLength: 3, // short run keeps the terminal fault in the (6, 10] kA window
+              cableLength: 6, // keeps the far-end fault in the (6, 10] kA window (vector Z sum, audit M5)
               voltageDrop: 0.3,
               apartmentTemplate: { id: 't1', name: '1-Bed', phases: 1, rooms: [], createdAt: '', updatedAt: '' },
             },

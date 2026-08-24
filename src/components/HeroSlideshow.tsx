@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback, useMemo } from "react";
-import Image, { StaticImageData } from "next/image";
+import Image from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -29,11 +29,11 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useTranslation } from "@/i18n";
 
-import slideLoadCalc from "../../public/slides/slide_load_calc.webp";
-import slideCableSizing from "../../public/slides/slide_cable_sizing.webp";
-import slideSldDiagram from "../../public/slides/slide_sld_diagram.webp";
-import slideBreakerSchedule from "../../public/slides/slide_breaker_schedule.webp";
-import slidePdfReports from "../../public/slides/slide_pdf_reports.webp";
+const slideLoadCalc = "/slides/slide_load_calc.webp";
+const slideCableSizing = "/slides/slide_cable_sizing.webp";
+const slideSldDiagram = "/slides/slide_sld_diagram.webp";
+const slideBreakerSchedule = "/slides/slide_breaker_schedule.webp";
+const slidePdfReports = "/slides/slide_pdf_reports.webp";
 
 interface SlideData {
   id: string;
@@ -47,7 +47,7 @@ interface SlideData {
   accentColor: string;
   accentBorder: string;
   accentBg: string;
-  image: StaticImageData | string;
+  image: string;
   href: string;
   ctaText: string;
   fallbackIcon: React.ElementType;
@@ -58,7 +58,7 @@ export function HeroSlideshow() {
   const [activeIndex, setActiveIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(true);
   const [isHovered, setIsHovered] = useState(false);
-  const [modalImage, setModalImage] = useState<StaticImageData | string | null>(null);
+  const [modalImage, setModalImage] = useState<string | null>(null);
   const [imageError, setImageError] = useState<Record<string, boolean>>({});
 
   const slides: SlideData[] = useMemo(

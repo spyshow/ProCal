@@ -487,16 +487,21 @@ describe('regression: three-phase classification', () => {
     }
   });
 
-  it('sizes transformer on the worst-loaded phase under unbalanced loads (Issue 9)', () => {
+  it('sizes transformer AND main incomer on the worst-loaded phase under unbalanced loads (Issue 9)', () => {
     const findBreaker = createFindBreaker(equipment, {}, 'ABB');
-    // Heavy 1-phase load on Phase 1 (50 kW) and small loads on Phase 2 & 3 (10 kW each)
+    // Heavy 1-phase load on Phase 1 (50 kW) and small loads on Phase 2 & 3
+    // (10 kW each). 1-phase items: APARTMENT without a 3-phase template —
+    // manual SERVICE_PANEL entries are forced 3-phase by isThreePhaseForItem,
+    // which would silently balance this scenario.
+    const heavyA = 50 / (0.23 * 0.85);   // ≈ 255.8 A
+    const lightA = 10 / (0.23 * 0.85);   // ≈ 51.2 A
     const bldg = building({
       floorDesigns: [{
         id: 'f1', floorNumber: 1, hasFloorSubPanels: false,
         items: [
-          item({ type: 'SERVICE_PANEL', name: 'Heavy 1Ph', calculatedCurrent: 50 / (0.23 * 0.85), calculatedMaxDemand: 50, assignedPhase: 1 }),
-          item({ type: 'SERVICE_PANEL', name: 'Light 1Ph A', calculatedCurrent: 10 / (0.23 * 0.85), calculatedMaxDemand: 10, assignedPhase: 2 }),
-          item({ type: 'SERVICE_PANEL', name: 'Light 1Ph B', calculatedCurrent: 10 / (0.23 * 0.85), calculatedMaxDemand: 10, assignedPhase: 3 }),
+          item({ name: 'Heavy Apt', calculatedCurrent: heavyA, calculatedMaxDemand: 50, assignedPhase: 1 }),
+          item({ id: 'i2', name: 'Light Apt A', calculatedCurrent: lightA, calculatedMaxDemand: 10, assignedPhase: 2 }),
+          item({ id: 'i3', name: 'Light Apt B', calculatedCurrent: lightA, calculatedMaxDemand: 10, assignedPhase: 3 }),
         ],
       }],
     });
@@ -506,6 +511,13 @@ describe('regression: three-phase classification', () => {
     // Worst phase = 50 kW / 0.85 = 58.82 kVA per winding -> 3 × 58.82 × 1.2 = 211.7 kVA -> 250 kVA transformer.
     // The transformer Isc in computeFeeders uses the 250 kVA rating instead of 100 kVA.
     expect(result.transformerIscKa).toBeGreaterThan(0);
+
+    // Incomer sized on the WORST-PHASE current (~255.8 A), not the lumped √3
+    // average (~118.8 A): same basis as the transformer's worst winding above.
+    // Surfaces via Ir (long-time pickup dials to design current) and the
+    // resulting standard frame (next size ≥ 255.8 A is 320 A, not 125 A).
+    expect(result.mainIncomerSettings.ir).toBeGreaterThan(200);
+    expect(result.mainBreakerIn).toBeGreaterThanOrEqual(320);
   });
 });
 

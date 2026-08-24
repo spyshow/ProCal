@@ -275,7 +275,16 @@ export default function PanelDesignerPage() {
     }
     return s + kw / project.powerFactor;
   }, 0);
-  const mainBreakerCurrent = calculateThreePhaseCurrent(totalDemandKva, project.voltage);
+  // Main Current mirrors computeFeeders: worst-loaded phase current (the
+  // lumped √3 average understates an unbalanced board's loaded phase).
+  const mainBreakerCurrent = Math.max(
+    Math.max(
+      mdbFeeders.reduce((s, f) => s + (f.phaseCurrent?.[0] ?? 0), 0),
+      mdbFeeders.reduce((s, f) => s + (f.phaseCurrent?.[1] ?? 0), 0),
+      mdbFeeders.reduce((s, f) => s + (f.phaseCurrent?.[2] ?? 0), 0),
+    ),
+    calculateThreePhaseCurrent(totalDemandKva, project.voltage)
+  );
   const transformerSize = sizeTransformer(totalDemandKva, 1.2, perPhaseKva);
 
   // Main incomer breaker + cable come from computeFeeders so this page shows

@@ -504,13 +504,16 @@ describe('Mixed-Use Multi-Building Integration (loads → breakers → selectivi
         expect(mainIncomerSettings.manufacturer).not.toBeNull();
       });
 
-      it('loads layer: main incomer Ir matches demand derived from raw inputs', () => {
+      it('loads layer: main incomer Ir covers demand derived from raw inputs', () => {
         const expectedKw = expectedTotalKw(
           name === 'Residential Tower A' ? towerA : name === 'Residential Tower B' ? towerB : mall
         );
         const expectedKva = expectedKw / (project.powerFactor || 0.85);
-        const expectedCurrent = calculateThreePhaseCurrent(expectedKva, project.voltage);
-        expect(result.mainIncomerSettings.ir).toBeCloseTo(expectedCurrent, 0);
+        const lumpedCurrent = calculateThreePhaseCurrent(expectedKva, project.voltage);
+        // Worst-phase basis (audit M1): the design current is the most-loaded
+        // phase's current, which is >= the lumped √3 average — strictly greater
+        // when 1-phase loads cluster on one phase (the towers' apartments).
+        expect(result.mainIncomerSettings.ir).toBeGreaterThanOrEqual(lumpedCurrent - 0.5);
         // Sanity: the transformer that drove the fault level was sized from that demand.
         const expectedTransformer = sizeTransformer(expectedKva, 1.2);
         expect(expectedTransformer).toBeGreaterThan(0);
@@ -544,13 +547,16 @@ describe('Mixed-Use Multi-Building Integration (loads → breakers → selectivi
     expect(m.mainBreakerIn).toBeGreaterThan(a.mainBreakerIn);
     expect(a.mainBreakerIn).toBeGreaterThan(b.mainBreakerIn);
 
-    // Pinned frames: Tower A 500 A MCCB, Tower B 400 A MCCB, Mall 1250 A ACB.
-    expect(a.mainBreakerIn).toBe(500);
-    expect(b.mainBreakerIn).toBe(400);
+    // Pinned frames (worst-phase incomer basis, audit M1): Tower A's clustered
+    // 1-phase apartments push its design current to 552 A → 630 A standard
+    // frame routes to the ACB tier, catalog-matched at 800 A. Tower B 500 A
+    // MCCB, Mall (all-3φ loads, balanced) unchanged at 1250 A ACB.
+    expect(a.mainBreakerIn).toBe(800);
+    expect(b.mainBreakerIn).toBe(500);
     expect(m.mainBreakerIn).toBe(1250);
-    // The Mall (largest) must land on an ACB; the towers on MCCBs.
+    // The Mall and Tower A land on ACBs; Tower B on an MCCB.
     expect(m.mainIncomerSettings.category).toBe('ACB');
-    expect(a.mainIncomerSettings.category).toBe('MCCB');
+    expect(a.mainIncomerSettings.category).toBe('ACB');
     expect(b.mainIncomerSettings.category).toBe('MCCB');
     // Main incomer cables are re-sized to their frames (fix #4): Iz >= In,
     // with parallel runs on the ACB. Tower A's 240 mm² single run is exactly
@@ -561,11 +567,14 @@ describe('Mixed-Use Multi-Building Integration (loads → breakers → selectivi
     expect(a.mainCableIz).toBeGreaterThanOrEqual(a.mainBreakerIn);
     expect(b.mainCableIz).toBeGreaterThanOrEqual(b.mainBreakerIn);
     expect(m.mainCableIz).toBeGreaterThanOrEqual(m.mainBreakerIn);
-    expect(a.mainParallelRuns).toBe(1);
+    // Tower A's 800 A frame no longer fits one 240 mm² run (Iz 500): the
+    // engine steps to 2 touching runs (2 × 500 × 0.80 grouping = 800 = In).
+    expect(a.mainParallelRuns).toBe(2);
     expect(b.mainParallelRuns).toBe(1);
     expect(m.mainParallelRuns).toBe(4);
     expect(a.mainCableSize).toBe(240);
-    expect(b.mainCableSize).toBe(185);
+    // Tower B's 500 A frame outgrows 185 mm² (Iz 424): single 240 mm² run.
+    expect(b.mainCableSize).toBe(240);
     expect(m.mainCableSize).toBe(240);
 
     // SMDB floor sets reflect each building's design.

@@ -937,7 +937,15 @@ export function computeFeeders(
   const transformerIscKa = scResult.threePhaseIsc;
 
   // 2. Main Incomer Breaker Sizing
-  const mainIncomerCurrent = calculateThreePhaseCurrent(totalDemandKva, project.voltage);
+  // Size on the worst-loaded phase's actual current, not the lumped √3 average:
+  // each incomer phase conductor carries its own phase current, and on an
+  // unbalanced board that exceeds S_total/(√3·V). The transformer above sizes
+  // on the worst winding and SMDB risers on maxPhaseCurrent — the incomer now
+  // uses the same basis. The √3 term floors rounding/rounding-down edge cases.
+  const mainIncomerCurrent = Math.max(
+    overallBalance.maxPhaseCurrent,
+    calculateThreePhaseCurrent(totalDemandKva, project.voltage)
+  );
   const mainCableOptions = {
     material: 'copper' as const,
     insulation: 'XLPE' as const,

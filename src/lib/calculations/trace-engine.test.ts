@@ -50,7 +50,7 @@ describe("Calculation Trace Engine", () => {
     });
 
     expect(trace.compliance?.status).toBe("FAIL");
-    expect(trace.steps[1].formula).toContain("2 \\cdot I_b");
+    expect(trace.steps[1].formula).toContain("2 · Ib");
   });
 
   it("builds Cable Ampacity and Derating trace", () => {
@@ -89,7 +89,7 @@ describe("Calculation Trace Engine", () => {
       calculatedCurrentA: 76.4,
     });
 
-    expect(trace3Ph.steps[0].formula).toContain("\\sqrt{3}");
+    expect(trace3Ph.steps[0].formula).toContain("√3");
     expect(trace3Ph.resultValue).toBe("76.4 A");
 
     const trace1Ph = buildDesignCurrentTrace({
@@ -101,7 +101,7 @@ describe("Calculation Trace Engine", () => {
       calculatedCurrentA: 16.0,
     });
 
-    expect(trace1Ph.steps[0].formula).toContain("V_{LN}");
+    expect(trace1Ph.steps[0].formula).toContain("V_LN");
     expect(trace1Ph.resultValue).toBe("16.0 A");
   });
 

@@ -74,7 +74,6 @@ export function buildVoltageDropTrace(inputs: VoltageDropTraceInputs): TraceDefi
   const cosPhi = Math.max(0.1, Math.min(1.0, inputs.powerFactor ?? 0.85));
   const sinPhi = Math.sqrt(Math.max(0, 1 - cosPhi * cosPhi));
   const b = is3Ph ? 1.732 : 2.0;
-  const bSymbol = is3Ph ? "\\sqrt{3}" : "2";
   const limit = inputs.maxDropPercentLimit ?? (is3Ph ? 5.0 : 3.0);
 
   // Default standard resistance and reactance estimates if not supplied
@@ -90,20 +89,20 @@ export function buildVoltageDropTrace(inputs: VoltageDropTraceInputs): TraceDefi
   const steps: TraceStep[] = [
     {
       label: "Phase Impedance Component (Z)",
-      formula: "Z = (R \\cdot \\cos\\varphi + X \\cdot \\sin\\varphi) / n_{runs}",
-      substituted: `Z = (${rNominal.toFixed(4)} \\times ${cosPhi.toFixed(2)} + ${xNominal.toFixed(4)} \\times ${sinPhi.toFixed(3)}) / ${runs} = ${impedance.toFixed(4)}\\ \\Omega/\\text{km}`,
+      formula: "Z = (R · cos φ + X · sin φ) / runs",
+      substituted: `Z = (${rNominal.toFixed(4)} × ${cosPhi.toFixed(2)} + ${xNominal.toFixed(4)} × ${sinPhi.toFixed(3)}) / ${runs} = ${impedance.toFixed(4)} Ω/km`,
       description: "Effective cable AC resistance and reactance at operating temperature.",
     },
     {
       label: "Voltage Drop in Volts (ΔV)",
-      formula: `\\Delta V = \\frac{${bSymbol} \\cdot I_b \\cdot L \\cdot Z}{1000}`,
-      substituted: `\\Delta V = \\frac{${b.toFixed(3)} \\times ${inputs.currentA.toFixed(1)}\\text{ A} \\times ${inputs.lengthM.toFixed(1)}\\text{ m} \\times ${impedance.toFixed(4)}}{1000} = ${inputs.dropVolts.toFixed(2)}\\text{ V}`,
+      formula: is3Ph ? "ΔV = (√3 · Ib · L · Z) / 1000" : "ΔV = (2 · Ib · L · Z) / 1000",
+      substituted: `ΔV = (${b.toFixed(3)} × ${inputs.currentA.toFixed(1)} A × ${inputs.lengthM.toFixed(1)} m × ${impedance.toFixed(4)}) / 1000 = ${inputs.dropVolts.toFixed(2)} V`,
       description: is3Ph ? "Three-phase line-to-line voltage drop" : "Single-phase line-to-neutral loop voltage drop",
     },
     {
       label: "Percentage Voltage Drop (ΔV %)",
-      formula: "\\% \\Delta V = \\left( \\frac{\\Delta V}{V_{system}} \\right) \\times 100\\%",
-      substituted: `\\% \\Delta V = \\left( \\frac{${inputs.dropVolts.toFixed(2)}\\text{ V}}{${inputs.systemVoltageV}\\text{ V}} \\right) \\times 100\\% = ${inputs.dropPercent.toFixed(2)}\\%`,
+      formula: "% ΔV = (ΔV / V_system) × 100%",
+      substituted: `% ΔV = (${inputs.dropVolts.toFixed(2)} V / ${inputs.systemVoltageV} V) × 100% = ${inputs.dropPercent.toFixed(2)}%`,
     },
   ];
 
@@ -126,7 +125,7 @@ export function buildVoltageDropTrace(inputs: VoltageDropTraceInputs): TraceDefi
     parameters,
     compliance: {
       status: passed ? "PASS" : "FAIL",
-      rule: `\\% \\Delta V \\le ${limit.toFixed(1)}\\%`,
+      rule: `% ΔV ≤ ${limit.toFixed(1)}%`,
       actual: `${inputs.dropPercent.toFixed(2)}%`,
       limit: `${limit.toFixed(1)}%`,
       margin: passed ? `+${margin}% (Adequate)` : `${margin}% (Exceeds Allowable Limit)`,
@@ -168,7 +167,7 @@ export function buildCableAmpacityTrace(inputs: CableAmpacityTraceInputs): Trace
   const iz = inputs.totalDeratedAmpacity;
 
   let complianceStatus: "PASS" | "WARN" | "FAIL" = "PASS";
-  let complianceRule = "I_z \\ge I_n \\ge I_b";
+  let complianceRule = "Iz ≥ In ≥ Ib";
   let marginText = "";
 
   if (inBreaker > 0 && iz < inBreaker) {
@@ -184,14 +183,14 @@ export function buildCableAmpacityTrace(inputs: CableAmpacityTraceInputs): Trace
   const steps: TraceStep[] = [
     {
       label: "Combined Derating Factor (Ctot)",
-      formula: "C_{tot} = C_a \\times C_g \\times C_s",
-      substituted: `C_{tot} = ${inputs.tempFactor.toFixed(2)} (C_a) \\times ${inputs.groupFactor.toFixed(2)} (C_g) = ${totalDerating.toFixed(3)}`,
+      formula: "C_tot = Ca × Cg × Cs",
+      substituted: `C_tot = ${inputs.tempFactor.toFixed(2)} (Ca) × ${inputs.groupFactor.toFixed(2)} (Cg)${inputs.soilFactor ? ` × ${inputs.soilFactor.toFixed(2)} (Cs)` : ""} = ${totalDerating.toFixed(3)}`,
       description: "Correction factors for ambient temperature, circuit grouping, and installation method.",
     },
     {
       label: "Derated Cable Ampacity (Iz)",
-      formula: "I_z = n_{runs} \\times I_{z,tab} \\times C_{tot}",
-      substituted: `I_z = ${runs} \\times ${inputs.nominalAmpacityPerRun.toFixed(1)}\\text{ A} \\times ${totalDerating.toFixed(3)} = ${iz.toFixed(1)}\\text{ A}`,
+      formula: "Iz = runs × Iz,tab × C_tot",
+      substituted: `Iz = ${runs} × ${inputs.nominalAmpacityPerRun.toFixed(1)} A × ${totalDerating.toFixed(3)} = ${iz.toFixed(1)} A`,
       description: "Maximum continuous current capacity of the installed cable.",
     },
   ];
@@ -199,8 +198,8 @@ export function buildCableAmpacityTrace(inputs: CableAmpacityTraceInputs): Trace
   if (inBreaker > 0) {
     steps.push({
       label: "Coordination Check (IEC 60364-4-43)",
-      formula: "I_b \\le I_n \\le I_z",
-      substituted: `${ib.toFixed(1)}\\text{ A} (I_b) \\le ${inBreaker}\\text{ A} (I_n) \\le ${iz.toFixed(1)}\\text{ A} (I_z)`,
+      formula: "Ib ≤ In ≤ Iz",
+      substituted: `${ib.toFixed(1)} A (Ib) ≤ ${inBreaker} A (In) ≤ ${iz.toFixed(1)} A (Iz)`,
       description: "Verifies cable is fully protected against overloads by upstream breaker.",
     });
   }
@@ -259,22 +258,26 @@ export function buildDesignCurrentTrace(inputs: DesignCurrentTraceInputs): Trace
   if (df !== 1.0) {
     steps.push({
       label: "Demand Load Application",
-      formula: "P_{design} = P_{connected} \\times DF",
-      substituted: `P_{design} = ${inputs.powerKw.toFixed(2)}\\text{ kW} \\times ${df.toFixed(2)} = ${pDesign.toFixed(2)}\\text{ kW}`,
+      formula: "P_design = P_connected × DF",
+      substituted: `P_design = ${inputs.powerKw.toFixed(2)} kW × ${df.toFixed(2)} = ${pDesign.toFixed(2)} kW`,
     });
   }
 
   if (is3Ph) {
     steps.push({
       label: "Three-Phase Design Current (Ib)",
-      formula: "I_b = \\frac{P_{design} \\times 1000}{\\sqrt{3} \\times V_{LL} \\times \\cos\\varphi \\times \\eta}",
-      substituted: `I_b = \\frac{${pWatts.toFixed(0)}\\text{ W}}{1.732 \\times ${inputs.voltageV}\\text{ V} \\times ${cosPhi.toFixed(2)}${eta < 1 ? ` \\times ${eta.toFixed(2)}` : ""}} = ${inputs.calculatedCurrentA.toFixed(1)}\\text{ A}`,
+      formula: eta < 1
+        ? "Ib = (P_design × 1000) / (√3 × V_LL × cos φ × η)"
+        : "Ib = (P_design × 1000) / (√3 × V_LL × cos φ)",
+      substituted: `Ib = (${pWatts.toFixed(0)} W) / (1.732 × ${inputs.voltageV} V × ${cosPhi.toFixed(2)}${eta < 1 ? ` × ${eta.toFixed(2)}` : ""}) = ${inputs.calculatedCurrentA.toFixed(1)} A`,
     });
   } else {
     steps.push({
       label: "Single-Phase Design Current (Ib)",
-      formula: "I_b = \\frac{P_{design} \\times 1000}{V_{LN} \\times \\cos\\varphi \\times \\eta}",
-      substituted: `I_b = \\frac{${pWatts.toFixed(0)}\\text{ W}}{${inputs.voltageV}\\text{ V} \\times ${cosPhi.toFixed(2)}${eta < 1 ? ` \\times ${eta.toFixed(2)}` : ""}} = ${inputs.calculatedCurrentA.toFixed(1)}\\text{ A}`,
+      formula: eta < 1
+        ? "Ib = (P_design × 1000) / (V_LN × cos φ × η)"
+        : "Ib = (P_design × 1000) / (V_LN × cos φ)",
+      substituted: `Ib = (${pWatts.toFixed(0)} W) / (${inputs.voltageV} V × ${cosPhi.toFixed(2)}${eta < 1 ? ` × ${eta.toFixed(2)}` : ""}) = ${inputs.calculatedCurrentA.toFixed(1)} A`,
     });
   }
 
@@ -330,13 +333,13 @@ export function buildShortCircuitTrace(inputs: ShortCircuitTraceInputs): TraceDe
   const steps: TraceStep[] = [
     {
       label: "Transformer Internal Impedance (Zt)",
-      formula: "Z_t = \\left( \\frac{U_n^2}{S_r} \\right) \\times \\left( \\frac{u_k\\%}{100} \\right)",
-      substituted: `Z_t = \\left( \\frac{(${vSec}\\text{ V})^2}{${sKva * 1000}\\text{ VA}} \\right) \\times \\left( \\frac{${zTrafoPercent}\\%}{100} \\right) = ${zTrafo.toFixed(4)}\\ \\Omega`,
+      formula: "Zt = (Un² / Sr) × (uk% / 100)",
+      substituted: `Zt = ((${vSec} V)² / ${sKva * 1000} VA) × (${zTrafoPercent}% / 100) = ${zTrafo.toFixed(4)} Ω`,
     },
     {
       label: "Symmetrical Initial Short-Circuit Current (Ik\")",
-      formula: "I_k'' = \\frac{c \\cdot U_n}{\\sqrt{3} \\cdot Z_{total}}",
-      substituted: `I_k'' = \\frac{${cFactor} \\times ${vSec}\\text{ V}}{1.732 \\times ${zTotal.toFixed(4)}\\ \\Omega} = ${(inputs.threePhaseIscKa * 1000).toFixed(0)}\\text{ A} = ${inputs.threePhaseIscKa.toFixed(2)}\\text{ kA}`,
+      formula: "Ik\" = (c · Un) / (√3 · Z_total)",
+      substituted: `Ik\" = (1.05 × ${vSec} V) / (1.732 × ${zTotal.toFixed(4)} Ω) = ${(inputs.threePhaseIscKa * 1000).toFixed(0)} A = ${inputs.threePhaseIscKa.toFixed(2)} kA`,
     },
   ];
 
@@ -344,8 +347,8 @@ export function buildShortCircuitTrace(inputs: ShortCircuitTraceInputs): TraceDe
     const kappa = (inputs.peakCurrentKa / (1.414 * inputs.threePhaseIscKa)).toFixed(2);
     steps.push({
       label: "Peak Short-Circuit Current (Ip)",
-      formula: "I_p = \\kappa \\cdot \\sqrt{2} \\cdot I_k''",
-      substituted: `I_p = ${kappa} \\times 1.414 \\times ${inputs.threePhaseIscKa.toFixed(2)}\\text{ kA} = ${inputs.peakCurrentKa.toFixed(2)}\\text{ kA}`,
+      formula: "Ip = κ · √2 · Ik\"",
+      substituted: `Ip = ${kappa} × 1.414 × ${inputs.threePhaseIscKa.toFixed(2)} kA = ${inputs.peakCurrentKa.toFixed(2)} kA`,
       description: "Maximum instantaneous peak value for electrodynamic stress verification.",
     });
   }
@@ -392,8 +395,8 @@ export function buildBreakerSizingTrace(inputs: BreakerSizingTraceInputs): Trace
   const steps: TraceStep[] = [
     {
       label: "Nominal Trip Rating Selection (In)",
-      formula: "I_b \\le I_n",
-      substituted: `${ib.toFixed(1)}\\text{ A} (I_b) \\le ${inRating}\\text{ A} (I_n)`,
+      formula: "Ib ≤ In",
+      substituted: `${ib.toFixed(1)} A (Ib) ≤ ${inRating} A (In)`,
       description: "Trip rating chosen from standard IEC ratings to carry continuous design current without nuisance tripping.",
     },
   ];
@@ -401,8 +404,8 @@ export function buildBreakerSizingTrace(inputs: BreakerSizingTraceInputs): Trace
   if (iz != null && iz > 0) {
     steps.push({
       label: "Cable Protection Overload Condition",
-      formula: "I_n \\le I_z",
-      substituted: `${inRating}\\text{ A} (I_n) \\le ${iz.toFixed(1)}\\text{ A} (I_z)`,
+      formula: "In ≤ Iz",
+      substituted: `${inRating} A (In) ≤ ${iz.toFixed(1)} A (Iz)`,
       description: "Guarantees the cable conductor is shielded from thermal overload damage.",
     });
   }
@@ -410,8 +413,8 @@ export function buildBreakerSizingTrace(inputs: BreakerSizingTraceInputs): Trace
   if (isc > 0) {
     steps.push({
       label: "Ultimate Breaking Capacity (Icu) Verification",
-      formula: "I_{cu} \\ge I_{sc,fault}",
-      substituted: `${icu}\\text{ kA} (I_{cu}) \\ge ${isc.toFixed(1)}\\text{ kA} (I_{sc})`,
+      formula: "Icu ≥ Isc,fault",
+      substituted: `${icu} kA (Icu) ≥ ${isc.toFixed(1)} kA (Isc)`,
       description: "Ensures breaker safely clears prospective short-circuit energy without destruction.",
     });
   }
@@ -435,7 +438,7 @@ export function buildBreakerSizingTrace(inputs: BreakerSizingTraceInputs): Trace
     parameters,
     compliance: {
       status: isPass ? "PASS" : "FAIL",
-      rule: "I_b \\le I_n \\le I_z \\land I_{cu} \\ge I_{sc}",
+      rule: "Ib ≤ In ≤ Iz  &  Icu ≥ Isc",
       actual: `${inRating} A / ${icu} kA`,
       limit: `Ib: ${ib.toFixed(1)}A | Isc: ${isc > 0 ? `${isc}kA` : "N/A"}`,
       margin: `+${(inRating - ib).toFixed(1)} A continuous margin`,
@@ -467,19 +470,19 @@ export function buildPhaseBalanceTrace(inputs: PhaseBalanceTraceInputs): TraceDe
 
   const steps: TraceStep[] = [
     {
-      label: "Average Phase Load (Pavg)",
-      formula: "P_{avg} = \\frac{L_1 + L_2 + L_3}{3}",
-      substituted: `P_{avg} = \\frac{${l1.toFixed(2)} + ${l2.toFixed(2)} + ${l3.toFixed(2)}}{3} = ${avg.toFixed(2)}\\text{ kW}`,
+      label: "Average Phase Load (P_avg)",
+      formula: "P_avg = (L1 + L2 + L3) / 3",
+      substituted: `P_avg = (${l1.toFixed(2)} + ${l2.toFixed(2)} + ${l3.toFixed(2)}) / 3 = ${avg.toFixed(2)} kW`,
     },
     {
-      label: "Maximum Phase Deviation (ΔPmax)",
-      formula: "\\Delta P_{max} = \\max(|L_1 - P_{avg}|, |L_2 - P_{avg}|, |L_3 - P_{avg}|)",
-      substituted: `\\Delta P_{max} = ${maxDev.toFixed(2)}\\text{ kW}`,
+      label: "Maximum Phase Deviation (ΔP_max)",
+      formula: "ΔP_max = max(|L1 - P_avg|, |L2 - P_avg|, |L3 - P_avg|)",
+      substituted: `ΔP_max = ${maxDev.toFixed(2)} kW`,
     },
     {
       label: "Phase Unbalance Percentage",
-      formula: "\\% \\text{Unbalance} = \\left( \\frac{\\Delta P_{max}}{P_{avg}} \\right) \\times 100\\%",
-      substituted: `\\% \\text{Unbalance} = \\left( \\frac{${maxDev.toFixed(2)}}{${avg.toFixed(2)}} \\right) \\times 100\\% = ${calcUnbalance.toFixed(2)}\\%`,
+      formula: "% Unbalance = (ΔP_max / P_avg) × 100%",
+      substituted: `% Unbalance = (${maxDev.toFixed(2)} kW / ${avg.toFixed(2)} kW) × 100% = ${calcUnbalance.toFixed(2)}%`,
     },
   ];
 
@@ -499,7 +502,7 @@ export function buildPhaseBalanceTrace(inputs: PhaseBalanceTraceInputs): TraceDe
     parameters,
     compliance: {
       status: passed ? "PASS" : "WARN",
-      rule: `\\% \\text{Unbalance} \\le ${limit.toFixed(1)}\\%`,
+      rule: `% Unbalance ≤ ${limit.toFixed(1)}%`,
       actual: `${inputs.unbalancePercent.toFixed(2)}%`,
       limit: `${limit.toFixed(1)}%`,
       margin: passed ? `+${(limit - inputs.unbalancePercent).toFixed(2)}% margin` : "Requires Phase Rebalancing",

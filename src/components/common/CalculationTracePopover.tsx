@@ -224,13 +224,23 @@ export function CalculationTracePopover({
                 )}
 
                 {/* Symbolic Formula */}
-                <div className="px-2.5 py-1.5 rounded-lg bg-slate-950 border border-slate-800/60 font-mono text-xs text-slate-200 overflow-x-auto tracking-wide whitespace-pre">
-                  {step.formula}
+                <div className="space-y-1">
+                  <div className="text-[9px] uppercase tracking-wider font-semibold text-slate-400">
+                    Formula:
+                  </div>
+                  <div className="px-2.5 py-1.5 rounded-lg bg-slate-950 border border-slate-800/60 font-mono text-xs text-slate-200 overflow-x-auto tracking-wide whitespace-pre">
+                    {step.formula}
+                  </div>
                 </div>
 
                 {/* Substituted Numerical Values */}
-                <div className="px-2.5 py-1.5 rounded-lg bg-orange-950/20 border border-orange-900/30 font-mono text-xs text-orange-200 overflow-x-auto tracking-wide font-medium whitespace-pre">
-                  {step.substituted}
+                <div className="space-y-1">
+                  <div className="text-[9px] uppercase tracking-wider font-semibold text-orange-400/90 flex items-center gap-1">
+                    <span>Applied Calculation:</span>
+                  </div>
+                  <div className="px-2.5 py-1.5 rounded-lg bg-orange-950/20 border border-orange-900/30 font-mono text-xs text-orange-200 overflow-x-auto tracking-wide font-medium whitespace-pre">
+                    {step.substituted}
+                  </div>
                 </div>
 
                 {step.description && (

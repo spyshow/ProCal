@@ -244,18 +244,23 @@ export function generateCurvePoints(settings: BreakerCurveSettings): CurvePoint[
 }
 
 // ---------------------------------------------------------------------------
-// 3. Cable Thermal Withstand (Adiabatic Equation IEC 60364-5-54)
+// 3. Cable Thermal Withstand (Adiabatic Equation IEC 60364-4-43)
 // ---------------------------------------------------------------------------
 
 /**
- * Calculates cable thermal damage withstand limit time in seconds per IEC 60364-5-54:
- * t = (k * S / I)^2
+ * Calculates cable thermal damage withstand limit time in seconds per IEC
+ * 60364-4-43 (Table 43.1): t = (k * S / I)^2
  *
- * Material factors (k):
- * - Copper + XLPE (90°C): k = 176
- * - Copper + PVC (70°C): k = 143
- * - Aluminum + XLPE (90°C): k = 116
- * - Aluminum + PVC (70°C): k = 95
+ * Live phase conductors protected by an OCPD use the -4-43 values (final temp
+ * = insulation limit). The higher -5-54 Annex A values (Cu 143/176) are for
+ * PE conductors permitted to reach 160/250 °C — using them here overstated
+ * withstand time ~54% and passed cables the real check fails.
+ *
+ * Material factors (k), Table 43.1:
+ * - Copper + PVC (70°C): k = 115
+ * - Copper + XLPE (90°C): k = 143
+ * - Aluminum + PVC (70°C): k = 76
+ * - Aluminum + XLPE (90°C): k = 94
  */
 export function calculateCableWithstandTime(
   cableInput: number | string,
@@ -276,8 +281,8 @@ export function calculateCableWithstandTime(
   if (currentAmps <= 0) return 10000;
 
   const k = material === 'copper'
-    ? (insulation === 'XLPE' ? 176 : 143)
-    : (insulation === 'XLPE' ? 116 : 95);
+    ? (insulation === 'XLPE' ? 143 : 115)
+    : (insulation === 'XLPE' ? 94 : 76);
 
   const t = Math.pow((k * effectiveArea) / currentAmps, 2);
   return Math.max(0.001, Math.min(10000, t));
@@ -421,7 +426,7 @@ export interface VerifyCoordinationOptions {
  * 2. Time Grading at 10x downstream In (margin >= 0.3s for MCCB-MCCB, 0.1s for MCCB-MCB)
  * 3. Energy Selectivity (I²t let-through comparison / tested manufacturer matrix)
  * 4. Selectivity Limit vs Prospective Fault Current (Isc)
- * 5. Cable Thermal Damage Withstand Check (IEC 60364-5-54)
+ * 5. Cable Thermal Damage Withstand Check (IEC 60364-4-43)
  */
 export function verifyCoordination(
   upstream: BreakerCurveSettings,

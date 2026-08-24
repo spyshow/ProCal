@@ -169,17 +169,17 @@ describe('interpolateTripTime (Log-Log Interpolation)', () => {
   });
 });
 
-describe('Cable Thermal Withstand (IEC 60364-5-54)', () => {
+describe('Cable Thermal Withstand (IEC 60364-4-43 Table 43.1)', () => {
   it('calculates adiabatic damage time t = (k*S/I)^2', () => {
-    // Copper + XLPE (k = 176), S = 50mm², I = 5000A
-    // t = (176 * 50 / 5000)^2 = (8800 / 5000)^2 = (1.76)^2 = 3.0976 s
+    // Copper + XLPE (k = 143), S = 50mm², I = 5000A
+    // t = (143 * 50 / 5000)^2 = (7150 / 5000)^2 = (1.43)^2 = 2.0449 s
     const t = calculateCableWithstandTime(50, 5000, 'copper', 'XLPE');
-    expect(t).toBeCloseTo(3.0976, 2);
+    expect(t).toBeCloseTo(2.0449, 2);
   });
 
   it('reflects PVC vs XLPE k-factor differences', () => {
-    const tXlpe = calculateCableWithstandTime(25, 2000, 'copper', 'XLPE'); // k=176
-    const tPvc = calculateCableWithstandTime(25, 2000, 'copper', 'PVC');   // k=143
+    const tXlpe = calculateCableWithstandTime(25, 2000, 'copper', 'XLPE'); // k=143
+    const tPvc = calculateCableWithstandTime(25, 2000, 'copper', 'PVC');   // k=115
     expect(tXlpe).toBeGreaterThan(tPvc);
   });
 
@@ -234,13 +234,15 @@ describe('Cable Thermal Withstand (IEC 60364-5-54)', () => {
       category: 'MCCB',
     };
 
-    // Single 16 mm²: withstand ≈ 0.02 s at 20 kA ≪ breaker trip ≈ 0.25 s.
-    expect(checkCableProtection(16, breaker, 20000, 'copper', 'XLPE')).toBe(false);
+    // Single 25 mm²: withstand ≈ 0.032 s at 20 kA ≪ breaker trip ≈ 0.25 s.
+    expect(checkCableProtection(25, breaker, 20000, 'copper', 'XLPE')).toBe(false);
 
-    // 4 × 16 mm² (64 mm² total): withstand ≈ 0.32 s clears every test point.
-    // The numeric size + runs must behave like the parsed "4 × 16 mm²" string.
-    expect(checkCableProtection(16, breaker, 20000, 'copper', 'XLPE', 4)).toBe(true);
-    expect(checkCableProtection('4 × 16 mm²', breaker, 20000, 'copper', 'XLPE')).toBe(true);
+    // 4 × 25 mm² (100 mm² total): withstand clears every test point under the
+    // Table 43.1 k=143 (the old -5-54 PE k=176 masked a genuine marginal case
+    // at 64 mm² — the 5×In point trips ~10.3 s vs withstand ~8.4 s).
+    // The numeric size + runs must behave like the parsed "4 × 25 mm²" string.
+    expect(checkCableProtection(25, breaker, 20000, 'copper', 'XLPE', 4)).toBe(true);
+    expect(checkCableProtection('4 × 25 mm²', breaker, 20000, 'copper', 'XLPE')).toBe(true);
   });
 
   it('verifyCoordination threads cableRuns into the cable-damage verdict', () => {
@@ -251,8 +253,8 @@ describe('Cable Thermal Withstand (IEC 60364-5-54)', () => {
       inRating: 630, ir: 480, tr: 12, category: 'MCCB',
     };
 
-    const singleRun = verifyCoordination(upstream, downstream, 20000, { cableSizeMm2: 16 });
-    const parallel = verifyCoordination(upstream, downstream, 20000, { cableSizeMm2: 16, cableRuns: 4 });
+    const singleRun = verifyCoordination(upstream, downstream, 20000, { cableSizeMm2: 25 });
+    const parallel = verifyCoordination(upstream, downstream, 20000, { cableSizeMm2: 25, cableRuns: 4 });
 
     expect(singleRun.cableDamageOk).toBe(false);
     expect(parallel.cableDamageOk).toBe(true);

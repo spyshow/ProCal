@@ -370,6 +370,15 @@ export function sizeCableAndBreaker(
 }
 
 /**
+ * Voltage base a circuit's ΔU% is measured against: line-to-line for 3-phase,
+ * line-to-neutral for 1-phase. Callers must NOT guess (a `=== 400 ? 400 : 230`
+ * binary breaks every non-400 V project).
+ */
+export function systemVoltageBase(voltageLL: number, isThreePhase: boolean): number {
+  return isThreePhase ? voltageLL : voltageLL / Math.sqrt(3);
+}
+
+/**
  * Calculates voltage drop (V) and percentage drop (%) over a cable run.
  * For parallel runs, effective impedance is Z / parallelRuns.
  */

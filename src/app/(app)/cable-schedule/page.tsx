@@ -13,6 +13,7 @@ import {
   getItemCableLength,
   getBuildingLoadCableLength,
   getRiserCableLength,
+  systemVoltageBase,
 } from '@/lib/calculations/cables';
 import { isThreePhaseForItem } from '@/lib/calculations/feeders';
 import { phaseBalance } from '@/lib/calculations/phaseBalance';
@@ -224,7 +225,7 @@ export default function CableSchedulePage() {
             existingCableSize: cableSizeNum,
             existingRuns: runs,
             powerFactor: project.powerFactor || 0.85,
-            systemVoltage: project.voltage === 400 ? 400 : 230,
+            systemVoltage: systemVoltageBase(project.voltage || 400, isThreePhase),
             maxVoltageDropPercent: limits.power,
             method,
             insulation,
@@ -309,7 +310,7 @@ export default function CableSchedulePage() {
           existingCableSize: cableSizeNum,
           existingRuns: runs,
           powerFactor: project.powerFactor || 0.85,
-          systemVoltage: project.voltage === 400 ? 400 : 230,
+          systemVoltage: systemVoltageBase(project.voltage || 400, isThreePhase),
           maxVoltageDropPercent: limits.power,
           method,
           insulation,
@@ -356,8 +357,10 @@ export default function CableSchedulePage() {
       // SDBs (Sub-Distribution Boards) for floors with hasFloorSubPanels=true
       for (const fd of bldg.floorDesigns) {
         if (!fd.hasFloorSubPanels) continue;
-        const floorDemand = fd.items.reduce((s, item) => s + item.calculatedMaxDemand, 0);
-        const floorCurrent = floorDemand / (Math.sqrt(3) * (project.voltage / 1000) * project.powerFactor);
+        // Riser current = worst-case per-phase current from the same imbalance-
+        // aware balance used by the panel/riser pages (NOT the lumped √3
+        // average, which under-sizes when phases are unevenly loaded).
+        const floorCurrent = phaseBalance((fd.items || []) as any, project as any).maxPhaseCurrent;
         const parsed = parseCableSize(fd.riserCableSize);
         const cableSizeNum = parsed?.size ?? 120;
         const runs = parsed?.runs ?? 1;
@@ -376,7 +379,8 @@ export default function CableSchedulePage() {
           existingCableSize: cableSizeNum,
           existingRuns: runs,
           powerFactor: project.powerFactor || 0.85,
-          systemVoltage: project.voltage === 400 ? 400 : 230,
+          // Riser feeds the SDB — always a 3-phase circuit.
+          systemVoltage: systemVoltageBase(project.voltage || 400, true),
           maxVoltageDropPercent: limits.power,
           method: sdbMethod,
           insulation: sdbInsulation,
@@ -444,7 +448,7 @@ export default function CableSchedulePage() {
         existingCableSize: c.cableSize,
         existingRuns: targetRuns ?? c.parallelRuns,
         powerFactor: project?.powerFactor || 0.85,
-        systemVoltage: project?.voltage === 400 ? 400 : 230,
+        systemVoltage: systemVoltageBase(project?.voltage || 400, c.isThreePhase),
         maxVoltageDropPercent: limits.power,
         method: newMethod,
         insulation: newInsulation,
@@ -527,7 +531,7 @@ export default function CableSchedulePage() {
         existingCableSize: c.cableSize,
         existingRuns: c.parallelRuns,
         powerFactor: project?.powerFactor || 0.85,
-        systemVoltage: project?.voltage === 400 ? 400 : 230,
+        systemVoltage: systemVoltageBase(project?.voltage || 400, c.isThreePhase),
         maxVoltageDropPercent: limits.power,
         method: c.method,
         insulation: c.insulation,
@@ -588,7 +592,7 @@ export default function CableSchedulePage() {
             existingCableSize: newSize,
             existingRuns: newRuns,
             powerFactor: project?.powerFactor || 0.85,
-            systemVoltage: project?.voltage === 400 ? 400 : 230,
+            systemVoltage: systemVoltageBase(project?.voltage || 400, c.isThreePhase),
             maxVoltageDropPercent: limits.power,
             method: c.method,
             insulation: c.insulation,
@@ -666,7 +670,7 @@ export default function CableSchedulePage() {
           existingCableSize: c.cableSize,
           existingRuns: c.parallelRuns,
           powerFactor: project?.powerFactor || 0.85,
-          systemVoltage: project?.voltage === 400 ? 400 : 230,
+          systemVoltage: systemVoltageBase(project?.voltage || 400, c.isThreePhase),
           maxVoltageDropPercent: limits.power,
           method: defaultMethod,
           insulation: defaultInsulation,

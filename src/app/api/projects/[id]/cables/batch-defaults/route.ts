@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { verifyProjectAccess } from "@/lib/project-auth";
+import { errorResponse } from "@/lib/api-errors";
+import { assertInRange, assertNonNegative, CalculationError } from "@/lib/calculations/validate";
 
 export async function POST(
   request: Request,
@@ -28,6 +30,16 @@ export async function POST(
       groupingCount,
     } = body;
 
+    // These feed the derating factors in the calc engine — reject garbage
+    // before it lands on every cable in the project.
+    const temp = ambientTemp !== undefined ? Number(ambientTemp) : undefined;
+    if (temp !== undefined) assertInRange("ambientTemp (°C)", temp, -30, 90);
+    const grouping = groupingCount !== undefined ? Number(groupingCount) : undefined;
+    if (grouping !== undefined) {
+      assertNonNegative("groupingCount", grouping);
+      if (!Number.isInteger(grouping)) throw new CalculationError("groupingCount must be an integer");
+    }
+
     const updates = [
       // Update all floor items in this project
       db.floorItem.updateMany({
@@ -42,8 +54,8 @@ export async function POST(
           installMethod: installMethod ?? undefined,
           cableInsulation: cableInsulation ?? undefined,
           cableMaterial: cableMaterial ?? undefined,
-          ambientTemp: ambientTemp !== undefined ? Number(ambientTemp) : undefined,
-          groupingCount: groupingCount !== undefined ? Number(groupingCount) : undefined,
+          ambientTemp: temp ?? undefined,
+          groupingCount: grouping ?? undefined,
         },
       }),
 
@@ -58,8 +70,8 @@ export async function POST(
           installMethod: installMethod ?? undefined,
           cableInsulation: cableInsulation ?? undefined,
           cableMaterial: cableMaterial ?? undefined,
-          ambientTemp: ambientTemp !== undefined ? Number(ambientTemp) : undefined,
-          groupingCount: groupingCount !== undefined ? Number(groupingCount) : undefined,
+          ambientTemp: temp ?? undefined,
+          groupingCount: grouping ?? undefined,
         },
       }),
 
@@ -74,8 +86,8 @@ export async function POST(
           riserInstallMethod: installMethod ?? undefined,
           riserCableInsulation: cableInsulation ?? undefined,
           riserCableMaterial: cableMaterial ?? undefined,
-          riserAmbientTemp: ambientTemp !== undefined ? Number(ambientTemp) : undefined,
-          riserGroupingCount: groupingCount !== undefined ? Number(groupingCount) : undefined,
+          riserAmbientTemp: temp ?? undefined,
+          riserGroupingCount: grouping ?? undefined,
         },
       }),
     ];
@@ -89,7 +101,6 @@ export async function POST(
       updatedFloorRisings: results[2].count,
     });
   } catch (error) {
-    console.error("POST /api/projects/[id]/cables/batch-defaults error:", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    return errorResponse(error, "POST batch-defaults Error");
   }
 }

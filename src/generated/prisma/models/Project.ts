@@ -76,6 +76,7 @@ export type ProjectMinAggregateOutputType = {
   maxVoltageDropPower: number | null
   ambientTemp: number | null
   groupingCount: number | null
+  engineVersion: string | null
   userId: string | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -107,6 +108,7 @@ export type ProjectMaxAggregateOutputType = {
   maxVoltageDropPower: number | null
   ambientTemp: number | null
   groupingCount: number | null
+  engineVersion: string | null
   userId: string | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -138,6 +140,7 @@ export type ProjectCountAggregateOutputType = {
   maxVoltageDropPower: number
   ambientTemp: number
   groupingCount: number
+  engineVersion: number
   userId: number
   createdAt: number
   updatedAt: number
@@ -195,6 +198,7 @@ export type ProjectMinAggregateInputType = {
   maxVoltageDropPower?: true
   ambientTemp?: true
   groupingCount?: true
+  engineVersion?: true
   userId?: true
   createdAt?: true
   updatedAt?: true
@@ -226,6 +230,7 @@ export type ProjectMaxAggregateInputType = {
   maxVoltageDropPower?: true
   ambientTemp?: true
   groupingCount?: true
+  engineVersion?: true
   userId?: true
   createdAt?: true
   updatedAt?: true
@@ -257,6 +262,7 @@ export type ProjectCountAggregateInputType = {
   maxVoltageDropPower?: true
   ambientTemp?: true
   groupingCount?: true
+  engineVersion?: true
   userId?: true
   createdAt?: true
   updatedAt?: true
@@ -375,6 +381,7 @@ export type ProjectGroupByOutputType = {
   maxVoltageDropPower: number
   ambientTemp: number | null
   groupingCount: number | null
+  engineVersion: string | null
   userId: string
   createdAt: Date
   updatedAt: Date
@@ -429,6 +436,7 @@ export type ProjectWhereInput = {
   maxVoltageDropPower?: Prisma.FloatFilter<"Project"> | number
   ambientTemp?: Prisma.FloatNullableFilter<"Project"> | number | null
   groupingCount?: Prisma.IntNullableFilter<"Project"> | number | null
+  engineVersion?: Prisma.StringNullableFilter<"Project"> | string | null
   userId?: Prisma.StringFilter<"Project"> | string
   createdAt?: Prisma.DateTimeFilter<"Project"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Project"> | Date | string
@@ -472,6 +480,7 @@ export type ProjectOrderByWithRelationInput = {
   maxVoltageDropPower?: Prisma.SortOrder
   ambientTemp?: Prisma.SortOrderInput | Prisma.SortOrder
   groupingCount?: Prisma.SortOrderInput | Prisma.SortOrder
+  engineVersion?: Prisma.SortOrderInput | Prisma.SortOrder
   userId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -518,6 +527,7 @@ export type ProjectWhereUniqueInput = Prisma.AtLeast<{
   maxVoltageDropPower?: Prisma.FloatFilter<"Project"> | number
   ambientTemp?: Prisma.FloatNullableFilter<"Project"> | number | null
   groupingCount?: Prisma.IntNullableFilter<"Project"> | number | null
+  engineVersion?: Prisma.StringNullableFilter<"Project"> | string | null
   userId?: Prisma.StringFilter<"Project"> | string
   createdAt?: Prisma.DateTimeFilter<"Project"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Project"> | Date | string
@@ -561,6 +571,7 @@ export type ProjectOrderByWithAggregationInput = {
   maxVoltageDropPower?: Prisma.SortOrder
   ambientTemp?: Prisma.SortOrderInput | Prisma.SortOrder
   groupingCount?: Prisma.SortOrderInput | Prisma.SortOrder
+  engineVersion?: Prisma.SortOrderInput | Prisma.SortOrder
   userId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -600,6 +611,7 @@ export type ProjectScalarWhereWithAggregatesInput = {
   maxVoltageDropPower?: Prisma.FloatWithAggregatesFilter<"Project"> | number
   ambientTemp?: Prisma.FloatNullableWithAggregatesFilter<"Project"> | number | null
   groupingCount?: Prisma.IntNullableWithAggregatesFilter<"Project"> | number | null
+  engineVersion?: Prisma.StringNullableWithAggregatesFilter<"Project"> | string | null
   userId?: Prisma.StringWithAggregatesFilter<"Project"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Project"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Project"> | Date | string
@@ -628,6 +640,7 @@ export type ProjectCreateInput = {
   maxVoltageDropPower?: number
   ambientTemp?: number | null
   groupingCount?: number | null
+  engineVersion?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   defaultAcbFamily?: Prisma.BreakerFamilyCreateNestedOneWithoutDefaultAcbInput
@@ -670,6 +683,7 @@ export type ProjectUncheckedCreateInput = {
   maxVoltageDropPower?: number
   ambientTemp?: number | null
   groupingCount?: number | null
+  engineVersion?: string | null
   userId: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -706,6 +720,7 @@ export type ProjectUpdateInput = {
   maxVoltageDropPower?: Prisma.FloatFieldUpdateOperationsInput | number
   ambientTemp?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   groupingCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  engineVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   defaultAcbFamily?: Prisma.BreakerFamilyUpdateOneWithoutDefaultAcbNestedInput
@@ -748,6 +763,7 @@ export type ProjectUncheckedUpdateInput = {
   maxVoltageDropPower?: Prisma.FloatFieldUpdateOperationsInput | number
   ambientTemp?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   groupingCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  engineVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -787,6 +803,7 @@ export type ProjectCreateManyInput = {
   maxVoltageDropPower?: number
   ambientTemp?: number | null
   groupingCount?: number | null
+  engineVersion?: string | null
   userId: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -815,6 +832,7 @@ export type ProjectUpdateManyMutationInput = {
   maxVoltageDropPower?: Prisma.FloatFieldUpdateOperationsInput | number
   ambientTemp?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   groupingCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  engineVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -845,6 +863,7 @@ export type ProjectUncheckedUpdateManyInput = {
   maxVoltageDropPower?: Prisma.FloatFieldUpdateOperationsInput | number
   ambientTemp?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   groupingCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  engineVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -886,6 +905,7 @@ export type ProjectCountOrderByAggregateInput = {
   maxVoltageDropPower?: Prisma.SortOrder
   ambientTemp?: Prisma.SortOrder
   groupingCount?: Prisma.SortOrder
+  engineVersion?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -929,6 +949,7 @@ export type ProjectMaxOrderByAggregateInput = {
   maxVoltageDropPower?: Prisma.SortOrder
   ambientTemp?: Prisma.SortOrder
   groupingCount?: Prisma.SortOrder
+  engineVersion?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -960,6 +981,7 @@ export type ProjectMinOrderByAggregateInput = {
   maxVoltageDropPower?: Prisma.SortOrder
   ambientTemp?: Prisma.SortOrder
   groupingCount?: Prisma.SortOrder
+  engineVersion?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -1301,6 +1323,7 @@ export type ProjectCreateWithoutUserInput = {
   maxVoltageDropPower?: number
   ambientTemp?: number | null
   groupingCount?: number | null
+  engineVersion?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   defaultAcbFamily?: Prisma.BreakerFamilyCreateNestedOneWithoutDefaultAcbInput
@@ -1342,6 +1365,7 @@ export type ProjectUncheckedCreateWithoutUserInput = {
   maxVoltageDropPower?: number
   ambientTemp?: number | null
   groupingCount?: number | null
+  engineVersion?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   buildings?: Prisma.BuildingUncheckedCreateNestedManyWithoutProjectInput
@@ -1409,6 +1433,7 @@ export type ProjectScalarWhereInput = {
   maxVoltageDropPower?: Prisma.FloatFilter<"Project"> | number
   ambientTemp?: Prisma.FloatNullableFilter<"Project"> | number | null
   groupingCount?: Prisma.IntNullableFilter<"Project"> | number | null
+  engineVersion?: Prisma.StringNullableFilter<"Project"> | string | null
   userId?: Prisma.StringFilter<"Project"> | string
   createdAt?: Prisma.DateTimeFilter<"Project"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Project"> | Date | string
@@ -1437,6 +1462,7 @@ export type ProjectCreateWithoutMembersInput = {
   maxVoltageDropPower?: number
   ambientTemp?: number | null
   groupingCount?: number | null
+  engineVersion?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   defaultAcbFamily?: Prisma.BreakerFamilyCreateNestedOneWithoutDefaultAcbInput
@@ -1478,6 +1504,7 @@ export type ProjectUncheckedCreateWithoutMembersInput = {
   maxVoltageDropPower?: number
   ambientTemp?: number | null
   groupingCount?: number | null
+  engineVersion?: string | null
   userId: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1529,6 +1556,7 @@ export type ProjectUpdateWithoutMembersInput = {
   maxVoltageDropPower?: Prisma.FloatFieldUpdateOperationsInput | number
   ambientTemp?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   groupingCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  engineVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   defaultAcbFamily?: Prisma.BreakerFamilyUpdateOneWithoutDefaultAcbNestedInput
@@ -1570,6 +1598,7 @@ export type ProjectUncheckedUpdateWithoutMembersInput = {
   maxVoltageDropPower?: Prisma.FloatFieldUpdateOperationsInput | number
   ambientTemp?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   groupingCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  engineVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1605,6 +1634,7 @@ export type ProjectCreateWithoutInvitesInput = {
   maxVoltageDropPower?: number
   ambientTemp?: number | null
   groupingCount?: number | null
+  engineVersion?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   defaultAcbFamily?: Prisma.BreakerFamilyCreateNestedOneWithoutDefaultAcbInput
@@ -1646,6 +1676,7 @@ export type ProjectUncheckedCreateWithoutInvitesInput = {
   maxVoltageDropPower?: number
   ambientTemp?: number | null
   groupingCount?: number | null
+  engineVersion?: string | null
   userId: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1697,6 +1728,7 @@ export type ProjectUpdateWithoutInvitesInput = {
   maxVoltageDropPower?: Prisma.FloatFieldUpdateOperationsInput | number
   ambientTemp?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   groupingCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  engineVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   defaultAcbFamily?: Prisma.BreakerFamilyUpdateOneWithoutDefaultAcbNestedInput
@@ -1738,6 +1770,7 @@ export type ProjectUncheckedUpdateWithoutInvitesInput = {
   maxVoltageDropPower?: Prisma.FloatFieldUpdateOperationsInput | number
   ambientTemp?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   groupingCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  engineVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1773,6 +1806,7 @@ export type ProjectCreateWithoutAuditLogsInput = {
   maxVoltageDropPower?: number
   ambientTemp?: number | null
   groupingCount?: number | null
+  engineVersion?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   defaultAcbFamily?: Prisma.BreakerFamilyCreateNestedOneWithoutDefaultAcbInput
@@ -1814,6 +1848,7 @@ export type ProjectUncheckedCreateWithoutAuditLogsInput = {
   maxVoltageDropPower?: number
   ambientTemp?: number | null
   groupingCount?: number | null
+  engineVersion?: string | null
   userId: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1865,6 +1900,7 @@ export type ProjectUpdateWithoutAuditLogsInput = {
   maxVoltageDropPower?: Prisma.FloatFieldUpdateOperationsInput | number
   ambientTemp?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   groupingCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  engineVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   defaultAcbFamily?: Prisma.BreakerFamilyUpdateOneWithoutDefaultAcbNestedInput
@@ -1906,6 +1942,7 @@ export type ProjectUncheckedUpdateWithoutAuditLogsInput = {
   maxVoltageDropPower?: Prisma.FloatFieldUpdateOperationsInput | number
   ambientTemp?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   groupingCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  engineVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1941,6 +1978,7 @@ export type ProjectCreateWithoutReviewItemsInput = {
   maxVoltageDropPower?: number
   ambientTemp?: number | null
   groupingCount?: number | null
+  engineVersion?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   defaultAcbFamily?: Prisma.BreakerFamilyCreateNestedOneWithoutDefaultAcbInput
@@ -1982,6 +2020,7 @@ export type ProjectUncheckedCreateWithoutReviewItemsInput = {
   maxVoltageDropPower?: number
   ambientTemp?: number | null
   groupingCount?: number | null
+  engineVersion?: string | null
   userId: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -2033,6 +2072,7 @@ export type ProjectUpdateWithoutReviewItemsInput = {
   maxVoltageDropPower?: Prisma.FloatFieldUpdateOperationsInput | number
   ambientTemp?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   groupingCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  engineVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   defaultAcbFamily?: Prisma.BreakerFamilyUpdateOneWithoutDefaultAcbNestedInput
@@ -2074,6 +2114,7 @@ export type ProjectUncheckedUpdateWithoutReviewItemsInput = {
   maxVoltageDropPower?: Prisma.FloatFieldUpdateOperationsInput | number
   ambientTemp?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   groupingCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  engineVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2109,6 +2150,7 @@ export type ProjectCreateWithoutRevisionsInput = {
   maxVoltageDropPower?: number
   ambientTemp?: number | null
   groupingCount?: number | null
+  engineVersion?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   defaultAcbFamily?: Prisma.BreakerFamilyCreateNestedOneWithoutDefaultAcbInput
@@ -2150,6 +2192,7 @@ export type ProjectUncheckedCreateWithoutRevisionsInput = {
   maxVoltageDropPower?: number
   ambientTemp?: number | null
   groupingCount?: number | null
+  engineVersion?: string | null
   userId: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -2201,6 +2244,7 @@ export type ProjectUpdateWithoutRevisionsInput = {
   maxVoltageDropPower?: Prisma.FloatFieldUpdateOperationsInput | number
   ambientTemp?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   groupingCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  engineVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   defaultAcbFamily?: Prisma.BreakerFamilyUpdateOneWithoutDefaultAcbNestedInput
@@ -2242,6 +2286,7 @@ export type ProjectUncheckedUpdateWithoutRevisionsInput = {
   maxVoltageDropPower?: Prisma.FloatFieldUpdateOperationsInput | number
   ambientTemp?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   groupingCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  engineVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2277,6 +2322,7 @@ export type ProjectCreateWithoutBuildingsInput = {
   maxVoltageDropPower?: number
   ambientTemp?: number | null
   groupingCount?: number | null
+  engineVersion?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   defaultAcbFamily?: Prisma.BreakerFamilyCreateNestedOneWithoutDefaultAcbInput
@@ -2318,6 +2364,7 @@ export type ProjectUncheckedCreateWithoutBuildingsInput = {
   maxVoltageDropPower?: number
   ambientTemp?: number | null
   groupingCount?: number | null
+  engineVersion?: string | null
   userId: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -2369,6 +2416,7 @@ export type ProjectUpdateWithoutBuildingsInput = {
   maxVoltageDropPower?: Prisma.FloatFieldUpdateOperationsInput | number
   ambientTemp?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   groupingCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  engineVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   defaultAcbFamily?: Prisma.BreakerFamilyUpdateOneWithoutDefaultAcbNestedInput
@@ -2410,6 +2458,7 @@ export type ProjectUncheckedUpdateWithoutBuildingsInput = {
   maxVoltageDropPower?: Prisma.FloatFieldUpdateOperationsInput | number
   ambientTemp?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   groupingCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  engineVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2445,6 +2494,7 @@ export type ProjectCreateWithoutApartmentTemplatesInput = {
   maxVoltageDropPower?: number
   ambientTemp?: number | null
   groupingCount?: number | null
+  engineVersion?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   defaultAcbFamily?: Prisma.BreakerFamilyCreateNestedOneWithoutDefaultAcbInput
@@ -2486,6 +2536,7 @@ export type ProjectUncheckedCreateWithoutApartmentTemplatesInput = {
   maxVoltageDropPower?: number
   ambientTemp?: number | null
   groupingCount?: number | null
+  engineVersion?: string | null
   userId: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -2537,6 +2588,7 @@ export type ProjectUpdateWithoutApartmentTemplatesInput = {
   maxVoltageDropPower?: Prisma.FloatFieldUpdateOperationsInput | number
   ambientTemp?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   groupingCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  engineVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   defaultAcbFamily?: Prisma.BreakerFamilyUpdateOneWithoutDefaultAcbNestedInput
@@ -2578,6 +2630,7 @@ export type ProjectUncheckedUpdateWithoutApartmentTemplatesInput = {
   maxVoltageDropPower?: Prisma.FloatFieldUpdateOperationsInput | number
   ambientTemp?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   groupingCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  engineVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2613,6 +2666,7 @@ export type ProjectCreateWithoutLoadLibraryItemsInput = {
   maxVoltageDropPower?: number
   ambientTemp?: number | null
   groupingCount?: number | null
+  engineVersion?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   defaultAcbFamily?: Prisma.BreakerFamilyCreateNestedOneWithoutDefaultAcbInput
@@ -2654,6 +2708,7 @@ export type ProjectUncheckedCreateWithoutLoadLibraryItemsInput = {
   maxVoltageDropPower?: number
   ambientTemp?: number | null
   groupingCount?: number | null
+  engineVersion?: string | null
   userId: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -2705,6 +2760,7 @@ export type ProjectUpdateWithoutLoadLibraryItemsInput = {
   maxVoltageDropPower?: Prisma.FloatFieldUpdateOperationsInput | number
   ambientTemp?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   groupingCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  engineVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   defaultAcbFamily?: Prisma.BreakerFamilyUpdateOneWithoutDefaultAcbNestedInput
@@ -2746,6 +2802,7 @@ export type ProjectUncheckedUpdateWithoutLoadLibraryItemsInput = {
   maxVoltageDropPower?: Prisma.FloatFieldUpdateOperationsInput | number
   ambientTemp?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   groupingCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  engineVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2781,6 +2838,7 @@ export type ProjectCreateWithoutDefaultAcbFamilyInput = {
   maxVoltageDropPower?: number
   ambientTemp?: number | null
   groupingCount?: number | null
+  engineVersion?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   defaultMccbFamily?: Prisma.BreakerFamilyCreateNestedOneWithoutDefaultMccbInput
@@ -2821,6 +2879,7 @@ export type ProjectUncheckedCreateWithoutDefaultAcbFamilyInput = {
   maxVoltageDropPower?: number
   ambientTemp?: number | null
   groupingCount?: number | null
+  engineVersion?: string | null
   userId: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -2867,6 +2926,7 @@ export type ProjectCreateWithoutDefaultMccbFamilyInput = {
   maxVoltageDropPower?: number
   ambientTemp?: number | null
   groupingCount?: number | null
+  engineVersion?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   defaultAcbFamily?: Prisma.BreakerFamilyCreateNestedOneWithoutDefaultAcbInput
@@ -2907,6 +2967,7 @@ export type ProjectUncheckedCreateWithoutDefaultMccbFamilyInput = {
   maxVoltageDropPower?: number
   ambientTemp?: number | null
   groupingCount?: number | null
+  engineVersion?: string | null
   userId: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -2953,6 +3014,7 @@ export type ProjectCreateWithoutDefaultMcbFamilyInput = {
   maxVoltageDropPower?: number
   ambientTemp?: number | null
   groupingCount?: number | null
+  engineVersion?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   defaultAcbFamily?: Prisma.BreakerFamilyCreateNestedOneWithoutDefaultAcbInput
@@ -2993,6 +3055,7 @@ export type ProjectUncheckedCreateWithoutDefaultMcbFamilyInput = {
   maxVoltageDropPower?: number
   ambientTemp?: number | null
   groupingCount?: number | null
+  engineVersion?: string | null
   userId: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -3090,6 +3153,7 @@ export type ProjectCreateManyUserInput = {
   maxVoltageDropPower?: number
   ambientTemp?: number | null
   groupingCount?: number | null
+  engineVersion?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -3117,6 +3181,7 @@ export type ProjectUpdateWithoutUserInput = {
   maxVoltageDropPower?: Prisma.FloatFieldUpdateOperationsInput | number
   ambientTemp?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   groupingCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  engineVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   defaultAcbFamily?: Prisma.BreakerFamilyUpdateOneWithoutDefaultAcbNestedInput
@@ -3158,6 +3223,7 @@ export type ProjectUncheckedUpdateWithoutUserInput = {
   maxVoltageDropPower?: Prisma.FloatFieldUpdateOperationsInput | number
   ambientTemp?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   groupingCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  engineVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   buildings?: Prisma.BuildingUncheckedUpdateManyWithoutProjectNestedInput
@@ -3196,6 +3262,7 @@ export type ProjectUncheckedUpdateManyWithoutUserInput = {
   maxVoltageDropPower?: Prisma.FloatFieldUpdateOperationsInput | number
   ambientTemp?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   groupingCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  engineVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -3225,6 +3292,7 @@ export type ProjectCreateManyDefaultAcbFamilyInput = {
   maxVoltageDropPower?: number
   ambientTemp?: number | null
   groupingCount?: number | null
+  engineVersion?: string | null
   userId: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -3255,6 +3323,7 @@ export type ProjectCreateManyDefaultMccbFamilyInput = {
   maxVoltageDropPower?: number
   ambientTemp?: number | null
   groupingCount?: number | null
+  engineVersion?: string | null
   userId: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -3285,6 +3354,7 @@ export type ProjectCreateManyDefaultMcbFamilyInput = {
   maxVoltageDropPower?: number
   ambientTemp?: number | null
   groupingCount?: number | null
+  engineVersion?: string | null
   userId: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -3313,6 +3383,7 @@ export type ProjectUpdateWithoutDefaultAcbFamilyInput = {
   maxVoltageDropPower?: Prisma.FloatFieldUpdateOperationsInput | number
   ambientTemp?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   groupingCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  engineVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   defaultMccbFamily?: Prisma.BreakerFamilyUpdateOneWithoutDefaultMccbNestedInput
@@ -3353,6 +3424,7 @@ export type ProjectUncheckedUpdateWithoutDefaultAcbFamilyInput = {
   maxVoltageDropPower?: Prisma.FloatFieldUpdateOperationsInput | number
   ambientTemp?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   groupingCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  engineVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3391,6 +3463,7 @@ export type ProjectUncheckedUpdateManyWithoutDefaultAcbFamilyInput = {
   maxVoltageDropPower?: Prisma.FloatFieldUpdateOperationsInput | number
   ambientTemp?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   groupingCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  engineVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3419,6 +3492,7 @@ export type ProjectUpdateWithoutDefaultMccbFamilyInput = {
   maxVoltageDropPower?: Prisma.FloatFieldUpdateOperationsInput | number
   ambientTemp?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   groupingCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  engineVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   defaultAcbFamily?: Prisma.BreakerFamilyUpdateOneWithoutDefaultAcbNestedInput
@@ -3459,6 +3533,7 @@ export type ProjectUncheckedUpdateWithoutDefaultMccbFamilyInput = {
   maxVoltageDropPower?: Prisma.FloatFieldUpdateOperationsInput | number
   ambientTemp?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   groupingCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  engineVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3497,6 +3572,7 @@ export type ProjectUncheckedUpdateManyWithoutDefaultMccbFamilyInput = {
   maxVoltageDropPower?: Prisma.FloatFieldUpdateOperationsInput | number
   ambientTemp?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   groupingCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  engineVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3525,6 +3601,7 @@ export type ProjectUpdateWithoutDefaultMcbFamilyInput = {
   maxVoltageDropPower?: Prisma.FloatFieldUpdateOperationsInput | number
   ambientTemp?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   groupingCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  engineVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   defaultAcbFamily?: Prisma.BreakerFamilyUpdateOneWithoutDefaultAcbNestedInput
@@ -3565,6 +3642,7 @@ export type ProjectUncheckedUpdateWithoutDefaultMcbFamilyInput = {
   maxVoltageDropPower?: Prisma.FloatFieldUpdateOperationsInput | number
   ambientTemp?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   groupingCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  engineVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3603,6 +3681,7 @@ export type ProjectUncheckedUpdateManyWithoutDefaultMcbFamilyInput = {
   maxVoltageDropPower?: Prisma.FloatFieldUpdateOperationsInput | number
   ambientTemp?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   groupingCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  engineVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3728,6 +3807,7 @@ export type ProjectSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   maxVoltageDropPower?: boolean
   ambientTemp?: boolean
   groupingCount?: boolean
+  engineVersion?: boolean
   userId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -3772,6 +3852,7 @@ export type ProjectSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   maxVoltageDropPower?: boolean
   ambientTemp?: boolean
   groupingCount?: boolean
+  engineVersion?: boolean
   userId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -3807,6 +3888,7 @@ export type ProjectSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   maxVoltageDropPower?: boolean
   ambientTemp?: boolean
   groupingCount?: boolean
+  engineVersion?: boolean
   userId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -3842,12 +3924,13 @@ export type ProjectSelectScalar = {
   maxVoltageDropPower?: boolean
   ambientTemp?: boolean
   groupingCount?: boolean
+  engineVersion?: boolean
   userId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type ProjectOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "client" | "consultant" | "contractor" | "location" | "engineer" | "date" | "voltage" | "frequency" | "powerFactor" | "maxDemandFactor" | "transformerSize" | "notes" | "preferredManufacturer" | "defaultAcbFamilyId" | "defaultMccbFamilyId" | "defaultMcbFamilyId" | "country" | "logoUrl" | "calculationStandard" | "maxVoltageDropLighting" | "maxVoltageDropPower" | "ambientTemp" | "groupingCount" | "userId" | "createdAt" | "updatedAt", ExtArgs["result"]["project"]>
+export type ProjectOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "client" | "consultant" | "contractor" | "location" | "engineer" | "date" | "voltage" | "frequency" | "powerFactor" | "maxDemandFactor" | "transformerSize" | "notes" | "preferredManufacturer" | "defaultAcbFamilyId" | "defaultMccbFamilyId" | "defaultMcbFamilyId" | "country" | "logoUrl" | "calculationStandard" | "maxVoltageDropLighting" | "maxVoltageDropPower" | "ambientTemp" | "groupingCount" | "engineVersion" | "userId" | "createdAt" | "updatedAt", ExtArgs["result"]["project"]>
 export type ProjectInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   defaultAcbFamily?: boolean | Prisma.Project$defaultAcbFamilyArgs<ExtArgs>
   defaultMccbFamily?: boolean | Prisma.Project$defaultMccbFamilyArgs<ExtArgs>
@@ -3918,6 +4001,7 @@ export type $ProjectPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     maxVoltageDropPower: number
     ambientTemp: number | null
     groupingCount: number | null
+    engineVersion: string | null
     userId: string
     createdAt: Date
     updatedAt: Date
@@ -4381,6 +4465,7 @@ export interface ProjectFieldRefs {
   readonly maxVoltageDropPower: Prisma.FieldRef<"Project", 'Float'>
   readonly ambientTemp: Prisma.FieldRef<"Project", 'Float'>
   readonly groupingCount: Prisma.FieldRef<"Project", 'Int'>
+  readonly engineVersion: Prisma.FieldRef<"Project", 'String'>
   readonly userId: Prisma.FieldRef<"Project", 'String'>
   readonly createdAt: Prisma.FieldRef<"Project", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Project", 'DateTime'>

@@ -143,6 +143,7 @@ export const ProjectScalarFieldEnum = {
   maxVoltageDropPower: 'maxVoltageDropPower',
   ambientTemp: 'ambientTemp',
   groupingCount: 'groupingCount',
+  engineVersion: 'engineVersion',
   userId: 'userId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'

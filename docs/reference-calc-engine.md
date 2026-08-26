@@ -62,6 +62,7 @@ declare function sizeGenerator(essentialDemandKva: number, largestMotorKva: numb
 
 ```ts
 export const STANDARD_BREAKERS = [6,10,13,16,20,25,32,40,50,63,80,100,125,160,200,250,320,400,500,630,800,1000,1250,1600,2000,2500];
+// (= codes.ts IEC_BREAKER_RATINGS; kept as a compat re-export)
 
 export interface VoltageDropConstraint {
   lengthMeters: number;
@@ -112,7 +113,10 @@ export function calculateVoltageDrop(
 authority for sizing (the SLD cable editor and trace engine delegate to it rather
 than re-implementing):
 
-1. **Breaker** — smallest `STANDARD_BREAKERS[i] ≥ ib`, clamps to the largest.
+1. **Breaker** — smallest standard rating ≥ ib, clamps to the largest. The catalog
+   comes from the project's code: `nextBreakerRating(ib, code)` (see codes.ts below);
+   IEC projects use `STANDARD_BREAKERS`, NEC/NEMA projects use the NEC 240.6(A) list.
+   A `manualBreakerRating` option overrides the catalog entirely.
 2. **Derating** — per-method ampacity tables already carry the installation-method
    effect; remaining multipliers are `TEMP_DERATING[insulation][ambientTemp]`
    × `GROUP_DERATING[groupingCount]` (both default 1.0 / from tables).
@@ -317,6 +321,26 @@ corrupted or a formula changed: **fix the constant, never the expectation.**
 Bumped when calculation semantics change; the recalculate routes stamp it on
 `Project.engineVersion`. A project whose stamp is older (or null = pre-versioning)
 was computed under older rules until a recalculate heals it.
+
+## codes.ts — multi-code profiles (IEC / NEC)
+
+`src/lib/calculations/codes.ts`. Keyed off `Project.calculationStandard`
+(`"IEC" | "NEMA"` — `"NEMA"` is the stored alias for NEC practice;
+`codeOf()` resolves it, anything else falls back to IEC):
+
+- `BREAKER_RATINGS.IEC` / `.NEC` — standard breaker catalogs (IEC 60898/60947
+  preferred values vs NEC 240.6(A)). `nextBreakerRating(ib, code)` is the In
+  selection step; `sizeCableAndBreaker({ code })`, the SLD cable editor
+  (`recalculateCable({ code })`) and the cable-schedule page all pass the
+  project's resolved code through.
+- `VD_RECOMMENDED` — informative ΔU limits (IEC Annex G: 3 % lighting /
+  5 % other; NEC informational note: 3 % branch, 5 % feeder+branch total).
+- `CODE_LABEL` — report/trace provenance strings.
+
+**Known ceiling:** conductor ampacity still uses the IEC 60364-5-52 method
+tables for both codes. A full NEC Table 310.16 port needs an AWG/kcmil size
+axis through `parseCableSize` and the data model — until then NEC projects
+get NEC breaker ratings + VD guidance on IEC-method ampacity.
 
 ## How they compose
 

@@ -512,8 +512,8 @@ export default function ProjectDetailPage() {
                   disabled={isReadOnly}
                   className="dense-input w-full rounded disabled:opacity-60 disabled:cursor-not-allowed"
                 >
-                  <option value="IEC">IEC / EN 50160</option>
-                  <option value="NEMA">NEMA / IEEE</option>
+                  <option value="IEC">IEC 60364 (EN)</option>
+                  <option value="NEMA">NEC / NEMA (US)</option>
                 </select>
               </div>
             ) : (

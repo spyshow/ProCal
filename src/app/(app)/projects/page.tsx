@@ -103,8 +103,8 @@ export default function ProjectsPage() {
   };
 
   const STANDARDS = [
-    { value: 'IEC', label: 'IEC / EN 50160' },
-    { value: 'NEMA', label: 'NEMA / IEEE' },
+    { value: 'IEC', label: 'IEC 60364 (EN)' },
+    { value: 'NEMA', label: 'NEC / NEMA (US)' },
   ];
 
   const handleDelete = async (id: string) => {

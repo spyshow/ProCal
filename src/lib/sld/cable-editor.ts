@@ -3,8 +3,8 @@ import {
   formatCableSize,
   parseCableSize,
   sizeCableAndBreaker,
-  STANDARD_BREAKERS,
 } from '@/lib/calculations/cables';
+import { nextBreakerRating, type CodeStandard } from '@/lib/calculations/codes';
 import { groupingDeratingFactor, temperatureDeratingFactor } from '@/lib/calculations/cablesData';
 import { getAmpacity } from '@/lib/calculations/installationMethods';
 
@@ -24,6 +24,8 @@ export interface CableEditorInput {
   groupingCount?: number;
   maxCableSize?: number;
   targetRuns?: number;
+  /** Breaker-rating catalog — defaults to IEC; NEC projects pass "NEC". */
+  code?: CodeStandard;
 }
 
 export interface CableEditorResult {
@@ -39,8 +41,8 @@ export interface CableEditorResult {
   isOverloaded: boolean;
 }
 
-function findBreakerSize(current: number): number {
-  return STANDARD_BREAKERS.find(r => r >= current) || STANDARD_BREAKERS[STANDARD_BREAKERS.length - 1];
+function findBreakerSize(current: number, code: CodeStandard = 'IEC'): number {
+  return nextBreakerRating(current, code);
 }
 
 /**
@@ -65,6 +67,7 @@ export function recalculateCable(input: CableEditorInput): CableEditorResult {
     groupingCount = 1,
     maxCableSize = 300,
     targetRuns,
+    code = 'IEC',
   } = input;
 
   const existingParsed = parseCableSize(existingCableSize) ?? {
@@ -90,7 +93,7 @@ export function recalculateCable(input: CableEditorInput): CableEditorResult {
       cableSize: existingParsed.size,
       parallelRuns: currentRuns,
       formattedCableSize: formatCableSize(existingParsed.size, currentRuns),
-      breakerSize: findBreakerSize(current),
+      breakerSize: findBreakerSize(current, code),
       voltageDropPercent: installedVD.dropPercent,
       voltageDropVolts: installedVD.dropVolts,
       changed: false,
@@ -109,6 +112,7 @@ export function recalculateCable(input: CableEditorInput): CableEditorResult {
     groupingCount,
     installMethod: method,
     maxCableSize,
+    code,
     ...(targetRuns && targetRuns > 1 ? { targetRuns } : {}),
     voltageDrop: { lengthMeters, powerFactor, systemVoltage, maxPercent: maxVoltageDropPercent },
   });

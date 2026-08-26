@@ -2,6 +2,12 @@ import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { verifyProjectAccess } from "@/lib/project-auth";
 import { logProjectActivity } from "@/lib/audit-logger";
+import { errorResponse } from "@/lib/api-errors";
+import {
+  assertPositive,
+  assertInRange,
+  clampPowerFactor,
+} from "@/lib/calculations/validate";
 
 export async function GET(
   request: Request,
@@ -81,6 +87,39 @@ export async function PUT(
     const data = (await request.json()) as Record<string, any>;
     const existingProject = auth.project;
 
+    // Numeric settings feed the calc engine directly — reject out-of-range
+    // values at this trust boundary instead of persisting NaN/garbage that
+    // later poisons every downstream calculation.
+    const num = (key: string) =>
+      data[key] !== undefined ? parseFloat(String(data[key])) : undefined;
+    const voltage = num("voltage");
+    if (voltage !== undefined) assertPositive("voltage", voltage);
+    const frequency = num("frequency");
+    if (frequency !== undefined) assertPositive("frequency (Hz)", frequency);
+    const powerFactor = num("powerFactor");
+    if (powerFactor !== undefined && (Number.isNaN(powerFactor) || powerFactor <= 0 || powerFactor > 1)) {
+      return NextResponse.json(
+        { error: "powerFactor must be between 0 and 1" },
+        { status: 400 }
+      );
+    }
+    const maxDemandFactor = num("maxDemandFactor");
+    if (maxDemandFactor !== undefined) assertPositive("maxDemandFactor", maxDemandFactor);
+    const vdLighting = num("maxVoltageDropLighting");
+    if (vdLighting !== undefined) assertInRange("maxVoltageDropLighting (%)", vdLighting, 0.1, 50);
+    const vdPower = num("maxVoltageDropPower");
+    if (vdPower !== undefined) assertInRange("maxVoltageDropPower (%)", vdPower, 0.1, 50);
+    const transformerSize =
+      data.transformerSize !== undefined && data.transformerSize !== null
+        ? (() => {
+            const t = parseFloat(String(data.transformerSize));
+            assertPositive("transformerSize (kVA)", t);
+            return t;
+          })()
+        : data.transformerSize === null
+          ? null
+          : undefined;
+
     const updatedProject = await db.project.update({
       where: { id },
       data: {
@@ -91,20 +130,20 @@ export async function PUT(
         location: data.location ?? existingProject.location,
         engineer: data.engineer ?? existingProject.engineer,
         date: data.date ?? existingProject.date,
-        voltage: data.voltage !== undefined ? parseFloat(String(data.voltage)) : existingProject.voltage,
-        frequency: data.frequency !== undefined ? parseFloat(String(data.frequency)) : existingProject.frequency,
-        powerFactor: data.powerFactor !== undefined ? parseFloat(String(data.powerFactor)) : existingProject.powerFactor,
-        maxDemandFactor: data.maxDemandFactor !== undefined ? parseFloat(String(data.maxDemandFactor)) : existingProject.maxDemandFactor,
+        voltage: voltage ?? existingProject.voltage,
+        frequency: frequency ?? existingProject.frequency,
+        powerFactor: powerFactor !== undefined ? clampPowerFactor(powerFactor) : existingProject.powerFactor,
+        maxDemandFactor: maxDemandFactor ?? existingProject.maxDemandFactor,
         preferredManufacturer: data.preferredManufacturer ?? existingProject.preferredManufacturer,
         logoUrl: data.logoUrl !== undefined ? data.logoUrl : existingProject.logoUrl,
         notes: data.notes ?? existingProject.notes,
-        maxVoltageDropLighting: data.maxVoltageDropLighting !== undefined ? parseFloat(String(data.maxVoltageDropLighting)) : existingProject.maxVoltageDropLighting,
-        maxVoltageDropPower: data.maxVoltageDropPower !== undefined ? parseFloat(String(data.maxVoltageDropPower)) : existingProject.maxVoltageDropPower,
+        maxVoltageDropLighting: vdLighting ?? existingProject.maxVoltageDropLighting,
+        maxVoltageDropPower: vdPower ?? existingProject.maxVoltageDropPower,
         calculationStandard:
           data.calculationStandard === "NEMA" || data.calculationStandard === "IEC"
             ? data.calculationStandard
             : (existingProject.calculationStandard as string) ?? "IEC",
-        transformerSize: data.transformerSize !== undefined ? (data.transformerSize === null ? null : parseFloat(String(data.transformerSize))) : existingProject.transformerSize,
+        transformerSize: transformerSize !== undefined ? transformerSize : existingProject.transformerSize,
         defaultAcbFamilyId: data.defaultAcbFamilyId !== undefined ? data.defaultAcbFamilyId : existingProject.defaultAcbFamilyId,
         defaultMccbFamilyId: data.defaultMccbFamilyId !== undefined ? data.defaultMccbFamilyId : existingProject.defaultMccbFamilyId,
         defaultMcbFamilyId: data.defaultMcbFamilyId !== undefined ? data.defaultMcbFamilyId : existingProject.defaultMcbFamilyId,
@@ -125,8 +164,7 @@ export async function PUT(
 
     return NextResponse.json(updatedProject);
   } catch (error) {
-    console.error("PUT Project Error:", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    return errorResponse(error, "PUT Project Error");
   }
 }
 

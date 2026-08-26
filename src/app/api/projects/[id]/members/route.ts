@@ -5,6 +5,7 @@ import { verifyProjectAccess } from "@/lib/project-auth";
 import { MAX_PROJECT_MEMBERS, parseMemberPermissions, type ProjectRole } from "@/lib/project-permissions";
 import { sendProjectInviteNotification } from "@/lib/notify";
 import { logProjectActivity } from "@/lib/audit-logger";
+import { rateLimit } from "@/lib/rate-limit";
 
 export async function GET(
   request: Request,
@@ -183,6 +184,19 @@ export async function POST(
       return NextResponse.json(
         { error: "An active invitation has already been sent to this email" },
         { status: 400 }
+      );
+    }
+
+    // Email-sending gate: 10 invites/hour per inviter. Keyed by user id —
+    // strictly more reliable than spoofable X-Forwarded-IP for an
+    // authenticated action. Sits after the validation checks so legitimate
+    // 4xx responses don't burn quota, and before create/send/log so a
+    // rejected request leaves no invite row, email, or audit entry.
+    const rl = rateLimit(`invite:${auth.user.id}`, 10, 60 * 60 * 1000);
+    if (!rl.allowed) {
+      return NextResponse.json(
+        { error: "Too many invitations sent. Try again later." },
+        { status: 429, headers: { "Retry-After": String(rl.retryAfterSeconds) } }
       );
     }
 

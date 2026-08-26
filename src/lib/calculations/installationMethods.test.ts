@@ -95,6 +95,22 @@ describe('IEC 60364-5-52 Installation Methods Catalogue', () => {
     expect(amp72).toBe(164);
   });
 
+  it('resolves the extrapolated 400/500 mm² entries in every table (incl. aluminum)', () => {
+    // Method C must equal the catalog columns in cablesData.ts exactly.
+    expect(getAmpacity(400, 'C', 'XLPE', true)).toBe(690);
+    expect(getAmpacity(500, 'C', 'PVC', true)).toBe(578);
+    expect(getAmpacity(400, 'C', 'XLPE', false)).toBe(830);
+    // Buried methods scale their own 300 mm² column (D2 XLPE: 446 → 535 / 615).
+    expect(getAmpacity(400, '72', 'XLPE', true)).toBe(535);
+    expect(getAmpacity(500, '72', 'XLPE', true)).toBe(615);
+    // Aluminum scales by the catalog al/cu ratio per size.
+    const cu = getAmpacity(400, 'C', 'XLPE', true);
+    const al = getAmpacity(400, 'C', 'XLPE', true, 'aluminum');
+    expect(al).toBe(Math.round(cu * 595 / 690));
+    // Derived 1-phase tables extend too (E has no explicit 1PH table).
+    expect(getAmpacity(400, 'E', 'XLPE', false)).toBeGreaterThan(0);
+  });
+
   it('resolves ampacity for every reference code, including derived 1-phase tables', () => {
     const expectedCodes = ['A1', 'A2', 'B1', 'B2', 'C', 'E', 'F', 'G', 'D1', 'D2'];
     for (const code of expectedCodes) {

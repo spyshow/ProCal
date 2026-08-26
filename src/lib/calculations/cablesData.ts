@@ -38,6 +38,12 @@ export const CABLE_CATALOG: CableSpec[] = (
     { size: 185, copperPvc3Ph: 310, copperXlpe3Ph: 424, copperPvc1Ph: 341, copperXlpe1Ph: 506, alXlpe3Ph: 364, resistance: 0.117, reactance: 0.069 },
     { size: 240, copperPvc3Ph: 364, copperXlpe3Ph: 500, copperPvc1Ph: 400, copperXlpe1Ph: 599, alXlpe3Ph: 430, resistance: 0.089, reactance: 0.068 },
     { size: 300, copperPvc3Ph: 419, copperXlpe3Ph: 576, copperPvc1Ph: 460, copperXlpe1Ph: 693, alXlpe3Ph: 497, resistance: 0.072, reactance: 0.068 },
+    // IEC 60364-5-52 B.52.x tables stop at 300 mm²; these two rows are
+    // extrapolated with the table's own size-scaling exponent (ampacity ≈
+    // S^0.63, fitted from the 185→300 progression) and R ∝ 1/S. Reachable only
+    // when a caller passes maxCableSize > 300 (the sizer default stays 300).
+    { size: 400, copperPvc3Ph: 502, copperXlpe3Ph: 690, copperPvc1Ph: 551, copperXlpe1Ph: 830, alXlpe3Ph: 595, resistance: 0.054, reactance: 0.066 },
+    { size: 500, copperPvc3Ph: 578, copperXlpe3Ph: 794, copperPvc1Ph: 635, copperXlpe1Ph: 955, alXlpe3Ph: 685, resistance: 0.043, reactance: 0.065 },
   ] as CableSpecBase[]
 ).map((c) => ({
   ...c,

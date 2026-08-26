@@ -215,4 +215,29 @@ describe("POST /api/projects/[id]/members (Invite Member)", () => {
     const data = await res.json();
     expect(data.error).toMatch(/not found/i);
   });
+
+  it("rate-limits the inviter at 10 emails/hour with a 429 that skips create/send/log", async () => {
+    // The limiter is keyed by user id, so all invites here share one bucket.
+    for (let i = 0; i < 10; i++) {
+      const res = await postInvite("proj-1", {
+        name: `Invitee ${i}`,
+        email: `invitee${i}@company.com`,
+        role: "ENGINEER",
+      });
+      expect(res.status).toBe(200);
+    }
+
+    const res = await postInvite("proj-1", {
+      name: "Overflow Invitee",
+      email: "overflow@company.com",
+      role: "ENGINEER",
+    });
+
+    expect(res.status).toBe(429);
+    expect(Number(res.headers.get("Retry-After"))).toBeGreaterThan(0);
+    const data = await res.json();
+    expect(data.error).toMatch(/too many invitations/i);
+    expect(mocks.sendProjectInviteNotification).toHaveBeenCalledTimes(10);
+    expect(mocks.logProjectActivity).toHaveBeenCalledTimes(10);
+  });
 });

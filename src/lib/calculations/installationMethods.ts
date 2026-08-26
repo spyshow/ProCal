@@ -710,145 +710,177 @@ export function groundTemperatureDeratingFactor(
 // Sizing now reads the published per-method tables directly via getAmpacity().
 
 // Ampacity tables (A) for copper cables at standard ambient (30°C in air, 20°C in ground)
+//
+// The 400/500 mm² entries are extrapolated, not published: IEC 60364-5-52
+// B.52.x stops at 300 mm². Each table scales its own 300 mm² value by the
+// size-scaling exponent fitted from its own upper range (ampacity ≈ S^0.63,
+// i.e. ×1.199 at 400 and ×1.380 at 500) — Method C matches the catalog rows
+// in cablesData.ts exactly. Replace with published annex values if adopted.
 
 // Method A1 - Insulated conductors in conduit in insulated wall
 export const AMPACITY_A1_PVC_3PH: Record<number, number> = {
   1.5: 11, 2.5: 15, 4: 20, 6: 25, 10: 35, 16: 48, 25: 63, 35: 78,
   50: 95, 70: 121, 95: 147, 120: 170, 150: 194, 185: 221, 240: 260, 300: 298,
+  400: 357, 500: 411,
 };
 
 export const AMPACITY_A1_XLPE_3PH: Record<number, number> = {
   1.5: 16, 2.5: 22, 4: 29, 6: 37, 10: 51, 16: 69, 25: 89, 35: 110,
   50: 134, 70: 172, 95: 209, 120: 242, 150: 277, 185: 316, 240: 371, 300: 426,
+  400: 511, 500: 588,
 };
 
 export const AMPACITY_A1_PVC_1PH: Record<number, number> = {
   1.5: 12, 2.5: 17, 4: 23, 6: 29, 10: 40, 16: 54, 25: 71, 35: 88,
   50: 107, 70: 137, 95: 166, 120: 192, 150: 219, 185: 250, 240: 294, 300: 337,
+  400: 404, 500: 465,
 };
 
 export const AMPACITY_A1_XLPE_1PH: Record<number, number> = {
   1.5: 18, 2.5: 25, 4: 33, 6: 42, 10: 58, 16: 79, 25: 102, 35: 125,
   50: 153, 70: 198, 95: 240, 120: 278, 150: 318, 185: 363, 240: 426, 300: 490,
+  400: 588, 500: 676,
 };
 
 // Method A2 - Multi-core cables in conduit in insulated wall
 export const AMPACITY_A2_PVC_3PH: Record<number, number> = {
   1.5: 11, 2.5: 15, 4: 20, 6: 25, 10: 35, 16: 48, 25: 63, 35: 78,
   50: 95, 70: 121, 95: 147, 120: 170, 150: 194, 185: 221, 240: 260, 300: 298,
+  400: 357, 500: 411,
 };
 
 export const AMPACITY_A2_XLPE_3PH: Record<number, number> = {
   1.5: 16, 2.5: 22, 4: 29, 6: 37, 10: 51, 16: 69, 25: 89, 35: 110,
   50: 134, 70: 172, 95: 209, 120: 242, 150: 277, 185: 316, 240: 371, 300: 426,
+  400: 511, 500: 588,
 };
 
 // Method B1 - Insulated conductors in conduit on wall / trunking
 export const AMPACITY_B1_PVC_3PH: Record<number, number> = {
   1.5: 12, 2.5: 16.5, 4: 22, 6: 28, 10: 39, 16: 53, 25: 70, 35: 86,
   50: 105, 70: 134, 95: 162, 120: 187, 150: 213, 185: 243, 240: 286, 300: 328,
+  400: 393, 500: 453,
 };
 
 export const AMPACITY_B1_XLPE_3PH: Record<number, number> = {
   1.5: 17, 2.5: 24, 4: 32, 6: 41, 10: 56, 16: 76, 25: 98, 35: 120,
   50: 146, 70: 190, 95: 230, 120: 268, 150: 300, 185: 342, 240: 403, 300: 464,
+  400: 556, 500: 640,
 };
 
 export const AMPACITY_B1_PVC_1PH: Record<number, number> = {
   1.5: 13.5, 2.5: 18.5, 4: 25, 6: 32, 10: 44, 16: 60, 25: 79, 35: 97,
   50: 119, 70: 152, 95: 184, 120: 213, 150: 241, 185: 276, 240: 325, 300: 373,
+  400: 447, 500: 515,
 };
 
 export const AMPACITY_B1_XLPE_1PH: Record<number, number> = {
   1.5: 19, 2.5: 27, 4: 37, 6: 47, 10: 64, 16: 87, 25: 112, 35: 138,
   50: 168, 70: 218, 95: 264, 120: 307, 150: 344, 185: 392, 240: 462, 300: 532,
+  400: 638, 500: 734,
 };
 
 // Method B2 - Multi-core cables in conduit on wall / trunking
 export const AMPACITY_B2_PVC_3PH: Record<number, number> = {
   1.5: 12, 2.5: 16.5, 4: 22, 6: 28, 10: 39, 16: 53, 25: 70, 35: 86,
   50: 105, 70: 134, 95: 162, 120: 187, 150: 213, 185: 243, 240: 286, 300: 328,
+  400: 393, 500: 453,
 };
 
 export const AMPACITY_B2_XLPE_3PH: Record<number, number> = {
   1.5: 17, 2.5: 24, 4: 32, 6: 41, 10: 56, 16: 76, 25: 98, 35: 120,
   50: 146, 70: 190, 95: 230, 120: 268, 150: 300, 185: 342, 240: 403, 300: 464,
+  400: 556, 500: 640,
 };
 
 // Method C - Clipped directly (reference method)
 export const AMPACITY_C_PVC_3PH: Record<number, number> = {
   1.5: 15.5, 2.5: 21, 4: 28, 6: 36, 10: 50, 16: 68, 25: 89, 35: 110,
   50: 134, 70: 171, 95: 207, 120: 239, 150: 272, 185: 310, 240: 364, 300: 419,
+  400: 502, 500: 578,
 };
 
 export const AMPACITY_C_XLPE_3PH: Record<number, number> = {
   1.5: 22, 2.5: 30, 4: 40, 6: 52, 10: 71, 16: 96, 25: 119, 35: 147,
   50: 179, 70: 229, 95: 278, 120: 322, 150: 371, 185: 424, 240: 500, 300: 576,
+  400: 690, 500: 794,
 };
 
 export const AMPACITY_C_PVC_1PH: Record<number, number> = {
   1.5: 17.5, 2.5: 24, 4: 32, 6: 41, 10: 57, 16: 76, 25: 101, 35: 125,
   50: 151, 70: 192, 95: 232, 120: 269, 150: 300, 185: 341, 240: 400, 300: 460,
+  400: 551, 500: 635,
 };
 
 export const AMPACITY_C_XLPE_1PH: Record<number, number> = {
   1.5: 24, 2.5: 33, 4: 45, 6: 58, 10: 80, 16: 107, 25: 135, 35: 169,
   50: 207, 70: 268, 95: 328, 120: 382, 150: 441, 185: 506, 240: 599, 300: 693,
+  400: 830, 500: 955,
 };
 
 // Method E - Spaced from surface / Perforated tray multicore
 export const AMPACITY_E_PVC_3PH: Record<number, number> = {
   1.5: 17, 2.5: 23, 4: 30, 6: 39, 10: 54, 16: 73, 25: 96, 35: 119,
   50: 144, 70: 184, 95: 223, 120: 258, 150: 293, 185: 334, 240: 392, 300: 451,
+  400: 541, 500: 622,
 };
 
 export const AMPACITY_E_XLPE_3PH: Record<number, number> = {
   1.5: 24, 2.5: 32, 4: 43, 6: 56, 10: 76, 16: 103, 25: 128, 35: 158,
   50: 193, 70: 247, 95: 300, 120: 347, 150: 400, 185: 457, 240: 540, 300: 621,
+  400: 745, 500: 857,
 };
 
 // Method F - On perforated tray single-core
 export const AMPACITY_F_PVC_3PH: Record<number, number> = {
   1.5: 17.5, 2.5: 24, 4: 32, 6: 41, 10: 57, 16: 77, 25: 100, 35: 124,
   50: 150, 70: 192, 95: 232, 120: 269, 150: 305, 185: 348, 240: 409, 300: 472,
+  400: 566, 500: 651,
 };
 
 export const AMPACITY_F_XLPE_3PH: Record<number, number> = {
   1.5: 25, 2.5: 34, 4: 46, 6: 59, 10: 80, 16: 108, 25: 133, 35: 165,
   50: 201, 70: 257, 95: 311, 120: 361, 150: 415, 185: 475, 240: 560, 300: 645,
+  400: 773, 500: 890,
 };
 
 // Method G - On ladder / insulators
 export const AMPACITY_G_PVC_3PH: Record<number, number> = {
   1.5: 18, 2.5: 25, 4: 33, 6: 42, 10: 58, 16: 79, 25: 103, 35: 128,
   50: 155, 70: 198, 95: 240, 120: 278, 150: 316, 185: 361, 240: 424, 300: 488,
+  400: 585, 500: 673,
 };
 
 export const AMPACITY_G_XLPE_3PH: Record<number, number> = {
   1.5: 26, 2.5: 36, 4: 48, 6: 62, 10: 84, 16: 113, 25: 140, 35: 173,
   50: 210, 70: 269, 95: 326, 120: 378, 150: 435, 185: 497, 240: 586, 300: 674,
+  400: 808, 500: 930,
 };
 
 // Method D1 - In ground conduit / duct
 export const AMPACITY_D1_PVC_3PH: Record<number, number> = {
   1.5: 18, 2.5: 24, 4: 31, 6: 39, 10: 52, 16: 67, 25: 86, 35: 103,
   50: 122, 70: 151, 95: 179, 120: 203, 150: 230, 185: 258, 240: 297, 300: 336,
+  400: 403, 500: 464,
 };
 
 export const AMPACITY_D1_XLPE_3PH: Record<number, number> = {
   1.5: 22, 2.5: 29, 4: 38, 6: 47, 10: 63, 16: 81, 25: 104, 35: 125,
   50: 148, 70: 183, 95: 216, 120: 246, 150: 278, 185: 312, 240: 361, 300: 408,
+  400: 489, 500: 563,
 };
 
 // Method D2 - Direct buried in ground
 export const AMPACITY_D2_PVC_3PH: Record<number, number> = {
   1.5: 21, 2.5: 28, 4: 36, 6: 45, 10: 60, 16: 78, 25: 99, 35: 119,
   50: 140, 70: 173, 95: 204, 120: 231, 150: 261, 185: 292, 240: 336, 300: 379,
+  400: 454, 500: 523,
 };
 
 export const AMPACITY_D2_XLPE_3PH: Record<number, number> = {
   1.5: 25, 2.5: 33, 4: 43, 6: 53, 10: 71, 16: 91, 25: 116, 35: 139,
   50: 164, 70: 203, 95: 239, 120: 271, 150: 306, 185: 343, 240: 395, 300: 446,
+  400: 535, 500: 615,
 };
 
 // Derived 1-phase tables. The IEC publishes separate "2 loaded conductors"

@@ -138,11 +138,15 @@ power/voltage/current, parseable cable-size strings) before anything persists.
 
 ## cablesData.ts + installationMethods.ts — ampacity tables
 
-`CABLE_CATALOG`: 16 cross-sections (1.5 → 300 mm²), each carrying `resistance`
-and `reactance` (Ω/km) for voltage-drop/fault math.
+`CABLE_CATALOG`: 18 cross-sections (1.5 → 500 mm²), each carrying `resistance`
+and `reactance` (Ω/km) for voltage-drop/fault math. The sizer's default
+`maxCableSize` stays 300 mm² (the last published IEC B.52.x size); 400/500 mm²
+are extrapolated rows (ampacity ≈ S^0.63 from each table's own upper range)
+and are only reachable when a caller passes a higher `maxCableSize`.
 
 Ampacity lives in **`installationMethods.ts`** as per-method transcriptions of
-IEC 60364-5-52 Table B.52.x: `AMPACITY_{A1,A2,B1,B2,C,E,F,G,D1,D2}_{PVC,XLPE}_{3PH,1PH}`.
+IEC 60364-5-52 Table B.52.x (1.5 → 300 mm²) plus extrapolated 400/500 entries:
+`AMPACITY_{A1,A2,B1,B2,C,E,F,G,D1,D2}_{PVC,XLPE}_{3PH,1PH}`.
 `getAmpacity(size, method, insulation, isThreePhase, material)` resolves the
 method via `resolveReferenceMethod`, picks the table, and scales copper →
 aluminum by `aluminumRatio(...)` (the tables are copper-only). Ground methods

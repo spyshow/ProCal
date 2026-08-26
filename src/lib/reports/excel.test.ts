@@ -91,9 +91,9 @@ describe('buildReportWorkbook', () => {
     const wb = buildReportWorkbook(projectWith([bldg]), findBreaker);
     const rows = XLSX.utils.sheet_to_json<Record<string, string | number>>(wb.Sheets['BOM']);
 
-    const cable4 = rows.find((r) => r['Conductor Size (mm²)'] === 4);
+    const cable4 = rows.find((r) => r['Conductor Size'] === 4);
     expect(cable4?.Circuits).toBe(1);
-    const cable6 = rows.find((r) => r['Conductor Size (mm²)'] === 6);
+    const cable6 = rows.find((r) => r['Conductor Size'] === 6);
     expect(cable6?.Circuits).toBe(1);
   });
 

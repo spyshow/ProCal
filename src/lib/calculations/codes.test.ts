@@ -4,8 +4,9 @@ import {
   nextBreakerRating,
   BREAKER_RATINGS,
   VD_RECOMMENDED,
+  awgLabel,
 } from "./codes";
-import { sizeCableAndBreaker, STANDARD_BREAKERS } from "./cables";
+import { sizeCableAndBreaker, STANDARD_BREAKERS, formatCableSizeFor } from "./cables";
 
 describe("codeOf", () => {
   it('maps the stored "NEMA" alias to the NEC profile', () => {
@@ -94,5 +95,43 @@ describe("VD_RECOMMENDED", () => {
   it("IEC Annex G: 3 % lighting / 5 % other; NEC note: 3 % branch circuits", () => {
     expect(VD_RECOMMENDED.IEC).toEqual({ lighting: 3, power: 5 });
     expect(VD_RECOMMENDED.NEC).toEqual({ lighting: 3, power: 3 });
+  });
+});
+
+describe("awgLabel (mm² → AWG/kcmil display cross-reference)", () => {
+  it("maps small sizes to AWG trade sizes", () => {
+    expect(awgLabel(2.5)).toBe("14 AWG");
+    expect(awgLabel(4)).toBe("12 AWG");
+    expect(awgLabel(6)).toBe("10 AWG");
+    expect(awgLabel(16)).toBe("6 AWG");
+  });
+
+  it("crosses into kcmil above 3/0 AWG", () => {
+    expect(awgLabel(95)).toBe("3/0 AWG");
+    expect(awgLabel(120)).toBe("250 kcmil");
+    expect(awgLabel(240)).toBe("500 kcmil");
+    expect(awgLabel(500)).toBe("1000 kcmil");
+  });
+
+  it("falls back to the nearest catalog entry for non-standard sizes", () => {
+    // 18 mm² sits between 16 (6 AWG) and 25 (3 AWG); nearest is 16.
+    expect(awgLabel(18)).toBe("6 AWG");
+  });
+});
+
+describe("formatCableSizeFor (code-aware display layer)", () => {
+  it("keeps mm² for IEC/undefined projects", () => {
+    expect(formatCableSizeFor(16, "IEC")).toBe("16 mm²");
+    expect(formatCableSizeFor(16, undefined)).toBe("16 mm²");
+  });
+
+  it("shows AWG/kcmil for NEMA projects, incl. parallel-run strings", () => {
+    expect(formatCableSizeFor(95, "NEMA")).toBe("3/0 AWG");
+    expect(formatCableSizeFor("2 × 240 mm²", "NEMA")).toBe("2 × 500 kcmil");
+    expect(formatCableSizeFor(120, "NEMA")).toBe("250 kcmil");
+  });
+
+  it("round-trips stored metric strings unchanged under IEC", () => {
+    expect(formatCableSizeFor("2 × 240 mm²", "IEC")).toBe("2 × 240 mm²");
   });
 });

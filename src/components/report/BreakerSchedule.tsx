@@ -2,6 +2,7 @@
 
 import { useMemo, useState, useEffect } from 'react';
 import { computeFeeders, createFindBreaker, type FindBreaker } from '@/lib/calculations/feeders';
+import { formatCableSizeFor } from '@/lib/calculations/cables';
 import { useEquipmentCatalog } from '@/hooks/useEquipmentCatalog';
 import { TraceableCell } from '@/components/common/TraceableCell';
 import {
@@ -356,7 +357,7 @@ export default function BreakerSchedule({
                     {b.breakerModel}
                   </td>
                   <td className="p-2 border-r border-slate-200 text-center font-mono text-slate-800">
-                    {b.cableSize ? `${b.cableSize} mm²` : 'Busbar'}
+                    {b.cableSize ? formatCableSizeFor(b.cableSize, project.calculationStandard) : 'Busbar'}
                   </td>
                   <td className="p-2 border-r border-slate-200 text-right font-mono text-red-600 font-bold">
                     {b.faultCurrentKa ? (

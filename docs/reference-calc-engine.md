@@ -340,6 +340,15 @@ was computed under older rules until a recalculate heals it.
 - `VD_RECOMMENDED` — informative ΔU limits (IEC Annex G: 3 % lighting /
   5 % other; NEC informational note: 3 % branch, 5 % feeder+branch total).
 - `CODE_LABEL` — report/trace provenance strings.
+- `awgLabel(mm2)` — mm² → AWG/kcmil display cross-reference (nearest
+  conductor area per NEC Chapter 9 Table 8). **Display only**: storage and the
+  engine stay metric because `parseCableSize` misreads "3/0" as 3 mm². The
+  render-side wrapper is `formatCableSizeFor(value, calculationStandard)`
+  (cables.ts) — it accepts a raw size or a stored metric string
+  ("2 × 240 mm²") and emits AWG/kcmil labels when the standard is "NEMA".
+  All schedule/report surfaces (MDB/breaker/cable/VD/SC/BOM schedules,
+  panel/riser/cable-schedule pages, Excel export, SLD generator labels)
+  route through it; IEC output is byte-identical to the old formatting.
 
 **Known ceiling:** conductor ampacity still uses the IEC 60364-5-52 method
 tables for both codes. A full NEC Table 310.16 port needs an AWG/kcmil size

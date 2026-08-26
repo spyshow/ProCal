@@ -17,6 +17,7 @@ import { PageSkeleton } from '@/components/ui/skeleton';
 import { calculateThreePhaseCurrent, sizeTransformer } from '@/lib/calculations/loads';
 import { CABLE_CATALOG } from '@/lib/calculations/cablesData';
 import { computeFeeders, createFindBreaker, type EquipmentItem, type DefaultFamilies } from '@/lib/calculations/feeders';
+import { formatCableSizeFor } from '@/lib/calculations/cables';
 import { calculateShortCircuitCurrent, getTypicalImpedance } from '@/lib/calculations/shortCircuit';
 import type { Project, PanelFeeder } from '@/types';
 import WorkflowStepper from '@/components/layout/WorkflowStepper';
@@ -437,9 +438,9 @@ export default function PanelDesignerPage() {
           </div>
           <div className="rounded-lg border border-gray-800 bg-gray-800/30 p-3">
             <p className="text-[10px] text-gray-500 uppercase">{t('common.cable', 'Main Cable')}</p>
-            <p className={`text-lg font-bold font-mono ${mainCableUnderProtected ? 'text-red-400' : 'text-green-400'}`}>{mainCable.size} mm²</p>
-            <p className="text-[10px] text-gray-500">{cablesPerPhase}×{mainCable.size}mm²</p>
-            <p className="text-[10px] text-gray-500">N: {neutralCables}×{neutralSize}mm²</p>
+            <p className={`text-lg font-bold font-mono ${mainCableUnderProtected ? 'text-red-400' : 'text-green-400'}`}>{formatCableSizeFor(mainCable.size, selectedProject?.calculationStandard)}</p>
+            <p className="text-[10px] text-gray-500">{cablesPerPhase}×{formatCableSizeFor(mainCable.size, selectedProject?.calculationStandard)}</p>
+            <p className="text-[10px] text-gray-500">N: {neutralCables}×{formatCableSizeFor(neutralSize, selectedProject?.calculationStandard)}</p>
             {mainCableUnderProtected && (
               <p className="text-[10px] text-red-400 font-semibold">
                 {t('panel.cableUnderProtected', 'Iz {{iz}}A < In {{in}}A — increase cable or runs', { iz: mainCableIz, in: mainBreakerIn })}
@@ -725,7 +726,7 @@ export default function PanelDesignerPage() {
                   {/* Cable line & size */}
                   <line x1="220" y1={y + 18} x2="440" y2={y + 18} stroke="#475569" strokeWidth="1" opacity="0.6" />
                   <text x="330" y={y + 13} textAnchor="middle" fill="#9ca3af" fontSize="7.5">
-                    {feeder.cableSize} mm²
+                    {formatCableSizeFor(feeder.cableSize, selectedProject?.calculationStandard)}
                   </text>
 
                   {/* Current */}

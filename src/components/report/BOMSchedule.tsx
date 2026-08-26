@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
-import { parseMm2, getItemCableLength, getBuildingLoadCableLength } from '@/lib/calculations/cables';
+import { parseMm2, getItemCableLength, getBuildingLoadCableLength, formatCableSizeFor } from '@/lib/calculations/cables';
 import { computeFeeders, createFindBreaker } from '@/lib/calculations/feeders';
 import { useEquipmentCatalog } from '@/hooks/useEquipmentCatalog';
 import type { FloorItem, Project, FallbackType, GenericBreakerSpec } from '@/types';
@@ -129,7 +129,7 @@ export default function BOMSchedule({ project, buildingId, showHeader = true }: 
         : (item as any).phases ?? (item as any).phase ?? 3;
       const cores = phase === 1 ? 2 : 4;
       const key = `${cores}C-${sizeNum}`;
-      const sizeLabel = `${cores}C × ${sizeNum} mm²`;
+      const sizeLabel = `${cores}C × ${formatCableSizeFor(sizeNum, project.calculationStandard)}`;
 
       if (!cableBOM[key]) {
         cableBOM[key] = { key, sizeNum, cores, phase, sizeLabel, length: 0, count: 0 };
@@ -157,7 +157,7 @@ export default function BOMSchedule({ project, buildingId, showHeader = true }: 
       if (mainCableSize > 0) {
         const cores = 4;
         const key = `${cores}C-${mainCableSize}`;
-        const sizeLabel = `${cores}C × ${mainCableSize} mm²`;
+        const sizeLabel = `${cores}C × ${formatCableSizeFor(mainCableSize, project.calculationStandard)}`;
         if (!cableBOM[key]) {
           cableBOM[key] = { key, sizeNum: mainCableSize, cores, phase: 3, sizeLabel, length: 0, count: 0 };
         }
@@ -309,7 +309,7 @@ export default function BOMSchedule({ project, buildingId, showHeader = true }: 
                     {entry.cores === 2 ? '2-Core (1φ)' : '4-Core (3φ)'}
                   </span>
                 </td>
-                <td className="p-2 border-r border-slate-200 text-center font-mono text-slate-700">{entry.sizeNum} mm²</td>
+                <td className="p-2 border-r border-slate-200 text-center font-mono text-slate-700">{formatCableSizeFor(entry.sizeNum, project.calculationStandard)}</td>
                 <td className="p-2 border-r border-slate-200 text-center font-mono text-slate-700">{entry.count}</td>
                 <td className="p-2 text-center font-mono font-bold text-amber-700">{Math.round(entry.length)} m</td>
               </tr>

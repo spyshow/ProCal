@@ -3,6 +3,7 @@ import {
   getItemCableLength,
   getBuildingLoadCableLength,
   parseCableSize,
+  formatCableSizeFor,
 } from '@/lib/calculations/cables';
 import { isThreePhaseForItem } from '@/lib/calculations/feeders';
 import { TraceableCell } from '@/components/common/TraceableCell';
@@ -181,7 +182,7 @@ export default function VDSchedule({ project, buildingId, showHeader = true }: V
                 </TraceableCell>
               </td>
               <td className="p-2 border-r border-slate-200 text-center font-mono font-bold text-slate-900">
-                {row.cable}
+                {formatCableSizeFor(row.cable, project.calculationStandard)}
               </td>
               <td className="p-2 border-r border-slate-200 text-right font-mono text-slate-700">
                 {row.length} m

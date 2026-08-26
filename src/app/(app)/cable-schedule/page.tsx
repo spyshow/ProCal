@@ -10,6 +10,7 @@ import {
   parseMm2,
   parseCableSize,
   formatCableSize,
+  formatCableSizeFor,
   getItemCableLength,
   getBuildingLoadCableLength,
   getRiserCableLength,
@@ -1154,7 +1155,7 @@ export default function CableSchedulePage() {
                             })
                           }
                         >
-                          {c.formattedSize || `${c.cableSize} mm²`}
+                          {formatCableSizeFor(c.formattedSize || c.cableSize, selectedProject?.calculationStandard)}
                         </TraceableCell>
                       </td>
 
@@ -1271,7 +1272,7 @@ export default function CableSchedulePage() {
 
                       {/* New Cable Proposal */}
                       <td className={`text-center font-mono font-bold whitespace-nowrap text-xs ${c.changed ? 'text-amber-400' : 'text-slate-600'}`}>
-                        {c.changed ? (c.newFormattedSize || (c.newCableSize !== null ? `${c.newCableSize} mm²` : '—')) : '—'}
+                        {c.changed ? formatCableSizeFor(c.newFormattedSize || c.newCableSize, selectedProject?.calculationStandard) : '—'}
                       </td>
 
                       {/* Voltage Drop */}

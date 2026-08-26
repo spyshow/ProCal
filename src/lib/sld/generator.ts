@@ -1,9 +1,12 @@
+import { formatCableSizeFor } from "@/lib/calculations/cables";
+
 interface SLDProject {
   name: string;
   voltage: number;
   frequency: number;
   powerFactor: number;
   transformerSize?: number | null;
+  calculationStandard?: string | null;
   buildings: {
     id?: string;
     name: string;
@@ -87,7 +90,7 @@ export function generateSLD(project: SLDProject): string {
 
         lines.push(`${bkrId} = mcb [label: "${item.breakerSize}", rating: "${item.breakerSize}"]`);
         lines.push(`${loadId} = load [label: "${loadTag}"]`);
-        lines.push(`${floorBusId} -> ${bkrId} [cable: "${cableTag}", label: "${item.cableSize}"]`);
+        lines.push(`${floorBusId} -> ${bkrId} [cable: "${cableTag}", label: "${formatCableSizeFor(item.cableSize, project.calculationStandard)}"]`);
         lines.push(`${bkrId} -> ${loadId}`);
       });
       lines.push('');
@@ -158,7 +161,7 @@ export function generateSLDPages(project: SLDProject): SLDPage[] {
 
         lines.push(`${mcbId} = mcb [label: "${item.breakerSize}", rating: "${item.breakerSize}"]`);
         lines.push(`${loadId} = load [label: "${loadTag}"]`);
-        lines.push(`f${fd.floorNumber}_bus -> ${mcbId} [cable: "${cableTag}", label: "${item.cableSize}"]`);
+        lines.push(`f${fd.floorNumber}_bus -> ${mcbId} [cable: "${cableTag}", label: "${formatCableSizeFor(item.cableSize, project.calculationStandard)}"]`);
         lines.push(`${mcbId} -> ${loadId}`);
       });
     } else {
@@ -181,7 +184,7 @@ export function generateSLDPages(project: SLDProject): SLDPage[] {
 
         lines.push(`${mcbId} = mcb [label: "${item.breakerSize}", rating: "${item.breakerSize}"]`);
         lines.push(`${loadId} = load [label: "${loadTag}"]`);
-        lines.push(`f${fd.floorNumber}_bus -> ${mcbId} [cable: "${cableTag}", label: "${item.cableSize}"]`);
+        lines.push(`f${fd.floorNumber}_bus -> ${mcbId} [cable: "${cableTag}", label: "${formatCableSizeFor(item.cableSize, project.calculationStandard)}"]`);
         lines.push(`${mcbId} -> ${loadId}`);
       });
     }

@@ -7,6 +7,7 @@ import {
   evaluateCableProtection,
 } from "./cables";
 import { phaseBalance } from "./phaseBalance";
+import { codeOf } from "./codes";
 import { calculateShortCircuitCurrent, calculateIscWithCable, getTypicalImpedance } from "./shortCircuit";
 import { verifyCoordination, suggestAlternativeBreaker, type BreakerCurveSettings } from "./selectivity";
 import { calculateThreePhaseCurrent, sizeTransformer } from "./loads";
@@ -495,6 +496,8 @@ function feederFromItem(
   const ambientTemp = item.ambientTemp ?? project.ambientTemp ?? 30;
   const groupingCount = item.groupingCount ?? project.groupingCount ?? 1;
   const installMethod = item.installMethod ?? undefined;
+  // Project's code decides the breaker-rating catalog (NEC 240.6(A) vs IEC).
+  const code = codeOf(project.calculationStandard);
   // Branch protection must carry the dwelling's OWN installed load: the
   // building-wide diversity factor belongs to the upstream aggregation
   // (riser/MDB/incomer), not to a single apartment's final circuit. The stored
@@ -514,6 +517,7 @@ function feederFromItem(
     ambientTemp,
     groupingCount,
     installMethod,
+    code,
   });
   const manualBreaker = item.breakerSize ? parseInt(item.breakerSize.replace(/[^\d.]/g, ''), 10) : null;
   const targetBreaker = manualBreaker && !isNaN(manualBreaker) ? manualBreaker : sizing.breakerSize;
@@ -533,6 +537,7 @@ function feederFromItem(
           ambientTemp,
           groupingCount,
           installMethod,
+          code,
         })
       : sizing;
   const parsedItemCable = parseCableSize(item.cableSize);
@@ -616,12 +621,14 @@ function feederFromBuildingLoad(
   const ambientTemp = load.ambientTemp ?? project.ambientTemp ?? 30;
   const groupingCount = load.groupingCount ?? project.groupingCount ?? 1;
   const installMethod = load.installMethod ?? undefined;
+  const code = codeOf(project.calculationStandard);
   const sizing = sizeCableAndBreaker(current, isThreePhase, {
     material,
     insulation,
     ambientTemp,
     groupingCount,
     installMethod,
+    code,
   });
   const manualBreaker = load.breakerSize ? parseInt(load.breakerSize.replace(/[^\d.]/g, ''), 10) : null;
   const targetBreaker = manualBreaker && !isNaN(manualBreaker) ? manualBreaker : sizing.breakerSize;
@@ -639,6 +646,7 @@ function feederFromBuildingLoad(
           ambientTemp,
           groupingCount,
           installMethod,
+          code,
         })
       : sizing;
   const parsedLoadCable = parseCableSize(load.cableSize);
@@ -751,6 +759,8 @@ export function computeFeeders(
   findBreaker: FindBreaker
 ): ComputeFeedersResult {
   const mdbFeeders: PanelFeeder[] = [];
+  // Project's code decides the breaker-rating catalog (NEC 240.6(A) vs IEC).
+  const code = codeOf(project.calculationStandard);
 
   for (const fd of building.floorDesigns) {
     // Per-phase balance for this floor. 3-phase loads split equally; 1-phase
@@ -779,6 +789,7 @@ export function computeFeeders(
         ambientTemp: riserAmbientTemp,
         groupingCount: riserGroupingCount,
         installMethod: riserInstallMethod,
+        code,
         // Feed the floor's vector neutral current so an unbalanced floor keeps
         // the full-size neutral instead of the default S/2 reduction.
         neutralCurrent: floorBalance.neutralCurrent,
@@ -798,6 +809,7 @@ export function computeFeeders(
               ambientTemp: riserAmbientTemp,
               groupingCount: riserGroupingCount,
               installMethod: riserInstallMethod,
+              code,
               neutralCurrent: floorBalance.neutralCurrent,
             })
           : sizing;
@@ -951,6 +963,7 @@ export function computeFeeders(
     insulation: 'XLPE' as const,
     ambientTemp: project.ambientTemp ?? 30,
     groupingCount: 1,
+    code,
     // Whole-building vector neutral current (imbalance-aware), so the MDB
     // incomer neutral is kept full-size when the board is unbalanced.
     neutralCurrent: overallBalance.neutralCurrent,

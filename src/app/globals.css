@@ -512,3 +512,36 @@ html[dir="rtl"] .font-mono {
     border-radius: 0 !important;
   }
 }
+
+/* Sidebar Project Name Marquee Animation */
+@keyframes sidebar-marquee {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes sidebar-marquee-rtl {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(50%);
+  }
+}
+
+.animate-sidebar-marquee {
+  display: inline-flex;
+  animation: sidebar-marquee 12s linear infinite;
+}
+
+html[dir="rtl"] .animate-sidebar-marquee {
+  animation: sidebar-marquee-rtl 12s linear infinite;
+}
+
+.animate-sidebar-marquee:hover {
+  animation-play-state: paused;
+}
+

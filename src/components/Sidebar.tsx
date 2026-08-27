@@ -221,6 +221,65 @@ function ProjectSelector({ isCollapsed }: { isCollapsed?: boolean }) {
   );
 }
 
+function MarqueeText({
+  text,
+  className,
+}: {
+  text: string;
+  className?: string;
+}) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const textRef = useRef<HTMLSpanElement>(null);
+  const [isOverflowing, setIsOverflowing] = useState(false);
+
+  useEffect(() => {
+    const checkOverflow = () => {
+      if (containerRef.current && textRef.current) {
+        setIsOverflowing(textRef.current.scrollWidth > containerRef.current.clientWidth + 4);
+      }
+    };
+    checkOverflow();
+    const ro = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(checkOverflow) : null;
+    if (ro && containerRef.current) ro.observe(containerRef.current);
+    window.addEventListener('resize', checkOverflow);
+    return () => {
+      ro?.disconnect();
+      window.removeEventListener('resize', checkOverflow);
+    };
+  }, [text]);
+
+  if (!isOverflowing) {
+    return (
+      <div ref={containerRef} className={cn("overflow-hidden whitespace-nowrap min-w-0 flex-1", className)}>
+        <span ref={textRef} className="truncate block">
+          {text}
+        </span>
+      </div>
+    );
+  }
+
+  return (
+    <div
+      ref={containerRef}
+      className={cn(
+        "overflow-hidden whitespace-nowrap min-w-0 flex-1 relative group/marquee",
+        className
+      )}
+    >
+      <div className="inline-flex whitespace-nowrap animate-sidebar-marquee group-hover/marquee:[animation-play-state:paused] will-change-transform">
+        <span ref={textRef} className="pr-5">
+          {text}
+        </span>
+        <span className="pr-5 text-orange-400/60 font-mono select-none">•</span>
+        <span className="pr-5" aria-hidden="true">
+          {text}
+        </span>
+        <span className="pr-5 text-orange-400/60 font-mono select-none" aria-hidden="true">•</span>
+      </div>
+    </div>
+  );
+}
+
 export default function Sidebar() {
   const pathname = usePathname();
   const { user: currentUser } = useUser();
@@ -309,72 +368,124 @@ export default function Sidebar() {
           </div>
         )}
         {NAV_ITEMS.map(({ id, labelKey, href, icon: Icon, stepNumber }) => {
-          const isActive = pathname === href || pathname.startsWith(`${href}/`);
+          const isProjectsItem = id === "projects";
+          const isActive = isProjectsItem
+            ? pathname === "/projects"
+            : pathname === href || pathname.startsWith(`${href}/`);
           const tourKey = `tour-${href.replace("/", "")}`;
           const label = t(labelKey);
           const isRestricted = id !== "dashboard" && id !== "projects" && id !== "settings" && !canView(id);
 
+          const isSelectedProjectActive = selectedProject && (
+            pathname === `/projects/${selectedProject.id}` ||
+            pathname.startsWith(`/projects/${selectedProject.id}/`)
+          );
+
           return (
-            <Link
-              key={href}
-              href={isRestricted ? "#" : href}
-              onClick={(e) => {
-                if (isRestricted) {
-                  e.preventDefault();
-                  e.stopPropagation();
-                }
-              }}
-              aria-disabled={isRestricted}
-              tabIndex={isRestricted ? -1 : undefined}
-              data-tour={tourKey}
-              title={isCollapsed ? (isRestricted ? `${label} (${t('rbac.accessRestricted', 'Restricted')})` : label) : isRestricted ? `${label} (${t('rbac.accessRestricted', 'Restricted')})` : undefined}
-              className={cn(
-                "group flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 outline-none",
-                isCollapsed ? "justify-center px-0 py-2.5" : "",
-                isRestricted
-                  ? "opacity-50 text-slate-600 hover:text-slate-600 bg-transparent cursor-not-allowed select-none"
-                  : isActive
-                  ? isRtl
-                    ? "bg-gradient-to-l from-orange-600/25 to-amber-600/10 text-orange-300 border-r-2 border-orange-500 shadow-[0_0_15px_rgba(234,88,12,0.15)] font-semibold"
-                    : "bg-gradient-to-r from-orange-600/25 to-amber-600/10 text-orange-300 border-l-2 border-orange-500 shadow-[0_0_15px_rgba(234,88,12,0.15)] font-semibold"
-                  : isRtl
-                  ? "text-slate-400 hover:text-slate-100 hover:bg-slate-900/80 border-r-2 border-transparent"
-                  : "text-slate-400 hover:text-slate-100 hover:bg-slate-900/80 border-l-2 border-transparent"
-              )}
-              aria-current={isActive ? "page" : undefined}
-            >
-              <Icon
-                size={18}
+            <div key={href} className="space-y-0.5">
+              <Link
+                href={isRestricted ? "#" : href}
+                onClick={(e) => {
+                  if (isRestricted) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                  }
+                }}
+                aria-disabled={isRestricted}
+                tabIndex={isRestricted ? -1 : undefined}
+                data-tour={tourKey}
+                title={isCollapsed ? (isRestricted ? `${label} (${t('rbac.accessRestricted', 'Restricted')})` : label) : isRestricted ? `${label} (${t('rbac.accessRestricted', 'Restricted')})` : undefined}
                 className={cn(
-                  "flex-shrink-0 transition-colors duration-200",
-                  isRestricted ? "text-slate-600" : isActive ? "text-orange-400" : "text-slate-500"
+                  "group flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 outline-none",
+                  isCollapsed ? "justify-center px-0 py-2.5" : "",
+                  isRestricted
+                    ? "opacity-50 text-slate-600 hover:text-slate-600 bg-transparent cursor-not-allowed select-none"
+                    : isActive
+                    ? isRtl
+                      ? "bg-gradient-to-l from-orange-600/25 to-amber-600/10 text-orange-300 border-r-2 border-orange-500 shadow-[0_0_15px_rgba(234,88,12,0.15)] font-semibold"
+                      : "bg-gradient-to-r from-orange-600/25 to-amber-600/10 text-orange-300 border-l-2 border-orange-500 shadow-[0_0_15px_rgba(234,88,12,0.15)] font-semibold"
+                    : isRtl
+                    ? "text-slate-400 hover:text-slate-100 hover:bg-slate-900/80 border-r-2 border-transparent"
+                    : "text-slate-400 hover:text-slate-100 hover:bg-slate-900/80 border-l-2 border-transparent"
                 )}
-              />
-              {!isCollapsed && (
-                <span className={cn("truncate flex-1", isRestricted && "text-slate-500")}>
-                  {label}
-                </span>
+                aria-current={isActive ? "page" : undefined}
+              >
+                <Icon
+                  size={18}
+                  className={cn(
+                    "flex-shrink-0 transition-colors duration-200",
+                    isRestricted ? "text-slate-600" : isActive ? "text-orange-400" : "text-slate-500"
+                  )}
+                />
+                {!isCollapsed && (
+                  <span className={cn("truncate flex-1", isRestricted && "text-slate-500")}>
+                    {label}
+                  </span>
+                )}
+                {!isCollapsed && isRestricted && (
+                  <Lock size={12} className="text-slate-500 shrink-0" />
+                )}
+                {!isCollapsed && !isRestricted && stepNumber && (
+                  <span className={cn(
+                    "text-[10px] font-mono font-bold w-4 h-4 rounded flex items-center justify-center shrink-0 transition-colors",
+                    isActive
+                      ? "bg-orange-500/20 text-orange-300 border border-orange-500/40"
+                      : "bg-slate-800/80 text-slate-500 group-hover:text-slate-300 group-hover:bg-slate-800"
+                  )}>
+                    {stepNumber}
+                  </span>
+                )}
+                {!isCollapsed && !isRestricted && isActive && !stepNumber && (
+                  <span className={cn(
+                    "w-1.5 h-1.5 rounded-full bg-orange-500 shadow-[0_0_8px_rgba(234,88,12,0.9)] flex-shrink-0",
+                    isRtl ? "mr-auto" : "ml-auto"
+                  )} />
+                )}
+              </Link>
+
+              {/* Selected Project Quick Navigation button under Projects */}
+              {isProjectsItem && selectedProject && (
+                <Link
+                  href={`/projects/${selectedProject.id}`}
+                  title={isCollapsed ? `${selectedProject.name} (${t('projects.buildingsAndSettings', 'Buildings & Settings')})` : selectedProject.name}
+                  data-tour="selected-project-nav"
+                  className={cn(
+                    "group flex items-center rounded-lg text-xs font-medium transition-all duration-200 outline-none relative overflow-hidden",
+                    isCollapsed
+                      ? "justify-center p-2 mx-auto my-0.5 w-10 h-8"
+                      : isRtl
+                      ? "mr-3 pr-2.5 pl-2 py-1.5 gap-2 my-0.5 border-r-2 border-slate-800/80 hover:border-orange-500/40"
+                      : "ml-3 pl-2.5 pr-2 py-1.5 gap-2 my-0.5 border-l-2 border-slate-800/80 hover:border-orange-500/40",
+                    isSelectedProjectActive
+                      ? isRtl
+                        ? "bg-gradient-to-l from-orange-600/20 to-amber-600/10 text-orange-200 border-r-2 border-orange-500 shadow-[0_0_12px_rgba(234,88,12,0.12)] font-semibold"
+                        : "bg-gradient-to-r from-orange-600/20 to-amber-600/10 text-orange-200 border-l-2 border-orange-500 shadow-[0_0_12px_rgba(234,88,12,0.12)] font-semibold"
+                      : "text-slate-400 hover:text-slate-100 hover:bg-slate-900/70"
+                  )}
+                  aria-current={isSelectedProjectActive ? "page" : undefined}
+                >
+                  <Building2
+                    size={14}
+                    className={cn(
+                      "flex-shrink-0 transition-colors",
+                      isSelectedProjectActive ? "text-orange-400" : "text-slate-500 group-hover:text-orange-400/80"
+                    )}
+                  />
+                  {!isCollapsed && (
+                    <MarqueeText
+                      text={selectedProject.name}
+                      className={cn(
+                        "text-xs",
+                        isSelectedProjectActive ? "text-orange-200 font-semibold" : "text-slate-300 group-hover:text-white"
+                      )}
+                    />
+                  )}
+                  {!isCollapsed && isSelectedProjectActive && (
+                    <span className="w-1.5 h-1.5 rounded-full bg-orange-400 shadow-[0_0_6px_rgba(234,88,12,0.9)] flex-shrink-0" />
+                  )}
+                </Link>
               )}
-              {!isCollapsed && isRestricted && (
-                <Lock size={12} className="text-slate-500 shrink-0" />
-              )}
-              {!isCollapsed && !isRestricted && stepNumber && (
-                <span className={cn(
-                  "text-[10px] font-mono font-bold w-4 h-4 rounded flex items-center justify-center shrink-0 transition-colors",
-                  isActive
-                    ? "bg-orange-500/20 text-orange-300 border border-orange-500/40"
-                    : "bg-slate-800/80 text-slate-500 group-hover:text-slate-300 group-hover:bg-slate-800"
-                )}>
-                  {stepNumber}
-                </span>
-              )}
-              {!isCollapsed && !isRestricted && isActive && !stepNumber && (
-                <span className={cn(
-                  "w-1.5 h-1.5 rounded-full bg-orange-500 shadow-[0_0_8px_rgba(234,88,12,0.9)] flex-shrink-0",
-                  isRtl ? "mr-auto" : "ml-auto"
-                )} />
-              )}
-            </Link>
+            </div>
           );
         })}
       </nav>

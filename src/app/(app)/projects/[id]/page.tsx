@@ -160,13 +160,42 @@ export default function ProjectDetailPage() {
   }, [projectId, selectedProject?.id]);
 
   const handleSaveProject = async () => {
-    await fetch(`/api/projects/${projectId}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(projectForm),
-    });
+    // 1. Prepare typed values from projectForm
+    const updatedFields: Record<string, any> = { ...projectForm };
+    if (projectForm.voltage) updatedFields.voltage = parseFloat(projectForm.voltage) || project?.voltage;
+    if (projectForm.frequency) updatedFields.frequency = parseFloat(projectForm.frequency) || project?.frequency;
+    if (projectForm.powerFactor) updatedFields.powerFactor = parseFloat(projectForm.powerFactor) || project?.powerFactor;
+    if (projectForm.maxDemandFactor) updatedFields.maxDemandFactor = parseFloat(projectForm.maxDemandFactor) || project?.maxDemandFactor;
+    if (projectForm.maxVoltageDropLighting) updatedFields.maxVoltageDropLighting = parseFloat(projectForm.maxVoltageDropLighting) || project?.maxVoltageDropLighting;
+    if (projectForm.maxVoltageDropPower) updatedFields.maxVoltageDropPower = parseFloat(projectForm.maxVoltageDropPower) || project?.maxVoltageDropPower;
+
+    // 2. Optimistic local update: instant 0ms UI update
+    setProject((prev: any) => (prev ? { ...prev, ...updatedFields } : null));
+    mutateProject((prev) => (prev ? ({ ...prev, ...updatedFields } as any) : null));
     setEditingProject(false);
-    loadProject();
+
+    // 3. Background asynchronous save with keepalive: true so browser persists even if user leaves page
+    try {
+      const res = await fetch(`/api/projects/${projectId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(projectForm),
+        keepalive: true,
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setProject((prev: any) => (prev ? { ...prev, ...data } : null));
+        mutateProject((prev) => (prev ? ({ ...prev, ...data } as any) : null));
+      } else {
+        console.error('Failed to save project settings, reloading');
+        loadProject();
+        refreshProject();
+      }
+    } catch (err) {
+      console.error('Save project error:', err);
+      loadProject();
+      refreshProject();
+    }
   };
 
   const handleDeleteBuilding = async (buildingId: string) => {
@@ -196,20 +225,49 @@ export default function ProjectDetailPage() {
     e.preventDefault();
     if (!editingBuilding) return;
 
-    const res = await fetch(`/api/buildings/${editingBuilding.id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(buildingForm),
-    });
-
-    if (!res.ok) {
-      alert('Failed to update building');
-      return;
-    }
+    const bldgId = editingBuilding.id;
+    const formSnapshot = { ...buildingForm };
 
     setEditingBuilding(null);
-    loadProject();
-    refreshProject();
+    setProject((prev: any) => {
+      if (!prev) return null;
+      return {
+        ...prev,
+        buildings: (prev.buildings || []).map((b: Building) =>
+          b.id === bldgId
+            ? {
+                ...b,
+                ...formSnapshot,
+                floors: Number(formSnapshot.floors),
+                serviceFloors: Number(formSnapshot.serviceFloors),
+                apartmentsPerFloor: Number(formSnapshot.apartmentsPerFloor),
+              }
+            : b
+        ),
+      };
+    });
+
+    try {
+      const res = await fetch(`/api/buildings/${bldgId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formSnapshot),
+        keepalive: true,
+      });
+
+      if (!res.ok) {
+        alert('Failed to update building');
+        loadProject();
+        refreshProject();
+        return;
+      }
+      loadProject();
+      refreshProject();
+    } catch (err) {
+      console.error(err);
+      loadProject();
+      refreshProject();
+    }
   };
 
   const handleNewBuilding = async (e: React.FormEvent<HTMLFormElement>) => {

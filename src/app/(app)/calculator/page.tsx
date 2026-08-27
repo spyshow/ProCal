@@ -365,24 +365,22 @@ function CalculatorContent() {
       {project && bldg && buildingBalance ? (
         <>
       {/* Building Tabs */}
-      {project.buildings.length > 1 && (
-        <div className="flex gap-2 flex-wrap">
-          {project.buildings.map((b) => (
-            <button
-              key={b.id}
-              onClick={() => setSelectedBuilding(b.id)}
-              className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-                selectedBuilding === b.id ? 'bg-orange-600 text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
-              }`}
-            >
-              {b.name}
-            </button>
-          ))}
-        </div>
-      )}
+      <div data-tour="calc-buildings" className="flex gap-2 flex-wrap">
+        {project.buildings.map((b) => (
+          <button
+            key={b.id}
+            onClick={() => setSelectedBuilding(b.id)}
+            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+              selectedBuilding === b.id ? 'bg-orange-600 text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+            }`}
+          >
+            {b.name}
+          </button>
+        ))}
+      </div>
 
       {/* Summary Stats */}
-      <div data-tour="calc-stats" className="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div data-tour="calc-summary" className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {[
           {
             label: t('common.connectedLoad', 'Connected Load'),
@@ -420,7 +418,7 @@ function CalculatorContent() {
       </div>
 
       {/* Per-Phase Building Summary */}
-      <div data-tour="calc-building-loads" className="rounded-xl border border-gray-800 bg-gray-900/40 p-4">
+      <div data-tour="calc-phase-balance" className="rounded-xl border border-gray-800 bg-gray-900/40 p-4">
         <div className="flex items-center justify-between mb-3">
           <h3 className="text-sm font-semibold text-gray-300">
             {t('calculator.perPhaseBalance', 'Per-Phase Balance')} &mdash; {bldg.name}
@@ -456,7 +454,7 @@ function CalculatorContent() {
 
       {/* Building Loads (foldable, read-only) — attached on the Buildings page */}
       {bldg.buildingLoads && bldg.buildingLoads.length > 0 && (
-        <div className="rounded-xl border border-gray-800 bg-gray-900/40 min-w-0">
+        <div data-tour="calc-building-loads" className="rounded-xl border border-gray-800 bg-gray-900/40 min-w-0">
           <div
             className="flex items-center gap-3 p-3 cursor-pointer hover:bg-gray-800/30 transition-colors"
             onClick={() => setExpandedBuildingLoads((v) => !v)}

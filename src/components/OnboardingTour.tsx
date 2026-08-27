@@ -503,24 +503,45 @@ export function OnboardingTour() {
       return;
     }
     const currentStep = stepsList[activeStep];
-    const el = document.querySelector(`[data-tour="${currentStep.targetAttr}"]`);
-    if (el) {
-      setTargetRect(el.getBoundingClientRect());
-    } else {
-      setTargetRect(null);
+    let el = document.querySelector(`[data-tour="${currentStep.targetAttr}"]`);
+    if (!el && currentStep.targetAttr === 'calc-summary') {
+      el = document.querySelector('[data-tour="calc-stats"]');
     }
+    if (!el && currentStep.targetAttr === 'calc-building-loads') {
+      el = document.querySelector('[data-tour="calc-phase-balance"]');
+    }
+    if (el) {
+      const rect = el.getBoundingClientRect();
+      if (rect.width > 0 && rect.height > 0) {
+        setTargetRect(rect);
+        // Scroll element into view if not comfortably visible
+        const inViewport =
+          rect.top >= 40 &&
+          rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) - 40;
+        if (!inViewport) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          setTimeout(() => {
+            if (el) setTargetRect(el.getBoundingClientRect());
+          }, 200);
+        }
+        return;
+      }
+    }
+    setTargetRect(null);
   }, [activeStep, stepsList]);
 
   useEffect(() => {
     // Retry finding element as page loads
-    const timer1 = setTimeout(updateTargetRect, 100);
-    const timer2 = setTimeout(updateTargetRect, 400);
+    const timer1 = setTimeout(updateTargetRect, 80);
+    const timer2 = setTimeout(updateTargetRect, 250);
+    const timer3 = setTimeout(updateTargetRect, 500);
 
     window.addEventListener('resize', updateTargetRect);
     window.addEventListener('scroll', updateTargetRect, true);
     return () => {
       clearTimeout(timer1);
       clearTimeout(timer2);
+      clearTimeout(timer3);
       window.removeEventListener('resize', updateTargetRect);
       window.removeEventListener('scroll', updateTargetRect, true);
     };

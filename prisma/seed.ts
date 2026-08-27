@@ -19,6 +19,23 @@ const db = new PrismaClient({ adapter });
 async function main() {
   console.log("Seeding database...");
 
+  // Ensure all schema columns exist before querying
+  if (pool) {
+    try {
+      await pool.query(`
+        ALTER TABLE "Building" ADD COLUMN IF NOT EXISTS "incomerCableSize" TEXT;
+        ALTER TABLE "Building" ADD COLUMN IF NOT EXISTS "incomerCableLength" DOUBLE PRECISION;
+        ALTER TABLE "Building" ADD COLUMN IF NOT EXISTS "incomerInstallMethod" TEXT;
+        ALTER TABLE "Building" ADD COLUMN IF NOT EXISTS "incomerCableInsulation" TEXT;
+        ALTER TABLE "Building" ADD COLUMN IF NOT EXISTS "incomerCableMaterial" TEXT DEFAULT 'copper';
+        ALTER TABLE "Building" ADD COLUMN IF NOT EXISTS "incomerAmbientTemp" DOUBLE PRECISION DEFAULT 30;
+        ALTER TABLE "Building" ADD COLUMN IF NOT EXISTS "incomerGroupingCount" INTEGER DEFAULT 1;
+      `);
+    } catch (e: any) {
+      console.warn("Notice: Column check during seed:", e.message);
+    }
+  }
+
   await seedBootstrapAdmin();
   await seedEquipmentCatalog();
 

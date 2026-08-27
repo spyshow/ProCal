@@ -813,6 +813,7 @@ export default function PanelDesignerPage() {
                           voltageV: Math.round(project?.voltage ? project.voltage / Math.sqrt(3) : 230),
                           isThreePhase: false,
                           calculatedCurrentA: f.phaseCurrent?.[0] ?? f.current,
+                          calculationStandard: project.calculationStandard || selectedProject?.calculationStandard,
                         })
                       }
                     >
@@ -829,6 +830,7 @@ export default function PanelDesignerPage() {
                           voltageV: Math.round(project?.voltage ? project.voltage / Math.sqrt(3) : 230),
                           isThreePhase: false,
                           calculatedCurrentA: f.phaseCurrent?.[1] ?? f.current,
+                          calculationStandard: project.calculationStandard || selectedProject?.calculationStandard,
                         })
                       }
                     >
@@ -845,6 +847,7 @@ export default function PanelDesignerPage() {
                           voltageV: Math.round(project?.voltage ? project.voltage / Math.sqrt(3) : 230),
                           isThreePhase: false,
                           calculatedCurrentA: f.phaseCurrent?.[2] ?? f.current,
+                          calculationStandard: project.calculationStandard || selectedProject?.calculationStandard,
                         })
                       }
                     >
@@ -862,6 +865,7 @@ export default function PanelDesignerPage() {
                           l3A: f.phaseCurrent?.[2] ?? f.current,
                           unbalancePercent: f.unbalancePct ?? 0,
                           maxAllowablePercent: 10,
+                          calculationStandard: project.calculationStandard || selectedProject?.calculationStandard,
                         })
                       }
                     >
@@ -880,6 +884,7 @@ export default function PanelDesignerPage() {
                           frameSizeA: f.breakerSize >= 630 ? f.breakerSize : f.breakerSize > 160 ? 250 : 160,
                           breakingCapacityKa: f.breakerSize >= 630 ? 65 : 36,
                           cableAmpacityA: f.cableIz,
+                          calculationStandard: project.calculationStandard || selectedProject?.calculationStandard,
                         })
                       }
                     >
@@ -905,10 +910,11 @@ export default function PanelDesignerPage() {
                           deratedAmpacityPerRun: f.cableIz || Math.round(f.current * 1.1),
                           totalDeratedAmpacity: f.cableIz || Math.round(f.current * 1.1),
                           designCurrentA: f.current,
+                          calculationStandard: project.calculationStandard || selectedProject?.calculationStandard,
                         })
                       }
                     >
-                      {f.cableSize}
+                      {formatCableSizeFor(f.cableSize, project.calculationStandard || selectedProject?.calculationStandard)}
                     </TraceableCell>
                   </td>
                 </tr>

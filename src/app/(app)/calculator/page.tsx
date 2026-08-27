@@ -619,6 +619,7 @@ function CalculatorContent() {
                                       voltageV: isThreePhase ? (project?.voltage || 400) : Math.round((project?.voltage || 400) / Math.sqrt(3)),
                                       isThreePhase: isThreePhase || itemPhaseCount === 3,
                                       calculatedCurrentA: item.calculatedCurrent,
+                                      calculationStandard: project?.calculationStandard,
                                     })
                                   }
                                 >
@@ -636,6 +637,7 @@ function CalculatorContent() {
                                       isThreePhase: isThreePhase || itemPhaseCount === 3,
                                       demandFactor: item.calculatedConnectedLoad > 0 ? item.calculatedMaxDemand / item.calculatedConnectedLoad : 1.0,
                                       calculatedCurrentA: item.calculatedCurrent,
+                                      calculationStandard: project?.calculationStandard,
                                     })
                                   }
                                 >
@@ -653,6 +655,7 @@ function CalculatorContent() {
                                       isThreePhase: isThreePhase || itemPhaseCount === 3,
                                       demandFactor: item.calculatedConnectedLoad > 0 ? item.calculatedMaxDemand / item.calculatedConnectedLoad : 1.0,
                                       calculatedCurrentA: item.calculatedCurrent,
+                                      calculationStandard: project?.calculationStandard,
                                     })
                                   }
                                 >

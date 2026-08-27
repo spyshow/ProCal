@@ -175,6 +175,7 @@ export default function VDSchedule({ project, buildingId, showHeader = true }: V
                       voltageV: Math.round(voltage),
                       isThreePhase: is3Ph,
                       calculatedCurrentA: row.current,
+                      calculationStandard: project.calculationStandard,
                     });
                   }}
                 >
@@ -208,6 +209,7 @@ export default function VDSchedule({ project, buildingId, showHeader = true }: V
                       dropVolts,
                       dropPercent: row.vd,
                       maxDropPercentLimit: project.maxVoltageDropPower || 5.0,
+                      calculationStandard: project.calculationStandard,
                     });
                   }}
                 >
@@ -235,6 +237,7 @@ export default function VDSchedule({ project, buildingId, showHeader = true }: V
                       dropVolts,
                       dropPercent: row.vd,
                       maxDropPercentLimit: project.maxVoltageDropPower || 5.0,
+                      calculationStandard: project.calculationStandard,
                     });
                   }}
                 >

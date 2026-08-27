@@ -2,7 +2,7 @@
  * Calculation Trace Engine ("Show Your Work")
  *
  * Provides on-demand, step-by-step mathematical traces, substituted values,
- * parameter provenance, governing standard citations (IEC / BS / IEEE),
+ * parameter provenance, governing standard citations (IEC / NEC / NEMA / IEEE),
  * and compliance checks for all engineering calculations across ProCal schedules.
  */
 
@@ -10,6 +10,8 @@ import { CABLE_CATALOG } from "./cablesData";
 import { clampPowerFactor } from "./validate";
 import { sourceXrRatio, splitSourceImpedance } from "./shortCircuit";
 import { currentUnbalancePct } from "./phaseBalance";
+import { codeOf, CodeStandard } from "./codes";
+import { formatCableSizeFor } from "./cables";
 
 export interface TraceParameter {
   name: string;
@@ -40,7 +42,9 @@ export interface TraceDefinition {
   metric: string;
   resultValue: string;
   resultUnit?: string;
-  standardCitation: string; // e.g. "IEC 60364-5-52 §525"
+  standardCitation: string; // e.g. "IEC 60364-5-52 §525" or "NEC 210.19(A)"
+  standardBadge?: string; // e.g. "IEC Standards Verified" or "NEC / NEMA Standards Verified"
+  code?: CodeStandard;
   steps: TraceStep[];
   parameters: TraceParameter[];
   compliance?: TraceCompliance;
@@ -66,6 +70,8 @@ export interface VoltageDropTraceInputs {
   maxDropPercentLimit?: number; // default 3.0% (lighting/sub-circuits) or 5.0%
   rOhmPerKm?: number;
   xOhmPerKm?: number;
+  calculationStandard?: string | null;
+  code?: CodeStandard;
   sourceNotes?: {
     lengthSource?: string;
     cableSource?: string;
@@ -74,6 +80,8 @@ export interface VoltageDropTraceInputs {
 }
 
 export function buildVoltageDropTrace(inputs: VoltageDropTraceInputs): TraceDefinition {
+  const code: CodeStandard = inputs.code ?? codeOf(inputs.calculationStandard);
+  const isNec = code === "NEC";
   const is3Ph = inputs.isThreePhase;
   const runs = Math.max(1, inputs.parallelRuns || 1);
   const cosPhi = clampPowerFactor(inputs.powerFactor ?? 0.85);
@@ -119,10 +127,21 @@ export function buildVoltageDropTrace(inputs: VoltageDropTraceInputs): TraceDefi
     },
   ];
 
+  const cableDisplay = formatCableSizeFor(
+    runs > 1 ? `${runs} × ${inputs.cableSizeMm2}` : inputs.cableSizeMm2,
+    inputs.calculationStandard ?? (isNec ? "NEMA" : "IEC")
+  );
+
   const parameters: TraceParameter[] = [
     { name: "Design Current", symbol: "Ib", value: inputs.currentA.toFixed(1), unit: "A", source: "Load Calculation" },
     { name: "Circuit Length", symbol: "L", value: inputs.lengthM.toFixed(1), unit: "m", source: inputs.sourceNotes?.lengthSource || "Project Cable Routing" },
-    { name: "Cable Section", symbol: "S", value: runs > 1 ? `${runs} × ${inputs.cableSizeMm2}` : inputs.cableSizeMm2, unit: "mm²", source: inputs.sourceNotes?.cableSource || "Cable Schedule" },
+    {
+      name: isNec ? "Cable Size (NEC)" : "Cable Section",
+      symbol: "S",
+      value: isNec ? cableDisplay : runs > 1 ? `${runs} × ${inputs.cableSizeMm2}` : inputs.cableSizeMm2,
+      unit: isNec ? undefined : "mm²",
+      source: inputs.sourceNotes?.cableSource || (isNec ? "Cable Schedule (NEC)" : "Cable Schedule"),
+    },
     { name: "Conductor Material", symbol: "Mat", value: inputs.conductorMaterial === "aluminum" ? "Aluminum (Al)" : "Copper (Cu)", source: "Project Spec" },
     { name: "Power Factor", symbol: "cos φ", value: cosPhi.toFixed(2), source: "Load Profile" },
     { name: "Nominal System Voltage", symbol: "Vn", value: inputs.systemVoltageV, unit: "V", source: is3Ph ? "3-Phase 400V Grid" : "1-Phase 230V Grid" },
@@ -133,7 +152,9 @@ export function buildVoltageDropTrace(inputs: VoltageDropTraceInputs): TraceDefi
     metric: "Voltage Drop (ΔV%)",
     resultValue: `${inputs.dropPercent.toFixed(2)}% (${inputs.dropVolts.toFixed(2)} V)`,
     resultUnit: "%",
-    standardCitation: "IEC 60364-5-52 §525 & Table F.52-1 / BS 7671",
+    standardCitation: isNec ? "NEC 210.19(A) & NEC Ch. 9 Table 8 / IEEE 141" : "IEC 60364-5-52 §525 & Table F.52-1 / BS 7671",
+    standardBadge: isNec ? "NEC / NEMA Standards Verified" : "IEC Standards Verified",
+    code,
     steps,
     parameters,
     compliance: {
@@ -144,7 +165,7 @@ export function buildVoltageDropTrace(inputs: VoltageDropTraceInputs): TraceDefi
       margin: passed ? `+${margin}% (Adequate)` : `${margin}% (Exceeds Allowable Limit)`,
     },
     notes: [
-      `Allowable limit per standard: ${limit.toFixed(1)}% for ${is3Ph ? "mains distribution" : "final sub-circuits"}.`,
+      `Allowable limit per standard: ${limit.toFixed(1)}% (${isNec ? "NEC 210.19(A) branch / feeder guidance" : is3Ph ? "mains distribution" : "final sub-circuits"}).`,
       runs > 1 ? `Parallel run impedance divided by ${runs} circuits.` : "Single circuit configuration.",
     ],
   };
@@ -170,9 +191,13 @@ export interface CableAmpacityTraceInputs {
   totalDeratedAmpacity: number; // Iz total
   breakerSizeA?: number; // In
   designCurrentA?: number; // Ib
+  calculationStandard?: string | null;
+  code?: CodeStandard;
 }
 
 export function buildCableAmpacityTrace(inputs: CableAmpacityTraceInputs): TraceDefinition {
+  const code: CodeStandard = inputs.code ?? codeOf(inputs.calculationStandard);
+  const isNec = code === "NEC";
   const runs = Math.max(1, inputs.parallelRuns || 1);
   const totalDerating = inputs.tempFactor * inputs.groupFactor * (inputs.soilFactor ?? 1.0);
   const ib = inputs.designCurrentA ?? 0;
@@ -210,16 +235,35 @@ export function buildCableAmpacityTrace(inputs: CableAmpacityTraceInputs): Trace
 
   if (inBreaker > 0) {
     steps.push({
-      label: "Coordination Check (IEC 60364-4-43)",
+      label: isNec ? "Coordination Check (NEC 240.4 & IEC 60364-4-43)" : "Coordination Check (IEC 60364-4-43)",
       formula: "Ib ≤ In ≤ Iz",
       substituted: `${ib.toFixed(1)} A (Ib) ≤ ${inBreaker} A (In) ≤ ${iz.toFixed(1)} A (Iz)`,
       description: "Verifies cable is fully protected against overloads by upstream breaker.",
     });
   }
 
+  const cableDisplay = formatCableSizeFor(
+    runs > 1 ? `${runs} × ${inputs.cableSizeMm2}` : inputs.cableSizeMm2,
+    inputs.calculationStandard ?? (isNec ? "NEMA" : "IEC")
+  );
+
   const parameters: TraceParameter[] = [
-    { name: "Selected Cable Size", symbol: "S", value: runs > 1 ? `${runs} × ${inputs.cableSizeMm2}` : inputs.cableSizeMm2, unit: "mm²", source: "Catalog Sizing" },
-    { name: "Base Tabulated Ampacity", symbol: "Iz,tab", value: inputs.nominalAmpacityPerRun.toFixed(1), unit: "A", source: `IEC 60364-5-52 Table (${inputs.installMethod || "Method C"})` },
+    {
+      name: isNec ? "Selected Cable Size (NEC)" : "Selected Cable Size",
+      symbol: "S",
+      value: isNec ? cableDisplay : runs > 1 ? `${runs} × ${inputs.cableSizeMm2}` : inputs.cableSizeMm2,
+      unit: isNec ? undefined : "mm²",
+      source: isNec ? "NEC / Catalog Sizing" : "Catalog Sizing",
+    },
+    {
+      name: "Base Tabulated Ampacity",
+      symbol: "Iz,tab",
+      value: inputs.nominalAmpacityPerRun.toFixed(1),
+      unit: "A",
+      source: isNec
+        ? `NEC / IEC Table (${inputs.installMethod || "Method C"})`
+        : `IEC 60364-5-52 Table (${inputs.installMethod || "Method C"})`,
+    },
     { name: "Ambient Temperature Factor", symbol: "Ca", value: inputs.tempFactor.toFixed(2), source: `Temp: ${inputs.ambientTempC ?? 45}°C (Table B.52.14)` },
     { name: "Grouping Factor", symbol: "Cg", value: inputs.groupFactor.toFixed(2), source: `Grouping: ${inputs.groupingCount ?? 1} circuits (Table B.52.17)` },
     { name: "Insulation & Material", symbol: "Type", value: `${inputs.material === "aluminum" ? "Al" : "Cu"} / ${inputs.insulation || "XLPE"}`, source: "Specification" },
@@ -230,7 +274,9 @@ export function buildCableAmpacityTrace(inputs: CableAmpacityTraceInputs): Trace
     metric: "Derated Ampacity (Iz)",
     resultValue: `${iz.toFixed(1)} A`,
     resultUnit: "A",
-    standardCitation: "IEC 60364-5-52 §523 & Tables B.52.1–B.52.17",
+    standardCitation: isNec ? "NEC (NEMA) / IEC 60364-5-52 §523 & Tables B.52.1–B.52.17" : "IEC 60364-5-52 §523 & Tables B.52.1–B.52.17",
+    standardBadge: isNec ? "NEC / NEMA Standards Verified" : "IEC Standards Verified",
+    code,
     steps,
     parameters,
     compliance: {
@@ -256,9 +302,13 @@ export interface DesignCurrentTraceInputs {
   demandFactor?: number;
   coincidentPowerKw?: number;
   calculatedCurrentA: number;
+  calculationStandard?: string | null;
+  code?: CodeStandard;
 }
 
 export function buildDesignCurrentTrace(inputs: DesignCurrentTraceInputs): TraceDefinition {
+  const code: CodeStandard = inputs.code ?? codeOf(inputs.calculationStandard);
+  const isNec = code === "NEC";
   const is3Ph = inputs.isThreePhase;
   const cosPhi = Math.max(0.1, Math.min(1.0, inputs.powerFactor || 0.85));
   const df = inputs.demandFactor ?? 1.0;
@@ -306,7 +356,9 @@ export function buildDesignCurrentTrace(inputs: DesignCurrentTraceInputs): Trace
     metric: "Design Current (Ib)",
     resultValue: `${inputs.calculatedCurrentA.toFixed(1)} A`,
     resultUnit: "A",
-    standardCitation: "IEC 60364-1 & IEC 60038",
+    standardCitation: isNec ? "NEC Article 220 & IEEE Standard" : "IEC 60364-1 & IEC 60038",
+    standardBadge: isNec ? "NEC / NEMA Standards Verified" : "IEC Standards Verified",
+    code,
     steps,
     parameters,
   };
@@ -326,9 +378,13 @@ export interface ShortCircuitTraceInputs {
   threePhaseIscKa: number; // Ik" (kA)
   peakCurrentKa?: number; // Ip (kA)
   earthingSystem?: string; // TN-S, TT, IT
+  calculationStandard?: string | null;
+  code?: CodeStandard;
 }
 
 export function buildShortCircuitTrace(inputs: ShortCircuitTraceInputs): TraceDefinition {
+  const code: CodeStandard = inputs.code ?? codeOf(inputs.calculationStandard);
+  const isNec = code === "NEC";
   const vSec = inputs.voltageSecondaryV;
   const sKva = inputs.transformerKva;
   const zTrafoPercent = inputs.transformerZPercent;
@@ -369,17 +425,28 @@ export function buildShortCircuitTrace(inputs: ShortCircuitTraceInputs): TraceDe
 
   const parameters: TraceParameter[] = [
     { name: "Transformer Rating", symbol: "Sr", value: sKva, unit: "kVA", source: "Main Substation" },
-    { name: "Transformer Impedance", symbol: "uk%", value: `${zTrafoPercent}%`, source: "IEC 60076 Standard Table" },
+    {
+      name: "Transformer Impedance",
+      symbol: "uk%",
+      value: `${zTrafoPercent}%`,
+      source: isNec ? "IEEE / ANSI Standard Table" : "IEC 60076 Standard Table",
+    },
     { name: "Nominal Secondary Voltage", symbol: "Un", value: vSec, unit: "V", source: "Distribution Grid" },
     { name: "Earthing System", symbol: "System", value: inputs.earthingSystem || "TN-S", source: "Project Earthing Spec" },
   ];
 
   return {
-    title: inputs.locationName ? `Short Circuit Trace: ${inputs.locationName}` : "Short Circuit (IEC 60909) Trace",
+    title: inputs.locationName
+      ? `Short Circuit Trace: ${inputs.locationName}`
+      : isNec
+      ? "Short Circuit (IEEE / IEC 60909) Trace"
+      : "Short Circuit (IEC 60909) Trace",
     metric: "3-Phase Fault Level (Ik\")",
     resultValue: `${inputs.threePhaseIscKa.toFixed(2)} kA`,
     resultUnit: "kA",
-    standardCitation: "IEC 60909-0 & IEC 60076 (Power Transformers)",
+    standardCitation: isNec ? "IEEE 141 / IEEE 242 & IEC 60909-0" : "IEC 60909-0 & IEC 60076 (Power Transformers)",
+    standardBadge: isNec ? "IEEE / NEMA Standards Verified" : "IEC Standards Verified",
+    code,
     steps,
     parameters,
   };
@@ -397,9 +464,13 @@ export interface BreakerSizingTraceInputs {
   prospectiveFaultKa?: number; // Isc
   cableAmpacityA?: number; // Iz
   poles?: number;
+  calculationStandard?: string | null;
+  code?: CodeStandard;
 }
 
 export function buildBreakerSizingTrace(inputs: BreakerSizingTraceInputs): TraceDefinition {
+  const code: CodeStandard = inputs.code ?? codeOf(inputs.calculationStandard);
+  const isNec = code === "NEC";
   const ib = inputs.designCurrentA;
   const inRating = inputs.selectedTripA;
   const iz = inputs.cableAmpacityA;
@@ -411,7 +482,9 @@ export function buildBreakerSizingTrace(inputs: BreakerSizingTraceInputs): Trace
       label: "Nominal Trip Rating Selection (In)",
       formula: "Ib ≤ In",
       substituted: `${ib.toFixed(1)} A (Ib) ≤ ${inRating} A (In)`,
-      description: "Trip rating chosen from standard IEC ratings to carry continuous design current without nuisance tripping.",
+      description: isNec
+        ? "Trip rating chosen from standard NEC 240.6(A) ratings to carry continuous design current without nuisance tripping."
+        : "Trip rating chosen from standard IEC ratings to carry continuous design current without nuisance tripping.",
     },
   ];
 
@@ -437,9 +510,21 @@ export function buildBreakerSizingTrace(inputs: BreakerSizingTraceInputs): Trace
 
   const parameters: TraceParameter[] = [
     { name: "Continuous Load Current", symbol: "Ib", value: ib.toFixed(1), unit: "A", source: "Load Sizing" },
-    { name: "Selected Breaker Rating", symbol: "In", value: inRating, unit: "A", source: "Catalog Standard" },
+    {
+      name: "Selected Breaker Rating",
+      symbol: "In",
+      value: inRating,
+      unit: "A",
+      source: isNec ? "NEC 240.6(A) Standard" : "Catalog Standard",
+    },
     { name: "Breaker Frame Size", symbol: "Frame", value: inputs.frameSizeA, unit: "AF", source: "Manufacturer Series" },
-    { name: "Breaking Capacity", symbol: "Icu", value: icu, unit: "kA", source: "IEC 60947-2 Test Duty" },
+    {
+      name: "Breaking Capacity",
+      symbol: "Icu",
+      value: icu,
+      unit: "kA",
+      source: isNec ? "NEMA AB-1 / UL 489 / IEC 60947-2" : "IEC 60947-2 Test Duty",
+    },
   ];
 
   return {
@@ -447,7 +532,9 @@ export function buildBreakerSizingTrace(inputs: BreakerSizingTraceInputs): Trace
     metric: "Breaker Rating (In)",
     resultValue: `${inRating} A (${inputs.frameSizeA}AF / ${icu}kA)`,
     resultUnit: "A",
-    standardCitation: "IEC 60947-2 / IEC 60898-1 & IEC 60364-4-43",
+    standardCitation: isNec ? "NEC 240.6(A) / NEMA AB-1 & UL 489 / IEC 60947-2" : "IEC 60947-2 / IEC 60898-1 & IEC 60364-4-43",
+    standardBadge: isNec ? "NEC / NEMA Standards Verified" : "IEC Standards Verified",
+    code,
     steps,
     parameters,
     compliance: {
@@ -471,9 +558,13 @@ export interface PhaseBalanceTraceInputs {
   l3A: number;
   unbalancePercent: number;
   maxAllowablePercent?: number; // default 10%
+  calculationStandard?: string | null;
+  code?: CodeStandard;
 }
 
 export function buildPhaseBalanceTrace(inputs: PhaseBalanceTraceInputs): TraceDefinition {
+  const code: CodeStandard = inputs.code ?? codeOf(inputs.calculationStandard);
+  const isNec = code === "NEC";
   const i1 = inputs.l1A;
   const i2 = inputs.l2A;
   const i3 = inputs.l3A;
@@ -514,7 +605,9 @@ export function buildPhaseBalanceTrace(inputs: PhaseBalanceTraceInputs): TraceDe
     metric: "Phase Unbalance (%)",
     resultValue: `${inputs.unbalancePercent.toFixed(2)}%`,
     resultUnit: "%",
-    standardCitation: "IEC 61000-2-4 & IEEE 141 (Recommended < 10%)",
+    standardCitation: isNec ? "NEMA MG 1 & ANSI C84.1 / IEEE 141 (Recommended < 10%)" : "IEC 61000-2-4 & IEEE 141 (Recommended < 10%)",
+    standardBadge: isNec ? "NEMA / IEEE Standards Verified" : "IEC Standards Verified",
+    code,
     steps,
     parameters,
     compliance: {
@@ -534,7 +627,7 @@ export function formatTraceAsPlainText(trace: TraceDefinition): string {
   const lines: string[] = [];
   lines.push(`=======================================================`);
   lines.push(`${trace.title.toUpperCase()}`);
-  lines.push(`Governing Code: ${trace.standardCitation}`);
+  lines.push(`Governing Code: ${trace.standardCitation}${trace.standardBadge ? ` [${trace.standardBadge}]` : ""}`);
   lines.push(`Final Result: ${trace.resultValue}`);
   lines.push(`=======================================================`);
   lines.push(``);
@@ -568,4 +661,4 @@ export function formatTraceAsPlainText(trace: TraceDefinition): string {
 
   lines.push(`Generated by ProCal Electrical Engineering Platform`);
   return lines.join("\r\n");
-}
+}

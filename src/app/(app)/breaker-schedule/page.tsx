@@ -761,6 +761,7 @@ export default function BreakerSchedulePage() {
                             voltageV: Math.round(voltage),
                             isThreePhase: is3Ph,
                             calculatedCurrentA: b.current,
+                            calculationStandard: project?.calculationStandard || selectedProject?.calculationStandard,
                           });
                         }}
                       >
@@ -778,6 +779,7 @@ export default function BreakerSchedulePage() {
                             breakingCapacityKa: b.breakerSize >= 630 ? 65 : 36,
                             prospectiveFaultKa: b.faultCurrentKa || undefined,
                             cableAmpacityA: b.cableIz,
+                            calculationStandard: project?.calculationStandard || selectedProject?.calculationStandard,
                           })
                         }
                       >
@@ -838,6 +840,7 @@ export default function BreakerSchedulePage() {
                               voltageSecondaryV: project?.voltage || 400,
                               threePhaseIscKa: b.faultCurrentKa || 25,
                               peakCurrentKa: (b.faultCurrentKa || 25) * 2.1,
+                              calculationStandard: project?.calculationStandard || selectedProject?.calculationStandard,
                             })
                           }
                         >

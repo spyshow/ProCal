@@ -109,6 +109,7 @@ export default function ShortCircuitSchedule({
                 voltageSecondaryV: project.voltage || 400,
                 threePhaseIscKa: scSummary.threePhaseIsc,
                 peakCurrentKa: scSummary.peakCurrent,
+                calculationStandard: project.calculationStandard,
               })
             }
           >
@@ -125,6 +126,7 @@ export default function ShortCircuitSchedule({
                 transformerZPercent: 5.5,
                 voltageSecondaryV: project.voltage || 400,
                 threePhaseIscKa: scSummary.twoPhaseIsc,
+                calculationStandard: project.calculationStandard,
               })
             }
           >
@@ -142,6 +144,7 @@ export default function ShortCircuitSchedule({
                 voltageSecondaryV: project.voltage || 400,
                 threePhaseIscKa: scSummary.threePhaseIsc,
                 peakCurrentKa: scSummary.peakCurrent,
+                calculationStandard: project.calculationStandard,
               })
             }
           >
@@ -205,6 +208,7 @@ export default function ShortCircuitSchedule({
                       voltageSecondaryV: project.voltage || 400,
                       threePhaseIscKa: row.threePhaseIscKa,
                       peakCurrentKa: row.threePhaseIscKa * 2.1,
+                      calculationStandard: project.calculationStandard,
                     })
                   }
                 >
@@ -220,6 +224,7 @@ export default function ShortCircuitSchedule({
                       transformerZPercent: 5.5,
                       voltageSecondaryV: project.voltage || 400,
                       threePhaseIscKa: row.twoPhaseIscKa,
+                      calculationStandard: project.calculationStandard,
                     })
                   }
                 >

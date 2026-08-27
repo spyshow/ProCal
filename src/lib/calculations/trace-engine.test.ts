@@ -206,3 +206,125 @@ describe("Calculation Trace Engine", () => {
     expect(text).toContain("COMPLIANCE STATUS: PASS");
   });
 });
+
+describe("Calculation Trace Engine - NEMA / NEC Standard Support", () => {
+  it("builds a NEMA Voltage Drop trace with AWG/kcmil formatting and NEC citations", () => {
+    const trace = buildVoltageDropTrace({
+      circuitName: "Pump Feeder 01",
+      currentA: 180,
+      lengthM: 60,
+      cableSizeMm2: 185,
+      parallelRuns: 3,
+      conductorMaterial: "copper",
+      powerFactor: 0.85,
+      systemVoltageV: 480,
+      isThreePhase: true,
+      dropVolts: 4.8,
+      dropPercent: 1.0,
+      maxDropPercentLimit: 3.0,
+      calculationStandard: "NEMA",
+    });
+
+    expect(trace.standardCitation).toBe("NEC 210.19(A) & NEC Ch. 9 Table 8 / IEEE 141");
+    expect(trace.standardBadge).toBe("NEC / NEMA Standards Verified");
+    // Verify the cable parameter is formatted in kcmil / AWG, not raw mm²
+    const cableParam = trace.parameters.find(p => p.name.includes("Cable Size") || p.name.includes("Cable Section"));
+    expect(cableParam).toBeDefined();
+    expect(cableParam?.value).toBe("3 × 350 kcmil");
+    expect(cableParam?.source).toContain("Cable Schedule (NEC)");
+    expect(trace.compliance?.status).toBe("PASS");
+  });
+
+  it("builds a NEMA Cable Ampacity trace with NEC citations and AWG trade size", () => {
+    const trace = buildCableAmpacityTrace({
+      circuitName: "Lighting Panel Feeder",
+      cableSizeMm2: 16,
+      parallelRuns: 1,
+      material: "copper",
+      insulation: "XLPE",
+      installMethod: "Conduit in air",
+      ambientTempC: 40,
+      groupingCount: 3,
+      tempFactor: 0.91,
+      groupFactor: 0.80,
+      nominalAmpacityPerRun: 75,
+      deratedAmpacityPerRun: 54.6,
+      totalDeratedAmpacity: 54.6,
+      breakerSizeA: 50,
+      designCurrentA: 42,
+      calculationStandard: "NEMA",
+    });
+
+    expect(trace.standardCitation).toBe("NEC (NEMA) / IEC 60364-5-52 §523 & Tables B.52.1–B.52.17");
+    expect(trace.standardBadge).toBe("NEC / NEMA Standards Verified");
+    const cableParam = trace.parameters.find(p => p.name.includes("Cable Size"));
+    expect(cableParam).toBeDefined();
+    expect(cableParam?.value).toBe("6 AWG");
+    expect(trace.compliance?.status).toBe("PASS");
+  });
+
+  it("builds a NEMA Breaker Sizing trace with NEC 240.6(A) standard breaker citation", () => {
+    const trace = buildBreakerSizingTrace({
+      circuitName: "Air Handler Unit",
+      designCurrentA: 32,
+      selectedTripA: 40,
+      frameSizeA: 100,
+      breakingCapacityKa: 22,
+      prospectiveFaultKa: 14.5,
+      cableAmpacityA: 55,
+      calculationStandard: "NEMA",
+    });
+
+    expect(trace.standardCitation).toBe("NEC 240.6(A) / NEMA AB-1 & UL 489 / IEC 60947-2");
+    expect(trace.standardBadge).toBe("NEC / NEMA Standards Verified");
+    expect(trace.compliance?.status).toBe("PASS");
+  });
+
+  it("builds a NEMA Short Circuit trace with IEEE 141/242 and NEMA citations", () => {
+    const trace = buildShortCircuitTrace({
+      locationName: "Main Switchboard MSB-1",
+      transformerKva: 1500,
+      transformerZPercent: 5.75,
+      voltageSecondaryV: 480,
+      threePhaseIscKa: 31.4,
+      peakCurrentKa: 69.1,
+      calculationStandard: "NEMA",
+    });
+
+    expect(trace.standardCitation).toBe("IEEE 141 / IEEE 242 & IEC 60909-0");
+    expect(trace.standardBadge).toBe("IEEE / NEMA Standards Verified");
+    expect(trace.resultValue).toBe("31.40 kA");
+  });
+
+  it("builds a NEMA Phase Balance trace with NEMA MG 1 citation", () => {
+    const trace = buildPhaseBalanceTrace({
+      panelName: "Distribution Panel DP-1",
+      l1A: 85,
+      l2A: 82,
+      l3A: 84,
+      unbalancePercent: 2.4,
+      maxAllowablePercent: 10,
+      calculationStandard: "NEMA",
+    });
+
+    expect(trace.standardCitation).toBe("NEMA MG 1 & ANSI C84.1 / IEEE 141 (Recommended < 10%)");
+    expect(trace.standardBadge).toBe("NEMA / IEEE Standards Verified");
+    expect(trace.compliance?.status).toBe("PASS");
+  });
+
+  it("builds a NEMA Design Current trace with NEC Article 220 citation", () => {
+    const trace = buildDesignCurrentTrace({
+      loadName: "Motor Load",
+      powerKw: 30,
+      powerFactor: 0.88,
+      voltageV: 480,
+      isThreePhase: true,
+      calculatedCurrentA: 41.0,
+      calculationStandard: "NEMA",
+    });
+
+    expect(trace.standardCitation).toBe("NEC Article 220 & IEEE Standard");
+    expect(trace.standardBadge).toBe("NEC / NEMA Standards Verified");
+    expect(trace.resultValue).toBe("41.0 A");
+  });
+});

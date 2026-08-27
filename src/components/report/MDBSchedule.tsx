@@ -237,6 +237,7 @@ export default function MDBSchedule({ project, buildingId, showHeader = true }: 
                       voltageV: project.voltage || 400,
                       isThreePhase: true,
                       calculatedCurrentA: row.current,
+                      calculationStandard: project.calculationStandard,
                     })
                   }
                 >
@@ -253,6 +254,7 @@ export default function MDBSchedule({ project, buildingId, showHeader = true }: 
                       voltageV: project.voltage || 400,
                       isThreePhase: true,
                       calculatedCurrentA: row.current,
+                      calculationStandard: project.calculationStandard,
                     })
                   }
                 >
@@ -270,6 +272,7 @@ export default function MDBSchedule({ project, buildingId, showHeader = true }: 
                       frameSizeA: breakerNumeric >= 630 ? breakerNumeric : breakerNumeric > 160 ? 250 : 160,
                       breakingCapacityKa: breakerNumeric >= 630 ? 65 : 36,
                       cableAmpacityA: row.cableIz,
+                      calculationStandard: project.calculationStandard,
                     });
                   }}
                 >
@@ -298,6 +301,7 @@ export default function MDBSchedule({ project, buildingId, showHeader = true }: 
                       totalDeratedAmpacity: row.cableIz || Math.round(row.current * 1.1) * runs,
                       breakerSizeA: parseInt(row.breaker.replace(/\D/g, ''), 10) || undefined,
                       designCurrentA: row.current,
+                      calculationStandard: project.calculationStandard,
                     });
                   }}
                 >
@@ -327,6 +331,7 @@ export default function MDBSchedule({ project, buildingId, showHeader = true }: 
                         totalDeratedAmpacity: row.cableIz || 100,
                         breakerSizeA: parseInt(row.breaker.replace(/\D/g, ''), 10) || undefined,
                         designCurrentA: row.current,
+                        calculationStandard: project.calculationStandard,
                       });
                     }}
                   >

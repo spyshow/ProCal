@@ -1105,6 +1105,7 @@ export default function CableSchedulePage() {
                               voltageV: c.isThreePhase ? (project?.voltage || 400) : Math.round((project?.voltage || 400) / Math.sqrt(3)),
                               isThreePhase: c.isThreePhase,
                               calculatedCurrentA: c.current,
+                              calculationStandard: selectedProject?.calculationStandard || project?.calculationStandard,
                             })
                           }
                         >
@@ -1152,6 +1153,7 @@ export default function CableSchedulePage() {
                               deratedAmpacityPerRun: c.singleAmpacity || Math.round(c.current * 1.1),
                               totalDeratedAmpacity: c.ampacity,
                               designCurrentA: c.current,
+                              calculationStandard: selectedProject?.calculationStandard || project?.calculationStandard,
                             })
                           }
                         >
@@ -1238,6 +1240,7 @@ export default function CableSchedulePage() {
                               deratedAmpacityPerRun: c.singleAmpacity || Math.round(c.current * 1.1),
                               totalDeratedAmpacity: c.ampacity,
                               designCurrentA: c.current,
+                              calculationStandard: selectedProject?.calculationStandard || project?.calculationStandard,
                             })
                           }
                         >
@@ -1296,6 +1299,7 @@ export default function CableSchedulePage() {
                                 dropVolts,
                                 dropPercent: c.newVD || 0,
                                 maxDropPercentLimit: project?.maxVoltageDropPower || 5.0,
+                                calculationStandard: selectedProject?.calculationStandard || project?.calculationStandard,
                               });
                             }}
                           >
@@ -1334,6 +1338,7 @@ export default function CableSchedulePage() {
                               dropVolts,
                               dropPercent: c.newVD || 0,
                               maxDropPercentLimit: project?.maxVoltageDropPower || 5.0,
+                              calculationStandard: selectedProject?.calculationStandard || project?.calculationStandard,
                             });
                           }}
                         >

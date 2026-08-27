@@ -226,8 +226,8 @@ export function CalculationTracePopover({
           <BookOpen size={12} className="text-amber-400 shrink-0" />
           <span className="font-medium text-slate-300">{trace.standardCitation}</span>
         </div>
-        <span className="text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded bg-slate-800 text-slate-400 border border-slate-700">
-          IEC Standards Verified
+        <span className="text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700">
+          {trace.standardBadge ?? "IEC Standards Verified"}
         </span>
       </div>
 

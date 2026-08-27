@@ -179,6 +179,7 @@ export default function CableSchedule({ project, buildingId, showHeader = true }
                       voltageV: Math.round(voltage),
                       isThreePhase: is3Ph,
                       calculatedCurrentA: row.current,
+                      calculationStandard: project.calculationStandard,
                     });
                   }}
                 >
@@ -195,6 +196,7 @@ export default function CableSchedule({ project, buildingId, showHeader = true }
                       selectedTripA: breakerNumeric,
                       frameSizeA: breakerNumeric >= 630 ? breakerNumeric : breakerNumeric > 160 ? 250 : 160,
                       breakingCapacityKa: breakerNumeric >= 630 ? 65 : 36,
+                      calculationStandard: project.calculationStandard,
                     });
                   }}
                 >
@@ -223,6 +225,7 @@ export default function CableSchedule({ project, buildingId, showHeader = true }
                       totalDeratedAmpacity: Math.round(row.current * 1.1) * runs,
                       breakerSizeA: parseInt(row.breaker.replace(/\D/g, ''), 10) || undefined,
                       designCurrentA: row.current,
+                      calculationStandard: project.calculationStandard,
                     });
                   }}
                 >

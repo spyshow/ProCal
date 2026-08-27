@@ -78,8 +78,9 @@ export function recalculateCable(input: CableEditorInput): CableEditorResult {
   };
 
   const currentRuns = targetRuns ?? input.existingRuns ?? existingParsed.runs ?? 1;
+  const effGroupFactor = groupingDeratingFactor(groupingCount, calcStandard);
   const totalDerating =
-    temperatureDeratingFactor(insulation, ambientTemp, calcStandard) * groupingDeratingFactor(groupingCount, calcStandard);
+    temperatureDeratingFactor(insulation, ambientTemp, calcStandard) * effGroupFactor;
 
   // 1. Fast path: the installed cable (even a non-catalog size) already
   // carries the load within the drop limit — keep it untouched.

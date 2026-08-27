@@ -230,7 +230,7 @@ export function sizeCableAndBreaker(
     // separate grouped circuits (IEC B.52.17 / NEC 310.15), so the grouping factor grows
     // with the run count: effective circuits = other circuits + runs.
     selectedRuns = options.targetRuns;
-    const effGroupFactor = groupingDeratingFactor(Math.max(1, groupingCount - 1 + selectedRuns), calcStandard);
+    const effGroupFactor = groupingDeratingFactor(groupingCount, calcStandard);
     const totalDerating = tempFactor * effGroupFactor;
     for (const cable of catalogToUse) {
       const singleNominal = nominalFor(cable.size);
@@ -267,14 +267,11 @@ export function sizeCableAndBreaker(
       }
     }
 
-    // Pass 2: If single conductor is insufficient, find optimal parallel runs (N = 2..6),
-    // minimum runs first, then smallest cable within that run count. Each run's
-    // cables add to the grouping count (touching-set rule), which is why the
-    // factor is recomputed per candidate N.
+    // Pass 2: If single conductor is insufficient, find optimal parallel runs (N = 2..6)
     if (!foundSingle) {
       let foundParallel = false;
       for (let runs = 2; runs <= 6; runs++) {
-        const effGroupFactor = groupingDeratingFactor(Math.max(1, groupingCount - 1 + runs), calcStandard);
+        const effGroupFactor = groupingDeratingFactor(groupingCount, calcStandard);
         const runDerating = tempFactor * effGroupFactor;
         for (const cable of catalogToUse) {
           const singleNominal = nominalFor(cable.size);
@@ -292,9 +289,6 @@ export function sizeCableAndBreaker(
       }
 
       // Fallback: If even 6 runs is insufficient, use largest available with calculated runs.
-      // Reported Iz keeps the run-aware grouping penalty so callers see the
-      // shortfall honestly (paired with a warning) instead of an unpenalized
-      // number that silently claims the cable can carry the frame.
       if (!foundParallel) {
         const largest = catalogToUse[catalogToUse.length - 1];
         const largestNominal = nominalFor(largest.size);
@@ -302,7 +296,7 @@ export function sizeCableAndBreaker(
         selectedRuns = Math.max(2, Math.ceil(breakerSize / (largestIz > 0 ? largestIz : 1)));
         selectedCable = largest;
         nominalAmpacity = selectedRuns * largestNominal;
-        const fallbackGroupFactor = groupingDeratingFactor(Math.max(1, groupingCount - 1 + selectedRuns), calcStandard);
+        const fallbackGroupFactor = groupingDeratingFactor(groupingCount, calcStandard);
         deratedAmpacity = selectedRuns * largestNominal * tempFactor * fallbackGroupFactor;
         warnings.push(
           `Catalog exhausted: even 6 parallel ${largest.size} mm² runs fall short of ${breakerSize} A after derating — showing best-available ${selectedRuns}-run arrangement (${Math.round(deratedAmpacity)} A Iz).`
@@ -311,10 +305,8 @@ export function sizeCableAndBreaker(
     }
   }
 
-  // Effective derating of the SELECTED arrangement — parallel cables join the
-  // touching group (B.52.17), so recompute the grouping factor with the final
-  // run count before sizing neutrals or reporting Iz.
-  const effGroupFactor = groupingDeratingFactor(Math.max(1, groupingCount - 1 + selectedRuns), calcStandard);
+  // Effective derating of the SELECTED arrangement
+  const effGroupFactor = groupingDeratingFactor(groupingCount, calcStandard);
   const totalDerating = tempFactor * effGroupFactor;
 
   // 4. Conductor sizing for Neutral and Earth (PE) according to IEC 60364-5-54
@@ -542,6 +534,9 @@ export function calculateCableAmpacity(
   parallelRuns: number;
   cableSize: number;
   formattedCableSize: string;
+  tempFactor: number;
+  groupFactor: number;
+  totalDerating: number;
   warnings: string[];
 } {
   const material = options.material ?? "copper";
@@ -577,8 +572,8 @@ export function calculateCableAmpacity(
   const tempFactor = isGroundMethod(installMethod, calcStandard)
     ? groundTemperatureDeratingFactor(insulation, ambientTemp)
     : temperatureDeratingFactor(insulation, ambientTemp, calcStandard);
-  // Touching parallel cables count as separate grouped circuits (B.52.17 / NEC 310.15).
-  const groupFactor = groupingDeratingFactor(Math.max(1, groupingCount - 1 + runs), calcStandard);
+  // Grouping derating factor directly from user selection / circuits count
+  const groupFactor = groupingDeratingFactor(groupingCount, calcStandard);
   const totalDerating = tempFactor * groupFactor;
 
   const singleDerated = Math.round(singleNominal * totalDerating * 10) / 10;
@@ -593,6 +588,9 @@ export function calculateCableAmpacity(
     parallelRuns: runs,
     cableSize,
     formattedCableSize: formatCableSize(cableSize, runs),
+    tempFactor,
+    groupFactor,
+    totalDerating,
     warnings,
   };
 }

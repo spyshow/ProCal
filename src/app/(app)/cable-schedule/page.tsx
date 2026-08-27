@@ -11,6 +11,7 @@ import {
   parseCableSize,
   formatCableSize,
   formatCableSizeFor,
+  calculateCableAmpacity,
   getItemCableLength,
   getBuildingLoadCableLength,
   getRiserCableLength,
@@ -66,11 +67,12 @@ interface CableEntry {
   ampacity: number;
   singleAmpacity: number;
   isOverloaded: boolean;
+  breakerSize?: number;
   kind: 'floor' | 'building' | 'sdb' | 'incomer';
 }
 
 export default function CableSchedulePage() {
-  const { selectedProjectId, selectedProject, loading: contextLoading, refreshProject, canView, canEdit } = useProject();
+  const { selectedProjectId, selectedProject, loading: contextLoading, refreshProject, mutateProject, canView, canEdit } = useProject();
   const { t } = useTranslation();
   const pathname = usePathname();
   const router = useRouter();
@@ -267,6 +269,7 @@ export default function CableSchedulePage() {
           ampacity: result.ampacity,
           singleAmpacity: result.singleAmpacity,
           isOverloaded: result.isOverloaded,
+          breakerSize: result.breakerSize,
           kind: 'incomer',
         });
       }
@@ -346,6 +349,7 @@ export default function CableSchedulePage() {
             ampacity: result.ampacity,
             singleAmpacity: result.singleAmpacity,
             isOverloaded: result.isOverloaded,
+            breakerSize: result.breakerSize,
             kind: 'floor',
           });
         });
@@ -432,6 +436,7 @@ export default function CableSchedulePage() {
           ampacity: result.ampacity,
           singleAmpacity: result.singleAmpacity,
           isOverloaded: result.isOverloaded,
+          breakerSize: result.breakerSize,
           kind: 'building',
         });
       });
@@ -503,6 +508,7 @@ export default function CableSchedulePage() {
           ampacity: result.ampacity,
           singleAmpacity: result.singleAmpacity,
           isOverloaded: result.isOverloaded,
+          breakerSize: result.breakerSize,
           kind: 'sdb',
         });
       }
@@ -551,14 +557,78 @@ export default function CableSchedulePage() {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(upsizeBody(targetSizeToSave, c.kind)),
+          keepalive: true,
         }).catch(err => console.error('Failed to save runs:', err));
       } else {
         fetch(cablePatchUrl(c.kind, id), {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(fieldEditBody(c.kind, field as any, value)),
+          keepalive: true,
         }).catch(err => console.error('Failed to save:', err));
       }
+
+      // Optimistically update global ProjectContext
+      mutateProject((prev) => {
+        if (!prev) return prev;
+        const next = structuredClone(prev);
+        if (c.kind === 'incomer') {
+          const bldgId = id.replace(/^incomer-/, '');
+          const b = next.buildings?.find((b: any) => b.id === bldgId);
+          if (b) {
+            if (field === 'runs') b.incomerCableSize = result.formattedCableSize;
+            if (field === 'length') b.incomerCableLength = newLength;
+            if (field === 'method') b.incomerInstallMethod = newMethod;
+            if (field === 'insulation') b.incomerCableInsulation = newInsulation;
+            if (field === 'material') b.incomerCableMaterial = newMaterial;
+            if (field === 'ambientTemp') b.incomerAmbientTemp = newAmbientTemp;
+            if (field === 'groupingCount') b.incomerGroupingCount = newGroupingCount;
+          }
+        } else if (c.kind === 'sdb') {
+          const floorId = id.replace(/^sdb-/, '');
+          for (const b of next.buildings || []) {
+            const f = b.floorDesigns?.find((f: any) => f.id === floorId);
+            if (f) {
+              if (field === 'runs') f.riserCableSize = result.formattedCableSize;
+              if (field === 'length') f.riserCableLength = newLength;
+              if (field === 'method') f.riserInstallMethod = newMethod;
+              if (field === 'insulation') f.riserCableInsulation = newInsulation;
+              if (field === 'material') f.riserCableMaterial = newMaterial;
+              if (field === 'ambientTemp') f.riserAmbientTemp = newAmbientTemp;
+              if (field === 'groupingCount') f.riserGroupingCount = newGroupingCount;
+            }
+          }
+        } else if (c.kind === 'building') {
+          for (const b of next.buildings || []) {
+            const bl = (b.buildingLoads || []).find((bl: any) => bl.id === id);
+            if (bl) {
+              if (field === 'runs') bl.cableSize = result.formattedCableSize;
+              if (field === 'length') bl.cableLength = newLength;
+              if (field === 'method') bl.installMethod = newMethod;
+              if (field === 'insulation') bl.cableInsulation = newInsulation;
+              if (field === 'material') bl.cableMaterial = newMaterial;
+              if (field === 'ambientTemp') bl.ambientTemp = newAmbientTemp;
+              if (field === 'groupingCount') bl.groupingCount = newGroupingCount;
+            }
+          }
+        } else if (c.kind === 'floor') {
+          for (const b of next.buildings || []) {
+            for (const f of b.floorDesigns || []) {
+              const item = (f.items || []).find((i: any) => i.id === id);
+              if (item) {
+                if (field === 'runs') item.cableSize = result.formattedCableSize;
+                if (field === 'length') item.cableLength = newLength;
+                if (field === 'method') item.installMethod = newMethod;
+                if (field === 'insulation') item.cableInsulation = newInsulation;
+                if (field === 'material') item.cableMaterial = newMaterial;
+                if (field === 'ambientTemp') item.ambientTemp = newAmbientTemp;
+                if (field === 'groupingCount') item.groupingCount = newGroupingCount;
+              }
+            }
+          }
+        }
+        return next;
+      });
 
       if (field === 'runs') {
         return {
@@ -580,6 +650,7 @@ export default function CableSchedulePage() {
           ampacity: result.ampacity,
           singleAmpacity: result.singleAmpacity,
           isOverloaded: result.isOverloaded,
+          breakerSize: result.breakerSize,
         };
       }
 
@@ -599,6 +670,7 @@ export default function CableSchedulePage() {
         ampacity: result.ampacity,
         singleAmpacity: result.singleAmpacity,
         isOverloaded: result.isOverloaded,
+        breakerSize: result.breakerSize,
       };
     }));
   };
@@ -654,8 +726,12 @@ export default function CableSchedulePage() {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(body),
+          keepalive: true,
         });
-        if (!res.ok) console.error('Apply upsize failed:', url, res.status, body);
+        if (!res.ok) {
+          const errText = await res.text().catch(() => '');
+          console.error('Apply upsize failed:', url, res.status, body, errText);
+        }
         return res.ok ? c.id : null;
       }));
       const savedIds = new Set(results.filter((r): r is string => r !== null));
@@ -663,6 +739,43 @@ export default function CableSchedulePage() {
       if (savedIds.size < changedCables.length) {
         alert(`Saved ${savedIds.size} of ${changedCables.length} cable upsize${changedCables.length > 1 ? 's' : ''}. See console for failures.`);
       }
+
+      // Optimistically update global ProjectContext so navigating away and back doesn't revert
+      mutateProject((prev) => {
+        if (!prev) return prev;
+        const next = structuredClone(prev);
+        for (const c of changedCables) {
+          if (!savedIds.has(c.id)) continue;
+          const newSize = c.newCableSize ?? c.cableSize;
+          const newRuns = c.newParallelRuns ?? c.parallelRuns;
+          const targetSize = c.newFormattedSize || formatCableSize(newSize, newRuns);
+
+          if (c.kind === 'incomer') {
+            const bldgId = c.id.replace(/^incomer-/, '');
+            const b = next.buildings?.find((b: any) => b.id === bldgId);
+            if (b) b.incomerCableSize = targetSize;
+          } else if (c.kind === 'sdb') {
+            const floorId = c.id.replace(/^sdb-/, '');
+            for (const b of next.buildings || []) {
+              const f = b.floorDesigns?.find((f: any) => f.id === floorId);
+              if (f) f.riserCableSize = targetSize;
+            }
+          } else if (c.kind === 'building') {
+            for (const b of next.buildings || []) {
+              const bl = (b.buildingLoads || []).find((bl: any) => bl.id === c.id);
+              if (bl) bl.cableSize = targetSize;
+            }
+          } else if (c.kind === 'floor') {
+            for (const b of next.buildings || []) {
+              for (const f of b.floorDesigns || []) {
+                const item = (f.items || []).find((i: any) => i.id === c.id);
+                if (item) item.cableSize = targetSize;
+              }
+            }
+          }
+        }
+        return next;
+      });
 
       setCables(prev => prev.map(c => {
         if (savedIds.has(c.id) && (c.newFormattedSize || c.newCableSize !== null)) {
@@ -704,6 +817,9 @@ export default function CableSchedulePage() {
         }
         return c;
       }));
+
+      // Background refresh to keep in sync with database
+      refreshProject().catch(() => {});
     } catch (err) {
       console.error('Failed to apply changes:', err);
     } finally {
@@ -745,7 +861,9 @@ export default function CableSchedulePage() {
             ambientTemp: defaultAmbientTemp,
             groupingCount: defaultGroupingCount,
           }),
+          keepalive: true,
         });
+        refreshProject().catch(() => {});
       }
 
       setCables(prev => prev.map(c => {
@@ -1233,8 +1351,17 @@ export default function CableSchedulePage() {
                       {/* Size */}
                       <td className="text-center font-mono font-bold text-emerald-400 whitespace-nowrap text-xs">
                         <TraceableCell
-                          getTrace={() =>
-                            buildCableAmpacityTrace({
+                          getTrace={() => {
+                            const amp = calculateCableAmpacity(c.cableSize, c.isThreePhase, {
+                              material: c.material,
+                              insulation: c.insulation,
+                              ambientTemp: c.ambientTemp,
+                              groupingCount: c.groupingCount,
+                              installMethod: c.method,
+                              parallelRuns: c.parallelRuns || 1,
+                              code: codeOf(selectedProject?.calculationStandard || project?.calculationStandard),
+                            });
+                            return buildCableAmpacityTrace({
                               circuitName: `${c.building} - ${c.name}`,
                               cableSizeMm2: c.cableSize,
                               parallelRuns: c.parallelRuns || 1,
@@ -1243,15 +1370,16 @@ export default function CableSchedulePage() {
                               installMethod: `Method ${c.method}`,
                               ambientTempC: c.ambientTemp,
                               groupingCount: c.groupingCount,
-                              tempFactor: 0.87,
-                              groupFactor: 0.70,
-                              nominalAmpacityPerRun: c.singleAmpacity ? Math.round(c.singleAmpacity / 0.6) : Math.round(c.current * 1.3),
-                              deratedAmpacityPerRun: c.singleAmpacity || Math.round(c.current * 1.1),
-                              totalDeratedAmpacity: c.ampacity,
+                              tempFactor: amp.tempFactor ?? 1.0,
+                              groupFactor: amp.groupFactor ?? 1.0,
+                              nominalAmpacityPerRun: amp.singleNominalAmpacity,
+                              deratedAmpacityPerRun: amp.singleDeratedAmpacity,
+                              totalDeratedAmpacity: amp.deratedAmpacity,
+                              breakerSizeA: c.breakerSize,
                               designCurrentA: c.current,
                               calculationStandard: selectedProject?.calculationStandard || project?.calculationStandard,
-                            })
-                          }
+                            });
+                          }}
                         >
                           {formatCableSizeFor(c.formattedSize || c.cableSize, selectedProject?.calculationStandard)}
                         </TraceableCell>
@@ -1321,8 +1449,17 @@ export default function CableSchedulePage() {
                       {/* Ampacity */}
                       <td className="text-center font-mono">
                         <TraceableCell
-                          getTrace={() =>
-                            buildCableAmpacityTrace({
+                          getTrace={() => {
+                            const amp = calculateCableAmpacity(c.cableSize, c.isThreePhase, {
+                              material: c.material,
+                              insulation: c.insulation,
+                              ambientTemp: c.ambientTemp,
+                              groupingCount: c.groupingCount,
+                              installMethod: c.method,
+                              parallelRuns: c.parallelRuns || 1,
+                              code: codeOf(selectedProject?.calculationStandard || project?.calculationStandard),
+                            });
+                            return buildCableAmpacityTrace({
                               circuitName: `${c.building} - ${c.name}`,
                               cableSizeMm2: c.cableSize,
                               parallelRuns: c.parallelRuns || 1,
@@ -1331,15 +1468,16 @@ export default function CableSchedulePage() {
                               installMethod: `Method ${c.method}`,
                               ambientTempC: c.ambientTemp,
                               groupingCount: c.groupingCount,
-                              tempFactor: 0.87,
-                              groupFactor: 0.70,
-                              nominalAmpacityPerRun: c.singleAmpacity ? Math.round(c.singleAmpacity / 0.6) : Math.round(c.current * 1.3),
-                              deratedAmpacityPerRun: c.singleAmpacity || Math.round(c.current * 1.1),
-                              totalDeratedAmpacity: c.ampacity,
+                              tempFactor: amp.tempFactor ?? 1.0,
+                              groupFactor: amp.groupFactor ?? 1.0,
+                              nominalAmpacityPerRun: amp.singleNominalAmpacity,
+                              deratedAmpacityPerRun: amp.singleDeratedAmpacity,
+                              totalDeratedAmpacity: amp.deratedAmpacity,
+                              breakerSizeA: c.breakerSize,
                               designCurrentA: c.current,
                               calculationStandard: selectedProject?.calculationStandard || project?.calculationStandard,
-                            })
-                          }
+                            });
+                          }}
                         >
                           <div className="flex flex-col items-center justify-center">
                             <span className={`font-bold text-xs ${c.isOverloaded || c.ampacity < c.current ? 'text-rose-400' : 'text-sky-400'}`}

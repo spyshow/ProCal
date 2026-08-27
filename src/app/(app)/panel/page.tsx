@@ -17,7 +17,8 @@ import { PageSkeleton } from '@/components/ui/skeleton';
 import { calculateThreePhaseCurrent, sizeTransformer } from '@/lib/calculations/loads';
 import { CABLE_CATALOG } from '@/lib/calculations/cablesData';
 import { computeFeeders, createFindBreaker, type EquipmentItem, type DefaultFamilies } from '@/lib/calculations/feeders';
-import { formatCableSizeFor } from '@/lib/calculations/cables';
+import { formatCableSizeFor, calculateCableAmpacity } from '@/lib/calculations/cables';
+import { codeOf } from '@/lib/calculations/codes';
 import { calculateShortCircuitCurrent, getTypicalImpedance } from '@/lib/calculations/shortCircuit';
 import type { Project, PanelFeeder } from '@/types';
 import WorkflowStepper from '@/components/layout/WorkflowStepper';
@@ -438,7 +439,9 @@ export default function PanelDesignerPage() {
           </div>
           <div className="rounded-lg border border-gray-800 bg-gray-800/30 p-3">
             <p className="text-[10px] text-gray-500 uppercase">{t('common.cable', 'Main Cable')}</p>
-            <p className={`text-lg font-bold font-mono ${mainCableUnderProtected ? 'text-red-400' : 'text-green-400'}`}>{formatCableSizeFor(mainCable.size, selectedProject?.calculationStandard)}</p>
+            <p className={`text-lg font-bold font-mono ${mainCableUnderProtected ? 'text-red-400' : 'text-green-400'}`}>
+              {cablesPerPhase > 1 ? `${cablesPerPhase} × ` : ''}{formatCableSizeFor(mainCable.size, selectedProject?.calculationStandard)}
+            </p>
             <p className="text-[10px] text-gray-500">{cablesPerPhase}×{formatCableSizeFor(mainCable.size, selectedProject?.calculationStandard)}</p>
             <p className="text-[10px] text-gray-500">N: {neutralCables}×{formatCableSizeFor(neutralSize, selectedProject?.calculationStandard)}</p>
             {mainCableUnderProtected && (
@@ -894,25 +897,36 @@ export default function PanelDesignerPage() {
                   <td className="text-center text-xs text-gray-400 font-mono">{f.breakerModel}</td>
                   <td className="text-center font-mono text-green-400">
                     <TraceableCell
-                      getTrace={() =>
-                        buildCableAmpacityTrace({
+                      getTrace={() => {
+                        const is3Ph = f.isThreePhase ?? true;
+                        const amp = calculateCableAmpacity(f.cableSize, is3Ph, {
+                          material: 'copper',
+                          insulation: 'XLPE',
+                          installMethod: 'E',
+                          ambientTemp: project?.ambientTemp || 30,
+                          groupingCount: project?.groupingCount || 1,
+                          parallelRuns: f.parallelRuns || 1,
+                          code: codeOf(project.calculationStandard || selectedProject?.calculationStandard),
+                        });
+                        return buildCableAmpacityTrace({
                           circuitName: f.name,
                           cableSizeMm2: f.cableSize,
-                          parallelRuns: 1,
+                          parallelRuns: f.parallelRuns || 1,
                           material: 'copper',
                           insulation: 'XLPE',
                           installMethod: 'Method E',
-                          ambientTempC: project?.ambientTemp || 45,
+                          ambientTempC: project?.ambientTemp || 30,
                           groupingCount: project?.groupingCount || 1,
-                          tempFactor: 0.87,
-                          groupFactor: 0.70,
-                          nominalAmpacityPerRun: f.cableIz ? Math.round(f.cableIz / 0.6) : Math.round(f.current * 1.3),
-                          deratedAmpacityPerRun: f.cableIz || Math.round(f.current * 1.1),
-                          totalDeratedAmpacity: f.cableIz || Math.round(f.current * 1.1),
+                          tempFactor: amp.tempFactor ?? 1.0,
+                          groupFactor: amp.groupFactor ?? 1.0,
+                          nominalAmpacityPerRun: amp.singleNominalAmpacity,
+                          deratedAmpacityPerRun: amp.singleDeratedAmpacity,
+                          totalDeratedAmpacity: amp.deratedAmpacity,
+                          breakerSizeA: f.breakerSize,
                           designCurrentA: f.current,
                           calculationStandard: project.calculationStandard || selectedProject?.calculationStandard,
-                        })
-                      }
+                        });
+                      }}
                     >
                       {formatCableSizeFor(f.cableSize, project.calculationStandard || selectedProject?.calculationStandard)}
                     </TraceableCell>

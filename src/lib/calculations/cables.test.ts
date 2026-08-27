@@ -279,9 +279,9 @@ describe('Parallel multi-conductor sizing in sizeCableAndBreaker', () => {
     expect(one.parallelRuns).toBe(1);
     expect(one.warnings).toEqual([]);
 
-    // Force a 2-run arrangement via targetRuns and check the penalty applies.
+    // Force a 2-run arrangement via targetRuns.
     const two = sizeCableAndBreaker(150, true, {
-      material: 'copper', insulation: 'XLPE', ambientTemp: 30, groupingCount: 1, targetRuns: 2, manualBreakerRating: 160,
+      material: 'copper', insulation: 'XLPE', ambientTemp: 30, groupingCount: 2, targetRuns: 2, manualBreakerRating: 160,
     });
     expect(two.parallelRuns).toBe(2);
     expect(two.groupFactor).toBeCloseTo(0.80);

@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { computeFeeders, createFindBreaker, type FindBreaker } from '@/lib/calculations/feeders';
-import { formatCableSizeFor, parseCableSize } from '@/lib/calculations/cables';
+import { formatCableSizeFor, parseCableSize, calculateCableAmpacity } from '@/lib/calculations/cables';
+import { codeOf } from '@/lib/calculations/codes';
 import { useEquipmentCatalog } from '@/hooks/useEquipmentCatalog';
 import { TraceableCell } from '@/components/common/TraceableCell';
 import {
@@ -285,6 +286,15 @@ export default function MDBSchedule({ project, buildingId, showHeader = true }: 
                     const parsed = parseCableSize(row.cable);
                     const cableSize = parsed ? parsed.size : 16;
                     const runs = parsed ? parsed.runs : 1;
+                    const amp = calculateCableAmpacity(cableSize, true, {
+                      material: 'copper',
+                      insulation: 'XLPE',
+                      installMethod: 'E',
+                      ambientTemp: project.ambientTemp || 30,
+                      groupingCount: project.groupingCount || 1,
+                      parallelRuns: runs,
+                      code: codeOf(project.calculationStandard),
+                    });
                     return buildCableAmpacityTrace({
                       circuitName: `${row.building} - ${row.feeder}`,
                       cableSizeMm2: cableSize,
@@ -292,13 +302,13 @@ export default function MDBSchedule({ project, buildingId, showHeader = true }: 
                       material: 'copper',
                       insulation: 'XLPE',
                       installMethod: 'Method E',
-                      ambientTempC: project.ambientTemp || 45,
+                      ambientTempC: project.ambientTemp || 30,
                       groupingCount: project.groupingCount || 1,
-                      tempFactor: 0.87,
-                      groupFactor: 0.70,
-                      nominalAmpacityPerRun: row.cableIz ? Math.round(row.cableIz / runs / 0.6) : Math.round(row.current * 1.3),
-                      deratedAmpacityPerRun: row.cableIz ? Math.round(row.cableIz / runs) : Math.round(row.current * 1.1),
-                      totalDeratedAmpacity: row.cableIz || Math.round(row.current * 1.1) * runs,
+                      tempFactor: amp.tempFactor ?? 1.0,
+                      groupFactor: amp.groupFactor ?? 1.0,
+                      nominalAmpacityPerRun: amp.singleNominalAmpacity,
+                      deratedAmpacityPerRun: amp.singleDeratedAmpacity,
+                      totalDeratedAmpacity: amp.deratedAmpacity,
                       breakerSizeA: parseInt(row.breaker.replace(/\D/g, ''), 10) || undefined,
                       designCurrentA: row.current,
                       calculationStandard: project.calculationStandard,
@@ -315,6 +325,15 @@ export default function MDBSchedule({ project, buildingId, showHeader = true }: 
                       const parsed = parseCableSize(row.cable);
                       const cableSize = parsed ? parsed.size : 16;
                       const runs = parsed ? parsed.runs : 1;
+                      const amp = calculateCableAmpacity(cableSize, true, {
+                        material: 'copper',
+                        insulation: 'XLPE',
+                        installMethod: 'E',
+                        ambientTemp: project.ambientTemp || 30,
+                        groupingCount: project.groupingCount || 1,
+                        parallelRuns: runs,
+                        code: codeOf(project.calculationStandard),
+                      });
                       return buildCableAmpacityTrace({
                         circuitName: `${row.building} - ${row.feeder}`,
                         cableSizeMm2: cableSize,
@@ -322,13 +341,13 @@ export default function MDBSchedule({ project, buildingId, showHeader = true }: 
                         material: 'copper',
                         insulation: 'XLPE',
                         installMethod: 'Method E',
-                        ambientTempC: project.ambientTemp || 45,
+                        ambientTempC: project.ambientTemp || 30,
                         groupingCount: project.groupingCount || 1,
-                        tempFactor: 0.87,
-                        groupFactor: 0.70,
-                        nominalAmpacityPerRun: Math.round((row.cableIz || 100) / runs / 0.6),
-                        deratedAmpacityPerRun: Math.round((row.cableIz || 100) / runs),
-                        totalDeratedAmpacity: row.cableIz || 100,
+                        tempFactor: amp.tempFactor ?? 1.0,
+                        groupFactor: amp.groupFactor ?? 1.0,
+                        nominalAmpacityPerRun: amp.singleNominalAmpacity,
+                        deratedAmpacityPerRun: amp.singleDeratedAmpacity,
+                        totalDeratedAmpacity: amp.deratedAmpacity,
                         breakerSizeA: parseInt(row.breaker.replace(/\D/g, ''), 10) || undefined,
                         designCurrentA: row.current,
                         calculationStandard: project.calculationStandard,

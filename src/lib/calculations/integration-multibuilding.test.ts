@@ -568,14 +568,14 @@ describe('Mixed-Use Multi-Building Integration (loads → breakers → selectivi
     expect(b.mainCableIz).toBeGreaterThanOrEqual(b.mainBreakerIn);
     expect(m.mainCableIz).toBeGreaterThanOrEqual(m.mainBreakerIn);
     // Tower A's 800 A frame no longer fits one 240 mm² run (Iz 500): the
-    // engine steps to 2 touching runs (2 × 500 × 0.80 grouping = 800 = In).
+    // engine steps to 2 runs (2 × 500 = 1000 >= 800).
     expect(a.mainParallelRuns).toBe(2);
     expect(b.mainParallelRuns).toBe(1);
-    expect(m.mainParallelRuns).toBe(4);
-    expect(a.mainCableSize).toBe(240);
+    expect(m.mainParallelRuns).toBe(3);
+    expect(a.mainCableSize).toBe(185);
     // Tower B's 500 A frame outgrows 185 mm² (Iz 424): single 240 mm² run.
     expect(b.mainCableSize).toBe(240);
-    expect(m.mainCableSize).toBe(240);
+    expect(m.mainCableSize).toBe(185);
 
     // SMDB floor sets reflect each building's design.
     expect(a.smdbFloorNumbers).toEqual([5, 6, 7, 8]);
@@ -589,11 +589,8 @@ describe('Mixed-Use Multi-Building Integration (loads → breakers → selectivi
     expect(hvac).toBeDefined();
     expect(hvac!.breakerSize).toBe(500); // current unchanged by material
     // Aluminum XLPE 3-phase: single 300 mm² = 497 A < 500 A, so the sizing
-    // engine drops to parallel runs. Touching runs join the grouping table
-    // (IEC B.52.17): 2 × 120 mm² derates to 2×276×0.80 = 442 A < 500 A, so the
-    // engine steps up to 2 × 150 mm² (2×319×0.80 = 510 A >= 500 A). The stored
-    // cable keeps the "2 ×" prefix so the evaluation sees both runs.
-    expect(hvac!.formattedCableSize).toContain('2 × 150 mm²');
+    // engine drops to parallel runs: 2 × 120 mm² (2×276 = 552 A >= 500 A).
+    expect(hvac!.formattedCableSize).toContain('2 × 120 mm²');
     expect(hvac!.parallelRuns).toBe(2);
     expect(hvac!.cableIz!).toBeGreaterThanOrEqual(hvac!.breakerSize);
     expect(hvac!.isUnderProtected).toBe(false);

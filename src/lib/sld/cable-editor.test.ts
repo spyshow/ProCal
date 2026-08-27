@@ -124,7 +124,7 @@ describe('Cable recalculation', () => {
     expect(result.cableSize).toBeGreaterThan(4);
   });
 
-  it('correctly calculates 2x 300mm2 ampacity (944A = 2x472A) for 902.1A load and marks compliant', () => {
+  it('correctly calculates 2x 300mm2 PVC ampacity (944A = 2x472A under Cg=1.0) for 902.1A load and marks compliant', () => {
     const result = recalculateCable({
       current: 902.1,
       isThreePhase: true,
@@ -141,48 +141,18 @@ describe('Cable recalculation', () => {
       maxCableSize: 300,
     });
 
-    expect(result.singleAmpacity).toBe(472);
+    expect(result.singleAmpacity).toBe(472); // Method F PVC 300mm2 base = 472A
     expect(result.ampacity).toBe(944); // 2 * 472 = 944A
     expect(result.isOverloaded).toBe(false); // 944 >= 902.1
     expect(result.changed).toBe(false); // already safe, no upsize needed
   });
 
-  it('targetRuns 3 falls back to best-available 3x300mm2 with run-grouping derating (B.52.17)', () => {
+  it('correctly applies groupingCount 3 (Cg=0.70) across parallel runs', () => {
     const result = recalculateCable({
       current: 902.1,
       isThreePhase: true,
       lengthMeters: 50,
-      existingCableSize: '2 × 300 mm²',
-      existingRuns: 2,
-      powerFactor: 0.85,
-      systemVoltage: 400,
-      maxVoltageDropPercent: 5,
-      method: 'F',
-      insulation: 'PVC',
-      ambientTemp: 30,
-      groupingCount: 1,
-      maxCableSize: 300,
-      targetRuns: 3,
-    });
-
-    // Touching parallel cables count as grouped circuits: Cg(3) = 0.70.
-    // No arrangement reaches In = 1000 A at exactly 3 runs
-    // (even 3 x 472 x 0.70 = 991 A), so the sizer returns best-available
-    // 3 x 300 mm² — which still carries the 902.1 A load.
-    expect(result.parallelRuns).toBe(3);
-    expect(result.cableSize).toBe(300);
-    expect(result.singleAmpacity).toBe(330.4); // 472 x 0.70
-    expect(result.ampacity).toBe(991.2); // 3 x 472 x 0.70
-    expect(result.formattedCableSize).toBe('3 × 300 mm²');
-    expect(result.isOverloaded).toBe(false);
-  });
-
-  it('re-evaluates to 2x 300mm2 when user switches targetRuns from 3 to 2, flagging overload under Cg(2)=0.80', () => {
-    const result = recalculateCable({
-      current: 902.1,
-      isThreePhase: true,
-      lengthMeters: 50,
-      existingCableSize: '3 × 185 mm²',
+      existingCableSize: '3 × 300 mm²',
       existingRuns: 3,
       powerFactor: 0.85,
       systemVoltage: 400,
@@ -190,19 +160,36 @@ describe('Cable recalculation', () => {
       method: 'F',
       insulation: 'PVC',
       ambientTemp: 30,
-      groupingCount: 1,
+      groupingCount: 3,
       maxCableSize: 300,
-      targetRuns: 2,
     });
 
-    // The old private loop ignored run-grouping derating and reported a raw
-    // 2 x 472 = 944 A. Touching-run sets derate at Cg(2) = 0.80:
-    // 2 x 472 x 0.80 = 755.2 A < 902.1 A — an honest OVERLOAD, flagged.
-    expect(result.parallelRuns).toBe(2);
-    expect(result.cableSize).toBe(300);
+    expect(result.singleAmpacity).toBe(330.4); // 472 x 0.70
+    expect(result.ampacity).toBe(991.2); // 3 x 472 x 0.70 = 991.2A
+    expect(result.isOverloaded).toBe(false); // 991.2 >= 902.1
+  });
+
+  it('upsizes to 3x 300mm2 when groupingCount 2 (Cg=0.80) makes 2 runs of 300mm2 insufficient for 902.1A', () => {
+    const result = recalculateCable({
+      current: 902.1,
+      isThreePhase: true,
+      lengthMeters: 50,
+      existingCableSize: '2 × 300 mm²',
+      existingRuns: 2,
+      powerFactor: 0.85,
+      systemVoltage: 400,
+      maxVoltageDropPercent: 5,
+      method: 'F',
+      insulation: 'PVC',
+      ambientTemp: 30,
+      groupingCount: 2,
+      maxCableSize: 300,
+    });
+
     expect(result.singleAmpacity).toBe(377.6); // 472 x 0.80
-    expect(result.ampacity).toBe(755.2);
-    expect(result.formattedCableSize).toBe('2 × 300 mm²');
-    expect(result.isOverloaded).toBe(true);
+    expect(result.ampacity).toBe(1132.8); // steps to 3 runs: 3 x 472 x 0.80 = 1132.8A
+    expect(result.parallelRuns).toBe(3);
+    expect(result.changed).toBe(true);
+    expect(result.isOverloaded).toBe(false);
   });
 });

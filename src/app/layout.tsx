@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, IBM_Plex_Sans_Arabic } from "next/font/google";
+import { Inter, Rubik } from "next/font/google";
 import "./globals.css";
 import { ProjectProvider } from "@/context/ProjectContext";
 import { I18nProvider } from "@/i18n";
@@ -10,11 +10,11 @@ const inter = Inter({
   variable: "--font-inter",
 });
 
-const ibmPlexArabic = IBM_Plex_Sans_Arabic({
-  subsets: ["arabic"],
-  weight: ["400", "500", "600", "700"],
+const rubikArabic = Rubik({
+  subsets: ["arabic", "latin"],
+  weight: ["300", "400", "500", "600", "700", "800", "900"],
   display: "swap",
-  variable: "--font-ibm-arabic",
+  variable: "--font-rubik-arabic",
 });
 
 export const metadata: Metadata = {
@@ -38,7 +38,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${inter.variable} ${ibmPlexArabic.variable} h-full`}
+      className={`${inter.variable} ${rubikArabic.variable} h-full`}
       suppressHydrationWarning
     >
       <body className="min-h-full bg-slate-950 text-slate-100 antialiased font-sans" suppressHydrationWarning>

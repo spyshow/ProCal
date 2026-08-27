@@ -1,7 +1,8 @@
 'use client';
 
 import { isThreePhaseForItem, computeFeeders } from '@/lib/calculations/feeders';
-import { parseCableSize, formatCableSizeFor } from '@/lib/calculations/cables';
+import { parseCableSize, formatCableSizeFor, calculateCableAmpacity } from '@/lib/calculations/cables';
+import { codeOf } from '@/lib/calculations/codes';
 import { TraceableCell } from '@/components/common/TraceableCell';
 import {
   buildDesignCurrentTrace,
@@ -209,20 +210,32 @@ export default function CableSchedule({ project, buildingId, showHeader = true }
                     const parsed = parseCableSize(row.cable);
                     const cableSize = parsed ? parsed.size : 16;
                     const runs = parsed ? parsed.runs : 1;
+                    const mat = (row.material as 'copper' | 'aluminum') || 'copper';
+                    const ins = (row.insulation as 'PVC' | 'XLPE') || 'XLPE';
+                    const is3Ph = row.phaseLabel.includes('3Φ') || row.phaseLabel.includes('L1,L2,L3') || row.phaseLabel === '3P';
+                    const amp = calculateCableAmpacity(cableSize, is3Ph, {
+                      material: mat,
+                      insulation: ins,
+                      ambientTemp: project.ambientTemp || 30,
+                      groupingCount: project.groupingCount || 1,
+                      installMethod: row.method,
+                      parallelRuns: runs,
+                      code: codeOf(project.calculationStandard),
+                    });
                     return buildCableAmpacityTrace({
                       circuitName: `${row.buildingName} - ${row.circuit}`,
                       cableSizeMm2: cableSize,
                       parallelRuns: runs,
-                      material: (row.material as 'copper' | 'aluminum') || 'copper',
-                      insulation: (row.insulation as 'PVC' | 'XLPE') || 'XLPE',
+                      material: mat,
+                      insulation: ins,
                       installMethod: `Method ${row.method}`,
-                      ambientTempC: project.ambientTemp || 45,
+                      ambientTempC: project.ambientTemp || 30,
                       groupingCount: project.groupingCount || 1,
-                      tempFactor: 0.87,
-                      groupFactor: 0.70,
-                      nominalAmpacityPerRun: Math.round(row.current * 1.3),
-                      deratedAmpacityPerRun: Math.round(row.current * 1.1),
-                      totalDeratedAmpacity: Math.round(row.current * 1.1) * runs,
+                      tempFactor: amp.tempFactor ?? 1.0,
+                      groupFactor: amp.groupFactor ?? 1.0,
+                      nominalAmpacityPerRun: amp.singleNominalAmpacity,
+                      deratedAmpacityPerRun: amp.singleDeratedAmpacity,
+                      totalDeratedAmpacity: amp.deratedAmpacity,
                       breakerSizeA: parseInt(row.breaker.replace(/\D/g, ''), 10) || undefined,
                       designCurrentA: row.current,
                       calculationStandard: project.calculationStandard,

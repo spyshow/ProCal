@@ -235,10 +235,10 @@ export function buildCableAmpacityTrace(inputs: CableAmpacityTraceInputs): Trace
 
   if (inBreaker > 0) {
     steps.push({
-      label: isNec ? "Coordination Check (NEC 240.4 & IEC 60364-4-43)" : "Coordination Check (IEC 60364-4-43)",
+      label: isNec ? "Overload Protection & Coordination Check (NEC 240.4 & IEC 60364-4-43)" : "Overload Protection & Coordination Check (IEC 60364-4-43 §433.1)",
       formula: "Ib ≤ In ≤ Iz",
       substituted: `${ib.toFixed(1)} A (Ib) ≤ ${inBreaker} A (In) ≤ ${iz.toFixed(1)} A (Iz)`,
-      description: "Verifies cable is fully protected against overloads by upstream breaker.",
+      description: `Cable is sized to satisfy Iz ≥ In (${inBreaker} A standard breaker frame) to ensure full overload protection under IEC 60364-4-43 §433.1.`,
     });
   }
 
@@ -255,6 +255,17 @@ export function buildCableAmpacityTrace(inputs: CableAmpacityTraceInputs): Trace
       unit: isNec ? undefined : "mm²",
       source: isNec ? "NEC / Catalog Sizing" : "Catalog Sizing",
     },
+    ...(inBreaker > 0
+      ? [
+          {
+            name: "Upstream Breaker Rating",
+            symbol: "In",
+            value: `${inBreaker}`,
+            unit: "A",
+            source: isNec ? "NEC 240.6 Catalog" : "IEC Standard Catalog",
+          },
+        ]
+      : []),
     {
       name: "Base Tabulated Ampacity",
       symbol: "Iz,tab",

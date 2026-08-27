@@ -48,6 +48,12 @@ export function ProjectProvider({ children }: { children: React.ReactNode }) {
     if (savedOnboarding === "true") setHasCompletedOnboarding(true);
   }, []);
 
+  // Track latest selected project id to prevent stale fetch race conditions
+  const selectedProjectIdRef = useRef<string | null>(selectedProjectId);
+  useEffect(() => {
+    selectedProjectIdRef.current = selectedProjectId;
+  }, [selectedProjectId]);
+
   // Dedupe concurrent fetches for the same project
   const inflightFetches = useRef<Map<string, Promise<void>>>(new Map());
 
@@ -61,17 +67,24 @@ export function ProjectProvider({ children }: { children: React.ReactNode }) {
         const res = await fetch(`/api/projects/${projectId}`);
         if (res.ok) {
           const data = await res.json();
-          setSelectedProject(data);
-          if (data.preferredManufacturer) {
-            setPreferredManufacturer(data.preferredManufacturer);
-            localStorage.setItem("preferred_manufacturer", data.preferredManufacturer);
+          // Only update if this response corresponds to the currently active selection
+          if (selectedProjectIdRef.current === projectId) {
+            setSelectedProject(data);
+            if (data.preferredManufacturer) {
+              setPreferredManufacturer(data.preferredManufacturer);
+              localStorage.setItem("preferred_manufacturer", data.preferredManufacturer);
+            }
           }
         } else {
-          setSelectedProject(null);
+          if (selectedProjectIdRef.current === projectId) {
+            setSelectedProject(null);
+          }
         }
       } catch (error) {
         console.error("Error fetching project:", error);
-        setSelectedProject(null);
+        if (selectedProjectIdRef.current === projectId) {
+          setSelectedProject(null);
+        }
       } finally {
         setLoading(false);
       }
@@ -97,6 +110,7 @@ export function ProjectProvider({ children }: { children: React.ReactNode }) {
 
   const selectProject = useCallback((id: string | null) => {
     setSelectedProjectId(id);
+    selectedProjectIdRef.current = id;
     if (id) {
       localStorage.setItem("selected_project_id", id);
     } else {

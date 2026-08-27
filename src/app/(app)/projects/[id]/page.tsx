@@ -128,7 +128,7 @@ export default function ProjectDetailPage() {
       if (res.ok) {
         const data = await res.json();
         setProject(data);
-        if (selectedProjectId !== projectId) {
+        if (!selectedProjectId) {
           selectProject(projectId);
         }
       } else {
@@ -141,11 +141,19 @@ export default function ProjectDetailPage() {
     }
   }
 
+  // If the user selects a different project in the sidebar while viewing /projects/[id],
+  // navigate to that newly selected project rather than overriding their selection.
+  useEffect(() => {
+    if (selectedProjectId && selectedProjectId !== projectId) {
+      router.push(`/projects/${selectedProjectId}`);
+    }
+  }, [selectedProjectId, projectId, router]);
+
   useEffect(() => {
     if (selectedProject && selectedProject.id === projectId) {
       setProject(selectedProject as any);
       setLoading(false);
-    } else {
+    } else if (projectId) {
       loadProject();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

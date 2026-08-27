@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useProject } from "@/context/ProjectContext";
 import { useUser } from "@/context/UserContext";
 import { useSidebar } from "@/context/SidebarContext";
@@ -77,6 +77,8 @@ function LogoMark() {
 }
 
 function ProjectSelector({ isCollapsed }: { isCollapsed?: boolean }) {
+  const pathname = usePathname();
+  const router = useRouter();
   const { selectedProject, selectProject } = useProject();
   const { toggleSidebar } = useSidebar();
   const { t, isRtl } = useTranslation();
@@ -115,6 +117,9 @@ function ProjectSelector({ isCollapsed }: { isCollapsed?: boolean }) {
   const handleSelect = (id: string) => {
     selectProject(id);
     setOpen(false);
+    if (pathname.startsWith('/projects/')) {
+      router.push(`/projects/${id}`);
+    }
   };
 
   useEffect(() => {

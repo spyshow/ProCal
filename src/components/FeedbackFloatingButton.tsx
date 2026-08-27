@@ -186,7 +186,7 @@ export function FeedbackFloatingButton() {
         <button
           type="button"
           onClick={handleOpen}
-          className="group flex items-center justify-center gap-2 w-[142px] h-[40px] px-3.5 py-2 rounded-full bg-gradient-to-r from-orange-600 via-orange-500 to-amber-600 hover:from-orange-500 hover:to-amber-500 text-white font-semibold shadow-lg shadow-orange-950/50 hover:shadow-orange-500/30 border border-orange-400/40 transition-all duration-200 transform hover:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:ring-offset-2 focus:ring-offset-slate-950 text-xs"
+          className="group flex items-center justify-center gap-2 min-w-[120px] h-[40px] px-3.5 py-2 rounded-full bg-gradient-to-r from-orange-600 via-orange-500 to-amber-600 hover:from-orange-500 hover:to-amber-500 text-white font-semibold shadow-lg shadow-orange-950/50 hover:shadow-orange-500/30 border border-orange-400/40 transition-all duration-200 transform hover:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:ring-offset-2 focus:ring-offset-slate-950 text-xs"
           title={t('feedback.tooltip', 'Report an Error or Send Feedback to Admin')}
           aria-haspopup="dialog"
           aria-expanded={isOpen}

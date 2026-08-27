@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { verifyProjectAccess } from "@/lib/project-auth";
+import { errorResponse } from "@/lib/api-errors";
 
 export async function GET(
   request: Request,
@@ -47,11 +48,12 @@ export async function PUT(
       return NextResponse.json({ error: "Building not found" }, { status: 404 });
     }
 
-    const auth = await verifyProjectAccess(building.projectId, {
-      requiredAction: "EDIT",
-      pageKey: "calculator",
-    });
+    const auth = await verifyProjectAccess(building.projectId);
     if (auth instanceof NextResponse) return auth;
+
+    if (auth.member.role === "QA") {
+      return NextResponse.json({ error: "Forbidden: QA role is view-only" }, { status: 403 });
+    }
 
     const oldTotalFloors = building.floors + building.serviceFloors;
     
@@ -105,8 +107,7 @@ export async function PUT(
 
     return NextResponse.json(updatedBuilding);
   } catch (error) {
-    console.error("PUT Building Error:", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    return errorResponse(error, "PUT Building Error");
   }
 }
 
@@ -127,11 +128,12 @@ export async function PATCH(
       return NextResponse.json({ error: "Building not found" }, { status: 404 });
     }
 
-    const auth = await verifyProjectAccess(building.projectId, {
-      requiredAction: "EDIT",
-      pageKey: "calculator",
-    });
+    const auth = await verifyProjectAccess(building.projectId);
     if (auth instanceof NextResponse) return auth;
+
+    if (auth.member.role === "QA") {
+      return NextResponse.json({ error: "Forbidden: QA role is view-only" }, { status: 403 });
+    }
 
     const updateData: Record<string, any> = {};
     if (data.name !== undefined) updateData.name = data.name;
@@ -159,8 +161,7 @@ export async function PATCH(
 
     return NextResponse.json(updatedBuilding);
   } catch (error) {
-    console.error("PATCH Building Error:", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    return errorResponse(error, "PATCH Building Error");
   }
 }
 

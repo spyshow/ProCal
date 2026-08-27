@@ -11,9 +11,16 @@ import {
 } from "./aggregates";
 import { phaseBalance } from "@/lib/calculations/phaseBalance";
 import { sizeTransformer } from "@/lib/calculations/loads";
+import { awgLabel } from "@/lib/calculations/codes";
 import type { FindBreaker } from "@/lib/calculations/feeders";
 
 export type { FindBreaker };
+
+/** NEMA/NEC projects export AWG/kcmil trade sizes instead of mm². */
+function cableCell(project: Project, sizeMm2: number | null | undefined): string | number {
+  if (sizeMm2 == null || sizeMm2 <= 0) return "—";
+  return project.calculationStandard === "NEMA" ? awgLabel(sizeMm2) : sizeMm2;
+}
 
 /**
  * Build a multi-sheet .xlsx workbook from a project's report schedules.
@@ -59,7 +66,7 @@ export function buildReportWorkbook(
       "Demand (kW)": round(r.demandKw, 2),
       "Current (A)": round(r.current, 1),
       Breaker: r.breakerAmps,
-      Cable: r.cableMm2,
+      Cable: cableCell(project, r.cableMm2),
       "Breaker Model": r.breakerModel,
       Phase: r.isThreePhase ? "3Φ" : "1Φ",
     }))
@@ -74,7 +81,7 @@ export function buildReportWorkbook(
       Phase: `${r.phase}Φ`,
       "Current (A)": round(r.current, 1),
       "Breaker (A)": r.breakerAmps,
-      "Cable (mm²)": r.cableMm2,
+      "Cable (mm²)": cableCell(project, r.cableMm2),
       Method: r.method,
       Insulation: r.insulation,
       Material: r.material === "aluminum" ? "Aluminum" : "Copper",
@@ -90,7 +97,7 @@ export function buildReportWorkbook(
       Type: r.type,
       "Current (A)": round(r.current, 1),
       Breaker: r.breakerAmps,
-      Cable: r.cableMm2,
+      Cable: cableCell(project, r.cableMm2),
       Model: r.breakerModel,
       Phase: r.isThreePhase ? "3Φ" : "1Φ",
     }))
@@ -103,7 +110,7 @@ export function buildReportWorkbook(
       Building: r.buildingName,
       Floor: r.floor,
       "Current (A)": round(r.current, 1),
-      "Cable (mm²)": r.cableMm2,
+      "Cable (mm²)": cableCell(project, r.cableMm2),
       "Length (m)": round(r.lengthMeters, 1),
       "Voltage Drop (%)": round(r.voltageDropPercent, 2),
       Status: r.status,
@@ -117,7 +124,7 @@ export function buildReportWorkbook(
       Building: r.buildingName,
       Floor: r.floor === 0 ? "MDB" : `F${r.floor}`,
       Type: r.type,
-      "Cable (mm²)": r.cableSizeMm2 || "Busbar",
+      "Cable (mm²)": r.cableSizeMm2 ? cableCell(project, r.cableSizeMm2) : "Busbar",
       "3Φ Isc (kA)": round(r.threePhaseIscKa, 2),
       "2Φ Isc (kA)": round(r.twoPhaseIscKa, 2),
       "Breaker Icu (kA)": r.breakerIcuKa ?? "—",
@@ -184,10 +191,12 @@ function buildBomRows(project: Project): Record<string, string | number>[] {
   rows.push({ "BOM — Cables": "" });
   for (const c of bom.cables) {
     rows.push({
-      "Cable Specification": c.description ?? `${c.cores ?? 4}C × ${c.size} mm²`,
+      "Cable Specification":
+        c.description ??
+        `${c.cores ?? 4}C × ${project.calculationStandard === "NEMA" ? awgLabel(c.size) : `${c.size} mm²`}`,
       "Cores": `${c.cores ?? (c.phase === 1 ? 2 : 4)} Cores`,
       "Phase System": c.phase === 1 ? "1-Phase (1φ)" : "3-Phase (3φ)",
-      "Conductor Size (mm²)": c.size,
+      "Conductor Size": cableCell(project, c.size),
       "Circuits": c.count,
       "Total Length (m)": c.totalLength,
     });

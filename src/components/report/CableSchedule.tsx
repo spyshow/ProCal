@@ -1,7 +1,7 @@
 'use client';
 
 import { isThreePhaseForItem, computeFeeders } from '@/lib/calculations/feeders';
-import { parseCableSize } from '@/lib/calculations/cables';
+import { parseCableSize, formatCableSizeFor } from '@/lib/calculations/cables';
 import { TraceableCell } from '@/components/common/TraceableCell';
 import {
   buildDesignCurrentTrace,
@@ -61,7 +61,9 @@ export default function CableSchedule({ project, buildingId, showHeader = true }
       phaseLabel: '3Φ',
       current: mainIncomerCurrent || mainIncomerSettings.ir,
       breaker: `${mainBreakerIn}A`,
-      cable: mainParallelRuns > 1 ? `${mainParallelRuns} × (4C × ${mainCableSize} mm²)` : `4C × ${mainCableSize} mm²`,
+      // Metric parallel notation; the AWG display conversion happens once, at
+      // the render site below. Trace parsing also expects metric here.
+      cable: mainParallelRuns > 1 ? `${mainParallelRuns} × ${mainCableSize} mm²` : `${mainCableSize} mm²`,
       method: 'E',
       insulation: 'XLPE',
       material: 'copper',
@@ -224,7 +226,7 @@ export default function CableSchedule({ project, buildingId, showHeader = true }
                     });
                   }}
                 >
-                  {row.cable}
+                  {formatCableSizeFor(row.cable, project.calculationStandard)}
                 </TraceableCell>
               </td>
               <td className="p-2 border-r border-slate-200 text-center text-xs font-mono">

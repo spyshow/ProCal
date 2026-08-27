@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { computeFeeders, createFindBreaker, type FindBreaker } from '@/lib/calculations/feeders';
-import { parseCableSize } from '@/lib/calculations/cables';
+import { formatCableSizeFor, parseCableSize } from '@/lib/calculations/cables';
 import { useEquipmentCatalog } from '@/hooks/useEquipmentCatalog';
 import { TraceableCell } from '@/components/common/TraceableCell';
 import {
@@ -301,7 +301,7 @@ export default function MDBSchedule({ project, buildingId, showHeader = true }: 
                     });
                   }}
                 >
-                  {row.cable}
+                  {formatCableSizeFor(row.cable, project.calculationStandard)}
                 </TraceableCell>
               </td>
               <td className="p-2 text-right font-mono text-slate-700">

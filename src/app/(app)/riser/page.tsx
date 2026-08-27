@@ -11,7 +11,8 @@ import {
   ZoomOut,
   RotateCcw,
 } from 'lucide-react';
-import { sizeCableAndBreaker } from '@/lib/calculations/cables';
+import { sizeCableAndBreaker, formatCableSizeFor } from '@/lib/calculations/cables';
+import { codeOf } from '@/lib/calculations/codes';
 import { calculateThreePhaseCurrent, sizeTransformer } from '@/lib/calculations/loads';
 import { phaseBalance } from '@/lib/calculations/phaseBalance';
 import { computeFloorRiserVd, type RiserFloorVd } from '@/lib/calculations/riser';
@@ -137,6 +138,7 @@ export default function RiserPage() {
     insulation: 'XLPE',
     ambientTemp: 30,
     groupingCount: 1,
+    code: codeOf((project as Project).calculationStandard),
   });
 
   // Transformer sizing: use building-specific rating if set, or auto-size for this building's demand.
@@ -340,7 +342,7 @@ export default function RiserPage() {
                 {mdbSizing.breakerSize}A MCCB · {totalDemandKva.toFixed(1)} kVA
               </text>
               <text x="100" y="54" textAnchor="middle" fill="#9ca3af" fontSize="9">
-                {totalCurrent.toFixed(0)}A · {mdbSizing.cableSize}mm²
+                {totalCurrent.toFixed(0)}A · {formatCableSizeFor(mdbSizing.cableSize, project.calculationStandard)}
               </text>
             </g>
 
@@ -439,7 +441,7 @@ export default function RiserPage() {
                     {fd.hasRiser
                       ? fd.riserNoData
                         ? 'no riser data'
-                        : `${fd.riserCableSize ?? '—'}mm² ${fd.riserCableInsulation || 'XLPE'}${fd.riserCableMaterial === 'aluminum' ? ' Al' : ''} · ${fd.riserCableLength?.toFixed(0) ?? '—'}m`
+                        : `${fd.riserCableSize ? formatCableSizeFor(fd.riserCableSize, project.calculationStandard) : '—'} ${fd.riserCableInsulation || 'XLPE'}${fd.riserCableMaterial === 'aluminum' ? ' Al' : ''} · ${fd.riserCableLength?.toFixed(0) ?? '—'}m`
                       : `${fd.items.length} ${t('cableSchedule.circuits', 'apt feeders')}`}
                   </text>
 
@@ -456,7 +458,7 @@ export default function RiserPage() {
                       <text x="65" y="33" textAnchor="middle" fill="#6b7280" fontSize="7">
                         {fd.riserNoData
                           ? `no riser data · ${fd.floorCurrent.toFixed(0)}A`
-                          : `${fd.riserCableSize}mm² · L=${fd.riserCableLength?.toFixed(0)}m · ${fd.floorCurrent.toFixed(0)}A`}
+                          : `${formatCableSizeFor(fd.riserCableSize, project.calculationStandard)} · L=${fd.riserCableLength?.toFixed(0)}m · ${fd.floorCurrent.toFixed(0)}A`}
                       </text>
                     </g>
                   )}

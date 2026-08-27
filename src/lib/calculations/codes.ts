@@ -64,3 +64,39 @@ export const VD_RECOMMENDED: Record<CodeStandard, { lighting: number; power: num
   IEC: { lighting: 3, power: 5 },
   NEC: { lighting: 3, power: 3 },
 };
+
+/**
+ * mm² → AWG/kcmil display cross-reference for NEC projects. Storage and the
+ * engine stay metric (parseCableSize misreads "3/0" as 3 mm²), so this is
+ * DISPLAY-ONLY: nearest conductor area per NEC Chapter 9 Table 8. Sizes not
+ * in the table fall back to their mm² value.
+ */
+const MM2_TO_AWG: ReadonlyArray<readonly [number, string]> = [
+  [1.5, "16 AWG"],
+  [2.5, "14 AWG"],
+  [4, "12 AWG"],
+  [6, "10 AWG"],
+  [10, "8 AWG"],
+  [16, "6 AWG"],
+  [25, "3 AWG"],
+  [35, "2 AWG"],
+  [50, "1/0 AWG"],
+  [70, "2/0 AWG"],
+  [95, "3/0 AWG"],
+  [120, "250 kcmil"],
+  [150, "300 kcmil"],
+  [185, "350 kcmil"],
+  [240, "500 kcmil"],
+  [300, "600 kcmil"],
+  [400, "800 kcmil"],
+  [500, "1000 kcmil"],
+];
+
+/** Nearest-area NEC trade size for a metric cross-section ("3/0 AWG", "250 kcmil", …). */
+export function awgLabel(sizeMm2: number): string {
+  let best = MM2_TO_AWG[0];
+  for (const row of MM2_TO_AWG) {
+    if (Math.abs(row[0] - sizeMm2) < Math.abs(best[0] - sizeMm2)) best = row;
+  }
+  return best[1];
+}

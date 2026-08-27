@@ -1,7 +1,7 @@
 import { CABLE_CATALOG, temperatureDeratingFactor, groupingDeratingFactor, CableSpec } from "./cablesData";
 import { getAmpacity, isGroundMethod, groundTemperatureDeratingFactor } from "./installationMethods";
 import { assertNonNegative, assertPositive, assertInRange, assertOneOf, clampPowerFactor } from "./validate";
-import { nextBreakerRating, IEC_BREAKER_RATINGS, type CodeStandard } from "./codes";
+import { nextBreakerRating, IEC_BREAKER_RATINGS, awgLabel, type CodeStandard } from "./codes";
 
 export interface SizingResult {
   cableSize: number;
@@ -97,6 +97,24 @@ export function formatCableSize(size: number, runs: number = 1): string {
     return `${runs} × ${size} mm²`;
   }
   return `${size} mm²`;
+}
+
+/**
+ * Display-layer formatter honoring the project's code: NEMA/NEC projects show
+ * AWG/kcmil trade sizes, IEC shows mm². Accepts a raw size, runs count, or an
+ * already-formatted stored string ("2 × 240 mm²", "4x35+16") — parseCableSize
+ * recovers the numeric size and runs. Unparseable input passes through.
+ */
+export function formatCableSizeFor(
+  value: string | number | null | undefined,
+  calculationStandard?: string | null
+): string {
+  const parsed = typeof value === 'string' ? parseCableSize(value) : null;
+  const size = parsed?.size ?? (typeof value === 'number' && Number.isFinite(value) && value > 0 ? value : null);
+  if (size == null) return value != null && String(value).trim() !== '' ? String(value) : '—';
+  const runs = parsed?.runs ?? 1;
+  const unit = calculationStandard === 'NEMA' ? awgLabel(size) : `${size} mm²`;
+  return runs > 1 ? `${runs} × ${unit}` : unit;
 }
 
 /**

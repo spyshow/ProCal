@@ -22,6 +22,7 @@ import {
 import RevisionsPanel from '@/components/report/RevisionsPanel';
 import { phaseBalance } from '@/lib/calculations/phaseBalance';
 import { sizeTransformer } from '@/lib/calculations/loads';
+import { formatCableSizeFor } from '@/lib/calculations/cables';
 import CoverPage from '@/components/report/CoverPage';
 import ReportHeader from '@/components/report/ReportHeader';
 import LoadSchedule from '@/components/report/LoadSchedule';
@@ -376,8 +377,8 @@ export default function ReportsPage() {
 
               const incomerCat = mainBreakerIn >= 630 ? 'ACB' : 'MCCB';
               const cableSpec = mainParallelRuns > 1
-                ? `${mainParallelRuns} × (4C × ${mainCableSize} mm²)`
-                : `4C × ${mainCableSize} mm²`;
+                ? `${mainParallelRuns} × (4C × ${formatCableSizeFor(mainCableSize, project.calculationStandard)})`
+                : `4C × ${formatCableSizeFor(mainCableSize, project.calculationStandard)}`;
 
               return (
                 <tr key={bldg.id} className={idx % 2 === 0 ? 'bg-white' : 'bg-slate-50/80'}>

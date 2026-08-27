@@ -3,6 +3,7 @@
 import { useMemo } from 'react';
 import type { Project } from '@/types';
 import { sizeTransformer } from '@/lib/calculations/loads';
+import { formatCableSizeFor } from '@/lib/calculations/cables';
 import { phaseBalance } from '@/lib/calculations/phaseBalance';
 import { calculateShortCircuitCurrent, getTypicalImpedance } from '@/lib/calculations/shortCircuit';
 import { aggregateShortCircuitRows } from '@/lib/reports/aggregates';
@@ -192,7 +193,7 @@ export default function ShortCircuitSchedule({
                 </span>
               </td>
               <td className="p-2 border-r border-slate-200 text-center font-mono text-slate-700">
-                {row.cableSizeMm2 > 0 ? `${row.cableSizeMm2} mm²` : 'Busbar'}
+                {row.cableSizeMm2 > 0 ? formatCableSizeFor(row.cableSizeMm2, project.calculationStandard) : 'Busbar'}
               </td>
               <td className="p-2 border-r border-slate-200 text-center font-mono font-bold text-red-600">
                 <TraceableCell

@@ -138,11 +138,15 @@ power/voltage/current, parseable cable-size strings) before anything persists.
 
 ## cablesData.ts + installationMethods.ts — ampacity tables
 
-`CABLE_CATALOG`: 16 cross-sections (1.5 → 300 mm²), each carrying `resistance`
-and `reactance` (Ω/km) for voltage-drop/fault math.
+`CABLE_CATALOG`: 18 cross-sections (1.5 → 500 mm²), each carrying `resistance`
+and `reactance` (Ω/km) for voltage-drop/fault math. The sizer's default
+`maxCableSize` stays 300 mm² (the last published IEC B.52.x size); 400/500 mm²
+are extrapolated rows (ampacity ≈ S^0.63 from each table's own upper range)
+and are only reachable when a caller passes a higher `maxCableSize`.
 
 Ampacity lives in **`installationMethods.ts`** as per-method transcriptions of
-IEC 60364-5-52 Table B.52.x: `AMPACITY_{A1,A2,B1,B2,C,E,F,G,D1,D2}_{PVC,XLPE}_{3PH,1PH}`.
+IEC 60364-5-52 Table B.52.x (1.5 → 300 mm²) plus extrapolated 400/500 entries:
+`AMPACITY_{A1,A2,B1,B2,C,E,F,G,D1,D2}_{PVC,XLPE}_{3PH,1PH}`.
 `getAmpacity(size, method, insulation, isThreePhase, material)` resolves the
 method via `resolveReferenceMethod`, picks the table, and scales copper →
 aluminum by `aluminumRatio(...)` (the tables are copper-only). Ground methods
@@ -336,6 +340,15 @@ was computed under older rules until a recalculate heals it.
 - `VD_RECOMMENDED` — informative ΔU limits (IEC Annex G: 3 % lighting /
   5 % other; NEC informational note: 3 % branch, 5 % feeder+branch total).
 - `CODE_LABEL` — report/trace provenance strings.
+- `awgLabel(mm2)` — mm² → AWG/kcmil display cross-reference (nearest
+  conductor area per NEC Chapter 9 Table 8). **Display only**: storage and the
+  engine stay metric because `parseCableSize` misreads "3/0" as 3 mm². The
+  render-side wrapper is `formatCableSizeFor(value, calculationStandard)`
+  (cables.ts) — it accepts a raw size or a stored metric string
+  ("2 × 240 mm²") and emits AWG/kcmil labels when the standard is "NEMA".
+  All schedule/report surfaces (MDB/breaker/cable/VD/SC/BOM schedules,
+  panel/riser/cable-schedule pages, Excel export, SLD generator labels)
+  route through it; IEC output is byte-identical to the old formatting.
 
 **Known ceiling:** conductor ampacity still uses the IEC 60364-5-52 method
 tables for both codes. A full NEC Table 310.16 port needs an AWG/kcmil size

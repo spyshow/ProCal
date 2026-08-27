@@ -334,6 +334,33 @@ describe('Parallel multi-conductor sizing in sizeCableAndBreaker', () => {
     expect(result.parallelRuns).toBeGreaterThanOrEqual(2);
     expect(result.deratedAmpacity).toBeGreaterThanOrEqual(500);
   });
+
+  it('uses the extended 400/500 mm² rows only when the caller raises maxCableSize', () => {
+    // 630 A exceeds the largest default-catalog single (300 mm² XLPE = 576 A)
+    // but fits one extrapolated 400 mm² run (690 A).
+    const wide = sizeCableAndBreaker(630, true, {
+      material: 'copper', insulation: 'XLPE', ambientTemp: 30, groupingCount: 1,
+      maxCableSize: 400,
+    });
+    expect(wide.cableSize).toBe(400);
+    expect(wide.parallelRuns).toBe(1);
+    expect(wide.warnings).toEqual([]);
+
+    // The sizer default stays capped at 300 — the same load needs parallel runs.
+    const capped = sizeCableAndBreaker(630, true, {
+      material: 'copper', insulation: 'XLPE', ambientTemp: 30, groupingCount: 1,
+    });
+    expect(capped.cableSize).toBeLessThanOrEqual(300);
+
+    // Grouping derating still pushes extended sizes into parallel runs:
+    // 12 circuits → ×0.45; even 500 mm² (794 A) gives 357 A < 630 A.
+    const grouped = sizeCableAndBreaker(630, true, {
+      material: 'copper', insulation: 'XLPE', ambientTemp: 30, groupingCount: 12,
+      maxCableSize: 500,
+    });
+    expect(grouped.parallelRuns).toBeGreaterThanOrEqual(2);
+    expect(grouped.deratedAmpacity).toBeGreaterThanOrEqual(630);
+  });
 });
 
 describe('evaluateCableProtection with parallel runs', () => {

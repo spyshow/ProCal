@@ -5,6 +5,7 @@ import {
   getBuildingLoadCableLength,
 } from "@/lib/calculations/cables";
 import { phaseBalance } from "@/lib/calculations/phaseBalance";
+import { awgLabel } from "@/lib/calculations/codes";
 import { computeFeeders, type EquipmentItem, type FindBreaker } from "@/lib/calculations/feeders";
 import type { FloorItem, Project } from "@/types";
 import type {
@@ -41,6 +42,9 @@ export type {
 export function aggregateBOM(project: Project): BOMResult {
   const cableMap = new Map<string, { size: number; cores: number; phase: number; description: string; length: number; count: number }>();
   const breakerMap = new Map<number, { rating: number; count: number }>();
+  // NEMA/NEC projects label cables with AWG/kcmil trade sizes (display only).
+  const sizeLabel = (mm2: number) =>
+    project.calculationStandard === 'NEMA' ? awgLabel(mm2) : `${mm2} mm²`;
 
   for (const bldg of project.buildings) {
     for (const fd of bldg.floorDesigns) {
@@ -51,7 +55,7 @@ export function aggregateBOM(project: Project): BOMResult {
         const phases = resolveItemPhases(item);
         const cores = phases === 1 ? 2 : 4;
         const key = `${cores}C-${cableSize}`;
-        const description = `${cores}C × ${cableSize} mm²`;
+        const description = `${cores}C × ${sizeLabel(cableSize)}`;
 
         const cableEntry = cableMap.get(key) ?? {
           size: cableSize,
@@ -77,7 +81,7 @@ export function aggregateBOM(project: Project): BOMResult {
       const phases = bl.loadLibraryItem?.phase ?? 3;
       const cores = phases === 1 ? 2 : 4;
       const key = `${cores}C-${cableSize}`;
-      const description = `${cores}C × ${cableSize} mm²`;
+      const description = `${cores}C × ${sizeLabel(cableSize)}`;
 
       const cableEntry = cableMap.get(key) ?? {
         size: cableSize,

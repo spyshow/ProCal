@@ -335,7 +335,7 @@ export default function Sidebar() {
               "text-[9px] font-bold uppercase tracking-wider text-orange-400 bg-orange-500/10 border border-orange-500/20 px-1.5 py-0.5 rounded",
               isRtl ? "mr-auto" : "ml-auto"
             )}>
-              v1.1
+              v1.2
             </span>
           </>
         )}

@@ -60,16 +60,17 @@ export function recalculateCable(input: CableEditorInput): CableEditorResult {
     powerFactor,
     systemVoltage,
     maxVoltageDropPercent,
-    method = 'C',
+    code = 'IEC',
+    method = code === 'NEC' ? 'NEC-1' : 'C',
     insulation = 'XLPE',
     material = 'copper',
     ambientTemp = 30,
     groupingCount = 1,
     maxCableSize = 300,
     targetRuns,
-    code = 'IEC',
   } = input;
 
+  const calcStandard = code === 'NEC' ? 'NEMA' : 'IEC';
   const existingParsed = parseCableSize(existingCableSize) ?? {
     size: typeof existingCableSize === 'number' ? existingCableSize : 16,
     runs: input.existingRuns ?? 1,
@@ -78,11 +79,11 @@ export function recalculateCable(input: CableEditorInput): CableEditorResult {
 
   const currentRuns = targetRuns ?? input.existingRuns ?? existingParsed.runs ?? 1;
   const totalDerating =
-    temperatureDeratingFactor(insulation, ambientTemp) * groupingDeratingFactor(groupingCount);
+    temperatureDeratingFactor(insulation, ambientTemp, calcStandard) * groupingDeratingFactor(groupingCount, calcStandard);
 
   // 1. Fast path: the installed cable (even a non-catalog size) already
   // carries the load within the drop limit — keep it untouched.
-  const installedBaseAmpacity = getAmpacity(existingParsed.size, method, insulation, isThreePhase, material);
+  const installedBaseAmpacity = getAmpacity(existingParsed.size, method, insulation, isThreePhase, material, calcStandard);
   const installedSingleAmpacity = installedBaseAmpacity * totalDerating;
   const installedTotalAmpacity = installedSingleAmpacity * currentRuns;
   const installedVD = calculateVoltageDrop(current, lengthMeters, existingParsed.size, powerFactor, isThreePhase, systemVoltage, currentRuns, material);

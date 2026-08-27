@@ -6,16 +6,18 @@ import { ChevronDown, X, Search, Check, Layers } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {
   INSTALLATION_METHODS,
-  InstallationMethod,
-  MethodCategory,
+  NEC_INSTALLATION_METHODS,
   resolveReferenceMethod,
+  type InstallationMethod,
+  type MethodCategory,
 } from '@/lib/calculations/installationMethods';
 
 export interface InstallationMethodOption extends InstallationMethod {
   svg: string;
 }
 
-// Archetypal Vector Illustrations matching IEC 60364-5-52 installation figures
+// SVG Archetype Illustrations for Installation Methods
+// High-contrast, clean 2D engineering cross-sections in SVG format.
 const ARCHETYPE_SVGS: Record<string, string> = {
   // Conduit in thermally insulated wall
   'conduit-insulated-wall': `<svg viewBox="0 0 100 65" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -187,6 +189,16 @@ const ARCHETYPE_SVGS: Record<string, string> = {
 
 function getMethodSvg(method: InstallationMethod): string {
   const { id, category, code } = method;
+  if (id.startsWith('NEC-')) {
+    if (id === 'NEC-4' || id === 'NEC-5') return ARCHETYPE_SVGS['tray-multicore'];
+    if (id === 'NEC-6') return ARCHETYPE_SVGS['tray-single-touch'];
+    if (id === 'NEC-7') return ARCHETYPE_SVGS['tray-multicore'];
+    if (id === 'NEC-1' || id === 'NEC-2' || id === 'NEC-3') return ARCHETYPE_SVGS['conduit-wall'];
+    if (id === 'NEC-8' || id === 'NEC-9') return ARCHETYPE_SVGS['insulators'];
+    if (id === 'NEC-10' || id === 'NEC-11') return ARCHETYPE_SVGS['ground-duct'];
+    if (id === 'NEC-12') return ARCHETYPE_SVGS['building-void'];
+    return ARCHETYPE_SVGS['clipped-surface'];
+  }
   if (category === 'ground') {
     return id.startsWith('70') || id.startsWith('71') ? ARCHETYPE_SVGS['ground-duct'] : ARCHETYPE_SVGS['ground-direct'];
   }
@@ -229,6 +241,7 @@ interface MethodSelectorProps {
   value: string;
   onChange: (methodId: string) => void;
   compact?: boolean;
+  standard?: string | null;
 }
 
 const CATEGORY_TABS: { key: MethodCategory | 'all'; label: string }[] = [
@@ -240,7 +253,10 @@ const CATEGORY_TABS: { key: MethodCategory | 'all'; label: string }[] = [
   { key: 'void', label: 'Building Voids' },
 ];
 
-export default function MethodSelector({ value, onChange, compact }: MethodSelectorProps) {
+export default function MethodSelector({ value, onChange, compact, standard }: MethodSelectorProps) {
+  const isNema = standard === 'NEMA';
+  const methodsCatalog = useMemo(() => isNema ? NEC_INSTALLATION_METHODS : INSTALLATION_METHODS, [isNema]);
+
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<MethodCategory | 'all'>('all');
@@ -251,16 +267,31 @@ export default function MethodSelector({ value, onChange, compact }: MethodSelec
 
   // Match current selected method
   const selectedMethod = useMemo(() => {
+    if (isNema) {
+      const match =
+        NEC_INSTALLATION_METHODS.find((m) => m.id === value) ||
+        NEC_INSTALLATION_METHODS.find((m) => m.code === value) ||
+        NEC_INSTALLATION_METHODS.find((m) => m.refMethod === value);
+      if (match) return match;
+
+      // Map from IEC value to closest NEC method if needed
+      const iecRef = resolveReferenceMethod(value);
+      if (iecRef === 'E' || iecRef === 'F') return NEC_INSTALLATION_METHODS[3]; // NEC-4 Tray
+      if (iecRef === 'G') return NEC_INSTALLATION_METHODS[4]; // NEC-5 Spaced Tray
+      if (iecRef === 'D1' || iecRef === 'D2') return NEC_INSTALLATION_METHODS[9]; // NEC-10 Buried
+      return NEC_INSTALLATION_METHODS[0]; // NEC-1 Raceway
+    }
+
     return (
       INSTALLATION_METHODS.find((m) => m.id === value) ||
       INSTALLATION_METHODS.find((m) => m.code === value) ||
       INSTALLATION_METHODS.find((m) => m.refMethod === resolveReferenceMethod(value)) ||
       INSTALLATION_METHODS[18] // default Method 31-E
     );
-  }, [value]);
+  }, [value, isNema]);
 
   const filteredMethods = useMemo(() => {
-    return INSTALLATION_METHODS.filter((m) => {
+    return methodsCatalog.filter((m) => {
       if (selectedCategory !== 'all' && m.category !== selectedCategory) {
         return false;
       }
@@ -275,7 +306,7 @@ export default function MethodSelector({ value, onChange, compact }: MethodSelec
         m.refMethod.toLowerCase().includes(q)
       );
     });
-  }, [selectedCategory, searchQuery]);
+  }, [methodsCatalog, selectedCategory, searchQuery]);
 
   const updatePosition = () => {
     if (buttonRef.current) {
@@ -335,6 +366,16 @@ export default function MethodSelector({ value, onChange, compact }: MethodSelec
 
   const getRefBadgeColor = (refCode: string) => {
     switch (refCode) {
+      case '310.16':
+        return 'bg-sky-500/20 text-sky-300 border-sky-500/40';
+      case '310.17':
+        return 'bg-purple-500/20 text-purple-300 border-purple-500/40';
+      case '310.20':
+        return 'bg-yellow-600/20 text-yellow-400 border-yellow-600/40';
+      case '392.80(A)':
+        return 'bg-orange-500/20 text-orange-300 border-orange-500/40';
+      case '392.80(B)':
+        return 'bg-amber-500/20 text-amber-300 border-amber-500/40';
       case 'A1':
       case 'A2':
         return 'bg-amber-500/20 text-amber-300 border-amber-500/40';
@@ -380,7 +421,7 @@ export default function MethodSelector({ value, onChange, compact }: MethodSelec
           />
           <div className="flex items-center gap-1 min-w-0">
             <span className="font-mono font-bold text-orange-400 truncate">
-              {selectedMethod.number} · {selectedMethod.code}
+              {isNema ? selectedMethod.code : `${selectedMethod.number} · ${selectedMethod.code}`}
             </span>
           </div>
         </div>
@@ -402,7 +443,7 @@ export default function MethodSelector({ value, onChange, compact }: MethodSelec
             <div className="flex items-center gap-2">
               <Layers className="w-4 h-4 text-orange-400" />
               <h4 className="text-xs font-bold text-white tracking-wide">
-                IEC 60364-5-52 Installation Methods
+                {isNema ? "NEC / NEMA Installation & Wiring Methods" : "IEC 60364-5-52 Installation Methods"}
               </h4>
             </div>
             <button
@@ -423,7 +464,7 @@ export default function MethodSelector({ value, onChange, compact }: MethodSelec
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search by method number, reference code, or keyword (e.g. 31, tray, trefoil, duct, ground)..."
+                placeholder={isNema ? "Search NEC methods by name, code, or article (e.g. raceway, tray, 310.16, direct)..." : "Search by method number, reference code, or keyword (e.g. 31, tray, trefoil, duct, ground)..."}
                 className="w-full bg-slate-900 border border-slate-700 rounded-lg pl-8 pr-8 py-1.5 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 font-sans"
               />
               {searchQuery && (
@@ -496,7 +537,7 @@ export default function MethodSelector({ value, onChange, compact }: MethodSelec
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-0.5">
                         <span className="font-mono font-bold text-xs text-white">
-                          {method.number} — {method.code}
+                          {isNema ? `${method.id} — ${method.name}` : `${method.number} — ${method.code}`}
                         </span>
                         <span
                           className={cn(
@@ -525,8 +566,8 @@ export default function MethodSelector({ value, onChange, compact }: MethodSelec
 
           {/* Footer Note */}
           <div className="px-3.5 py-2 bg-slate-900/80 border-t border-slate-800 text-[10px] text-slate-500 flex justify-between items-center">
-            <span>Showing {filteredMethods.length} of {INSTALLATION_METHODS.length} methods</span>
-            <span className="font-mono">IEC 60364-5-52 Table A.52.3</span>
+            <span>Showing {filteredMethods.length} of {methodsCatalog.length} methods</span>
+            <span className="font-mono">{isNema ? "NEC Article 300 / 310 / 392" : "IEC 60364-5-52 Table A.52.3"}</span>
           </div>
         </div>,
         document.body

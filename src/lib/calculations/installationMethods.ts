@@ -594,40 +594,201 @@ export const INSTALLATION_METHODS: InstallationMethod[] = [
   },
 ];
 
-/**
- * Resolves any method identifier (e.g. '31-E', '4', '70', 'F (touch.)', or legacy 'C')
- * to its standard Reference Method code: A1, A2, B1, B2, C, D1, D2, E, F, G.
- */
-export function resolveReferenceMethod(methodId: string): string {
-  if (!methodId) return 'C';
+// ===========================================================================
+// NEC / NEMA (NFPA 70) Wiring & Installation Methods
+// ===========================================================================
+export const NEC_INSTALLATION_METHODS: InstallationMethod[] = [
+  {
+    id: 'NEC-1',
+    number: 1,
+    code: 'Raceway',
+    refMethod: '310.16',
+    name: 'Conduit / Raceway in Air (EMT / RMC / IMC)',
+    description: 'Insulated conductors in metallic or nonmetallic conduit/raceway in free air (NEC Table 310.16)',
+    category: 'conduit',
+  },
+  {
+    id: 'NEC-2',
+    number: 2,
+    code: 'Conduit in Wall',
+    refMethod: '310.16',
+    name: 'Conduit / Tubing in Insulated Wall or Ceiling',
+    description: 'Conductors in conduit installed in thermally insulated walls or building envelopes (NEC Table 310.16)',
+    category: 'conduit',
+  },
+  {
+    id: 'NEC-3',
+    number: 3,
+    code: 'Wireway',
+    refMethod: '310.16',
+    name: 'Surface Metallic / Nonmetallic Wireway & Raceway',
+    description: 'Surface-mounted raceway, wireway, or auxiliary gutter (NEC Article 376/386, Table 310.16)',
+    category: 'conduit',
+  },
+  {
+    id: 'NEC-4',
+    number: 4,
+    code: 'Cable Tray',
+    refMethod: '392.80(A)',
+    name: 'Ladder / Ventilated Cable Tray (Multiconductor Cable)',
+    description: 'Multiconductor cables in ladder or ventilated trough cable tray (NEC 392.80(A)(1), Table 310.16)',
+    category: 'tray',
+  },
+  {
+    id: 'NEC-5',
+    number: 5,
+    code: 'Tray (Spaced)',
+    refMethod: '310.17',
+    name: 'Single Conductors in Ventilated Tray with Spacing (≥1 Dia)',
+    description: 'Single-conductor cables spaced ≥1 cable diameter in ventilated tray (NEC 392.80(B)(1)(a), Table 310.17 Free Air)',
+    category: 'tray',
+  },
+  {
+    id: 'NEC-6',
+    number: 6,
+    code: 'Tray (Touching)',
+    refMethod: '392.80(B)',
+    name: 'Single Conductors in Ventilated Tray (Touching / Unspaced)',
+    description: 'Single-conductor cables touching in ventilated cable tray without spacing (NEC 392.80(B)(1)(b), 65% of Table 310.17)',
+    category: 'tray',
+  },
+  {
+    id: 'NEC-7',
+    number: 7,
+    code: 'Solid Bottom Tray',
+    refMethod: '392.80(A)',
+    name: 'Solid Bottom Cable Tray (Multiconductor Cables)',
+    description: 'Multiconductor cables in solid bottom cable tray (NEC 392.80(A)(1)(a), 95% of Table 310.16)',
+    category: 'tray',
+  },
+  {
+    id: 'NEC-8',
+    number: 8,
+    code: 'Free Air',
+    refMethod: '310.17',
+    name: 'Single Insulated Conductors in Free Air / Messengers',
+    description: 'Single insulated conductors supported in free air or on messengers (NEC Table 310.17)',
+    category: 'surface',
+  },
+  {
+    id: 'NEC-9',
+    number: 9,
+    code: 'Open Wiring',
+    refMethod: '310.17',
+    name: 'Open Wiring on Insulators / Cleated',
+    description: 'Open conductors supported on porcelain or polymeric insulators in free air (NEC Article 398, Table 310.17)',
+    category: 'surface',
+  },
+  {
+    id: 'NEC-10',
+    number: 10,
+    code: 'Direct Buried',
+    refMethod: '310.16',
+    name: 'Directly Buried in Earth (Single or Multiconductor Cable)',
+    description: 'Cables directly buried in earth trench without conduit (NEC Table 310.16 / Table 310.20)',
+    category: 'ground',
+  },
+  {
+    id: 'NEC-11',
+    number: 11,
+    code: 'Duct Bank',
+    refMethod: '310.20',
+    name: 'Underground Duct Bank / Encased Conduits in Earth',
+    description: 'Underground conduit bank or duct bank encased in earth or concrete (NEC Table 310.20 / Table 310.60)',
+    category: 'ground',
+  },
+  {
+    id: 'NEC-12',
+    number: 12,
+    code: 'Building Void',
+    refMethod: '310.16',
+    name: 'Cable / Conduit in Building Void or Drop Ceiling',
+    description: 'Cables in drop ceiling spaces, environmental air voids, or hollow building walls (NEC Table 310.16, Art. 300.22)',
+    category: 'void',
+  },
+  {
+    id: 'NEC-13',
+    number: 13,
+    code: 'MC/TC Surface',
+    refMethod: '310.16',
+    name: 'Type MC / AC / TC Cable Clipped Directly to Surface',
+    description: 'Metal-clad, armored, or tray cable run exposed and clipped directly to surface (NEC Table 310.16)',
+    category: 'surface',
+  },
+];
 
-  // Direct match by method ID in the catalogue
+/**
+ * Resolves any method identifier (e.g. '31-E', '4', 'NEC-1', 'NEC-4', 'F (touch.)', or legacy 'C')
+ * to its standard Reference Method code.
+ */
+export function resolveReferenceMethod(methodId: string, calculationStandard?: string | null): string {
+  if (!methodId) return calculationStandard === 'NEMA' ? '310.16' : 'C';
+
+  const isNema = calculationStandard === 'NEMA';
+
+  // Check NEC methods directly
+  const foundNec = NEC_INSTALLATION_METHODS.find((m) => m.id === methodId || m.name === methodId || m.code === methodId);
+  if (foundNec) return isNema ? foundNec.refMethod : (foundNec.category === 'tray' ? 'E' : foundNec.category === 'ground' ? 'D1' : 'C');
+
+  if (methodId.toUpperCase().startsWith('NEC-') || methodId.toUpperCase().startsWith('NEC')) {
+    const num = methodId.replace(/\D/g, '');
+    const matched = NEC_INSTALLATION_METHODS.find((m) => String(m.number) === num);
+    if (matched) return isNema ? matched.refMethod : (matched.category === 'tray' ? 'E' : matched.category === 'ground' ? 'D1' : 'C');
+    return isNema ? '310.16' : 'C';
+  }
+
+  // Direct match by method ID in the IEC catalogue
   const found = INSTALLATION_METHODS.find((m) => m.id === methodId);
-  if (found) return found.refMethod;
+  if (found) {
+    if (isNema) {
+      if (found.category === 'tray') return '392.80(A)';
+      if (found.category === 'ground') return '310.20';
+      if (found.refMethod === 'G') return '310.17';
+      return '310.16';
+    }
+    return found.refMethod;
+  }
 
   // Direct match by number (e.g. if passed as numeric string '4' or '31')
   const foundByNumber = INSTALLATION_METHODS.find((m) => String(m.number) === methodId);
-  if (foundByNumber) return foundByNumber.refMethod;
+  if (foundByNumber) {
+    if (isNema) {
+      if (foundByNumber.category === 'tray') return '392.80(A)';
+      if (foundByNumber.category === 'ground') return '310.20';
+      if (foundByNumber.refMethod === 'G') return '310.17';
+      return '310.16';
+    }
+    return foundByNumber.refMethod;
+  }
 
   // Check if standard reference code directly
   const upper = methodId.toUpperCase();
+  if (['310.16', '310.17', '310.20', '392.80(A)', '392.80(B)'].includes(upper)) {
+    return upper;
+  }
   if (['A1', 'A2', 'B1', 'B2', 'C', 'D1', 'D2', 'E', 'F', 'G'].includes(upper)) {
+    if (isNema) {
+      if (upper === 'E' || upper === 'F') return '392.80(A)';
+      if (upper === 'G') return '310.17';
+      if (upper === 'D1' || upper === 'D2') return '310.20';
+      return '310.16';
+    }
     return upper;
   }
 
   // If contains reference code prefix/suffix
-  if (upper.startsWith('A1')) return 'A1';
-  if (upper.startsWith('A2')) return 'A2';
-  if (upper.startsWith('B1')) return 'B1';
-  if (upper.startsWith('B2')) return 'B2';
-  if (upper.startsWith('D1')) return 'D1';
-  if (upper.startsWith('D2')) return 'D2';
-  if (upper.startsWith('F')) return 'F';
-  if (upper.startsWith('G')) return 'G';
-  if (upper.startsWith('E')) return 'E';
-  if (upper.startsWith('C')) return 'C';
+  if (upper.startsWith('A1')) return isNema ? '310.16' : 'A1';
+  if (upper.startsWith('A2')) return isNema ? '310.16' : 'A2';
+  if (upper.startsWith('B1')) return isNema ? '310.16' : 'B1';
+  if (upper.startsWith('B2')) return isNema ? '310.16' : 'B2';
+  if (upper.startsWith('D1')) return isNema ? '310.20' : 'D1';
+  if (upper.startsWith('D2')) return isNema ? '310.20' : 'D2';
+  if (upper.startsWith('F')) return isNema ? '392.80(A)' : 'F';
+  if (upper.startsWith('G')) return isNema ? '310.17' : 'G';
+  if (upper.startsWith('E')) return isNema ? '392.80(A)' : 'E';
+  if (upper.startsWith('C')) return isNema ? '310.16' : 'C';
 
-  return 'C';
+  return isNema ? '310.16' : 'C';
 }
 
 // Ambient-temperature correction for GROUND methods (D1/D2), whose ampacity
@@ -682,13 +843,16 @@ function interpolateFactor(table: Record<number, number>, x: number): number {
 }
 
 /**
- * True when the resolved reference method is a ground installation (D1/D2),
+ * True when the resolved reference method is a ground installation (D1/D2 or NEC underground/direct buried),
  * whose ambient correction must use the 20 °C-soil table instead of the 30 °C
  * air table.
  */
-export function isGroundMethod(methodInput?: string): boolean {
-  const ref = resolveReferenceMethod(methodInput ?? '');
-  return ref === 'D1' || ref === 'D2';
+export function isGroundMethod(methodInput?: string, calculationStandard?: string | null): boolean {
+  if (!methodInput) return false;
+  const upper = String(methodInput).toUpperCase();
+  if (upper.includes('NEC-10') || upper.includes('NEC-11')) return true;
+  const ref = resolveReferenceMethod(methodInput, calculationStandard);
+  return ref === 'D1' || ref === 'D2' || ref === '310.20';
 }
 
 /**
@@ -883,6 +1047,85 @@ export const AMPACITY_D2_XLPE_3PH: Record<number, number> = {
   400: 535, 500: 615,
 };
 
+// ===========================================================================
+// NEC (NFPA 70) Standard Ampacity Tables (Reference 30°C Ambient)
+// ===========================================================================
+
+// NEC Table 310.16 — Allowable Ampacities in Raceway, Cable, or Earth (up to 3 current-carrying conductors)
+export const AMPACITY_NEC_310_16_CU_90C: Record<number, number> = {
+  1.5: 25, 2.5: 30, 4: 40, 6: 55, 10: 75, 16: 95, 25: 130, 35: 150,
+  50: 170, 70: 195, 95: 225, 120: 260, 150: 320, 185: 350, 240: 430, 300: 475,
+  400: 535, 500: 615,
+};
+
+export const AMPACITY_NEC_310_16_CU_75C: Record<number, number> = {
+  1.5: 20, 2.5: 25, 4: 35, 6: 50, 10: 65, 16: 85, 25: 115, 35: 130,
+  50: 150, 70: 175, 95: 200, 120: 230, 150: 285, 185: 310, 240: 380, 300: 420,
+  400: 475, 500: 545,
+};
+
+export const AMPACITY_NEC_310_16_AL_90C: Record<number, number> = {
+  1.5: 20, 2.5: 25, 4: 35, 6: 45, 10: 60, 16: 75, 25: 100, 35: 115,
+  50: 135, 70: 150, 95: 175, 120: 205, 150: 255, 185: 280, 240: 350, 300: 385,
+  400: 435, 500: 500,
+};
+
+export const AMPACITY_NEC_310_16_AL_75C: Record<number, number> = {
+  1.5: 15, 2.5: 20, 4: 30, 6: 40, 10: 50, 16: 65, 25: 90, 35: 100,
+  50: 120, 70: 135, 95: 155, 120: 180, 150: 230, 185: 250, 240: 310, 300: 340,
+  400: 385, 500: 445,
+};
+
+// NEC Table 310.17 — Allowable Ampacities of Single Insulated Conductors in Free Air
+export const AMPACITY_NEC_310_17_CU_90C: Record<number, number> = {
+  1.5: 30, 2.5: 35, 4: 40, 6: 55, 10: 80, 16: 105, 25: 140, 35: 190,
+  50: 260, 70: 300, 95: 350, 120: 405, 150: 505, 185: 570, 240: 700, 300: 780,
+  400: 885, 500: 1025,
+};
+
+export const AMPACITY_NEC_310_17_CU_75C: Record<number, number> = {
+  1.5: 25, 2.5: 30, 4: 35, 6: 45, 10: 60, 16: 80, 25: 105, 35: 140,
+  50: 195, 70: 225, 95: 260, 120: 300, 150: 375, 185: 420, 240: 515, 300: 575,
+  400: 650, 500: 755,
+};
+
+export const AMPACITY_NEC_310_17_AL_90C: Record<number, number> = {
+  1.5: 25, 2.5: 30, 4: 35, 6: 45, 10: 60, 16: 80, 25: 110, 35: 150,
+  50: 205, 70: 235, 95: 275, 120: 315, 150: 395, 185: 445, 240: 545, 300: 610,
+  400: 690, 500: 800,
+};
+
+export const AMPACITY_NEC_310_17_AL_75C: Record<number, number> = {
+  1.5: 20, 2.5: 25, 4: 30, 6: 35, 10: 50, 16: 65, 25: 85, 35: 115,
+  50: 155, 70: 180, 95: 215, 120: 245, 150: 305, 185: 345, 240: 425, 300: 475,
+  400: 535, 500: 620,
+};
+
+// NEC Table 310.20 — Underground Electrical Ducts
+export const AMPACITY_NEC_310_20_CU_90C: Record<number, number> = {
+  1.5: 26, 2.5: 32, 4: 41, 6: 54, 10: 73, 16: 94, 25: 125, 35: 148,
+  50: 175, 70: 205, 95: 238, 120: 271, 150: 318, 185: 352, 240: 416, 300: 465,
+  400: 520, 500: 590,
+};
+
+export const AMPACITY_NEC_310_20_CU_75C: Record<number, number> = {
+  1.5: 22, 2.5: 28, 4: 36, 6: 47, 10: 63, 16: 82, 25: 109, 35: 129,
+  50: 152, 70: 178, 95: 207, 120: 236, 150: 277, 185: 307, 240: 362, 300: 405,
+  400: 453, 500: 514,
+};
+
+export const AMPACITY_NEC_310_20_AL_90C: Record<number, number> = {
+  1.5: 20, 2.5: 25, 4: 32, 6: 42, 10: 57, 16: 73, 25: 97, 35: 115,
+  50: 136, 70: 160, 95: 186, 120: 211, 150: 248, 185: 274, 240: 324, 300: 363,
+  400: 406, 500: 460,
+};
+
+export const AMPACITY_NEC_310_20_AL_75C: Record<number, number> = {
+  1.5: 17, 2.5: 22, 4: 28, 6: 37, 10: 49, 16: 64, 25: 85, 35: 101,
+  50: 119, 70: 139, 95: 161, 120: 184, 150: 216, 185: 239, 240: 282, 300: 316,
+  400: 353, 500: 401,
+};
+
 // Derived 1-phase tables. The IEC publishes separate "2 loaded conductors"
 // columns for every method; this catalog only carries explicit ones for
 // A1/B1/C. The rest are reconstructed from their published 3-phase table
@@ -939,9 +1182,63 @@ export function getAmpacity(
   methodInput: string,
   insulation: 'PVC' | 'XLPE',
   isThreePhase: boolean,
-  material: 'copper' | 'aluminum' = 'copper'
+  material: 'copper' | 'aluminum' = 'copper',
+  calculationStandard?: string | null
 ): number {
-  const refMethod = resolveReferenceMethod(methodInput);
+  const isNema = calculationStandard === 'NEMA' || (typeof methodInput === 'string' && methodInput.toUpperCase().startsWith('NEC'));
+
+  if (isNema) {
+    const is90C = insulation === 'XLPE';
+    const isCu = material === 'copper';
+    const methodUpper = String(methodInput || '').toUpperCase();
+
+    // Table 310.17 (Free Air): NEC-5 (spaced tray), NEC-8, NEC-9, or explicit 310.17 / G
+    if (
+      methodUpper.includes('NEC-5') ||
+      methodUpper.includes('NEC-8') ||
+      methodUpper.includes('NEC-9') ||
+      methodUpper.includes('310.17') ||
+      methodUpper === 'G'
+    ) {
+      const table = isCu
+        ? (is90C ? AMPACITY_NEC_310_17_CU_90C : AMPACITY_NEC_310_17_CU_75C)
+        : (is90C ? AMPACITY_NEC_310_17_AL_90C : AMPACITY_NEC_310_17_AL_75C);
+      return table[cableSize] || 0;
+    }
+
+    // NEC-6 (Single conductors touching in tray, NEC 392.80(B)(1)(b)): 65% of Table 310.17
+    if (methodUpper.includes('NEC-6') || methodUpper.includes('TOUCHING')) {
+      const table = isCu
+        ? (is90C ? AMPACITY_NEC_310_17_CU_90C : AMPACITY_NEC_310_17_CU_75C)
+        : (is90C ? AMPACITY_NEC_310_17_AL_90C : AMPACITY_NEC_310_17_AL_75C);
+      return Math.round((table[cableSize] || 0) * 0.65);
+    }
+
+    // Table 310.20 (Underground duct bank): NEC-11, 310.20, D1, or D2
+    if (methodUpper.includes('NEC-11') || methodUpper.includes('310.20') || methodUpper === 'D1') {
+      const table = isCu
+        ? (is90C ? AMPACITY_NEC_310_20_CU_90C : AMPACITY_NEC_310_20_CU_75C)
+        : (is90C ? AMPACITY_NEC_310_20_AL_90C : AMPACITY_NEC_310_20_AL_75C);
+      return table[cableSize] || 0;
+    }
+
+    // NEC-7 (Solid bottom cable tray, NEC 392.80(A)(1)(a)): 95% of Table 310.16
+    if (methodUpper.includes('NEC-7') || methodUpper.includes('SOLID')) {
+      const table = isCu
+        ? (is90C ? AMPACITY_NEC_310_16_CU_90C : AMPACITY_NEC_310_16_CU_75C)
+        : (is90C ? AMPACITY_NEC_310_16_AL_90C : AMPACITY_NEC_310_16_AL_75C);
+      return Math.round((table[cableSize] || 0) * 0.95);
+    }
+
+    // Default: Table 310.16 (Raceway, Conduit, Tray Multiconductor NEC-4, Direct Buried NEC-10, Surface NEC-13, B1, B2, C, E, etc.)
+    const table = isCu
+      ? (is90C ? AMPACITY_NEC_310_16_CU_90C : AMPACITY_NEC_310_16_CU_75C)
+      : (is90C ? AMPACITY_NEC_310_16_AL_90C : AMPACITY_NEC_310_16_AL_75C);
+    return table[cableSize] || 0;
+  }
+
+  // IEC 60364-5-52 Lookup
+  const refMethod = resolveReferenceMethod(methodInput, calculationStandard);
 
   const tables: Record<string, Record<number, number>> = {
     'A1_PVC_3PH': AMPACITY_A1_PVC_3PH,

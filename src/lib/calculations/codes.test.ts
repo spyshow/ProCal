@@ -135,3 +135,42 @@ describe("formatCableSizeFor (code-aware display layer)", () => {
     expect(formatCableSizeFor("2 × 240 mm²", "IEC")).toBe("2 × 240 mm²");
   });
 });
+
+describe("NEC Derating & Cable Sizing (NFPA 70)", () => {
+  it("applies NEC Table 310.15(B)(1) temperature correction and Table 310.15(C)(1) grouping factors", () => {
+    const resNec1 = sizeCableAndBreaker(80, true, {
+      material: "copper",
+      insulation: "XLPE",
+      ambientTemp: 40,
+      groupingCount: 2, // 4-6 conductors = 0.80 factor in NEC
+      code: "NEC",
+    });
+
+    // In NEC: 40°C XLPE factor = 0.91, grouping 2 = 0.80 -> total derating = 0.728
+    expect(resNec1.tempFactor).toBeCloseTo(0.91);
+    expect(resNec1.groupFactor).toBeCloseTo(0.80);
+    // Breaker size for 80A load in NEC = 80A (or 90A)
+    expect(resNec1.breakerSize).toBe(80);
+    // Cable sizing should ensure Iz >= In
+    expect(resNec1.deratedAmpacity).toBeGreaterThanOrEqual(resNec1.breakerSize);
+  });
+
+  it("sizes cables with NEC Table 310.16 nominal ampacities when code is NEC", () => {
+    const res = sizeCableAndBreaker(120, true, {
+      material: "copper",
+      insulation: "XLPE",
+      ambientTemp: 30,
+      groupingCount: 1,
+      code: "NEC",
+    });
+
+    // Breaker rating for 120A in NEC = 125A
+    expect(res.breakerSize).toBe(125);
+    // Under NEC Table 310.16: 25 mm² (2 AWG) has 130A, 35 mm² (1 AWG) has 150A.
+    // So 25 mm² (130A) can carry 125A breaker!
+    expect(res.cableSize).toBe(25);
+    expect(res.nominalAmpacity).toBe(130);
+    expect(res.deratedAmpacity).toBe(130);
+  });
+});
+

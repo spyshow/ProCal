@@ -188,7 +188,8 @@ export function sizeCableAndBreaker(
   const { material, insulation, ambientTemp, groupingCount, neutralCurrent, installMethod } = options;
   const maxCableSize = options.maxCableSize ?? 300;
   const warnings: string[] = [];
-  const methodId = installMethod ?? 'C';
+  const methodId = installMethod ?? (options.code === 'NEC' ? 'NEC-1' : 'C');
+  const calcStandard = options.code === 'NEC' ? 'NEMA' : 'IEC';
 
   // 1. Select breaker size (In >= Ib) from the project's code catalog
   const breakerSize = options.manualBreakerRating ?? nextBreakerRating(ib, options.code);
@@ -198,19 +199,18 @@ export function sizeCableAndBreaker(
     );
   }
 
-  // 2. Derating factors. Ground methods (D1/D2) are tabulated against 20 °C
+  // 2. Derating factors. Ground methods (D1/D2/NEC-10/11) are tabulated against 20 °C
   // soil, not 30 °C air, so they use their own correction table.
-  const tempFactor = isGroundMethod(methodId)
+  const tempFactor = isGroundMethod(methodId, calcStandard)
     ? groundTemperatureDeratingFactor(insulation, ambientTemp)
-    : temperatureDeratingFactor(insulation, ambientTemp);
-  const groupFactor = groupingDeratingFactor(groupingCount);
+    : temperatureDeratingFactor(insulation, ambientTemp, calcStandard);
+  const groupFactor = groupingDeratingFactor(groupingCount, calcStandard);
 
   // Ampacity comes straight from the published per-method tables (IEC
-  // 60364-5-52 B.52.2–B.52.5, B.52.10–B.52.12) instead of a flat multiplier on
-  // Method C — a single ratio cannot track methods whose gap to C widens with
-  // conductor size (buried cables were overrated by up to ~29 %).
+  // 60364-5-52 B.52.2–B.52.5, B.52.10–B.52.12 or NEC Table 310.16/310.17) instead of a flat multiplier on
+  // Method C.
   const nominalFor = (size: number): number => {
-    const tableValue = getAmpacity(size, methodId, insulation, isThreePhase, material);
+    const tableValue = getAmpacity(size, methodId, insulation, isThreePhase, material, calcStandard);
     if (tableValue > 0) return tableValue;
     const spec = CABLE_CATALOG.find((c) => c.size === size);
     return spec ? getCableAmpacityColumn(spec, material, insulation, isThreePhase) : 0;
@@ -227,10 +227,10 @@ export function sizeCableAndBreaker(
 
   if (options.targetRuns && options.targetRuns > 1) {
     // User specified exact run count. Touching parallel cables count as
-    // separate grouped circuits (IEC B.52.17), so the grouping factor grows
+    // separate grouped circuits (IEC B.52.17 / NEC 310.15), so the grouping factor grows
     // with the run count: effective circuits = other circuits + runs.
     selectedRuns = options.targetRuns;
-    const effGroupFactor = groupingDeratingFactor(Math.max(1, groupingCount - 1 + selectedRuns));
+    const effGroupFactor = groupingDeratingFactor(Math.max(1, groupingCount - 1 + selectedRuns), calcStandard);
     const totalDerating = tempFactor * effGroupFactor;
     for (const cable of catalogToUse) {
       const singleNominal = nominalFor(cable.size);
@@ -274,7 +274,7 @@ export function sizeCableAndBreaker(
     if (!foundSingle) {
       let foundParallel = false;
       for (let runs = 2; runs <= 6; runs++) {
-        const effGroupFactor = groupingDeratingFactor(Math.max(1, groupingCount - 1 + runs));
+        const effGroupFactor = groupingDeratingFactor(Math.max(1, groupingCount - 1 + runs), calcStandard);
         const runDerating = tempFactor * effGroupFactor;
         for (const cable of catalogToUse) {
           const singleNominal = nominalFor(cable.size);
@@ -302,7 +302,7 @@ export function sizeCableAndBreaker(
         selectedRuns = Math.max(2, Math.ceil(breakerSize / (largestIz > 0 ? largestIz : 1)));
         selectedCable = largest;
         nominalAmpacity = selectedRuns * largestNominal;
-        const fallbackGroupFactor = groupingDeratingFactor(Math.max(1, groupingCount - 1 + selectedRuns));
+        const fallbackGroupFactor = groupingDeratingFactor(Math.max(1, groupingCount - 1 + selectedRuns), calcStandard);
         deratedAmpacity = selectedRuns * largestNominal * tempFactor * fallbackGroupFactor;
         warnings.push(
           `Catalog exhausted: even 6 parallel ${largest.size} mm² runs fall short of ${breakerSize} A after derating — showing best-available ${selectedRuns}-run arrangement (${Math.round(deratedAmpacity)} A Iz).`
@@ -314,7 +314,7 @@ export function sizeCableAndBreaker(
   // Effective derating of the SELECTED arrangement — parallel cables join the
   // touching group (B.52.17), so recompute the grouping factor with the final
   // run count before sizing neutrals or reporting Iz.
-  const effGroupFactor = groupingDeratingFactor(Math.max(1, groupingCount - 1 + selectedRuns));
+  const effGroupFactor = groupingDeratingFactor(Math.max(1, groupingCount - 1 + selectedRuns), calcStandard);
   const totalDerating = tempFactor * effGroupFactor;
 
   // 4. Conductor sizing for Neutral and Earth (PE) according to IEC 60364-5-54
@@ -327,7 +327,7 @@ export function sizeCableAndBreaker(
     const reducedSize = closestSpec ? closestSpec.size : phaseSize;
 
     if (neutralCurrent != null) {
-      const neutralNominal = getAmpacity(reducedSize, methodId, insulation, false, material);
+      const neutralNominal = getAmpacity(reducedSize, methodId, insulation, false, material, calcStandard);
       const neutralAmpacity =
         (neutralNominal > 0
           ? neutralNominal
@@ -532,6 +532,7 @@ export function calculateCableAmpacity(
     groupingCount?: number;
     installMethod?: string;
     parallelRuns?: number;
+    code?: CodeStandard;
   } = {}
 ): {
   nominalAmpacity: number;
@@ -547,7 +548,8 @@ export function calculateCableAmpacity(
   const insulation = options.insulation ?? "XLPE";
   const ambientTemp = options.ambientTemp ?? 30;
   const groupingCount = options.groupingCount ?? 1;
-  const installMethod = options.installMethod ?? "C";
+  const calcStandard = options.code === 'NEC' ? 'NEMA' : 'IEC';
+  const installMethod = options.installMethod ?? (options.code === 'NEC' ? 'NEC-1' : 'C');
   const warnings: string[] = [];
 
   let cableSize = typeof cableInput === 'number' ? cableInput : 16;
@@ -567,16 +569,16 @@ export function calculateCableAmpacity(
   // declared size. Rounding UP made a non-standard 18 mm² cable claim 25 mm²
   // ampacity, so evaluateCableProtection missed under-protected cables.
   const spec = CABLE_CATALOG.filter((c) => c.size <= cableSize).pop() ?? CABLE_CATALOG[0];
-  const tableNominal = getAmpacity(spec.size, installMethod, insulation, isThreePhase, material);
+  const tableNominal = getAmpacity(spec.size, installMethod, insulation, isThreePhase, material, calcStandard);
   const singleNominal =
     tableNominal > 0 ? tableNominal : getCableAmpacityColumn(spec, material, insulation, isThreePhase);
 
-  // Ground methods (D1/D2) derate against 20 °C soil, not 30 °C air.
-  const tempFactor = isGroundMethod(installMethod)
+  // Ground methods (D1/D2/NEC-10/11) derate against 20 °C soil, not 30 °C air.
+  const tempFactor = isGroundMethod(installMethod, calcStandard)
     ? groundTemperatureDeratingFactor(insulation, ambientTemp)
-    : temperatureDeratingFactor(insulation, ambientTemp);
-  // Touching parallel cables count as separate grouped circuits (B.52.17).
-  const groupFactor = groupingDeratingFactor(Math.max(1, groupingCount - 1 + runs));
+    : temperatureDeratingFactor(insulation, ambientTemp, calcStandard);
+  // Touching parallel cables count as separate grouped circuits (B.52.17 / NEC 310.15).
+  const groupFactor = groupingDeratingFactor(Math.max(1, groupingCount - 1 + runs), calcStandard);
   const totalDerating = tempFactor * groupFactor;
 
   const singleDerated = Math.round(singleNominal * totalDerating * 10) / 10;

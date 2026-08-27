@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import {
   INSTALLATION_METHODS,
+  NEC_INSTALLATION_METHODS,
   resolveReferenceMethod,
   getAmpacity,
   isGroundMethod,
@@ -155,3 +156,84 @@ describe('IEC 60364-5-52 Installation Methods Catalogue', () => {
     );
   });
 });
+
+describe('NEC / NEMA (NFPA 70) Installation Methods and Ampacity Tables', () => {
+  it('defines 13 NEC wiring methods across all standard categories', () => {
+    expect(NEC_INSTALLATION_METHODS.length).toBe(13);
+
+    const raceway = NEC_INSTALLATION_METHODS.find((m) => m.id === 'NEC-1');
+    expect(raceway).toBeDefined();
+    expect(raceway?.refMethod).toBe('310.16');
+    expect(raceway?.category).toBe('conduit');
+
+    const tray = NEC_INSTALLATION_METHODS.find((m) => m.id === 'NEC-4');
+    expect(tray).toBeDefined();
+    expect(tray?.refMethod).toBe('392.80(A)');
+    expect(tray?.category).toBe('tray');
+
+    const spacedTray = NEC_INSTALLATION_METHODS.find((m) => m.id === 'NEC-5');
+    expect(spacedTray).toBeDefined();
+    expect(spacedTray?.refMethod).toBe('310.17');
+
+    const directBuried = NEC_INSTALLATION_METHODS.find((m) => m.id === 'NEC-10');
+    expect(directBuried).toBeDefined();
+    expect(directBuried?.category).toBe('ground');
+
+    const ductBank = NEC_INSTALLATION_METHODS.find((m) => m.id === 'NEC-11');
+    expect(ductBank).toBeDefined();
+    expect(ductBank?.refMethod).toBe('310.20');
+    expect(ductBank?.category).toBe('ground');
+  });
+
+  it('resolves reference method codes for NEC and cross-standard lookups', () => {
+    expect(resolveReferenceMethod('NEC-1', 'NEMA')).toBe('310.16');
+    expect(resolveReferenceMethod('NEC-4', 'NEMA')).toBe('392.80(A)');
+    expect(resolveReferenceMethod('NEC-5', 'NEMA')).toBe('310.17');
+    expect(resolveReferenceMethod('NEC-11', 'NEMA')).toBe('310.20');
+
+    // Mappings from IEC codes to NEC equivalents when NEMA is active
+    expect(resolveReferenceMethod('C', 'NEMA')).toBe('310.16');
+    expect(resolveReferenceMethod('E', 'NEMA')).toBe('392.80(A)');
+    expect(resolveReferenceMethod('G', 'NEMA')).toBe('310.17');
+    expect(resolveReferenceMethod('D1', 'NEMA')).toBe('310.20');
+  });
+
+  it('looks up exact NEC Table 310.16 ampacities for copper and aluminum', () => {
+    // Copper 90°C (XLPE / THHN)
+    expect(getAmpacity(1.5, 'NEC-1', 'XLPE', true, 'copper', 'NEMA')).toBe(25); // 14 AWG
+    expect(getAmpacity(2.5, 'NEC-1', 'XLPE', true, 'copper', 'NEMA')).toBe(30); // 12 AWG
+    expect(getAmpacity(4, 'NEC-1', 'XLPE', true, 'copper', 'NEMA')).toBe(40);   // 10 AWG
+    expect(getAmpacity(50, 'NEC-1', 'XLPE', true, 'copper', 'NEMA')).toBe(170); // 1/0 AWG
+    expect(getAmpacity(240, 'NEC-1', 'XLPE', true, 'copper', 'NEMA')).toBe(430); // 500 kcmil
+
+    // Copper 75°C (PVC / THWN)
+    expect(getAmpacity(1.5, 'NEC-1', 'PVC', true, 'copper', 'NEMA')).toBe(20);
+    expect(getAmpacity(50, 'NEC-1', 'PVC', true, 'copper', 'NEMA')).toBe(150);
+    expect(getAmpacity(240, 'NEC-1', 'PVC', true, 'copper', 'NEMA')).toBe(380);
+
+    // Aluminum 90°C
+    expect(getAmpacity(50, 'NEC-1', 'XLPE', true, 'aluminum', 'NEMA')).toBe(135);
+    expect(getAmpacity(240, 'NEC-1', 'XLPE', true, 'aluminum', 'NEMA')).toBe(350);
+  });
+
+  it('looks up NEC Table 310.17 Free Air and Table 310.20 Duct Bank ampacities', () => {
+    // Table 310.17 Free Air (NEC-5 / NEC-8 / NEC-9)
+    expect(getAmpacity(50, 'NEC-8', 'XLPE', true, 'copper', 'NEMA')).toBe(260);
+    expect(getAmpacity(240, 'NEC-8', 'XLPE', true, 'copper', 'NEMA')).toBe(700);
+
+    // NEC-6 (Single conductors touching in tray = 65% of Table 310.17)
+    expect(getAmpacity(50, 'NEC-6', 'XLPE', true, 'copper', 'NEMA')).toBe(Math.round(260 * 0.65)); // 169
+
+    // Table 310.20 Underground Duct Bank (NEC-11)
+    expect(getAmpacity(50, 'NEC-11', 'XLPE', true, 'copper', 'NEMA')).toBe(175);
+    expect(getAmpacity(240, 'NEC-11', 'XLPE', true, 'copper', 'NEMA')).toBe(416);
+  });
+
+  it('recognizes NEC underground methods as ground methods', () => {
+    expect(isGroundMethod('NEC-10', 'NEMA')).toBe(true);
+    expect(isGroundMethod('NEC-11', 'NEMA')).toBe(true);
+    expect(isGroundMethod('NEC-1', 'NEMA')).toBe(false);
+    expect(isGroundMethod('NEC-4', 'NEMA')).toBe(false);
+  });
+});
+

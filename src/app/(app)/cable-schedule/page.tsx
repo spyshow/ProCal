@@ -888,6 +888,7 @@ export default function CableSchedulePage() {
                 if (typeof window !== 'undefined') localStorage.setItem('procal-default-method', method);
               }}
               compact
+              standard={selectedProject?.calculationStandard || project?.calculationStandard}
             />
           </div>
 
@@ -1167,6 +1168,7 @@ export default function CableSchedulePage() {
                           value={c.method}
                           onChange={(method) => updateCableField(c.id, 'method', method)}
                           compact
+                          standard={selectedProject?.calculationStandard || project?.calculationStandard}
                         />
                       </td>
 

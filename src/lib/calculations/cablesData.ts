@@ -82,7 +82,33 @@ export const TEMP_DERATING: Record<string, Record<number, number>> = {
   },
 };
 
-// Grouping derating factors for multi-core cables in a single layer (tray/wall)
+// NEC Table 310.15(B)(1) Temperature Correction Factors (Based on 30°C)
+export const NEC_TEMP_DERATING: Record<string, Record<number, number>> = {
+  PVC: {
+    20: 1.05,
+    25: 1.05,
+    30: 1.00,
+    35: 0.94,
+    40: 0.88,
+    45: 0.82,
+    50: 0.75,
+    55: 0.67,
+    60: 0.58,
+  },
+  XLPE: {
+    20: 1.04,
+    25: 1.04,
+    30: 1.00,
+    35: 0.96,
+    40: 0.91,
+    45: 0.87,
+    50: 0.82,
+    55: 0.76,
+    60: 0.71,
+  },
+};
+
+// Grouping derating factors for multi-core cables in a single layer (tray/wall) — IEC Table B.52.17
 export const GROUP_DERATING: Record<number, number> = {
   1: 1.0,
   2: 0.8,
@@ -98,17 +124,31 @@ export const GROUP_DERATING: Record<number, number> = {
   20: 0.38,
 };
 
+// NEC Table 310.15(C)(1) Adjustment Factors for More than Three Current-Carrying Conductors
+export const NEC_GROUP_DERATING: Record<number, number> = {
+  1: 1.0,   // 1-3 conductors (1 circuit)
+  2: 0.8,   // 4-6 conductors (2 circuits)
+  3: 0.7,   // 7-9 conductors (3 circuits)
+  4: 0.5,   // 10-20 conductors (4-6 circuits)
+  6: 0.5,
+  7: 0.45,  // 21-30 conductors (7-10 circuits)
+  10: 0.45,
+  11: 0.40, // 31-40 conductors (11-13 circuits)
+  13: 0.40,
+  14: 0.35, // 41+ conductors (14+ circuits)
+  20: 0.35,
+};
+
 /**
  * Ambient-temperature correction factor, linearly interpolated between the
- * tabulated 5 °C steps. Exact-key lookup alone silently returned 1.0 (no
- * derating) for real-world ambients like 31–34 °C — non-conservative, since
- * the factor only ever decreases as ambient rises above the 30 °C reference.
+ * tabulated steps.
  */
 export function temperatureDeratingFactor(
   insulation: 'PVC' | 'XLPE',
-  ambientTemp: number
+  ambientTemp: number,
+  calculationStandard?: string | null
 ): number {
-  const table = TEMP_DERATING[insulation];
+  const table = calculationStandard === 'NEMA' ? NEC_TEMP_DERATING[insulation] : TEMP_DERATING[insulation];
   if (!table) return 1.0;
   const temps = Object.keys(table).map(Number).sort((a, b) => a - b);
   if (temps.length === 0) return 1.0;
@@ -127,24 +167,25 @@ export function temperatureDeratingFactor(
 }
 
 /**
- * Grouping correction factor, interpolated between tabulated circuit counts.
- * The old `?? 0.5` fallback was non-monotonic (13–15 and 17–19 circuits got
- * 0.5 while 12 → 0.45 and 16 → 0.41) and `?? 1.0` at other call sites meant
- * no grouping derating at all for unlisted counts.
+ * Grouping / Bundling correction factor, interpolated between tabulated circuit counts.
  */
-export function groupingDeratingFactor(groupingCount: number): number {
-  const counts = Object.keys(GROUP_DERATING).map(Number).sort((a, b) => a - b);
+export function groupingDeratingFactor(
+  groupingCount: number,
+  calculationStandard?: string | null
+): number {
+  const table = calculationStandard === 'NEMA' ? NEC_GROUP_DERATING : GROUP_DERATING;
+  const counts = Object.keys(table).map(Number).sort((a, b) => a - b);
   if (counts.length === 0) return 1.0;
-  if (groupingCount <= counts[0]) return GROUP_DERATING[counts[0]];
-  if (groupingCount >= counts[counts.length - 1]) return GROUP_DERATING[counts[counts.length - 1]];
+  if (groupingCount <= counts[0]) return table[counts[0]];
+  if (groupingCount >= counts[counts.length - 1]) return table[counts[counts.length - 1]];
   for (let i = 0; i < counts.length - 1; i++) {
     const c1 = counts[i];
     const c2 = counts[i + 1];
     if (groupingCount <= c2) {
-      const f1 = GROUP_DERATING[c1];
-      const f2 = GROUP_DERATING[c2];
+      const f1 = table[c1];
+      const f2 = table[c2];
       return f1 + (f2 - f1) * ((groupingCount - c1) / (c2 - c1));
     }
   }
-  return GROUP_DERATING[counts[counts.length - 1]];
+  return table[counts[counts.length - 1]];
 }

@@ -88,6 +88,23 @@ async function main() {
       `ALTER TABLE "Building" ADD COLUMN IF NOT EXISTS "earthingSystem" TEXT DEFAULT 'TN-S';`,
       `ALTER TABLE "Building" ADD COLUMN IF NOT EXISTS "lightningProtection" BOOLEAN DEFAULT false;`,
       `ALTER TABLE "Building" ADD COLUMN IF NOT EXISTS "supplyVoltage" TEXT DEFAULT '400V 3-Phase';`,
+      `ALTER TABLE "Building" ADD COLUMN IF NOT EXISTS "incomerCableSize" TEXT;`,
+      `ALTER TABLE "Building" ADD COLUMN IF NOT EXISTS "incomerCableLength" DOUBLE PRECISION;`,
+      `ALTER TABLE "Building" ADD COLUMN IF NOT EXISTS "incomerInstallMethod" TEXT;`,
+      `ALTER TABLE "Building" ADD COLUMN IF NOT EXISTS "incomerCableInsulation" TEXT;`,
+      `ALTER TABLE "Building" ADD COLUMN IF NOT EXISTS "incomerCableMaterial" TEXT DEFAULT 'copper';`,
+      `ALTER TABLE "Building" ADD COLUMN IF NOT EXISTS "incomerAmbientTemp" DOUBLE PRECISION DEFAULT 30;`,
+      `ALTER TABLE "Building" ADD COLUMN IF NOT EXISTS "incomerGroupingCount" INTEGER DEFAULT 1;`,
+
+      // Fix any failed migration records in _prisma_migrations
+      `DO $$ BEGIN
+        IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = '_prisma_migrations') THEN
+          UPDATE "_prisma_migrations"
+          SET "finished_at" = COALESCE("finished_at", NOW()),
+              "applied_steps_count" = CASE WHEN "applied_steps_count" = 0 THEN 1 ELSE "applied_steps_count" END
+          WHERE "migration_name" = '20260827120000_add_building_incomer_cable_fields' AND "finished_at" IS NULL;
+        END IF;
+      END $$;`,
     ];
 
     for (const sql of statements) {

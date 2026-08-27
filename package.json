@@ -9,7 +9,7 @@
     "lint": "eslint",
     "test": "vitest run",
     "test:watch": "vitest",
-    "postinstall": "prisma generate"
+    "postinstall": "node scripts/postinstall.js"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.4.0",

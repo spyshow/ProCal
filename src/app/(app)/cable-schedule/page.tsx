@@ -16,6 +16,7 @@ import {
   getRiserCableLength,
   systemVoltageBase,
 } from '@/lib/calculations/cables';
+import { calculateThreePhaseCurrent } from '@/lib/calculations/loads';
 import { codeOf } from '@/lib/calculations/codes';
 import { isThreePhaseForItem } from '@/lib/calculations/feeders';
 import { phaseBalance } from '@/lib/calculations/phaseBalance';
@@ -65,7 +66,7 @@ interface CableEntry {
   ampacity: number;
   singleAmpacity: number;
   isOverloaded: boolean;
-  kind: 'floor' | 'building' | 'sdb';
+  kind: 'floor' | 'building' | 'sdb' | 'incomer';
 }
 
 export default function CableSchedulePage() {
@@ -193,6 +194,83 @@ export default function CableSchedulePage() {
     const cableList: CableEntry[] = [];
     for (const bldg of project.buildings) {
       if (selectedBuilding && bldg.id !== selectedBuilding) continue;
+
+      // 0. MDB Main Incomer Cable (Transformer to Main Switchboard)
+      const allBldgItems = [
+        ...bldg.floorDesigns.flatMap((fd) => fd.items),
+        ...(bldg.buildingLoads || []),
+      ];
+      const bldgBalance = phaseBalance(allBldgItems as any, project as any);
+      const totalDemandKva = bldgBalance.totalKw / (project.powerFactor || 0.85);
+      const incomerCurrent = Math.max(
+        bldgBalance.maxPhaseCurrent,
+        calculateThreePhaseCurrent(totalDemandKva, project.voltage)
+      );
+
+      if (incomerCurrent > 0) {
+        const parsedIncomer = parseCableSize(bldg.incomerCableSize);
+        const cableSizeNum = parsedIncomer?.size ?? 300;
+        const runs = parsedIncomer?.runs ?? 1;
+        const formattedSize = parsedIncomer?.formatted ?? `${cableSizeNum} mm²`;
+        const length = bldg.incomerCableLength ?? 15;
+        const method = bldg.incomerInstallMethod || defaultMethod;
+        const insulation = (bldg.incomerCableInsulation as 'PVC' | 'XLPE') || defaultInsulation;
+        const material = (bldg.incomerCableMaterial as 'copper' | 'aluminum') || defaultMaterial;
+        const ambientTemp = bldg.incomerAmbientTemp ?? project.ambientTemp ?? defaultAmbientTemp;
+        const groupingCount = bldg.incomerGroupingCount ?? 1;
+
+        const result = recalculateCable({
+          current: incomerCurrent,
+          isThreePhase: true,
+          lengthMeters: length,
+          existingCableSize: cableSizeNum,
+          existingRuns: runs,
+          powerFactor: project.powerFactor || 0.85,
+          systemVoltage: systemVoltageBase(project.voltage || 400, true),
+          maxVoltageDropPercent: limits.power,
+          method,
+          insulation,
+          material,
+          ambientTemp,
+          groupingCount,
+          maxCableSize: defaultMaxCableSize,
+          code: codeOf(project?.calculationStandard),
+        });
+
+        cableList.push({
+          id: `incomer-${bldg.id}`,
+          name: `MDB Main Incomer`,
+          cableName: `W_MDB`,
+          building: bldg.name,
+          floor: 0,
+          length,
+          cableSize: cableSizeNum,
+          parallelRuns: runs,
+          formattedSize,
+          current: incomerCurrent,
+          isThreePhase: true,
+          assignedPhase: null,
+          phaseCurrent: [incomerCurrent, incomerCurrent, incomerCurrent],
+          neutralCurrent: bldgBalance.neutralCurrent,
+          unbalancePct: bldgBalance.unbalancePct,
+          imbalanced: bldgBalance.imbalanced,
+          newCableSize: result.cableSize,
+          newParallelRuns: result.parallelRuns,
+          newFormattedSize: result.formattedCableSize,
+          newVD: result.voltageDropPercent,
+          changed: result.changed,
+          method,
+          insulation,
+          material,
+          ambientTemp,
+          groupingCount,
+          ampacity: result.ampacity,
+          singleAmpacity: result.singleAmpacity,
+          isOverloaded: result.isOverloaded,
+          kind: 'incomer',
+        });
+      }
+
       for (const fd of bldg.floorDesigns) {
         const balance = phaseBalance(fd.items as any, project as any);
         const phaseById = new Map(balance.assignments.map((a) => [a.id, a.assignedPhase]));
@@ -723,7 +801,14 @@ export default function CableSchedulePage() {
 
   const cablesByFloor = cables.reduce((acc, cable) => {
     let key: string;
-    const subKey = cable.kind === 'building' ? 'Building Loads' : cable.kind === 'sdb' ? 'SDBs' : `Floor ${cable.floor}`;
+    const subKey =
+      cable.kind === 'incomer'
+        ? 'Main Incomer'
+        : cable.kind === 'building'
+        ? 'Building Loads'
+        : cable.kind === 'sdb'
+        ? 'SDBs'
+        : `Floor ${cable.floor}`;
     if (!selectedBuilding && (project?.buildings.length ?? 0) > 1) {
       key = `${cable.building} — ${subKey}`;
     } else {
@@ -743,6 +828,8 @@ export default function CableSchedulePage() {
         const idxB = project?.buildings.findIndex((b) => b.name === bldgB) ?? -1;
         return idxA - idxB;
       }
+      if (subA === 'Main Incomer') return -1;
+      if (subB === 'Main Incomer') return 1;
       if (subA === 'Building Loads') return -1;
       if (subB === 'Building Loads') return 1;
       if (subA === 'SDBs') return -1;
@@ -752,6 +839,8 @@ export default function CableSchedulePage() {
       return numA - numB;
     }
 
+    if (a === 'Main Incomer') return -1;
+    if (b === 'Main Incomer') return 1;
     if (a === 'Building Loads') return -1;
     if (b === 'Building Loads') return 1;
     if (a === 'SDBs') return -1;
@@ -824,7 +913,7 @@ export default function CableSchedulePage() {
             title="Toggle per-phase current columns (L1, L2, L3, Neutral)"
           >
             <Layers size={14} />
-            {showPhaseDetails ? 'Compact Currents' : 'Phase Details'}
+            {showPhaseDetails ? t('cableSchedule.compactCurrents', 'Compact Currents') : t('cableSchedule.phaseDetails', 'Phase Details')}
           </button>
           <button
             onClick={() => window.dispatchEvent(new CustomEvent('trigger-procal-cable-schedule-tour'))}
@@ -860,7 +949,7 @@ export default function CableSchedulePage() {
         <div className="rounded-xl border border-gray-800 bg-gray-900/90 p-4 grid grid-cols-2 sm:grid-cols-6 gap-3 items-end">
           <div>
             <label className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block mb-1">
-              Max Size (mm²)
+              {t('cableSchedule.maxSizeMm2', 'Max Size (mm²)')}
             </label>
             <select
               value={defaultMaxCableSize}
@@ -923,8 +1012,8 @@ export default function CableSchedulePage() {
               }}
               className="dense-input w-full rounded text-xs py-1"
             >
-              <option value="copper">Copper</option>
-              <option value="aluminum">Aluminum</option>
+              <option value="copper">{t('cableSchedule.copper', 'Copper')}</option>
+              <option value="aluminum">{t('cableSchedule.aluminum', 'Aluminum')}</option>
             </select>
           </div>
 
@@ -961,7 +1050,9 @@ export default function CableSchedulePage() {
               className="dense-input w-full rounded text-xs py-1"
             >
               {[1, 2, 3, 4, 5, 6, 7, 8, 9, 12, 16, 20].map((num) => (
-                <option key={num} value={num}>{num} {num === 1 ? 'cable' : 'cables'}</option>
+                <option key={num} value={num}>
+                  {num === 1 ? t('cableSchedule.cableUnit', '1 cable', { count: num }) : t('cableSchedule.cablesUnit', '{{count}} cables', { count: num })}
+                </option>
               ))}
             </select>
           </div>
@@ -1025,7 +1116,11 @@ export default function CableSchedulePage() {
       <div data-tour="cable-table" className="space-y-6">
         {floorKeys.map(key => {
           const groupCables = cablesByFloor[key];
-          const displayKey = key === 'Building Loads' ? t('cableSchedule.buildingLoads', 'Building Loads') : key;
+          const displayKey = key.includes('Main Incomer')
+            ? key.replace('Main Incomer', t('panel.incomer', 'Main Incomer'))
+            : key.includes('Building Loads')
+            ? key.replace('Building Loads', t('cableSchedule.buildingLoads', 'Building Loads'))
+            : key;
           return (
           <div key={key} className="rounded-2xl border border-slate-800/90 bg-slate-900/60 backdrop-blur-md shadow-2xl overflow-hidden">
             <div className="flex items-center justify-between px-5 py-3.5 bg-gradient-to-r from-slate-900/90 via-slate-900/60 to-slate-950/90 border-b border-slate-800/80">
@@ -1346,7 +1441,7 @@ export default function CableSchedulePage() {
                         >
                           {c.isOverloaded || c.ampacity < c.current ? (
                             <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-rose-500/15 border border-rose-500/30 text-rose-400 font-bold text-[11px] shadow-sm" title={`Ampacity ${c.ampacity}A < Current ${c.current.toFixed(1)}A`}>
-                              <AlertTriangle size={12} /> OVERLOAD
+                              <AlertTriangle size={12} /> {t('cableSchedule.overload', 'OVERLOAD')}
                             </span>
                           ) : c.changed ? (
                             <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-300 font-semibold text-[11px] shadow-sm">

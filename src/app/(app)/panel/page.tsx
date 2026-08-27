@@ -469,7 +469,7 @@ export default function PanelDesignerPage() {
             {t('panel.shortCircuitAnalysis', 'Short-Circuit & Earthing Analysis')}
           </h2>
           <div className="flex items-center gap-2">
-            <span className="text-xs text-gray-400">Earthing System:</span>
+            <span className="text-xs text-gray-400">{t('panel.earthingSystem', 'Earthing System')}:</span>
             <span className="px-2 py-0.5 rounded text-xs font-mono font-bold bg-orange-500/20 text-orange-400 border border-orange-500/30">
               {earthingSystem}
             </span>
@@ -478,37 +478,37 @@ export default function PanelDesignerPage() {
 
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
           <div className="rounded-lg border border-gray-800 bg-gray-800/30 p-3">
-            <p className="text-[10px] text-gray-500 uppercase">3-Phase Isc (Icu Req)</p>
+            <p className="text-[10px] text-gray-500 uppercase">{t('panel.threePhaseIsc', '3-Phase Isc (Icu Req)')}</p>
             <p className="text-lg font-bold text-red-400 font-mono">{shortCircuit.threePhaseIsc.toFixed(2)} kA</p>
-            <p className="text-[10px] text-gray-500">Symmetric RMS</p>
+            <p className="text-[10px] text-gray-500">{t('panel.symmetricRms', 'Symmetric RMS')}</p>
           </div>
           <div className="rounded-lg border border-gray-800 bg-gray-800/30 p-3">
-            <p className="text-[10px] text-gray-500 uppercase">Line-to-Line Isc</p>
+            <p className="text-[10px] text-gray-500 uppercase">{t('panel.lineToLineIsc', 'Line-to-Line Isc')}</p>
             <p className="text-lg font-bold text-yellow-400 font-mono">{shortCircuit.twoPhaseIsc.toFixed(2)} kA</p>
-            <p className="text-[10px] text-gray-500">Phase-to-Phase (2Φ)</p>
+            <p className="text-[10px] text-gray-500">{t('panel.phaseToPhase', 'Phase-to-Phase (2Φ)')}</p>
           </div>
           <div className="rounded-lg border border-gray-800 bg-gray-800/30 p-3">
-            <p className="text-[10px] text-gray-500 uppercase">Phase-to-Earth / Neutral</p>
+            <p className="text-[10px] text-gray-500 uppercase">{t('panel.phaseToEarth', 'Phase-to-Earth / Neutral')}</p>
             <p className="text-lg font-bold text-blue-400 font-mono">
               {shortCircuit.itFirstFault ? '0.00 kA' : `${shortCircuit.phaseToNeutralIsc.toFixed(2)} kA`}
             </p>
             <p className="text-[10px] text-gray-500">
               {shortCircuit.itFirstFault
-                ? '1st Fault (Floating)'
+                ? t('panel.floatingFault', '1st Fault (Floating)')
                 : earthingSystem.toUpperCase() === 'TT'
-                ? 'TT Loop Limited'
-                : 'Solid Ground'}
+                ? t('panel.ttLoopLimited', 'TT Loop Limited')
+                : t('panel.solidGround', 'Solid Ground')}
             </p>
           </div>
           <div className="rounded-lg border border-gray-800 bg-gray-800/30 p-3">
-            <p className="text-[10px] text-gray-500 uppercase">Peak Current (Ip)</p>
+            <p className="text-[10px] text-gray-500 uppercase">{t('panel.peakCurrent', 'Peak Current (Ip)')}</p>
             <p className="text-lg font-bold text-purple-400 font-mono">{shortCircuit.peakCurrent.toFixed(2)} kA</p>
-            <p className="text-[10px] text-gray-500">Mechanical Stress</p>
+            <p className="text-[10px] text-gray-500">{t('panel.mechanicalStress', 'Mechanical Stress')}</p>
           </div>
           <div className="rounded-lg border border-gray-800 bg-gray-800/30 p-3">
-            <p className="text-[10px] text-gray-500 uppercase">Transformer Impedance</p>
+            <p className="text-[10px] text-gray-500 uppercase">{t('panel.transformerImpedance', 'Transformer Impedance')}</p>
             <p className="text-lg font-bold text-gray-300 font-mono">{(shortCircuit.transformerZ * 1000).toFixed(2)} mΩ</p>
-            <p className="text-[10px] text-gray-500">Fault MVA: {shortCircuit.faultMVA.toFixed(1)}</p>
+            <p className="text-[10px] text-gray-500">{t('panel.faultMva', 'Fault MVA')}: {shortCircuit.faultMVA.toFixed(1)}</p>
           </div>
         </div>
 
@@ -549,23 +549,23 @@ export default function PanelDesignerPage() {
 
           {/* Breaker Family Legend */}
           <div className="flex flex-wrap items-center gap-3 text-xs bg-gray-950/70 border border-gray-800/80 rounded-lg px-3 py-1.5">
-            <span className="text-gray-400 font-medium text-[11px]">Breakers:</span>
+            <span className="text-gray-400 font-medium text-[11px]">{t('breakers.title', 'Breakers')}:</span>
             <span className="flex items-center gap-1 font-mono text-[10.5px] text-orange-400">
               <span className="w-2 h-2 rounded-sm border border-orange-500 bg-orange-500/20 inline-block" />
-              ACB (Incomer)
+              {t('panel.acbIncomer', 'ACB (Incomer)')}
             </span>
             <span className="flex items-center gap-1 font-mono text-[10.5px] text-sky-400">
               <span className="w-2 h-2 rounded-sm border border-sky-400 bg-sky-500/20 inline-block" />
-              MCCB (Feeders)
+              {t('panel.mccbFeeders', 'MCCB (Feeders)')}
             </span>
             <span className="flex items-center gap-1 font-mono text-[10.5px] text-slate-300">
               <span className="w-2 h-2 rounded-sm border border-slate-400 bg-slate-500/20 inline-block" />
-              MCB (Sub-circuits)
+              {t('panel.mcbSubcircuits', 'MCB (Sub-circuits)')}
             </span>
             <span className="text-gray-600">|</span>
             <span className="flex items-center gap-1 text-[10.5px] text-gray-400">
               <span className="w-2 h-2 rounded-sm border border-slate-600 bg-slate-700 inline-block" />
-              Instruments
+              {t('panel.instruments', 'Instruments')}
             </span>
           </div>
         </div>
@@ -745,7 +745,7 @@ export default function PanelDesignerPage() {
                     {cat}
                   </text>
                   <text x="638" y={y + 22} fill="#94a3b8" fontSize="7.5">
-                    {feeder.type.replace('_', ' ')}
+                    {t(`loadTypes.${feeder.type}`, feeder.type.replace('_', ' '))}
                   </text>
                 </g>
               );
@@ -798,11 +798,11 @@ export default function PanelDesignerPage() {
                     {f.internalImbalanceNotModeled && (
                       <span className="ms-2 inline-flex items-center text-[10px] text-yellow-500" title="3-phase apartment treated as balanced; per-room imbalance not modeled">
                         <AlertTriangle size={10} className="me-0.5" />
-                        int. imbalance
+                        {t('panel.intImbalance', 'int. imbalance')}
                       </span>
                     )}
                   </td>
-                  <td className="text-center text-xs text-gray-400">{f.type.replace('_', ' ')}</td>
+                  <td className="text-center text-xs text-gray-400">{t(`loadTypes.${f.type}`, f.type.replace('_', ' '))}</td>
                   <td className="text-center font-mono text-orange-400">
                     <TraceableCell
                       getTrace={() =>

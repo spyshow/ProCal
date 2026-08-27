@@ -241,6 +241,13 @@ export const BuildingScalarFieldEnum = {
   supplyVoltage: 'supplyVoltage',
   earthingSystem: 'earthingSystem',
   lightningProtection: 'lightningProtection',
+  incomerCableSize: 'incomerCableSize',
+  incomerCableLength: 'incomerCableLength',
+  incomerInstallMethod: 'incomerInstallMethod',
+  incomerCableInsulation: 'incomerCableInsulation',
+  incomerCableMaterial: 'incomerCableMaterial',
+  incomerAmbientTemp: 'incomerAmbientTemp',
+  incomerGroupingCount: 'incomerGroupingCount',
   projectId: 'projectId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'

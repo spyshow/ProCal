@@ -94,6 +94,13 @@ export interface Building {
   mechanicalLoads?: string | null;
   generator?: number | null;
   transformer?: number | null;
+  incomerCableSize?: string | null;
+  incomerCableLength?: number | null;
+  incomerInstallMethod?: string | null;
+  incomerCableInsulation?: string | null;
+  incomerCableMaterial?: string | null;
+  incomerAmbientTemp?: number | null;
+  incomerGroupingCount?: number | null;
   floorDesigns: FloorDesign[];
   buildingLoads: BuildingLoad[];
 }

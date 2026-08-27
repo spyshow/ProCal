@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useUser } from '@/context/UserContext';
+import { useTranslation } from '@/i18n';
 
 const INPUT = 'rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 text-sm text-gray-200 placeholder-gray-500 focus:outline-none focus:border-orange-500 w-full';
 
@@ -20,6 +21,7 @@ const INPUT = 'rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 text-sm t
 export default function BillingPage() {
   const router = useRouter();
   const { user } = useUser();
+  const { t } = useTranslation();
 
   const [hasOpen, setHasOpen] = useState(false);
   const [checking, setChecking] = useState(true);
@@ -47,7 +49,7 @@ export default function BillingPage() {
   }, [user, router]);
 
   if (checking) {
-    return <div className="p-6 text-gray-500">Loading…</div>;
+    return <div className="p-6 text-gray-500">{t('common.loading', 'Loading…')}</div>;
   }
 
   if (user?.role === 'ADMIN') {
@@ -100,10 +102,9 @@ export default function BillingPage() {
   return (
     <div className="p-6 max-w-3xl mx-auto space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-white">Get project credits</h1>
+        <h1 className="text-2xl font-bold text-white">{t('billing.title', 'Get project credits')}</h1>
         <p className="text-sm text-gray-400 mt-1">
-          You have <span className="text-orange-300 font-mono">{user?.credits ?? 0}</span> project credit{user?.credits === 1 ? '' : 's'}.
-          {' '}Request more and our team will reach out.
+          {t('billing.creditsCount', 'You have {{count}} project credit(s). Request more and our team will reach out.', { count: user?.credits ?? 0 })}
         </p>
       </div>
 
@@ -112,15 +113,15 @@ export default function BillingPage() {
           <span className="flex-shrink-0 text-orange-400 mt-0.5">●</span>
           <span className="text-orange-200">
             {done
-              ? "Your request was sent. An admin will reach out — you'll be able to request again once this one is closed."
-              : "You already have an open credit request. An admin will reach out to grant you credits."}
+              ? t('billing.requestSent', "Your request was sent. An admin will reach out — you'll be able to request again once this one is closed.")
+              : t('billing.alreadyOpen', "You already have an open credit request. An admin will reach out to grant you credits.")}
           </span>
         </div>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-4 rounded-xl border border-gray-800 bg-gray-900/60 p-5">
         <div className="flex flex-col gap-1">
-          <label htmlFor="email" className="text-xs font-medium text-gray-400">Email (we reply here)</label>
+          <label htmlFor="email" className="text-xs font-medium text-gray-400">{t('billing.emailReply', 'Email (we reply here)')}</label>
           <input
             id="email"
             type="email"
@@ -134,7 +135,7 @@ export default function BillingPage() {
 
         <div className="flex flex-col gap-1">
           <label htmlFor="requestedCredits" className="text-xs font-medium text-gray-400">
-            Requested credits <span className="text-gray-600 font-normal">(optional)</span>
+            {t('billing.requestedCredits', 'Requested credits')} <span className="text-gray-600 font-normal">{t('billing.optional', '(optional)')}</span>
           </label>
           <input
             id="requestedCredits"
@@ -149,14 +150,14 @@ export default function BillingPage() {
         </div>
 
         <div className="flex flex-col gap-1">
-          <label htmlFor="message" className="text-xs font-medium text-gray-400">Message</label>
+          <label htmlFor="message" className="text-xs font-medium text-gray-400">{t('billing.message', 'Message')}</label>
           <textarea
             id="message"
             value={form.message}
             onChange={(e) => setForm({ ...form, message: e.target.value })}
             disabled={locked}
             rows={5}
-            placeholder="What are you working on and how many projects do you need to create?"
+            placeholder={t('billing.messagePlaceholder', 'What are you working on and how many projects do you need to create?')}
             className={INPUT + (locked ? ' opacity-60 cursor-not-allowed' : '')}
           />
         </div>
@@ -173,10 +174,10 @@ export default function BillingPage() {
             disabled={submitting || locked}
             className="px-4 py-2 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-sm font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {submitting ? 'Sending…' : 'Request credits'}
+            {submitting ? t('billing.sending', 'Sending…') : t('billing.requestCredits', 'Request credits')}
           </button>
           <Link href="/projects" className="text-sm text-gray-400 hover:text-orange-300 transition-colors">
-            Back to projects
+            {t('billing.backToProjects', 'Back to projects')}
           </Link>
         </div>
       </form>

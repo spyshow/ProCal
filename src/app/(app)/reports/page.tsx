@@ -203,7 +203,7 @@ export default function ReportsPage() {
           className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-200 text-sm font-semibold"
         >
           <History size={14} />
-          Revisions
+          {t('reports.revisions', 'Revisions')}
         </button>
         <button
           onClick={handleExportExcel}
@@ -211,7 +211,7 @@ export default function ReportsPage() {
           className="flex items-center gap-2 px-3 py-2 rounded-lg bg-emerald-700 hover:bg-emerald-600 text-white text-sm font-semibold disabled:opacity-50"
         >
           {exporting ? <Loader2 size={14} className="animate-spin" /> : <FileSpreadsheet size={14} />}
-          {exporting ? 'Exporting…' : t('reports.downloadExcel', 'Export Excel')}
+          {exporting ? t('common.exporting', 'Exporting…') : t('reports.downloadExcel', 'Export Excel')}
         </button>
         <button
           onClick={handlePrint}
@@ -247,14 +247,14 @@ export default function ReportsPage() {
   }
 
   const tabs: { key: ReportTab; label: string; icon: typeof FileText }[] = [
-    { key: 'summary', label: '1. Executive Summary', icon: FileText },
-    { key: 'loads', label: '2. Load & Balancing', icon: Activity },
-    { key: 'mdb', label: '3. MDB Schedule', icon: Building2 },
-    { key: 'cable', label: '4. Cable Sizing', icon: Table },
-    { key: 'breaker', label: '5. Breakers & Selectivity', icon: ShieldCheck },
-    { key: 'vd', label: '6. Voltage Drop', icon: Layers },
-    { key: 'shortCircuit', label: '7. Short-Circuit', icon: Zap },
-    { key: 'bom', label: '8. Bill of Materials', icon: Table },
+    { key: 'summary', label: t('reports.tabSummary', '1. Executive Summary'), icon: FileText },
+    { key: 'loads', label: t('reports.tabLoads', '2. Load & Balancing'), icon: Activity },
+    { key: 'mdb', label: t('reports.tabMdb', '3. MDB Schedule'), icon: Building2 },
+    { key: 'cable', label: t('reports.tabCable', '4. Cable Sizing'), icon: Table },
+    { key: 'breaker', label: t('reports.tabBreaker', '5. Breakers & Selectivity'), icon: ShieldCheck },
+    { key: 'vd', label: t('reports.tabVd', '6. Voltage Drop'), icon: Layers },
+    { key: 'shortCircuit', label: t('reports.tabShortCircuit', '7. Short-Circuit'), icon: Zap },
+    { key: 'bom', label: t('reports.tabBom', '8. Bill of Materials'), icon: Table },
   ];
 
   const allProjectItems = project.buildings.flatMap((b) => [

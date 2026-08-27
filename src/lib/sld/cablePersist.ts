@@ -5,10 +5,11 @@
 // the upsize path, so SDB edits silently 404'd. Keeping the dispatch here lets
 // one test pin all three kinds against a missing-branch regression.
 
-export type CableKind = 'floor' | 'building' | 'sdb';
+export type CableKind = 'floor' | 'building' | 'sdb' | 'incomer';
 
 /** REST PATCH target for a cable row of the given kind. */
 export function cablePatchUrl(kind: CableKind, id: string): string {
+  if (kind === 'incomer') return `/api/buildings/${id.replace(/^incomer-/, '')}`;
   if (kind === 'building') return `/api/building-loads/${id}`;
   if (kind === 'sdb') return `/api/floors/${id.replace(/^sdb-/, '')}`;
   return `/api/floor-items/${id}`;
@@ -17,6 +18,7 @@ export function cablePatchUrl(kind: CableKind, id: string): string {
 /** One cable "size upsize" — PATCH body for applyChanges. */
 export function upsizeBody(newCableSize: number | string, kind: CableKind): Record<string, string> {
   const sizeStr = typeof newCableSize === 'number' ? `${newCableSize}` : newCableSize;
+  if (kind === 'incomer') return { incomerCableSize: sizeStr };
   if (kind === 'sdb') return { riserCableSize: sizeStr };
   return { cableSize: sizeStr };
 }
@@ -27,6 +29,15 @@ export function fieldEditBody(
   field: 'length' | 'method' | 'insulation' | 'material' | 'ambientTemp' | 'groupingCount',
   value: string | number,
 ): Record<string, string | number> {
+  if (kind === 'incomer') {
+    if (field === 'length') return { incomerCableLength: value };
+    if (field === 'method') return { incomerInstallMethod: value };
+    if (field === 'insulation') return { incomerCableInsulation: value };
+    if (field === 'material') return { incomerCableMaterial: value };
+    if (field === 'ambientTemp') return { incomerAmbientTemp: value };
+    if (field === 'groupingCount') return { incomerGroupingCount: value };
+    return {};
+  }
   if (kind === 'sdb') {
     if (field === 'length') return { riserCableLength: value };
     if (field === 'method') return { riserInstallMethod: value };

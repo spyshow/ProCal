@@ -959,10 +959,11 @@ export function computeFeeders(
     calculateThreePhaseCurrent(totalDemandKva, project.voltage)
   );
   const mainCableOptions = {
-    material: 'copper' as const,
-    insulation: 'XLPE' as const,
-    ambientTemp: project.ambientTemp ?? 30,
-    groupingCount: 1,
+    material: (building.incomerCableMaterial as 'copper' | 'aluminum') ?? ('copper' as const),
+    insulation: (building.incomerCableInsulation as 'PVC' | 'XLPE') ?? ('XLPE' as const),
+    ambientTemp: building.incomerAmbientTemp ?? project.ambientTemp ?? 30,
+    groupingCount: building.incomerGroupingCount ?? 1,
+    installMethod: building.incomerInstallMethod ?? undefined,
     code,
     // Whole-building vector neutral current (imbalance-aware), so the MDB
     // incomer neutral is kept full-size when the board is unbalanced.
@@ -988,12 +989,18 @@ export function computeFeeders(
       ? sizeCableAndBreaker(mainBreakerIn, true, mainCableOptions)
       : mainSizing;
 
+  const parsedIncomerCable = parseCableSize(building.incomerCableSize);
+  const effectiveIncomerSize = parsedIncomerCable?.size ?? mainFinalSizing.cableSize;
+  const effectiveIncomerRuns = parsedIncomerCable?.runs ?? mainFinalSizing.parallelRuns;
+  const cableInputForEval = building.incomerCableSize ?? mainFinalSizing.formattedCableSize;
+  const mainProtEval = evaluateCableProtection(cableInputForEval, mainBreakerIn, true, mainCableOptions);
+
   // Explicit Iz >= In guard for the incomer cable (IEC 60364-5-52). Sizing to
   // the breaker covers In by construction, but the largest-cable fallback in
   // sizeCableAndBreaker can return a cable below In when even 6 parallel runs
   // cannot reach the frame — surface that degenerate case instead of silently
   // shipping an unprotected main.
-  const mainCableUnderProtected = mainFinalSizing.deratedAmpacity < mainBreakerIn;
+  const mainCableUnderProtected = mainProtEval.isUnderProtected;
 
   // A generic spec self-requires the fault level, so it counts as compliant.
   const mainIncomerIcuOk =
@@ -1297,9 +1304,9 @@ export function computeFeeders(
     smdbFloorNumbers,
     mainIncomerSettings,
     mainIncomerIcuOk,
-    mainCableSize: mainFinalSizing.cableSize,
-    mainParallelRuns: mainFinalSizing.parallelRuns,
-    mainCableIz: mainFinalSizing.deratedAmpacity,
+    mainCableSize: effectiveIncomerSize,
+    mainParallelRuns: effectiveIncomerRuns,
+    mainCableIz: mainProtEval.deratedAmpacity,
     mainCableUnderProtected,
     mainBreakerIn,
     mainIncomerCurrent,

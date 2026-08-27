@@ -1,0 +1,8 @@
+﻿-- AlterTable Building
+ALTER TABLE "Building" ADD COLUMN IF NOT EXISTS "incomerCableSize" TEXT,
+ADD COLUMN IF NOT EXISTS "incomerCableLength" DOUBLE PRECISION,
+ADD COLUMN IF NOT EXISTS "incomerInstallMethod" TEXT,
+ADD COLUMN IF NOT EXISTS "incomerCableInsulation" TEXT,
+ADD COLUMN IF NOT EXISTS "incomerCableMaterial" TEXT DEFAULT 'copper',
+ADD COLUMN IF NOT EXISTS "incomerAmbientTemp" DOUBLE PRECISION DEFAULT 30,
+ADD COLUMN IF NOT EXISTS "incomerGroupingCount" INTEGER DEFAULT 1;

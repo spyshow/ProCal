@@ -454,7 +454,7 @@ export default function ProjectDetailPage() {
           className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-800 hover:bg-gray-700 text-sm text-gray-300 transition-colors"
         >
           <Settings size={14} />
-          Settings
+          {t('projects.settings', 'Settings')}
         </button>
       </div>
 
@@ -462,7 +462,7 @@ export default function ProjectDetailPage() {
       {editingProject && (
         <div className="rounded-xl border border-orange-500/30 bg-gray-900/80 p-5 space-y-4">
           <div className="flex items-center justify-between">
-            <h3 className="text-sm font-semibold text-orange-400">Project Settings</h3>
+            <h3 className="text-sm font-semibold text-orange-400">{t('projects.projectSettings', 'Project Settings')}</h3>
             {isReadOnly && (
               <span className="px-2.5 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-300 text-[11px] font-semibold flex items-center gap-1">
                 <Shield size={12} />
@@ -480,37 +480,37 @@ export default function ProjectDetailPage() {
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {[
-              ['name', 'Project Name', '', 'Project name used across reports and schedules.'],
-              ['client', 'Client', '', 'Client or owner name shown on the project cover sheet.'],
-              ['consultant', 'Consultant', '', 'Electrical consultant or designer name.'],
-              ['contractor', 'Contractor', '', 'Main contractor name for project records.'],
-              ['location', 'Location', '', 'Project site location.'],
-              ['engineer', 'Engineer', '', 'Responsible engineer for stamping.'],
+              ['name', t('projects.projectName', 'Project Name *').replace(' *', ''), '', 'Project name used across reports and schedules.'],
+              ['client', t('projects.client', 'Client'), '', 'Client or owner name shown on the project cover sheet.'],
+              ['consultant', t('projects.consultant', 'Consultant'), '', 'Electrical consultant or designer name.'],
+              ['contractor', t('projects.contractor', 'Contractor'), '', 'Main contractor name for project records.'],
+              ['location', t('projects.location', 'Location'), '', 'Project site location.'],
+              ['engineer', t('projects.engineer', 'Engineer'), '', 'Responsible engineer for stamping.'],
               ['voltage',
-               <span key="voltage" className="inline-flex items-center gap-1.5">Voltage (V) <InfoTooltip label="System Voltage" helper="Nominal line-to-line or line-to-neutral system voltage used for current, cable, and breaker sizing." /></span>,
+               <span key="voltage" className="inline-flex items-center gap-1.5">{t('common.voltage', 'Voltage (V)')} <InfoTooltip label="System Voltage" helper="Nominal line-to-line or line-to-neutral system voltage used for current, cable, and breaker sizing." /></span>,
                'e.g. 230 or 400',
                ''],
               ['frequency',
-               <span key="frequency" className="inline-flex items-center gap-1.5">Frequency (Hz) <InfoTooltip label="System Frequency" helper="Nominal grid frequency. 50 Hz is standard in IEC regions; must match impedance and cable tables." /></span>,
+               <span key="frequency" className="inline-flex items-center gap-1.5">{t('common.frequency', 'Frequency (Hz)')} <InfoTooltip label="System Frequency" helper="Nominal grid frequency. 50 Hz is standard in IEC regions; must match impedance and cable tables." /></span>,
                'e.g. 50',
                ''],
               ['powerFactor',
-               <span key="powerFactor" className="inline-flex items-center gap-1.5">Power Factor <InfoTooltip label="Power Factor" helper="Average load power factor (cos φ). Used to convert active power (kW) into apparent power (kVA) and calculate running current." /></span>,
+               <span key="powerFactor" className="inline-flex items-center gap-1.5">{t('common.powerFactor', 'Power Factor')} <InfoTooltip label="Power Factor" helper="Average load power factor (cos φ). Used to convert active power (kW) into apparent power (kVA) and calculate running current." /></span>,
                'e.g. 0.85',
                ''],
               ['maxDemandFactor',
-               <span key="maxDemandFactor" className="inline-flex items-center gap-1.5">Max Demand Factor <InfoTooltip label="Max Demand Factor" helper="Diversity factor applied to the total connected load to estimate realistic maximum demand. IEC 61400 / local utility tables provide typical values." /></span>,
+               <span key="maxDemandFactor" className="inline-flex items-center gap-1.5">{t('projects.maxDemandFactor', 'Max Demand Factor')} <InfoTooltip label="Max Demand Factor" helper="Diversity factor applied to the total connected load to estimate realistic maximum demand. IEC 61400 / local utility tables provide typical values." /></span>,
                'e.g. 0.7',
                ''],
               ['maxVoltageDropLighting',
-               <span key="maxVoltageDropLighting" className="inline-flex items-center gap-1.5">VD Limit — Lighting (%) <InfoTooltip label="Lighting Voltage Drop Limit" helper="IEC 60364-5-52 recommends ≤ 3% voltage drop for lighting circuits. Used in cable sizing and schedules." /></span>,
+               <span key="maxVoltageDropLighting" className="inline-flex items-center gap-1.5">{t('settings.lightingLimit', 'VD Limit — Lighting (%)')} <InfoTooltip label="Lighting Voltage Drop Limit" helper="IEC 60364-5-52 recommends ≤ 3% voltage drop for lighting circuits. Used in cable sizing and schedules." /></span>,
                '3',
                ''],
               ['maxVoltageDropPower',
-               <span key="maxVoltageDropPower" className="inline-flex items-center gap-1.5">VD Limit — Power (%) <InfoTooltip label="Power Voltage Drop Limit" helper="IEC 60364-5-52 recommends ≤ 5% voltage drop for power circuits (sockets, HVAC, motors)." /></span>,
+               <span key="maxVoltageDropPower" className="inline-flex items-center gap-1.5">{t('settings.powerLimit', 'VD Limit — Power (%)')} <InfoTooltip label="Power Voltage Drop Limit" helper="IEC 60364-5-52 recommends ≤ 5% voltage drop for power circuits (sockets, HVAC, motors)." /></span>,
                '5',
                ''],
-              [null, 'Calculation Standard', '', ''],
+              [null, t('common.standard', 'Calculation Standard'), '', ''],
             ].map(([key, label, placeholder, helper]) => key === null ? (
               <div key="calculationStandard">
                 <label className="block text-xs text-gray-400 mb-1">{label}</label>
@@ -541,7 +541,7 @@ export default function ProjectDetailPage() {
 
           {/* Logo Upload */}
           <div>
-            <label className="block text-xs text-gray-400 mb-1">Project Logo</label>
+            <label className="block text-xs text-gray-400 mb-1">{t('projects.projectLogo', 'Project Logo')}</label>
             <div className="flex items-center gap-4">
               {projectForm.logoUrl ? (
                 <div className="relative">
@@ -561,11 +561,11 @@ export default function ProjectDetailPage() {
                   )}
                 </div>
               ) : isReadOnly ? (
-                <p className="text-xs text-gray-500 italic">No logo uploaded</p>
+                <p className="text-xs text-gray-500 italic">{t('projects.noLogo', 'No logo uploaded')}</p>
               ) : (
                 <label className="flex flex-col items-center justify-center w-32 h-20 border-2 border-dashed border-gray-700 rounded-lg cursor-pointer hover:border-orange-500 transition-colors">
                   <span className="text-xs text-gray-500">
-                    {projectLogoUploading ? 'Uploading…' : 'Click to upload'}
+                    {projectLogoUploading ? t('projects.uploading', 'Uploading…') : t('projects.clickToUpload', 'Click to upload')}
                   </span>
                   <input
                     type="file"
@@ -576,7 +576,7 @@ export default function ProjectDetailPage() {
                 </label>
               )}
             </div>
-            {!isReadOnly && <p className="text-[10px] text-gray-600 mt-1">PNG, JPG, SVG, or WebP. Max 2MB.</p>}
+            {!isReadOnly && <p className="text-[10px] text-gray-600 mt-1">{t('projects.logoConstraints', 'PNG, JPG, SVG, or WebP. Max 2MB.')}</p>}
           </div>
 
           <div className="flex items-center gap-2">

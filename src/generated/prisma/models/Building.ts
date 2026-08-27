@@ -32,6 +32,9 @@ export type BuildingAvgAggregateOutputType = {
   apartmentsPerFloor: number | null
   generator: number | null
   transformer: number | null
+  incomerCableLength: number | null
+  incomerAmbientTemp: number | null
+  incomerGroupingCount: number | null
 }
 
 export type BuildingSumAggregateOutputType = {
@@ -40,6 +43,9 @@ export type BuildingSumAggregateOutputType = {
   apartmentsPerFloor: number | null
   generator: number | null
   transformer: number | null
+  incomerCableLength: number | null
+  incomerAmbientTemp: number | null
+  incomerGroupingCount: number | null
 }
 
 export type BuildingMinAggregateOutputType = {
@@ -54,6 +60,13 @@ export type BuildingMinAggregateOutputType = {
   supplyVoltage: string | null
   earthingSystem: string | null
   lightningProtection: boolean | null
+  incomerCableSize: string | null
+  incomerCableLength: number | null
+  incomerInstallMethod: string | null
+  incomerCableInsulation: string | null
+  incomerCableMaterial: string | null
+  incomerAmbientTemp: number | null
+  incomerGroupingCount: number | null
   projectId: string | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -71,6 +84,13 @@ export type BuildingMaxAggregateOutputType = {
   supplyVoltage: string | null
   earthingSystem: string | null
   lightningProtection: boolean | null
+  incomerCableSize: string | null
+  incomerCableLength: number | null
+  incomerInstallMethod: string | null
+  incomerCableInsulation: string | null
+  incomerCableMaterial: string | null
+  incomerAmbientTemp: number | null
+  incomerGroupingCount: number | null
   projectId: string | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -88,6 +108,13 @@ export type BuildingCountAggregateOutputType = {
   supplyVoltage: number
   earthingSystem: number
   lightningProtection: number
+  incomerCableSize: number
+  incomerCableLength: number
+  incomerInstallMethod: number
+  incomerCableInsulation: number
+  incomerCableMaterial: number
+  incomerAmbientTemp: number
+  incomerGroupingCount: number
   projectId: number
   createdAt: number
   updatedAt: number
@@ -101,6 +128,9 @@ export type BuildingAvgAggregateInputType = {
   apartmentsPerFloor?: true
   generator?: true
   transformer?: true
+  incomerCableLength?: true
+  incomerAmbientTemp?: true
+  incomerGroupingCount?: true
 }
 
 export type BuildingSumAggregateInputType = {
@@ -109,6 +139,9 @@ export type BuildingSumAggregateInputType = {
   apartmentsPerFloor?: true
   generator?: true
   transformer?: true
+  incomerCableLength?: true
+  incomerAmbientTemp?: true
+  incomerGroupingCount?: true
 }
 
 export type BuildingMinAggregateInputType = {
@@ -123,6 +156,13 @@ export type BuildingMinAggregateInputType = {
   supplyVoltage?: true
   earthingSystem?: true
   lightningProtection?: true
+  incomerCableSize?: true
+  incomerCableLength?: true
+  incomerInstallMethod?: true
+  incomerCableInsulation?: true
+  incomerCableMaterial?: true
+  incomerAmbientTemp?: true
+  incomerGroupingCount?: true
   projectId?: true
   createdAt?: true
   updatedAt?: true
@@ -140,6 +180,13 @@ export type BuildingMaxAggregateInputType = {
   supplyVoltage?: true
   earthingSystem?: true
   lightningProtection?: true
+  incomerCableSize?: true
+  incomerCableLength?: true
+  incomerInstallMethod?: true
+  incomerCableInsulation?: true
+  incomerCableMaterial?: true
+  incomerAmbientTemp?: true
+  incomerGroupingCount?: true
   projectId?: true
   createdAt?: true
   updatedAt?: true
@@ -157,6 +204,13 @@ export type BuildingCountAggregateInputType = {
   supplyVoltage?: true
   earthingSystem?: true
   lightningProtection?: true
+  incomerCableSize?: true
+  incomerCableLength?: true
+  incomerInstallMethod?: true
+  incomerCableInsulation?: true
+  incomerCableMaterial?: true
+  incomerAmbientTemp?: true
+  incomerGroupingCount?: true
   projectId?: true
   createdAt?: true
   updatedAt?: true
@@ -261,6 +315,13 @@ export type BuildingGroupByOutputType = {
   supplyVoltage: string
   earthingSystem: string
   lightningProtection: boolean
+  incomerCableSize: string | null
+  incomerCableLength: number | null
+  incomerInstallMethod: string | null
+  incomerCableInsulation: string | null
+  incomerCableMaterial: string | null
+  incomerAmbientTemp: number | null
+  incomerGroupingCount: number | null
   projectId: string
   createdAt: Date
   updatedAt: Date
@@ -301,6 +362,13 @@ export type BuildingWhereInput = {
   supplyVoltage?: Prisma.StringFilter<"Building"> | string
   earthingSystem?: Prisma.StringFilter<"Building"> | string
   lightningProtection?: Prisma.BoolFilter<"Building"> | boolean
+  incomerCableSize?: Prisma.StringNullableFilter<"Building"> | string | null
+  incomerCableLength?: Prisma.FloatNullableFilter<"Building"> | number | null
+  incomerInstallMethod?: Prisma.StringNullableFilter<"Building"> | string | null
+  incomerCableInsulation?: Prisma.StringNullableFilter<"Building"> | string | null
+  incomerCableMaterial?: Prisma.StringNullableFilter<"Building"> | string | null
+  incomerAmbientTemp?: Prisma.FloatNullableFilter<"Building"> | number | null
+  incomerGroupingCount?: Prisma.IntNullableFilter<"Building"> | number | null
   projectId?: Prisma.StringFilter<"Building"> | string
   createdAt?: Prisma.DateTimeFilter<"Building"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Building"> | Date | string
@@ -321,6 +389,13 @@ export type BuildingOrderByWithRelationInput = {
   supplyVoltage?: Prisma.SortOrder
   earthingSystem?: Prisma.SortOrder
   lightningProtection?: Prisma.SortOrder
+  incomerCableSize?: Prisma.SortOrderInput | Prisma.SortOrder
+  incomerCableLength?: Prisma.SortOrderInput | Prisma.SortOrder
+  incomerInstallMethod?: Prisma.SortOrderInput | Prisma.SortOrder
+  incomerCableInsulation?: Prisma.SortOrderInput | Prisma.SortOrder
+  incomerCableMaterial?: Prisma.SortOrderInput | Prisma.SortOrder
+  incomerAmbientTemp?: Prisma.SortOrderInput | Prisma.SortOrder
+  incomerGroupingCount?: Prisma.SortOrderInput | Prisma.SortOrder
   projectId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -344,6 +419,13 @@ export type BuildingWhereUniqueInput = Prisma.AtLeast<{
   supplyVoltage?: Prisma.StringFilter<"Building"> | string
   earthingSystem?: Prisma.StringFilter<"Building"> | string
   lightningProtection?: Prisma.BoolFilter<"Building"> | boolean
+  incomerCableSize?: Prisma.StringNullableFilter<"Building"> | string | null
+  incomerCableLength?: Prisma.FloatNullableFilter<"Building"> | number | null
+  incomerInstallMethod?: Prisma.StringNullableFilter<"Building"> | string | null
+  incomerCableInsulation?: Prisma.StringNullableFilter<"Building"> | string | null
+  incomerCableMaterial?: Prisma.StringNullableFilter<"Building"> | string | null
+  incomerAmbientTemp?: Prisma.FloatNullableFilter<"Building"> | number | null
+  incomerGroupingCount?: Prisma.IntNullableFilter<"Building"> | number | null
   projectId?: Prisma.StringFilter<"Building"> | string
   createdAt?: Prisma.DateTimeFilter<"Building"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Building"> | Date | string
@@ -364,6 +446,13 @@ export type BuildingOrderByWithAggregationInput = {
   supplyVoltage?: Prisma.SortOrder
   earthingSystem?: Prisma.SortOrder
   lightningProtection?: Prisma.SortOrder
+  incomerCableSize?: Prisma.SortOrderInput | Prisma.SortOrder
+  incomerCableLength?: Prisma.SortOrderInput | Prisma.SortOrder
+  incomerInstallMethod?: Prisma.SortOrderInput | Prisma.SortOrder
+  incomerCableInsulation?: Prisma.SortOrderInput | Prisma.SortOrder
+  incomerCableMaterial?: Prisma.SortOrderInput | Prisma.SortOrder
+  incomerAmbientTemp?: Prisma.SortOrderInput | Prisma.SortOrder
+  incomerGroupingCount?: Prisma.SortOrderInput | Prisma.SortOrder
   projectId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -389,6 +478,13 @@ export type BuildingScalarWhereWithAggregatesInput = {
   supplyVoltage?: Prisma.StringWithAggregatesFilter<"Building"> | string
   earthingSystem?: Prisma.StringWithAggregatesFilter<"Building"> | string
   lightningProtection?: Prisma.BoolWithAggregatesFilter<"Building"> | boolean
+  incomerCableSize?: Prisma.StringNullableWithAggregatesFilter<"Building"> | string | null
+  incomerCableLength?: Prisma.FloatNullableWithAggregatesFilter<"Building"> | number | null
+  incomerInstallMethod?: Prisma.StringNullableWithAggregatesFilter<"Building"> | string | null
+  incomerCableInsulation?: Prisma.StringNullableWithAggregatesFilter<"Building"> | string | null
+  incomerCableMaterial?: Prisma.StringNullableWithAggregatesFilter<"Building"> | string | null
+  incomerAmbientTemp?: Prisma.FloatNullableWithAggregatesFilter<"Building"> | number | null
+  incomerGroupingCount?: Prisma.IntNullableWithAggregatesFilter<"Building"> | number | null
   projectId?: Prisma.StringWithAggregatesFilter<"Building"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Building"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Building"> | Date | string
@@ -406,6 +502,13 @@ export type BuildingCreateInput = {
   supplyVoltage?: string
   earthingSystem?: string
   lightningProtection?: boolean
+  incomerCableSize?: string | null
+  incomerCableLength?: number | null
+  incomerInstallMethod?: string | null
+  incomerCableInsulation?: string | null
+  incomerCableMaterial?: string | null
+  incomerAmbientTemp?: number | null
+  incomerGroupingCount?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   project: Prisma.ProjectCreateNestedOneWithoutBuildingsInput
@@ -425,6 +528,13 @@ export type BuildingUncheckedCreateInput = {
   supplyVoltage?: string
   earthingSystem?: string
   lightningProtection?: boolean
+  incomerCableSize?: string | null
+  incomerCableLength?: number | null
+  incomerInstallMethod?: string | null
+  incomerCableInsulation?: string | null
+  incomerCableMaterial?: string | null
+  incomerAmbientTemp?: number | null
+  incomerGroupingCount?: number | null
   projectId: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -444,6 +554,13 @@ export type BuildingUpdateInput = {
   supplyVoltage?: Prisma.StringFieldUpdateOperationsInput | string
   earthingSystem?: Prisma.StringFieldUpdateOperationsInput | string
   lightningProtection?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  incomerCableSize?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incomerCableLength?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  incomerInstallMethod?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incomerCableInsulation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incomerCableMaterial?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incomerAmbientTemp?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  incomerGroupingCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   project?: Prisma.ProjectUpdateOneRequiredWithoutBuildingsNestedInput
@@ -463,6 +580,13 @@ export type BuildingUncheckedUpdateInput = {
   supplyVoltage?: Prisma.StringFieldUpdateOperationsInput | string
   earthingSystem?: Prisma.StringFieldUpdateOperationsInput | string
   lightningProtection?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  incomerCableSize?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incomerCableLength?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  incomerInstallMethod?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incomerCableInsulation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incomerCableMaterial?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incomerAmbientTemp?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  incomerGroupingCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   projectId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -482,6 +606,13 @@ export type BuildingCreateManyInput = {
   supplyVoltage?: string
   earthingSystem?: string
   lightningProtection?: boolean
+  incomerCableSize?: string | null
+  incomerCableLength?: number | null
+  incomerInstallMethod?: string | null
+  incomerCableInsulation?: string | null
+  incomerCableMaterial?: string | null
+  incomerAmbientTemp?: number | null
+  incomerGroupingCount?: number | null
   projectId: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -499,6 +630,13 @@ export type BuildingUpdateManyMutationInput = {
   supplyVoltage?: Prisma.StringFieldUpdateOperationsInput | string
   earthingSystem?: Prisma.StringFieldUpdateOperationsInput | string
   lightningProtection?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  incomerCableSize?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incomerCableLength?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  incomerInstallMethod?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incomerCableInsulation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incomerCableMaterial?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incomerAmbientTemp?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  incomerGroupingCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -515,6 +653,13 @@ export type BuildingUncheckedUpdateManyInput = {
   supplyVoltage?: Prisma.StringFieldUpdateOperationsInput | string
   earthingSystem?: Prisma.StringFieldUpdateOperationsInput | string
   lightningProtection?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  incomerCableSize?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incomerCableLength?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  incomerInstallMethod?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incomerCableInsulation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incomerCableMaterial?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incomerAmbientTemp?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  incomerGroupingCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   projectId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -542,6 +687,13 @@ export type BuildingCountOrderByAggregateInput = {
   supplyVoltage?: Prisma.SortOrder
   earthingSystem?: Prisma.SortOrder
   lightningProtection?: Prisma.SortOrder
+  incomerCableSize?: Prisma.SortOrder
+  incomerCableLength?: Prisma.SortOrder
+  incomerInstallMethod?: Prisma.SortOrder
+  incomerCableInsulation?: Prisma.SortOrder
+  incomerCableMaterial?: Prisma.SortOrder
+  incomerAmbientTemp?: Prisma.SortOrder
+  incomerGroupingCount?: Prisma.SortOrder
   projectId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -553,6 +705,9 @@ export type BuildingAvgOrderByAggregateInput = {
   apartmentsPerFloor?: Prisma.SortOrder
   generator?: Prisma.SortOrder
   transformer?: Prisma.SortOrder
+  incomerCableLength?: Prisma.SortOrder
+  incomerAmbientTemp?: Prisma.SortOrder
+  incomerGroupingCount?: Prisma.SortOrder
 }
 
 export type BuildingMaxOrderByAggregateInput = {
@@ -567,6 +722,13 @@ export type BuildingMaxOrderByAggregateInput = {
   supplyVoltage?: Prisma.SortOrder
   earthingSystem?: Prisma.SortOrder
   lightningProtection?: Prisma.SortOrder
+  incomerCableSize?: Prisma.SortOrder
+  incomerCableLength?: Prisma.SortOrder
+  incomerInstallMethod?: Prisma.SortOrder
+  incomerCableInsulation?: Prisma.SortOrder
+  incomerCableMaterial?: Prisma.SortOrder
+  incomerAmbientTemp?: Prisma.SortOrder
+  incomerGroupingCount?: Prisma.SortOrder
   projectId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -584,6 +746,13 @@ export type BuildingMinOrderByAggregateInput = {
   supplyVoltage?: Prisma.SortOrder
   earthingSystem?: Prisma.SortOrder
   lightningProtection?: Prisma.SortOrder
+  incomerCableSize?: Prisma.SortOrder
+  incomerCableLength?: Prisma.SortOrder
+  incomerInstallMethod?: Prisma.SortOrder
+  incomerCableInsulation?: Prisma.SortOrder
+  incomerCableMaterial?: Prisma.SortOrder
+  incomerAmbientTemp?: Prisma.SortOrder
+  incomerGroupingCount?: Prisma.SortOrder
   projectId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -595,6 +764,9 @@ export type BuildingSumOrderByAggregateInput = {
   apartmentsPerFloor?: Prisma.SortOrder
   generator?: Prisma.SortOrder
   transformer?: Prisma.SortOrder
+  incomerCableLength?: Prisma.SortOrder
+  incomerAmbientTemp?: Prisma.SortOrder
+  incomerGroupingCount?: Prisma.SortOrder
 }
 
 export type BuildingScalarRelationFilter = {
@@ -684,6 +856,13 @@ export type BuildingCreateWithoutProjectInput = {
   supplyVoltage?: string
   earthingSystem?: string
   lightningProtection?: boolean
+  incomerCableSize?: string | null
+  incomerCableLength?: number | null
+  incomerInstallMethod?: string | null
+  incomerCableInsulation?: string | null
+  incomerCableMaterial?: string | null
+  incomerAmbientTemp?: number | null
+  incomerGroupingCount?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   floorDesigns?: Prisma.FloorDesignCreateNestedManyWithoutBuildingInput
@@ -702,6 +881,13 @@ export type BuildingUncheckedCreateWithoutProjectInput = {
   supplyVoltage?: string
   earthingSystem?: string
   lightningProtection?: boolean
+  incomerCableSize?: string | null
+  incomerCableLength?: number | null
+  incomerInstallMethod?: string | null
+  incomerCableInsulation?: string | null
+  incomerCableMaterial?: string | null
+  incomerAmbientTemp?: number | null
+  incomerGroupingCount?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   floorDesigns?: Prisma.FloorDesignUncheckedCreateNestedManyWithoutBuildingInput
@@ -749,6 +935,13 @@ export type BuildingScalarWhereInput = {
   supplyVoltage?: Prisma.StringFilter<"Building"> | string
   earthingSystem?: Prisma.StringFilter<"Building"> | string
   lightningProtection?: Prisma.BoolFilter<"Building"> | boolean
+  incomerCableSize?: Prisma.StringNullableFilter<"Building"> | string | null
+  incomerCableLength?: Prisma.FloatNullableFilter<"Building"> | number | null
+  incomerInstallMethod?: Prisma.StringNullableFilter<"Building"> | string | null
+  incomerCableInsulation?: Prisma.StringNullableFilter<"Building"> | string | null
+  incomerCableMaterial?: Prisma.StringNullableFilter<"Building"> | string | null
+  incomerAmbientTemp?: Prisma.FloatNullableFilter<"Building"> | number | null
+  incomerGroupingCount?: Prisma.IntNullableFilter<"Building"> | number | null
   projectId?: Prisma.StringFilter<"Building"> | string
   createdAt?: Prisma.DateTimeFilter<"Building"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Building"> | Date | string
@@ -766,6 +959,13 @@ export type BuildingCreateWithoutBuildingLoadsInput = {
   supplyVoltage?: string
   earthingSystem?: string
   lightningProtection?: boolean
+  incomerCableSize?: string | null
+  incomerCableLength?: number | null
+  incomerInstallMethod?: string | null
+  incomerCableInsulation?: string | null
+  incomerCableMaterial?: string | null
+  incomerAmbientTemp?: number | null
+  incomerGroupingCount?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   project: Prisma.ProjectCreateNestedOneWithoutBuildingsInput
@@ -784,6 +984,13 @@ export type BuildingUncheckedCreateWithoutBuildingLoadsInput = {
   supplyVoltage?: string
   earthingSystem?: string
   lightningProtection?: boolean
+  incomerCableSize?: string | null
+  incomerCableLength?: number | null
+  incomerInstallMethod?: string | null
+  incomerCableInsulation?: string | null
+  incomerCableMaterial?: string | null
+  incomerAmbientTemp?: number | null
+  incomerGroupingCount?: number | null
   projectId: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -818,6 +1025,13 @@ export type BuildingUpdateWithoutBuildingLoadsInput = {
   supplyVoltage?: Prisma.StringFieldUpdateOperationsInput | string
   earthingSystem?: Prisma.StringFieldUpdateOperationsInput | string
   lightningProtection?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  incomerCableSize?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incomerCableLength?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  incomerInstallMethod?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incomerCableInsulation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incomerCableMaterial?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incomerAmbientTemp?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  incomerGroupingCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   project?: Prisma.ProjectUpdateOneRequiredWithoutBuildingsNestedInput
@@ -836,6 +1050,13 @@ export type BuildingUncheckedUpdateWithoutBuildingLoadsInput = {
   supplyVoltage?: Prisma.StringFieldUpdateOperationsInput | string
   earthingSystem?: Prisma.StringFieldUpdateOperationsInput | string
   lightningProtection?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  incomerCableSize?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incomerCableLength?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  incomerInstallMethod?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incomerCableInsulation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incomerCableMaterial?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incomerAmbientTemp?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  incomerGroupingCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   projectId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -854,6 +1075,13 @@ export type BuildingCreateWithoutFloorDesignsInput = {
   supplyVoltage?: string
   earthingSystem?: string
   lightningProtection?: boolean
+  incomerCableSize?: string | null
+  incomerCableLength?: number | null
+  incomerInstallMethod?: string | null
+  incomerCableInsulation?: string | null
+  incomerCableMaterial?: string | null
+  incomerAmbientTemp?: number | null
+  incomerGroupingCount?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   project: Prisma.ProjectCreateNestedOneWithoutBuildingsInput
@@ -872,6 +1100,13 @@ export type BuildingUncheckedCreateWithoutFloorDesignsInput = {
   supplyVoltage?: string
   earthingSystem?: string
   lightningProtection?: boolean
+  incomerCableSize?: string | null
+  incomerCableLength?: number | null
+  incomerInstallMethod?: string | null
+  incomerCableInsulation?: string | null
+  incomerCableMaterial?: string | null
+  incomerAmbientTemp?: number | null
+  incomerGroupingCount?: number | null
   projectId: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -906,6 +1141,13 @@ export type BuildingUpdateWithoutFloorDesignsInput = {
   supplyVoltage?: Prisma.StringFieldUpdateOperationsInput | string
   earthingSystem?: Prisma.StringFieldUpdateOperationsInput | string
   lightningProtection?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  incomerCableSize?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incomerCableLength?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  incomerInstallMethod?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incomerCableInsulation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incomerCableMaterial?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incomerAmbientTemp?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  incomerGroupingCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   project?: Prisma.ProjectUpdateOneRequiredWithoutBuildingsNestedInput
@@ -924,6 +1166,13 @@ export type BuildingUncheckedUpdateWithoutFloorDesignsInput = {
   supplyVoltage?: Prisma.StringFieldUpdateOperationsInput | string
   earthingSystem?: Prisma.StringFieldUpdateOperationsInput | string
   lightningProtection?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  incomerCableSize?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incomerCableLength?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  incomerInstallMethod?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incomerCableInsulation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incomerCableMaterial?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incomerAmbientTemp?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  incomerGroupingCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   projectId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -942,6 +1191,13 @@ export type BuildingCreateManyProjectInput = {
   supplyVoltage?: string
   earthingSystem?: string
   lightningProtection?: boolean
+  incomerCableSize?: string | null
+  incomerCableLength?: number | null
+  incomerInstallMethod?: string | null
+  incomerCableInsulation?: string | null
+  incomerCableMaterial?: string | null
+  incomerAmbientTemp?: number | null
+  incomerGroupingCount?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -958,6 +1214,13 @@ export type BuildingUpdateWithoutProjectInput = {
   supplyVoltage?: Prisma.StringFieldUpdateOperationsInput | string
   earthingSystem?: Prisma.StringFieldUpdateOperationsInput | string
   lightningProtection?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  incomerCableSize?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incomerCableLength?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  incomerInstallMethod?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incomerCableInsulation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incomerCableMaterial?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incomerAmbientTemp?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  incomerGroupingCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   floorDesigns?: Prisma.FloorDesignUpdateManyWithoutBuildingNestedInput
@@ -976,6 +1239,13 @@ export type BuildingUncheckedUpdateWithoutProjectInput = {
   supplyVoltage?: Prisma.StringFieldUpdateOperationsInput | string
   earthingSystem?: Prisma.StringFieldUpdateOperationsInput | string
   lightningProtection?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  incomerCableSize?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incomerCableLength?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  incomerInstallMethod?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incomerCableInsulation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incomerCableMaterial?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incomerAmbientTemp?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  incomerGroupingCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   floorDesigns?: Prisma.FloorDesignUncheckedUpdateManyWithoutBuildingNestedInput
@@ -994,6 +1264,13 @@ export type BuildingUncheckedUpdateManyWithoutProjectInput = {
   supplyVoltage?: Prisma.StringFieldUpdateOperationsInput | string
   earthingSystem?: Prisma.StringFieldUpdateOperationsInput | string
   lightningProtection?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  incomerCableSize?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incomerCableLength?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  incomerInstallMethod?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incomerCableInsulation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incomerCableMaterial?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incomerAmbientTemp?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  incomerGroupingCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1050,6 +1327,13 @@ export type BuildingSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   supplyVoltage?: boolean
   earthingSystem?: boolean
   lightningProtection?: boolean
+  incomerCableSize?: boolean
+  incomerCableLength?: boolean
+  incomerInstallMethod?: boolean
+  incomerCableInsulation?: boolean
+  incomerCableMaterial?: boolean
+  incomerAmbientTemp?: boolean
+  incomerGroupingCount?: boolean
   projectId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -1071,6 +1355,13 @@ export type BuildingSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   supplyVoltage?: boolean
   earthingSystem?: boolean
   lightningProtection?: boolean
+  incomerCableSize?: boolean
+  incomerCableLength?: boolean
+  incomerInstallMethod?: boolean
+  incomerCableInsulation?: boolean
+  incomerCableMaterial?: boolean
+  incomerAmbientTemp?: boolean
+  incomerGroupingCount?: boolean
   projectId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -1089,6 +1380,13 @@ export type BuildingSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   supplyVoltage?: boolean
   earthingSystem?: boolean
   lightningProtection?: boolean
+  incomerCableSize?: boolean
+  incomerCableLength?: boolean
+  incomerInstallMethod?: boolean
+  incomerCableInsulation?: boolean
+  incomerCableMaterial?: boolean
+  incomerAmbientTemp?: boolean
+  incomerGroupingCount?: boolean
   projectId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -1107,12 +1405,19 @@ export type BuildingSelectScalar = {
   supplyVoltage?: boolean
   earthingSystem?: boolean
   lightningProtection?: boolean
+  incomerCableSize?: boolean
+  incomerCableLength?: boolean
+  incomerInstallMethod?: boolean
+  incomerCableInsulation?: boolean
+  incomerCableMaterial?: boolean
+  incomerAmbientTemp?: boolean
+  incomerGroupingCount?: boolean
   projectId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type BuildingOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "floors" | "serviceFloors" | "apartmentsPerFloor" | "mechanicalLoads" | "generator" | "transformer" | "supplyVoltage" | "earthingSystem" | "lightningProtection" | "projectId" | "createdAt" | "updatedAt", ExtArgs["result"]["building"]>
+export type BuildingOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "floors" | "serviceFloors" | "apartmentsPerFloor" | "mechanicalLoads" | "generator" | "transformer" | "supplyVoltage" | "earthingSystem" | "lightningProtection" | "incomerCableSize" | "incomerCableLength" | "incomerInstallMethod" | "incomerCableInsulation" | "incomerCableMaterial" | "incomerAmbientTemp" | "incomerGroupingCount" | "projectId" | "createdAt" | "updatedAt", ExtArgs["result"]["building"]>
 export type BuildingInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   project?: boolean | Prisma.ProjectDefaultArgs<ExtArgs>
   floorDesigns?: boolean | Prisma.Building$floorDesignsArgs<ExtArgs>
@@ -1145,6 +1450,13 @@ export type $BuildingPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     supplyVoltage: string
     earthingSystem: string
     lightningProtection: boolean
+    incomerCableSize: string | null
+    incomerCableLength: number | null
+    incomerInstallMethod: string | null
+    incomerCableInsulation: string | null
+    incomerCableMaterial: string | null
+    incomerAmbientTemp: number | null
+    incomerGroupingCount: number | null
     projectId: string
     createdAt: Date
     updatedAt: Date
@@ -1585,6 +1897,13 @@ export interface BuildingFieldRefs {
   readonly supplyVoltage: Prisma.FieldRef<"Building", 'String'>
   readonly earthingSystem: Prisma.FieldRef<"Building", 'String'>
   readonly lightningProtection: Prisma.FieldRef<"Building", 'Boolean'>
+  readonly incomerCableSize: Prisma.FieldRef<"Building", 'String'>
+  readonly incomerCableLength: Prisma.FieldRef<"Building", 'Float'>
+  readonly incomerInstallMethod: Prisma.FieldRef<"Building", 'String'>
+  readonly incomerCableInsulation: Prisma.FieldRef<"Building", 'String'>
+  readonly incomerCableMaterial: Prisma.FieldRef<"Building", 'String'>
+  readonly incomerAmbientTemp: Prisma.FieldRef<"Building", 'Float'>
+  readonly incomerGroupingCount: Prisma.FieldRef<"Building", 'Int'>
   readonly projectId: Prisma.FieldRef<"Building", 'String'>
   readonly createdAt: Prisma.FieldRef<"Building", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Building", 'DateTime'>

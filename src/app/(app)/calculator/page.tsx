@@ -571,7 +571,7 @@ function CalculatorContent() {
                             <tr key={item.id} className="hover:bg-gray-800/30">
                               <td className="text-center">
                                 <Icon size={12} className="text-gray-500 inline mr-1" />
-                                <span className="text-xs text-gray-400">{item.type.replace('_', ' ')}</span>
+                                <span className="text-xs text-gray-400">{t(`loadTypes.${item.type}`, item.type.replace('_', ' '))}</span>
                                 {item.loadLibraryItem && (
                                   <span className="text-[10px] text-gray-600 ml-1">({item.loadLibraryItem.category})</span>
                                 )}
@@ -588,7 +588,7 @@ function CalculatorContent() {
                                     <button
                                       onClick={() => handleUpdateAssignedPhase(item.id, null)}
                                       className={`px-1.5 py-0.5 text-[10px] rounded font-mono ${item.assignedPhase === null ? 'bg-yellow-600 text-white' : 'bg-gray-800 text-gray-500 hover:text-gray-300'}`}
-                                      title="Auto-assign phase"
+                                      title={t('calculator.autoAssignPhase', 'Auto-assign phase')}
                                     >A</button>
                                     {[1, 2, 3].map((p) => {
                                       const isAutoSelected = item.assignedPhase === null && resolvedPhase === p;
@@ -598,7 +598,7 @@ function CalculatorContent() {
                                           key={p}
                                           onClick={() => handleUpdateAssignedPhase(item.id, p)}
                                           className={`px-1.5 py-0.5 text-[10px] rounded font-mono ${isAutoSelected ? 'bg-yellow-600 text-white' : isManualSelected ? 'bg-orange-600 text-white' : 'bg-gray-800 text-gray-500 hover:text-gray-300'}`}
-                                          title={isAutoSelected ? `Auto-assigned to L${p}` : `Pin to L${p}`}
+                                          title={isAutoSelected ? t('calculator.autoAssignedPhase', `Auto-assigned to L${p}`, { phase: p }) : t('calculator.pinToPhase', `Pin to L${p}`, { phase: p })}
                                         >L{p}</button>
                                       );
                                     })}
@@ -735,12 +735,12 @@ function CalculatorContent() {
                               </div>
                             ) : (
                               <>
-                                <div className="flex-1 min-w-[240px]">
+                                <div className="flex-1 min-w-[200px]">
                                   <label className="flex items-center gap-1 text-[11px] font-medium text-gray-400 mb-1.5">
-                                    Template
+                                    {t('calculator.template', 'Template')}
                                     <InfoTooltip
-                                      label="Apartment Template"
-                                      helper="Choose a saved apartment template. Its connected load and max demand are calculated from room areas, load densities, and AC units."
+                                      label={t('apartment.template', 'Apartment Template')}
+                                      helper={t('calculator.templateHelper', 'Choose a saved apartment template. Its connected load and max demand are calculated from room areas, load densities, and AC units.')}
                                     />
                                   </label>
                                   <select
@@ -755,7 +755,7 @@ function CalculatorContent() {
                                     }}
                                     className="dense-input w-full rounded-md border-gray-700 bg-gray-800 text-xs py-1.5"
                                   >
-                                    <option value="">Select template…</option>
+                                    <option value="">{t('calculator.selectTemplate', 'Select template…')}</option>
                                     {project.apartmentTemplates.map((t) => {
                                       const totalArea = t.rooms?.reduce((sum, r) => sum + r.area, 0) || 0;
                                       const totalLoad = t.rooms?.reduce((sum, r) => sum + r.connectedLoad, 0) || 0;
@@ -768,7 +768,7 @@ function CalculatorContent() {
                                   </select>
                                 </div>
                                 <div className="w-56 shrink-0">
-                                  <label className="block text-[11px] font-medium text-gray-400 mb-1.5">Name / Label</label>
+                                  <label className="block text-[11px] font-medium text-gray-400 mb-1.5">{t('calculator.nameLabel', 'Name / Label')}</label>
                                   <input
                                     value={addForm.name}
                                     onChange={(e) => setAddForm({ ...addForm, name: e.target.value })}
@@ -783,10 +783,10 @@ function CalculatorContent() {
                           <>
                             <div className="flex-1 min-w-[200px]">
                               <label className="flex items-center gap-1 text-[11px] font-medium text-gray-400 mb-1.5">
-                                Source
+                                {t('calculator.source', 'Source')}
                                 <InfoTooltip
-                                  label="Load Source"
-                                  helper="Pick a predefined load from the library, or choose Custom kW to enter a one-off power value for a service panel, pump, or elevator."
+                                  label={t('calculator.loadSource', 'Load Source')}
+                                  helper={t('calculator.loadSourceHelper', 'Pick a predefined load from the library, or choose Custom kW to enter a one-off power value for a service panel, pump, or elevator.')}
                                 />
                               </label>
                               <select
@@ -805,9 +805,9 @@ function CalculatorContent() {
                                 }}
                                 className="dense-input w-full rounded-md border-gray-700 bg-gray-800 text-xs py-1.5"
                               >
-                                <option value="_custom">Custom kW…</option>
+                                <option value="_custom">{t('calculator.customKwOption', 'Custom kW…')}</option>
                                 {project.loadLibraryItems.length > 0 && (
-                                  <optgroup label="From Library">
+                                  <optgroup label={t('calculator.fromLibrary', 'From Library')}>
                                     {project.loadLibraryItems.map((l) => (
                                       <option key={l.id} value={l.id}>
                                         {l.name} — {l.power}kW ({l.category})
@@ -818,7 +818,7 @@ function CalculatorContent() {
                               </select>
                             </div>
                             <div className="flex-1 min-w-[160px]">
-                              <label className="block text-[11px] font-medium text-gray-400 mb-1.5">Name / Label</label>
+                              <label className="block text-[11px] font-medium text-gray-400 mb-1.5">{t('calculator.nameLabel', 'Name / Label')}</label>
                               <input
                                 value={addForm.name}
                                 onChange={(e) => setAddForm({ ...addForm, name: e.target.value })}
@@ -829,10 +829,10 @@ function CalculatorContent() {
                             {!addForm.loadLibraryItemId && (
                               <div className="w-28 shrink-0">
                                 <label className="flex items-center gap-1 text-[11px] font-medium text-gray-400 mb-1.5">
-                                  Power (kW)
+                                  {t('calculator.powerKw', 'Power (kW)')}
                                   <InfoTooltip
-                                    label="Custom Power"
-                                    helper="Enter the installed active power in kilowatts. The calculator applies power factor and demand factor to calculate the demand and current."
+                                    label={t('calculator.customPower', 'Custom Power')}
+                                    helper={t('calculator.customPowerHelper', 'Enter the installed active power in kilowatts. The calculator applies power factor and demand factor to calculate the demand and current.')}
                                   />
                                 </label>
                                 <input
@@ -851,13 +851,13 @@ function CalculatorContent() {
                             onClick={() => handleAddItem(fd.id)}
                             className="px-4 py-1.5 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-xs font-semibold shadow-sm transition-colors cursor-pointer"
                           >
-                            Add
+                            {t('common.add', 'Add')}
                           </button>
                           <button
                             onClick={() => setShowAddItem(null)}
                             className="px-3 py-1.5 rounded-lg bg-gray-800 hover:bg-gray-700 border border-gray-700 text-gray-300 text-xs transition-colors cursor-pointer"
                           >
-                            Cancel
+                            {t('common.cancel', 'Cancel')}
                           </button>
                         </div>
                       </div>
@@ -877,7 +877,10 @@ function CalculatorContent() {
                           <div className="mt-2.5 p-2.5 rounded-lg bg-gray-950/80 border border-gray-800">
                             <div className="flex flex-wrap items-center gap-3 text-xs">
                               <span className="font-semibold text-gray-300">
-                                {selectedTpl.rooms.length} rooms · {totalArea.toFixed(0)}m²
+                                {t('calculator.roomsSummary', `${selectedTpl.rooms.length} rooms · ${totalArea.toFixed(0)}m²`, {
+                                  count: selectedTpl.rooms.length,
+                                  area: totalArea.toFixed(0),
+                                })}
                               </span>
                               <span className="text-orange-400 font-mono font-bold">
                                 {(totalLoad / 1000).toFixed(2)} kVA
@@ -902,7 +905,7 @@ function CalculatorContent() {
                         className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gray-800 hover:bg-gray-700 text-xs text-gray-400 hover:text-orange-400 transition-colors"
                       >
                         <Plus size={12} />
-                        Add Item
+                        {t('calculator.addItem', 'Add Item')}
                       </button>
                       {fd.items.some(i => i.type === 'APARTMENT') && (
                         <button
@@ -910,7 +913,7 @@ function CalculatorContent() {
                           className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gray-800 hover:bg-gray-700 text-xs text-gray-400 hover:text-blue-400 transition-colors"
                         >
                           <RefreshCw size={12} />
-                          Recalculate
+                          {t('calculator.recalculate', 'Recalculate')}
                         </button>
                       )}
                       {fd.items.length > 0 && (
@@ -919,7 +922,7 @@ function CalculatorContent() {
                           className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gray-800 hover:bg-gray-700 text-xs text-gray-400 hover:text-orange-400 transition-colors"
                         >
                           <ArrowUpDown size={12} />
-                          Re-balance
+                          {t('calculator.rebalance', 'Re-balance')}
                         </button>
                       )}
                       {fd.items.length > 0 && bldg.floorDesigns.length > 1 && (
@@ -931,7 +934,7 @@ function CalculatorContent() {
                           className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gray-800 hover:bg-gray-700 text-xs text-gray-400 hover:text-blue-400 transition-colors"
                         >
                           <Copy size={12} />
-                          Copy to Floors
+                          {t('calculator.copyToFloors', 'Copy to Floors')}
                         </button>
                       )}
                     </div>
@@ -941,7 +944,11 @@ function CalculatorContent() {
                   {copySourceFloor === fd.id && (
                     <div className="rounded-lg border border-blue-500/30 bg-gray-800/50 p-3 space-y-3 w-full">
                       <div className="flex items-center justify-between">
-                        <h4 className="text-xs font-semibold text-gray-400">Copy {fd.items.length} item{fd.items.length !== 1 ? 's' : ''} from F{fd.floorNumber} to:</h4>
+                        <h4 className="text-xs font-semibold text-gray-400">
+                          {fd.items.length === 1
+                            ? t('calculator.copyItemsPrompt', `Copy ${fd.items.length} item from F${fd.floorNumber} to:`, { count: fd.items.length, floor: fd.floorNumber })
+                            : t('calculator.copyItemsPrompt_plural', `Copy ${fd.items.length} items from F${fd.floorNumber} to:`, { count: fd.items.length, floor: fd.floorNumber })}
+                        </h4>
                         <div className="flex items-center gap-2">
                           <button
                             type="button"
@@ -951,9 +958,13 @@ function CalculatorContent() {
                             }}
                             className="text-xs text-orange-400 hover:text-orange-300 font-medium"
                           >
-                            {copyTargetFloors.length === bldg.floorDesigns.filter((other) => other.id !== fd.id).length ? 'Deselect All' : 'Select All'}
+                            {copyTargetFloors.length === bldg.floorDesigns.filter((other) => other.id !== fd.id).length
+                              ? t('calculator.deselectAll', 'Deselect All')
+                              : t('calculator.selectAll', 'Select All')}
                           </button>
-                          <button onClick={() => setCopySourceFloor(null)} className="text-xs text-gray-500 hover:text-gray-300">Cancel</button>
+                          <button onClick={() => setCopySourceFloor(null)} className="text-xs text-gray-500 hover:text-gray-300">
+                            {t('common.cancel', 'Cancel')}
+                          </button>
                         </div>
                       </div>
                       <div className="leading-8">
@@ -1003,13 +1014,15 @@ function CalculatorContent() {
                           disabled={copyTargetFloors.length === 0 || copying}
                           className="px-4 py-1.5 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-xs font-semibold disabled:opacity-50"
                         >
-                          {copying ? 'Copying…' : `Copy to ${copyTargetFloors.length} floor${copyTargetFloors.length !== 1 ? 's' : ''}`}
+                          {copying
+                            ? t('calculator.copying', 'Copying…')
+                            : t('calculator.copyToCountFloors', `Copy to ${copyTargetFloors.length} floors`, { count: copyTargetFloors.length })}
                         </button>
                         <button
                           onClick={() => setCopySourceFloor(null)}
                           className="px-4 py-1.5 rounded-lg bg-gray-700 text-gray-300 text-xs"
                         >
-                          Cancel
+                          {t('common.cancel', 'Cancel')}
                         </button>
                       </div>
                     </div>

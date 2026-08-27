@@ -706,15 +706,15 @@ export default function BreakerSchedulePage() {
       {Object.entries(grouped).map(([type, items]) => (
         <div key={type} className="rounded-xl border border-gray-800 bg-gray-900/40 p-4">
           <div className="flex items-center justify-between mb-3">
-            <h3 className="text-sm font-bold text-orange-400">{type.replace('_', ' ')}</h3>
-            <span className="text-xs text-gray-400 font-mono">{items.length} breakers</span>
+            <h3 className="text-sm font-bold text-orange-400">{t(`loadTypes.${type}`, type.replace('_', ' '))}</h3>
+            <span className="text-xs text-gray-400 font-mono">{t('breakerSchedule.breakersCount', '{{count}} breakers', { count: items.length })}</span>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full engineering-table text-xs">
               <thead>
                 <tr>
                   <th className="text-center">{t('cableSchedule.load', 'Feeder')}</th>
-                  <th className="text-center">Upstream Parent</th>
+                  <th className="text-center">{t('breakerSchedule.upstreamParent', 'Upstream Parent')}</th>
                   <th className="text-center">{t('calculator.floor', 'Floor')}</th>
                   <th className="text-center">{t('cableSchedule.current', 'Current (A)')}</th>
                   <th className="text-center">
@@ -727,24 +727,24 @@ export default function BreakerSchedulePage() {
                     </div>
                   </th>
                   <th className="text-center">{t('breakerSchedule.title', 'Breaker Model')}</th>
-                  <th className="text-center">Isc (kA)</th>
+                  <th className="text-center">{t('breakerSchedule.iscKa', 'Isc (kA)')}</th>
                   <th data-tour="breaker-selectivity-col" className="text-center">
                     <div className="flex items-center justify-center gap-1">
-                      <span>Selectivity</span>
+                      <span>{t('breakerSchedule.selectivity', 'Selectivity')}</span>
                       <InfoTooltip
                         label="Protection Selectivity"
                         helper={t('breakerGuide.tooltipSelectivity', 'IEC 60947-2 discrimination. FULL indicates upstream and downstream trip curves will not overlap under branch short-circuit faults.')}
                       />
                     </div>
                   </th>
-                  <th className="text-center">TCC Plot</th>
+                  <th className="text-center">{t('breakerSchedule.tccPlot', 'TCC Plot')}</th>
                 </tr>
               </thead>
               <tbody>
                 {items.map((b) => (
                   <tr key={b.id} className="hover:bg-gray-800/30">
                     <td className="text-center text-gray-200 font-semibold">{b.name}</td>
-                    <td className="text-center text-gray-400 text-xs font-mono">{b.parentFeederName ?? 'Main Incomer'}</td>
+                    <td className="text-center text-gray-400 text-xs font-mono">{b.parentFeederName ?? t('breakers.mainIncomer', 'Main Incomer')}</td>
                     <td className="text-center font-mono text-orange-400">F{b.floor}</td>
                     <td className="text-center font-mono">
                       <TraceableCell
@@ -807,7 +807,7 @@ export default function BreakerSchedulePage() {
                               className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-blue-500/10 text-blue-400 border border-blue-500/20"
                               title={`Rating ${b.breakerSize}A not available in selected family; sourced from ${b.familyName ?? 'other family'}.`}
                             >
-                              Other Family: {b.familyName}
+                              {t('breakerSchedule.otherFamily', 'Other Family: {{name}}', { name: b.familyName })}
                             </span>
                           )}
                           {b.fallbackType === 'OTHER_BRAND' && (
@@ -815,7 +815,7 @@ export default function BreakerSchedulePage() {
                               className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20"
                               title={`Rating ${b.breakerSize}A not available in preferred brand; cross-brand fallback to ${b.manufacturer}.`}
                             >
-                              Alt Brand: {b.manufacturer}
+                              {t('breakerSchedule.altBrand', 'Alt Brand: {{name}}', { name: b.manufacturer })}
                             </span>
                           )}
                           {b.fallbackType === 'GENERIC_SPEC' && (
@@ -823,7 +823,7 @@ export default function BreakerSchedulePage() {
                               className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-purple-500/10 text-purple-300 border border-purple-500/20"
                               title={b.genericSpec?.procurementNotes ?? `Generic ${b.breakerSize}A specification for purchasing`}
                             >
-                              Generic Spec
+                              {t('breakerSchedule.genericSpecBadge', 'Generic Spec')}
                             </span>
                           )}
                         </div>
@@ -854,21 +854,21 @@ export default function BreakerSchedulePage() {
                       <div className="flex flex-col items-center gap-1">
                         {b.selectivityStatus === 'FULL' ? (
                           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-green-500/10 text-green-400 border border-green-500/20">
-                            <CheckCircle2 size={11} /> FULL
+                            <CheckCircle2 size={11} /> {t('breakerSchedule.fullSelectivity', 'FULL')}
                           </span>
                         ) : b.selectivityStatus === 'PARTIAL' ? (
                           <span
                             className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-yellow-500/10 text-yellow-400 border border-yellow-500/20"
                             title={`Selective up to ${b.selectivityLimitKa ? `${b.selectivityLimitKa} kA` : 'limited current'}`}
                           >
-                            <AlertTriangle size={11} /> PARTIAL {b.selectivityLimitKa ? `(${b.selectivityLimitKa}k)` : ''}
+                            <AlertTriangle size={11} /> {t('breakerSchedule.partialSelectivity', 'PARTIAL')} {b.selectivityLimitKa ? `(${b.selectivityLimitKa}k)` : ''}
                           </span>
                         ) : (
                           <span
                             className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-red-500/10 text-red-400 border border-red-500/20"
                             title={b.selectivityReason ?? 'Selectivity violated'}
                           >
-                            <XCircle size={11} /> NONE
+                            <XCircle size={11} /> {t('breakerSchedule.noneSelectivity', 'NONE')}
                           </span>
                         )}
                         {b.suggestedAlternative && (

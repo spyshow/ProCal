@@ -139,10 +139,10 @@ export function QAReviewDrawer({ pageKey, pageTitle }: QAReviewDrawerProps) {
         <button
           onClick={() => setIsOpen(true)}
           className="group flex items-center justify-center gap-2 w-[142px] h-[40px] px-3.5 py-2 rounded-full bg-slate-900/95 hover:bg-slate-800 text-slate-200 border border-slate-700/80 shadow-lg shadow-black/40 hover:shadow-orange-500/10 hover:border-orange-500/50 transition-all duration-200 transform hover:scale-105 active:scale-95 text-xs font-semibold backdrop-blur-md focus:outline-none focus:ring-2 focus:ring-orange-400"
-          title={t("rbac.qaReviewNotes", "QA Review Notes")}
+          title={t("qa.qaReviewNotes", "QA Review Notes")}
         >
           <ClipboardCheck size={17} className="text-orange-400 group-hover:scale-110 transition-transform shrink-0" />
-          <span className="whitespace-nowrap font-medium text-xs">{t("rbac.qaNotes", "QA Notes")}</span>
+          <span className="whitespace-nowrap font-medium text-xs">{t("qa.qaNotes", "QA Notes")}</span>
           {openCount > 0 && (
             <span className="w-4 h-4 rounded-full bg-orange-500 text-white text-[10px] font-bold flex items-center justify-center animate-pulse shrink-0 ml-0.5">
               {openCount}

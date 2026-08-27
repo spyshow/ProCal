@@ -44,6 +44,7 @@ export async function POST(
       success: true,
       emailDelivered: sendRes.ok,
       acceptUrl,
+      emailError: !sendRes.ok ? sendRes.error : undefined,
     });
   } catch (error) {
     console.error("POST Resend Invite Error:", error);

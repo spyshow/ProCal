@@ -54,6 +54,9 @@ export async function GET(
       isOwner: auth.project.userId === m.userId,
     }));
 
+    const host = request.headers.get("x-forwarded-host") || request.headers.get("host") || "localhost:3000";
+    const protocol = request.headers.get("x-forwarded-proto") || (host.includes("localhost") ? "http" : "https");
+
     const formattedInvites = invites.map((inv) => ({
       id: inv.id,
       email: inv.email,
@@ -65,6 +68,7 @@ export async function GET(
       expiresAt: inv.expiresAt,
       createdAt: inv.createdAt,
       invitedBy: inv.invitedBy.name || inv.invitedBy.username,
+      acceptUrl: `${protocol}://${host}/invite/accept?token=${inv.token}`,
     }));
 
     return NextResponse.json({
@@ -267,6 +271,7 @@ export async function POST(
         acceptUrl,
       },
       emailDelivered: sendRes.ok,
+      emailError: !sendRes.ok ? sendRes.error : undefined,
     });
   } catch (error) {
     console.error("POST Project Member Invite Error:", error);

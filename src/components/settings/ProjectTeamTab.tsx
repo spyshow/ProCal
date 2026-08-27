@@ -17,6 +17,7 @@ import {
   Send,
   Edit2,
   Lock,
+  Copy,
 } from "lucide-react";
 import { useProject } from "@/context/ProjectContext";
 import { useTranslation } from "@/i18n";
@@ -39,7 +40,22 @@ export function ProjectTeamTab() {
   const [totalSeats, setTotalSeats] = useState(5);
   const [usedSeats, setUsedSeats] = useState(1);
   const [loading, setLoading] = useState(true);
-  const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+  const [message, setMessage] = useState<{ type: "success" | "error"; text: string; link?: string } | null>(null);
+  const [copiedInviteId, setCopiedInviteId] = useState<string | null>(null);
+
+  const handleCopyInviteLink = (url?: string, inviteId?: string) => {
+    if (!url) return;
+    navigator.clipboard.writeText(url);
+    if (inviteId) {
+      setCopiedInviteId(inviteId);
+      setTimeout(() => setCopiedInviteId(null), 2500);
+    }
+    setMessage({
+      type: "success",
+      text: t('team.linkCopied', 'Invitation link copied to clipboard!'),
+      link: url,
+    });
+  };
 
   // Invite Modal State
   const [inviteModalOpen, setInviteModalOpen] = useState(false);
@@ -144,12 +160,21 @@ export function ProjectTeamTab() {
 
       const data = await res.json();
       if (res.ok) {
-        setMessage({
-          type: "success",
-          text: data.emailDelivered
-            ? `Invitation sent successfully to ${inviteEmail}`
-            : `Invitation created. (Link: ${data.invite?.acceptUrl})`,
-        });
+        const acceptLink = data.invite?.acceptUrl;
+        if (data.emailDelivered) {
+          setMessage({
+            type: "success",
+            text: `${t('team.inviteSentSuccess', 'Invitation sent successfully to')} ${inviteEmail}`,
+            link: acceptLink,
+          });
+        } else {
+          const detail = data.emailError ? ` (${data.emailError})` : "";
+          setMessage({
+            type: "success",
+            text: `${t('team.inviteRefreshedNote', 'Invitation created')}${detail}.`,
+            link: acceptLink,
+          });
+        }
         setInviteModalOpen(false);
         setInviteUsername("");
         setInviteName("");
@@ -225,9 +250,25 @@ export function ProjectTeamTab() {
       const res = await fetch(`/api/projects/${selectedProjectId}/invites/${inviteId}`, {
         method: "POST",
       });
+      const data = await res.json();
       if (res.ok) {
-        setMessage({ type: "success", text: "Invitation resent successfully" });
+        if (data.emailDelivered) {
+          setMessage({
+            type: "success",
+            text: t('team.inviteResentSuccess', 'Invitation email resent successfully.'),
+            link: data.acceptUrl,
+          });
+        } else {
+          const detail = data.emailError ? ` (${data.emailError})` : "";
+          setMessage({
+            type: "success",
+            text: `${t('team.inviteRefreshedNote', 'Invitation refreshed')}${detail}.`,
+            link: data.acceptUrl,
+          });
+        }
         await loadTeam();
+      } else {
+        setMessage({ type: "error", text: data.error || "Failed to resend invitation" });
       }
     } catch {
       setMessage({ type: "error", text: "Failed to resend invitation" });
@@ -297,14 +338,25 @@ export function ProjectTeamTab() {
       {/* Status Message */}
       {message && (
         <div
-          className={`p-3 rounded-xl text-xs flex items-center gap-2 ${
+          className={`p-3 rounded-xl text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 ${
             message.type === "success"
               ? "bg-emerald-500/10 border border-emerald-500/20 text-emerald-300"
               : "bg-rose-500/10 border border-rose-500/20 text-rose-300"
           }`}
         >
-          <AlertCircle size={14} />
-          <span>{message.text}</span>
+          <div className="flex items-center gap-2 min-w-0">
+            <AlertCircle size={14} className="shrink-0" />
+            <span className="break-words">{message.text}</span>
+          </div>
+          {message.link && (
+            <button
+              onClick={() => handleCopyInviteLink(message.link)}
+              className="shrink-0 flex items-center gap-1.5 px-2.5 py-1 rounded bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-200 border border-emerald-500/30 font-semibold text-[11px] transition-colors cursor-pointer"
+            >
+              <Copy size={12} />
+              <span>{t('team.copyLink', 'Copy Link')}</span>
+            </button>
+          )}
         </div>
       )}
 
@@ -414,15 +466,34 @@ export function ProjectTeamTab() {
 
                 {isProjectManager && (
                   <div className="flex items-center gap-2">
+                    {inv.acceptUrl && (
+                      <button
+                        onClick={() => handleCopyInviteLink(inv.acceptUrl, inv.id)}
+                        className="text-xs text-slate-300 hover:text-white font-medium px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 border border-slate-700 flex items-center gap-1.5 transition-colors cursor-pointer"
+                        title={inv.acceptUrl}
+                      >
+                        {copiedInviteId === inv.id ? (
+                          <>
+                            <Check size={12} className="text-emerald-400" />
+                            <span className="text-emerald-400 font-semibold">{t('common.copied', 'Copied')}</span>
+                          </>
+                        ) : (
+                          <>
+                            <Copy size={12} className="text-slate-400" />
+                            <span>{t('team.copyLink', 'Copy Link')}</span>
+                          </>
+                        )}
+                      </button>
+                    )}
                     <button
                       onClick={() => handleResendInvite(inv.id)}
-                      className="text-xs text-orange-400 hover:text-orange-300 font-medium px-2.5 py-1 rounded bg-orange-500/10 border border-orange-500/20"
+                      className="text-xs text-orange-400 hover:text-orange-300 font-medium px-2.5 py-1 rounded bg-orange-500/10 border border-orange-500/20 cursor-pointer"
                     >
                       {t('team.resendInvite', 'Resend')}
                     </button>
                     <button
                       onClick={() => handleRevokeInvite(inv.id)}
-                      className="text-xs text-slate-400 hover:text-rose-400 p-1"
+                      className="text-xs text-slate-400 hover:text-rose-400 p-1 cursor-pointer"
                     >
                       {t('team.revokeInvite', 'Revoke')}
                     </button>

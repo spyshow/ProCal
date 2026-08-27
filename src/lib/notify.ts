@@ -87,6 +87,8 @@ export async function sendMailUnified(opts: SendMailOptions): Promise<SendResult
     process.env.RESEND_API_KEY ||
     (process.env.SMTP_PASS?.startsWith("re_") ? process.env.SMTP_PASS : undefined);
 
+  let lastError = "Email service not configured";
+
   // 1. Try Resend HTTPS REST API if Resend API Key is configured
   if (apiKey) {
     try {
@@ -112,29 +114,37 @@ export async function sendMailUnified(opts: SendMailOptions): Promise<SendResult
         return { ok: true, messageId: data.id };
       }
 
-      console.warn("[Resend API Response Error, attempting SMTP fallback]:", data);
+      const resendMsg = data?.message || data?.error?.message || (typeof data === "string" ? data : JSON.stringify(data));
+      lastError = `Resend API: ${resendMsg}`;
+      console.warn("[Resend API Response Error]:", resendMsg);
     } catch (apiErr) {
-      console.warn("[Resend API Request Failed, attempting SMTP fallback]:", apiErr);
+      const msg = apiErr instanceof Error ? apiErr.message : "Request failed";
+      lastError = `Resend network error: ${msg}`;
+      console.warn("[Resend API Request Failed]:", apiErr);
     }
   }
 
-  // 2. SMTP Transport via Nodemailer
-  try {
-    const info = await getTransporter().sendMail({
-      from,
-      to: opts.to,
-      replyTo: opts.replyTo,
-      subject: opts.subject,
-      text: opts.text,
-      html: opts.html,
-    });
-    console.log("[SMTP Success] Email sent, messageId:", info.messageId);
-    return { ok: true, messageId: info.messageId };
-  } catch (err) {
-    const error = err instanceof Error ? err.message : "SMTP send failed";
-    console.error("[SMTP Error] Failed to send email:", error);
-    return { ok: false, error };
+  // 2. SMTP Transport via Nodemailer (only if SMTP_HOST or SMTP_USER is explicitly provided)
+  if (process.env.SMTP_HOST || (process.env.SMTP_USER && process.env.SMTP_PASS && !process.env.SMTP_PASS.startsWith("re_"))) {
+    try {
+      const info = await getTransporter().sendMail({
+        from,
+        to: opts.to,
+        replyTo: opts.replyTo,
+        subject: opts.subject,
+        text: opts.text,
+        html: opts.html,
+      });
+      console.log("[SMTP Success] Email sent, messageId:", info.messageId);
+      return { ok: true, messageId: info.messageId };
+    } catch (err) {
+      const error = err instanceof Error ? err.message : "SMTP send failed";
+      console.error("[SMTP Error] Failed to send email:", error);
+      lastError = `SMTP error: ${error}`;
+    }
   }
+
+  return { ok: false, error: lastError };
 }
 
 export async function sendLeadNotification(input: {

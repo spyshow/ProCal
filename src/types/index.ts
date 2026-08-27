@@ -129,6 +129,7 @@ export interface ProjectInvite {
   expiresAt: string;
   createdAt: string;
   invitedBy?: string;
+  acceptUrl?: string;
 }
 
 export interface ProjectAuditLog {

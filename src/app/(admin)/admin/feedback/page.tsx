@@ -24,6 +24,7 @@ import {
   AlertTriangle,
   Send,
   Trash2,
+  Globe,
 } from 'lucide-react';
 import { useTranslation } from '@/i18n';
 
@@ -53,6 +54,30 @@ interface ParsedFeedback {
   projectName?: string;
   errorDetails?: string;
   systemInfo?: string;
+}
+
+interface ParsedSystemInfo {
+  screen?: string;
+  viewport?: string;
+  lang?: string;
+  ua?: string;
+  raw: string;
+}
+
+function parseSystemInfo(raw?: string): ParsedSystemInfo | null {
+  if (!raw) return null;
+  const screenMatch = raw.match(/Screen:\s*([^|]+)/i);
+  const viewportMatch = raw.match(/Viewport:\s*([^|]+)/i);
+  const langMatch = raw.match(/Lang:\s*([^|]+)/i);
+  const uaMatch = raw.match(/UA:\s*(.+)$/i);
+
+  return {
+    raw,
+    screen: screenMatch ? screenMatch[1].trim() : undefined,
+    viewport: viewportMatch ? viewportMatch[1].trim() : undefined,
+    lang: langMatch ? langMatch[1].trim() : undefined,
+    ua: uaMatch ? uaMatch[1].trim() : undefined,
+  };
 }
 
 function parseMessageContent(raw: string, requestedCredits: number | null): ParsedFeedback {
@@ -143,7 +168,14 @@ export default function AdminFeedbackPage() {
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [copiedKey, setCopiedKey] = useState<string | null>(null);
   const [expandedId, setExpandedId] = useState<string | null>(null);
+
+  const handleCopySnippet = (text: string, key: string) => {
+    navigator.clipboard.writeText(text);
+    setCopiedKey(key);
+    setTimeout(() => setCopiedKey(null), 2000);
+  };
 
   const loadLeads = useCallback(async () => {
     setLoading(true);
@@ -560,51 +592,212 @@ export default function AdminFeedbackPage() {
                   </div>
 
                   {/* Attached Diagnostics and Error Details */}
-                  {(parsed.errorDetails || parsed.projectName || parsed.systemInfo) && (
-                    <div className="rounded-xl bg-slate-950/70 border border-slate-800 p-3.5 space-y-2.5">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2 text-xs font-semibold text-slate-300">
-                          <Monitor size={14} className="text-orange-400" />
-                          <span>System & Error Diagnostics</span>
-                        </div>
+                  {(parsed.errorDetails || parsed.projectName || parsed.systemInfo || parsed.pageUrl) && (() => {
+                    const sys = parseSystemInfo(parsed.systemInfo);
+
+                    return (
+                      <div className="rounded-xl bg-slate-950/80 border border-slate-800 transition-all overflow-hidden">
+                        {/* Header Bar */}
                         <button
                           type="button"
                           onClick={() => setExpandedId(isExpanded ? null : lead.id)}
-                          className="text-[11px] text-slate-400 hover:text-slate-200 flex items-center gap-1"
+                          className="w-full p-3.5 flex items-center justify-between hover:bg-slate-900/60 transition-colors text-left"
                         >
-                          <span>{isExpanded ? 'Collapse' : 'Expand Details'}</span>
-                          {isExpanded ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
+                          <div className="flex items-center gap-2 text-xs font-semibold text-slate-200">
+                            <Monitor size={14} className="text-orange-400" />
+                            <span>System & Error Diagnostics</span>
+                            {parsed.errorDetails && (
+                              <span className="px-1.5 py-0.5 rounded text-[10px] bg-red-950/80 text-red-300 border border-red-500/40">
+                                Stack Trace Included
+                              </span>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-1 text-[11px] text-slate-400 hover:text-slate-200">
+                            <span>{isExpanded ? 'Collapse' : 'Expand Details'}</span>
+                            {isExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+                          </div>
                         </button>
-                      </div>
 
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] text-slate-400">
-                        {parsed.projectName && (
-                          <div className="flex items-center gap-1.5">
-                            <FolderGit2 size={13} className="text-cyan-400 shrink-0" />
-                            <span className="text-slate-300 truncate">Project: {parsed.projectName}</span>
+                        {/* Collapsed Summary Preview */}
+                        {!isExpanded && (
+                          <div className="px-3.5 pb-3.5 pt-0 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[11px] text-slate-400 border-t border-slate-800/40 pt-2.5">
+                            {parsed.projectName && (
+                              <div className="flex items-center gap-1.5">
+                                <FolderGit2 size={13} className="text-cyan-400 shrink-0" />
+                                <span className="text-slate-300 truncate max-w-xs">{parsed.projectName}</span>
+                              </div>
+                            )}
+                            {sys?.screen && (
+                              <div className="flex items-center gap-1.5">
+                                <Monitor size={13} className="text-purple-400 shrink-0" />
+                                <span>Screen: {sys.screen}</span>
+                              </div>
+                            )}
+                            {sys?.lang && (
+                              <div className="flex items-center gap-1.5">
+                                <Globe size={13} className="text-emerald-400 shrink-0" />
+                                <span>{sys.lang}</span>
+                              </div>
+                            )}
+                            {parsed.errorDetails && (
+                              <div className="flex items-center gap-1.5 text-red-400 font-mono text-[10px]">
+                                <AlertTriangle size={12} />
+                                <span>Error logged</span>
+                              </div>
+                            )}
                           </div>
                         )}
-                        {parsed.systemInfo && (
-                          <div className="flex items-center gap-1.5 truncate">
-                            <Monitor size={13} className="text-purple-400 shrink-0" />
-                            <span className="text-slate-400 truncate">{parsed.systemInfo}</span>
+
+                        {/* Expanded Detailed View */}
+                        {isExpanded && (
+                          <div className="p-3.5 pt-0 space-y-3.5 border-t border-slate-800/80 mt-1">
+                            {/* Project & Route Info */}
+                            {(parsed.projectName || parsed.projectId || parsed.pageUrl) && (
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-3">
+                                {parsed.projectName && (
+                                  <div className="p-2.5 rounded-lg bg-slate-900/90 border border-slate-800 space-y-1">
+                                    <div className="flex items-center gap-1.5 text-[10px] uppercase font-semibold text-cyan-400">
+                                      <FolderGit2 size={12} />
+                                      <span>Project Context</span>
+                                    </div>
+                                    <div className="text-xs font-semibold text-slate-200">{parsed.projectName}</div>
+                                    {parsed.projectId && (
+                                      <div className="flex items-center justify-between text-[11px] font-mono text-slate-400 pt-0.5">
+                                        <span className="truncate">ID: {parsed.projectId}</span>
+                                        <button
+                                          type="button"
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleCopySnippet(parsed.projectId!, `proj-${lead.id}`);
+                                          }}
+                                          className="text-slate-400 hover:text-white transition-colors"
+                                          title="Copy Project ID"
+                                        >
+                                          {copiedKey === `proj-${lead.id}` ? <Check size={12} className="text-green-400" /> : <Copy size={12} />}
+                                        </button>
+                                      </div>
+                                    )}
+                                  </div>
+                                )}
+
+                                {parsed.pageUrl && (
+                                  <div className="p-2.5 rounded-lg bg-slate-900/90 border border-slate-800 space-y-1">
+                                    <div className="flex items-center gap-1.5 text-[10px] uppercase font-semibold text-orange-400">
+                                      <FileCode2 size={12} />
+                                      <span>Origin Page</span>
+                                    </div>
+                                    <div className="text-xs font-mono text-slate-200 truncate">{parsed.pageUrl}</div>
+                                  </div>
+                                )}
+                              </div>
+                            )}
+
+                            {/* System & Hardware Environment */}
+                            {parsed.systemInfo && (
+                              <div className="p-2.5 rounded-lg bg-slate-900/90 border border-slate-800 space-y-2">
+                                <div className="flex items-center justify-between">
+                                  <div className="flex items-center gap-1.5 text-[10px] uppercase font-semibold text-purple-400">
+                                    <Monitor size={12} />
+                                    <span>Client Device & Environment</span>
+                                  </div>
+                                  <button
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleCopySnippet(parsed.systemInfo!, `sys-${lead.id}`);
+                                    }}
+                                    className="flex items-center gap-1 text-[11px] text-slate-400 hover:text-white transition-colors"
+                                    title="Copy full system info"
+                                  >
+                                    {copiedKey === `sys-${lead.id}` ? (
+                                      <>
+                                        <Check size={12} className="text-green-400" />
+                                        <span className="text-green-400">Copied</span>
+                                      </>
+                                    ) : (
+                                      <>
+                                        <Copy size={12} />
+                                        <span>Copy Info</span>
+                                      </>
+                                    )}
+                                  </button>
+                                </div>
+
+                                {sys && (
+                                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-[11px]">
+                                    {sys.screen && (
+                                      <div className="p-2 rounded bg-slate-950/80 border border-slate-800/80">
+                                        <span className="text-slate-400 block text-[10px]">Screen</span>
+                                        <span className="text-slate-200 font-mono font-medium">{sys.screen}</span>
+                                      </div>
+                                    )}
+                                    {sys.viewport && (
+                                      <div className="p-2 rounded bg-slate-950/80 border border-slate-800/80">
+                                        <span className="text-slate-400 block text-[10px]">Viewport</span>
+                                        <span className="text-slate-200 font-mono font-medium">{sys.viewport}</span>
+                                      </div>
+                                    )}
+                                    {sys.lang && (
+                                      <div className="p-2 rounded bg-slate-950/80 border border-slate-800/80">
+                                        <span className="text-slate-400 block text-[10px]">Language</span>
+                                        <span className="text-slate-200 font-mono font-medium">{sys.lang}</span>
+                                      </div>
+                                    )}
+                                  </div>
+                                )}
+
+                                {sys?.ua && (
+                                  <div className="text-[11px] font-mono text-slate-400 bg-slate-950/80 p-2 rounded border border-slate-800/80 break-all leading-snug">
+                                    <span className="text-slate-400 block text-[10px] font-sans mb-0.5">User Agent:</span>
+                                    {sys.ua}
+                                  </div>
+                                )}
+                              </div>
+                            )}
+
+                            {/* Technical Error Stack Trace */}
+                            {parsed.errorDetails ? (
+                              <div className="space-y-1.5">
+                                <div className="flex items-center justify-between">
+                                  <span className="text-[10px] uppercase tracking-wider text-red-400 font-semibold flex items-center gap-1.5">
+                                    <AlertTriangle size={12} /> Technical Error Log & Stack Trace
+                                  </span>
+                                  <button
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleCopySnippet(parsed.errorDetails!, `err-${lead.id}`);
+                                    }}
+                                    className="flex items-center gap-1 text-[11px] text-red-400 hover:text-red-300"
+                                  >
+                                    {copiedKey === `err-${lead.id}` ? (
+                                      <>
+                                        <Check size={12} className="text-green-400" />
+                                        <span className="text-green-400">Copied</span>
+                                      </>
+                                    ) : (
+                                      <>
+                                        <Copy size={12} />
+                                        <span>Copy Log</span>
+                                      </>
+                                    )}
+                                  </button>
+                                </div>
+                                <pre className="p-3 rounded-lg bg-black/80 border border-red-900/60 text-red-300 font-mono text-[11px] overflow-x-auto whitespace-pre-wrap max-h-60 custom-scrollbar">
+                                  {parsed.errorDetails}
+                                </pre>
+                              </div>
+                            ) : (
+                              <div className="text-[11px] text-slate-400 bg-slate-900/40 p-2.5 rounded-lg border border-slate-800/60 flex items-center gap-2">
+                                <CheckCircle2 size={13} className="text-slate-400 shrink-0" />
+                                <span>No automated JavaScript runtime error logged with this report.</span>
+                              </div>
+                            )}
                           </div>
                         )}
                       </div>
-
-                      {/* Expandable Technical Trace */}
-                      {isExpanded && parsed.errorDetails && (
-                        <div className="pt-2 border-t border-slate-800 space-y-1">
-                          <span className="text-[10px] uppercase tracking-wider text-red-400 font-semibold flex items-center gap-1">
-                            <AlertTriangle size={11} /> Technical Error Log
-                          </span>
-                          <pre className="p-3 rounded-lg bg-black/60 border border-red-950 text-red-300 font-mono text-[11px] overflow-x-auto whitespace-pre-wrap">
-                            {parsed.errorDetails}
-                          </pre>
-                        </div>
-                      )}
-                    </div>
-                  )}
+                    );
+                  })()}
                 </div>
               </div>
             );

@@ -21699,7 +21699,7 @@
       "_origin": "ast",
       "id": "src_app_api_templates_id_route_roominput",
       "community": 34,
-      "community_name": "errorResponse",
+      "community_name": "verifyProjectAccess",
       "norm_label": "roominput"
     },
     {
@@ -21712,7 +21712,7 @@
       "_origin": "ast",
       "id": "src_app_api_templates_route_roominput",
       "community": 34,
-      "community_name": "errorResponse",
+      "community_name": "verifyProjectAccess",
       "norm_label": "roominput"
     },
     {
@@ -21725,7 +21725,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_validate_calculationerror",
       "community": 34,
-      "community_name": "errorResponse",
+      "community_name": "verifyProjectAccess",
       "norm_label": "calculationerror"
     },
     {
@@ -34522,6 +34522,30 @@
       "norm_label": "main()"
     },
     {
+      "label": "POST()",
+      "file_type": "code",
+      "source_file": "src/app/api/buildings/route.ts",
+      "source_location": "L5",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_app_api_buildings_route_post",
+      "community": 161,
+      "community_name": "project-auth.ts",
+      "norm_label": "post()"
+    },
+    {
+      "label": "POST()",
+      "file_type": "code",
+      "source_file": "src/app/api/floors/[id]/rebalance/route.ts",
+      "source_location": "L12",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_app_api_floors_id_rebalance_route_post",
+      "community": 161,
+      "community_name": "project-auth.ts",
+      "norm_label": "post()"
+    },
+    {
       "label": "DELETE()",
       "file_type": "code",
       "source_file": "src/app/api/projects/[id]/members/[memberId]/route.ts",
@@ -36334,174 +36358,6 @@
       "norm_label": ".test_get_installed_components_with_files()"
     },
     {
-      "label": "DELETE()",
-      "file_type": "code",
-      "source_file": "src/app/api/building-loads/[id]/route.ts",
-      "source_location": "L64",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_app_api_building_loads_id_route_delete",
-      "community": 187,
-      "community_name": "verifyProjectAccess",
-      "norm_label": "delete()"
-    },
-    {
-      "label": "PATCH()",
-      "file_type": "code",
-      "source_file": "src/app/api/building-loads/[id]/route.ts",
-      "source_location": "L7",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_app_api_building_loads_id_route_patch",
-      "community": 187,
-      "community_name": "verifyProjectAccess",
-      "norm_label": "patch()"
-    },
-    {
-      "label": "DELETE()",
-      "file_type": "code",
-      "source_file": "src/app/api/buildings/[id]/route.ts",
-      "source_location": "L168",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_app_api_buildings_id_route_delete",
-      "community": 187,
-      "community_name": "verifyProjectAccess",
-      "norm_label": "delete()"
-    },
-    {
-      "label": "GET()",
-      "file_type": "code",
-      "source_file": "src/app/api/buildings/[id]/route.ts",
-      "source_location": "L6",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_app_api_buildings_id_route_get",
-      "community": 187,
-      "community_name": "verifyProjectAccess",
-      "norm_label": "get()"
-    },
-    {
-      "label": "PATCH()",
-      "file_type": "code",
-      "source_file": "src/app/api/buildings/[id]/route.ts",
-      "source_location": "L114",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_app_api_buildings_id_route_patch",
-      "community": 187,
-      "community_name": "verifyProjectAccess",
-      "norm_label": "patch()"
-    },
-    {
-      "label": "PUT()",
-      "file_type": "code",
-      "source_file": "src/app/api/buildings/[id]/route.ts",
-      "source_location": "L34",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_app_api_buildings_id_route_put",
-      "community": 187,
-      "community_name": "verifyProjectAccess",
-      "norm_label": "put()"
-    },
-    {
-      "label": "patchBuilding()",
-      "file_type": "code",
-      "source_file": "src/app/api/buildings/[id]/route.test.ts",
-      "source_location": "L31",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_app_api_buildings_id_route_test_patchbuilding",
-      "community": 187,
-      "community_name": "verifyProjectAccess",
-      "norm_label": "patchbuilding()"
-    },
-    {
-      "label": "putBuilding()",
-      "file_type": "code",
-      "source_file": "src/app/api/buildings/[id]/route.test.ts",
-      "source_location": "L43",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_app_api_buildings_id_route_test_putbuilding",
-      "community": 187,
-      "community_name": "verifyProjectAccess",
-      "norm_label": "putbuilding()"
-    },
-    {
-      "label": "POST()",
-      "file_type": "code",
-      "source_file": "src/app/api/buildings/route.ts",
-      "source_location": "L5",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_app_api_buildings_route_post",
-      "community": 187,
-      "community_name": "verifyProjectAccess",
-      "norm_label": "post()"
-    },
-    {
-      "label": "DELETE()",
-      "file_type": "code",
-      "source_file": "src/app/api/floor-items/[id]/route.ts",
-      "source_location": "L63",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_app_api_floor_items_id_route_delete",
-      "community": 187,
-      "community_name": "verifyProjectAccess",
-      "norm_label": "delete()"
-    },
-    {
-      "label": "PATCH()",
-      "file_type": "code",
-      "source_file": "src/app/api/floor-items/[id]/route.ts",
-      "source_location": "L7",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_app_api_floor_items_id_route_patch",
-      "community": 187,
-      "community_name": "verifyProjectAccess",
-      "norm_label": "patch()"
-    },
-    {
-      "label": "deleteFloorItem()",
-      "file_type": "code",
-      "source_file": "src/app/api/floor-items/[id]/route.test.ts",
-      "source_location": "L41",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_app_api_floor_items_id_route_test_deleteflooritem",
-      "community": 187,
-      "community_name": "verifyProjectAccess",
-      "norm_label": "deleteflooritem()"
-    },
-    {
-      "label": "patchFloorItem()",
-      "file_type": "code",
-      "source_file": "src/app/api/floor-items/[id]/route.test.ts",
-      "source_location": "L29",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_app_api_floor_items_id_route_test_patchflooritem",
-      "community": 187,
-      "community_name": "verifyProjectAccess",
-      "norm_label": "patchflooritem()"
-    },
-    {
-      "label": "POST()",
-      "file_type": "code",
-      "source_file": "src/app/api/floors/[id]/rebalance/route.ts",
-      "source_location": "L12",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_app_api_floors_id_rebalance_route_post",
-      "community": 187,
-      "community_name": "verifyProjectAccess",
-      "norm_label": "post()"
-    },
-    {
       "label": "PATCH()",
       "file_type": "code",
       "source_file": "src/app/api/floors/[id]/route.ts",
@@ -36510,7 +36366,7 @@
       "_origin": "ast",
       "id": "src_app_api_floors_id_route_patch",
       "community": 187,
-      "community_name": "verifyProjectAccess",
+      "community_name": "floors/[id]/route.ts",
       "norm_label": "patch()"
     },
     {
@@ -36522,7 +36378,7 @@
       "_origin": "ast",
       "id": "src_app_api_floors_id_route_put",
       "community": 187,
-      "community_name": "verifyProjectAccess",
+      "community_name": "floors/[id]/route.ts",
       "norm_label": "put()"
     },
     {
@@ -36534,7 +36390,7 @@
       "_origin": "ast",
       "id": "src_app_api_floors_id_route_test_patchfloor",
       "community": 187,
-      "community_name": "verifyProjectAccess",
+      "community_name": "floors/[id]/route.ts",
       "norm_label": "patchfloor()"
     },
     {
@@ -36546,7 +36402,7 @@
       "_origin": "ast",
       "id": "src_app_api_floors_id_route_test_putfloor",
       "community": 187,
-      "community_name": "verifyProjectAccess",
+      "community_name": "floors/[id]/route.ts",
       "norm_label": "putfloor()"
     },
     {
@@ -36558,7 +36414,7 @@
       "_origin": "ast",
       "id": "src_app_api_projects_id_audit_logs_route_get",
       "community": 187,
-      "community_name": "verifyProjectAccess",
+      "community_name": "floors/[id]/route.ts",
       "norm_label": "get()"
     },
     {
@@ -36570,20 +36426,8 @@
       "_origin": "ast",
       "id": "src_app_api_projects_id_audit_logs_route_test_getlogs",
       "community": 187,
-      "community_name": "verifyProjectAccess",
+      "community_name": "floors/[id]/route.ts",
       "norm_label": "getlogs()"
-    },
-    {
-      "label": "verifyProjectAccess()",
-      "file_type": "code",
-      "source_file": "src/lib/project-auth.ts",
-      "source_location": "L40",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_lib_project_auth_verifyprojectaccess",
-      "community": 187,
-      "community_name": "verifyProjectAccess",
-      "norm_label": "verifyprojectaccess()"
     },
     {
       "label": ".test_add_fonts()",
@@ -37688,6 +37532,54 @@
       "community": 216,
       "community_name": "import/route.ts",
       "norm_label": "post()"
+    },
+    {
+      "label": "DELETE()",
+      "file_type": "code",
+      "source_file": "src/app/api/floor-items/[id]/route.ts",
+      "source_location": "L63",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_app_api_floor_items_id_route_delete",
+      "community": 217,
+      "community_name": "floor-items/[id]/route.ts",
+      "norm_label": "delete()"
+    },
+    {
+      "label": "PATCH()",
+      "file_type": "code",
+      "source_file": "src/app/api/floor-items/[id]/route.ts",
+      "source_location": "L7",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_app_api_floor_items_id_route_patch",
+      "community": 217,
+      "community_name": "floor-items/[id]/route.ts",
+      "norm_label": "patch()"
+    },
+    {
+      "label": "deleteFloorItem()",
+      "file_type": "code",
+      "source_file": "src/app/api/floor-items/[id]/route.test.ts",
+      "source_location": "L41",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_app_api_floor_items_id_route_test_deleteflooritem",
+      "community": 217,
+      "community_name": "floor-items/[id]/route.ts",
+      "norm_label": "deleteflooritem()"
+    },
+    {
+      "label": "patchFloorItem()",
+      "file_type": "code",
+      "source_file": "src/app/api/floor-items/[id]/route.test.ts",
+      "source_location": "L29",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_app_api_floor_items_id_route_test_patchflooritem",
+      "community": 217,
+      "community_name": "floor-items/[id]/route.ts",
+      "norm_label": "patchflooritem()"
     },
     {
       "label": "format_context()",
@@ -39013,7 +38905,7 @@
       "label": "GET()",
       "file_type": "code",
       "source_file": "src/app/api/admin/leads/route.ts",
-      "source_location": "L13",
+      "source_location": "L18",
       "_callable": true,
       "_origin": "ast",
       "id": "src_app_api_admin_leads_route_get",
@@ -39390,8 +39282,32 @@
       "_origin": "ast",
       "id": "scripts_recalculate_all_projects_main",
       "community": 34,
-      "community_name": "errorResponse",
+      "community_name": "verifyProjectAccess",
       "norm_label": "main()"
+    },
+    {
+      "label": "DELETE()",
+      "file_type": "code",
+      "source_file": "src/app/api/building-loads/[id]/route.ts",
+      "source_location": "L64",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_app_api_building_loads_id_route_delete",
+      "community": 34,
+      "community_name": "verifyProjectAccess",
+      "norm_label": "delete()"
+    },
+    {
+      "label": "PATCH()",
+      "file_type": "code",
+      "source_file": "src/app/api/building-loads/[id]/route.ts",
+      "source_location": "L7",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_app_api_building_loads_id_route_patch",
+      "community": 34,
+      "community_name": "verifyProjectAccess",
+      "norm_label": "patch()"
     },
     {
       "label": "POST()",
@@ -39402,7 +39318,7 @@
       "_origin": "ast",
       "id": "src_app_api_buildings_id_loads_route_post",
       "community": 34,
-      "community_name": "errorResponse",
+      "community_name": "verifyProjectAccess",
       "norm_label": "post()"
     },
     {
@@ -39414,7 +39330,7 @@
       "_origin": "ast",
       "id": "src_app_api_buildings_id_recalculate_route_post",
       "community": 34,
-      "community_name": "errorResponse",
+      "community_name": "verifyProjectAccess",
       "norm_label": "post()"
     },
     {
@@ -39426,8 +39342,80 @@
       "_origin": "ast",
       "id": "src_app_api_buildings_id_recalculate_route_test_postrecalculate",
       "community": 34,
-      "community_name": "errorResponse",
+      "community_name": "verifyProjectAccess",
       "norm_label": "postrecalculate()"
+    },
+    {
+      "label": "DELETE()",
+      "file_type": "code",
+      "source_file": "src/app/api/buildings/[id]/route.ts",
+      "source_location": "L168",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_app_api_buildings_id_route_delete",
+      "community": 34,
+      "community_name": "verifyProjectAccess",
+      "norm_label": "delete()"
+    },
+    {
+      "label": "GET()",
+      "file_type": "code",
+      "source_file": "src/app/api/buildings/[id]/route.ts",
+      "source_location": "L6",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_app_api_buildings_id_route_get",
+      "community": 34,
+      "community_name": "verifyProjectAccess",
+      "norm_label": "get()"
+    },
+    {
+      "label": "PATCH()",
+      "file_type": "code",
+      "source_file": "src/app/api/buildings/[id]/route.ts",
+      "source_location": "L114",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_app_api_buildings_id_route_patch",
+      "community": 34,
+      "community_name": "verifyProjectAccess",
+      "norm_label": "patch()"
+    },
+    {
+      "label": "PUT()",
+      "file_type": "code",
+      "source_file": "src/app/api/buildings/[id]/route.ts",
+      "source_location": "L34",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_app_api_buildings_id_route_put",
+      "community": 34,
+      "community_name": "verifyProjectAccess",
+      "norm_label": "put()"
+    },
+    {
+      "label": "patchBuilding()",
+      "file_type": "code",
+      "source_file": "src/app/api/buildings/[id]/route.test.ts",
+      "source_location": "L31",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_app_api_buildings_id_route_test_patchbuilding",
+      "community": 34,
+      "community_name": "verifyProjectAccess",
+      "norm_label": "patchbuilding()"
+    },
+    {
+      "label": "putBuilding()",
+      "file_type": "code",
+      "source_file": "src/app/api/buildings/[id]/route.test.ts",
+      "source_location": "L43",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_app_api_buildings_id_route_test_putbuilding",
+      "community": 34,
+      "community_name": "verifyProjectAccess",
+      "norm_label": "putbuilding()"
     },
     {
       "label": "POST()",
@@ -39438,7 +39426,7 @@
       "_origin": "ast",
       "id": "src_app_api_floors_id_copy_items_route_post",
       "community": 34,
-      "community_name": "errorResponse",
+      "community_name": "verifyProjectAccess",
       "norm_label": "post()"
     },
     {
@@ -39450,7 +39438,7 @@
       "_origin": "ast",
       "id": "src_app_api_floors_id_copy_items_route_test_postcopy",
       "community": 34,
-      "community_name": "errorResponse",
+      "community_name": "verifyProjectAccess",
       "norm_label": "postcopy()"
     },
     {
@@ -39462,7 +39450,7 @@
       "_origin": "ast",
       "id": "src_app_api_floors_id_items_route_post",
       "community": 34,
-      "community_name": "errorResponse",
+      "community_name": "verifyProjectAccess",
       "norm_label": "post()"
     },
     {
@@ -39474,7 +39462,7 @@
       "_origin": "ast",
       "id": "src_app_api_floors_id_recalculate_route_post",
       "community": 34,
-      "community_name": "errorResponse",
+      "community_name": "verifyProjectAccess",
       "norm_label": "post()"
     },
     {
@@ -39486,7 +39474,7 @@
       "_origin": "ast",
       "id": "src_app_api_loads_id_route_delete",
       "community": 34,
-      "community_name": "errorResponse",
+      "community_name": "verifyProjectAccess",
       "norm_label": "delete()"
     },
     {
@@ -39498,7 +39486,7 @@
       "_origin": "ast",
       "id": "src_app_api_loads_id_route_put",
       "community": 34,
-      "community_name": "errorResponse",
+      "community_name": "verifyProjectAccess",
       "norm_label": "put()"
     },
     {
@@ -39510,7 +39498,7 @@
       "_origin": "ast",
       "id": "src_app_api_loads_route_post",
       "community": 34,
-      "community_name": "errorResponse",
+      "community_name": "verifyProjectAccess",
       "norm_label": "post()"
     },
     {
@@ -39522,7 +39510,7 @@
       "_origin": "ast",
       "id": "src_app_api_projects_id_cables_batch_defaults_route_post",
       "community": 34,
-      "community_name": "errorResponse",
+      "community_name": "verifyProjectAccess",
       "norm_label": "post()"
     },
     {
@@ -39534,7 +39522,7 @@
       "_origin": "ast",
       "id": "src_app_api_projects_id_route_delete",
       "community": 34,
-      "community_name": "errorResponse",
+      "community_name": "verifyProjectAccess",
       "norm_label": "delete()"
     },
     {
@@ -39546,7 +39534,7 @@
       "_origin": "ast",
       "id": "src_app_api_projects_id_route_get",
       "community": 34,
-      "community_name": "errorResponse",
+      "community_name": "verifyProjectAccess",
       "norm_label": "get()"
     },
     {
@@ -39558,7 +39546,7 @@
       "_origin": "ast",
       "id": "src_app_api_projects_id_route_put",
       "community": 34,
-      "community_name": "errorResponse",
+      "community_name": "verifyProjectAccess",
       "norm_label": "put()"
     },
     {
@@ -39570,7 +39558,7 @@
       "_origin": "ast",
       "id": "src_app_api_templates_id_route_delete",
       "community": 34,
-      "community_name": "errorResponse",
+      "community_name": "verifyProjectAccess",
       "norm_label": "delete()"
     },
     {
@@ -39582,7 +39570,7 @@
       "_origin": "ast",
       "id": "src_app_api_templates_id_route_get",
       "community": 34,
-      "community_name": "errorResponse",
+      "community_name": "verifyProjectAccess",
       "norm_label": "get()"
     },
     {
@@ -39594,7 +39582,7 @@
       "_origin": "ast",
       "id": "src_app_api_templates_id_route_put",
       "community": 34,
-      "community_name": "errorResponse",
+      "community_name": "verifyProjectAccess",
       "norm_label": "put()"
     },
     {
@@ -39606,7 +39594,7 @@
       "_origin": "ast",
       "id": "src_app_api_templates_route_post",
       "community": 34,
-      "community_name": "errorResponse",
+      "community_name": "verifyProjectAccess",
       "norm_label": "post()"
     },
     {
@@ -39618,7 +39606,7 @@
       "_origin": "ast",
       "id": "src_lib_api_errors_errorresponse",
       "community": 34,
-      "community_name": "errorResponse",
+      "community_name": "verifyProjectAccess",
       "norm_label": "errorresponse()"
     },
     {
@@ -39630,7 +39618,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_loads_getapartmentdiversityfactor",
       "community": 34,
-      "community_name": "errorResponse",
+      "community_name": "verifyProjectAccess",
       "norm_label": "getapartmentdiversityfactor()"
     },
     {
@@ -39642,7 +39630,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_validate_assertinrange",
       "community": 34,
-      "community_name": "errorResponse",
+      "community_name": "verifyProjectAccess",
       "norm_label": "assertinrange()"
     },
     {
@@ -39654,7 +39642,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_validate_assertoneof",
       "community": 34,
-      "community_name": "errorResponse",
+      "community_name": "verifyProjectAccess",
       "norm_label": "assertoneof()"
     },
     {
@@ -39666,7 +39654,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_validate_calculationerror_constructor",
       "community": 34,
-      "community_name": "errorResponse",
+      "community_name": "verifyProjectAccess",
       "norm_label": ".constructor()"
     },
     {
@@ -39678,7 +39666,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_validate_clamppowerfactor",
       "community": 34,
-      "community_name": "errorResponse",
+      "community_name": "verifyProjectAccess",
       "norm_label": "clamppowerfactor()"
     },
     {
@@ -39690,8 +39678,20 @@
       "_origin": "ast",
       "id": "src_lib_country_defaults_getcountrydefaults",
       "community": 34,
-      "community_name": "errorResponse",
+      "community_name": "verifyProjectAccess",
       "norm_label": "getcountrydefaults()"
+    },
+    {
+      "label": "verifyProjectAccess()",
+      "file_type": "code",
+      "source_file": "src/lib/project-auth.ts",
+      "source_location": "L40",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_lib_project_auth_verifyprojectaccess",
+      "community": 34,
+      "community_name": "verifyProjectAccess",
+      "norm_label": "verifyprojectaccess()"
     },
     {
       "label": "CoordinationPage()",
@@ -48465,15 +48465,15 @@
       "norm_label": "userfindmany"
     },
     {
-      "label": "padding-x",
+      "label": "padding-y",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L110",
+      "source_location": "L111",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_button_padding_x",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_button_padding_y",
       "community": 109,
       "community_name": "input",
-      "norm_label": "padding-x"
+      "norm_label": "padding-y"
     },
     {
       "label": "input",
@@ -48520,23 +48520,23 @@
       "norm_label": "focus-ring"
     },
     {
-      "label": "padding-x",
+      "label": "padding-y",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L119",
+      "source_location": "L120",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_input_padding_x",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_input_padding_y",
       "community": 109,
       "community_name": "input",
-      "norm_label": "padding-x"
+      "norm_label": "padding-y"
     },
     {
       "label": "$type",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L110",
+      "source_location": "L111",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_padding_x_type",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_padding_y_type",
       "community": 109,
       "community_name": "input",
       "norm_label": "$type"
@@ -48545,9 +48545,9 @@
       "label": "$value",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L110",
+      "source_location": "L111",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_padding_x_value",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_padding_y_value",
       "community": 109,
       "community_name": "input",
       "norm_label": "$value"
@@ -52645,6 +52645,28 @@
       "norm_label": "projectreviewitem.ts"
     },
     {
+      "label": "buildings/route.ts",
+      "file_type": "code",
+      "source_file": "src/app/api/buildings/route.ts",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_app_api_buildings_route",
+      "community": 161,
+      "community_name": "project-auth.ts",
+      "norm_label": "buildings/route.ts"
+    },
+    {
+      "label": "floors/[id]/rebalance/route.ts",
+      "file_type": "code",
+      "source_file": "src/app/api/floors/[id]/rebalance/route.ts",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_app_api_floors_id_rebalance_route",
+      "community": 161,
+      "community_name": "project-auth.ts",
+      "norm_label": "floors/[id]/rebalance/route.ts"
+    },
+    {
       "label": "[memberId]/route.ts",
       "file_type": "code",
       "source_file": "src/app/api/projects/[id]/members/[memberId]/route.ts",
@@ -54691,116 +54713,6 @@
       "norm_label": "test getting installed components when files exist."
     },
     {
-      "label": "building-loads/[id]/route.ts",
-      "file_type": "code",
-      "source_file": "src/app/api/building-loads/[id]/route.ts",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "src_app_api_building_loads_id_route",
-      "community": 187,
-      "community_name": "verifyProjectAccess",
-      "norm_label": "building-loads/[id]/route.ts"
-    },
-    {
-      "label": "buildings/[id]/route.ts",
-      "file_type": "code",
-      "source_file": "src/app/api/buildings/[id]/route.ts",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "src_app_api_buildings_id_route",
-      "community": 187,
-      "community_name": "verifyProjectAccess",
-      "norm_label": "buildings/[id]/route.ts"
-    },
-    {
-      "label": "buildings/[id]/route.test.ts",
-      "file_type": "code",
-      "source_file": "src/app/api/buildings/[id]/route.test.ts",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "src_app_api_buildings_id_route_test",
-      "community": 187,
-      "community_name": "verifyProjectAccess",
-      "norm_label": "buildings/[id]/route.test.ts"
-    },
-    {
-      "label": "mocks",
-      "file_type": "code",
-      "source_file": "src/app/api/buildings/[id]/route.test.ts",
-      "source_location": "L4",
-      "_origin": "ast",
-      "id": "src_app_api_buildings_id_route_test_mocks",
-      "community": 187,
-      "community_name": "verifyProjectAccess",
-      "norm_label": "mocks"
-    },
-    {
-      "label": "validBuilding",
-      "file_type": "code",
-      "source_file": "src/app/api/buildings/[id]/route.test.ts",
-      "source_location": "L55",
-      "_origin": "ast",
-      "id": "src_app_api_buildings_id_route_test_validbuilding",
-      "community": 187,
-      "community_name": "verifyProjectAccess",
-      "norm_label": "validbuilding"
-    },
-    {
-      "label": "buildings/route.ts",
-      "file_type": "code",
-      "source_file": "src/app/api/buildings/route.ts",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "src_app_api_buildings_route",
-      "community": 187,
-      "community_name": "verifyProjectAccess",
-      "norm_label": "buildings/route.ts"
-    },
-    {
-      "label": "floor-items/[id]/route.ts",
-      "file_type": "code",
-      "source_file": "src/app/api/floor-items/[id]/route.ts",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "src_app_api_floor_items_id_route",
-      "community": 187,
-      "community_name": "verifyProjectAccess",
-      "norm_label": "floor-items/[id]/route.ts"
-    },
-    {
-      "label": "floor-items/[id]/route.test.ts",
-      "file_type": "code",
-      "source_file": "src/app/api/floor-items/[id]/route.test.ts",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "src_app_api_floor_items_id_route_test",
-      "community": 187,
-      "community_name": "verifyProjectAccess",
-      "norm_label": "floor-items/[id]/route.test.ts"
-    },
-    {
-      "label": "mocks",
-      "file_type": "code",
-      "source_file": "src/app/api/floor-items/[id]/route.test.ts",
-      "source_location": "L4",
-      "_origin": "ast",
-      "id": "src_app_api_floor_items_id_route_test_mocks",
-      "community": 187,
-      "community_name": "verifyProjectAccess",
-      "norm_label": "mocks"
-    },
-    {
-      "label": "floors/[id]/rebalance/route.ts",
-      "file_type": "code",
-      "source_file": "src/app/api/floors/[id]/rebalance/route.ts",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "src_app_api_floors_id_rebalance_route",
-      "community": 187,
-      "community_name": "verifyProjectAccess",
-      "norm_label": "floors/[id]/rebalance/route.ts"
-    },
-    {
       "label": "floors/[id]/route.ts",
       "file_type": "code",
       "source_file": "src/app/api/floors/[id]/route.ts",
@@ -54808,7 +54720,7 @@
       "_origin": "ast",
       "id": "src_app_api_floors_id_route",
       "community": 187,
-      "community_name": "verifyProjectAccess",
+      "community_name": "floors/[id]/route.ts",
       "norm_label": "floors/[id]/route.ts"
     },
     {
@@ -54819,7 +54731,7 @@
       "_origin": "ast",
       "id": "src_app_api_floors_id_route_test",
       "community": 187,
-      "community_name": "verifyProjectAccess",
+      "community_name": "floors/[id]/route.ts",
       "norm_label": "floors/[id]/route.test.ts"
     },
     {
@@ -54830,7 +54742,7 @@
       "_origin": "ast",
       "id": "src_app_api_floors_id_route_test_mocks",
       "community": 187,
-      "community_name": "verifyProjectAccess",
+      "community_name": "floors/[id]/route.ts",
       "norm_label": "mocks"
     },
     {
@@ -54841,7 +54753,7 @@
       "_origin": "ast",
       "id": "src_app_api_floors_id_route_test_validfloor",
       "community": 187,
-      "community_name": "verifyProjectAccess",
+      "community_name": "floors/[id]/route.ts",
       "norm_label": "validfloor"
     },
     {
@@ -54852,7 +54764,7 @@
       "_origin": "ast",
       "id": "src_app_api_projects_id_audit_logs_route",
       "community": 187,
-      "community_name": "verifyProjectAccess",
+      "community_name": "floors/[id]/route.ts",
       "norm_label": "audit-logs/route.ts"
     },
     {
@@ -54863,7 +54775,7 @@
       "_origin": "ast",
       "id": "src_app_api_projects_id_audit_logs_route_test",
       "community": 187,
-      "community_name": "verifyProjectAccess",
+      "community_name": "floors/[id]/route.ts",
       "norm_label": "audit-logs/route.test.ts"
     },
     {
@@ -54874,7 +54786,7 @@
       "_origin": "ast",
       "id": "src_app_api_projects_id_audit_logs_route_test_mocks",
       "community": 187,
-      "community_name": "verifyProjectAccess",
+      "community_name": "floors/[id]/route.ts",
       "norm_label": "mocks"
     },
     {
@@ -55909,48 +55821,37 @@
       "norm_label": "rfc-4180"
     },
     {
-      "label": "padding-y",
+      "label": "floor-items/[id]/route.ts",
       "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L111",
+      "source_file": "src/app/api/floor-items/[id]/route.ts",
+      "source_location": "L1",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_button_padding_y",
+      "id": "src_app_api_floor_items_id_route",
       "community": 217,
-      "community_name": "padding-y",
-      "norm_label": "padding-y"
+      "community_name": "floor-items/[id]/route.ts",
+      "norm_label": "floor-items/[id]/route.ts"
     },
     {
-      "label": "padding-y",
+      "label": "floor-items/[id]/route.test.ts",
       "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L120",
+      "source_file": "src/app/api/floor-items/[id]/route.test.ts",
+      "source_location": "L1",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_input_padding_y",
+      "id": "src_app_api_floor_items_id_route_test",
       "community": 217,
-      "community_name": "padding-y",
-      "norm_label": "padding-y"
+      "community_name": "floor-items/[id]/route.ts",
+      "norm_label": "floor-items/[id]/route.test.ts"
     },
     {
-      "label": "$type",
+      "label": "mocks",
       "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L111",
+      "source_file": "src/app/api/floor-items/[id]/route.test.ts",
+      "source_location": "L4",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_padding_y_type",
+      "id": "src_app_api_floor_items_id_route_test_mocks",
       "community": 217,
-      "community_name": "padding-y",
-      "norm_label": "$type"
-    },
-    {
-      "label": "$value",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L111",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_padding_y_value",
-      "community": 217,
-      "community_name": "padding-y",
-      "norm_label": "$value"
+      "community_name": "floor-items/[id]/route.ts",
+      "norm_label": "mocks"
     },
     {
       "label": "pg",
@@ -56283,48 +56184,48 @@
       "norm_label": "bcryptjs"
     },
     {
+      "label": "padding-x",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L110",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_button_padding_x",
+      "community": 221,
+      "community_name": "padding-x",
+      "norm_label": "padding-x"
+    },
+    {
+      "label": "padding-x",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L119",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_input_padding_x",
+      "community": 221,
+      "community_name": "padding-x",
+      "norm_label": "padding-x"
+    },
+    {
       "label": "$type",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L66",
+      "source_location": "L110",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_md_type",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_padding_x_type",
       "community": 221,
-      "community_name": "md",
+      "community_name": "padding-x",
       "norm_label": "$type"
     },
     {
       "label": "$value",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L66",
+      "source_location": "L110",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_md_value",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_padding_x_value",
       "community": 221,
-      "community_name": "md",
+      "community_name": "padding-x",
       "norm_label": "$value"
-    },
-    {
-      "label": "md",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L66",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_radius_md",
-      "community": 221,
-      "community_name": "md",
-      "norm_label": "md"
-    },
-    {
-      "label": "md",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L75",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_shadow_md",
-      "community": 221,
-      "community_name": "md",
-      "norm_label": "md"
     },
     {
       "label": "postinstall.js",
@@ -56363,34 +56264,45 @@
       "label": "$type",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L49",
+      "source_location": "L63",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_12_type",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_none_type",
       "community": 223,
-      "community_name": "12",
+      "community_name": "none",
       "norm_label": "$type"
     },
     {
       "label": "$value",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L49",
+      "source_location": "L63",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_12_value",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_none_value",
       "community": 223,
-      "community_name": "12",
+      "community_name": "none",
       "norm_label": "$value"
     },
     {
-      "label": "12",
+      "label": "none",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L49",
+      "source_location": "L63",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_spacing_12",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_radius_none",
       "community": 223,
-      "community_name": "12",
-      "norm_label": "12"
+      "community_name": "none",
+      "norm_label": "none"
+    },
+    {
+      "label": "none",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L72",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_shadow_none",
+      "community": 223,
+      "community_name": "none",
+      "norm_label": "none"
     },
     {
       "label": "destructive-foreground",
@@ -56429,67 +56341,67 @@
       "label": "$type",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L44",
+      "source_location": "L40",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_4_type",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_0_type",
       "community": 225,
-      "community_name": "4",
+      "community_name": "0",
       "norm_label": "$type"
     },
     {
       "label": "$value",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L44",
+      "source_location": "L40",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_4_value",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_0_value",
       "community": 225,
-      "community_name": "4",
+      "community_name": "0",
       "norm_label": "$value"
     },
     {
-      "label": "4",
+      "label": "0",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L44",
+      "source_location": "L40",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_spacing_4",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_spacing_0",
       "community": 225,
-      "community_name": "4",
-      "norm_label": "4"
+      "community_name": "0",
+      "norm_label": "0"
     },
     {
       "label": "$type",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L46",
+      "source_location": "L50",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_6_type",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_16_type",
       "community": 226,
-      "community_name": "6",
+      "community_name": "16",
       "norm_label": "$type"
     },
     {
       "label": "$value",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L46",
+      "source_location": "L50",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_6_value",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_16_value",
       "community": 226,
-      "community_name": "6",
+      "community_name": "16",
       "norm_label": "$value"
     },
     {
-      "label": "6",
+      "label": "16",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L46",
+      "source_location": "L50",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_spacing_6",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_spacing_16",
       "community": 226,
-      "community_name": "6",
-      "norm_label": "6"
+      "community_name": "16",
+      "norm_label": "16"
     },
     {
       "label": "@radix-ui/react-select",
@@ -56690,26 +56602,37 @@
       "norm_label": "appsetting.ts"
     },
     {
-      "label": "framer-motion",
+      "label": "$type",
       "file_type": "code",
-      "source_file": "package.json",
-      "source_location": "L32",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L42",
       "_origin": "ast",
-      "id": "package_dependencies_framer_motion",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_2_type",
       "community": 240,
-      "community_name": "framer-motion",
-      "norm_label": "framer-motion"
+      "community_name": "2",
+      "norm_label": "$type"
     },
     {
-      "label": "framer-motion",
-      "file_type": "concept",
-      "source_file": "package.json",
-      "source_location": "L32",
+      "label": "$value",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L42",
       "_origin": "ast",
-      "id": "framer_motion",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_2_value",
       "community": 240,
-      "community_name": "framer-motion",
-      "norm_label": "framer-motion"
+      "community_name": "2",
+      "norm_label": "$value"
+    },
+    {
+      "label": "2",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L42",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_spacing_2",
+      "community": 240,
+      "community_name": "2",
+      "norm_label": "2"
     },
     {
       "label": "zod",
@@ -56745,36 +56668,36 @@
       "norm_label": "test checking for existing shadcn config."
     },
     {
-      "label": "destructive",
+      "label": "primary",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L95",
+      "source_location": "L88",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_color_destructive",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_color_primary",
       "community": 244,
-      "community_name": "destructive",
-      "norm_label": "destructive"
+      "community_name": "primary",
+      "norm_label": "primary"
     },
     {
       "label": "$type",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L95",
+      "source_location": "L88",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_destructive_type",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_primary_type",
       "community": 244,
-      "community_name": "destructive",
+      "community_name": "primary",
       "norm_label": "$type"
     },
     {
       "label": "$value",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L95",
+      "source_location": "L88",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_destructive_value",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_primary_value",
       "community": 244,
-      "community_name": "destructive",
+      "community_name": "primary",
       "norm_label": "$value"
     },
     {
@@ -57161,6 +57084,28 @@
       "community": 252,
       "community_name": "@radix-ui/react-dropdown-menu",
       "norm_label": "@radix-ui/react-dropdown-menu"
+    },
+    {
+      "label": "@tanstack/react-table",
+      "file_type": "code",
+      "source_file": "package.json",
+      "source_location": "L28",
+      "_origin": "ast",
+      "id": "package_dependencies_tanstack_react_table",
+      "community": 253,
+      "community_name": "@tanstack/react-table",
+      "norm_label": "@tanstack/react-table"
+    },
+    {
+      "label": "@tanstack/react-table",
+      "file_type": "concept",
+      "source_file": "package.json",
+      "source_location": "L28",
+      "_origin": "ast",
+      "id": "tanstack_react_table",
+      "community": 253,
+      "community_name": "@tanstack/react-table",
+      "norm_label": "@tanstack/react-table"
     },
     {
       "label": "postcss.config.mjs",
@@ -59476,9 +59421,9 @@
       "label": "$type",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L63",
+      "source_location": "L66",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_none_type",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_md_type",
       "community": 31,
       "community_name": "radius",
       "norm_label": "$type"
@@ -59487,9 +59432,9 @@
       "label": "$value",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L63",
+      "source_location": "L66",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_none_value",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_md_value",
       "community": 31,
       "community_name": "radius",
       "norm_label": "$value"
@@ -59550,15 +59495,15 @@
       "norm_label": "full"
     },
     {
-      "label": "none",
+      "label": "md",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L63",
+      "source_location": "L66",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_radius_none",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_radius_md",
       "community": 31,
       "community_name": "radius",
-      "norm_label": "none"
+      "norm_label": "md"
     },
     {
       "label": "default",
@@ -59572,15 +59517,15 @@
       "norm_label": "default"
     },
     {
-      "label": "none",
+      "label": "md",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L72",
+      "source_location": "L75",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_shadow_none",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_shadow_md",
       "community": 31,
       "community_name": "radius",
-      "norm_label": "none"
+      "norm_label": "md"
     },
     {
       "label": "Test adding colors multiple times.",
@@ -59777,8 +59722,19 @@
       "_origin": "ast",
       "id": "scripts_recalculate_all_projects",
       "community": 34,
-      "community_name": "errorResponse",
+      "community_name": "verifyProjectAccess",
       "norm_label": "recalculate-all-projects.ts"
+    },
+    {
+      "label": "building-loads/[id]/route.ts",
+      "file_type": "code",
+      "source_file": "src/app/api/building-loads/[id]/route.ts",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_app_api_building_loads_id_route",
+      "community": 34,
+      "community_name": "verifyProjectAccess",
+      "norm_label": "building-loads/[id]/route.ts"
     },
     {
       "label": "[id]/loads/route.ts",
@@ -59788,7 +59744,7 @@
       "_origin": "ast",
       "id": "src_app_api_buildings_id_loads_route",
       "community": 34,
-      "community_name": "errorResponse",
+      "community_name": "verifyProjectAccess",
       "norm_label": "[id]/loads/route.ts"
     },
     {
@@ -59799,7 +59755,7 @@
       "_origin": "ast",
       "id": "src_app_api_buildings_id_recalculate_route",
       "community": 34,
-      "community_name": "errorResponse",
+      "community_name": "verifyProjectAccess",
       "norm_label": "buildings/[id]/recalculate/route.ts"
     },
     {
@@ -59810,7 +59766,7 @@
       "_origin": "ast",
       "id": "src_app_api_buildings_id_recalculate_route_test",
       "community": 34,
-      "community_name": "errorResponse",
+      "community_name": "verifyProjectAccess",
       "norm_label": "recalculate/route.test.ts"
     },
     {
@@ -59821,8 +59777,52 @@
       "_origin": "ast",
       "id": "src_app_api_buildings_id_recalculate_route_test_mocks",
       "community": 34,
-      "community_name": "errorResponse",
+      "community_name": "verifyProjectAccess",
       "norm_label": "mocks"
+    },
+    {
+      "label": "buildings/[id]/route.ts",
+      "file_type": "code",
+      "source_file": "src/app/api/buildings/[id]/route.ts",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_app_api_buildings_id_route",
+      "community": 34,
+      "community_name": "verifyProjectAccess",
+      "norm_label": "buildings/[id]/route.ts"
+    },
+    {
+      "label": "buildings/[id]/route.test.ts",
+      "file_type": "code",
+      "source_file": "src/app/api/buildings/[id]/route.test.ts",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_app_api_buildings_id_route_test",
+      "community": 34,
+      "community_name": "verifyProjectAccess",
+      "norm_label": "buildings/[id]/route.test.ts"
+    },
+    {
+      "label": "mocks",
+      "file_type": "code",
+      "source_file": "src/app/api/buildings/[id]/route.test.ts",
+      "source_location": "L4",
+      "_origin": "ast",
+      "id": "src_app_api_buildings_id_route_test_mocks",
+      "community": 34,
+      "community_name": "verifyProjectAccess",
+      "norm_label": "mocks"
+    },
+    {
+      "label": "validBuilding",
+      "file_type": "code",
+      "source_file": "src/app/api/buildings/[id]/route.test.ts",
+      "source_location": "L55",
+      "_origin": "ast",
+      "id": "src_app_api_buildings_id_route_test_validbuilding",
+      "community": 34,
+      "community_name": "verifyProjectAccess",
+      "norm_label": "validbuilding"
     },
     {
       "label": "copy-items/route.ts",
@@ -59832,7 +59832,7 @@
       "_origin": "ast",
       "id": "src_app_api_floors_id_copy_items_route",
       "community": 34,
-      "community_name": "errorResponse",
+      "community_name": "verifyProjectAccess",
       "norm_label": "copy-items/route.ts"
     },
     {
@@ -59843,7 +59843,7 @@
       "_origin": "ast",
       "id": "src_app_api_floors_id_copy_items_route_test",
       "community": 34,
-      "community_name": "errorResponse",
+      "community_name": "verifyProjectAccess",
       "norm_label": "copy-items/route.test.ts"
     },
     {
@@ -59854,7 +59854,7 @@
       "_origin": "ast",
       "id": "src_app_api_floors_id_copy_items_route_test_mocks",
       "community": 34,
-      "community_name": "errorResponse",
+      "community_name": "verifyProjectAccess",
       "norm_label": "mocks"
     },
     {
@@ -59865,7 +59865,7 @@
       "_origin": "ast",
       "id": "src_app_api_floors_id_items_route",
       "community": 34,
-      "community_name": "errorResponse",
+      "community_name": "verifyProjectAccess",
       "norm_label": "items/route.ts"
     },
     {
@@ -59876,7 +59876,7 @@
       "_origin": "ast",
       "id": "src_app_api_floors_id_recalculate_route",
       "community": 34,
-      "community_name": "errorResponse",
+      "community_name": "verifyProjectAccess",
       "norm_label": "floors/[id]/recalculate/route.ts"
     },
     {
@@ -59887,7 +59887,7 @@
       "_origin": "ast",
       "id": "src_app_api_loads_id_route",
       "community": 34,
-      "community_name": "errorResponse",
+      "community_name": "verifyProjectAccess",
       "norm_label": "loads/[id]/route.ts"
     },
     {
@@ -59898,7 +59898,7 @@
       "_origin": "ast",
       "id": "src_app_api_loads_route",
       "community": 34,
-      "community_name": "errorResponse",
+      "community_name": "verifyProjectAccess",
       "norm_label": "api/loads/route.ts"
     },
     {
@@ -59909,7 +59909,7 @@
       "_origin": "ast",
       "id": "src_app_api_projects_id_cables_batch_defaults_route",
       "community": 34,
-      "community_name": "errorResponse",
+      "community_name": "verifyProjectAccess",
       "norm_label": "batch-defaults/route.ts"
     },
     {
@@ -59920,7 +59920,7 @@
       "_origin": "ast",
       "id": "src_app_api_projects_id_route",
       "community": 34,
-      "community_name": "errorResponse",
+      "community_name": "verifyProjectAccess",
       "norm_label": "projects/[id]/route.ts"
     },
     {
@@ -59931,7 +59931,7 @@
       "_origin": "ast",
       "id": "src_app_api_templates_id_route",
       "community": 34,
-      "community_name": "errorResponse",
+      "community_name": "verifyProjectAccess",
       "norm_label": "templates/[id]/route.ts"
     },
     {
@@ -59942,7 +59942,7 @@
       "_origin": "ast",
       "id": "src_app_api_templates_route",
       "community": 34,
-      "community_name": "errorResponse",
+      "community_name": "verifyProjectAccess",
       "norm_label": "templates/route.ts"
     },
     {
@@ -59953,7 +59953,7 @@
       "_origin": "ast",
       "id": "src_lib_api_errors",
       "community": 34,
-      "community_name": "errorResponse",
+      "community_name": "verifyProjectAccess",
       "norm_label": "api-errors.ts"
     },
     {
@@ -59964,7 +59964,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_loads_test",
       "community": 34,
-      "community_name": "errorResponse",
+      "community_name": "verifyProjectAccess",
       "norm_label": "loads.test.ts"
     },
     {
@@ -59975,7 +59975,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_validate",
       "community": 34,
-      "community_name": "errorResponse",
+      "community_name": "verifyProjectAccess",
       "norm_label": "validate.ts"
     },
     {
@@ -59986,7 +59986,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_validate_test",
       "community": 34,
-      "community_name": "errorResponse",
+      "community_name": "verifyProjectAccess",
       "norm_label": "validate.test.ts"
     },
     {
@@ -59997,7 +59997,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_version",
       "community": 34,
-      "community_name": "errorResponse",
+      "community_name": "verifyProjectAccess",
       "norm_label": "version.ts"
     },
     {
@@ -60008,7 +60008,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_version_engine_version",
       "community": 34,
-      "community_name": "errorResponse",
+      "community_name": "verifyProjectAccess",
       "norm_label": "engine_version"
     },
     {
@@ -61973,28 +61973,6 @@
       "label": "$type",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L40",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_0_type",
-      "community": 47,
-      "community_name": "spacing",
-      "norm_label": "$type"
-    },
-    {
-      "label": "$value",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L40",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_0_value",
-      "community": 47,
-      "community_name": "spacing",
-      "norm_label": "$value"
-    },
-    {
-      "label": "$type",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
       "source_location": "L48",
       "_origin": "ast",
       "id": "agents_skills_design_system_templates_design_tokens_starter_10_type",
@@ -62017,9 +61995,9 @@
       "label": "$type",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L50",
+      "source_location": "L49",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_16_type",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_12_type",
       "community": 47,
       "community_name": "spacing",
       "norm_label": "$type"
@@ -62028,9 +62006,9 @@
       "label": "$value",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L50",
+      "source_location": "L49",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_16_value",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_12_value",
       "community": 47,
       "community_name": "spacing",
       "norm_label": "$value"
@@ -62061,28 +62039,6 @@
       "label": "$type",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L42",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_2_type",
-      "community": 47,
-      "community_name": "spacing",
-      "norm_label": "$type"
-    },
-    {
-      "label": "$value",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L42",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_2_value",
-      "community": 47,
-      "community_name": "spacing",
-      "norm_label": "$value"
-    },
-    {
-      "label": "$type",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
       "source_location": "L43",
       "_origin": "ast",
       "id": "agents_skills_design_system_templates_design_tokens_starter_3_type",
@@ -62097,6 +62053,28 @@
       "source_location": "L43",
       "_origin": "ast",
       "id": "agents_skills_design_system_templates_design_tokens_starter_3_value",
+      "community": 47,
+      "community_name": "spacing",
+      "norm_label": "$value"
+    },
+    {
+      "label": "$type",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L44",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_4_type",
+      "community": 47,
+      "community_name": "spacing",
+      "norm_label": "$type"
+    },
+    {
+      "label": "$value",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L44",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_4_value",
       "community": 47,
       "community_name": "spacing",
       "norm_label": "$value"
@@ -62124,6 +62102,28 @@
       "norm_label": "$value"
     },
     {
+      "label": "$type",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L46",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_6_type",
+      "community": 47,
+      "community_name": "spacing",
+      "norm_label": "$type"
+    },
+    {
+      "label": "$value",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L46",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_6_value",
+      "community": 47,
+      "community_name": "spacing",
+      "norm_label": "$value"
+    },
+    {
       "label": "spacing",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
@@ -62133,17 +62133,6 @@
       "community": 47,
       "community_name": "spacing",
       "norm_label": "spacing"
-    },
-    {
-      "label": "0",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L40",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_spacing_0",
-      "community": 47,
-      "community_name": "spacing",
-      "norm_label": "0"
     },
     {
       "label": "1",
@@ -62168,26 +62157,15 @@
       "norm_label": "10"
     },
     {
-      "label": "16",
+      "label": "12",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L50",
+      "source_location": "L49",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_spacing_16",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_spacing_12",
       "community": 47,
       "community_name": "spacing",
-      "norm_label": "16"
-    },
-    {
-      "label": "2",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L42",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_spacing_2",
-      "community": 47,
-      "community_name": "spacing",
-      "norm_label": "2"
+      "norm_label": "12"
     },
     {
       "label": "3",
@@ -62201,6 +62179,17 @@
       "norm_label": "3"
     },
     {
+      "label": "4",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L44",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_spacing_4",
+      "community": 47,
+      "community_name": "spacing",
+      "norm_label": "4"
+    },
+    {
       "label": "5",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
@@ -62210,6 +62199,17 @@
       "community": 47,
       "community_name": "spacing",
       "norm_label": "5"
+    },
+    {
+      "label": "6",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L46",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_spacing_6",
+      "community": 47,
+      "community_name": "spacing",
+      "norm_label": "6"
     },
     {
       "label": "tailwind_config_gen.py",
@@ -63048,6 +63048,17 @@
       "norm_label": "background"
     },
     {
+      "label": "destructive",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L95",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_color_destructive",
+      "community": 54,
+      "community_name": "color",
+      "norm_label": "destructive"
+    },
+    {
       "label": "foreground",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
@@ -63070,17 +63081,6 @@
       "norm_label": "muted-foreground"
     },
     {
-      "label": "primary",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L88",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_color_primary",
-      "community": 54,
-      "community_name": "color",
-      "norm_label": "primary"
-    },
-    {
       "label": "primary-hover",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
@@ -63101,6 +63101,28 @@
       "community": 54,
       "community_name": "color",
       "norm_label": "secondary"
+    },
+    {
+      "label": "$type",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L95",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_destructive_type",
+      "community": 54,
+      "community_name": "color",
+      "norm_label": "$type"
+    },
+    {
+      "label": "$value",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L95",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_destructive_value",
+      "community": 54,
+      "community_name": "color",
+      "norm_label": "$value"
     },
     {
       "label": "$type",
@@ -63164,28 +63186,6 @@
       "source_location": "L89",
       "_origin": "ast",
       "id": "agents_skills_design_system_templates_design_tokens_starter_primary_hover_value",
-      "community": 54,
-      "community_name": "color",
-      "norm_label": "$value"
-    },
-    {
-      "label": "$type",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L88",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_primary_type",
-      "community": 54,
-      "community_name": "color",
-      "norm_label": "$type"
-    },
-    {
-      "label": "$value",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L88",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_primary_value",
       "community": 54,
       "community_name": "color",
       "norm_label": "$value"
@@ -65545,6 +65545,17 @@
       "norm_label": "dependencies"
     },
     {
+      "label": "framer-motion",
+      "file_type": "code",
+      "source_file": "package.json",
+      "source_location": "L32",
+      "_origin": "ast",
+      "id": "package_dependencies_framer_motion",
+      "community": 93,
+      "community_name": "dependencies",
+      "norm_label": "framer-motion"
+    },
+    {
       "label": "@hookform/resolvers",
       "file_type": "code",
       "source_file": "package.json",
@@ -65688,17 +65699,6 @@
       "norm_label": "schematex"
     },
     {
-      "label": "@tanstack/react-table",
-      "file_type": "code",
-      "source_file": "package.json",
-      "source_location": "L28",
-      "_origin": "ast",
-      "id": "package_dependencies_tanstack_react_table",
-      "community": 93,
-      "community_name": "dependencies",
-      "norm_label": "@tanstack/react-table"
-    },
-    {
       "label": "xlsx",
       "file_type": "code",
       "source_file": "package.json",
@@ -65708,6 +65708,17 @@
       "community": 93,
       "community_name": "dependencies",
       "norm_label": "xlsx"
+    },
+    {
+      "label": "framer-motion",
+      "file_type": "concept",
+      "source_file": "package.json",
+      "source_location": "L32",
+      "_origin": "ast",
+      "id": "framer_motion",
+      "community": 93,
+      "community_name": "dependencies",
+      "norm_label": "framer-motion"
     },
     {
       "label": "@hookform/resolvers",
@@ -65862,17 +65873,6 @@
       "community": 93,
       "community_name": "dependencies",
       "norm_label": "schematex"
-    },
-    {
-      "label": "@tanstack/react-table",
-      "file_type": "concept",
-      "source_file": "package.json",
-      "source_location": "L28",
-      "_origin": "ast",
-      "id": "tanstack_react_table",
-      "community": 93,
-      "community_name": "dependencies",
-      "norm_label": "@tanstack/react-table"
     },
     {
       "label": "devDependencies",
@@ -73762,7 +73762,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/app/api/admin/leads/route.ts",
-      "source_location": "L14",
+      "source_location": "L19",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_app_api_admin_leads_route_get",
@@ -120113,7 +120113,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/app/api/admin/leads/route.ts",
-      "source_location": "L13",
+      "source_location": "L18",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_app_api_admin_leads_route",
@@ -166566,5 +166566,5 @@
       "source_file": "public/slides/slide_load_calc.webp"
     }
   ],
-  "built_at_commit": "0d78aa0215de2b43c4c267d40a47372d1e8e4dd5"
+  "built_at_commit": "0dd899a0cb4a46ae285cc73de72ba0ade43a8b6a"
 }

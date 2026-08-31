@@ -45,11 +45,14 @@ export async function POST(request: Request) {
       },
       select: {
         id: true, username: true, name: true, email: true, role: true, credits: true, disabled: true,
-        createdAt: true, _count: { select: { projects: true } },
+        createdAt: true,
       },
     });
 
-    return NextResponse.json(user);
+    return NextResponse.json({
+      ...user,
+      _count: { projects: 0 },
+    });
   } catch (error) {
     console.error("POST Admin User Error:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
@@ -83,12 +86,45 @@ export async function GET(request: Request) {
         credits: true,
         disabled: true,
         createdAt: true,
-        _count: { select: { projects: true } },
+        projects: {
+          select: { id: true },
+        },
+        projectMembers: {
+          select: { projectId: true },
+        },
       },
       orderBy: { createdAt: "desc" },
     });
 
-    return NextResponse.json(users);
+    const formattedUsers = users.map((u) => {
+      const distinctProjectIds = new Set([
+        ...((u as { projects?: { id: string }[] }).projects ?? []).map((p) => p.id),
+        ...((u as { projectMembers?: { projectId: string }[] }).projectMembers ?? []).map((pm) => pm.projectId),
+      ]);
+
+      const projectCount =
+        (u as { _count?: { projects?: number } })._count?.projects !== undefined &&
+        distinctProjectIds.size === 0 &&
+        !((u as { projects?: unknown[] }).projects || (u as { projectMembers?: unknown[] }).projectMembers)
+          ? (u as { _count?: { projects?: number } })._count?.projects ?? 0
+          : distinctProjectIds.size;
+
+      return {
+        id: u.id,
+        username: u.username,
+        name: u.name,
+        email: u.email,
+        role: u.role,
+        credits: u.credits,
+        disabled: u.disabled,
+        createdAt: u.createdAt,
+        _count: {
+          projects: projectCount,
+        },
+      };
+    });
+
+    return NextResponse.json(formattedUsers);
   } catch (error) {
     console.error("GET Admin Users Error:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });

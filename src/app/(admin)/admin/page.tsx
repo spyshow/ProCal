@@ -212,12 +212,21 @@ export default function AdminDashboard() {
           <StatTile label="Credits Held" value={v(stats?.creditsHeld)} icon={Coins} sub="sum across all users" />
           <StatTile label="Catalog Items" value={v(stats?.catalogItems)} icon={Database} />
         </div>
-        <Link
-          href="/admin/breakers"
-          className="inline-block text-xs text-orange-400 hover:text-orange-300 transition-colors"
-        >
-          Manage breaker catalog →
-        </Link>
+        <div className="flex items-center gap-4">
+          <Link
+            href="/projects"
+            className="inline-block text-xs text-orange-400 hover:text-orange-300 transition-colors"
+          >
+            View all projects →
+          </Link>
+          <span className="text-gray-700">·</span>
+          <Link
+            href="/admin/breakers"
+            className="inline-block text-xs text-orange-400 hover:text-orange-300 transition-colors"
+          >
+            Manage breaker catalog →
+          </Link>
+        </div>
       </section>
 
       {/* Billing — placeholders */}

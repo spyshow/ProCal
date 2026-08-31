@@ -22,18 +22,37 @@ export async function GET(
         credits: true,
         disabled: true,
         createdAt: true,
-        _count: { select: { projects: true } },
-        projects: {
-          select: { id: true, name: true, createdAt: true },
-          orderBy: { createdAt: "desc" },
-          take: 50,
-        },
       },
     });
 
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
+
+    const projects = await db.project.findMany({
+      where: {
+        OR: [
+          { userId: id },
+          { members: { some: { userId: id } } },
+        ],
+      },
+      select: {
+        id: true,
+        name: true,
+        createdAt: true,
+      },
+      orderBy: { createdAt: "desc" },
+      take: 50,
+    });
+
+    const projectCount = await db.project.count({
+      where: {
+        OR: [
+          { userId: id },
+          { members: { some: { userId: id } } },
+        ],
+      },
+    });
 
     return NextResponse.json({
       id: user.id,
@@ -43,8 +62,8 @@ export async function GET(
       credits: user.credits,
       disabled: user.disabled,
       createdAt: user.createdAt,
-      projectCount: user._count.projects,
-      projects: user.projects,
+      projectCount,
+      projects,
     });
   } catch (error) {
     console.error("GET /api/admin/users/[id]/summary error:", error);

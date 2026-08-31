@@ -13,15 +13,12 @@ export async function GET() {
     }
 
     const projects = await db.project.findMany({
-      where:
-        user.role === "ADMIN"
-          ? {}
-          : {
-              OR: [
-                { userId: user.id },
-                { members: { some: { userId: user.id } } },
-              ],
-            },
+      where: {
+        OR: [
+          { userId: user.id },
+          { members: { some: { userId: user.id } } },
+        ],
+      },
       select: {
         id: true,
         name: true,
@@ -50,9 +47,9 @@ export async function GET() {
     });
 
     const enriched = projects.map((p) => {
-      const isOwner = p.userId === user.id || user.role === "ADMIN";
+      const isOwner = p.userId === user.id;
       const memberEntry = p.members?.[0];
-      const role = isOwner ? "PROJECT_MANAGER" : memberEntry?.role || "ENGINEER";
+      const role = isOwner ? "PROJECT_MANAGER" : memberEntry?.role || (user.role === "ADMIN" ? "PROJECT_MANAGER" : "ENGINEER");
       const perms = parseMemberPermissions(memberEntry?.permissions, role);
 
       return {

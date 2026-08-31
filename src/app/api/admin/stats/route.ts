@@ -8,19 +8,21 @@ import { requireAdmin } from "@/lib/auth";
  * helper, so grouping happens in-app — cheap at this data volume and
  * portable across the SQLite/Postgres adapters.
  */
-export function weeklySeries(dates: Date[], weeks = 12): { week: string; count: number }[] {
+export function weeklySeries(dates: (Date | string)[], weeks = 12): { week: string; count: number }[] {
   const buckets = new Map<string, number>();
   const now = new Date();
 
   // Monday-anchored week key (YYYY-MM-DD of the week's Monday).
-function weekKey(d: Date) {
+  function weekKey(d: Date) {
     const day = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()));
     const dow = day.getUTCDay(); // 0 = Sunday
     day.setUTCDate(day.getUTCDate() - ((dow + 6) % 7)); // back to Monday
     return day.toISOString().slice(0, 10);
   }
 
-  for (const d of dates) {
+  for (const raw of dates) {
+    const d = raw instanceof Date ? raw : new Date(raw);
+    if (isNaN(d.getTime())) continue;
     const key = weekKey(d);
     buckets.set(key, (buckets.get(key) ?? 0) + 1);
   }

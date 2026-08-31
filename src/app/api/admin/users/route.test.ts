@@ -5,6 +5,7 @@ let gateResult: unknown = null;
 const findMany = vi.fn();
 const findUnique = vi.fn();
 const create = vi.fn();
+const projectCount = vi.fn();
 
 vi.mock("@/lib/auth", () => ({
   requireAdmin: vi.fn(async () => gateResult),
@@ -16,6 +17,9 @@ vi.mock("@/lib/db", () => ({
       findMany,
       findUnique,
       create,
+    },
+    project: {
+      count: projectCount,
     },
   },
 }));
@@ -32,6 +36,7 @@ beforeEach(() => {
   vi.resetModules();
   vi.clearAllMocks();
   gateResult = ADMIN;
+  projectCount.mockResolvedValue(5);
   findUnique.mockResolvedValue(null);
   create.mockImplementation(async ({ data }) => ({
     id: "u-new",
@@ -42,7 +47,6 @@ beforeEach(() => {
     credits: data.credits,
     disabled: false,
     createdAt: new Date().toISOString(),
-    _count: { projects: 0 },
   }));
   findMany.mockResolvedValue([
     {
@@ -54,7 +58,8 @@ beforeEach(() => {
       credits: 10,
       disabled: false,
       createdAt: new Date().toISOString(),
-      _count: { projects: 2 },
+      projects: [{ id: "p1" }],
+      projectMembers: [{ projectId: "p1" }, { projectId: "p2" }],
     },
   ]);
 });
@@ -114,16 +119,42 @@ describe("POST /api/admin/users", () => {
 });
 
 describe("GET /api/admin/users", () => {
-  it("returns users including email", async () => {
+  it("returns users including email and correctly calculates distinct projects", async () => {
     const res = await get();
     expect(res.status).toBe(200);
     const data = await res.json();
     expect(data).toHaveLength(1);
     expect(data[0].email).toBe("alice@example.com");
+    // alice has 1 owned (p1) and 2 member (p1, p2) -> total distinct: 2
+    expect(data[0]._count.projects).toBe(2);
     expect(findMany).toHaveBeenCalledWith(expect.objectContaining({
       select: expect.objectContaining({
         email: true,
+        projects: { select: { id: true } },
+        projectMembers: { select: { projectId: true } },
       }),
     }));
+  });
+
+  it("calculates distinct owned and member projects for ADMIN users as well", async () => {
+    findMany.mockResolvedValueOnce([
+      {
+        id: "admin-1",
+        username: "adminuser",
+        name: "Admin User",
+        email: "admin@example.com",
+        role: "ADMIN",
+        credits: 99,
+        disabled: false,
+        createdAt: new Date().toISOString(),
+        projects: [{ id: "p1" }, { id: "p2" }],
+        projectMembers: [],
+      },
+    ]);
+
+    const res = await get();
+    expect(res.status).toBe(200);
+    const data = await res.json();
+    expect(data[0]._count.projects).toBe(2);
   });
 });

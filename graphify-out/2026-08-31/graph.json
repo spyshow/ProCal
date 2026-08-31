@@ -38230,16 +38230,16 @@
       "norm_label": "main()"
     },
     {
-      "label": ".test_add_components_no_components()",
+      "label": ".test_add_components_already_installed()",
       "file_type": "code",
       "source_file": ".agents/skills/ui-styling/scripts/tests/test_shadcn_add.py",
-      "source_location": "L95",
+      "source_location": "L111",
       "_callable": true,
       "_origin": "ast",
-      "id": "agents_skills_ui_styling_scripts_tests_test_shadcn_add_testshadcninstaller_test_add_components_no_components",
+      "id": "agents_skills_ui_styling_scripts_tests_test_shadcn_add_testshadcninstaller_test_add_components_already_installed",
       "community": 238,
-      "community_name": ".test_add_components_no_components",
-      "norm_label": ".test_add_components_no_components()"
+      "community_name": ".test_add_components_already_installed",
+      "norm_label": ".test_add_components_already_installed()"
     },
     {
       "label": ".test_check_shadcn_config_exists()",
@@ -38809,7 +38809,7 @@
       "label": "POST()",
       "file_type": "code",
       "source_file": "src/app/api/projects/route.ts",
-      "source_location": "L72",
+      "source_location": "L75",
       "_callable": true,
       "_origin": "ast",
       "id": "src_app_api_projects_route_post",
@@ -39109,7 +39109,7 @@
       "label": "GET()",
       "file_type": "code",
       "source_file": "src/app/api/admin/users/route.ts",
-      "source_location": "L62",
+      "source_location": "L64",
       "_callable": true,
       "_origin": "ast",
       "id": "src_app_api_admin_users_route_get",
@@ -40078,18 +40078,6 @@
       "norm_label": "persist_design_system()"
     },
     {
-      "label": "_resolve_dial()",
-      "file_type": "code",
-      "source_file": ".agents/skills/ui-ux-pro-max/scripts/design_system.py",
-      "source_location": "L69",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "agents_skills_ui_ux_pro_max_scripts_design_system_resolve_dial",
-      "community": 36,
-      "community_name": "design_system.py",
-      "norm_label": "_resolve_dial()"
-    },
-    {
       "label": "safe_slug()",
       "file_type": "code",
       "source_file": ".agents/skills/ui-ux-pro-max/scripts/design_system.py",
@@ -41048,6 +41036,18 @@
       "community": 49,
       "community_name": "DesignSystemGenerator",
       "norm_label": "._select_best_match()"
+    },
+    {
+      "label": "_resolve_dial()",
+      "file_type": "code",
+      "source_file": ".agents/skills/ui-ux-pro-max/scripts/design_system.py",
+      "source_location": "L69",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "agents_skills_ui_ux_pro_max_scripts_design_system_resolve_dial",
+      "community": 49,
+      "community_name": "DesignSystemGenerator",
+      "norm_label": "_resolve_dial()"
     },
     {
       "label": ".test_known_category_matches_exactly()",
@@ -46042,16 +46042,16 @@
       "norm_label": "main()"
     },
     {
-      "label": ".test_add_components_already_installed()",
+      "label": ".test_add_components_no_components()",
       "file_type": "code",
       "source_file": ".agents/skills/ui-styling/scripts/tests/test_shadcn_add.py",
-      "source_location": "L111",
+      "source_location": "L95",
       "_callable": true,
       "_origin": "ast",
-      "id": "agents_skills_ui_styling_scripts_tests_test_shadcn_add_testshadcninstaller_test_add_components_already_installed",
+      "id": "agents_skills_ui_styling_scripts_tests_test_shadcn_add_testshadcninstaller_test_add_components_no_components",
       "community": 85,
       "community_name": "ShadcnInstaller",
-      "norm_label": ".test_add_components_already_installed()"
+      "norm_label": ".test_add_components_no_components()"
     },
     {
       "label": ".test_get_installed_components_no_config()",
@@ -56363,34 +56363,34 @@
       "label": "$type",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L49",
+      "source_location": "L50",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_12_type",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_16_type",
       "community": 223,
-      "community_name": "12",
+      "community_name": "16",
       "norm_label": "$type"
     },
     {
       "label": "$value",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L49",
+      "source_location": "L50",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_12_value",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_16_value",
       "community": 223,
-      "community_name": "12",
+      "community_name": "16",
       "norm_label": "$value"
     },
     {
-      "label": "12",
+      "label": "16",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L49",
+      "source_location": "L50",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_spacing_12",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_spacing_16",
       "community": 223,
-      "community_name": "12",
-      "norm_label": "12"
+      "community_name": "16",
+      "norm_label": "16"
     },
     {
       "label": "destructive-foreground",
@@ -56429,67 +56429,67 @@
       "label": "$type",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L44",
+      "source_location": "L41",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_4_type",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_1_type",
       "community": 225,
-      "community_name": "4",
+      "community_name": "1",
       "norm_label": "$type"
     },
     {
       "label": "$value",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L44",
+      "source_location": "L41",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_4_value",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_1_value",
       "community": 225,
-      "community_name": "4",
+      "community_name": "1",
       "norm_label": "$value"
     },
     {
-      "label": "4",
+      "label": "1",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L44",
+      "source_location": "L41",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_spacing_4",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_spacing_1",
       "community": 225,
-      "community_name": "4",
-      "norm_label": "4"
+      "community_name": "1",
+      "norm_label": "1"
     },
     {
       "label": "$type",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L46",
+      "source_location": "L43",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_6_type",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_3_type",
       "community": 226,
-      "community_name": "6",
+      "community_name": "3",
       "norm_label": "$type"
     },
     {
       "label": "$value",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L46",
+      "source_location": "L43",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_6_value",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_3_value",
       "community": 226,
-      "community_name": "6",
+      "community_name": "3",
       "norm_label": "$value"
     },
     {
-      "label": "6",
+      "label": "3",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L46",
+      "source_location": "L43",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_spacing_6",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_spacing_3",
       "community": 226,
-      "community_name": "6",
-      "norm_label": "6"
+      "community_name": "3",
+      "norm_label": "3"
     },
     {
       "label": "@radix-ui/react-select",
@@ -56646,15 +56646,15 @@
       "norm_label": "tailwind-merge"
     },
     {
-      "label": "Test adding components with empty list.",
+      "label": "Test adding components that are already installed.",
       "file_type": "rationale",
       "source_file": ".agents/skills/ui-styling/scripts/tests/test_shadcn_add.py",
-      "source_location": "L96",
+      "source_location": "L112",
       "_origin": "ast",
-      "id": "agents_skills_ui_styling_scripts_tests_test_shadcn_add_rationale_96",
+      "id": "agents_skills_ui_styling_scripts_tests_test_shadcn_add_rationale_112",
       "community": 238,
-      "community_name": ".test_add_components_no_components",
-      "norm_label": "test adding components with empty list."
+      "community_name": ".test_add_components_already_installed",
+      "norm_label": "test adding components that are already installed."
     },
     {
       "label": "class-variance-authority",
@@ -56690,26 +56690,26 @@
       "norm_label": "appsetting.ts"
     },
     {
-      "label": "framer-motion",
+      "label": "@tanstack/react-table",
       "file_type": "code",
       "source_file": "package.json",
-      "source_location": "L32",
+      "source_location": "L28",
       "_origin": "ast",
-      "id": "package_dependencies_framer_motion",
+      "id": "package_dependencies_tanstack_react_table",
       "community": 240,
-      "community_name": "framer-motion",
-      "norm_label": "framer-motion"
+      "community_name": "@tanstack/react-table",
+      "norm_label": "@tanstack/react-table"
     },
     {
-      "label": "framer-motion",
+      "label": "@tanstack/react-table",
       "file_type": "concept",
       "source_file": "package.json",
-      "source_location": "L32",
+      "source_location": "L28",
       "_origin": "ast",
-      "id": "framer_motion",
+      "id": "tanstack_react_table",
       "community": 240,
-      "community_name": "framer-motion",
-      "norm_label": "framer-motion"
+      "community_name": "@tanstack/react-table",
+      "norm_label": "@tanstack/react-table"
     },
     {
       "label": "zod",
@@ -60221,17 +60221,6 @@
       "norm_label": "format design system as markdown."
     },
     {
-      "label": "Bucket a 1-10 dial value into its tier config. Returns None if value is None.",
-      "file_type": "rationale",
-      "source_file": ".agents/skills/ui-ux-pro-max/scripts/design_system.py",
-      "source_location": "L70",
-      "_origin": "ast",
-      "id": "agents_skills_ui_ux_pro_max_scripts_design_system_rationale_70",
-      "community": 36,
-      "community_name": "design_system.py",
-      "norm_label": "bucket a 1-10 dial value into its tier config. returns none if value is none."
-    },
-    {
       "label": "Main entry point for design system generation. Args: query: Search query (e.g.,\u2026",
       "file_type": "rationale",
       "source_file": ".agents/skills/ui-ux-pro-max/scripts/design_system.py",
@@ -62017,9 +62006,9 @@
       "label": "$type",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L50",
+      "source_location": "L49",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_16_type",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_12_type",
       "community": 47,
       "community_name": "spacing",
       "norm_label": "$type"
@@ -62028,31 +62017,9 @@
       "label": "$value",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L50",
+      "source_location": "L49",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_16_value",
-      "community": 47,
-      "community_name": "spacing",
-      "norm_label": "$value"
-    },
-    {
-      "label": "$type",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L41",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_1_type",
-      "community": 47,
-      "community_name": "spacing",
-      "norm_label": "$type"
-    },
-    {
-      "label": "$value",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L41",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_1_value",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_12_value",
       "community": 47,
       "community_name": "spacing",
       "norm_label": "$value"
@@ -62083,9 +62050,9 @@
       "label": "$type",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L43",
+      "source_location": "L44",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_3_type",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_4_type",
       "community": 47,
       "community_name": "spacing",
       "norm_label": "$type"
@@ -62094,9 +62061,9 @@
       "label": "$value",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L43",
+      "source_location": "L44",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_3_value",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_4_value",
       "community": 47,
       "community_name": "spacing",
       "norm_label": "$value"
@@ -62124,6 +62091,28 @@
       "norm_label": "$value"
     },
     {
+      "label": "$type",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L46",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_6_type",
+      "community": 47,
+      "community_name": "spacing",
+      "norm_label": "$type"
+    },
+    {
+      "label": "$value",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L46",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_6_value",
+      "community": 47,
+      "community_name": "spacing",
+      "norm_label": "$value"
+    },
+    {
       "label": "spacing",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
@@ -62146,17 +62135,6 @@
       "norm_label": "0"
     },
     {
-      "label": "1",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L41",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_spacing_1",
-      "community": 47,
-      "community_name": "spacing",
-      "norm_label": "1"
-    },
-    {
       "label": "10",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
@@ -62168,15 +62146,15 @@
       "norm_label": "10"
     },
     {
-      "label": "16",
+      "label": "12",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L50",
+      "source_location": "L49",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_spacing_16",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_spacing_12",
       "community": 47,
       "community_name": "spacing",
-      "norm_label": "16"
+      "norm_label": "12"
     },
     {
       "label": "2",
@@ -62190,15 +62168,15 @@
       "norm_label": "2"
     },
     {
-      "label": "3",
+      "label": "4",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L43",
+      "source_location": "L44",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_spacing_3",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_spacing_4",
       "community": 47,
       "community_name": "spacing",
-      "norm_label": "3"
+      "norm_label": "4"
     },
     {
       "label": "5",
@@ -62210,6 +62188,17 @@
       "community": 47,
       "community_name": "spacing",
       "norm_label": "5"
+    },
+    {
+      "label": "6",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L46",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_spacing_6",
+      "community": 47,
+      "community_name": "spacing",
+      "norm_label": "6"
     },
     {
       "label": "tailwind_config_gen.py",
@@ -62419,6 +62408,17 @@
       "community": 49,
       "community_name": "DesignSystemGenerator",
       "norm_label": "generate complete design system recommendation. variance/motion/density are..."
+    },
+    {
+      "label": "Bucket a 1-10 dial value into its tier config. Returns None if value is None.",
+      "file_type": "rationale",
+      "source_file": ".agents/skills/ui-ux-pro-max/scripts/design_system.py",
+      "source_location": "L70",
+      "_origin": "ast",
+      "id": "agents_skills_ui_ux_pro_max_scripts_design_system_rationale_70",
+      "community": 49,
+      "community_name": "DesignSystemGenerator",
+      "norm_label": "bucket a 1-10 dial value into its tier config. returns none if value is none."
     },
     {
       "label": "LoadLibraryItem.ts",
@@ -64621,17 +64621,6 @@
       "norm_label": "tests for shadcn_add.py"
     },
     {
-      "label": "Test adding components that are already installed.",
-      "file_type": "rationale",
-      "source_file": ".agents/skills/ui-styling/scripts/tests/test_shadcn_add.py",
-      "source_location": "L112",
-      "_origin": "ast",
-      "id": "agents_skills_ui_styling_scripts_tests_test_shadcn_add_rationale_112",
-      "community": 85,
-      "community_name": "ShadcnInstaller",
-      "norm_label": "test adding components that are already installed."
-    },
-    {
       "label": "Test listing installed components when they exist.",
       "file_type": "rationale",
       "source_file": ".agents/skills/ui-styling/scripts/tests/test_shadcn_add.py",
@@ -64652,6 +64641,17 @@
       "community": 85,
       "community_name": "ShadcnInstaller",
       "norm_label": "test getting installed components without config."
+    },
+    {
+      "label": "Test adding components with empty list.",
+      "file_type": "rationale",
+      "source_file": ".agents/skills/ui-styling/scripts/tests/test_shadcn_add.py",
+      "source_location": "L96",
+      "_origin": "ast",
+      "id": "agents_skills_ui_styling_scripts_tests_test_shadcn_add_rationale_96",
+      "community": 85,
+      "community_name": "ShadcnInstaller",
+      "norm_label": "test adding components with empty list."
     },
     {
       "label": "Add all available shadcn/ui components. Args: overwrite: If True, overwrite\u2026",
@@ -65545,6 +65545,17 @@
       "norm_label": "dependencies"
     },
     {
+      "label": "framer-motion",
+      "file_type": "code",
+      "source_file": "package.json",
+      "source_location": "L32",
+      "_origin": "ast",
+      "id": "package_dependencies_framer_motion",
+      "community": 93,
+      "community_name": "dependencies",
+      "norm_label": "framer-motion"
+    },
+    {
       "label": "@hookform/resolvers",
       "file_type": "code",
       "source_file": "package.json",
@@ -65688,17 +65699,6 @@
       "norm_label": "schematex"
     },
     {
-      "label": "@tanstack/react-table",
-      "file_type": "code",
-      "source_file": "package.json",
-      "source_location": "L28",
-      "_origin": "ast",
-      "id": "package_dependencies_tanstack_react_table",
-      "community": 93,
-      "community_name": "dependencies",
-      "norm_label": "@tanstack/react-table"
-    },
-    {
       "label": "xlsx",
       "file_type": "code",
       "source_file": "package.json",
@@ -65708,6 +65708,17 @@
       "community": 93,
       "community_name": "dependencies",
       "norm_label": "xlsx"
+    },
+    {
+      "label": "framer-motion",
+      "file_type": "concept",
+      "source_file": "package.json",
+      "source_location": "L32",
+      "_origin": "ast",
+      "id": "framer_motion",
+      "community": 93,
+      "community_name": "dependencies",
+      "norm_label": "framer-motion"
     },
     {
       "label": "@hookform/resolvers",
@@ -65862,17 +65873,6 @@
       "community": 93,
       "community_name": "dependencies",
       "norm_label": "schematex"
-    },
-    {
-      "label": "@tanstack/react-table",
-      "file_type": "concept",
-      "source_file": "package.json",
-      "source_location": "L28",
-      "_origin": "ast",
-      "id": "tanstack_react_table",
-      "community": 93,
-      "community_name": "dependencies",
-      "norm_label": "@tanstack/react-table"
     },
     {
       "label": "devDependencies",
@@ -73822,7 +73822,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/app/api/admin/users/route.ts",
-      "source_location": "L64",
+      "source_location": "L66",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_app_api_admin_users_route_get",
@@ -75454,7 +75454,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/app/api/projects/route.ts",
-      "source_location": "L53",
+      "source_location": "L56",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_app_api_projects_route_get",
@@ -75466,7 +75466,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/app/api/projects/route.ts",
-      "source_location": "L155",
+      "source_location": "L158",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_app_api_projects_route_post",
@@ -75478,7 +75478,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/app/api/projects/route.ts",
-      "source_location": "L156",
+      "source_location": "L159",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_app_api_projects_route_post",
@@ -75490,7 +75490,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/app/api/projects/route.ts",
-      "source_location": "L161",
+      "source_location": "L164",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_app_api_projects_route_post",
@@ -75502,7 +75502,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/app/api/projects/route.ts",
-      "source_location": "L74",
+      "source_location": "L77",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_app_api_projects_route_post",
@@ -120344,7 +120344,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/app/api/admin/users/route.ts",
-      "source_location": "L62",
+      "source_location": "L64",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_app_api_admin_users_route",
@@ -121818,7 +121818,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/app/api/projects/route.ts",
-      "source_location": "L72",
+      "source_location": "L75",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_app_api_projects_route",

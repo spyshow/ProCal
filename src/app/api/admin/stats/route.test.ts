@@ -71,6 +71,13 @@ describe("weeklySeries", () => {
     const series = weeklySeries([day(5)], 12); // Saturday 2026-08-15 -> Monday 2026-08-10
     expect(series[10]).toEqual({ week: "2026-08-10", count: 1 });
   });
+
+  it("handles ISO date strings safely", async () => {
+    const { weeklySeries } = await import("./route");
+    const series = weeklySeries([day(0).toISOString(), day(7).toISOString()], 12);
+    expect(series[11]).toEqual({ week: "2026-08-17", count: 1 });
+    expect(series[10]).toEqual({ week: "2026-08-10", count: 1 });
+  });
 });
 
 describe("GET /api/admin/stats", () => {

@@ -27,9 +27,10 @@ beforeEach(() => {
   ]);
 });
 
-async function get() {
+async function get(url?: string) {
   const { GET } = await import("./route");
-  return GET();
+  const req = url ? new Request(url) : undefined;
+  return GET(req);
 }
 
 describe("GET /api/admin/leads", () => {
@@ -38,11 +39,36 @@ describe("GET /api/admin/leads", () => {
     const res = await get();
     expect(res.status).toBe(200);
     expect(findMany).toHaveBeenCalledWith(expect.objectContaining({
+      where: undefined,
       include: { user: { select: { id: true, username: true, name: true, email: true } } },
     }));
     const body = await res.json();
     expect(body).toHaveLength(1);
     expect(body[0].user.username).toBe("alice");
+  });
+
+  it("filters for billing leads when ?type=billing is passed", async () => {
+    gateResult = ADMIN;
+    const res = await get("http://localhost/api/admin/leads?type=billing");
+    expect(res.status).toBe(200);
+    expect(findMany).toHaveBeenCalledWith(expect.objectContaining({
+      where: {
+        NOT: {
+          message: { startsWith: "[FEEDBACK" },
+        },
+      },
+    }));
+  });
+
+  it("filters for feedback reports when ?type=feedback is passed", async () => {
+    gateResult = ADMIN;
+    const res = await get("http://localhost/api/admin/leads?type=feedback");
+    expect(res.status).toBe(200);
+    expect(findMany).toHaveBeenCalledWith(expect.objectContaining({
+      where: {
+        message: { startsWith: "[FEEDBACK" },
+      },
+    }));
   });
 
   it("T8b 401 when unauthed", async () => {

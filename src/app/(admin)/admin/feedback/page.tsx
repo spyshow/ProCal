@@ -149,7 +149,7 @@ export default function AdminFeedbackPage() {
     setLoading(true);
     setError('');
     try {
-      const res = await fetch('/api/admin/leads', { cache: 'no-store' });
+      const res = await fetch('/api/admin/leads?type=feedback', { cache: 'no-store' });
       if (res.status === 401) { setError('Unauthorized - Please sign in'); return; }
       if (res.status === 403) { setError('Admin access required'); return; }
       if (!res.ok) throw new Error(`HTTP ${res.status}`);

@@ -28,11 +28,12 @@ export default function AdminLeadsPage() {
 
   const loadLeads = useCallback(async () => {
     try {
-      const res = await fetch('/api/admin/leads', { cache: 'no-store' });
+      const res = await fetch('/api/admin/leads?type=billing', { cache: 'no-store' });
       if (res.status === 401) { setError('Unauthorized'); return; }
       if (res.status === 403) { setError('Admin access required'); return; }
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      setLeads(await res.json());
+      const data: Lead[] = await res.json();
+      setLeads(data.filter((l) => !l.message.startsWith('[FEEDBACK')));
     } catch {
       setError('Failed to load leads');
     } finally {

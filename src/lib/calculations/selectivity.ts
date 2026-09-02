@@ -567,11 +567,10 @@ export function verifyCoordination(
     }
   }
 
-  // Phase 4b: The Phase 1/2 grading rules (1.6× current grading and the
-  // discrimination time margin) are prerequisites for a FULL verdict. If either
-  // fails, the claim must not stay FULL — demote to PARTIAL and surface the
-  // violation instead of passing with contradictory flags.
-  if (status === 'FULL' && (!currentGradingOk || !timeGradingOk)) {
+  // Phase 4b: If tested manufacturer selectivity tables apply (energy selectivity),
+  // they certify total discrimination up to the tested limit per IEC 60947-2 Annex A.
+  // Otherwise, parametric Phase 1/2 grading rules are prerequisites for a FULL verdict.
+  if (status === 'FULL' && !energySelectivityApplied && (!currentGradingOk || !timeGradingOk)) {
     status = 'PARTIAL';
     const violations: string[] = [];
     if (!currentGradingOk) {

@@ -4,11 +4,11 @@ const isDev = process.env.NODE_ENV !== "production";
 
 const cspHeader = `
   default-src 'self';
-  script-src 'self' 'unsafe-inline' https://www.clarity.ms https://scripts.clarity.ms ${isDev ? "'unsafe-eval'" : ""};
-  style-src 'self' 'unsafe-inline';
-  img-src 'self' data: blob: https://*.clarity.ms https://c.bing.com;
-  font-src 'self' data:;
-  connect-src 'self' https://*.clarity.ms https://c.bing.com https://*.bing.com;
+  script-src 'self' 'unsafe-inline' https://www.clarity.ms https://scripts.clarity.ms https://*.clarity.ms https://*.cdn.office.net ${isDev ? "'unsafe-eval'" : ""};
+  style-src 'self' 'unsafe-inline' https://*.cdn.office.net;
+  img-src 'self' data: blob: https://*.clarity.ms https://c.bing.com https://*.cdn.office.net;
+  font-src 'self' data: https://*.cdn.office.net https://res.cdn.office.net https://res-1.cdn.office.net https://*.clarity.ms;
+  connect-src 'self' https://*.clarity.ms https://c.bing.com https://*.bing.com https://*.cdn.office.net;
   object-src 'none';
   base-uri 'self';
   form-action 'self';

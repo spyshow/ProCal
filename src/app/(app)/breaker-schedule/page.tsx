@@ -232,6 +232,24 @@ export default function BreakerSchedulePage() {
     return savedModel;
   };
 
+  const normalizeBreakerId = (id: string) => id.replace(/[–—]/g, '-').trim();
+
+  const findSavedBreakerSetting = useCallback(
+    (f: PanelFeeder) => {
+      if (!project) return undefined;
+      const normName = normalizeBreakerId(f.name);
+      return breakerSettings.find(
+        (s) =>
+          normalizeBreakerId(s.breakerId) === `${project.id}-${normName}` ||
+          normalizeBreakerId(s.breakerId) === normName ||
+          s.breakerId === f.name ||
+          (f.itemId && s.breakerId === f.itemId) ||
+          (f.buildingLoadId && s.breakerId === f.buildingLoadId)
+      );
+    },
+    [project, breakerSettings]
+  );
+
   // The full breaker list is derived purely from project inputs + the live
   // catalog + saved settings. Computing it only when one of those changes
   // (instead of on every render) keeps filter clicks / modal opens cheap.
@@ -309,20 +327,6 @@ export default function BreakerSchedulePage() {
       const feederFloor = (feederName: string): number => {
         const m = feederName.match(/^F(\d+)/);
         return m ? parseInt(m[1], 10) : 0;
-      };
-
-      const normalizeBreakerId = (id: string) => id.replace(/[–—]/g, '-').trim();
-
-      const findSavedBreakerSetting = (f: PanelFeeder) => {
-        const normName = normalizeBreakerId(f.name);
-        return breakerSettings.find(
-          (s) =>
-            normalizeBreakerId(s.breakerId) === `${project.id}-${normName}` ||
-            normalizeBreakerId(s.breakerId) === normName ||
-            s.breakerId === f.name ||
-            (f.itemId && s.breakerId === f.itemId) ||
-            (f.buildingLoadId && s.breakerId === f.buildingLoadId)
-        );
       };
 
       for (const f of mdbFeeders) {

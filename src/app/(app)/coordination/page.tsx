@@ -194,12 +194,11 @@ export default function CoordinationPage() {
         list.push({
           ...f,
           breakerModel: effectiveModel,
-          selectivityStatus: saved ? 'FULL' : f.selectivityStatus,
-          // A saved FULL override must not carry a stale PARTIAL limit.
-          selectivityLimitKa: saved ? null : f.selectivityLimitKa,
-          selectivityReason: saved ? `Full electronic LSI selectivity (${effectiveModel})` : f.selectivityReason,
-          suggestedAlternative: saved ? null : f.suggestedAlternative,
-          alternativeSuggestions: saved ? [] : f.alternativeSuggestions,
+          selectivityStatus: f.selectivityStatus,
+          selectivityLimitKa: f.selectivityLimitKa,
+          selectivityReason: f.selectivityReason,
+          suggestedAlternative: f.suggestedAlternative,
+          alternativeSuggestions: f.alternativeSuggestions,
           buildingId: bldg.id,
           buildingName: bldg.name,
           floor: 0,
@@ -213,10 +212,10 @@ export default function CoordinationPage() {
           list.push({
             ...f,
             breakerModel: effectiveModel,
-            selectivityStatus: saved ? 'FULL' : f.selectivityStatus,
-            selectivityReason: saved ? `Full electronic LSI selectivity (${effectiveModel})` : f.selectivityReason,
-            suggestedAlternative: saved ? null : f.suggestedAlternative,
-            alternativeSuggestions: saved ? [] : f.alternativeSuggestions,
+            selectivityStatus: f.selectivityStatus,
+            selectivityReason: f.selectivityReason,
+            suggestedAlternative: f.suggestedAlternative,
+            alternativeSuggestions: f.alternativeSuggestions,
             buildingId: bldg.id,
             buildingName: bldg.name,
             floor: floorNumber,
@@ -248,7 +247,9 @@ export default function CoordinationPage() {
     return (
       allProjectFeeders.find(
         (f) => f.name === selectedFeederName && (!selectedBuildingId || f.buildingId === selectedBuildingId)
-      ) || null
+      ) ||
+      allProjectFeeders.find((f) => f.name === selectedFeederName) ||
+      null
     );
   }, [allProjectFeeders, selectedFeederName, selectedBuildingId]);
 
@@ -753,12 +754,22 @@ export default function CoordinationPage() {
                 <label htmlFor="coordination-feeder" className="text-xs font-semibold text-gray-400">Select Feeder to Analyze:</label>
                 <select
                   id="coordination-feeder"
-                  value={selectedFeederName}
-                  onChange={(e) => setSelectedFeederName(e.target.value)}
+                  value={selectedBuildingId && selectedFeederName ? `${selectedBuildingId}:::${selectedFeederName}` : selectedFeederName}
+                  onChange={(e) => {
+                    const parts = e.target.value.split(':::');
+                    if (parts.length >= 2) {
+                      const bId = parts[0];
+                      const fName = parts.slice(1).join(':::');
+                      setSelectedBuildingId(bId);
+                      setSelectedFeederName(fName);
+                    } else {
+                      setSelectedFeederName(e.target.value);
+                    }
+                  }}
                   className="dense-input rounded-lg text-xs bg-gray-950 border border-gray-700 text-white font-medium min-w-[280px]"
                 >
                   {allProjectFeeders.map((f) => (
-                    <option key={`${f.buildingId}-${f.name}`} value={f.name}>
+                    <option key={`${f.buildingId}-${f.name}`} value={`${f.buildingId}:::${f.name}`}>
                       {f.name} ({f.breakerSize}A) &mdash; {f.selectivityStatus || 'UNKNOWN'}
                     </option>
                   ))}

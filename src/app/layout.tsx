@@ -3,6 +3,7 @@ import { Inter, Rubik } from "next/font/google";
 import "./globals.css";
 import { ProjectProvider } from "@/context/ProjectContext";
 import { I18nProvider } from "@/i18n";
+import { MicrosoftClarity } from "@/components/analytics/MicrosoftClarity";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -41,6 +42,9 @@ export default function RootLayout({
       className={`${inter.variable} ${rubikArabic.variable} h-full`}
       suppressHydrationWarning
     >
+      <head>
+        <MicrosoftClarity />
+      </head>
       <body className="min-h-full bg-slate-950 text-slate-100 antialiased font-sans" suppressHydrationWarning>
         <I18nProvider>
           <ProjectProvider>{children}</ProjectProvider>

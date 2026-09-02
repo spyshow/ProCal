@@ -39,6 +39,10 @@ interface BreakerRow {
   selectivityLimitKa?: number | null;
   cableDamageOk?: boolean;
   suggestedAlternative?: string | null;
+  irSetting?: number;
+  isdSetting?: number;
+  tsdSetting?: number;
+  iiSetting?: number;
 }
 
 /**
@@ -133,6 +137,19 @@ export default function BreakerSchedule({
       const effectiveIncomerIn = !isNaN(savedIncomerFrame) && savedIncomerFrame > 0 ? savedIncomerFrame : mainBreakerIn;
       const isUnderProtected = effectiveIncomerIn > mainCableIz || mainCableUnderProtected;
 
+      const normalizeBreakerId = (id: string) => id.replace(/[–—]/g, '-').trim();
+      const findSaved = (fName: string, itemId?: string, buildingLoadId?: string) => {
+        const norm = normalizeBreakerId(fName);
+        return breakerSettings.find(
+          (s) =>
+            normalizeBreakerId(s.breakerId) === `${project.id}-${norm}` ||
+            normalizeBreakerId(s.breakerId) === norm ||
+            s.breakerId === fName ||
+            (itemId && s.breakerId === itemId) ||
+            (buildingLoadId && s.breakerId === buildingLoadId)
+        );
+      };
+
       list.push({
         id: `${bldg.id}-incomer`,
         name: project.buildings.length > 1 ? `${bldg.name} – Main Incomer` : 'Main Incomer',
@@ -149,6 +166,10 @@ export default function BreakerSchedule({
         faultCurrentKa: transformerIscKa,
         selectivityStatus: 'FULL',
         cableDamageOk: !isUnderProtected,
+        irSetting: incomerSaved?.ir ?? parseFloat((effectiveIncomerIn * 0.9).toFixed(1)),
+        isdSetting: incomerSaved?.isd ?? effectiveIncomerIn * 4,
+        tsdSetting: incomerSaved?.tsd ?? 0.3,
+        iiSetting: incomerSaved?.ii ?? effectiveIncomerIn * 10,
       });
 
       const feederFloor = (feederName: string): number => {
@@ -157,9 +178,9 @@ export default function BreakerSchedule({
       };
 
       for (const f of mdbFeeders) {
-        const stableId = `${project.id}-${f.name}`;
-        const saved = breakerSettings.find((s) => s.breakerId === stableId);
+        const saved = findSaved(f.name, f.itemId, f.buildingLoadId);
         const effectiveModel = resolveBreakerDisplayName(saved?.model, f.breakerModel);
+        const isElectronic = f.isThreePhase && f.breakerSize >= 100;
 
         list.push({
           id: `${bldg.id}-mdb-${list.length}`,
@@ -181,14 +202,18 @@ export default function BreakerSchedule({
           selectivityLimitKa: f.selectivityLimitKa,
           cableDamageOk: f.cableDamageOk,
           suggestedAlternative: f.suggestedAlternative,
+          irSetting: saved?.ir ?? (isElectronic ? parseFloat(f.current.toFixed(1)) : undefined),
+          isdSetting: saved?.isd ?? (isElectronic ? f.breakerSize * 4 : undefined),
+          tsdSetting: saved?.tsd ?? (isElectronic ? 0.05 : undefined),
+          iiSetting: saved?.ii ?? (isElectronic ? f.breakerSize * 8 : undefined),
         });
       }
 
       for (const floorNumber of smdbFloorNumbers) {
         for (const f of smdbFeeders(floorNumber)) {
-          const stableId = `${project.id}-${f.name}`;
-          const saved = breakerSettings.find((s) => s.breakerId === stableId);
+          const saved = findSaved(f.name, f.itemId, f.buildingLoadId);
           const effectiveModel = resolveBreakerDisplayName(saved?.model, f.breakerModel);
+          const isElectronic = f.isThreePhase && f.breakerSize >= 100;
 
           list.push({
             id: `${bldg.id}-smdb-${list.length}`,
@@ -210,6 +235,10 @@ export default function BreakerSchedule({
             selectivityLimitKa: f.selectivityLimitKa,
             cableDamageOk: f.cableDamageOk,
             suggestedAlternative: f.suggestedAlternative,
+            irSetting: saved?.ir ?? (isElectronic ? parseFloat(f.current.toFixed(1)) : undefined),
+            isdSetting: saved?.isd ?? (isElectronic ? f.breakerSize * 4 : undefined),
+            tsdSetting: saved?.tsd ?? (isElectronic ? 0.05 : undefined),
+            iiSetting: saved?.ii ?? (isElectronic ? f.breakerSize * 8 : undefined),
           });
         }
       }
@@ -279,6 +308,7 @@ export default function BreakerSchedule({
                 <th className="p-2 border-r border-slate-800 text-center">Ib (A)</th>
                 <th className="p-2 border-r border-slate-800 text-center">Rating (In)</th>
                 <th className="p-2 border-r border-slate-800">Breaker Model</th>
+                <th className="p-2 border-r border-slate-800 text-center">Trip Settings (Ir / Isd / tsd / Ii)</th>
                 <th className="p-2 border-r border-slate-800 text-center">Cable</th>
                 <th className="p-2 border-r border-slate-800 text-right">Isc (kA)</th>
                 <th className="p-2 border-r border-slate-800 text-center">Selectivity</th>
@@ -357,6 +387,20 @@ export default function BreakerSchedule({
                   </td>
                   <td className="p-2 border-r border-slate-200 text-xs font-mono text-slate-800">
                     {b.breakerModel}
+                  </td>
+                  <td className="p-2 border-r border-slate-200 text-center font-mono text-[11px]">
+                    {b.isThreePhase && b.breakerSize >= 100 ? (
+                      <div className="flex flex-col items-center">
+                        <span className="text-slate-900 font-bold">
+                          Ir: {b.irSetting ?? b.breakerSize}A | Isd: {b.isdSetting ?? b.breakerSize * 4}A
+                        </span>
+                        <span className="text-amber-700 font-semibold text-[10px]">
+                          tsd: {b.tsdSetting !== undefined ? `${b.tsdSetting}s` : (b.type === 'INCOMER' ? '0.30s' : '0.05s')} | Ii: {b.iiSetting ?? b.breakerSize * 10}A
+                        </span>
+                      </div>
+                    ) : (
+                      <span className="text-slate-500">Thermal-Magnetic (Type C)</span>
+                    )}
                   </td>
                   <td className="p-2 border-r border-slate-200 text-center font-mono text-slate-800">
                     {b.cableSize ? formatCableSizeFor(b.cableSize, project.calculationStandard) : 'Busbar'}

@@ -100,6 +100,7 @@ export function buildReportWorkbook(
       Cable: cableCell(project, r.cableMm2),
       Model: r.breakerModel,
       Phase: r.isThreePhase ? "3Φ" : "1Φ",
+      "Trip Unit Settings": r.isThreePhase && r.breakerAmps >= 100 ? `Ir=${r.current.toFixed(1)}A, Isd=${r.breakerAmps * 4}A, tsd=${r.type === 'INCOMER' ? '0.30s' : '0.05s'}, Ii=${r.breakerAmps * 10}A` : "Thermal-Magnetic Type C",
     }))
   );
   appendSheet(

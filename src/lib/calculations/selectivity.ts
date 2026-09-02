@@ -376,6 +376,13 @@ const TESTED_SELECTIVITY_TABLES: TestedSelectivityRule[] = [
   { upstreamCategory: 'ACB', downstreamCategory: 'MCCB', minUpstreamIn: 630, maxDownstreamIn: 630, testedLimitKa: 36 },
   { upstreamCategory: 'ACB', downstreamCategory: 'MCB', minUpstreamIn: 630, maxDownstreamIn: 63, testedLimitKa: 50 },
 
+  // MCCB (Tmax XT / ComPacT NSX) -> MCCB (Tmax XT / ComPacT NSX) with Electronic Trip Units (MicroLogic / Ekip)
+  { upstreamCategory: 'MCCB', downstreamCategory: 'MCCB', minUpstreamIn: 630, maxDownstreamIn: 400, testedLimitKa: 36 },
+  { upstreamCategory: 'MCCB', downstreamCategory: 'MCCB', minUpstreamIn: 630, maxDownstreamIn: 250, testedLimitKa: 50 },
+  { upstreamCategory: 'MCCB', downstreamCategory: 'MCCB', minUpstreamIn: 400, maxDownstreamIn: 250, testedLimitKa: 36 },
+  { upstreamCategory: 'MCCB', downstreamCategory: 'MCCB', minUpstreamIn: 400, maxDownstreamIn: 160, testedLimitKa: 36 },
+  { upstreamCategory: 'MCCB', downstreamCategory: 'MCCB', minUpstreamIn: 250, maxDownstreamIn: 100, testedLimitKa: 25 },
+
   // MCCB (Tmax XT / ComPacT NSX) -> MCB (S200 / Acti9 iC60) via Energy Selectivity (I²t)
   { upstreamCategory: 'MCCB', downstreamCategory: 'MCB', minUpstreamIn: 160, maxDownstreamIn: 32, testedLimitKa: 36 },
   { upstreamCategory: 'MCCB', downstreamCategory: 'MCB', minUpstreamIn: 160, maxDownstreamIn: 63, testedLimitKa: 25 },

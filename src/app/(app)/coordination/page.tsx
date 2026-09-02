@@ -191,12 +191,49 @@ export default function CoordinationPage() {
       for (const f of mdbFeeders) {
         const saved = findSavedBreakerSetting(f);
         const effectiveModel = resolveBreakerDisplayName(saved?.model, f.breakerModel);
+        let effectiveStatus = f.selectivityStatus;
+        let effectiveLimitKa = f.selectivityLimitKa;
+        let effectiveReason = f.selectivityReason;
+
+        if (saved) {
+          const customDownstream: BreakerCurveSettings = {
+            inRating: f.breakerSize,
+            ir: saved.ir ?? f.current,
+            tr: saved.tr ?? 12,
+            isd: saved.isd ?? (f.breakerSize * 4),
+            tsd: saved.tsd ?? 0.05,
+            ii: saved.ii ?? (f.breakerSize * 10),
+            category: f.type === 'SMDB' || f.type === 'SERVICE_PANEL' || f.type === 'PUMP_PANEL' || f.type === 'ELEVATOR_PANEL' ? 'MCCB' : (f.breakerSize <= 63 ? 'MCB' : 'MCCB'),
+            manufacturer: saved.manufacturer ?? f.manufacturer ?? project.preferredManufacturer ?? 'Schneider',
+            model: effectiveModel,
+            isGeneric: false,
+          };
+          const reCoord = verifyCoordination(
+            mainIncomerSettings,
+            customDownstream,
+            (f.faultCurrentKa || 15) * 1000,
+            {
+              cableSizeMm2: f.cableSize,
+              cableMaterial: 'copper',
+              cableInsulation: 'XLPE',
+              cableRuns: f.parallelRuns,
+              manufacturerPair: {
+                upstreamMfg: mainIncomerSettings.manufacturer ?? 'Schneider',
+                downstreamMfg: customDownstream.manufacturer ?? 'Schneider',
+              },
+            }
+          );
+          effectiveStatus = reCoord.status;
+          effectiveLimitKa = reCoord.status === 'PARTIAL' && reCoord.limitCurrent ? reCoord.limitCurrent / 1000 : null;
+          effectiveReason = reCoord.overlapDetails;
+        }
+
         list.push({
           ...f,
           breakerModel: effectiveModel,
-          selectivityStatus: f.selectivityStatus,
-          selectivityLimitKa: f.selectivityLimitKa,
-          selectivityReason: f.selectivityReason,
+          selectivityStatus: effectiveStatus,
+          selectivityLimitKa: effectiveLimitKa,
+          selectivityReason: effectiveReason,
           suggestedAlternative: f.suggestedAlternative,
           alternativeSuggestions: f.alternativeSuggestions,
           buildingId: bldg.id,
@@ -209,11 +246,67 @@ export default function CoordinationPage() {
         for (const f of smdbFeeders(floorNumber)) {
           const saved = findSavedBreakerSetting(f);
           const effectiveModel = resolveBreakerDisplayName(saved?.model, f.breakerModel);
+          let effectiveStatus = f.selectivityStatus;
+          let effectiveLimitKa = f.selectivityLimitKa;
+          let effectiveReason = f.selectivityReason;
+
+          if (saved) {
+            const upFeeder = mdbFeeders.find((uf) => uf.name === f.parentFeederName || uf.name === `F${floorNumber} – SMDB` || uf.name === `F${floorNumber} - SMDB`);
+            const upSaved = upFeeder ? findSavedBreakerSetting(upFeeder) : null;
+            const upIn = upSaved?.frameSize ? parseInt(upSaved.frameSize) : (upFeeder?.breakerSize ?? 400);
+            const upIr = upSaved?.ir ?? Math.max(upFeeder?.current ?? 0, upIn * 0.85);
+            const customUpstream: BreakerCurveSettings = {
+              inRating: upIn,
+              ir: upIr,
+              tr: upSaved?.tr ?? 12,
+              isd: upSaved?.isd ?? (upIn * 4),
+              tsd: upSaved?.tsd ?? 0.3,
+              ii: upSaved?.ii ?? (upIn * 10),
+              category: upIn >= 630 ? 'ACB' : 'MCCB',
+              manufacturer: upSaved?.manufacturer ?? upFeeder?.manufacturer ?? project.preferredManufacturer ?? 'Schneider',
+              model: upSaved?.model ?? upFeeder?.breakerModel,
+              isGeneric: false,
+            };
+
+            const customDownstream: BreakerCurveSettings = {
+              inRating: f.breakerSize,
+              ir: saved.ir ?? f.current,
+              tr: saved.tr ?? 12,
+              isd: saved.isd ?? (f.breakerSize * 4),
+              tsd: saved.tsd ?? 0.05,
+              ii: saved.ii ?? (f.breakerSize * 10),
+              category: f.breakerSize <= 63 ? 'MCB' : (f.breakerSize >= 630 ? 'ACB' : 'MCCB'),
+              manufacturer: saved.manufacturer ?? f.manufacturer ?? project.preferredManufacturer ?? 'Schneider',
+              model: effectiveModel,
+              isGeneric: false,
+            };
+
+            const reCoord = verifyCoordination(
+              customUpstream,
+              customDownstream,
+              (f.faultCurrentKa || 15) * 1000,
+              {
+                cableSizeMm2: f.cableSize,
+                cableMaterial: 'copper',
+                cableInsulation: 'XLPE',
+                cableRuns: f.parallelRuns,
+                manufacturerPair: {
+                  upstreamMfg: customUpstream.manufacturer ?? 'Schneider',
+                  downstreamMfg: customDownstream.manufacturer ?? 'Schneider',
+                },
+              }
+            );
+            effectiveStatus = reCoord.status;
+            effectiveLimitKa = reCoord.status === 'PARTIAL' && reCoord.limitCurrent ? reCoord.limitCurrent / 1000 : null;
+            effectiveReason = reCoord.overlapDetails;
+          }
+
           list.push({
             ...f,
             breakerModel: effectiveModel,
-            selectivityStatus: f.selectivityStatus,
-            selectivityReason: f.selectivityReason,
+            selectivityStatus: effectiveStatus,
+            selectivityLimitKa: effectiveLimitKa,
+            selectivityReason: effectiveReason,
             suggestedAlternative: f.suggestedAlternative,
             alternativeSuggestions: f.alternativeSuggestions,
             buildingId: bldg.id,

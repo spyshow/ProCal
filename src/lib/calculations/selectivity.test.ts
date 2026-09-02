@@ -488,7 +488,7 @@ describe('verifyCoordination (4-Phase Protection Engine)', () => {
     };
     const result = verifyCoordination(upstream, downstream, 3000, { cableSizeMm2: 120 });
     expect(result.currentGradingOk).toBe(false);
-    expect(result.timeGradingOk).toBe(false);
+    expect(result.timeGradingOk).toBe(true);
     expect(result.status).toBe('PARTIAL');
     expect(result.overlapDetails).toMatch(/Grading rules violated/);
   });

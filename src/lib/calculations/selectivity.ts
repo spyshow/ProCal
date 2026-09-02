@@ -364,14 +364,18 @@ export function checkCableProtection(
 
 interface TestedSelectivityRule {
   upstreamCategory: 'ACB' | 'MCCB';
-  downstreamCategory: 'MCCB' | 'MCB';
+  downstreamCategory: 'ACB' | 'MCCB' | 'MCB';
   minUpstreamIn: number;
   maxDownstreamIn: number;
   testedLimitKa: number;
 }
 
 const TESTED_SELECTIVITY_TABLES: TestedSelectivityRule[] = [
+  // ACB (Emax 2 / Masterpact) -> ACB (Emax 2 / Masterpact)
+  { upstreamCategory: 'ACB', downstreamCategory: 'ACB', minUpstreamIn: 1000, maxDownstreamIn: 1600, testedLimitKa: 50 },
+
   // ACB (Emax 2 / Masterpact) -> MCCB (Tmax / NSX)
+  { upstreamCategory: 'ACB', downstreamCategory: 'MCCB', minUpstreamIn: 630, maxDownstreamIn: 100, testedLimitKa: 50 },
   { upstreamCategory: 'ACB', downstreamCategory: 'MCCB', minUpstreamIn: 630, maxDownstreamIn: 250, testedLimitKa: 50 },
   { upstreamCategory: 'ACB', downstreamCategory: 'MCCB', minUpstreamIn: 630, maxDownstreamIn: 630, testedLimitKa: 36 },
   { upstreamCategory: 'ACB', downstreamCategory: 'MCB', minUpstreamIn: 630, maxDownstreamIn: 63, testedLimitKa: 50 },
@@ -379,8 +383,10 @@ const TESTED_SELECTIVITY_TABLES: TestedSelectivityRule[] = [
   // MCCB (Tmax XT / ComPacT NSX) -> MCCB (Tmax XT / ComPacT NSX) with Electronic Trip Units (MicroLogic / Ekip)
   { upstreamCategory: 'MCCB', downstreamCategory: 'MCCB', minUpstreamIn: 630, maxDownstreamIn: 400, testedLimitKa: 36 },
   { upstreamCategory: 'MCCB', downstreamCategory: 'MCCB', minUpstreamIn: 630, maxDownstreamIn: 250, testedLimitKa: 50 },
+  { upstreamCategory: 'MCCB', downstreamCategory: 'MCCB', minUpstreamIn: 630, maxDownstreamIn: 100, testedLimitKa: 36 },
   { upstreamCategory: 'MCCB', downstreamCategory: 'MCCB', minUpstreamIn: 400, maxDownstreamIn: 250, testedLimitKa: 36 },
   { upstreamCategory: 'MCCB', downstreamCategory: 'MCCB', minUpstreamIn: 400, maxDownstreamIn: 160, testedLimitKa: 36 },
+  { upstreamCategory: 'MCCB', downstreamCategory: 'MCCB', minUpstreamIn: 400, maxDownstreamIn: 100, testedLimitKa: 36 },
   { upstreamCategory: 'MCCB', downstreamCategory: 'MCCB', minUpstreamIn: 250, maxDownstreamIn: 100, testedLimitKa: 25 },
 
   // MCCB (Tmax XT / ComPacT NSX) -> MCB (S200 / Acti9 iC60) via Energy Selectivity (I²t)
@@ -398,7 +404,7 @@ export function lookupTestedSelectivity(
   downstream: BreakerCurveSettings
 ): number | null {
   const upCat = upstream.category ?? (upstream.inRating >= 630 ? 'ACB' : 'MCCB');
-  const downCat = downstream.category ?? (downstream.inRating <= 63 ? 'MCB' : 'MCCB');
+  const downCat = downstream.category ?? (downstream.inRating >= 630 ? 'ACB' : downstream.inRating <= 63 ? 'MCB' : 'MCCB');
 
   for (const rule of TESTED_SELECTIVITY_TABLES) {
     if (
@@ -485,9 +491,9 @@ export function verifyCoordination(
   const upCategory = upstream.category ?? (upstream.inRating >= 630 ? 'ACB' : 'MCCB');
   const downCategory = downstream.category ?? (downstream.inRating <= 63 ? 'MCB' : 'MCCB');
 
-  // Time margin: 0.3s for MCCB->MCCB / ACB->MCCB, 0.1s for MCCB->MCB
-  // (IEC 60947-2 discrimination margin; matches the docstring above).
-  const requiredMargin = upCategory === 'MCCB' && downCategory === 'MCB' ? 0.1 : 0.3;
+  // Time margin: 0.25s for MCCB->MCCB / ACB->ACB / ACB->MCCB (standard 250ms electronic delay grading), 0.1s for MCCB->MCB
+  // (IEC 60947-2 discrimination margin).
+  const requiredMargin = upCategory === 'MCCB' && downCategory === 'MCB' ? 0.1 : 0.25;
   const timeGradingOk = t_up_test >= t_down_test + requiredMargin;
 
   // Phase 3: Energy Selectivity & Tested Manufacturer Tables
@@ -738,20 +744,64 @@ export function suggestAlternativeBreaker(
     });
   }
 
-  // If feeder is downstream of an SMDB sub-panel
-  if (options?.parentFeederName && options.parentFeederName.includes('SMDB')) {
+  // 2. Electronic Trip Unit Upgrade (if using Thermal-Magnetic or standard unit)
+  if (downstream.category === 'MCCB') {
+    const tripUnitName = isSchneider ? 'MicroLogic 5.2 E' : 'Ekip Touch LSI';
+    const currentModel = downstream.model || '';
+    let upgradedModel = '';
+
+    if (currentModel && !/^(?:ACB|MCCB|MCB)\s+\d+A?$/i.test(currentModel.trim())) {
+      if (currentModel.includes('MicroLogic')) {
+        upgradedModel = currentModel.replace(/MicroLogic\s*[\d.]+\s*[a-zA-Z]*/i, tripUnitName);
+      } else if (currentModel.includes('Ekip')) {
+        upgradedModel = currentModel.replace(/Ekip\s*[\w\s]+/i, tripUnitName);
+      } else {
+        upgradedModel = `${currentModel} ${tripUnitName}`.trim();
+      }
+    } else {
+      if (isSchneider) {
+        upgradedModel = `Schneider ComPacT NSX${downstream.inRating} NSX${downstream.inRating}N ${downstream.inRating}A ${tripUnitName}`;
+      } else if (isAbb) {
+        upgradedModel = `ABB Tmax XT${downstream.inRating <= 250 ? '4' : '5'} ${downstream.inRating}A ${tripUnitName}`;
+      } else {
+        upgradedModel = `Generic MCCB ${downstream.inRating}A 3P (${tripUnitName})`;
+      }
+    }
+
     suggestions.push({
-      id: 'sug-direct-feed',
-      type: 'DIRECT_MDB_FEED',
-      badge: 'Direct MDB Feed',
-      title: 'Feed Directly from Main Incomer (MDB Bus)',
-      description: `This heavy load (${loadCurrent.toFixed(1)}A) exceeds typical sub-panel branching limits. Routing this circuit directly from the Main MDB incomer eliminates the sub-panel bottleneck and ensures FULL selectivity.`,
+      id: 'sug-trip-unit',
+      type: 'ELECTRONIC_TRIP_UNIT',
+      badge: 'Electronic Trip Unit',
+      title: `Equip with ${tripUnitName} (Adjustable LSI)`,
+      description: `Switching to ${tripUnitName} provides precise electronic short-time pickup (Isd) and delay (tsd) adjustments to eliminate curve overlap under fault currents up to ${faultKa} kA.`,
+      suggestedModel: upgradedModel,
+      suggestedSettings: {
+        tsd: 0.05,
+        isd: downstream.ir * 4,
+        ii: downstream.inRating * 8,
+      },
       expectedSelectivity: 'FULL',
-      actionText: 'Connect directly to MDB bus',
+      actionText: `Select ${tripUnitName}`,
     });
   }
 
-  // Downstream resize check (if load current is smaller than breaker frame)
+  // 3. Time Grading / Energy Selectivity Tuning (PARTIAL or curve overlap)
+  suggestions.push({
+    id: 'sug-lsi-tuning',
+    type: 'SETTINGS_ADJUSTMENT',
+    badge: 'LSI Delay Tuning',
+    title: 'Configure Electronic LSI Delay Grading (tsd = 0.05s / 0.3s)',
+    description: `Set downstream short-time delay tsd to 0.05s (or instantaneous Ii = 6×Ir) and upstream tsd to 0.3s. This creates a 250ms grading margin, clearing downstream faults before the upstream trip mechanism begins unlatching at ${faultKa} kA.`,
+    suggestedSettings: {
+      tsd: 0.05,
+      isd: downstream.ir * 4,
+      ii: downstream.inRating * 8,
+    },
+    expectedSelectivity: 'FULL',
+    actionText: 'Apply LSI Settings',
+  });
+
+  // 4. Downstream resize check (if load current is smaller than breaker frame)
   const optimalDownstreamSize = STANDARD_BREAKER_SIZES.find((s) => s >= loadCurrent * 1.25);
   if (optimalDownstreamSize && optimalDownstreamSize < downstream.inRating) {
     let suggestedDownstreamModel = `${optimalDownstreamSize}A LSI Breaker`;
@@ -800,60 +850,16 @@ export function suggestAlternativeBreaker(
     });
   }
 
-  // 2. Time Grading / Energy Selectivity Tuning (PARTIAL or curve overlap)
-  suggestions.push({
-    id: 'sug-lsi-tuning',
-    type: 'SETTINGS_ADJUSTMENT',
-    badge: 'LSI Delay Tuning',
-    title: 'Configure Electronic LSI Delay Grading (tsd = 0.05s / 0.3s)',
-    description: `Set downstream short-time delay tsd to 0.05s (or instantaneous Ii = 6×Ir) and upstream tsd to 0.3s. This creates a 250ms grading margin, clearing downstream faults before the upstream trip mechanism begins unlatching at ${faultKa} kA.`,
-    suggestedSettings: {
-      tsd: 0.05,
-      isd: downstream.ir * 4,
-      ii: downstream.inRating * 8,
-    },
-    expectedSelectivity: 'FULL',
-    actionText: 'Apply LSI Settings',
-  });
-
-  // 3. Electronic Trip Unit Upgrade (if using Thermal-Magnetic or standard unit)
-  if (downstream.category === 'MCCB') {
-    const tripUnitName = isSchneider ? 'MicroLogic 5.2 E' : 'Ekip Touch LSI';
-    const currentModel = downstream.model || '';
-    let upgradedModel = '';
-
-    if (currentModel && !/^(?:ACB|MCCB|MCB)\s+\d+A?$/i.test(currentModel.trim())) {
-      if (currentModel.includes('MicroLogic')) {
-        upgradedModel = currentModel.replace(/MicroLogic\s*[\d.]+\s*[a-zA-Z]*/i, tripUnitName);
-      } else if (currentModel.includes('Ekip')) {
-        upgradedModel = currentModel.replace(/Ekip\s*[\w\s]+/i, tripUnitName);
-      } else {
-        upgradedModel = `${currentModel} ${tripUnitName}`.trim();
-      }
-    } else {
-      if (isSchneider) {
-        upgradedModel = `Schneider ComPacT NSX${downstream.inRating} NSX${downstream.inRating}N ${downstream.inRating}A ${tripUnitName}`;
-      } else if (isAbb) {
-        upgradedModel = `ABB Tmax XT${downstream.inRating <= 250 ? '4' : '5'} ${downstream.inRating}A ${tripUnitName}`;
-      } else {
-        upgradedModel = `Generic MCCB ${downstream.inRating}A 3P (${tripUnitName})`;
-      }
-    }
-
+  // 5. If feeder is downstream of an SMDB sub-panel with very large load
+  if (options?.parentFeederName && options.parentFeederName.includes('SMDB') && loadCurrent > 160) {
     suggestions.push({
-      id: 'sug-trip-unit',
-      type: 'ELECTRONIC_TRIP_UNIT',
-      badge: 'Electronic Trip Unit',
-      title: `Equip with ${tripUnitName} (Adjustable LSI)`,
-      description: `Switching to ${tripUnitName} provides precise electronic short-time pickup (Isd) and delay (tsd) adjustments to eliminate curve overlap under fault currents up to ${faultKa} kA.`,
-      suggestedModel: upgradedModel,
-      suggestedSettings: {
-        tsd: 0.05,
-        isd: downstream.ir * 4,
-        ii: downstream.inRating * 8,
-      },
+      id: 'sug-direct-feed',
+      type: 'DIRECT_MDB_FEED',
+      badge: 'Direct MDB Feed',
+      title: 'Feed Directly from Main Incomer (MDB Bus)',
+      description: `This heavy load (${loadCurrent.toFixed(1)}A) exceeds typical sub-panel branching limits. Routing this circuit directly from the Main MDB incomer eliminates the sub-panel bottleneck and ensures FULL selectivity.`,
       expectedSelectivity: 'FULL',
-      actionText: `Select ${tripUnitName}`,
+      actionText: 'Connect directly to MDB bus',
     });
   }
 

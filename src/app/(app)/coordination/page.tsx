@@ -442,7 +442,7 @@ export default function CoordinationPage() {
     const downIn = Math.max(1, rawDownIn || 16);
     const rawDownIr = savedDown?.ir ?? feeder.current;
     const downIr = Math.max(0.5, (rawDownIr && rawDownIr > 0) ? rawDownIr : downIn * 0.8);
-    const downCat: 'MCB' | 'MCCB' = feeder.type === 'APARTMENT' ? 'MCB' : 'MCCB';
+    const downCat: 'MCB' | 'MCCB' | 'ACB' = downIn >= 630 ? 'ACB' : (downIn <= 63 && feeder.type === 'APARTMENT') ? 'MCB' : 'MCCB';
     const downModel = savedDown?.model ?? feeder.breakerModel;
 
     setDownstream({

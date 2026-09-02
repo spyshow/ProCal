@@ -1059,6 +1059,9 @@ export default function BreakerSchedulePage() {
             ? 'MCCB'
             : 'MCB';
 
+        const savedDown = findSavedBreakerSetting(selectedFeederForModal);
+        const savedUp = upstreamFeederForModal ? findSavedBreakerSetting(upstreamFeederForModal) : null;
+
         return (
           <TccPlotModal
             isOpen={true}
@@ -1068,9 +1071,17 @@ export default function BreakerSchedulePage() {
             upstreamBreakerModel={upstreamFeederForModal?.breakerModel}
             upstreamBreakerSize={upstreamFeederForModal?.breakerSize}
             upstreamCurrent={upstreamFeederForModal?.current}
+            upstreamIr={savedUp?.ir}
+            upstreamIsd={savedUp?.isd}
+            upstreamTsd={savedUp?.tsd}
+            upstreamIi={savedUp?.ii}
             downstreamBreakerModel={selectedFeederForModal.breakerModel}
             downstreamBreakerSize={selectedFeederForModal.breakerSize}
             downstreamCurrent={selectedFeederForModal.current}
+            downstreamIr={savedDown?.ir}
+            downstreamIsd={savedDown?.isd}
+            downstreamTsd={savedDown?.tsd}
+            downstreamIi={savedDown?.ii}
             downstreamCableSize={selectedFeederForModal.cableSize}
             downstreamParallelRuns={selectedFeederForModal.parallelRuns}
             downstreamCategory={downstreamCategory}

@@ -690,11 +690,11 @@ export function suggestAlternativeBreaker(
   const loadCurrent = options?.downstreamLoadCurrent ?? downstream.ir;
 
   // 1. Upstream Frame Sizing Upgrade (only when upstream frame is smaller than required margin)
-  const minRequiredUpstreamIr = Math.max(downstream.ir * 1.6, (downstream.inRating || 0) * 1.25);
-  if (upstream.inRating < minRequiredUpstreamIr) {
+  const minRequiredUpstreamIn = Math.max(downstream.ir * 1.6, (downstream.inRating || 0) * 1.57);
+  if (upstream.inRating <= minRequiredUpstreamIn) {
     const targetUpstreamSize =
-      STANDARD_BREAKER_SIZES.find((s) => s > upstream.inRating && s >= minRequiredUpstreamIr) ||
-      STANDARD_BREAKER_SIZES.find((s) => s >= minRequiredUpstreamIr) ||
+      STANDARD_BREAKER_SIZES.find((s) => s > upstream.inRating && s >= minRequiredUpstreamIn) ||
+      STANDARD_BREAKER_SIZES.find((s) => s > upstream.inRating) ||
       Math.max(250, upstream.inRating * 2);
 
     let suggestedUpstreamModel = `${targetUpstreamSize}A Electronic LSI Breaker`;

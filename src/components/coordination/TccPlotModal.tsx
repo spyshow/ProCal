@@ -33,6 +33,14 @@ export interface TccPlotModalProps {
   alternativeSuggestions?: BreakerAlternativeSuggestion[];
   onApplySuggestion?: (sug: BreakerAlternativeSuggestion) => Promise<void>;
   applyingId?: string | null;
+  downstreamIr?: number;
+  downstreamIsd?: number;
+  downstreamTsd?: number;
+  downstreamIi?: number;
+  upstreamIr?: number;
+  upstreamIsd?: number;
+  upstreamTsd?: number;
+  upstreamIi?: number;
 }
 
 export default function TccPlotModal({
@@ -57,40 +65,48 @@ export default function TccPlotModal({
   alternativeSuggestions = [],
   onApplySuggestion,
   applyingId,
+  downstreamIr,
+  downstreamIsd,
+  downstreamTsd,
+  downstreamIi,
+  upstreamIr,
+  upstreamIsd,
+  upstreamTsd,
+  upstreamIi,
 }: TccPlotModalProps) {
   const faultCurrentAmps = (faultCurrentKa ?? 15) * 1000;
 
   // Upstream breaker settings
   const upstreamSettings: BreakerCurveSettings = useMemo(() => {
     const inRating = upstreamBreakerSize || 400;
-    const ir = Math.max(upstreamCurrent || 0, inRating * 0.85);
+    const ir = upstreamIr ?? Math.max(upstreamCurrent || 0, inRating * 0.85);
     return {
       inRating,
       ir,
       tr: 12,
-      isd: inRating * 4,
-      tsd: 0.3,
-      ii: inRating * 10,
+      isd: upstreamIsd ?? inRating * 4,
+      tsd: upstreamTsd ?? 0.3,
+      ii: upstreamIi ?? inRating * 10,
       category: inRating >= 630 ? 'ACB' : 'MCCB',
     };
-  }, [upstreamBreakerSize, upstreamCurrent]);
+  }, [upstreamBreakerSize, upstreamCurrent, upstreamIr, upstreamIsd, upstreamTsd, upstreamIi]);
 
   // Downstream breaker settings
   const downstreamSettings: BreakerCurveSettings = useMemo(() => {
     const inRating = downstreamBreakerSize || 32;
-    const ir = downstreamCurrent || inRating * 0.8;
+    const ir = downstreamIr ?? (downstreamCurrent || inRating * 0.8);
     const category = downstreamCategory ?? (inRating <= 63 ? 'MCB' : 'MCCB');
     return {
       inRating,
       ir,
       tr: 12,
-      isd: category === 'MCCB' ? inRating * 4 : undefined,
-      tsd: category === 'MCCB' ? 0.1 : undefined,
-      ii: inRating * (category === 'MCB' ? 5 : 10),
+      isd: downstreamIsd ?? (category === 'MCCB' ? inRating * 4 : undefined),
+      tsd: downstreamTsd ?? (category === 'MCCB' ? 0.05 : undefined),
+      ii: downstreamIi ?? (inRating * (category === 'MCB' ? 5 : 8)),
       category,
       curveType: 'C',
     };
-  }, [downstreamBreakerSize, downstreamCurrent, downstreamCategory]);
+  }, [downstreamBreakerSize, downstreamCurrent, downstreamCategory, downstreamIr, downstreamIsd, downstreamTsd, downstreamIi]);
 
   const upstreamCurve = useMemo(() => generateCurvePoints(upstreamSettings), [upstreamSettings]);
   const downstreamCurve = useMemo(() => generateCurvePoints(downstreamSettings), [downstreamSettings]);

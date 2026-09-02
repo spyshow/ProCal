@@ -677,58 +677,60 @@ export function suggestAlternativeBreaker(
   const faultKa = (availableFaultCurrentAmps / 1000).toFixed(1);
   const loadCurrent = options?.downstreamLoadCurrent ?? downstream.ir;
 
-  // 1. Upstream Frame Sizing Upgrade (Ir,up < 1.6 * Ir,down or In,up <= In,down or magnetic overlap)
+  // 1. Upstream Frame Sizing Upgrade (only when upstream frame is smaller than required margin)
   const minRequiredUpstreamIr = Math.max(downstream.ir * 1.6, (downstream.inRating || 0) * 1.25);
-  const targetUpstreamSize =
-    STANDARD_BREAKER_SIZES.find((s) => s > upstream.inRating && s >= minRequiredUpstreamIr) ||
-    STANDARD_BREAKER_SIZES.find((s) => s > upstream.inRating) ||
-    Math.max(250, upstream.inRating * 2);
+  if (upstream.inRating < minRequiredUpstreamIr) {
+    const targetUpstreamSize =
+      STANDARD_BREAKER_SIZES.find((s) => s > upstream.inRating && s >= minRequiredUpstreamIr) ||
+      STANDARD_BREAKER_SIZES.find((s) => s >= minRequiredUpstreamIr) ||
+      Math.max(250, upstream.inRating * 2);
 
-  let suggestedUpstreamModel = `${targetUpstreamSize}A Electronic LSI Breaker`;
-  let upstreamFallbackType: FallbackType = 'GENERIC_SPEC';
-  let upstreamGenericSpec: GenericBreakerSpec | undefined;
+    let suggestedUpstreamModel = `${targetUpstreamSize}A Electronic LSI Breaker`;
+    let upstreamFallbackType: FallbackType = 'GENERIC_SPEC';
+    let upstreamGenericSpec: GenericBreakerSpec | undefined;
 
-  if (isSchneider) {
-    upstreamFallbackType = 'SAME_FAMILY';
-    if (targetUpstreamSize <= 630) {
-      suggestedUpstreamModel = `Schneider ComPacT NSX${targetUpstreamSize} ${targetUpstreamSize}A MicroLogic 2.3`;
+    if (isSchneider) {
+      upstreamFallbackType = 'SAME_FAMILY';
+      if (targetUpstreamSize <= 630) {
+        suggestedUpstreamModel = `Schneider ComPacT NSX${targetUpstreamSize} ${targetUpstreamSize}A MicroLogic 2.3`;
+      } else {
+        suggestedUpstreamModel = `Schneider MasterPact MTZ1 ${targetUpstreamSize}A MicroLogic 5.0 X`;
+      }
+    } else if (isAbb) {
+      upstreamFallbackType = 'SAME_FAMILY';
+      if (targetUpstreamSize <= 250) {
+        suggestedUpstreamModel = `ABB Tmax XT4 ${targetUpstreamSize}A Ekip Dip LSI`;
+      } else if (targetUpstreamSize <= 630) {
+        suggestedUpstreamModel = `ABB Tmax XT5 ${targetUpstreamSize}A Ekip Dip LSI`;
+      } else {
+        suggestedUpstreamModel = `ABB Emax 2 E1.2 ${targetUpstreamSize}A Ekip Touch`;
+      }
     } else {
-      suggestedUpstreamModel = `Schneider MasterPact MTZ1 ${targetUpstreamSize}A MicroLogic 5.0 X`;
+      upstreamGenericSpec = {
+        ratingAmps: targetUpstreamSize,
+        category: targetUpstreamSize >= 630 ? 'ACB' : 'MCCB',
+        poles: 3,
+        requiredIcuKa: targetUpstreamSize >= 630 ? 50 : 36,
+        tripUnitType: 'Electronic LSI (Adjustable Ir, Isd, tsd, Ii)',
+        standard: 'IEC 60947-2',
+        procurementNotes: `Procure ${targetUpstreamSize}A ${targetUpstreamSize >= 630 ? 'ACB' : 'MCCB'} 3P breaker with electronic LSI trip unit and min Icu=${targetUpstreamSize >= 630 ? 50 : 36}kA.`,
+      };
     }
-  } else if (isAbb) {
-    upstreamFallbackType = 'SAME_FAMILY';
-    if (targetUpstreamSize <= 250) {
-      suggestedUpstreamModel = `ABB Tmax XT4 ${targetUpstreamSize}A Ekip Dip LSI`;
-    } else if (targetUpstreamSize <= 630) {
-      suggestedUpstreamModel = `ABB Tmax XT5 ${targetUpstreamSize}A Ekip Dip LSI`;
-    } else {
-      suggestedUpstreamModel = `ABB Emax 2 E1.2 ${targetUpstreamSize}A Ekip Touch`;
-    }
-  } else {
-    upstreamGenericSpec = {
-      ratingAmps: targetUpstreamSize,
-      category: targetUpstreamSize >= 630 ? 'ACB' : 'MCCB',
-      poles: 3,
-      requiredIcuKa: targetUpstreamSize >= 630 ? 50 : 36,
-      tripUnitType: 'Electronic LSI (Adjustable Ir, Isd, tsd, Ii)',
-      standard: 'IEC 60947-2',
-      procurementNotes: `Procure ${targetUpstreamSize}A ${targetUpstreamSize >= 630 ? 'ACB' : 'MCCB'} 3P breaker with electronic LSI trip unit and min Icu=${targetUpstreamSize >= 630 ? 50 : 36}kA.`,
-    };
+
+    suggestions.push({
+      id: 'sug-upstream-upgrade',
+      type: 'UPSTREAM_UPGRADE',
+      badge: 'Upgrade Upstream Frame',
+      title: `Upgrade Upstream (${upstream.model || 'Feeder'}) to ${targetUpstreamSize}A`,
+      description: `Current grading requires Upstream Ir ≥ 1.6× Downstream Ir (${downstream.ir.toFixed(1)}A). Upgrading upstream to ${targetUpstreamSize}A provides the required margin (ratio: ${(targetUpstreamSize / downstream.ir).toFixed(2)}x) and achieves FULL discrimination.`,
+      suggestedModel: suggestedUpstreamModel,
+      suggestedFrameSize: targetUpstreamSize,
+      fallbackType: upstreamFallbackType,
+      genericSpec: upstreamGenericSpec,
+      expectedSelectivity: 'FULL',
+      actionText: `Select ${targetUpstreamSize}A Upstream Breaker`,
+    });
   }
-
-  suggestions.push({
-    id: 'sug-upstream-upgrade',
-    type: 'UPSTREAM_UPGRADE',
-    badge: 'Upgrade Upstream Frame',
-    title: `Upgrade Upstream (${upstream.model || 'Feeder'}) to ${targetUpstreamSize}A`,
-    description: `Current grading requires Upstream Ir ≥ 1.6× Downstream Ir (${downstream.ir.toFixed(1)}A). Upgrading upstream to ${targetUpstreamSize}A provides the required margin (ratio: ${(targetUpstreamSize / downstream.ir).toFixed(2)}x) and achieves FULL discrimination.`,
-    suggestedModel: suggestedUpstreamModel,
-    suggestedFrameSize: targetUpstreamSize,
-    fallbackType: upstreamFallbackType,
-    genericSpec: upstreamGenericSpec,
-    expectedSelectivity: 'FULL',
-    actionText: `Select ${targetUpstreamSize}A Upstream Breaker`,
-  });
 
   // If feeder is downstream of an SMDB sub-panel
   if (options?.parentFeederName && options.parentFeederName.includes('SMDB')) {

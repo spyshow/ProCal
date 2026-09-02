@@ -63,7 +63,7 @@ export default function TccPlotModal({
   // Upstream breaker settings
   const upstreamSettings: BreakerCurveSettings = useMemo(() => {
     const inRating = upstreamBreakerSize || 400;
-    const ir = upstreamCurrent || inRating * 0.8;
+    const ir = Math.max(upstreamCurrent || 0, inRating * 0.85);
     return {
       inRating,
       ir,

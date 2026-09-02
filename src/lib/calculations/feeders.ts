@@ -976,7 +976,7 @@ export function computeFeeders(
   });
   const mainBreakerSize = Math.max(mainSizing.breakerSize, mainMatch.ratedCurrent ?? 0);
   const mainBreakerIn = Math.max(16, mainBreakerSize);
-  const mainIr = Math.max(16, Math.min(mainIncomerCurrent > 0 ? mainIncomerCurrent : mainBreakerIn, mainBreakerIn));
+  const mainIr = Math.max(16, Math.min(mainBreakerIn, Math.max(mainIncomerCurrent, mainBreakerIn * 0.85)));
 
   // Re-size the incomer cable to the ACTUAL catalog breaker frame: the cable
   // ampacity must cover the breaker rating (Ib <= In <= Iz per IEC 60364-5-52),
@@ -1197,8 +1197,8 @@ export function computeFeeders(
 
     const riserInRating = Math.max(16, smdbRiserFeeder?.breakerSize ?? 160);
     const riserIr = Math.max(16, Math.min(
-      (smdbRiserFeeder?.current && smdbRiserFeeder.current > 0) ? smdbRiserFeeder.current : riserInRating,
-      riserInRating
+      riserInRating,
+      Math.max(smdbRiserFeeder?.current ?? 0, riserInRating * 0.85)
     ));
 
     const smdbRiserSettings: BreakerCurveSettings = {

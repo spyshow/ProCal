@@ -307,8 +307,8 @@ export default function CoordinationPage() {
 
       const rawUpIn = savedUp ? parseInt(savedUp.frameSize) : upstreamFeeder?.breakerSize ?? (feeder.breakerSize >= 400 ? 630 : 400);
       const upIn = Math.max(1, rawUpIn || 400);
-      const rawUpIr = savedUp?.ir ?? upstreamFeeder?.current ?? upIn * 0.8;
-      const upIr = Math.max(0.5, (rawUpIr && rawUpIr > 0) ? rawUpIr : upIn * 0.8);
+      const rawUpIr = savedUp?.ir ?? (upstreamFeeder ? Math.max(upstreamFeeder.current, upIn * 0.85) : upIn * 0.85);
+      const upIr = Math.max(0.5, (rawUpIr && rawUpIr > 0) ? rawUpIr : upIn * 0.85);
       const upCat: 'ACB' | 'MCCB' = upIn >= 630 ? 'ACB' : 'MCCB';
       const upModel = savedUp?.model ?? upstreamFeeder?.breakerModel ?? `${mfg} ${upCat} ${upIn}A`;
 

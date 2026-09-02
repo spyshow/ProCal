@@ -15667,7 +15667,7 @@
       "_origin": "ast",
       "id": "src_i18n_config_supportedlanguage",
       "community": 165,
-      "community_name": "app/layout.tsx",
+      "community_name": "I18nProvider.tsx",
       "norm_label": "supportedlanguage"
     },
     {
@@ -15680,7 +15680,7 @@
       "_origin": "ast",
       "id": "src_i18n_i18nprovider_i18ncontexttype",
       "community": 165,
-      "community_name": "app/layout.tsx",
+      "community_name": "I18nProvider.tsx",
       "norm_label": "i18ncontexttype"
     },
     {
@@ -35047,20 +35047,8 @@
       "_origin": "ast",
       "id": "src_app_layout_rootlayout",
       "community": 165,
-      "community_name": "app/layout.tsx",
+      "community_name": "I18nProvider.tsx",
       "norm_label": "rootlayout()"
-    },
-    {
-      "label": "ClarityAnalytics()",
-      "file_type": "code",
-      "source_file": "src/components/ClarityAnalytics.tsx",
-      "source_location": "L8",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_components_clarityanalytics_clarityanalytics",
-      "community": 165,
-      "community_name": "app/layout.tsx",
-      "norm_label": "clarityanalytics()"
     },
     {
       "label": "ProjectProvider()",
@@ -35071,7 +35059,7 @@
       "_origin": "ast",
       "id": "src_context_projectcontext_projectprovider",
       "community": 165,
-      "community_name": "app/layout.tsx",
+      "community_name": "I18nProvider.tsx",
       "norm_label": "projectprovider()"
     },
     {
@@ -35083,7 +35071,7 @@
       "_origin": "ast",
       "id": "src_i18n_config_getinitiallanguage",
       "community": 165,
-      "community_name": "app/layout.tsx",
+      "community_name": "I18nProvider.tsx",
       "norm_label": "getinitiallanguage()"
     },
     {
@@ -35095,7 +35083,7 @@
       "_origin": "ast",
       "id": "src_i18n_i18nprovider_i18nprovider",
       "community": 165,
-      "community_name": "app/layout.tsx",
+      "community_name": "I18nProvider.tsx",
       "norm_label": "i18nprovider()"
     },
     {
@@ -35107,7 +35095,7 @@
       "_origin": "ast",
       "id": "src_i18n_i18nprovider_usei18n",
       "community": 165,
-      "community_name": "app/layout.tsx",
+      "community_name": "I18nProvider.tsx",
       "norm_label": "usei18n()"
     },
     {
@@ -38841,6 +38829,18 @@
       "community": 28,
       "community_name": "project-auth.ts",
       "norm_label": "parsememberpermissions()"
+    },
+    {
+      "label": "ClarityAnalytics()",
+      "file_type": "code",
+      "source_file": "src/components/ClarityAnalytics.tsx",
+      "source_location": "L8",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_components_clarityanalytics_clarityanalytics",
+      "community": 294,
+      "community_name": "ClarityAnalytics.tsx",
+      "norm_label": "clarityanalytics()"
     },
     {
       "label": ".test_check_shadcn_config_exists()",
@@ -52810,7 +52810,7 @@
       "_origin": "ast",
       "id": "src_app_layout",
       "community": 165,
-      "community_name": "app/layout.tsx",
+      "community_name": "I18nProvider.tsx",
       "norm_label": "app/layout.tsx"
     },
     {
@@ -52821,7 +52821,7 @@
       "_origin": "ast",
       "id": "src_app_layout_inter",
       "community": 165,
-      "community_name": "app/layout.tsx",
+      "community_name": "I18nProvider.tsx",
       "norm_label": "inter"
     },
     {
@@ -52832,7 +52832,7 @@
       "_origin": "ast",
       "id": "src_app_layout_metadata",
       "community": 165,
-      "community_name": "app/layout.tsx",
+      "community_name": "I18nProvider.tsx",
       "norm_label": "metadata"
     },
     {
@@ -52843,19 +52843,8 @@
       "_origin": "ast",
       "id": "src_app_layout_rubikarabic",
       "community": 165,
-      "community_name": "app/layout.tsx",
+      "community_name": "I18nProvider.tsx",
       "norm_label": "rubikarabic"
-    },
-    {
-      "label": "ClarityAnalytics.tsx",
-      "file_type": "code",
-      "source_file": "src/components/ClarityAnalytics.tsx",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "src_components_clarityanalytics",
-      "community": 165,
-      "community_name": "app/layout.tsx",
-      "norm_label": "clarityanalytics.tsx"
     },
     {
       "label": "config.ts",
@@ -52865,7 +52854,7 @@
       "_origin": "ast",
       "id": "src_i18n_config",
       "community": 165,
-      "community_name": "app/layout.tsx",
+      "community_name": "I18nProvider.tsx",
       "norm_label": "config.ts"
     },
     {
@@ -52876,7 +52865,7 @@
       "_origin": "ast",
       "id": "src_i18n_config_defaultns",
       "community": 165,
-      "community_name": "app/layout.tsx",
+      "community_name": "I18nProvider.tsx",
       "norm_label": "defaultns"
     },
     {
@@ -52887,7 +52876,7 @@
       "_origin": "ast",
       "id": "src_i18n_config_language_storage_key",
       "community": 165,
-      "community_name": "app/layout.tsx",
+      "community_name": "I18nProvider.tsx",
       "norm_label": "language_storage_key"
     },
     {
@@ -52898,7 +52887,7 @@
       "_origin": "ast",
       "id": "src_i18n_config_resources",
       "community": 165,
-      "community_name": "app/layout.tsx",
+      "community_name": "I18nProvider.tsx",
       "norm_label": "resources"
     },
     {
@@ -52909,7 +52898,7 @@
       "_origin": "ast",
       "id": "src_i18n_i18nprovider",
       "community": 165,
-      "community_name": "app/layout.tsx",
+      "community_name": "I18nProvider.tsx",
       "norm_label": "i18nprovider.tsx"
     },
     {
@@ -52920,7 +52909,7 @@
       "_origin": "ast",
       "id": "src_i18n_i18nprovider_i18ncontext",
       "community": 165,
-      "community_name": "app/layout.tsx",
+      "community_name": "I18nProvider.tsx",
       "norm_label": "i18ncontext"
     },
     {
@@ -53551,59 +53540,59 @@
       "norm_label": "pool"
     },
     {
+      "label": "lg",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L56",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_fontsize_lg",
+      "community": 174,
+      "community_name": "lg",
+      "norm_label": "lg"
+    },
+    {
       "label": "$type",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L97",
+      "source_location": "L56",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_border_type",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_lg_type",
       "community": 174,
-      "community_name": "$type",
+      "community_name": "lg",
       "norm_label": "$type"
     },
     {
       "label": "$value",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L97",
+      "source_location": "L56",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_border_value",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_lg_value",
       "community": 174,
-      "community_name": "$type",
+      "community_name": "lg",
       "norm_label": "$value"
     },
     {
-      "label": "border",
+      "label": "lg",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L125",
+      "source_location": "L67",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_card_border",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_radius_lg",
       "community": 174,
-      "community_name": "$type",
-      "norm_label": "border"
+      "community_name": "lg",
+      "norm_label": "lg"
     },
     {
-      "label": "border",
+      "label": "lg",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L97",
+      "source_location": "L76",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_color_border",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_shadow_lg",
       "community": 174,
-      "community_name": "$type",
-      "norm_label": "border"
-    },
-    {
-      "label": "border",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L117",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_input_border",
-      "community": 174,
-      "community_name": "$type",
-      "norm_label": "border"
+      "community_name": "lg",
+      "norm_label": "lg"
     },
     {
       "label": "current.test.ts",
@@ -55586,45 +55575,34 @@
       "label": "$type",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L66",
+      "source_location": "L50",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_md_type",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_16_type",
       "community": 219,
-      "community_name": "md",
+      "community_name": "16",
       "norm_label": "$type"
     },
     {
       "label": "$value",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L66",
+      "source_location": "L50",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_md_value",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_16_value",
       "community": 219,
-      "community_name": "md",
+      "community_name": "16",
       "norm_label": "$value"
     },
     {
-      "label": "md",
+      "label": "16",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L66",
+      "source_location": "L50",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_radius_md",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_spacing_16",
       "community": 219,
-      "community_name": "md",
-      "norm_label": "md"
-    },
-    {
-      "label": "md",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L75",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_shadow_md",
-      "community": 219,
-      "community_name": "md",
-      "norm_label": "md"
+      "community_name": "16",
+      "norm_label": "16"
     },
     {
       "label": "search-slides.py",
@@ -55861,34 +55839,34 @@
       "label": "$type",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L49",
+      "source_location": "L41",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_12_type",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_1_type",
       "community": 220,
-      "community_name": "12",
+      "community_name": "1",
       "norm_label": "$type"
     },
     {
       "label": "$value",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L49",
+      "source_location": "L41",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_12_value",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_1_value",
       "community": 220,
-      "community_name": "12",
+      "community_name": "1",
       "norm_label": "$value"
     },
     {
-      "label": "12",
+      "label": "1",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L49",
+      "source_location": "L41",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_spacing_12",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_spacing_1",
       "community": 220,
-      "community_name": "12",
-      "norm_label": "12"
+      "community_name": "1",
+      "norm_label": "1"
     },
     {
       "label": "@microsoft/clarity",
@@ -55949,34 +55927,34 @@
       "label": "$type",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L42",
+      "source_location": "L43",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_2_type",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_3_type",
       "community": 223,
-      "community_name": "2",
+      "community_name": "3",
       "norm_label": "$type"
     },
     {
       "label": "$value",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L42",
+      "source_location": "L43",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_2_value",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_3_value",
       "community": 223,
-      "community_name": "2",
+      "community_name": "3",
       "norm_label": "$value"
     },
     {
-      "label": "2",
+      "label": "3",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L42",
+      "source_location": "L43",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_spacing_2",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_spacing_3",
       "community": 223,
-      "community_name": "2",
-      "norm_label": "2"
+      "community_name": "3",
+      "norm_label": "3"
     },
     {
       "label": "next",
@@ -56001,37 +55979,37 @@
       "norm_label": "next"
     },
     {
+      "label": "foreground",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L87",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_color_foreground",
+      "community": 225,
+      "community_name": "foreground",
+      "norm_label": "foreground"
+    },
+    {
       "label": "$type",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L46",
+      "source_location": "L87",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_6_type",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_foreground_type",
       "community": 225,
-      "community_name": "6",
+      "community_name": "foreground",
       "norm_label": "$type"
     },
     {
       "label": "$value",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L46",
+      "source_location": "L87",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_6_value",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_foreground_value",
       "community": 225,
-      "community_name": "6",
+      "community_name": "foreground",
       "norm_label": "$value"
-    },
-    {
-      "label": "6",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L46",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_spacing_6",
-      "community": 225,
-      "community_name": "6",
-      "norm_label": "6"
     },
     {
       "label": "@radix-ui/react-label",
@@ -56254,36 +56232,36 @@
       "norm_label": "$value"
     },
     {
-      "label": "destructive-foreground",
+      "label": "muted-foreground",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L96",
+      "source_location": "L94",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_color_destructive_foreground",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_color_muted_foreground",
       "community": 239,
-      "community_name": "destructive-foreground",
-      "norm_label": "destructive-foreground"
+      "community_name": "muted-foreground",
+      "norm_label": "muted-foreground"
     },
     {
       "label": "$type",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L96",
+      "source_location": "L94",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_destructive_foreground_type",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_muted_foreground_type",
       "community": 239,
-      "community_name": "destructive-foreground",
+      "community_name": "muted-foreground",
       "norm_label": "$type"
     },
     {
       "label": "$value",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L96",
+      "source_location": "L94",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_destructive_foreground_value",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_muted_foreground_value",
       "community": 239,
-      "community_name": "destructive-foreground",
+      "community_name": "muted-foreground",
       "norm_label": "$value"
     },
     {
@@ -56342,36 +56320,36 @@
       "norm_label": "zod"
     },
     {
-      "label": "muted",
+      "label": "primary",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L93",
+      "source_location": "L88",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_color_muted",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_color_primary",
       "community": 242,
-      "community_name": "muted",
-      "norm_label": "muted"
+      "community_name": "primary",
+      "norm_label": "primary"
     },
     {
       "label": "$type",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L93",
+      "source_location": "L88",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_muted_type",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_primary_type",
       "community": 242,
-      "community_name": "muted",
+      "community_name": "primary",
       "norm_label": "$type"
     },
     {
       "label": "$value",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L93",
+      "source_location": "L88",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_muted_value",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_primary_value",
       "community": 242,
-      "community_name": "muted",
+      "community_name": "primary",
       "norm_label": "$value"
     },
     {
@@ -58795,36 +58773,36 @@
       "norm_label": "visual identity basics"
     },
     {
-      "label": "primary-foreground",
+      "label": "primary-hover",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L90",
+      "source_location": "L89",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_color_primary_foreground",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_color_primary_hover",
       "community": 291,
-      "community_name": "primary-foreground",
-      "norm_label": "primary-foreground"
+      "community_name": "primary-hover",
+      "norm_label": "primary-hover"
     },
     {
       "label": "$type",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L90",
+      "source_location": "L89",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_primary_foreground_type",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_primary_hover_type",
       "community": 291,
-      "community_name": "primary-foreground",
+      "community_name": "primary-hover",
       "norm_label": "$type"
     },
     {
       "label": "$value",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L90",
+      "source_location": "L89",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_primary_foreground_value",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_primary_hover_value",
       "community": 291,
-      "community_name": "primary-foreground",
+      "community_name": "primary-hover",
       "norm_label": "$value"
     },
     {
@@ -59048,37 +59026,15 @@
       "norm_label": "usage example"
     },
     {
-      "label": "secondary-foreground",
+      "label": "ClarityAnalytics.tsx",
       "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L92",
+      "source_file": "src/components/ClarityAnalytics.tsx",
+      "source_location": "L1",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_color_secondary_foreground",
+      "id": "src_components_clarityanalytics",
       "community": 294,
-      "community_name": "secondary-foreground",
-      "norm_label": "secondary-foreground"
-    },
-    {
-      "label": "$type",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L92",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_secondary_foreground_type",
-      "community": 294,
-      "community_name": "secondary-foreground",
-      "norm_label": "$type"
-    },
-    {
-      "label": "$value",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L92",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_secondary_foreground_value",
-      "community": 294,
-      "community_name": "secondary-foreground",
-      "norm_label": "$value"
+      "community_name": "ClarityAnalytics.tsx",
+      "norm_label": "clarityanalytics.tsx"
     },
     {
       "label": "brand-guideline-template.md",
@@ -59499,17 +59455,6 @@
       "norm_label": "$value"
     },
     {
-      "label": "lg",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L56",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_fontsize_lg",
-      "community": 31,
-      "community_name": "radius",
-      "norm_label": "lg"
-    },
-    {
       "label": "$type",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
@@ -59535,9 +59480,9 @@
       "label": "$type",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L56",
+      "source_location": "L66",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_lg_type",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_md_type",
       "community": 31,
       "community_name": "radius",
       "norm_label": "$type"
@@ -59546,9 +59491,9 @@
       "label": "$value",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L56",
+      "source_location": "L66",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_lg_value",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_md_value",
       "community": 31,
       "community_name": "radius",
       "norm_label": "$value"
@@ -59609,15 +59554,15 @@
       "norm_label": "full"
     },
     {
-      "label": "lg",
+      "label": "md",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L67",
+      "source_location": "L66",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_radius_lg",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_radius_md",
       "community": 31,
       "community_name": "radius",
-      "norm_label": "lg"
+      "norm_label": "md"
     },
     {
       "label": "default",
@@ -59631,15 +59576,15 @@
       "norm_label": "default"
     },
     {
-      "label": "lg",
+      "label": "md",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L76",
+      "source_location": "L75",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_shadow_lg",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_shadow_md",
       "community": 31,
       "community_name": "radius",
-      "norm_label": "lg"
+      "norm_label": "md"
     },
     {
       "label": "Test adding colors multiple times.",
@@ -62076,9 +62021,9 @@
       "label": "$type",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L50",
+      "source_location": "L49",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_16_type",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_12_type",
       "community": 47,
       "community_name": "spacing",
       "norm_label": "$type"
@@ -62087,9 +62032,9 @@
       "label": "$value",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L50",
+      "source_location": "L49",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_16_value",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_12_value",
       "community": 47,
       "community_name": "spacing",
       "norm_label": "$value"
@@ -62098,9 +62043,9 @@
       "label": "$type",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L41",
+      "source_location": "L42",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_1_type",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_2_type",
       "community": 47,
       "community_name": "spacing",
       "norm_label": "$type"
@@ -62109,31 +62054,9 @@
       "label": "$value",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L41",
+      "source_location": "L42",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_1_value",
-      "community": 47,
-      "community_name": "spacing",
-      "norm_label": "$value"
-    },
-    {
-      "label": "$type",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L43",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_3_type",
-      "community": 47,
-      "community_name": "spacing",
-      "norm_label": "$type"
-    },
-    {
-      "label": "$value",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L43",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_3_value",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_2_value",
       "community": 47,
       "community_name": "spacing",
       "norm_label": "$value"
@@ -62183,6 +62106,28 @@
       "norm_label": "$value"
     },
     {
+      "label": "$type",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L46",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_6_type",
+      "community": 47,
+      "community_name": "spacing",
+      "norm_label": "$type"
+    },
+    {
+      "label": "$value",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L46",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_6_value",
+      "community": 47,
+      "community_name": "spacing",
+      "norm_label": "$value"
+    },
+    {
       "label": "spacing",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
@@ -62205,17 +62150,6 @@
       "norm_label": "0"
     },
     {
-      "label": "1",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L41",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_spacing_1",
-      "community": 47,
-      "community_name": "spacing",
-      "norm_label": "1"
-    },
-    {
       "label": "10",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
@@ -62227,26 +62161,26 @@
       "norm_label": "10"
     },
     {
-      "label": "16",
+      "label": "12",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L50",
+      "source_location": "L49",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_spacing_16",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_spacing_12",
       "community": 47,
       "community_name": "spacing",
-      "norm_label": "16"
+      "norm_label": "12"
     },
     {
-      "label": "3",
+      "label": "2",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L43",
+      "source_location": "L42",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_spacing_3",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_spacing_2",
       "community": 47,
       "community_name": "spacing",
-      "norm_label": "3"
+      "norm_label": "2"
     },
     {
       "label": "4",
@@ -62269,6 +62203,17 @@
       "community": 47,
       "community_name": "spacing",
       "norm_label": "5"
+    },
+    {
+      "label": "6",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L46",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_spacing_6",
+      "community": 47,
+      "community_name": "spacing",
+      "norm_label": "6"
     },
     {
       "label": "tailwind_config_gen.py",
@@ -63118,48 +63063,37 @@
       "norm_label": "background"
     },
     {
-      "label": "foreground",
+      "label": "destructive-foreground",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L87",
+      "source_location": "L96",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_color_foreground",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_color_destructive_foreground",
       "community": 54,
       "community_name": "color",
-      "norm_label": "foreground"
+      "norm_label": "destructive-foreground"
     },
     {
-      "label": "muted-foreground",
+      "label": "muted",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L94",
+      "source_location": "L93",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_color_muted_foreground",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_color_muted",
       "community": 54,
       "community_name": "color",
-      "norm_label": "muted-foreground"
+      "norm_label": "muted"
     },
     {
-      "label": "primary",
+      "label": "primary-foreground",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L88",
+      "source_location": "L90",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_color_primary",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_color_primary_foreground",
       "community": 54,
       "community_name": "color",
-      "norm_label": "primary"
-    },
-    {
-      "label": "primary-hover",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L89",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_color_primary_hover",
-      "community": 54,
-      "community_name": "color",
-      "norm_label": "primary-hover"
+      "norm_label": "primary-foreground"
     },
     {
       "label": "secondary",
@@ -63173,12 +63107,23 @@
       "norm_label": "secondary"
     },
     {
+      "label": "secondary-foreground",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L92",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_color_secondary_foreground",
+      "community": 54,
+      "community_name": "color",
+      "norm_label": "secondary-foreground"
+    },
+    {
       "label": "$type",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L87",
+      "source_location": "L96",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_foreground_type",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_destructive_foreground_type",
       "community": 54,
       "community_name": "color",
       "norm_label": "$type"
@@ -63187,9 +63132,9 @@
       "label": "$value",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L87",
+      "source_location": "L96",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_foreground_value",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_destructive_foreground_value",
       "community": 54,
       "community_name": "color",
       "norm_label": "$value"
@@ -63198,9 +63143,9 @@
       "label": "$type",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L94",
+      "source_location": "L93",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_muted_foreground_type",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_muted_type",
       "community": 54,
       "community_name": "color",
       "norm_label": "$type"
@@ -63209,9 +63154,9 @@
       "label": "$value",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L94",
+      "source_location": "L93",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_muted_foreground_value",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_muted_value",
       "community": 54,
       "community_name": "color",
       "norm_label": "$value"
@@ -63220,9 +63165,9 @@
       "label": "$type",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L89",
+      "source_location": "L90",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_primary_hover_type",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_primary_foreground_type",
       "community": 54,
       "community_name": "color",
       "norm_label": "$type"
@@ -63231,9 +63176,9 @@
       "label": "$value",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L89",
+      "source_location": "L90",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_primary_hover_value",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_primary_foreground_value",
       "community": 54,
       "community_name": "color",
       "norm_label": "$value"
@@ -63242,9 +63187,9 @@
       "label": "$type",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L88",
+      "source_location": "L92",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_primary_type",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_secondary_foreground_type",
       "community": 54,
       "community_name": "color",
       "norm_label": "$type"
@@ -63253,9 +63198,9 @@
       "label": "$value",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L88",
+      "source_location": "L92",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_primary_value",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_secondary_foreground_value",
       "community": 54,
       "community_name": "color",
       "norm_label": "$value"
@@ -64537,6 +64482,28 @@
       "norm_label": "$value"
     },
     {
+      "label": "$type",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L97",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_border_type",
+      "community": 83,
+      "community_name": "card",
+      "norm_label": "$type"
+    },
+    {
+      "label": "$value",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L97",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_border_value",
+      "community": 83,
+      "community_name": "card",
+      "norm_label": "$value"
+    },
+    {
       "label": "bg",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
@@ -64557,6 +64524,17 @@
       "community": 83,
       "community_name": "card",
       "norm_label": "bg"
+    },
+    {
+      "label": "border",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L125",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_card_border",
+      "community": 83,
+      "community_name": "card",
+      "norm_label": "border"
     },
     {
       "label": "padding",
@@ -64581,6 +64559,17 @@
       "norm_label": "shadow"
     },
     {
+      "label": "border",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L97",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_color_border",
+      "community": 83,
+      "community_name": "card",
+      "norm_label": "border"
+    },
+    {
       "label": "card",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
@@ -64601,6 +64590,17 @@
       "community": 83,
       "community_name": "card",
       "norm_label": "bg"
+    },
+    {
+      "label": "border",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L117",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_input_border",
+      "community": 83,
+      "community_name": "card",
+      "norm_label": "border"
     },
     {
       "label": "$type",
@@ -91482,7 +91482,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "src/app/layout.tsx",
-      "source_location": "L4",
+      "source_location": "L5",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_app_layout",
@@ -91494,23 +91494,11 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "src/app/layout.tsx",
-      "source_location": "L5",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "src_app_layout",
-      "target": "src_i18n_i18nprovider_i18nprovider",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/app/layout.tsx",
       "source_location": "L6",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_app_layout",
-      "target": "src_components_clarityanalytics_clarityanalytics",
+      "target": "src_i18n_i18nprovider_i18nprovider",
       "confidence_score": 1.0
     },
     {
@@ -103218,7 +103206,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "src/app/layout.tsx",
-      "source_location": "L4",
+      "source_location": "L5",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_app_layout",
@@ -103230,23 +103218,11 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "src/app/layout.tsx",
-      "source_location": "L5",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "src_app_layout",
-      "target": "src_i18n_index",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/app/layout.tsx",
       "source_location": "L6",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_app_layout",
-      "target": "src_components_clarityanalytics",
+      "target": "src_i18n_index",
       "confidence_score": 1.0
     },
     {
@@ -166776,5 +166752,5 @@
       "source_file": "public/slides/slide_load_calc.webp"
     }
   ],
-  "built_at_commit": "5ae58faec35399912db5e736ba43ea4a5d084431"
+  "built_at_commit": "d7f4e501110dcfc0863395419a7fbaa2c14526b5"
 }

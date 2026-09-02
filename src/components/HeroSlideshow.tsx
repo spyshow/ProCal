@@ -290,6 +290,7 @@ export function HeroSlideshow() {
                       src={activeSlide.image}
                       alt={activeSlide.title}
                       fill
+                      unoptimized
                       priority={activeIndex === 0}
                       onError={() => setImageError((prev) => ({ ...prev, [activeSlide.id]: true }))}
                       className="object-cover object-top"
@@ -455,6 +456,7 @@ export function HeroSlideshow() {
                 src={modalImage}
                 alt="Expanded Slide Preview"
                 fill
+                unoptimized
                 className="object-contain bg-slate-950"
                 sizes="(max-width: 1280px) 100vw, 1280px"
               />

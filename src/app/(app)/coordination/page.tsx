@@ -234,14 +234,17 @@ export default function CoordinationPage() {
           effectiveReason = reCoord.overlapDetails;
         }
 
+        const effectiveSuggestedAlternative = effectiveStatus === 'FULL' ? null : f.suggestedAlternative;
+        const effectiveAlternativeSuggestions = effectiveStatus === 'FULL' ? [] : f.alternativeSuggestions;
+
         list.push({
           ...f,
           breakerModel: effectiveModel,
           selectivityStatus: effectiveStatus,
           selectivityLimitKa: effectiveLimitKa,
           selectivityReason: effectiveReason,
-          suggestedAlternative: f.suggestedAlternative,
-          alternativeSuggestions: f.alternativeSuggestions,
+          suggestedAlternative: effectiveSuggestedAlternative,
+          alternativeSuggestions: effectiveAlternativeSuggestions,
           buildingId: bldg.id,
           buildingName: bldg.name,
           floor: 0,
@@ -307,14 +310,17 @@ export default function CoordinationPage() {
             effectiveReason = reCoord.overlapDetails;
           }
 
+          const effectiveSuggestedAlternative = effectiveStatus === 'FULL' ? null : f.suggestedAlternative;
+          const effectiveAlternativeSuggestions = effectiveStatus === 'FULL' ? [] : f.alternativeSuggestions;
+
           list.push({
             ...f,
             breakerModel: effectiveModel,
             selectivityStatus: effectiveStatus,
             selectivityLimitKa: effectiveLimitKa,
             selectivityReason: effectiveReason,
-            suggestedAlternative: f.suggestedAlternative,
-            alternativeSuggestions: f.alternativeSuggestions,
+            suggestedAlternative: effectiveSuggestedAlternative,
+            alternativeSuggestions: effectiveAlternativeSuggestions,
             buildingId: bldg.id,
             buildingName: bldg.name,
             floor: floorNumber,

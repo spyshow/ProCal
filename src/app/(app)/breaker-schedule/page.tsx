@@ -365,6 +365,9 @@ export default function BreakerSchedulePage() {
           effectiveReason = reCoord.overlapDetails;
         }
 
+        const effectiveSuggestedAlternative = effectiveStatus === 'FULL' ? null : f.suggestedAlternative;
+        const effectiveAlternativeSuggestions = effectiveStatus === 'FULL' ? [] : f.alternativeSuggestions;
+
         list.push({
           id: `${bldg.id}-mdb-${list.length}`,
           name: f.name,
@@ -397,8 +400,8 @@ export default function BreakerSchedulePage() {
           selectivityLimitKa: effectiveLimitKa,
           cableDamageOk: f.cableDamageOk,
           selectivityReason: effectiveReason,
-          suggestedAlternative: f.suggestedAlternative,
-          alternativeSuggestions: f.alternativeSuggestions,
+          suggestedAlternative: effectiveSuggestedAlternative,
+          alternativeSuggestions: effectiveAlternativeSuggestions,
           itemId: f.itemId,
           floorDesignId: f.floorDesignId,
           buildingLoadId: f.buildingLoadId,
@@ -464,6 +467,9 @@ export default function BreakerSchedulePage() {
             effectiveReason = reCoord.overlapDetails;
           }
 
+          const effectiveSuggestedAlternative = effectiveStatus === 'FULL' ? null : f.suggestedAlternative;
+          const effectiveAlternativeSuggestions = effectiveStatus === 'FULL' ? [] : f.alternativeSuggestions;
+
           list.push({
             id: `${bldg.id}-smdb-${list.length}`,
             name: f.name,
@@ -496,8 +502,8 @@ export default function BreakerSchedulePage() {
             selectivityLimitKa: effectiveLimitKa,
             cableDamageOk: f.cableDamageOk,
             selectivityReason: effectiveReason,
-            suggestedAlternative: f.suggestedAlternative,
-            alternativeSuggestions: f.alternativeSuggestions,
+            suggestedAlternative: effectiveSuggestedAlternative,
+            alternativeSuggestions: effectiveAlternativeSuggestions,
             itemId: f.itemId,
             floorDesignId: f.floorDesignId,
             buildingLoadId: f.buildingLoadId,
@@ -986,7 +992,7 @@ export default function BreakerSchedulePage() {
                             <XCircle size={11} /> {t('breakerSchedule.noneSelectivity', 'NONE')}
                           </span>
                         )}
-                        {b.suggestedAlternative && (
+                        {b.selectivityStatus !== 'FULL' && b.suggestedAlternative && (
                           <button
                             onClick={() => setSelectedFeederForModal(b)}
                             className="flex items-center gap-1 text-[10px] text-orange-400 hover:text-orange-300 bg-orange-500/10 hover:bg-orange-500/20 px-1.5 py-0.5 rounded border border-orange-500/30 transition-all font-medium group"

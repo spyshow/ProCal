@@ -177,16 +177,22 @@ export default function CoordinationPage() {
     if (!project || project.buildings.length === 0) return [];
     const list: ProjectFeederItem[] = [];
 
-    const findSavedBreakerSetting = (f: PanelFeeder) =>
-      breakerSettings.find(
+    const normalizeBreakerId = (id: string) => id.replace(/[–—]/g, '-').trim();
+
+    const findSavedBreakerSetting = (f: PanelFeeder) => {
+      const normName = normalizeBreakerId(f.name);
+      return breakerSettings.find(
         (s) =>
-          s.breakerId === `${project.id}-${f.name}` ||
+          normalizeBreakerId(s.breakerId) === `${project.id}-${normName}` ||
+          normalizeBreakerId(s.breakerId) === normName ||
           s.breakerId === f.name ||
-          (f.itemId && s.breakerId === f.itemId)
+          (f.itemId && s.breakerId === f.itemId) ||
+          (f.buildingLoadId && s.breakerId === f.buildingLoadId)
       );
+    };
 
     for (const bldg of project.buildings) {
-      const { mdbFeeders, smdbFloorNumbers, smdbFeeders } = computeFeeders(bldg, project, findBreaker);
+      const { mdbFeeders, smdbFloorNumbers, smdbFeeders, mainIncomerSettings } = computeFeeders(bldg, project, findBreaker);
 
       for (const f of mdbFeeders) {
         const saved = findSavedBreakerSetting(f);
@@ -699,7 +705,10 @@ export default function CoordinationPage() {
           }
         }
       } else if (sug.type === 'SETTINGS_ADJUSTMENT' || sug.type === 'ELECTRONIC_TRIP_UNIT') {
-        const stableBreakerId = `${project.id}-${selectedFeeder.name}`;
+        const stableBreakerId =
+          selectedFeeder.buildingLoadId ||
+          selectedFeeder.itemId ||
+          `${project.id}-${selectedFeeder.name}`;
         const fullModel = resolveBreakerDisplayName(
           sug.suggestedModel || selectedFeeder.breakerModel,
           selectedFeeder.breakerModel
@@ -719,6 +728,23 @@ export default function CoordinationPage() {
             ii: sug.suggestedSettings?.ii ?? selectedFeeder.breakerSize * 8,
           }),
         });
+        if (selectedFeeder.buildingLoadId || selectedFeeder.itemId) {
+          await fetch('/api/breaker-settings', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              breakerId: `${project.id}-${selectedFeeder.name}`,
+              model: fullModel,
+              manufacturer: selectedFeeder.manufacturer || 'Schneider',
+              frameSize: `${selectedFeeder.breakerSize}A`,
+              ir: selectedFeeder.current,
+              tr: 12,
+              isd: sug.suggestedSettings?.isd ?? selectedFeeder.breakerSize * 4,
+              tsd: sug.suggestedSettings?.tsd ?? 0.05,
+              ii: sug.suggestedSettings?.ii ?? selectedFeeder.breakerSize * 8,
+            }),
+          });
+        }
         await loadBreakerSettings();
       }
 

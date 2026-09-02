@@ -8413,7 +8413,7 @@
       "_origin": "ast",
       "id": "agents_skills_ui_ux_pro_max_scripts_tests_test_core_testdomaindetection",
       "community": 116,
-      "community_name": "detect_domain",
+      "community_name": "test_core.py",
       "norm_label": "testdomaindetection"
     },
     {
@@ -32179,7 +32179,7 @@
       "_origin": "ast",
       "id": "agents_skills_ui_ux_pro_max_scripts_core_detect_domain",
       "community": 116,
-      "community_name": "detect_domain",
+      "community_name": "test_core.py",
       "norm_label": "detect_domain()"
     },
     {
@@ -32191,7 +32191,7 @@
       "_origin": "ast",
       "id": "agents_skills_ui_ux_pro_max_scripts_tests_test_core_testdomaindetection_test_accessibility_keywords_route_to_ux",
       "community": 116,
-      "community_name": "detect_domain",
+      "community_name": "test_core.py",
       "norm_label": ".test_accessibility_keywords_route_to_ux()"
     },
     {
@@ -32203,7 +32203,7 @@
       "_origin": "ast",
       "id": "agents_skills_ui_ux_pro_max_scripts_tests_test_core_testdomaindetection_test_ambiguous_query_returns_runner_up",
       "community": 116,
-      "community_name": "detect_domain",
+      "community_name": "test_core.py",
       "norm_label": ".test_ambiguous_query_returns_runner_up()"
     },
     {
@@ -32215,7 +32215,7 @@
       "_origin": "ast",
       "id": "agents_skills_ui_ux_pro_max_scripts_tests_test_core_testdomaindetection_test_empty_query_falls_back_to_style",
       "community": 116,
-      "community_name": "detect_domain",
+      "community_name": "test_core.py",
       "norm_label": ".test_empty_query_falls_back_to_style()"
     },
     {
@@ -32227,7 +32227,7 @@
       "_origin": "ast",
       "id": "agents_skills_ui_ux_pro_max_scripts_tests_test_core_testdomaindetection_test_style_keywords_route_to_style",
       "community": 116,
-      "community_name": "detect_domain",
+      "community_name": "test_core.py",
       "norm_label": ".test_style_keywords_route_to_style()"
     },
     {
@@ -38315,16 +38315,16 @@
       "norm_label": ".then()"
     },
     {
-      "label": ".test_add_components_already_installed()",
+      "label": ".test_add_components_no_components()",
       "file_type": "code",
       "source_file": ".agents/skills/ui-styling/scripts/tests/test_shadcn_add.py",
-      "source_location": "L111",
+      "source_location": "L95",
       "_callable": true,
       "_origin": "ast",
-      "id": "agents_skills_ui_styling_scripts_tests_test_shadcn_add_testshadcninstaller_test_add_components_already_installed",
+      "id": "agents_skills_ui_styling_scripts_tests_test_shadcn_add_testshadcninstaller_test_add_components_no_components",
       "community": 238,
-      "community_name": ".test_add_components_already_installed",
-      "norm_label": ".test_add_components_already_installed()"
+      "community_name": ".test_add_components_no_components",
+      "norm_label": ".test_add_components_no_components()"
     },
     {
       "label": ".test_check_shadcn_config_exists()",
@@ -40139,6 +40139,18 @@
       "norm_label": "section_header()"
     },
     {
+      "label": "format_output()",
+      "file_type": "code",
+      "source_file": ".agents/skills/ui-ux-pro-max/scripts/search.py",
+      "source_location": "L44",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "agents_skills_ui_ux_pro_max_scripts_search_format_output",
+      "community": 36,
+      "community_name": "design_system.py",
+      "norm_label": "format_output()"
+    },
+    {
       "label": ".test_persist_then_skip_then_force()",
       "file_type": "code",
       "source_file": ".agents/skills/ui-ux-pro-max/scripts/tests/test_core.py",
@@ -40785,18 +40797,6 @@
       "community": 44,
       "community_name": "search",
       "norm_label": "_suggest_terms()"
-    },
-    {
-      "label": "format_output()",
-      "file_type": "code",
-      "source_file": ".agents/skills/ui-ux-pro-max/scripts/search.py",
-      "source_location": "L44",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "agents_skills_ui_ux_pro_max_scripts_search_format_output",
-      "community": 44,
-      "community_name": "search",
-      "norm_label": "format_output()"
     },
     {
       "label": ".test_accessibility_query_hits_ux()",
@@ -46079,16 +46079,16 @@
       "norm_label": "main()"
     },
     {
-      "label": ".test_add_components_no_components()",
+      "label": ".test_add_components_already_installed()",
       "file_type": "code",
       "source_file": ".agents/skills/ui-styling/scripts/tests/test_shadcn_add.py",
-      "source_location": "L95",
+      "source_location": "L111",
       "_callable": true,
       "_origin": "ast",
-      "id": "agents_skills_ui_styling_scripts_tests_test_shadcn_add_testshadcninstaller_test_add_components_no_components",
+      "id": "agents_skills_ui_styling_scripts_tests_test_shadcn_add_testshadcninstaller_test_add_components_already_installed",
       "community": 85,
       "community_name": "ShadcnInstaller",
-      "norm_label": ".test_add_components_no_components()"
+      "norm_label": ".test_add_components_already_installed()"
     },
     {
       "label": ".test_get_installed_components_no_config()",
@@ -49151,6 +49151,17 @@
       "norm_label": "website"
     },
     {
+      "label": "test_core.py",
+      "file_type": "code",
+      "source_file": ".agents/skills/ui-ux-pro-max/scripts/tests/test_core.py",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "agents_skills_ui_ux_pro_max_scripts_tests_test_core",
+      "community": 116,
+      "community_name": "test_core.py",
+      "norm_label": "test_core.py"
+    },
+    {
       "label": "Auto-detect the most relevant domain from query. Matches are weighted by\u2026",
       "file_type": "rationale",
       "source_file": ".agents/skills/ui-ux-pro-max/scripts/core.py",
@@ -49158,7 +49169,7 @@
       "_origin": "ast",
       "id": "agents_skills_ui_ux_pro_max_scripts_core_rationale_378",
       "community": 116,
-      "community_name": "detect_domain",
+      "community_name": "test_core.py",
       "norm_label": "auto-detect the most relevant domain from query. matches are weighted by..."
     },
     {
@@ -55586,34 +55597,34 @@
       "label": "$type",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L49",
+      "source_location": "L50",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_12_type",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_16_type",
       "community": 219,
-      "community_name": "12",
+      "community_name": "16",
       "norm_label": "$type"
     },
     {
       "label": "$value",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L49",
+      "source_location": "L50",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_12_value",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_16_value",
       "community": 219,
-      "community_name": "12",
+      "community_name": "16",
       "norm_label": "$value"
     },
     {
-      "label": "12",
+      "label": "16",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L49",
+      "source_location": "L50",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_spacing_12",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_spacing_16",
       "community": 219,
-      "community_name": "12",
-      "norm_label": "12"
+      "community_name": "16",
+      "norm_label": "16"
     },
     {
       "label": "search-slides.py",
@@ -55938,34 +55949,34 @@
       "label": "$type",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L44",
+      "source_location": "L46",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_4_type",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_6_type",
       "community": 223,
-      "community_name": "4",
+      "community_name": "6",
       "norm_label": "$type"
     },
     {
       "label": "$value",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L44",
+      "source_location": "L46",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_4_value",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_6_value",
       "community": 223,
-      "community_name": "4",
+      "community_name": "6",
       "norm_label": "$value"
     },
     {
-      "label": "4",
+      "label": "6",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L44",
+      "source_location": "L46",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_spacing_4",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_spacing_6",
       "community": 223,
-      "community_name": "4",
-      "norm_label": "4"
+      "community_name": "6",
+      "norm_label": "6"
     },
     {
       "label": "next",
@@ -55990,36 +56001,36 @@
       "norm_label": "next"
     },
     {
-      "label": "destructive",
+      "label": "primary",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L95",
+      "source_location": "L88",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_color_destructive",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_color_primary",
       "community": 225,
-      "community_name": "destructive",
-      "norm_label": "destructive"
+      "community_name": "primary",
+      "norm_label": "primary"
     },
     {
       "label": "$type",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L95",
+      "source_location": "L88",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_destructive_type",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_primary_type",
       "community": 225,
-      "community_name": "destructive",
+      "community_name": "primary",
       "norm_label": "$type"
     },
     {
       "label": "$value",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L95",
+      "source_location": "L88",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_destructive_value",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_primary_value",
       "community": 225,
-      "community_name": "destructive",
+      "community_name": "primary",
       "norm_label": "$value"
     },
     {
@@ -56232,15 +56243,15 @@
       "norm_label": "react"
     },
     {
-      "label": "Test adding components that are already installed.",
+      "label": "Test adding components with empty list.",
       "file_type": "rationale",
       "source_file": ".agents/skills/ui-styling/scripts/tests/test_shadcn_add.py",
-      "source_location": "L112",
+      "source_location": "L96",
       "_origin": "ast",
-      "id": "agents_skills_ui_styling_scripts_tests_test_shadcn_add_rationale_112",
+      "id": "agents_skills_ui_styling_scripts_tests_test_shadcn_add_rationale_96",
       "community": 238,
-      "community_name": ".test_add_components_already_installed",
-      "norm_label": "test adding components that are already installed."
+      "community_name": ".test_add_components_no_components",
+      "norm_label": "test adding components with empty list."
     },
     {
       "label": "bcryptjs",
@@ -56274,6 +56285,28 @@
       "community": 24,
       "community_name": "AppSetting.ts",
       "norm_label": "appsetting.ts"
+    },
+    {
+      "label": "jose",
+      "file_type": "code",
+      "source_file": "package.json",
+      "source_location": "L35",
+      "_origin": "ast",
+      "id": "package_dependencies_jose",
+      "community": 240,
+      "community_name": "jose",
+      "norm_label": "jose"
+    },
+    {
+      "label": "jose",
+      "file_type": "concept",
+      "source_file": "package.json",
+      "source_location": "L35",
+      "_origin": "ast",
+      "id": "jose",
+      "community": 240,
+      "community_name": "jose",
+      "norm_label": "jose"
     },
     {
       "label": "zod",
@@ -59169,28 +59202,6 @@
       "norm_label": "$value"
     },
     {
-      "label": "class-variance-authority",
-      "file_type": "code",
-      "source_file": "package.json",
-      "source_location": "L31",
-      "_origin": "ast",
-      "id": "package_dependencies_class_variance_authority",
-      "community": 299,
-      "community_name": "class-variance-authority",
-      "norm_label": "class-variance-authority"
-    },
-    {
-      "label": "class-variance-authority",
-      "file_type": "concept",
-      "source_file": "package.json",
-      "source_location": "L31",
-      "_origin": "ast",
-      "id": "class_variance_authority",
-      "community": 299,
-      "community_name": "class-variance-authority",
-      "norm_label": "class-variance-authority"
-    },
-    {
       "label": "ApartmentTemplate.ts",
       "file_type": "code",
       "source_file": "src/generated/prisma/models/ApartmentTemplate.ts",
@@ -60159,15 +60170,15 @@
       "norm_label": "design_system.py"
     },
     {
-      "label": "test_core.py",
+      "label": "scripts/search.py",
       "file_type": "code",
-      "source_file": ".agents/skills/ui-ux-pro-max/scripts/tests/test_core.py",
+      "source_file": ".agents/skills/ui-ux-pro-max/scripts/search.py",
       "source_location": "L1",
       "_origin": "ast",
-      "id": "agents_skills_ui_ux_pro_max_scripts_tests_test_core",
+      "id": "agents_skills_ui_ux_pro_max_scripts_search",
       "community": 36,
       "community_name": "design_system.py",
-      "norm_label": "test_core.py"
+      "norm_label": "scripts/search.py"
     },
     {
       "label": "Format a page-specific override file with intelligent AI-generated content.",
@@ -60300,6 +60311,17 @@
       "community": 36,
       "community_name": "design_system.py",
       "norm_label": "format design system as master.md with hierarchical override logic."
+    },
+    {
+      "label": "Format results for Claude consumption (token-optimized)",
+      "file_type": "rationale",
+      "source_file": ".agents/skills/ui-ux-pro-max/scripts/search.py",
+      "source_location": "L45",
+      "_origin": "ast",
+      "id": "agents_skills_ui_ux_pro_max_scripts_search_rationale_45",
+      "community": 36,
+      "community_name": "design_system.py",
+      "norm_label": "format results for claude consumption (token-optimized)"
     },
     {
       "label": "tsconfig.json",
@@ -61424,17 +61446,6 @@
       "norm_label": "scripts/core.py"
     },
     {
-      "label": "scripts/search.py",
-      "file_type": "code",
-      "source_file": ".agents/skills/ui-ux-pro-max/scripts/search.py",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "agents_skills_ui_ux_pro_max_scripts_search",
-      "community": 44,
-      "community_name": "search",
-      "norm_label": "scripts/search.py"
-    },
-    {
       "label": "Load CSV and return list of dicts, with mtime-based caching.",
       "file_type": "rationale",
       "source_file": ".agents/skills/ui-ux-pro-max/scripts/core.py",
@@ -61499,17 +61510,6 @@
       "community": 44,
       "community_name": "search",
       "norm_label": "search stack-specific guidelines"
-    },
-    {
-      "label": "Format results for Claude consumption (token-optimized)",
-      "file_type": "rationale",
-      "source_file": ".agents/skills/ui-ux-pro-max/scripts/search.py",
-      "source_location": "L45",
-      "_origin": "ast",
-      "id": "agents_skills_ui_ux_pro_max_scripts_search_rationale_45",
-      "community": 44,
-      "community_name": "search",
-      "norm_label": "format results for claude consumption (token-optimized)"
     },
     {
       "label": "Known query -> expected top-domain sanity checks (not exact-row pinning, since\u2026",
@@ -62065,9 +62065,9 @@
       "label": "$type",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L50",
+      "source_location": "L49",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_16_type",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_12_type",
       "community": 47,
       "community_name": "spacing",
       "norm_label": "$type"
@@ -62076,9 +62076,9 @@
       "label": "$value",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L50",
+      "source_location": "L49",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_16_value",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_12_value",
       "community": 47,
       "community_name": "spacing",
       "norm_label": "$value"
@@ -62131,6 +62131,28 @@
       "label": "$type",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L44",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_4_type",
+      "community": 47,
+      "community_name": "spacing",
+      "norm_label": "$type"
+    },
+    {
+      "label": "$value",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L44",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_4_value",
+      "community": 47,
+      "community_name": "spacing",
+      "norm_label": "$value"
+    },
+    {
+      "label": "$type",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
       "source_location": "L45",
       "_origin": "ast",
       "id": "agents_skills_design_system_templates_design_tokens_starter_5_type",
@@ -62145,28 +62167,6 @@
       "source_location": "L45",
       "_origin": "ast",
       "id": "agents_skills_design_system_templates_design_tokens_starter_5_value",
-      "community": 47,
-      "community_name": "spacing",
-      "norm_label": "$value"
-    },
-    {
-      "label": "$type",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L46",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_6_type",
-      "community": 47,
-      "community_name": "spacing",
-      "norm_label": "$type"
-    },
-    {
-      "label": "$value",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L46",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_6_value",
       "community": 47,
       "community_name": "spacing",
       "norm_label": "$value"
@@ -62216,15 +62216,15 @@
       "norm_label": "10"
     },
     {
-      "label": "16",
+      "label": "12",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L50",
+      "source_location": "L49",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_spacing_16",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_spacing_12",
       "community": 47,
       "community_name": "spacing",
-      "norm_label": "16"
+      "norm_label": "12"
     },
     {
       "label": "3",
@@ -62238,6 +62238,17 @@
       "norm_label": "3"
     },
     {
+      "label": "4",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L44",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_spacing_4",
+      "community": 47,
+      "community_name": "spacing",
+      "norm_label": "4"
+    },
+    {
       "label": "5",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
@@ -62247,17 +62258,6 @@
       "community": 47,
       "community_name": "spacing",
       "norm_label": "5"
-    },
-    {
-      "label": "6",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L46",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_spacing_6",
-      "community": 47,
-      "community_name": "spacing",
-      "norm_label": "6"
     },
     {
       "label": "tailwind_config_gen.py",
@@ -63118,6 +63118,17 @@
       "norm_label": "background"
     },
     {
+      "label": "destructive",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L95",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_color_destructive",
+      "community": 54,
+      "community_name": "color",
+      "norm_label": "destructive"
+    },
+    {
       "label": "foreground",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
@@ -63140,17 +63151,6 @@
       "norm_label": "muted-foreground"
     },
     {
-      "label": "primary",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L88",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_color_primary",
-      "community": 54,
-      "community_name": "color",
-      "norm_label": "primary"
-    },
-    {
       "label": "primary-hover",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
@@ -63171,6 +63171,28 @@
       "community": 54,
       "community_name": "color",
       "norm_label": "secondary"
+    },
+    {
+      "label": "$type",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L95",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_destructive_type",
+      "community": 54,
+      "community_name": "color",
+      "norm_label": "$type"
+    },
+    {
+      "label": "$value",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L95",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_destructive_value",
+      "community": 54,
+      "community_name": "color",
+      "norm_label": "$value"
     },
     {
       "label": "$type",
@@ -63234,28 +63256,6 @@
       "source_location": "L89",
       "_origin": "ast",
       "id": "agents_skills_design_system_templates_design_tokens_starter_primary_hover_value",
-      "community": 54,
-      "community_name": "color",
-      "norm_label": "$value"
-    },
-    {
-      "label": "$type",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L88",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_primary_type",
-      "community": 54,
-      "community_name": "color",
-      "norm_label": "$type"
-    },
-    {
-      "label": "$value",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L88",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_primary_value",
       "community": 54,
       "community_name": "color",
       "norm_label": "$value"
@@ -64691,6 +64691,17 @@
       "norm_label": "tests for shadcn_add.py"
     },
     {
+      "label": "Test adding components that are already installed.",
+      "file_type": "rationale",
+      "source_file": ".agents/skills/ui-styling/scripts/tests/test_shadcn_add.py",
+      "source_location": "L112",
+      "_origin": "ast",
+      "id": "agents_skills_ui_styling_scripts_tests_test_shadcn_add_rationale_112",
+      "community": 85,
+      "community_name": "ShadcnInstaller",
+      "norm_label": "test adding components that are already installed."
+    },
+    {
       "label": "Test listing installed components when they exist.",
       "file_type": "rationale",
       "source_file": ".agents/skills/ui-styling/scripts/tests/test_shadcn_add.py",
@@ -64711,17 +64722,6 @@
       "community": 85,
       "community_name": "ShadcnInstaller",
       "norm_label": "test getting installed components without config."
-    },
-    {
-      "label": "Test adding components with empty list.",
-      "file_type": "rationale",
-      "source_file": ".agents/skills/ui-styling/scripts/tests/test_shadcn_add.py",
-      "source_location": "L96",
-      "_origin": "ast",
-      "id": "agents_skills_ui_styling_scripts_tests_test_shadcn_add_rationale_96",
-      "community": 85,
-      "community_name": "ShadcnInstaller",
-      "norm_label": "test adding components with empty list."
     },
     {
       "label": "Add all available shadcn/ui components. Args: overwrite: If True, overwrite\u2026",
@@ -65615,6 +65615,17 @@
       "norm_label": "dependencies"
     },
     {
+      "label": "class-variance-authority",
+      "file_type": "code",
+      "source_file": "package.json",
+      "source_location": "L31",
+      "_origin": "ast",
+      "id": "package_dependencies_class_variance_authority",
+      "community": 93,
+      "community_name": "dependencies",
+      "norm_label": "class-variance-authority"
+    },
+    {
       "label": "framer-motion",
       "file_type": "code",
       "source_file": "package.json",
@@ -65646,17 +65657,6 @@
       "community": 93,
       "community_name": "dependencies",
       "norm_label": "i18next"
-    },
-    {
-      "label": "jose",
-      "file_type": "code",
-      "source_file": "package.json",
-      "source_location": "L35",
-      "_origin": "ast",
-      "id": "package_dependencies_jose",
-      "community": 93,
-      "community_name": "dependencies",
-      "norm_label": "jose"
     },
     {
       "label": "lucide-react",
@@ -65780,6 +65780,17 @@
       "norm_label": "xlsx"
     },
     {
+      "label": "class-variance-authority",
+      "file_type": "concept",
+      "source_file": "package.json",
+      "source_location": "L31",
+      "_origin": "ast",
+      "id": "class_variance_authority",
+      "community": 93,
+      "community_name": "dependencies",
+      "norm_label": "class-variance-authority"
+    },
+    {
       "label": "framer-motion",
       "file_type": "concept",
       "source_file": "package.json",
@@ -65811,17 +65822,6 @@
       "community": 93,
       "community_name": "dependencies",
       "norm_label": "i18next"
-    },
-    {
-      "label": "jose",
-      "file_type": "concept",
-      "source_file": "package.json",
-      "source_location": "L35",
-      "_origin": "ast",
-      "id": "jose",
-      "community": 93,
-      "community_name": "dependencies",
-      "norm_label": "jose"
     },
     {
       "label": "lucide-react",
@@ -76304,7 +76304,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/app/(app)/coordination/page.tsx",
-      "source_location": "L189",
+      "source_location": "L195",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_app_app_coordination_page_coordinationpage",
@@ -76316,23 +76316,11 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/app/(app)/coordination/page.tsx",
-      "source_location": "L211",
+      "source_location": "L217",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_app_app_coordination_page_coordinationpage",
       "target": "src_lib_calculations_selectivity_verifycoordination"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "src/app/(app)/coordination/page.tsx",
-      "source_location": "L479",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "src_app_app_coordination_page_coordinationpage",
-      "target": "src_lib_calculations_selectivity_generatecurvepoints"
     },
     {
       "relation": "calls",
@@ -76352,6 +76340,18 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/app/(app)/coordination/page.tsx",
+      "source_location": "L485",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_app_app_coordination_page_coordinationpage",
+      "target": "src_lib_calculations_selectivity_generatecurvepoints"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/app/(app)/coordination/page.tsx",
       "source_location": "L49",
       "weight": 1.0,
       "_origin": "ast",
@@ -76364,7 +76364,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/app/(app)/coordination/page.tsx",
-      "source_location": "L498",
+      "source_location": "L504",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_app_app_coordination_page_coordinationpage",
@@ -76376,7 +76376,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/app/(app)/coordination/page.tsx",
-      "source_location": "L535",
+      "source_location": "L541",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_app_app_coordination_page_coordinationpage",
@@ -166776,5 +166776,5 @@
       "source_file": "public/slides/slide_load_calc.webp"
     }
   ],
-  "built_at_commit": "325bd502d285e298dd37375896510eabb89e7950"
+  "built_at_commit": "4e8dd0d81d2e6cf675fac3feb59afaebc0f3f314"
 }

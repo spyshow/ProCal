@@ -139,6 +139,72 @@ export function getCableAmpacityColumn(
 }
 
 /**
+ * Sizes the protective earth / equipment grounding conductor (EGC) according to the
+ * governing standard:
+ * - IEC: IEC 60364-5-54:2011 Table 54.7 based on phase conductor cross-section (S):
+ *     S <= 16 mm²   -> S
+ *     16 < S <= 35  -> 16 mm²
+ *     S > 35 mm²    -> S / 2 (rounded up to standard catalog size)
+ * - NEC: NFPA 70 (NEC) Section 250.122 & Table 250.122 based on the rating of the
+ *   upstream overcurrent protective device (breakerRating).
+ */
+export function sizeEquipmentGroundingConductor(
+  phaseSize: number,
+  breakerRating: number,
+  material: 'copper' | 'aluminum' = 'copper',
+  code: CodeStandard = 'IEC'
+): number {
+  if (code === 'NEC') {
+    let minMm2: number;
+    if (material === 'copper') {
+      if (breakerRating <= 15) minMm2 = 2.08; // 14 AWG
+      else if (breakerRating <= 20) minMm2 = 3.31; // 12 AWG
+      else if (breakerRating <= 60) minMm2 = 5.26; // 10 AWG
+      else if (breakerRating <= 100) minMm2 = 8.37; // 8 AWG
+      else if (breakerRating <= 200) minMm2 = 13.3; // 6 AWG
+      else if (breakerRating <= 300) minMm2 = 21.2; // 4 AWG
+      else if (breakerRating <= 400) minMm2 = 26.7; // 3 AWG
+      else if (breakerRating <= 500) minMm2 = 33.6; // 2 AWG
+      else if (breakerRating <= 600) minMm2 = 42.4; // 1 AWG
+      else if (breakerRating <= 800) minMm2 = 53.5; // 1/0 AWG
+      else if (breakerRating <= 1000) minMm2 = 67.4; // 2/0 AWG
+      else if (breakerRating <= 1200) minMm2 = 85.0; // 3/0 AWG
+      else if (breakerRating <= 1600) minMm2 = 107.2; // 4/0 AWG
+      else if (breakerRating <= 2000) minMm2 = 127.0; // 250 kcmil
+      else if (breakerRating <= 2500) minMm2 = 177.0; // 350 kcmil
+      else if (breakerRating <= 3000) minMm2 = 203.0; // 400 kcmil
+      else minMm2 = 253.0; // 500 kcmil
+    } else {
+      if (breakerRating <= 15) minMm2 = 3.31; // 12 AWG
+      else if (breakerRating <= 20) minMm2 = 5.26; // 10 AWG
+      else if (breakerRating <= 60) minMm2 = 8.37; // 8 AWG
+      else if (breakerRating <= 100) minMm2 = 13.3; // 6 AWG
+      else if (breakerRating <= 200) minMm2 = 21.2; // 4 AWG
+      else if (breakerRating <= 300) minMm2 = 33.6; // 2 AWG
+      else if (breakerRating <= 400) minMm2 = 42.4; // 1 AWG
+      else if (breakerRating <= 500) minMm2 = 53.5; // 1/0 AWG
+      else if (breakerRating <= 600) minMm2 = 67.4; // 2/0 AWG
+      else if (breakerRating <= 800) minMm2 = 85.0; // 3/0 AWG
+      else if (breakerRating <= 1000) minMm2 = 107.2; // 4/0 AWG
+      else if (breakerRating <= 1200) minMm2 = 127.0; // 250 kcmil
+      else if (breakerRating <= 1600) minMm2 = 177.0; // 350 kcmil
+      else if (breakerRating <= 2000) minMm2 = 203.0; // 400 kcmil
+      else minMm2 = 304.0; // 600 kcmil
+    }
+
+    const match = CABLE_CATALOG.find((c) => c.size >= minMm2);
+    return match ? match.size : minMm2;
+  }
+
+  // IEC 60364-5-54 Table 54.7
+  if (phaseSize <= 16) return phaseSize;
+  if (phaseSize <= 35) return 16;
+  const target = Math.round(phaseSize / 2);
+  const closestSpec = CABLE_CATALOG.find((c) => c.size >= target);
+  return closestSpec ? closestSpec.size : 16;
+}
+
+/**
  * Sizes the breaker rating (In) and cable cross-section (S) based on design current (Ib).
  * Automatically calculates parallel runs when load exceeds single cable capacity or maxCableSize.
  */
@@ -340,16 +406,12 @@ export function sizeCableAndBreaker(
     }
   }
 
-  let earthSize = phaseSize;
-  if (phaseSize <= 16) {
-    earthSize = phaseSize;
-  } else if (phaseSize <= 35) {
-    earthSize = 16;
-  } else {
-    earthSize = Math.round(phaseSize / 2);
-    const closestSpec = CABLE_CATALOG.find((c) => c.size >= earthSize);
-    earthSize = closestSpec ? closestSpec.size : 16;
-  }
+  const earthSize = sizeEquipmentGroundingConductor(
+    phaseSize,
+    breakerSize,
+    material,
+    options.code ?? "IEC"
+  );
 
   // Report the ΔU of the FINAL arrangement; if no candidate satisfied both
   // ampacity and the drop limit, say so instead of silently shipping an

@@ -377,15 +377,23 @@ export function neutralFromPhasors(x: number, y: number): number {
   return Math.sqrt(x * x + y * y);
 }
 
-/** Current-unbalance % = (max − min) / avg × 100. 0 for an empty/equal board. */
+/**
+ * Current-unbalance % (Current Unbalance Rate, CUR) per NEMA MG 1-2021 Clause 14.36,
+ * ANSI C84.1, and IEEE 141:
+ *   CUR = max(|I - I_avg|) / I_avg × 100%
+ * Returns 0 for an empty or perfectly balanced board.
+ */
 export function currentUnbalancePct(
   phaseCurrent: [number, number, number]
 ): number {
-  const max = Math.max(phaseCurrent[0], phaseCurrent[1], phaseCurrent[2]);
-  const min = Math.min(phaseCurrent[0], phaseCurrent[1], phaseCurrent[2]);
   const avg = (phaseCurrent[0] + phaseCurrent[1] + phaseCurrent[2]) / 3;
   if (avg === 0) return 0;
-  return ((max - min) / avg) * 100;
+  const maxDev = Math.max(
+    Math.abs(phaseCurrent[0] - avg),
+    Math.abs(phaseCurrent[1] - avg),
+    Math.abs(phaseCurrent[2] - avg)
+  );
+  return (maxDev / avg) * 100;
 }
 
 /** Resolve the calculation standard, defaulting to IEC. */

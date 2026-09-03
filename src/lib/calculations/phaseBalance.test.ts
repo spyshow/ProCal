@@ -365,7 +365,7 @@ describe('phaseBalance', () => {
   // 11. current-unbalance % formula
   // ==========================================================================
 
-  it('computes current-unbalance % as (max-min)/avg', () => {
+  it('computes current-unbalance % as NEMA CUR max(|I - avg|)/avg', () => {
     const project = projectFixture();
     const b = phaseBalance(
       [
@@ -376,8 +376,25 @@ describe('phaseBalance', () => {
     );
 
     expect(b.phaseCurrent).toEqual([30, 30, 0]);
-    // avg = 20, max-min = 30 → 150%
-    expect(b.unbalancePct).toBeCloseTo(150, 6);
+    // avg = 20, max deviation = |0 - 20| = 20 → 20/20 × 100% = 100% (per NEMA MG 1-2021 Clause 14.36)
+    expect(b.unbalancePct).toBeCloseTo(100, 6);
+  });
+
+  it('computes NEMA CUR accurately on multi-phase distributions (IEEE 141 benchmark)', () => {
+    const project = projectFixture();
+    // Currents [110, 100, 90]: avg = 100, max deviation = 10 -> 10%
+    const b = phaseBalance(
+      [
+        item('a1', 110, 25.3, 'APARTMENT', { assignedPhase: 1 }),
+        item('a2', 100, 23.0, 'APARTMENT', { assignedPhase: 2 }),
+        item('a3', 90, 20.7, 'APARTMENT', { assignedPhase: 3 }),
+      ],
+      project
+    );
+
+    expect(b.phaseCurrent).toEqual([110, 100, 90]);
+    expect(b.unbalancePct).toBeCloseTo(10, 6);
+    expect(b.imbalanced).toBe(false);
   });
 
   // ==========================================================================
@@ -403,18 +420,16 @@ describe('phaseBalance', () => {
 
   it('does NOT flag imbalanced exactly at the threshold', () => {
     const project = projectFixture();
-    // (max-min)/avg = 10% with three values? Use [10, 10, 12]:
-    // avg = 32/3 ≈ 10.667, max-min=2, pct = 18.75% → above 10, imbalanced
-    // Lower current to produce exactly 10%: want (max-min)/avg = 0.1.
-    // Two phases equal to x, third = x + delta; avg = (3x+delta)/3, max-min=delta.
-    // delta / ((3x+delta)/3) = 0.1 → 3delta = 0.1(3x+delta) → 30delta = 3x+delta
-    // → 29delta = 3x → x = 29/3 delta. Pick delta=3, x=29.
-    // So [29, 29, 32] gives avg=30, max-min=3, pct=10.
+    // CUR = max(|I - avg|)/avg = 10%.
+    // With currents [27, 30, 33]:
+    // avg = (27 + 30 + 33) / 3 = 30.
+    // maxDev = max(|27-30|, |30-30|, |33-30|) = 3.
+    // CUR = 3 / 30 * 100% = 10.0%.
     const b = phaseBalance(
       [
-        item('a1', 29, 6.67, 'APARTMENT', { assignedPhase: 1 }),
-        item('a2', 29, 6.67, 'APARTMENT', { assignedPhase: 2 }),
-        item('a3', 32, 7.36, 'APARTMENT', { assignedPhase: 3 }),
+        item('a1', 27, 6.21, 'APARTMENT', { assignedPhase: 1 }),
+        item('a2', 30, 6.90, 'APARTMENT', { assignedPhase: 2 }),
+        item('a3', 33, 7.59, 'APARTMENT', { assignedPhase: 3 }),
       ],
       project
     );

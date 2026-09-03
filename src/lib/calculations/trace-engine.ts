@@ -581,8 +581,8 @@ export function buildPhaseBalanceTrace(inputs: PhaseBalanceTraceInputs): TraceDe
   const i3 = inputs.l3A;
   const avg = (i1 + i2 + i3) / 3;
   const maxDev = Math.max(Math.abs(i1 - avg), Math.abs(i2 - avg), Math.abs(i3 - avg));
-  // Same current-unbalance proxy as the phaseBalance engine:
-  // % = (max − min) / avg × 100.
+  // Current-unbalance rate (CUR) per NEMA MG 1-2021 Clause 14.36 / ANSI C84.1 / IEEE 141:
+  // % = ΔI_max / I_avg × 100%
   const calcUnbalance = currentUnbalancePct([i1, i2, i3]);
   const limit = inputs.maxAllowablePercent ?? 10.0;
   const passed = inputs.unbalancePercent <= limit;
@@ -600,8 +600,8 @@ export function buildPhaseBalanceTrace(inputs: PhaseBalanceTraceInputs): TraceDe
     },
     {
       label: "Current Unbalance Percentage",
-      formula: "% Unbalance = (Imax − Imin) / I_avg × 100%",
-      substituted: `% Unbalance = ${calcUnbalance.toFixed(2)}%`,
+      formula: "% Unbalance = ΔI_max / I_avg × 100%",
+      substituted: `% Unbalance = ${maxDev.toFixed(2)} / ${avg.toFixed(2)} × 100% = ${calcUnbalance.toFixed(2)}%`,
     },
   ];
 

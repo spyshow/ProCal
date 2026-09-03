@@ -159,20 +159,20 @@ describe("Calculation Trace Engine", () => {
   });
 
   it("builds Phase Balance trace on the engine's current-unbalance metric", () => {
-    // (max − min)/avg = (26 − 21.5)/24.33 × 100 ≈ 18.49% — the same proxy
-    // phaseBalance.currentUnbalancePct reports, not a kW deviation.
+    // NEMA CUR = ΔI_max / I_avg × 100% = 2.833 / 24.333 × 100 ≈ 11.64%
+    const unbalance = currentUnbalancePct([26.0, 25.5, 21.5]);
     const trace = buildPhaseBalanceTrace({
       panelName: "Distribution Board DB-01",
       l1A: 26.0,
       l2A: 25.5,
       l3A: 21.5,
-      unbalancePercent: 18.49,
+      unbalancePercent: unbalance,
       maxAllowablePercent: 10.0,
     });
 
     expect(trace.compliance?.status).toBe("WARN"); // unbalance flags as WARN, per engine convention
     expect(trace.steps[0].label).toContain("Average Phase Current");
-    expect(trace.steps[2].formula).toContain("Imax − Imin");
+    expect(trace.steps[2].formula).toContain("ΔI_max / I_avg");
 
     const balanced = buildPhaseBalanceTrace({
       l1A: 100,

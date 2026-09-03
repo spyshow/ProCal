@@ -8,6 +8,7 @@ import {
   parseCableSize,
   formatCableSize,
   getCableAmpacityColumn,
+  sizeEquipmentGroundingConductor,
 } from './cables';
 import { temperatureDeratingFactor, groupingDeratingFactor, CABLE_CATALOG } from './cablesData';
 import { getAmpacity } from './installationMethods';
@@ -584,6 +585,75 @@ describe('aluminum cables (PVC + XLPE, 1-phase + 3-phase)', () => {
     const c_xlpe_1ph_al = getAmpacity(70, 'C', 'XLPE', false, 'aluminum');
     const c_pvc_1ph_al = getAmpacity(70, 'C', 'PVC', false, 'aluminum');
     expect(c_xlpe_1ph_al).toBeGreaterThan(c_pvc_1ph_al);
+  });
+});
+
+describe('sizeEquipmentGroundingConductor (CALC-MAJ-04)', () => {
+  describe('IEC 60364-5-54 Table 54.7', () => {
+    it('returns phase size for S <= 16 mm²', () => {
+      expect(sizeEquipmentGroundingConductor(2.5, 20, 'copper', 'IEC')).toBe(2.5);
+      expect(sizeEquipmentGroundingConductor(10, 50, 'copper', 'IEC')).toBe(10);
+      expect(sizeEquipmentGroundingConductor(16, 63, 'copper', 'IEC')).toBe(16);
+    });
+
+    it('returns 16 mm² for 16 < S <= 35 mm²', () => {
+      expect(sizeEquipmentGroundingConductor(25, 100, 'copper', 'IEC')).toBe(16);
+      expect(sizeEquipmentGroundingConductor(35, 125, 'copper', 'IEC')).toBe(16);
+    });
+
+    it('returns S/2 (standard size) for S > 35 mm²', () => {
+      expect(sizeEquipmentGroundingConductor(50, 160, 'copper', 'IEC')).toBe(25);
+      expect(sizeEquipmentGroundingConductor(70, 200, 'copper', 'IEC')).toBe(35);
+      expect(sizeEquipmentGroundingConductor(95, 250, 'copper', 'IEC')).toBe(50);
+      expect(sizeEquipmentGroundingConductor(240, 400, 'copper', 'IEC')).toBe(120);
+      expect(sizeEquipmentGroundingConductor(300, 500, 'copper', 'IEC')).toBe(150);
+    });
+  });
+
+  describe('NEC Article 250.122 & Table 250.122', () => {
+    it('sizes copper EGC based on breaker rating, not phase size', () => {
+      expect(sizeEquipmentGroundingConductor(10, 15, 'copper', 'NEC')).toBe(2.5); // min 2.08 -> 2.5 mm²
+      expect(sizeEquipmentGroundingConductor(10, 20, 'copper', 'NEC')).toBe(4);   // min 3.31 -> 4 mm²
+      expect(sizeEquipmentGroundingConductor(16, 60, 'copper', 'NEC')).toBe(6);   // min 5.26 -> 6 mm²
+      expect(sizeEquipmentGroundingConductor(50, 100, 'copper', 'NEC')).toBe(10); // min 8.37 -> 10 mm²
+      expect(sizeEquipmentGroundingConductor(95, 200, 'copper', 'NEC')).toBe(16); // min 13.3 -> 16 mm²
+      expect(sizeEquipmentGroundingConductor(240, 400, 'copper', 'NEC')).toBe(35); // min 26.7 -> 35 mm² (NOT 120 mm²!)
+      expect(sizeEquipmentGroundingConductor(300, 800, 'copper', 'NEC')).toBe(70); // min 53.5 -> 70 mm²
+      expect(sizeEquipmentGroundingConductor(500, 1200, 'copper', 'NEC')).toBe(95); // min 85.0 -> 95 mm²
+    });
+
+    it('sizes aluminum EGC based on breaker rating with higher cross-section', () => {
+      expect(sizeEquipmentGroundingConductor(16, 20, 'aluminum', 'NEC')).toBe(6);   // min 5.26 -> 6 mm²
+      expect(sizeEquipmentGroundingConductor(25, 60, 'aluminum', 'NEC')).toBe(10);  // min 8.37 -> 10 mm²
+      expect(sizeEquipmentGroundingConductor(70, 100, 'aluminum', 'NEC')).toBe(16); // min 13.3 -> 16 mm²
+      expect(sizeEquipmentGroundingConductor(240, 400, 'aluminum', 'NEC')).toBe(50); // min 42.4 -> 50 mm²
+    });
+  });
+
+  describe('Integration with sizeCableAndBreaker', () => {
+    it('assigns standard-compliant earth size under IEC vs NEC for the same 400A feeder', () => {
+      const iecResult = sizeCableAndBreaker(350, true, {
+        material: 'copper',
+        insulation: 'XLPE',
+        ambientTemp: 30,
+        groupingCount: 1,
+        code: 'IEC',
+      });
+
+      const necResult = sizeCableAndBreaker(350, true, {
+        material: 'copper',
+        insulation: 'XLPE',
+        ambientTemp: 30,
+        groupingCount: 1,
+        code: 'NEC',
+      });
+
+      // Under IEC Table 54.7, an IEC cable of S=185 mm² gets S/2 -> 95 mm² earth
+      expect(iecResult.earthSize).toBe(95);
+
+      // Under NEC Table 250.122, a 400A breaker requires 3 AWG (26.7 mm² -> standard 35 mm²), NOT 95 mm²
+      expect(necResult.earthSize).toBe(35);
+    });
   });
 });
 

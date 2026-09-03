@@ -68,3 +68,8 @@ logs/security/
 claude_memory.md
 /docs/ideas/
 .antigravity/
+.agents/*/
+.agents/*.md
+!.agents/rules/
+!.agents/skills/
+!.agents/workflows/

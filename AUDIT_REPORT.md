@@ -1,7 +1,7 @@
 # ProCal Comprehensive Engineering Code, Electrical Standards & Usability Audit Report
 
 **Application**: ProCal – Electrical Engineering Calculation & Panel Scheduling Suite  
-**Application Version**: 1.2.6  
+**Application Version**: 1.3.0  
 **Auditor Syndicate**: 
 - `explorer_calc_1` (Electrical Calculations & Standards Forensic Auditor)
 - `worker_test_1` (Test Suite Runner, False-Positive & Coverage Auditor)

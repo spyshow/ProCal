@@ -17,6 +17,7 @@ drift between surfaces. Every module has a paired `*.test.ts` Vitest self-check.
 src/lib/calculations/
   loads.ts            — connected/demand current, transformer & generator sizing
   cables.ts           — cable + breaker sizing, voltage drop (IEC 60364-5-52)
+  codes.ts            — multi-code profiles: IEC 60364 & NEC/NEMA breaker ladders, AWG display
   cablesData.ts       — CABLE_CATALOG (R/X Ω/km), TEMP_DERATING, GROUP_DERATING
   installationMethods.ts — per-method ampacity TABLES (A1–D2, IEC Table B.52.x)
   phaseBalance.ts     — per-phase L1/L2/L3 accounting, neutral, unbalance

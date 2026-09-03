@@ -1,9 +1,10 @@
 # ProCal documentation
 
-ProCal is a multi-tenant electrical-design app: load calculations, per-phase
-balancing, cable/breaker sizing, short-circuit and coordination studies,
-single-line and riser diagrams, and printable engineering schedules — against
-a catalog of real ABB / Schneider breakers.
+ProCal is a multi-tenant electrical-design application: load calculations, per-phase
+balancing, cable/breaker sizing, short-circuit and protection coordination studies,
+single-line and riser diagrams, step-by-step mathematical calculation traces,
+and printable engineering schedules and multi-tab Excel workbooks — against
+a catalog of real ABB / Schneider breakers and dual IEC 60364 & NEC (NEMA) standards.
 
 These docs are organized by the **Diataxis framework** — four quadrants by what
 you're trying to *do*:
@@ -16,8 +17,9 @@ you're trying to *do*:
 ## Tutorial
 
 - [Your first ProCal project](./tutorial-getting-started.md) — install → run →
-  project → building → apartment template → floors → balance → panels → SLD →
-  PDF report.
+  project (IEC or NEC/NEMA) → building → apartment template → floors → balance &
+  trace math → panels → SLD → TCC coordination study → riser → PDF & Excel reports →
+  revisions & QA review.
 
 ## How-to guides
 
@@ -33,18 +35,19 @@ you're trying to *do*:
 ## Reference
 
 - [Calc engine](./reference-calc-engine.md) — `phaseBalance`, `feeders`,
-  `cables`, `shortCircuit`, `selectivity`, `riser`, `loads`: signatures,
+  `cables`, `codes` (IEC vs NEC), `trace-engine` (step-by-step math provenance),
+  `shortCircuit`, `selectivity` (TCC curves & manufacturer tables), `riser`, `loads`: signatures,
   standards, algorithms, module map.
 - [Data model](./reference-data-model.md) — every Prisma model, field/type/
-  default/relation/index; the enums-as-strings convention; migrations.
+  default/relation/index; the enums-as-strings convention; revisions, audit logs,
+  and migrations.
 - [API](./reference-api.md) — every route handler: method, auth posture, inputs,
-  and the non-obvious behavior. The matcher-exclusion list and the one
-  sessionless route.
+  and non-obvious behavior. Includes batch cable defaults, revisions, and invites.
 - [Auth & admin](./reference-auth-admin.md) — auth primitives, the middleware
   matcher regex, `requireAdmin`, admin routes, `UserContext`, country defaults.
 - [SLD & reports](./reference-sld-reports.md) — the Schematex-DSL generator,
-  the in-browser SVG post-processing, the schedule components, how the printed
-  output stays consistent with the calculator.
+  the in-browser SVG post-processing, the schedule components, multi-tab Excel workbooks,
+  and how printed output stays consistent with the calculator.
 
 ## Explanation
 

@@ -436,12 +436,12 @@ function CalculatorContent() {
         </div>
         <div className="grid grid-cols-2 md:grid-cols-6 gap-3">
           {[
-            { label: `L1 (${project.calculationStandard || 'IEC'})`, value: `${buildingBalance.phaseCurrent[0].toFixed(1)} A`, sub: `${buildingBalance.phaseKw[0].toFixed(1)} kVA`, color: 'text-orange-400' },
-            { label: 'L2', value: `${buildingBalance.phaseCurrent[1].toFixed(1)} A`, sub: `${buildingBalance.phaseKw[1].toFixed(1)} kVA`, color: 'text-orange-400' },
-            { label: 'L3', value: `${buildingBalance.phaseCurrent[2].toFixed(1)} A`, sub: `${buildingBalance.phaseKw[2].toFixed(1)} kVA`, color: 'text-orange-400' },
+            { label: `L1 (${project.calculationStandard || 'IEC'})`, value: `${buildingBalance.phaseCurrent[0].toFixed(1)} A`, sub: `${buildingBalance.phaseKw[0].toFixed(1)} kW`, color: 'text-orange-400' },
+            { label: 'L2', value: `${buildingBalance.phaseCurrent[1].toFixed(1)} A`, sub: `${buildingBalance.phaseKw[1].toFixed(1)} kW`, color: 'text-orange-400' },
+            { label: 'L3', value: `${buildingBalance.phaseCurrent[2].toFixed(1)} A`, sub: `${buildingBalance.phaseKw[2].toFixed(1)} kW`, color: 'text-orange-400' },
             { label: t('calculator.neutral', 'Neutral'), value: `${buildingBalance.neutralCurrent.toFixed(1)} A`, sub: buildingBalance.neutralOversized ? t('calculator.over2xMax', 'over 2×max') : t('calculator.ok', 'ok'), color: 'text-yellow-400' },
             { label: t('calculator.unbalance', 'Unbalance'), value: `${buildingBalance.unbalancePct.toFixed(1)}%`, sub: `${t('calculator.limit', 'limit')} ${buildingBalance.unbalanceLimitPct}%`, color: 'text-gray-300' },
-            { label: t('calculator.totalKw', 'Total Power'), value: `${buildingBalance.totalKw.toFixed(1)} kVA`, sub: `max ${buildingBalance.maxPhaseCurrent.toFixed(0)} A`, color: 'text-blue-400' },
+            { label: t('calculator.totalKw', 'Total Power'), value: `${buildingBalance.totalKw.toFixed(1)} kW`, sub: `max ${buildingBalance.maxPhaseCurrent.toFixed(0)} A`, color: 'text-blue-400' },
           ].map(({ label, value, sub, color }) => (
             <div key={label} className="rounded-lg border border-gray-800 bg-gray-950/30 p-3">
               <p className="text-[10px] text-gray-500 uppercase tracking-wider">{label}</p>

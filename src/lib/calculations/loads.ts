@@ -4,7 +4,11 @@
 
 import { assertNonNegative, assertPositive, CalculationError } from "./validate";
 
-// IEC 60439 / standard diversity factors for residential apartments
+/**
+ * Diversity (simultaneity) factors for residential apartments.
+ * Standard references: IEC 61439-2:2020 Clause 10.10 (superseding withdrawn IEC 60439),
+ * and French distribution code NF C 14-100 §5.3.
+ */
 export function getApartmentDiversityFactor(count: number): number {
   assertNonNegative('count', count);
   if (count <= 1) return 1.0;

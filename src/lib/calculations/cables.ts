@@ -241,21 +241,21 @@ export function sizeCableAndBreaker(
     assertPositive('voltageDrop.maxPercent', vd.maxPercent);
   }
 
-  // ΔU gate for a candidate arrangement (IEC 60364-5-52 §525). With no
-  // constraint supplied the sizer is ampacity-only, as before.
-  const vdOk = (size: number, runs: number): boolean => {
-    if (!vd) return true;
-    return (
-      calculateVoltageDrop(ib, vd.lengthMeters, size, vd.powerFactor, isThreePhase, vd.systemVoltage, runs, material)
-        .dropPercent <= vd.maxPercent
-    );
-  };
-
   const { material, insulation, ambientTemp, groupingCount, neutralCurrent, installMethod } = options;
   const maxCableSize = options.maxCableSize ?? 300;
   const warnings: string[] = [];
   const methodId = installMethod ?? (options.code === 'NEC' ? 'NEC-1' : 'C');
   const calcStandard = options.code === 'NEC' ? 'NEMA' : 'IEC';
+
+  // ΔU gate for a candidate arrangement (IEC 60364-5-52 §525). With no
+  // constraint supplied the sizer is ampacity-only, as before.
+  const vdOk = (size: number, runs: number): boolean => {
+    if (!vd) return true;
+    return (
+      calculateVoltageDrop(ib, vd.lengthMeters, size, vd.powerFactor, isThreePhase, vd.systemVoltage, runs, material, insulation)
+        .dropPercent <= vd.maxPercent
+    );
+  };
 
   // 1. Select breaker size (In >= Ib) from the project's code catalog
   const breakerSize = options.manualBreakerRating ?? nextBreakerRating(ib, options.code);
@@ -283,8 +283,16 @@ export function sizeCableAndBreaker(
   };
 
   // Available catalog subset up to maxCableSize
-  const availableCatalog = CABLE_CATALOG.filter((c) => c.size <= maxCableSize);
-  const catalogToUse = availableCatalog.length > 0 ? availableCatalog : CABLE_CATALOG;
+  // IEC 60364-5-52 Table 52.2 & NEC 310.106(A): Minimum conductor size for Aluminum is 16 mm²
+  // (Aluminum < 16 mm² is prohibited in building power wiring due to creep and terminal fire hazards).
+  const minConductorSize = material === 'aluminum' ? 16 : 1.5;
+  const availableCatalog = CABLE_CATALOG.filter(
+    (c) => c.size >= minConductorSize && c.size <= maxCableSize
+  );
+  const catalogToUse =
+    availableCatalog.length > 0
+      ? availableCatalog
+      : CABLE_CATALOG.filter((c) => c.size >= minConductorSize);
 
   let selectedCable: CableSpec = catalogToUse[catalogToUse.length - 1];
   let selectedRuns = 1;
@@ -292,9 +300,6 @@ export function sizeCableAndBreaker(
   let deratedAmpacity = 0;
 
   if (options.targetRuns && options.targetRuns > 1) {
-    // User specified exact run count. Touching parallel cables count as
-    // separate grouped circuits (IEC B.52.17 / NEC 310.15), so the grouping factor grows
-    // with the run count: effective circuits = other circuits + runs.
     selectedRuns = options.targetRuns;
     const effGroupFactor = groupingDeratingFactor(groupingCount, calcStandard);
     const totalDerating = tempFactor * effGroupFactor;
@@ -375,7 +380,11 @@ export function sizeCableAndBreaker(
   const effGroupFactor = groupingDeratingFactor(groupingCount, calcStandard);
   const totalDerating = tempFactor * effGroupFactor;
 
-  // 4. Conductor sizing for Neutral and Earth (PE) according to IEC 60364-5-54
+  // 4. Conductor sizing for Neutral and Earth (PE) according to IEC 60364-5-52 §524,
+  // Annex E Table E.52.1 (Triplen Harmonics), and IEC 60364-5-54 Table 54.7.
+  // Note: When non-linear loads produce 3rd harmonics > 15%, neutral reduction is
+  // prohibited (neutralSize = phaseSize). For 3rd harmonics > 33%, the neutral conductor
+  // must be upsized and phase cables derated by 0.86 per IEC 60364-5-52 Table E.52.1.
   const phaseSize = selectedCable.size;
   let neutralSize = phaseSize;
 
@@ -419,7 +428,7 @@ export function sizeCableAndBreaker(
   let dropPercent: number | undefined;
   let dropVolts: number | undefined;
   if (vd) {
-    const finalVd = calculateVoltageDrop(ib, vd.lengthMeters, phaseSize, vd.powerFactor, isThreePhase, vd.systemVoltage, selectedRuns, material);
+    const finalVd = calculateVoltageDrop(ib, vd.lengthMeters, phaseSize, vd.powerFactor, isThreePhase, vd.systemVoltage, selectedRuns, material, insulation);
     dropPercent = finalVd.dropPercent;
     dropVolts = finalVd.dropVolts;
     if (finalVd.dropPercent > vd.maxPercent) {
@@ -466,7 +475,8 @@ export function calculateVoltageDrop(
   isThreePhase: boolean,
   systemVoltage: number, // e.g. 400 for 3-phase, 230 for 1-phase
   parallelRuns: number = 1,
-  material: 'copper' | 'aluminum' = 'copper'
+  material: 'copper' | 'aluminum' = 'copper',
+  insulation: 'PVC' | 'XLPE' = 'XLPE'
 ): { dropVolts: number; dropPercent: number } {
   assertNonNegative('current', current);
   assertPositive('lengthMeters', lengthMeters);
@@ -482,11 +492,13 @@ export function calculateVoltageDrop(
     CABLE_CATALOG.find((c) => c.size === cableSizeSqMm) ??
     CABLE_CATALOG.filter((c) => c.size <= cableSizeSqMm).pop() ??
     CABLE_CATALOG[0];
-  // The catalog resistance column holds COPPER AC resistance at operating
-  // temperature. Aluminum has ~1.64× the resistivity of copper (0.0283 vs
-  // 0.0172 Ω·mm²/m), so an aluminum run drops that much more voltage.
+  // The catalog resistance column holds COPPER AC resistance at 90°C operating
+  // temperature (for XLPE). Aluminum has ~1.64× the resistivity of copper (0.0283 vs
+  // 0.0172 Ω·mm²/m). For PVC operating at 70°C max continuous conductor temperature,
+  // resistance scales by (234.5 + 70) / (234.5 + 90) ≈ 0.938 per IEC 60364-5-52 Annex G.
   const materialFactor = material === 'aluminum' ? 0.0283 / 0.0172 : 1;
-  const R = (spec.resistance * materialFactor) / runs;
+  const tempCorrectionFactor = insulation === 'PVC' ? (234.5 + 70) / (234.5 + 90) : 1;
+  const R = (spec.resistance * materialFactor * tempCorrectionFactor) / runs;
   const X = spec.reactance / runs;
 
   // cos(phi) and sin(phi)
@@ -752,4 +764,22 @@ export function computeItemVoltageDrop(opts: {
     return null;
   }
 }
+
+/**
+ * Validates conductor material and cross-sectional area per IEC 60364-5-52 Table 52.2 / NEC 310.106(A).
+ * Aluminum conductors smaller than 16 mm² are prohibited for building power circuits.
+ */
+export function validateConductorMaterialAndSize(
+  material: 'copper' | 'aluminum',
+  sizeMm2: number
+): { valid: boolean; error?: string } {
+  if (material === 'aluminum' && sizeMm2 < 16) {
+    return {
+      valid: false,
+      error: `IEC 60364-5-52 Table 52.2 prohibits Aluminum conductors smaller than 16 mm² for building power wiring (selected: ${sizeMm2} mm²).`,
+    };
+  }
+  return { valid: true };
+}
+
 

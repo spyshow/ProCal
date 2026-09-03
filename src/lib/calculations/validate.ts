@@ -64,3 +64,48 @@ export function assertOneOf<T>(name: string, value: T, allowed: readonly T[]): v
     );
   }
 }
+
+export interface ProjectElectricalSettings {
+  voltage?: number;
+  frequency?: number;
+  powerFactor?: number;
+  maxDemandFactor?: number;
+  maxVoltageDropLighting?: number;
+  maxVoltageDropPower?: number;
+}
+
+/**
+ * Validates physical electrical boundaries for project settings.
+ * Enforces physical limits (e.g. 0.1 <= PF <= 1.0, 100 <= V <= 1000)
+ * to prevent downstream corruption across calculation engines.
+ */
+export function validateProjectSettings(settings: ProjectElectricalSettings): void {
+  if (settings.voltage !== undefined) {
+    assertInRange('voltage', settings.voltage, 100, 1000);
+  }
+  if (settings.frequency !== undefined) {
+    assertInRange('frequency', settings.frequency, 45, 65);
+  }
+  if (settings.powerFactor !== undefined) {
+    if (
+      typeof settings.powerFactor !== 'number' ||
+      Number.isNaN(settings.powerFactor) ||
+      settings.powerFactor < 0.1 ||
+      settings.powerFactor > 1.0
+    ) {
+      throw new CalculationError(
+        `powerFactor must be between 0.10 and 1.00, received ${settings.powerFactor}`
+      );
+    }
+  }
+  if (settings.maxDemandFactor !== undefined) {
+    assertInRange('maxDemandFactor', settings.maxDemandFactor, 0.05, 1.50);
+  }
+  if (settings.maxVoltageDropLighting !== undefined) {
+    assertInRange('maxVoltageDropLighting', settings.maxVoltageDropLighting, 0.1, 20);
+  }
+  if (settings.maxVoltageDropPower !== undefined) {
+    assertInRange('maxVoltageDropPower', settings.maxVoltageDropPower, 0.1, 20);
+  }
+}
+

@@ -104,17 +104,24 @@ describe("awgLabel (mm² → AWG/kcmil display cross-reference)", () => {
     expect(awgLabel(4)).toBe("12 AWG");
     expect(awgLabel(6)).toBe("10 AWG");
     expect(awgLabel(16)).toBe("6 AWG");
+    expect(awgLabel(21.2)).toBe("4 AWG");
+    expect(awgLabel(25)).toBe("3 AWG");
+    expect(awgLabel(35)).toBe("2 AWG");
+    expect(awgLabel(42.4)).toBe("1 AWG");
+    expect(awgLabel(50)).toBe("1/0 AWG");
+    expect(awgLabel(70)).toBe("2/0 AWG");
+    expect(awgLabel(95)).toBe("3/0 AWG");
+    expect(awgLabel(107.2)).toBe("4/0 AWG");
   });
 
-  it("crosses into kcmil above 3/0 AWG", () => {
-    expect(awgLabel(95)).toBe("3/0 AWG");
+  it("crosses into kcmil above 4/0 AWG", () => {
     expect(awgLabel(120)).toBe("250 kcmil");
     expect(awgLabel(240)).toBe("500 kcmil");
     expect(awgLabel(500)).toBe("1000 kcmil");
   });
 
   it("falls back to the nearest catalog entry for non-standard sizes", () => {
-    // 18 mm² sits between 16 (6 AWG) and 25 (3 AWG); nearest is 16.
+    // 18 mm² sits between 16 (6 AWG) and 21.2 (4 AWG); |18-16|=2 < |18-21.2|=3.2 -> 16
     expect(awgLabel(18)).toBe("6 AWG");
   });
 });

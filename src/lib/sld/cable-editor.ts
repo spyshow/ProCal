@@ -89,13 +89,22 @@ export function recalculateCable(input: CableEditorInput): CableEditorResult {
   const installedTotalAmpacity = installedSingleAmpacity * currentRuns;
   const installedVD = calculateVoltageDrop(current, lengthMeters, existingParsed.size, powerFactor, isThreePhase, systemVoltage, currentRuns, material);
 
-  if (!targetRuns && installedTotalAmpacity >= current && installedVD.dropPercent <= maxVoltageDropPercent) {
+  const breakerSize = findBreakerSize(current, code);
+  // Branch circuits with fixed thermal-magnetic breakers (<= 630A) must satisfy
+  // Iz >= In (IEC 60364-4-43 §433.1) to ensure full overload protection.
+  // Large mains (> 630A) use electronic trip units where Ir can be dialed down to match Iz.
+  const requiresBreakerAmpacity = breakerSize <= 630;
+  const isAmpacityCompliant = requiresBreakerAmpacity
+    ? installedTotalAmpacity >= breakerSize
+    : installedTotalAmpacity >= current;
+
+  if (!targetRuns && isAmpacityCompliant && installedVD.dropPercent <= maxVoltageDropPercent) {
     const rounded = Math.round(installedTotalAmpacity * 10) / 10;
     return {
       cableSize: existingParsed.size,
       parallelRuns: currentRuns,
       formattedCableSize: formatCableSize(existingParsed.size, currentRuns),
-      breakerSize: findBreakerSize(current, code),
+      breakerSize,
       voltageDropPercent: installedVD.dropPercent,
       voltageDropVolts: installedVD.dropVolts,
       changed: false,

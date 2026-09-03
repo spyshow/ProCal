@@ -297,7 +297,7 @@ function placeThreePhase(
   for (let p = 0; p < 3; p++) {
     phaseCurrent[p] += load.current;
     phaseKw[p] += load.kw / 3;
-    const totalAngle = PHASE_OFFSET_RAD[p] + load.angle;
+    const totalAngle = PHASE_OFFSET_RAD[p] - load.angle;
     addNeutral(load.current * Math.cos(totalAngle), load.current * Math.sin(totalAngle));
   }
 }
@@ -311,7 +311,7 @@ function placeOnePhase(
 ): void {
   phaseCurrent[phase] += load.current;
   phaseKw[phase] += load.kw;
-  const totalAngle = PHASE_OFFSET_RAD[phase] + load.angle;
+  const totalAngle = PHASE_OFFSET_RAD[phase] - load.angle;
   addNeutral(load.current * Math.cos(totalAngle), load.current * Math.sin(totalAngle));
 }
 

@@ -519,6 +519,52 @@ describe('regression: three-phase classification', () => {
     expect(result.mainIncomerSettings.ir).toBeGreaterThan(200);
     expect(result.mainBreakerIn).toBeGreaterThanOrEqual(320);
   });
+
+  it('CALC-MAJ-03: applies 1.25x continuous current multiplier for motor/mechanical building loads', () => {
+    const findBreaker = createFindBreaker(equipment, {}, 'ABB');
+    const pumpLib = {
+      id: 'lib-wp',
+      name: 'Water Booster Pump',
+      category: 'Pump',
+      power: 22, // kW
+      voltage: 400,
+      phase: 3,
+      powerFactor: 0.8,
+      demandFactor: 1.0,
+      quantity: 1,
+      runningCurrent: 39.7,
+      startingCurrent: 240,
+      notes: null,
+    } as any;
+
+    const bldg = building({
+      buildingLoads: [{
+        id: 'bl-pump-1',
+        buildingId: 'b1',
+        loadLibraryItemId: pumpLib.id,
+        loadLibraryItem: pumpLib,
+        quantity: 1,
+        cableSize: null,
+        cableLength: 30,
+        installMethod: 'C',
+        cableInsulation: 'XLPE',
+        cableMaterial: 'copper',
+        groupingCount: 1,
+        breakerSize: null,
+        assignedPhase: null,
+      } as any],
+    });
+
+    const result = computeFeeders(bldg, baseProject, findBreaker);
+    const pumpFeeder = result.mdbFeeders.find((f) => f.name === 'Water Booster Pump');
+    expect(pumpFeeder).toBeDefined();
+
+    // Raw FLA ~ 39.7 A. Conductor designCurrent must be >= 1.25 x FLA ~ 49.6 A
+    expect(pumpFeeder!.current).toBeCloseTo(39.69, 1);
+    expect(pumpFeeder!.designCurrent).toBeCloseTo(39.69 * 1.25, 1);
+    expect(pumpFeeder!.breakerSize).toBeGreaterThanOrEqual(50);
+    expect(pumpFeeder!.warnings.some((w) => w.includes('125% FLA'))).toBe(true);
+  });
 });
 
 

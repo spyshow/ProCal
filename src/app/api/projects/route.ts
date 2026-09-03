@@ -4,6 +4,7 @@ import { getSessionUser } from "@/lib/auth";
 import { parseMemberPermissions } from "@/lib/project-permissions";
 import { logProjectActivity } from "@/lib/audit-logger";
 import { seedDefaultProjectTemplates, seedDefaultLoadLibrary } from "@/lib/project-defaults";
+import { validateProjectSettings } from "@/lib/calculations/validate";
 
 export async function GET() {
   try {
@@ -100,6 +101,26 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Project name is required" }, { status: 400 });
     }
 
+    const vNum = voltage !== undefined && voltage !== "" ? parseFloat(voltage) : 400;
+    const fNum = frequency !== undefined && frequency !== "" ? parseFloat(frequency) : 50;
+    const pfNum = powerFactor !== undefined && powerFactor !== "" ? parseFloat(powerFactor) : 0.85;
+    const dfNum = maxDemandFactor !== undefined && maxDemandFactor !== "" ? parseFloat(maxDemandFactor) : 0.8;
+    const vdLNum = maxVoltageDropLighting !== undefined && maxVoltageDropLighting !== "" ? parseFloat(maxVoltageDropLighting) : 3;
+    const vdPNum = maxVoltageDropPower !== undefined && maxVoltageDropPower !== "" ? parseFloat(maxVoltageDropPower) : 5;
+
+    try {
+      validateProjectSettings({
+        voltage: vNum,
+        frequency: fNum,
+        powerFactor: pfNum,
+        maxDemandFactor: dfNum,
+        maxVoltageDropLighting: vdLNum,
+        maxVoltageDropPower: vdPNum,
+      });
+    } catch (validationErr: any) {
+      return NextResponse.json({ error: validationErr.message }, { status: 400 });
+    }
+
     // Admins bypass the credit gate (they manage the system).
     if (user.role !== "ADMIN") {
       const fresh = await db.user.findUnique({ where: { id: user.id }, select: { credits: true } });
@@ -116,14 +137,14 @@ export async function POST(request: Request) {
       location: location || "",
       engineer: engineer || user.name,
       date: date || new Date().toISOString().split("T")[0],
-      voltage: parseFloat(voltage) || 400,
-      frequency: parseFloat(frequency) || 50,
-      powerFactor: parseFloat(powerFactor) || 0.85,
-      maxDemandFactor: parseFloat(maxDemandFactor) || 0.8,
+      voltage: vNum,
+      frequency: fNum,
+      powerFactor: pfNum,
+      maxDemandFactor: dfNum,
       notes: notes || "",
       preferredManufacturer: preferredManufacturer || "MIXED",
-      maxVoltageDropLighting: parseFloat(maxVoltageDropLighting) || 3,
-      maxVoltageDropPower: parseFloat(maxVoltageDropPower) || 5,
+      maxVoltageDropLighting: vdLNum,
+      maxVoltageDropPower: vdPNum,
       calculationStandard:
         calculationStandard === "NEMA" || calculationStandard === "IEC"
           ? calculationStandard

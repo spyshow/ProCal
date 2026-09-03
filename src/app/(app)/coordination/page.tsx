@@ -801,6 +801,18 @@ export default function CoordinationPage() {
   const currentGridLines = [10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000, 50000];
   const timeGridLines = [0.01, 0.1, 1, 10, 60, 300, 3600, 10000];
 
+  const formatTccTimeTick = (tVal: number): string => {
+    if (tVal >= 3600) {
+      const hours = tVal / 3600;
+      return Number.isInteger(hours) ? `${hours}h` : `${hours.toFixed(1)}h`;
+    }
+    if (tVal >= 60) {
+      const mins = tVal / 60;
+      return Number.isInteger(mins) ? `${mins}m` : `${mins.toFixed(1)}m`;
+    }
+    return `${tVal}s`;
+  };
+
   if (selectedProject && !canView('coordination')) {
     return <AccessRestricted pageTitle={t('nav.coordination', 'Coordination & Selectivity')} />;
   }
@@ -1294,7 +1306,7 @@ export default function CoordinationPage() {
                         strokeDasharray="2,2"
                       />
                       <text x={plotLeft - 8} y={y + 3} fill="#64748b" textAnchor="end">
-                        {tVal >= 60 ? `${tVal / 60}m` : `${tVal}s`}
+                        {formatTccTimeTick(tVal)}
                       </text>
                     </g>
                   );

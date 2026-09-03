@@ -1220,12 +1220,12 @@ export default function CableSchedulePage() {
         </div>
         <div className="bg-gray-900/60 border border-gray-800 rounded-xl p-3.5">
           <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 mb-1">{t('cableSchedule.needUpsize', 'NEED UPSIZE')}</p>
-          <p className="text-xl font-bold text-yellow-400">{cables.filter(c => c.changed).length}</p>
+          <p className="text-xl font-bold text-yellow-400">{cables.filter(c => c.changed || (c.breakerSize && c.ampacity < c.breakerSize)).length}</p>
         </div>
         <div className="bg-gray-900/60 border border-gray-800 rounded-xl p-3.5">
           <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 mb-1">{t('cableSchedule.compliant', 'COMPLIANT')}</p>
           <p className="text-xl font-bold text-green-400">
-            {cables.filter(c => c.newVD !== null && !c.changed).length}/{cables.filter(c => c.newVD !== null).length || '—'}
+            {cables.filter(c => c.newVD !== null && !c.changed && !(c.breakerSize && c.ampacity < c.breakerSize)).length}/{cables.filter(c => c.newVD !== null).length || '—'}
           </p>
         </div>
       </div>
@@ -1326,8 +1326,8 @@ export default function CableSchedulePage() {
                           <div className="flex items-center justify-center gap-1.5">
                             <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${
                               c.isThreePhase ? 'bg-sky-500/15 text-sky-300 border border-sky-500/30' : 'bg-amber-500/15 text-amber-300 border border-amber-500/30'
-                            }`} title={c.isThreePhase ? '3-Phase Balanced' : `Single Phase on L${c.assignedPhase || 1}`}>
-                              {c.isThreePhase ? '3Ø' : `L${c.assignedPhase || 1}`}
+                            }`} title={c.isThreePhase ? '3-Phase' : '1-Phase'}>
+                              {c.isThreePhase ? '3Ø' : '1Ø'}
                             </span>
                             <span className="font-bold text-slate-100 text-xs">{c.current.toFixed(1)}A</span>
                           </div>
@@ -1480,8 +1480,8 @@ export default function CableSchedulePage() {
                           }}
                         >
                           <div className="flex flex-col items-center justify-center">
-                            <span className={`font-bold text-xs ${c.isOverloaded || c.ampacity < c.current ? 'text-rose-400' : 'text-sky-400'}`}
-                              title={c.isOverloaded ? `Overloaded! Installed Ampacity (${c.ampacity}A) < Current (${c.current.toFixed(1)}A)` : `Continuous derated ampacity across ${c.parallelRuns || 1} run(s)`}
+                            <span className={`font-bold text-xs ${c.isOverloaded || c.ampacity < c.current ? 'text-rose-400' : (c.breakerSize && c.ampacity < c.breakerSize) ? 'text-amber-400' : 'text-sky-400'}`}
+                              title={c.isOverloaded || c.ampacity < c.current ? `Overloaded! Installed Ampacity (${c.ampacity}A) < Current (${c.current.toFixed(1)}A)` : (c.breakerSize && c.ampacity < c.breakerSize) ? `Under-protected! Ampacity (${c.ampacity}A) < Breaker (${c.breakerSize}A)` : `Continuous derated ampacity across ${c.parallelRuns || 1} run(s)`}
                             >
                               {c.ampacity}A
                             </span>
@@ -1499,18 +1499,21 @@ export default function CableSchedulePage() {
                         <div className="inline-flex items-center justify-center gap-1 bg-slate-800/80 border border-slate-700/80 rounded-md px-2 py-0.5">
                           <input
                             type="number"
+                            aria-label={t('cableSchedule.cableLength', 'Cable length (meters)')}
                             value={c.length}
-                            onChange={(e) => updateCableField(c.id, 'length', parseFloat(e.target.value) || (10 + (c.floor - 1) * 5))}
+                            onChange={(e) => updateCableField(c.id, 'length', Math.max(1, Math.min(1000, parseFloat(e.target.value) || (10 + (c.floor - 1) * 5))))}
                             className="w-12 bg-transparent text-center text-xs font-mono font-medium text-slate-100 focus:outline-none"
                             min="1"
+                            max="1000"
+                            step="1"
                           />
                           <span className="text-[10px] text-slate-400 font-medium select-none">m</span>
                         </div>
                       </td>
 
                       {/* New Cable Proposal */}
-                      <td className={`text-center font-mono font-bold whitespace-nowrap text-xs ${c.changed ? 'text-amber-400' : 'text-slate-600'}`}>
-                        {c.changed ? formatCableSizeFor(c.newFormattedSize || c.newCableSize, selectedProject?.calculationStandard) : '—'}
+                      <td className={`text-center font-mono font-bold whitespace-nowrap text-xs ${c.changed || (c.breakerSize && c.ampacity < c.breakerSize) ? 'text-amber-400' : 'text-slate-600'}`}>
+                        {c.changed || (c.breakerSize && c.ampacity < c.breakerSize) ? formatCableSizeFor(c.newFormattedSize || c.newCableSize, selectedProject?.calculationStandard) : '—'}
                       </td>
 
                       {/* Voltage Drop */}
@@ -1580,6 +1583,10 @@ export default function CableSchedulePage() {
                           {c.isOverloaded || c.ampacity < c.current ? (
                             <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-rose-500/15 border border-rose-500/30 text-rose-400 font-bold text-[11px] shadow-sm" title={`Ampacity ${c.ampacity}A < Current ${c.current.toFixed(1)}A`}>
                               <AlertTriangle size={12} /> {t('cableSchedule.overload', 'OVERLOAD')}
+                            </span>
+                          ) : (c.breakerSize && c.ampacity < c.breakerSize) ? (
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-300 font-semibold text-[11px] shadow-sm" title={`Under-protected: Ampacity ${c.ampacity}A < Breaker ${c.breakerSize}A (IEC 60364-4-43 §433.1)`}>
+                              <AlertTriangle size={12} /> {t('cableSchedule.upsize', 'UP')}
                             </span>
                           ) : c.changed ? (
                             <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-300 font-semibold text-[11px] shadow-sm">

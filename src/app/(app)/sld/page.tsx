@@ -924,6 +924,7 @@ export default function SLDPage() {
                   <Search className="w-3.5 h-3.5 absolute start-2.5 top-2.5 text-slate-500" />
                   <input
                     type="text"
+                    aria-label={t('sld.searchPlaceholder', 'Search circuits or panels…')}
                     placeholder={t('sld.searchPlaceholder', 'Search circuits or panels…')}
                     value={explorerSearch}
                     onChange={(e) => setExplorerSearch(e.target.value)}
@@ -1252,8 +1253,10 @@ export default function SLDPage() {
               {/* Properties Inputs & Status Simulation Selector */}
               <div className="space-y-3 pt-1">
                 <div>
-                  <label className="block text-slate-400 text-[11px] mb-1">{t('sld.protectionRating', 'Protection Rating')}</label>
+                  <label htmlFor="sld-prop-rating" className="block text-slate-400 text-[11px] mb-1">{t('sld.protectionRating', 'Protection Rating')}</label>
                   <input
+                    id="sld-prop-rating"
+                    aria-label={t('sld.protectionRating', 'Protection Rating')}
                     type="text"
                     value={selectedComponent.rating}
                     readOnly
@@ -1263,11 +1266,13 @@ export default function SLDPage() {
 
                 {/* Cable Conductor Schedule */}
                 <div>
-                  <label className="block text-slate-400 text-[11px] mb-1 flex items-center justify-between">
+                  <label htmlFor="sld-prop-cable" className="block text-slate-400 text-[11px] mb-1 flex items-center justify-between">
                     <span>{t('sld.cableConductorSchedule', 'Cable Conductor Schedule')}</span>
                     <span className="text-[10px] text-amber-400/80 font-mono">IEC 60228</span>
                   </label>
                   <input
+                    id="sld-prop-cable"
+                    aria-label={t('sld.cableConductorSchedule', 'Cable Conductor Schedule')}
                     type="text"
                     value={selectedComponent.cableSize || '3x2.5mm² Cu/PVC'}
                     readOnly
@@ -1277,8 +1282,10 @@ export default function SLDPage() {
 
                 {/* Status Simulation Switch */}
                 <div>
-                  <label className="block text-slate-400 text-[11px] mb-1">{t('sld.simulationSwitch', 'Simulation Switch')}</label>
+                  <label htmlFor="sld-prop-sim-switch" className="block text-slate-400 text-[11px] mb-1">{t('sld.simulationSwitch', 'Simulation Switch')}</label>
                   <select
+                    id="sld-prop-sim-switch"
+                    aria-label={t('sld.simulationSwitch', 'Simulation Switch')}
                     value={activeStatus}
                     onChange={(e) =>
                       updateStatus(selectedComponent.id, e.target.value as 'Closed' | 'Open' | 'Tripped')

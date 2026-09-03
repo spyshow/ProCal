@@ -248,9 +248,20 @@ export default function PanelDesignerPage() {
     );
   }
 
-  const bldg = activeBldg!;
+  const {
+    mdbFeeders,
+    smdbFeeders,
+    smdbFloorNumbers,
+    mainIncomerSettings,
+    mainBreakerIn,
+    mainCableSize,
+    mainParallelRuns,
+    mainCableIz,
+    mainCableUnderProtected,
+    transformerSizeKva,
+  } = feederResult!;
 
-  const { mdbFeeders, smdbFeeders, smdbFloorNumbers, mainIncomerSettings, mainBreakerIn, mainCableSize, mainParallelRuns, mainCableIz, mainCableUnderProtected } = feederResult!;
+  const busbarRating = mainBreakerIn <= 800 ? 800 : mainBreakerIn <= 1600 ? 1600 : 3200;
 
   const activeSmdbFloor = selectedFloor || (smdbFloorNumbers.length > 0 ? smdbFloorNumbers[0] : null);
   const smdbFeedersForActive = activeSmdbFloor ? smdbFeeders(activeSmdbFloor) : [];
@@ -287,7 +298,7 @@ export default function PanelDesignerPage() {
     ),
     calculateThreePhaseCurrent(totalDemandKva, project.voltage)
   );
-  const transformerSize = sizeTransformer(totalDemandKva, 1.2, perPhaseKva);
+  const transformerSize = transformerSizeKva || sizeTransformer(totalDemandKva, 1.2, perPhaseKva);
 
   // Main incomer breaker + cable come from computeFeeders so this page shows
   // the SAME catalog-frame device as the breaker schedule / coordination page.
@@ -457,7 +468,7 @@ export default function PanelDesignerPage() {
           <div className="rounded-lg border border-gray-800 bg-gray-800/30 p-3">
             <p className="text-[10px] text-gray-500 uppercase">{t('panel.busbarRating', 'Busbar')}</p>
             <p className="text-lg font-bold text-white font-mono">
-              {mainBreakerIn <= 800 ? '800A' : mainBreakerIn <= 1600 ? '1600A' : '3200A'}
+              {busbarRating}A
             </p>
             <p className="text-[10px] text-gray-500">{t('panel.phasePE', '3-Phase + N + PE')}</p>
           </div>
@@ -600,7 +611,7 @@ export default function PanelDesignerPage() {
             {/* Busbar */}
             <rect x="60" y="65" width="680" height="12" fill="#f97316" opacity="0.3" rx="2" />
             <text x="400" y="75" textAnchor="middle" fill="#f97316" fontSize="10" fontWeight="600">
-              {t('panel.mainBusbar', 'MAIN BUSBAR')} — {mainBreakerIn}A — {t('panel.phasePE', '3Φ + N + PE')}
+              {t('panel.mainBusbar', 'MAIN BUSBAR')} — {busbarRating}A — {t('panel.phasePE', '3Φ + N + PE')}
             </text>
 
             {/* Main Incomer (Prominently Highlighted in ACB Amber/Orange) */}

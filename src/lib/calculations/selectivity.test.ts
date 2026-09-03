@@ -11,6 +11,7 @@ import {
   verifyCoordination,
   recommendBreakerSettings,
   suggestAlternativeBreaker,
+  verifyShortCircuitThermalWithstand,
   type BreakerCurveSettings,
 } from './selectivity';
 import { CalculationError } from './validate';
@@ -344,18 +345,25 @@ describe('verifyCoordination (4-Phase Protection Engine)', () => {
     expect(result.cableDamageOk).toBe(true);
   });
 
-  it('enables cascading for same manufacturer', () => {
+  // IEC 60947-2 Annex A: Selectivity Discrimination (Is) vs Series Cascading (Icu)
+  it('recognizes tested manufacturer table coordination for matching manufacturer catalog pairs', () => {
+    // Tested manufacturer tables (IEC 60947-2 Annex A) certify energy selectivity
+    // and series back-up protection (cascading) only for tested brand-specific combinations.
     const upstream = { inRating: 630, ir: 500, tr: 12, isd: 2500, tsd: 0.3, ii: 5000 };
     const downstream = { inRating: 100, ir: 80, tr: 12, isd: 400, tsd: 0.1, ii: 800 };
     const result = verifyCoordination(upstream, downstream, 10000, { upstreamMfg: 'ABB', downstreamMfg: 'ABB' });
     expect(result.cascadingSupported).toBe(true);
+    expect(result.energySelectivityApplied).toBe(true);
   });
 
-  it('disables cascading for different manufacturers', () => {
+  it('disallows tested cascading and energy selectivity across different manufacturers', () => {
+    // Cross-manufacturer combinations cannot rely on tested tables (IEC 60947-2 Clause A.3);
+    // selectivity must rely strictly on parametric current and time grading curves.
     const upstream = { inRating: 630, ir: 500, tr: 12, isd: 2500, tsd: 0.3, ii: 5000 };
     const downstream = { inRating: 100, ir: 80, tr: 12, isd: 400, tsd: 0.1, ii: 800 };
     const result = verifyCoordination(upstream, downstream, 10000, { upstreamMfg: 'ABB', downstreamMfg: 'SCHNEIDER' });
     expect(result.cascadingSupported).toBe(false);
+    expect(result.energySelectivityApplied).toBe(false);
   });
 
   it('disables cascading for generic (GENERIC_SPEC) devices even when manufacturer strings match', () => {
@@ -610,5 +618,33 @@ describe('suggestAlternativeBreaker', () => {
     const tripUnitSug = suggestions.find((s) => s.type === 'ELECTRONIC_TRIP_UNIT');
     expect(tripUnitSug).toBeDefined();
     expect(tripUnitSug?.suggestedModel || tripUnitSug?.title).toContain('Ekip');
+  });
+
+  describe('CALC-MAJ-07: Adiabatic Energy Withstand (IEC 60364-4-43 §434.5.2)', () => {
+    it('passes let-through check when k²S² >= I²t for fast clearing (< 0.1s)', () => {
+      // 2.5 mm² Cu XLPE cable (k = 143):
+      // k²S² = (143 * 2.5)² = 357.5² = 127,806 A²s
+      // Breaker clears in 20ms with I²t let-through = 50,000 A²s
+      const ok = verifyShortCircuitThermalWithstand(2.5, 143, 6000, 0.02, 50000);
+      expect(ok).toBe(true);
+
+      // But if breaker let-through is 150,000 A²s > 127,806 A²s:
+      const fail = verifyShortCircuitThermalWithstand(2.5, 143, 6000, 0.02, 150000);
+      expect(fail).toBe(false);
+    });
+
+    it('checkCableProtection allows small cables when breaker clears instantaneously within energy limits', () => {
+      // 2.5 mm² Cu XLPE with 16A Type C MCB clearing at 6 kA prospective fault
+      const downstream: BreakerCurveSettings = {
+        inRating: 16,
+        ir: 16,
+        tr: 12,
+        ii: 160, // 10x In magnetic instantaneous
+      };
+
+      // With let-through verification, 2.5 mm² cable withstands fast clearing (<= 35,000 A²s)
+      const protectedOk = checkCableProtection(2.5, downstream, 6000, 'copper', 'XLPE', 1);
+      expect(protectedOk).toBe(true);
+    });
   });
 });

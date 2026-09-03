@@ -16,7 +16,7 @@ const proj: Project = {
 function apt(overrides: Partial<FloorItem> = {}): FloorItem {
   return {
     id: 'i1', name: 'Apt A', type: 'APARTMENT',
-    calculatedConnectedLoad: 5, calculatedMaxDemand: 2, calculatedCurrent: 20,
+    calculatedConnectedLoad: null, calculatedMaxDemand: null, calculatedCurrent: 20,
     breakerSize: '16A', cableSize: '16 mm²', voltageDrop: 0.1,
     ...overrides,
   };
@@ -98,41 +98,36 @@ describe('Riser Diagram Voltage Drop Calculations', () => {
       }
     });
 
-    it('BUG: current implementation accumulates VD incorrectly (bottom-up)', () => {
-      // This test demonstrates the bug: current code adds VD from FL1 upward
-      // which is WRONG - VD should be calculated from transformer to each floor
+    it('calculates riser voltage drop directly from source to each floor tap', () => {
+      // Each floor's riser drop must be evaluated from transformer to that floor's SDB
+      // without false bottom-up accumulation of other floors' drops.
+      const floor1 = floor({
+        id: 'fl1',
+        floorNumber: 1,
+        hasFloorSubPanels: true,
+        riserCableLength: 10,
+        riserCableSize: '70 mm²',
+        items: [apt({ id: 'a1', calculatedCurrent: 50, cableLength: 5, cableSize: '16 mm²' })],
+      });
 
-      const floors = [
-        { floor: 1, cableLength: 10 },
-        { floor: 2, cableLength: 10 },
-        { floor: 3, cableLength: 10 },
-      ];
+      const floor3 = floor({
+        id: 'fl3',
+        floorNumber: 3,
+        hasFloorSubPanels: true,
+        riserCableLength: 30,
+        riserCableSize: '70 mm²',
+        items: [apt({ id: 'a3', calculatedCurrent: 50, cableLength: 5, cableSize: '16 mm²' })],
+      });
 
-      const current = 50;
-      const cableSize = 70;
-      const pf = 0.85;
-      const voltage = 400;
+      const vd1 = computeFloorRiserVd(floor1, proj);
+      const vd3 = computeFloorRiserVd(floor3, proj);
 
-      // BUGGY: Cumulative from bottom (current implementation)
-      let buggyCumulative = 0;
-      const buggyVD: number[] = [];
-      for (const floor of floors) {
-        const vd = calculateVoltageDrop(current, floor.cableLength, cableSize, pf, true, voltage);
-        buggyCumulative += vd.dropPercent; // BUG: accumulates
-        buggyVD.push(buggyCumulative);
-      }
-
-      // CORRECT: VD from transformer to each floor
-      const correctVD: number[] = [];
-      for (const floor of floors) {
-        const vd = calculateVoltageDrop(current, floor.cableLength, cableSize, pf, true, voltage);
-        correctVD.push(vd.dropPercent); // CORRECT: just the VD to this floor
-      }
-
-      // The buggy implementation shows INCREASING VD (wrong!)
-      // The correct implementation shows SAME VD for equal lengths
-      expect(buggyVD[2]).toBeGreaterThan(buggyVD[0]); // Bug: FL3 shows higher VD
-      expect(correctVD[2]).toBeCloseTo(correctVD[0], 1); // Correct: same VD for same length
+      // Floor 3 (30m) has 3x the riser length of Floor 1 (10m)
+      expect(vd3.riserVdPercent).toBeCloseTo(vd1.riserVdPercent * 3, 1);
+      // Apartment branch VD on both floors is identical (same load, length, cable)
+      expect(vd3.branchVdPercent).toBeCloseTo(vd1.branchVdPercent, 2);
+      // Total VD on Floor 3 is strictly greater due to longer riser run
+      expect(vd3.totalVdPercent).toBeGreaterThan(vd1.totalVdPercent);
     });
   });
 
@@ -354,6 +349,29 @@ describe('Riser Diagram Voltage Drop Calculations', () => {
       expect(r.riserCableSize).toBeNull();
       expect(r.totalNoData).toBe(true);        // total path incomputable → flagged, not invented
       expect(r.branchNoData).toBe(false);     // apartment branch itself is fine
+    });
+  });
+
+  describe('CALC-MAJ-06: Undiversified Apartment Branch Voltage Drop (IEC 60364-5-52 §525)', () => {
+    it('uses undiversified connected load instead of diversified floor current for apartment branch ΔV', () => {
+      // Apartment with 10 kW connected load, 3-phase, 400V, PF 0.85 -> Ib = 17.0 A
+      // Suppose floor-wide diversity had reduced calculatedCurrent to 8.5 A (50% diversity)
+      const undiversifiedItem = apt({
+        name: 'Apartment 101',
+        type: 'APARTMENT',
+        calculatedConnectedLoad: 10, // kW
+        calculatedCurrent: 8.5,      // diversified current
+        cableLength: 30,
+        cableSize: '6 mm²',
+      });
+
+      const r = computeFloorRiserVd(floor({ items: [undiversifiedItem] }), proj);
+      expect(r.branchNoData).toBe(false);
+
+      // Branch VD must be calculated using 17.0 A (full connected load), NOT 8.5 A
+      // For 17.0 A through 30m of 6mm² Cu XLPE at 400V 3ph:
+      // Drop % is approx ~1.3% (whereas 8.5 A would be ~0.65%)
+      expect(r.branchVdPercent).toBeGreaterThan(1.0);
     });
   });
 });

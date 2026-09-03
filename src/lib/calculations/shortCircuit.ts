@@ -28,6 +28,8 @@ export function splitSourceImpedance(
   return { r: zOhms / norm, x: (zOhms * xrRatio) / norm };
 }
 
+export type TransformerVectorGroup = 'Dyn11' | 'Dyn5' | 'Yyn0' | 'YNd11';
+
 export interface TransformerParameters {
   ratedPower: number;     // kVA
   voltagePrimary: number; // V (Line-to-Line)
@@ -35,12 +37,17 @@ export interface TransformerParameters {
   impedancePercent: number; // % (typical: 4-6% for distribution transformers)
   earthingSystem?: string; // e.g. 'TN-S' | 'TN-C' | 'TN-C-S' | 'TT' | 'IT' (default: 'TN-S')
   earthFaultImpedanceOhms?: number; // Earth-fault loop impedance in Ohms (for TT system, default: 0.5)
+  vectorGroup?: TransformerVectorGroup; // default 'Dyn11'
+  zeroSequenceRatio?: number; // Z(0)/Z(1) ratio, default 1.0 for Dyn, 5.0 for Yyn
 }
 
 export interface ShortCircuitResult {
   threePhaseIsc: number;  // kA - Three-phase short circuit current
   twoPhaseIsc: number;    // kA - Phase-to-phase short circuit current
   phaseToNeutralIsc: number; // kA - Phase-to-neutral short circuit current
+  phaseToEarthIsc?: number;  // kA - Phase-to-earth fault current (limited by earth loop in TT)
+  vectorGroup?: TransformerVectorGroup; // Transformer vector group used
+  zeroSequenceRatio?: number; // Z(0)/Z(1) ratio used
   peakCurrent: number;    // kA - Peak short circuit current (for mechanical stress)
   transformerZ: number;   // Ohms - Transformer impedance
   sourceZ: number;        // Ohms - Total source impedance
@@ -162,23 +169,44 @@ export function calculateShortCircuitCurrent(
   // Line-to-Neutral voltage (V)
   const voltageLN = voltageSecondary / Math.sqrt(3);
 
+  // Vector group and zero-sequence impedance ratio (IEC 60909-0 Clause 4.5.3 / IEC 60076-1):
+  // Line-to-neutral short-circuit current ratio:
+  // I_k1 / I_k3 = 3 / (2 + Z(0)/Z(1))
+  // For Dyn transformers (delta primary), Z(0) ≈ 0.85..1.0 * Z(1). Default: 1.0 (I_k1 = I_k3).
+  // For Yyn transformers (star-star without delta tertiary), Z(0) ≈ 3..10 * Z(1). Default: 5.0 (I_k1 ≈ 0.43 * I_k3).
+  const vectorGroup = transformer.vectorGroup ?? 'Dyn11';
+  const defaultZ0Ratio = vectorGroup === 'Yyn0' ? 5.0 : 1.0;
+  const z0Ratio = transformer.zeroSequenceRatio ?? defaultZ0Ratio;
+  const lnSequenceMultiplier = 3 / (2 + z0Ratio);
+
   let phaseToNeutralIsc: number;
+  let phaseToEarthIsc: number | undefined;
   let itFirstFault = false;
   let earthFaultImpedanceOhms: number | undefined;
 
   if (earthingSystem === 'IT') {
-    // For IT: phase-to-neutral fault current is negligible on first fault (isolated/impedance ground)
+    // For IT: phase-to-neutral and earth fault current is negligible on first fault (isolated/impedance ground)
     phaseToNeutralIsc = 0;
+    phaseToEarthIsc = 0;
     itFirstFault = true;
   } else if (earthingSystem === 'TT') {
-    // For TT: earth-fault loop impedance (default 0.5 Ω) is in series with fault path
-    earthFaultImpedanceOhms = transformer.earthFaultImpedanceOhms ?? 0.5;
-    const totalFaultZ = transformerZ + earthFaultImpedanceOhms;
-    phaseToNeutralIsc = totalFaultZ > 0 ? (voltageFactor * voltageLN / totalFaultZ) / 1000 : 0;
+    // In TT systems (IEC 60364-4-41 Clause 411.5 / IEC 60909-0 Clause 4.5.3):
+    // 1. Bolted Phase-to-Neutral (L-N) fault has a metallic neutral return path directly
+    // to the transformer star point. The earth mass is NOT in the L-N path.
+    // At transformer terminals, Z_LN is governed by the transformer winding sequence impedance.
+    phaseToNeutralIsc = threePhaseIsc * lnSequenceMultiplier;
     itFirstFault = false;
+
+    // 2. Phase-to-Earth (L-PE) fault current flows through the consumer's local earth electrode (RA)
+    // and transformer station earth (RB): Z_loop = √((Rt + Re)² + Xt²).
+    earthFaultImpedanceOhms = transformer.earthFaultImpedanceOhms ?? 0.5;
+    const { r: rTrans, x: xTrans } = splitSourceImpedance(transformerZ, sourceXrRatio(voltageSecondary));
+    const totalEarthLoopZ = Math.sqrt((rTrans + earthFaultImpedanceOhms) ** 2 + xTrans ** 2);
+    phaseToEarthIsc = totalEarthLoopZ > 0 ? (voltageFactor * voltageLN / totalEarthLoopZ) / 1000 : 0;
   } else {
-    // TN-S, TN-C, TN-C-S (solidly grounded): phaseToNeutralIsc ≈ threePhaseIsc
-    phaseToNeutralIsc = threePhaseIsc * 1.0;
+    // TN-S, TN-C, TN-C-S (solidly grounded): metallic return for both L-N and L-PE
+    phaseToNeutralIsc = threePhaseIsc * lnSequenceMultiplier;
+    phaseToEarthIsc = threePhaseIsc * lnSequenceMultiplier;
     itFirstFault = false;
   }
 
@@ -186,12 +214,15 @@ export function calculateShortCircuitCurrent(
     threePhaseIsc: parseFloat(threePhaseIsc.toFixed(2)),
     twoPhaseIsc: parseFloat(twoPhaseIsc.toFixed(2)),
     phaseToNeutralIsc: parseFloat(phaseToNeutralIsc.toFixed(2)),
+    ...(phaseToEarthIsc !== undefined ? { phaseToEarthIsc: parseFloat(phaseToEarthIsc.toFixed(2)) } : {}),
     peakCurrent: parseFloat(peakCurrent.toFixed(2)),
     transformerZ: parseFloat(transformerZ.toFixed(4)),
     sourceZ: parseFloat(sourceZ.toFixed(4)),
     faultMVA: parseFloat(faultMVA.toFixed(2)),
     earthingSystem,
     itFirstFault,
+    vectorGroup,
+    zeroSequenceRatio: z0Ratio,
     ...(earthFaultImpedanceOhms !== undefined ? { earthFaultImpedanceOhms } : {}),
   };
 }
@@ -221,7 +252,8 @@ export function calculateIscWithCable(
   isCopper: boolean = true,
   isSinglePhase: boolean = false,
   insulation: 'PVC' | 'XLPE' = 'XLPE',
-  parallelRuns: number = 1
+  parallelRuns: number = 1,
+  neutralSizeMm2?: number
 ): number {
   assertPositive('transformerIsc', transformerIsc);
   assertNonNegative('cableLengthM', cableLengthM);
@@ -237,37 +269,39 @@ export function calculateIscWithCable(
     return transformerIsc;
   }
 
-  // Cable resistance at 20°C (Ohms/mm²·m)
+  // Voltage factor c_max (IEC 60909-0 Clause 4.3 Table 1: c_max = 1.05 for LV <= 1000V)
+  const voltageFactor = voltage <= 1000 ? 1.05 : 1.10;
+
+  // Cable resistance at 20°C (Ohms/mm²·m) per IEC 60909-0 Clause 5.3.3.2:
+  // For maximum short-circuit current (Ik"max) used for equipment breaking capacity (Icu),
+  // conductor resistances must be calculated at 20 °C (tempFactor = 1.00).
   const R20 = isCopper ? 0.0172 : 0.0283;
 
-  // Temperature correction factor: R(T) = R20 × (1 + α·(T − 20)), α ≈ 0.004 /K.
-  // XLPE operates at 90 °C → 1.28; PVC at 70 °C → 1.20 (lower resistance,
-  // so a PVC fault current is higher than the old fixed 90 °C factor implied).
-  const tempFactor = insulation === 'PVC' ? 1.2 : 1.28;
-
-  // Cable resistance (per run)
-  const Rcable = (R20 * tempFactor * cableLengthM) / cableSizeMm2;
+  // Cable resistance (per run at 20°C)
+  const Rcable = (R20 * cableLengthM) / cableSizeMm2;
 
   // Cable reactance (typical value: 0.08 mΩ/m for LV cables)
   const Xcable = 0.00008 * cableLengthM;
 
   // Parallel runs divide both components (impedances in parallel combine as
   // Z / n — for a 2 × 240 mm² riser the loop impedance is half of a single
-  // 240 mm² run). The L-N loop adds a second conductor (go + return), which
-  // doubles both components back.
-  const loopFactor = isSinglePhase ? 2 : 1;
-  const RcTotal = ((Rcable / runs) * loopFactor);
-  const XcTotal = ((Xcable / runs) * loopFactor);
+  // 240 mm² run).
+  // For single-phase (L-N) loops, conductor impedance includes the phase conductor plus the neutral return.
+  // When a reduced neutral conductor is used (e.g. S_N = S_ph / 2 per IEC 60364-5-52 §524),
+  // R_neutral = R_ph * (S_ph / S_N), giving loop resistance R_loop = R_ph * (1 + S_ph / S_N).
+  // For equal cross-sections (S_N = S_ph), the loop factor is 1 + 1 = 2.
+  const neutralSize = neutralSizeMm2 && neutralSizeMm2 > 0 ? neutralSizeMm2 : cableSizeMm2;
+  const loopFactorR = isSinglePhase ? 1 + (cableSizeMm2 / neutralSize) : 1;
+  const loopFactorX = isSinglePhase ? 2 : 1;
+  const RcTotal = ((Rcable / runs) * loopFactorR);
+  const XcTotal = ((Xcable / runs) * loopFactorX);
 
-  // Transformer per-phase impedance magnitude, derived from the terminal Isc.
-  const Ztransformer = (voltage / (Math.sqrt(3) * transformerIsc * 1000));
+  // Transformer per-phase impedance magnitude, derived consistently from terminal Isc using c_max:
+  // Since transformerIsc was calculated as (c * voltage) / (√3 * Zt * 1000),
+  // Ztransformer = (c * voltage) / (√3 * transformerIsc * 1000).
+  const Ztransformer = (voltageFactor * voltage) / (Math.sqrt(3) * transformerIsc * 1000);
 
   // IEC 60909 adds impedances COMPONENT-WISE: Z_total = √((Rt+Rc)² + (Xt+Xc)²).
-  // Scalar |Zt| + |Zc| ≥ |Zt+Zc| always, so the old method understated every
-  // downstream fault current — the non-conservative direction for Icu checks.
-  // Split the magnitude into R + jX via a typical LV distribution-transformer
-  // X/R ratio (~6); between X/R 4 and 10 the result shifts < 2%, far below the
-  // scalar error this fixes.
   const { r: Rtransformer, x: Xtransformer } = splitSourceImpedance(
     Ztransformer,
     sourceXrRatio(voltage)
@@ -278,10 +312,10 @@ export function calculateIscWithCable(
   const Ztotal = Math.sqrt(Rtotal * Rtotal + Xtotal * Xtotal);
 
   const adjustedIsc = isSinglePhase
-    ? // L-N fault: phase voltage over the loop impedance
-      ((voltage / Math.sqrt(3)) / Ztotal) / 1000
-    : // 3-phase fault: line-to-line voltage over √3 · (source + one phase conductor)
-      ((voltage / (Math.sqrt(3) * Ztotal))) / 1000;
+    ? // L-N fault: c_max * phase voltage over loop impedance
+      ((voltageFactor * (voltage / Math.sqrt(3))) / Ztotal) / 1000
+    : // 3-phase fault: c_max * line-to-line voltage over √3 · Ztotal
+      ((voltageFactor * (voltage / (Math.sqrt(3) * Ztotal)))) / 1000;
 
   return parseFloat(adjustedIsc.toFixed(2));
 }

@@ -58,16 +58,30 @@ function itemBranchVd(
 ): { dropVolts: number; dropPercent: number } | null {
   const len = item.cableLength;
   const size = parseMm2(item.cableSize);
-  const current = item.calculatedCurrent;
-  if (len == null || len <= 0 || size == null || !current || current <= 0) return null;
+  if (len == null || len <= 0 || size == null) return null;
+
   const is3ph = isThreePhaseForItem(item);
+  const pf = pfForFloorItem(item, project);
+  const connectedKw = item.calculatedConnectedLoad ?? 0;
+
+  // Use undiversified connected load for branch circuit voltage drop (IEC 60364-5-52 §525 & Annex G / NEC 210.19(A))
+  // An individual apartment's dedicated branch feeder carries its full design current Ib.
+  // Diversity factors apply solely to the shared upstream riser busduct/feeder.
+  const current =
+    item.type === 'APARTMENT' && connectedKw > 0
+      ? is3ph
+        ? (connectedKw * 1000) / (Math.sqrt(3) * project.voltage * pf)
+        : (connectedKw * 1000) / ((project.voltage / Math.sqrt(3)) * pf)
+      : item.calculatedCurrent;
+
+  if (!current || current <= 0) return null;
   const itemVoltage = is3ph ? project.voltage : project.voltage / Math.sqrt(3);
   const material = (item.cableMaterial as 'copper' | 'aluminum') ?? 'copper';
   return calculateVoltageDrop(
     current,
     len,
     size,
-    pfForFloorItem(item, project),
+    pf,
     is3ph,
     itemVoltage,
     1,

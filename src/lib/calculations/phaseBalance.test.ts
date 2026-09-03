@@ -269,7 +269,7 @@ describe('phaseBalance', () => {
   // 7. standard switch changes limit/label (not definition)
   // ==========================================================================
 
-  it('changes unbalance limit when calculationStandard switches', () => {
+  it('applies standard-specific unbalance limits (10% current unbalance proxy)', () => {
     const apt1 = item('apt1', 100, 23, 'APARTMENT');
 
     const bIEC = phaseBalance([apt1], projectFixture({ calculationStandard: 'IEC' }));
@@ -277,8 +277,6 @@ describe('phaseBalance', () => {
 
     expect(bIEC.unbalanceLimitPct).toBe(10);
     expect(bNEMA.unbalanceLimitPct).toBe(10);
-    // Both 10% here because the defaults are the same engineering-judgment proxy;
-    // in the future limit values may diverge per standard.
   });
 
   // ==========================================================================
@@ -334,6 +332,32 @@ describe('phaseBalance', () => {
     // But the phasor components differ: only verify no NaN and current sum equals.
     expect(isFinite(bMot.neutralCurrent)).toBe(true);
     expect(bMot.phaseCurrent[0] + bMot.phaseCurrent[1]).toBeCloseTo(60, 6);
+  });
+
+  it('correctly models lagging (inductive) power factor displacement sign in neutral current', () => {
+    // L1: 30A purely resistive (PF=1.0) -> Phasor: 30 ∠ 0° = 30 + j0
+    // L2: 30A inductive (PF=0.8, lagging) -> Phasor: 30 ∠ (-120° - arccos(0.8)) = 30 ∠ -156.87°
+    // I2 = 30 * (cos(-156.87°) + j*sin(-156.87°)) = -27.59 - j11.78
+    // I_neutral = |(30 - 27.59) - j11.78| = |2.41 - j11.78| ≈ 12.03 A
+    // (If erroneously modeled as leading (+), I2 = 30 ∠ -83.13° -> I_neutral ≈ 44.89 A)
+    const project = projectFixture({ powerFactor: 1.0 });
+    const l1 = floorItemFixture({
+      id: 'res-l1',
+      type: 'LIBRARY',
+      current: 30,
+      assignedPhase: 1,
+      loadLibraryItem: { id: 'lib-res', name: 'Heater', powerFactor: 1.0, phase: 1 } as any,
+    });
+    const l2 = floorItemFixture({
+      id: 'ind-l2',
+      type: 'LIBRARY',
+      current: 30,
+      assignedPhase: 2,
+      loadLibraryItem: { id: 'lib-ind', name: 'Inductive', powerFactor: 0.8, phase: 1 } as any,
+    });
+
+    const b = phaseBalance([l1, l2], project);
+    expect(b.neutralCurrent).toBeCloseTo(12.03, 1);
   });
 
   // ==========================================================================

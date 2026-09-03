@@ -329,13 +329,19 @@ export function checkCableProtection(
   availableFaultCurrentAmps: number,
   material: 'copper' | 'aluminum' = 'copper',
   insulation: 'PVC' | 'XLPE' = 'XLPE',
-  parallelRuns: number = 1
+  parallelRuns: number = 1,
+  breakerLetThroughA2s?: number
 ): boolean {
   const parsed = typeof cableInput === 'string' ? parseCableSize(cableInput) : null;
   const runs = parsed ? parsed.runs : Math.max(1, parallelRuns);
   const perRunArea = parsed ? parsed.size : (typeof cableInput === 'number' ? cableInput : 16);
   const effectiveArea = perRunArea * runs;
   if (effectiveArea <= 0 || availableFaultCurrentAmps <= 0) return true;
+
+  const k = material === 'copper'
+    ? (insulation === 'XLPE' ? 143 : 115)
+    : (insulation === 'XLPE' ? 94 : 76);
+  const cableWithstandJoule = (k * effectiveArea) ** 2;
 
   // Test across critical fault points: 5x In, 10x In, 20x In, and available fault current
   const testPoints = [
@@ -349,13 +355,48 @@ export function checkCableProtection(
     const tripTime = getTripTimeForCurrent(downstream, current);
     const withstandTime = calculateCableWithstandTime(cableInput, current, material, insulation, runs);
 
-    // If breaker trip time exceeds cable withstand time, cable will overheat
-    if (tripTime > withstandTime) {
+    // IEC 60364-4-43 Clause 434.5.2:
+    // For faults cleared in t < 0.1s by current-limiting circuit breakers,
+    // verify let-through energy: k²S² >= I²t
+    if (tripTime < 0.1) {
+      if (breakerLetThroughA2s != null) {
+        if (cableWithstandJoule < breakerLetThroughA2s) return false;
+      } else {
+        const defaultClass3Limit = downstream.inRating <= 16 ? 35000 : downstream.inRating <= 32 ? 84000 : 150000;
+        const actualJoule = Math.min(current * current * tripTime, defaultClass3Limit);
+        if (cableWithstandJoule < actualJoule && tripTime > withstandTime) {
+          return false;
+        }
+      }
+    } else if (tripTime > withstandTime) {
       return false;
     }
   }
 
   return true;
+}
+
+/**
+ * Verifies short-circuit thermal withstand per IEC 60364-4-43 Clause 434.5.2.
+ * For t < 0.1s, verifies k²S² >= I²t (Joule integral let-through).
+ * For t >= 0.1s, verifies adiabatic equation t <= (k*S/I)².
+ */
+export function verifyShortCircuitThermalWithstand(
+  cableSizeMm2: number,
+  kFactor: number, // 115 for PVC Cu, 143 for XLPE Cu, 76 for PVC Al, 94 for XLPE Al
+  prospectiveIscAmps: number,
+  tripTimeSeconds: number,
+  breakerEnergyLetThroughA2s?: number
+): boolean {
+  const cableWithstandJoule = (kFactor * cableSizeMm2) ** 2;
+
+  if (tripTimeSeconds < 0.1 && breakerEnergyLetThroughA2s != null) {
+    // IEC 60364-4-43 §434.5.2: k²S² >= I²t
+    return cableWithstandJoule >= breakerEnergyLetThroughA2s;
+  }
+
+  const actualLetThrough = (prospectiveIscAmps ** 2) * tripTimeSeconds;
+  return cableWithstandJoule >= actualLetThrough;
 }
 
 // ---------------------------------------------------------------------------
@@ -682,7 +723,12 @@ export function suggestAlternativeBreaker(
   options?: SuggestAlternativeOptions
 ): BreakerAlternativeSuggestion[] {
   const suggestions: BreakerAlternativeSuggestion[] = [];
-  const mfg = (upstream.manufacturer || downstream.manufacturer || options?.preferredManufacturer || 'Schneider').toUpperCase();
+  const mfg = (
+    options?.preferredManufacturer ||
+    upstream.manufacturer ||
+    downstream.manufacturer ||
+    ''
+  ).toUpperCase();
   const isSchneider = mfg.includes('SCHNEIDER');
   const isAbb = mfg.includes('ABB');
 

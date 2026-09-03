@@ -388,11 +388,19 @@ describe('Golden Path Cross-Module Integration Test', () => {
 
       const is3ph = isThreePhaseForItem(worstItem);
       const branchVoltage = is3ph ? project.voltage : project.voltage / Math.sqrt(3);
+      const pf = pfForFloorItem(worstItem, project);
+      const connectedKw = worstItem.calculatedConnectedLoad ?? 0;
+      const branchCurrent =
+        worstItem.type === 'APARTMENT' && connectedKw > 0
+          ? is3ph
+            ? (connectedKw * 1000) / (Math.sqrt(3) * project.voltage * pf)
+            : (connectedKw * 1000) / ((project.voltage / Math.sqrt(3)) * pf)
+          : worstItem.calculatedCurrent;
       const worstBranchDrop = calculateVoltageDrop(
-        worstItem.calculatedCurrent,
+        branchCurrent,
         worstItem.cableLength!,
         parseMm2(worstItem.cableSize)!,
-        pfForFloorItem(worstItem, project),
+        pf,
         is3ph,
         branchVoltage
       );

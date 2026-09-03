@@ -69,6 +69,23 @@ export default function ProjectsPage() {
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.name.trim()) return;
+
+    const v = parseFloat(form.voltage);
+    const f = parseFloat(form.frequency);
+    const pf = parseFloat(form.powerFactor);
+    if (isNaN(v) || v < 100 || v > 1000) {
+      setFormError('Voltage must be between 100 V and 1000 V');
+      return;
+    }
+    if (isNaN(f) || f < 45 || f > 65) {
+      setFormError('Frequency must be between 45 Hz and 65 Hz');
+      return;
+    }
+    if (isNaN(pf) || pf < 0.10 || pf > 1.00) {
+      setFormError('Power Factor must be between 0.10 and 1.00');
+      return;
+    }
+
     setFormError('');
     setSaving(true);
     try {
@@ -218,15 +235,42 @@ export default function ProjectsPage() {
             </div>
             <div>
               <label className="block text-xs text-gray-400 mb-1">{t('common.voltage', 'Voltage (V)')}</label>
-              <input value={form.voltage} onChange={(e) => setForm({ ...form, voltage: e.target.value })} className="dense-input w-full rounded" />
+              <input
+                type="number"
+                min="100"
+                max="1000"
+                step="1"
+                value={form.voltage}
+                onChange={(e) => setForm({ ...form, voltage: e.target.value })}
+                className="dense-input w-full rounded"
+                required
+              />
             </div>
             <div>
               <label className="block text-xs text-gray-400 mb-1">{t('common.frequency', 'Frequency (Hz)')}</label>
-              <input value={form.frequency} onChange={(e) => setForm({ ...form, frequency: e.target.value })} className="dense-input w-full rounded" />
+              <input
+                type="number"
+                min="45"
+                max="65"
+                step="1"
+                value={form.frequency}
+                onChange={(e) => setForm({ ...form, frequency: e.target.value })}
+                className="dense-input w-full rounded"
+                required
+              />
             </div>
             <div>
               <label className="block text-xs text-gray-400 mb-1">{t('common.powerFactor', 'Power Factor')}</label>
-              <input value={form.powerFactor} onChange={(e) => setForm({ ...form, powerFactor: e.target.value })} className="dense-input w-full rounded" />
+              <input
+                type="number"
+                min="0.10"
+                max="1.00"
+                step="0.01"
+                value={form.powerFactor}
+                onChange={(e) => setForm({ ...form, powerFactor: e.target.value })}
+                className="dense-input w-full rounded"
+                required
+              />
             </div>
             <div>
               <label className="block text-xs text-gray-400 mb-1">{t('common.standard', 'Calculation Standard')}</label>

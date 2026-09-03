@@ -136,14 +136,24 @@ describe('sizeTransformer', () => {
 });
 
 describe('sizeGenerator', () => {
-  it('sizes correctly for essential load', () => {
+  it('sizes correctly for essential load with motor inrush', () => {
+    // 200 kVA essential load with 50 kVA motor:
+    // Peak = (200 - 50) + (50 * 6) = 450 kVA; Target = 450 * 1.1 = 495 kVA -> 500 kVA standard generator
     const size = sizeGenerator(200, 50);
-    expect(size).toBeGreaterThanOrEqual(200);
+    expect(size).toBe(500);
   });
 
-  it('accounts for motor starting surge', () => {
+  it('accounts for motor starting surge and selects standard rating', () => {
+    // 100 kVA continuous with 100 kVA motor:
+    // Peak = (100 - 100) + (100 * 6) = 600 kVA; Target = 600 * 1.1 = 660 kVA -> 800 kVA standard generator
     const size = sizeGenerator(100, 100);
-    expect(size).toBeGreaterThanOrEqual(100);
+    expect(size).toBe(800);
+  });
+
+  it('sizes correctly for essential loads without motors', () => {
+    // 100 kVA continuous, 0 kVA motor: Target = 100 * 1.1 = 110 kVA -> 125 kVA standard generator
+    const size = sizeGenerator(100, 0);
+    expect(size).toBe(125);
   });
 
   it('throws CalculationError for invalid parameters', () => {

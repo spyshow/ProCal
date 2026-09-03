@@ -6,6 +6,7 @@ import {
   assertNonNegative,
   assertInRange,
   assertOneOf,
+  validateProjectSettings,
 } from './validate';
 
 describe('Validation Helpers', () => {
@@ -93,6 +94,38 @@ describe('Validation Helpers', () => {
 
     it('throws CalculationError for disallowed values', () => {
       expect(() => assertOneOf('material', 'gold' as unknown as 'copper', ['copper', 'aluminum'] as const)).toThrow(CalculationError);
+    });
+  });
+
+  describe('validateProjectSettings', () => {
+    it('passes for standard project settings', () => {
+      expect(() =>
+        validateProjectSettings({
+          voltage: 400,
+          frequency: 50,
+          powerFactor: 0.85,
+          maxDemandFactor: 0.8,
+          maxVoltageDropLighting: 3,
+          maxVoltageDropPower: 5,
+        })
+      ).not.toThrow();
+    });
+
+    it('rejects power factor > 1.0 or < 0.1', () => {
+      expect(() => validateProjectSettings({ powerFactor: 1.85 })).toThrow(CalculationError);
+      expect(() => validateProjectSettings({ powerFactor: 0.05 })).toThrow(CalculationError);
+      expect(() => validateProjectSettings({ powerFactor: -0.85 })).toThrow(CalculationError);
+    });
+
+    it('rejects negative or out-of-range voltage', () => {
+      expect(() => validateProjectSettings({ voltage: -400 })).toThrow(CalculationError);
+      expect(() => validateProjectSettings({ voltage: 50 })).toThrow(CalculationError);
+      expect(() => validateProjectSettings({ voltage: 1500 })).toThrow(CalculationError);
+    });
+
+    it('rejects invalid frequency', () => {
+      expect(() => validateProjectSettings({ frequency: 0 })).toThrow(CalculationError);
+      expect(() => validateProjectSettings({ frequency: 100 })).toThrow(CalculationError);
     });
   });
 });

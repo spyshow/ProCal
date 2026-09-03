@@ -182,11 +182,20 @@ function libraryLoad(
     ? totalKw / (Math.sqrt(3) * (opts.lib.voltage / 1000) * opts.lib.powerFactor)
     : totalKw / ((opts.lib.voltage / 1000) * opts.lib.powerFactor);
   const material = opts.material ?? 'copper';
+  const categoryUpper = (opts.lib.category ?? '').toUpperCase();
+  const nameUpper = (opts.lib.name ?? '').toUpperCase();
+  const isMotor =
+    ['PUMP', 'MOTOR', 'ELEVATOR'].some((k) =>
+      categoryUpper.includes(k) || nameUpper.includes(k)
+    ) ||
+    (opts.lib.startingCurrent != null && opts.lib.startingCurrent > 2 * current);
+  const designCurrent = isMotor ? current * 1.25 : current;
+
   // feederFromBuildingLoad evaluates the stored cable at
   // groupingCount = load.groupingCount ?? project.groupingCount ?? 1 and the
   // stored material, so the stored cable must be sized with the SAME options
   // to guarantee In <= Iz.
-  const sizing = sizeCableAndBreaker(current, isThreePhase, {
+  const sizing = sizeCableAndBreaker(designCurrent, isThreePhase, {
     material, insulation: 'XLPE', ambientTemp: 30, groupingCount: 1, installMethod: 'C',
   });
   return {

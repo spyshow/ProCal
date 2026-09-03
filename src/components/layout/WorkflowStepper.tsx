@@ -147,7 +147,7 @@ export default function WorkflowStepper({ currentStep, className }: WorkflowStep
         className
       )}
     >
-      <div className="flex items-center justify-between gap-2 overflow-x-auto custom-scrollbar pb-1">
+      <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto custom-scrollbar pb-1 min-w-0 sm:justify-between">
         {WORKFLOW_STEPS.map((step, idx) => {
           const isRestricted = !canView(step.pageKey);
           const isActive = idx === activeIndex;

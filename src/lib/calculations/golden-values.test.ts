@@ -68,16 +68,17 @@ describe('Golden: transformer fault level (IEC 60909 worked example)', () => {
     expect(r.phaseToNeutralIsc).toBeCloseTo(27.56, 2);
   });
 
-  it('TT loop (Re = 0.5 Ω): Ik,pn = 1.05·Uo/(Zt+Re) = 242.487/0.5088 = 0.48 kA', () => {
+  it('TT system: bolted L-N fault is metallic return (27.56 kA), earth-fault loop (Re = 0.5 Ω) is 0.48 kA', () => {
     const r = calculateShortCircuitCurrent({ ...trafo, earthingSystem: 'TT', earthFaultImpedanceOhms: 0.5 });
-    expect(r.phaseToNeutralIsc).toBeCloseTo(0.48, 2);
+    expect(r.phaseToNeutralIsc).toBeCloseTo(27.56, 2);
+    expect(r.phaseToEarthIsc).toBeCloseTo(0.48, 2);
   });
 
-  it('far-end fault through 50 m of 95 mm² Cu XLPE: Z-loop vector sum → 12.94 kA', () => {
-    // Zt = 400/(√3×27560.5) = 8.38 mΩ → R 1.376, X 8.267 mΩ (X/R 6)
-    // Rc = 0.0172×1.28×50/95 = 11.58 mΩ; Xc = 0.08×50/1000 = 4 mΩ
-    // Z  = √((1.376+11.58)² + (8.267+4)²) mΩ ≈ 17.85 mΩ → 12.94 kA
-    expect(calculateIscWithCable(27.56, 50, 95, 400, true, false, 'XLPE', 1)).toBeCloseTo(12.94, 1);
+  it('far-end fault through 50 m of 95 mm² Cu XLPE: IEC 60909-0 (c_max 1.05, 20°C R) → 14.73 kA', () => {
+    // Zt = 1.05·400/(√3×27560.5) = 8.80 mΩ → R 1.447, X 8.682 mΩ (X/R 6)
+    // Rc = 0.0172×50/95 = 9.053 mΩ (20°C per IEC 60909-0 §5.3.3.2); Xc = 0.08×50/1000 = 4 mΩ
+    // Z  = √((1.447+9.053)² + (8.682+4)²) mΩ ≈ 16.465 mΩ → 14.73 kA
+    expect(calculateIscWithCable(27.56, 50, 95, 400, true, false, 'XLPE', 1)).toBeCloseTo(14.73, 1);
   });
 });
 

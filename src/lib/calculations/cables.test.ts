@@ -9,6 +9,7 @@ import {
   formatCableSize,
   getCableAmpacityColumn,
   sizeEquipmentGroundingConductor,
+  validateConductorMaterialAndSize,
 } from './cables';
 import { temperatureDeratingFactor, groupingDeratingFactor, CABLE_CATALOG } from './cablesData';
 import { getAmpacity } from './installationMethods';
@@ -653,6 +654,74 @@ describe('sizeEquipmentGroundingConductor (CALC-MAJ-04)', () => {
 
       // Under NEC Table 250.122, a 400A breaker requires 3 AWG (26.7 mm² -> standard 35 mm²), NOT 95 mm²
       expect(necResult.earthSize).toBe(35);
+    });
+  });
+
+  describe('CALC-MAJ-02: Aluminum Conductor Minimum Size (IEC 60364-5-52 Table 52.2)', () => {
+    it('prohibits sizing Aluminum cables smaller than 16 mm²', () => {
+      // Even for a tiny 5A load, Aluminum must start at >= 16 mm²
+      const result = sizeCableAndBreaker(5, true, {
+        material: 'aluminum',
+        insulation: 'XLPE',
+        ambientTemp: 30,
+        groupingCount: 1,
+      });
+
+      expect(result.cableSize).toBeGreaterThanOrEqual(16);
+    });
+
+    it('validateConductorMaterialAndSize flags Aluminum < 16 mm²', () => {
+      expect(validateConductorMaterialAndSize('aluminum', 10).valid).toBe(false);
+      expect(validateConductorMaterialAndSize('aluminum', 10).error).toContain('prohibits Aluminum conductors smaller than 16 mm²');
+      expect(validateConductorMaterialAndSize('aluminum', 16).valid).toBe(true);
+      expect(validateConductorMaterialAndSize('copper', 1.5).valid).toBe(true);
+    });
+  });
+
+  describe('TEST-GAP-06: Zero-Length and Near-Zero Cable Runs', () => {
+    it('strictly guards against zero cable length with CalculationError preventing division by zero', () => {
+      expect(() => calculateVoltageDrop(50, 0, 16, 0.85, true, 400)).toThrow(CalculationError);
+      expect(() => calculateVoltageDrop(50, -1, 16, 0.85, true, 400)).toThrow(CalculationError);
+    });
+
+    it('handles near-zero cable length (0.1m) gracefully without NaN or float instability', () => {
+      const vd = calculateVoltageDrop(50, 0.1, 16, 0.85, true, 400);
+      expect(vd.dropVolts).toBeGreaterThan(0);
+      expect(vd.dropPercent).toBeLessThan(0.05);
+      expect(Number.isFinite(vd.dropVolts)).toBe(true);
+      expect(Number.isFinite(vd.dropPercent)).toBe(true);
+    });
+
+    it('sizes cable and breaker with near-zero length constraint without numeric error', () => {
+      const res = sizeCableAndBreaker(45, true, {
+        material: 'copper',
+        insulation: 'XLPE',
+        ambientTemp: 30,
+        groupingCount: 1,
+        voltageDrop: {
+          lengthMeters: 0.1,
+          systemVoltage: 400,
+          maxPercent: 5,
+          powerFactor: 0.85,
+        },
+      });
+
+      expect(res.cableSize).toBeGreaterThanOrEqual(6);
+      expect(res.breakerSize).toBeGreaterThanOrEqual(50);
+      expect(res.dropPercent).toBeDefined();
+      expect(res.dropPercent!).toBeLessThan(0.05);
+    });
+  });
+
+  describe('CALC-MIN-01: Temperature-Dependent AC Resistance (IEC 60364-5-52 Annex G)', () => {
+    it('applies operating temperature correction factor between 70°C PVC and 90°C XLPE', () => {
+      const vdXlpe = calculateVoltageDrop(100, 50, 35, 0.85, true, 400, 1, 'copper', 'XLPE');
+      const vdPvc = calculateVoltageDrop(100, 50, 35, 0.85, true, 400, 1, 'copper', 'PVC');
+
+      // PVC operates at 70°C max continuous conductor temperature vs 90°C for XLPE:
+      // R_70 / R_90 = (234.5 + 70) / (234.5 + 90) = 304.5 / 324.5 ≈ 0.938
+      expect(vdPvc.dropVolts).toBeLessThan(vdXlpe.dropVolts);
+      expect(vdPvc.dropVolts / vdXlpe.dropVolts).toBeCloseTo(0.94, 1);
     });
   });
 });

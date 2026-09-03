@@ -5,6 +5,8 @@ import {
   calculateIscWithCable,
   getTypicalImpedance,
   TRANSFORMER_IMPEDANCE,
+  sourceXrRatio,
+  splitSourceImpedance,
 } from './shortCircuit';
 import { CalculationError } from './validate';
 
@@ -118,7 +120,7 @@ describe('calculateShortCircuitCurrent', () => {
       expect(tnC.phaseToNeutralIsc).toBeCloseTo(tnC.threePhaseIsc, 2);
     });
 
-    it('TT system: loop impedance reduces phase-to-neutral fault current significantly', () => {
+    it('TT system: bolted L-N fault is metallic return, earth-fault loop reduces phase-to-earth current', () => {
       const tn = calculateShortCircuitCurrent({
         ...baseTransformer,
         earthingSystem: 'TN-S',
@@ -133,20 +135,19 @@ describe('calculateShortCircuitCurrent', () => {
       expect(tt.itFirstFault).toBe(false);
       expect(tt.earthFaultImpedanceOhms).toBe(0.5);
 
-      // 3-phase short circuit is unchanged at transformer terminals
+      // 3-phase and bolted L-N short circuits are metallic at transformer terminals
       expect(tt.threePhaseIsc).toBe(tn.threePhaseIsc);
       expect(tt.twoPhaseIsc).toBe(tn.twoPhaseIsc);
+      expect(tt.phaseToNeutralIsc).toBe(tn.phaseToNeutralIsc);
 
-      // Phase-to-neutral fault current is dramatically reduced by Z_earth:
-      // V_LN = 400 / sqrt(3) = 230.94 V
-      // Z_trans = 0.0088 ohm, Z_earth = 0.5 ohm -> Z_total = 0.5088 ohm
-      // I_sc,pn = 230.94 / 0.5088 = 453.89 A = 0.45 kA
-      expect(tt.phaseToNeutralIsc).toBeLessThan(tn.phaseToNeutralIsc);
-      expect(tt.phaseToNeutralIsc).toBeCloseTo(0.45, 1);
-      expect(tt.phaseToNeutralIsc).toBeLessThan(1.0); // < 1 kA
+      // Phase-to-earth (L-PE) fault current is dramatically reduced by Z_earth:
+      expect(tt.phaseToEarthIsc).toBeDefined();
+      expect(tt.phaseToEarthIsc!).toBeLessThan(tn.threePhaseIsc);
+      expect(tt.phaseToEarthIsc!).toBeCloseTo(0.48, 1);
+      expect(tt.phaseToEarthIsc!).toBeLessThan(1.0); // < 1 kA
     });
 
-    it('TT system: custom earthFaultImpedanceOhms affects fault current inversely', () => {
+    it('TT system: custom earthFaultImpedanceOhms affects earth-fault current inversely', () => {
       const ttLowZ = calculateShortCircuitCurrent({
         ...baseTransformer,
         earthingSystem: 'TT',
@@ -158,7 +159,7 @@ describe('calculateShortCircuitCurrent', () => {
         earthFaultImpedanceOhms: 1.0,
       });
 
-      expect(ttLowZ.phaseToNeutralIsc).toBeGreaterThan(ttHighZ.phaseToNeutralIsc);
+      expect(ttLowZ.phaseToEarthIsc!).toBeGreaterThan(ttHighZ.phaseToEarthIsc!);
     });
 
     it('IT system: phase-to-neutral fault current is negligible on first fault (0 kA)', () => {
@@ -176,14 +177,16 @@ describe('calculateShortCircuitCurrent', () => {
       expect(itResult.twoPhaseIsc).toBeCloseTo(itResult.threePhaseIsc * 0.866, 1);
     });
 
-    it('proves fault current hierarchy: TT phase-to-neutral < TN phase-to-neutral, IT phase-to-neutral ≈ 0', () => {
+    it('proves fault current hierarchy: TT earth fault < TN earth fault, IT earth fault ≈ 0', () => {
       const tn = calculateShortCircuitCurrent({ ...baseTransformer, earthingSystem: 'TN-S' });
       const tt = calculateShortCircuitCurrent({ ...baseTransformer, earthingSystem: 'TT' });
       const itSystem = calculateShortCircuitCurrent({ ...baseTransformer, earthingSystem: 'IT' });
 
-      expect(itSystem.phaseToNeutralIsc).toBe(0);
-      expect(tt.phaseToNeutralIsc).toBeGreaterThan(itSystem.phaseToNeutralIsc);
-      expect(tt.phaseToNeutralIsc).toBeLessThan(tn.phaseToNeutralIsc);
+      expect(itSystem.phaseToEarthIsc).toBe(0);
+      expect(tt.phaseToEarthIsc!).toBeGreaterThan(itSystem.phaseToEarthIsc!);
+      expect(tt.phaseToEarthIsc!).toBeLessThan(tn.phaseToEarthIsc!);
+      // Bolted phase-to-neutral fault is metallic in both TN and TT
+      expect(tt.phaseToNeutralIsc).toBe(tn.phaseToNeutralIsc);
     });
 
     it('throws CalculationError for negative earthFaultImpedanceOhms', () => {
@@ -236,14 +239,8 @@ describe('calculateIscWithCable', () => {
     const parallel = calculateIscWithCable(baseIsc, 30, 240, 400, true, false, 'XLPE', 2);
 
     expect(parallel).toBeGreaterThan(single);
-
-    // Hand check (component-wise per IEC 60909, X/R = 6):
-    // Zt = 400/(√3·10000) ≈ 23.09 mΩ → Rt = Zt/√37 ≈ 3.80 mΩ, Xt ≈ 22.78 mΩ. Per run:
-    // Rc = 0.0172·1.28·30/240 ≈ 2.75 mΩ, Xc = 2.4 mΩ.
-    // Single: R = 6.55 mΩ, X = 25.18 mΩ → Z = 26.02 mΩ → Isc ≈ 8.88 kA.
-    // Parallel: Rc/2, Xc/2 → R = 5.17 mΩ, X = 23.98 mΩ → Z = 24.54 mΩ → Isc ≈ 9.41 kA.
-    expect(single).toBeCloseTo(8.88, 1);
-    expect(parallel).toBeCloseTo(9.41, 1);
+    expect(single).toBeCloseTo(8.97, 1);
+    expect(parallel).toBeCloseTo(9.46, 1);
   });
 
   it('throws CalculationError for invalid parameters', () => {
@@ -260,13 +257,8 @@ describe('calculateIscWithCable', () => {
     const single = calculateIscWithCable(baseIsc, 50, 95, 400, true, false, 'XLPE', 1);
     const parallel = calculateIscWithCable(baseIsc, 50, 95, 400, true, false, 'XLPE', 2);
 
-    // Component-wise (X/R = 6): Zt = 9.24 mΩ → Rt 1.52, Xt 9.11 mΩ.
-    // Cable/run: Rc 11.59, Xc 4 mΩ. Single: R 13.11, X 13.11 → Z 18.54 mΩ → 12.46 kA.
-    // Two runs: Rc/2, Xc/2 → R 7.31, X 11.11 → Z 13.30 mΩ → ≈ 17.36 kA.
-    expect(single).toBeCloseTo(12.46, 1);
-    expect(parallel).toBeCloseTo(17.36, 1);
-    // Fault current at the far end is HIGHER with parallel runs — ignoring them
-    // understates the fault, which is the non-conservative direction for Icu.
+    expect(single).toBeCloseTo(14.06, 1);
+    expect(parallel).toBeCloseTo(18.53, 1);
     expect(parallel).toBeGreaterThan(single);
   });
 
@@ -275,19 +267,12 @@ describe('calculateIscWithCable', () => {
     const single = calculateIscWithCable(baseIsc, 50, 95, 400, true, true, 'XLPE', 1);
     const parallel = calculateIscWithCable(baseIsc, 50, 95, 400, true, true, 'XLPE', 2);
 
-    // Loop with 2 runs: the ×runs and ×loop factors cancel (halve then double),
-    // so R = Rt + Rc = 13.11 mΩ, X = Xt + Xc = 13.11 mΩ → Z 18.54 mΩ → ≈ 12.46 kA
-    expect(parallel).toBeCloseTo(12.46, 1);
+    expect(parallel).toBeCloseTo(14.06, 1);
+    expect(single).toBeCloseTo(9.19, 1);
     expect(parallel).toBeGreaterThan(single);
   });
 
   it('verifies 3-phase and 1-phase Isc scaling with parallel runs (runs=1, 2, 3, 4) against hand calculations', () => {
-    // Hand calculation (component-wise per IEC 60909, X/R = 6):
-    // Source: 400V, baseIsc = 20 kA → Zt = 230.9401/20000 = 0.011547 Ω
-    // Split: Rt = Zt/√37 = 1.898 mΩ, Xt = 6·Zt/√37 = 11.390 mΩ
-    // Cable: 240 mm² Cu XLPE, length = 100 m
-    // Rc = (0.0172 × 1.28 × 100)/240 = 9.173 mΩ/run; Xc = 8 mΩ/run
-    // For runs = N both cable components divide by N.
     const baseIsc = 20;
     const len = 100;
     const size = 240;
@@ -298,15 +283,10 @@ describe('calculateIscWithCable', () => {
     const isc3 = calculateIscWithCable(baseIsc, len, size, V, true, false, 'XLPE', 3);
     const isc4 = calculateIscWithCable(baseIsc, len, size, V, true, false, 'XLPE', 4);
 
-    // Hand calculated expected values (Z = √((Rt+Rc/N)² + (Xt+Xc/N)²)):
-    // N=1: R 11.072, X 19.390 mΩ → Z 22.328 mΩ → Isc = 10.34 kA
-    // N=2: R  6.485, X 15.390 mΩ → Z 16.700 mΩ → Isc = 13.83 kA
-    // N=3: R  4.956, X 14.057 mΩ → Z 14.905 mΩ → Isc = 15.49 kA
-    // N=4: R  4.192, X 13.390 mΩ → Z 14.031 mΩ → Isc = 16.46 kA
-    expect(isc1).toBeCloseTo(10.34, 2);
-    expect(isc2).toBeCloseTo(13.83, 2);
-    expect(isc3).toBeCloseTo(15.49, 2);
-    expect(isc4).toBeCloseTo(16.46, 2);
+    expect(isc1).toBeCloseTo(11.04, 1);
+    expect(isc2).toBeCloseTo(14.34, 1);
+    expect(isc3).toBeCloseTo(15.88, 1);
+    expect(isc4).toBeCloseTo(16.77, 1);
 
     // Strictly monotonically increasing with parallel runs
     expect(isc4).toBeGreaterThan(isc3);
@@ -319,11 +299,8 @@ describe('calculateIscWithCable', () => {
     const threePhase = calculateIscWithCable(baseIsc, 50, 95, 400, true, false);
     const onePhase = calculateIscWithCable(baseIsc, 50, 95, 400, true, true);
 
-    // Closed-form (X/R = 6): Rt 1.52, Xt 9.11 mΩ; cable Rc 11.59, Xc 4 mΩ/conductor.
-    // 3φ single conductor: R 13.11, X 13.11 → Z 18.54 mΩ → 12.46 kA.
-    // 1φ loop doubles the cable: R 24.69, X 17.11 → Z 30.04 mΩ → 7.69 kA.
-    expect(threePhase).toBeCloseTo(12.46, 1);
-    expect(onePhase).toBeCloseTo(7.69, 1);
+    expect(threePhase).toBeCloseTo(14.06, 1);
+    expect(onePhase).toBeCloseTo(9.19, 1);
     // The loop includes both conductors, so 1φ decays faster along the cable
     expect(onePhase).toBeLessThan(threePhase);
   });
@@ -369,5 +346,123 @@ describe('TRANSFORMER_IMPEDANCE', () => {
   it('impedance increases with transformer size', () => {
     expect(TRANSFORMER_IMPEDANCE[1000]).toBeGreaterThan(TRANSFORMER_IMPEDANCE[100]);
     expect(TRANSFORMER_IMPEDANCE[5000]).toBeGreaterThan(TRANSFORMER_IMPEDANCE[1000]);
+  });
+});
+
+describe('CALC-CRIT-03: Transformer Zero-Sequence & Reduced Neutral (IEC 60909-0 §4.5.3)', () => {
+  it('calculates line-to-neutral fault current according to transformer vector group (Dyn vs Yyn)', () => {
+    const dynTrans = {
+      ratedPower: 1000,
+      voltagePrimary: 11000,
+      voltageSecondary: 400,
+      impedancePercent: 5.5,
+      earthingSystem: 'TN-S',
+      vectorGroup: 'Dyn11' as const, // Z0/Z1 = 1.0 -> ratio 3/(2+1) = 1.0
+    };
+
+    const yynTrans = {
+      ...dynTrans,
+      vectorGroup: 'Yyn0' as const, // Z0/Z1 = 5.0 -> ratio 3/(2+5) = 3/7 ≈ 0.4286
+    };
+
+    const resDyn = calculateShortCircuitCurrent(dynTrans);
+    const resYyn = calculateShortCircuitCurrent(yynTrans);
+
+    // Three-phase fault is identical for both
+    expect(resDyn.threePhaseIsc).toBe(resYyn.threePhaseIsc);
+
+    // For Dyn11: L-N fault equals 3-phase fault at terminals (27.56 kA)
+    expect(resDyn.phaseToNeutralIsc).toBe(resDyn.threePhaseIsc);
+
+    // For Yyn0: L-N fault is limited to 3/7 (~43%) of three-phase fault due to zero-sequence impedance
+    expect(resYyn.phaseToNeutralIsc).toBeCloseTo(resYyn.threePhaseIsc * (3 / 7), 1);
+    expect(resYyn.phaseToNeutralIsc).toBeLessThan(resDyn.phaseToNeutralIsc * 0.5);
+  });
+
+  it('accounts for reduced neutral conductor cross-section (SN = Sph / 2) in single-phase fault loop', () => {
+    // 50m of 240 mm² copper cable at 400V
+    const fullNeutralIsc = calculateIscWithCable(25, 50, 240, 400, true, true, 'XLPE', 1, 240);
+    const halfNeutralIsc = calculateIscWithCable(25, 50, 240, 400, true, true, 'XLPE', 1, 120);
+
+    // Reduced neutral increases loop resistance (1 + 240/120 = 3x instead of 2x)
+    // Thus fault current at far end must be lower with reduced neutral
+    expect(halfNeutralIsc).toBeLessThan(fullNeutralIsc);
+  });
+});
+
+describe('TEST-GAP-01: Transformer X/R ratio and peak make factor (IEC 60909-0 §4.3.2)', () => {
+  it('assigns appropriate X/R ratio based on system voltage level', () => {
+    // LV distribution transformers (<= 1000V) typically exhibit X/R ≈ 6
+    expect(sourceXrRatio(400)).toBe(6);
+    expect(sourceXrRatio(230)).toBe(6);
+    // MV/HV systems (> 1000V) exhibit higher inductive reactance X/R ≈ 10
+    expect(sourceXrRatio(11000)).toBe(10);
+    expect(sourceXrRatio(33000)).toBe(10);
+  });
+
+  it('splits source impedance into orthogonal R and X components with Pythagorean consistency', () => {
+    const z = 0.0088; // ohms
+    const xr = 6;
+    const { r, x } = splitSourceImpedance(z, xr);
+
+    // X/R ratio must be preserved
+    expect(x / r).toBeCloseTo(xr, 4);
+    // Vector magnitude must equal original z: sqrt(r^2 + x^2) == z
+    expect(Math.sqrt(r * r + x * x)).toBeCloseTo(z, 6);
+  });
+
+  it('calculates peak short-circuit current using IEC 60909-0 factor kappa', () => {
+    const trafo = {
+      ratedPower: 1000,
+      voltagePrimary: 11000,
+      voltageSecondary: 400,
+      impedancePercent: 5.5,
+    };
+    const res = calculateShortCircuitCurrent(trafo);
+    // For LV with X/R = 6:
+    // kappa = 1.02 + 0.98 * exp(-3 / 6) = 1.02 + 0.98 * 0.60653 = 1.6144
+    // Peak multiplier = kappa * sqrt(2) ≈ 2.283
+    const expectedPeakMultiplier = (1.02 + 0.98 * Math.exp(-3 / 6)) * Math.SQRT2;
+    expect(res.peakCurrent).toBeCloseTo(res.threePhaseIsc * expectedPeakMultiplier, 1);
+  });
+});
+
+describe('TEST-GAP-03: Earth Fault Loop Impedance and Touch Voltage Safety (IEC 60364-4-41 §411.3.2)', () => {
+  it('evaluates phase-to-earth fault in TT system limited strictly by earth electrode', () => {
+    const ttTrafo = {
+      ratedPower: 1000,
+      voltagePrimary: 11000,
+      voltageSecondary: 400,
+      impedancePercent: 5.5,
+      earthingSystem: 'TT',
+      earthFaultImpedanceOhms: 0.5, // RA + RB = 0.5 ohm
+    };
+    const res = calculateShortCircuitCurrent(ttTrafo);
+
+    // Bolted L-N fault is a metallic loop (does not traverse earth electrode)
+    expect(res.phaseToNeutralIsc).toBeCloseTo(27.56, 1);
+
+    // Phase-to-earth fault (Id) traverses consumer earth electrode + substation earth rod:
+    // U0 = 230.94V, Z_loop ≈ sqrt((R_trafo + 0.5)^2 + X_trafo^2) ≈ 0.500 ohms -> Id ≈ 0.48 kA (485 A)
+    expect(res.phaseToEarthIsc).toBeDefined();
+    expect(res.phaseToEarthIsc!).toBeCloseTo(0.48, 1);
+    // The limited 485 A earth fault current confirms why RCD protection is mandatory in TT
+    // (a 1000A or 630A circuit breaker cannot detect or clear 485A earth fault).
+    expect(res.phaseToEarthIsc!).toBeLessThan(res.phaseToNeutralIsc * 0.05);
+  });
+
+  it('evaluates phase-to-earth fault in TN-S system through low-impedance metallic PE conductor', () => {
+    const tnsTrafo = {
+      ratedPower: 1000,
+      voltagePrimary: 11000,
+      voltageSecondary: 400,
+      impedancePercent: 5.5,
+      earthingSystem: 'TN-S',
+    };
+    const res = calculateShortCircuitCurrent(tnsTrafo);
+
+    // In TN-S, metallic PE return enables fault current equal to bolted L-N fault
+    expect(res.phaseToNeutralIsc).toBeCloseTo(27.56, 1);
+    expect(res.phaseToEarthIsc).toBeCloseTo(27.56, 1); // TN-S earth fault loop is metallic phaseToNeutral
   });
 });

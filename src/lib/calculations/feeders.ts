@@ -622,7 +622,21 @@ function feederFromBuildingLoad(
   const groupingCount = load.groupingCount ?? project.groupingCount ?? 1;
   const installMethod = load.installMethod ?? undefined;
   const code = codeOf(project.calculationStandard);
-  const sizing = sizeCableAndBreaker(current, isThreePhase, {
+
+  const categoryUpper = (load.loadLibraryItem?.category ?? '').toUpperCase();
+  const nameUpper = (name || '').toUpperCase();
+  const typeUpper = (type || '').toUpperCase();
+  const isMotor =
+    ['PUMP', 'MOTOR', 'ELEVATOR'].some((k) =>
+      categoryUpper.includes(k) || nameUpper.includes(k) || typeUpper.includes(k)
+    ) ||
+    (load.loadLibraryItem?.startingCurrent != null &&
+      load.loadLibraryItem.startingCurrent > 2 * current);
+
+  // Motor branch circuit conductors must be sized for >= 125% of FLA (IEC 60947-4-1 / NEC 430.22)
+  const designCurrent = isMotor ? current * 1.25 : current;
+
+  const sizing = sizeCableAndBreaker(designCurrent, isThreePhase, {
     material,
     insulation,
     ambientTemp,
@@ -664,21 +678,24 @@ function feederFromBuildingLoad(
     ...sizing.warnings,
     ...finalSizing.warnings,
     ...protEval.warnings,
-    ...(manualBreaker && !isNaN(manualBreaker) && manualBreaker < current - 1e-9
-      ? [`Manual breaker ${manualBreaker} A is below the ${current.toFixed(1)} A design current — continuous overload risk (Ib > In).`]
+    ...(isMotor
+      ? [`Motor / mechanical load: conductor sized for 125% FLA (${designCurrent.toFixed(1)} A) per IEC 60947-4-1 / NEC 430.22.`]
+      : []),
+    ...(manualBreaker && !isNaN(manualBreaker) && manualBreaker < designCurrent - 1e-9
+      ? [`Manual breaker ${manualBreaker} A is below the ${designCurrent.toFixed(1)} A design current — continuous overload risk (Ib > In).`]
       : []),
   ];
 
   const isBreakerUpsized = actualBreakerSize > sizing.breakerSize;
   const upsizeReason = isBreakerUpsized
-    ? `Sized to ${actualBreakerSize}A (exceeds minimal ${sizing.breakerSize}A rating): Selected catalog frame rating with electronic trip unit protection for ${current.toFixed(1)}A design current.`
+    ? `Sized to ${actualBreakerSize}A (exceeds minimal ${sizing.breakerSize}A rating): Selected catalog frame rating with electronic trip unit protection for ${designCurrent.toFixed(1)}A design current.`
     : undefined;
 
   return {
     name,
     type,
     current,
-    designCurrent: current,
+    designCurrent: parseFloat(designCurrent.toFixed(1)),
     breakerSize: actualBreakerSize,
     baseBreakerSize: sizing.breakerSize,
     isBreakerUpsized,
@@ -735,6 +752,8 @@ export interface ComputeFeedersResult {
   mainBreakingCapacityKa: number | null;
   /** Prospective secondary short-circuit current (kA) at the main incomer. */
   transformerIscKa: number;
+  /** Sized or specified transformer rating (kVA) for this building's supply. */
+  transformerSizeKva: number;
 }
 
 /**
@@ -936,7 +955,10 @@ export function computeFeeders(
     overallBalance.phaseKw[2] / transformerPf,
   ];
   const transformerSizeKva =
-    project.transformerSize || sizeTransformer(totalDemandKva, 1.2, perPhaseKva) || 500;
+    building.transformer ||
+    project.transformerSize ||
+    sizeTransformer(totalDemandKva, 1.2, perPhaseKva) ||
+    500;
 
   const earthingSystem = building.earthingSystem || 'TN-S';
   const scResult = calculateShortCircuitCurrent({
@@ -1312,5 +1334,6 @@ export function computeFeeders(
     mainIncomerCurrent,
     mainBreakingCapacityKa: mainMatch.breakingCapacity ?? null,
     transformerIscKa,
+    transformerSizeKva,
   };
 }

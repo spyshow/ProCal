@@ -248,6 +248,8 @@ export default function PanelDesignerPage() {
     );
   }
 
+  const bldg = activeBldg!;
+
   const {
     mdbFeeders,
     smdbFeeders,

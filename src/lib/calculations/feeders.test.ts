@@ -563,7 +563,7 @@ describe('regression: three-phase classification', () => {
     expect(pumpFeeder!.current).toBeCloseTo(39.69, 1);
     expect(pumpFeeder!.designCurrent).toBeCloseTo(39.69 * 1.25, 1);
     expect(pumpFeeder!.breakerSize).toBeGreaterThanOrEqual(50);
-    expect(pumpFeeder!.warnings.some((w) => w.includes('125% FLA'))).toBe(true);
+    expect(pumpFeeder!.warnings?.some((w) => w.includes('125% FLA'))).toBe(true);
   });
 });
 

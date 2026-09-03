@@ -16,7 +16,7 @@ const proj: Project = {
 function apt(overrides: Partial<FloorItem> = {}): FloorItem {
   return {
     id: 'i1', name: 'Apt A', type: 'APARTMENT',
-    calculatedConnectedLoad: null, calculatedMaxDemand: null, calculatedCurrent: 20,
+    calculatedConnectedLoad: 0, calculatedMaxDemand: 0, calculatedCurrent: 20,
     breakerSize: '16A', cableSize: '16 mm²', voltageDrop: 0.1,
     ...overrides,
   };

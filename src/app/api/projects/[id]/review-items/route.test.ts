@@ -125,4 +125,24 @@ describe("GET & POST /api/projects/[id]/review-items", () => {
     expect(data.error).toMatch(/title is required/i);
     expect(mocks.reviewItemCreate).not.toHaveBeenCalled();
   });
+
+  it("POST: stores screenshotUrl when screenshot is included", async () => {
+    const res = await postReviewItem("proj-1", {
+      pageKey: "sldDesigner",
+      severity: "WARNING",
+      title: "Busbar rating discrepancy",
+      description: "Screenshot of SLD incomer attached",
+      screenshotUrl: "/api/assets/logo:test123screenshot",
+    });
+
+    expect(res.status).toBe(200);
+    expect(mocks.reviewItemCreate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          screenshotUrl: "/api/assets/logo:test123screenshot",
+          pageKey: "sldDesigner",
+        }),
+      })
+    );
+  });
 });

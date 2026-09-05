@@ -11,6 +11,8 @@ import {
   RefreshCw,
   Filter,
   Plus,
+  Maximize2,
+  X,
 } from "lucide-react";
 import { useProject } from "@/context/ProjectContext";
 import { useTranslation } from "@/i18n";
@@ -24,6 +26,7 @@ export function QAReviewTab() {
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
   const [pageFilter, setPageFilter] = useState<string>("ALL");
+  const [zoomImageUrl, setZoomImageUrl] = useState<string | null>(null);
 
   const loadItems = async () => {
     if (!selectedProjectId) return;
@@ -208,6 +211,26 @@ export function QAReviewTab() {
                   </p>
                 )}
 
+                {item.screenshotUrl && (
+                  <div className="mb-3">
+                    <button
+                      type="button"
+                      onClick={() => setZoomImageUrl(item.screenshotUrl!)}
+                      className="group relative block overflow-hidden rounded-lg border border-slate-800 hover:border-orange-500/50 transition-all text-left bg-slate-950/80 max-w-sm"
+                    >
+                      <img
+                        src={item.screenshotUrl}
+                        alt="QA Finding Screenshot"
+                        className="w-full max-h-36 object-cover object-top transition-transform group-hover:scale-[1.02]"
+                      />
+                      <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity text-white text-xs font-semibold gap-1.5">
+                        <Maximize2 size={13} />
+                        <span>{t("qa.viewScreenshot", "View Screenshot")}</span>
+                      </div>
+                    </button>
+                  </div>
+                )}
+
                 <div className="flex items-center justify-between text-[11px] text-slate-500 pt-2 border-t border-slate-800/60">
                   <span>Logged by {item.createdBy?.name || item.createdBy?.username || "QA Reviewer"}</span>
                   <div className="flex items-center gap-3">
@@ -228,6 +251,32 @@ export function QAReviewTab() {
           })
         )}
       </div>
+
+      {/* Full-Screen Screenshot Lightbox Modal */}
+      {zoomImageUrl && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          className="fixed inset-0 z-[60] flex items-center justify-center bg-black/90 backdrop-blur-sm p-4 animate-in fade-in duration-150"
+          onClick={() => setZoomImageUrl(null)}
+        >
+          <div className="relative max-w-5xl max-h-[90vh] flex flex-col items-center">
+            <button
+              onClick={() => setZoomImageUrl(null)}
+              className="absolute -top-10 right-0 p-1.5 text-white/80 hover:text-white bg-slate-800/80 hover:bg-slate-700 rounded-full transition-colors"
+              title={t("common.close", "Close")}
+            >
+              <X size={18} />
+            </button>
+            <img
+              src={zoomImageUrl}
+              alt="Expanded QA Screenshot"
+              className="max-w-full max-h-[85vh] rounded-lg shadow-2xl border border-slate-700 object-contain"
+              onClick={(e) => e.stopPropagation()}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

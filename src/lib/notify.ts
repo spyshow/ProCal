@@ -196,6 +196,7 @@ export async function sendFeedbackNotification(input: {
   projectName?: string;
   errorDetails?: string;
   systemInfo?: string;
+  screenshot?: string;
 }): Promise<SendResult> {
   const to = process.env.LEADS_TO_ADDRESS;
   if (!to) {
@@ -215,6 +216,7 @@ export async function sendFeedbackNotification(input: {
     input.pageUrl ? `Page URL: ${input.pageUrl}` : ``,
     input.projectId ? `Project: ${input.projectName || ""} (ID: ${input.projectId})` : ``,
     input.systemInfo ? `System Info: ${input.systemInfo}` : ``,
+    input.screenshot ? `Screenshot: Attached (visual report included)` : ``,
     ``,
     `User Message:`,
     `------------------------------------------`,

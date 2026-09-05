@@ -155,6 +155,7 @@ export interface ProjectReviewItem {
   severity: "CRITICAL" | "WARNING" | "NOTE";
   title: string;
   description: string;
+  screenshotUrl?: string | null;
   status: "OPEN" | "RESOLVED" | "WONT_FIX";
   createdAt: string;
   resolvedAt?: string | null;

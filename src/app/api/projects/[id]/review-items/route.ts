@@ -47,10 +47,14 @@ export async function POST(
     if (auth instanceof NextResponse) return auth;
 
     const body = await request.json();
-    const { pageKey, severity, title, description } = body;
+    const { pageKey, severity, title, description, screenshotUrl } = body;
 
     const trimmedTitle = (title || "").trim();
     const trimmedDesc = (description || "").trim();
+    const cleanScreenshotUrl =
+      typeof screenshotUrl === "string" && screenshotUrl.trim().length > 0
+        ? screenshotUrl.trim()
+        : null;
 
     if (!trimmedTitle) {
       return NextResponse.json({ error: "Review item title is required" }, { status: 400 });
@@ -67,6 +71,7 @@ export async function POST(
         severity: validSeverity,
         title: trimmedTitle,
         description: trimmedDesc,
+        screenshotUrl: cleanScreenshotUrl,
         status: "OPEN",
       },
       include: {
@@ -88,6 +93,7 @@ export async function POST(
       details: {
         severity: validSeverity,
         title: trimmedTitle,
+        hasScreenshot: Boolean(cleanScreenshotUrl),
       },
     });
 

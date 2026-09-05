@@ -1084,7 +1084,15 @@
     "saveNote": "Save QA Note",
     "saving": "Saving...",
     "qaNotes": "QA Notes",
-    "qaReviewNotes": "QA Review Notes"
+    "qaReviewNotes": "QA Review Notes",
+    "includeScreenshot": "Include a screenshot",
+    "captureScreen": "Capture Screen",
+    "capturing": "Capturing...",
+    "uploadImage": "Upload Image",
+    "removeScreenshot": "Remove",
+    "retake": "Retake",
+    "viewScreenshot": "View Screenshot",
+    "pasteHint": "Tip: You can also paste an image from clipboard (Ctrl + V)"
   },
   "invite": {
     "acceptTitle": "Join Workspace",
@@ -1288,6 +1296,39 @@
       "allowableLimitPerStandard": "Allowable limit per standard:",
       "singleCircuitConfig": "Single circuit configuration."
     }
+  },
+  "feedback": {
+    "title": "Send Feedback to Admin",
+    "subtitle": "Encountered an error or have a suggestion? Let our engineering team know.",
+    "buttonLabel": "Feedback",
+    "tooltip": "Report an Error or Send Feedback to Admin",
+    "close": "Close",
+    "successTitle": "Message Sent Successfully!",
+    "successMessage": "Thank you for helping us improve ProCal! The engineering and administration team has received your report.",
+    "sendAnother": "Send Another Message",
+    "categoryLabel": "Category",
+    "categoryBug": "Error / Bug",
+    "categoryCalc": "Calculation",
+    "categoryFeature": "Feature",
+    "categoryGeneral": "Question",
+    "subjectLabel": "Subject",
+    "subjectPlaceholder": "Brief summary of the issue...",
+    "messageLabel": "Description & Steps to Reproduce",
+    "messagePlaceholder": "Describe what calculation or UI went wrong, the input parameters, and what was expected...",
+    "messagePlaceholderFeature": "Describe the feature, standard, or calculation method you would like to see in ProCal...",
+    "emailLabel": "Your Email (for updates)",
+    "reportingAs": "User",
+    "emailFromProfile": "Email automatically filled from your user account profile",
+    "diagnosticsToggle": "Include System Diagnostics",
+    "includeScreenshot": "Include a screenshot",
+    "captureScreen": "Capture Screen",
+    "capturing": "Capturing...",
+    "uploadImage": "Upload Image",
+    "removeScreenshot": "Remove",
+    "retake": "Retake",
+    "pasteHint": "Tip: You can also paste an image from clipboard (Ctrl + V)",
+    "submit": "Send to Admin",
+    "submitting": "Sending..."
   }
 }
 

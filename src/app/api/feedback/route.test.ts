@@ -105,4 +105,29 @@ describe("POST /api/feedback", () => {
       })
     );
   });
+
+  it("handles feedback submissions with an included screenshot", async () => {
+    const res = await post({
+      category: "Bug Report",
+      subject: "SLD rendering issue",
+      message: "Busbar overlaps breaker icon on high resolution display",
+      screenshot: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
+    });
+
+    expect(res.status).toBe(201);
+    const { sendFeedbackNotification } = await import("@/lib/notify");
+    expect(sendFeedbackNotification).toHaveBeenCalledWith(
+      expect.objectContaining({
+        screenshot: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
+      })
+    );
+
+    expect(create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          message: expect.stringContaining("Screenshot: Attached"),
+        }),
+      })
+    );
+  });
 });

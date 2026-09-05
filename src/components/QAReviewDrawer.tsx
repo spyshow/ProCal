@@ -12,10 +12,19 @@ import {
   Clock,
   Send,
   Trash2,
+  Camera,
+  Upload,
+  Maximize2,
+  Loader2,
 } from "lucide-react";
 import { useProject } from "@/context/ProjectContext";
 import { useTranslation } from "@/i18n";
 import type { ProjectReviewItem } from "@/types";
+import {
+  captureScreen,
+  uploadScreenshot,
+  extractImageFromClipboard,
+} from "@/lib/screenshot";
 
 interface QAReviewDrawerProps {
   pageKey: string;
@@ -36,6 +45,67 @@ export function QAReviewDrawer({ pageKey, pageTitle }: QAReviewDrawerProps) {
   const [severity, setSeverity] = useState<"CRITICAL" | "WARNING" | "NOTE">("WARNING");
   const [formOpen, setFormOpen] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+
+  // Screenshot State
+  const [includeScreenshot, setIncludeScreenshot] = useState(false);
+  const [screenshotDataUrl, setScreenshotDataUrl] = useState<string | null>(null);
+  const [isCapturing, setIsCapturing] = useState(false);
+  const [zoomImageUrl, setZoomImageUrl] = useState<string | null>(null);
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
+
+  // Listen for clipboard paste events when form is open
+  useEffect(() => {
+    if (!formOpen) return;
+    const handlePaste = (e: ClipboardEvent) => {
+      const file = extractImageFromClipboard(e);
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = () => {
+          if (typeof reader.result === "string") {
+            setScreenshotDataUrl(reader.result);
+            setIncludeScreenshot(true);
+          }
+        };
+        reader.readAsDataURL(file);
+      }
+    };
+    window.addEventListener("paste", handlePaste);
+    return () => window.removeEventListener("paste", handlePaste);
+  }, [formOpen]);
+
+  const handleCaptureScreen = async () => {
+    setIsCapturing(true);
+    setMessage(null);
+    try {
+      const dataUrl = await captureScreen();
+      if (dataUrl) {
+        setScreenshotDataUrl(dataUrl);
+        setIncludeScreenshot(true);
+      }
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Failed to capture screen";
+      setMessage(msg);
+    } finally {
+      setIsCapturing(false);
+    }
+  };
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      setMessage("Please select a valid image file (PNG, JPEG, WebP)");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result === "string") {
+        setScreenshotDataUrl(reader.result);
+        setIncludeScreenshot(true);
+      }
+    };
+    reader.readAsDataURL(file);
+  };
 
   const loadItems = async () => {
     if (!selectedProjectId) return;
@@ -66,6 +136,16 @@ export function QAReviewDrawer({ pageKey, pageTitle }: QAReviewDrawerProps) {
     setCreating(true);
     setMessage(null);
     try {
+      let finalScreenshotUrl: string | null = null;
+      if (includeScreenshot && screenshotDataUrl) {
+        try {
+          finalScreenshotUrl = await uploadScreenshot(screenshotDataUrl);
+        } catch (uploadErr) {
+          console.warn("Could not upload screenshot file, fallback to data url:", uploadErr);
+          finalScreenshotUrl = screenshotDataUrl;
+        }
+      }
+
       const res = await fetch(`/api/projects/${selectedProjectId}/review-items`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -74,12 +154,15 @@ export function QAReviewDrawer({ pageKey, pageTitle }: QAReviewDrawerProps) {
           title: title.trim(),
           description: description.trim(),
           severity,
+          screenshotUrl: finalScreenshotUrl,
         }),
       });
 
       if (res.ok) {
         setTitle("");
         setDescription("");
+        setScreenshotDataUrl(null);
+        setIncludeScreenshot(false);
         setFormOpen(false);
         await loadItems();
       } else {
@@ -132,7 +215,8 @@ export function QAReviewDrawer({ pageKey, pageTitle }: QAReviewDrawerProps) {
     <>
       {/* Floating Trigger Button */}
       <div
-        className={`fixed bottom-[66px] z-40 ${
+        data-qa-ignore="true"
+        className={`qa-floating-trigger fixed bottom-[66px] z-40 ${
           isRtl ? "left-5" : "right-5"
         } print:hidden`}
       >
@@ -153,7 +237,10 @@ export function QAReviewDrawer({ pageKey, pageTitle }: QAReviewDrawerProps) {
 
       {/* Slide-out Drawer */}
       {isOpen && (
-        <div className="fixed inset-0 z-50 overflow-hidden bg-black/60 backdrop-blur-xs flex justify-end">
+        <div
+          data-qa-ignore="true"
+          className="qa-drawer-overlay fixed inset-0 z-50 overflow-hidden bg-black/60 backdrop-blur-xs flex justify-end"
+        >
           <div
             className={`w-full max-w-md bg-slate-950 border-s border-slate-800 h-full flex flex-col shadow-2xl animate-in slide-in-from-${
               isRtl ? "left" : "right"
@@ -256,6 +343,119 @@ export function QAReviewDrawer({ pageKey, pageTitle }: QAReviewDrawerProps) {
                     />
                   </div>
 
+                  {/* Include a screenshot section */}
+                  <div className="rounded-xl bg-slate-950/70 border border-slate-800 p-3 space-y-2.5">
+                    <div className="flex items-center justify-between">
+                      <label className="flex items-center gap-2 cursor-pointer text-xs font-medium text-slate-300 select-none">
+                        <input
+                          type="checkbox"
+                          checked={includeScreenshot}
+                          onChange={(e) => {
+                            const checked = e.target.checked;
+                            setIncludeScreenshot(checked);
+                            if (checked && !screenshotDataUrl) {
+                              handleCaptureScreen();
+                            }
+                          }}
+                          className="rounded border-slate-700 text-orange-500 focus:ring-orange-500 bg-slate-900 h-3.5 w-3.5"
+                        />
+                        <span className="flex items-center gap-1.5">
+                          <Camera size={13} className="text-orange-400" />
+                          {t("qa.includeScreenshot", "Include a screenshot")}
+                        </span>
+                      </label>
+
+                      {includeScreenshot && screenshotDataUrl && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setScreenshotDataUrl(null);
+                            setIncludeScreenshot(false);
+                            if (fileInputRef.current) fileInputRef.current.value = "";
+                          }}
+                          className="text-[11px] text-rose-400 hover:text-rose-300 transition-colors"
+                        >
+                          {t("qa.removeScreenshot", "Remove")}
+                        </button>
+                      )}
+                    </div>
+
+                    {includeScreenshot && (
+                      <div className="space-y-2 pt-1 border-t border-slate-800/80">
+                        {screenshotDataUrl ? (
+                          <div className="relative group rounded-lg overflow-hidden border border-slate-700 bg-slate-950">
+                            <img
+                              src={screenshotDataUrl}
+                              alt="Captured Screenshot"
+                              className="w-full max-h-32 object-cover object-top"
+                            />
+                            <div className="absolute inset-0 bg-slate-950/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                              <button
+                                type="button"
+                                onClick={() => setZoomImageUrl(screenshotDataUrl)}
+                                className="px-2 py-1 rounded bg-slate-800/90 text-white text-[11px] font-medium hover:bg-slate-700 flex items-center gap-1"
+                              >
+                                <Maximize2 size={11} />
+                                {t("common.preview", "Preview")}
+                              </button>
+                              <button
+                                type="button"
+                                onClick={handleCaptureScreen}
+                                disabled={isCapturing}
+                                className="px-2 py-1 rounded bg-orange-600/90 text-white text-[11px] font-medium hover:bg-orange-500 flex items-center gap-1"
+                              >
+                                <Camera size={11} />
+                                {isCapturing ? t("qa.capturing", "Capturing...") : t("qa.retake", "Retake")}
+                              </button>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="flex flex-col gap-2">
+                            <div className="grid grid-cols-2 gap-2">
+                              <button
+                                type="button"
+                                onClick={handleCaptureScreen}
+                                disabled={isCapturing}
+                                className="flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-lg border border-slate-700 bg-slate-800/80 hover:bg-slate-700 text-slate-200 text-xs font-medium transition-colors"
+                              >
+                                {isCapturing ? (
+                                  <>
+                                    <Loader2 size={12} className="animate-spin text-orange-400" />
+                                    <span>{t("qa.capturing", "Capturing...")}</span>
+                                  </>
+                                ) : (
+                                  <>
+                                    <Camera size={12} className="text-orange-400" />
+                                    <span>{t("qa.captureScreen", "Capture Screen")}</span>
+                                  </>
+                                )}
+                              </button>
+
+                              <button
+                                type="button"
+                                onClick={() => fileInputRef.current?.click()}
+                                className="flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-lg border border-slate-700 bg-slate-800/80 hover:bg-slate-700 text-slate-200 text-xs font-medium transition-colors"
+                              >
+                                <Upload size={12} className="text-cyan-400" />
+                                <span>{t("qa.uploadImage", "Upload Image")}</span>
+                              </button>
+                            </div>
+                            <input
+                              ref={fileInputRef}
+                              type="file"
+                              accept="image/*"
+                              onChange={handleFileUpload}
+                              className="hidden"
+                            />
+                            <p className="text-[10px] text-slate-500 text-center">
+                              {t("qa.pasteHint", "Tip: You can also paste an image from clipboard (Ctrl + V)")}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+
                   <button
                     type="submit"
                     disabled={creating || !title.trim()}
@@ -337,6 +537,26 @@ export function QAReviewDrawer({ pageKey, pageTitle }: QAReviewDrawerProps) {
                         </p>
                       )}
 
+                      {item.screenshotUrl && (
+                        <div className="my-2">
+                          <button
+                            type="button"
+                            onClick={() => setZoomImageUrl(item.screenshotUrl!)}
+                            className="group relative block w-full overflow-hidden rounded-lg border border-slate-800 hover:border-orange-500/50 transition-all text-left bg-slate-950/80"
+                          >
+                            <img
+                              src={item.screenshotUrl}
+                              alt="Review Note Attachment"
+                              className="w-full max-h-32 object-cover object-top transition-transform group-hover:scale-[1.02]"
+                            />
+                            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity text-white text-[11px] font-semibold gap-1.5">
+                              <Maximize2 size={12} />
+                              <span>{t("qa.viewScreenshot", "View Screenshot")}</span>
+                            </div>
+                          </button>
+                        </div>
+                      )}
+
                       <div className="flex items-center justify-between text-[10px] text-slate-500 pt-2 border-t border-slate-800/60">
                         <span>By {item.createdBy?.name || item.createdBy?.username || "QA"}</span>
                         <div className="flex items-center gap-2">
@@ -357,6 +577,33 @@ export function QAReviewDrawer({ pageKey, pageTitle }: QAReviewDrawerProps) {
                 })
               )}
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Full-Screen Screenshot Lightbox Modal */}
+      {zoomImageUrl && (
+        <div
+          data-qa-ignore="true"
+          role="dialog"
+          aria-modal="true"
+          className="qa-lightbox-modal fixed inset-0 z-[60] flex items-center justify-center bg-black/90 backdrop-blur-sm p-4 animate-in fade-in duration-150"
+          onClick={() => setZoomImageUrl(null)}
+        >
+          <div className="relative max-w-5xl max-h-[90vh] flex flex-col items-center">
+            <button
+              onClick={() => setZoomImageUrl(null)}
+              className="absolute -top-10 right-0 p-1.5 text-white/80 hover:text-white bg-slate-800/80 hover:bg-slate-700 rounded-full transition-colors"
+              title={t("common.close", "Close")}
+            >
+              <X size={18} />
+            </button>
+            <img
+              src={zoomImageUrl}
+              alt="Expanded Screenshot"
+              className="max-w-full max-h-[85vh] rounded-lg shadow-2xl border border-slate-700 object-contain"
+              onClick={(e) => e.stopPropagation()}
+            />
           </div>
         </div>
       )}

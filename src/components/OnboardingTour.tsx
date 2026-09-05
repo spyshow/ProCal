@@ -581,7 +581,7 @@ export function OnboardingTour() {
   const NextIcon = isRtl ? ChevronLeft : ChevronRight;
 
   return (
-    <div className="fixed inset-0 z-50 overflow-hidden pointer-events-auto">
+    <div data-qa-ignore="true" className="qa-tour-overlay fixed inset-0 z-50 overflow-hidden pointer-events-auto">
       {/* Target Spotlight Cutout Box & Shadow */}
       {targetRect ? (
         <div

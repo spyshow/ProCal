@@ -162,8 +162,9 @@ model ProjectReviewItem {
   pageKey     String    // "cableSchedule" | "breakerSchedule" | "calculator" | "sld" | "general"
   severity    String    @default("WARNING") // "CRITICAL" | "WARNING" | "NOTE"
   title       String    // e.g. "Voltage drop exceeds 5% on Feeder L3-Power"
-  description String
-  status      String    @default("OPEN")    // "OPEN" | "RESOLVED" | "WONT_FIX"
+  description   String
+  screenshotUrl String?   // Optional screenshot URL or asset key
+  status        String    @default("OPEN")    // "OPEN" | "RESOLVED" | "WONT_FIX"
   createdAt   DateTime  @default(now())
   resolvedAt  DateTime?
 

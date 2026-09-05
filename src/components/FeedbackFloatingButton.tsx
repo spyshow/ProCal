@@ -17,10 +17,18 @@ import {
   Monitor,
   FolderGit2,
   FileCode2,
+  Camera,
+  Upload,
+  Maximize2,
 } from 'lucide-react';
 import { useTranslation } from '@/i18n';
 import { useUser } from '@/context/UserContext';
 import { useProject } from '@/context/ProjectContext';
+import {
+  captureScreen,
+  uploadScreenshot,
+  extractImageFromClipboard,
+} from '@/lib/screenshot';
 
 type FeedbackCategory = 'BUG' | 'CALCULATION' | 'FEATURE' | 'GENERAL';
 
@@ -40,6 +48,13 @@ export function FeedbackFloatingButton() {
   const [errorDetails, setErrorDetails] = useState('');
   const [includeDiagnostics, setIncludeDiagnostics] = useState(true);
   const [showDiagnosticsDetail, setShowDiagnosticsDetail] = useState(false);
+
+  // Screenshot State
+  const [includeScreenshot, setIncludeScreenshot] = useState(false);
+  const [screenshotDataUrl, setScreenshotDataUrl] = useState<string | null>(null);
+  const [isCapturing, setIsCapturing] = useState(false);
+  const [zoomImageUrl, setZoomImageUrl] = useState<string | null>(null);
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -79,6 +94,60 @@ export function FeedbackFloatingButton() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isOpen]);
 
+  // Listen for clipboard paste when feedback modal is open
+  useEffect(() => {
+    if (!isOpen) return;
+    const handlePaste = (e: ClipboardEvent) => {
+      const file = extractImageFromClipboard(e);
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = () => {
+          if (typeof reader.result === 'string') {
+            setScreenshotDataUrl(reader.result);
+            setIncludeScreenshot(true);
+          }
+        };
+        reader.readAsDataURL(file);
+      }
+    };
+    window.addEventListener('paste', handlePaste);
+    return () => window.removeEventListener('paste', handlePaste);
+  }, [isOpen]);
+
+  const handleCaptureScreen = async () => {
+    setIsCapturing(true);
+    setErrorMessage(null);
+    try {
+      const dataUrl = await captureScreen();
+      if (dataUrl) {
+        setScreenshotDataUrl(dataUrl);
+        setIncludeScreenshot(true);
+      }
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Failed to capture screen';
+      setErrorMessage(msg);
+    } finally {
+      setIsCapturing(false);
+    }
+  };
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      setErrorMessage('Please select a valid image file');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result === 'string') {
+        setScreenshotDataUrl(reader.result);
+        setIncludeScreenshot(true);
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
   const handleOpen = () => {
     setIsOpen(true);
     setErrorMessage(null);
@@ -92,6 +161,8 @@ export function FeedbackFloatingButton() {
       setSubject('');
       setMessage('');
       setErrorDetails('');
+      setScreenshotDataUrl(null);
+      setIncludeScreenshot(false);
     }
   };
 
@@ -113,6 +184,19 @@ export function FeedbackFloatingButton() {
     };
 
     try {
+      let finalScreenshot: string | undefined = undefined;
+      if (includeScreenshot && screenshotDataUrl) {
+        if (user) {
+          try {
+            finalScreenshot = await uploadScreenshot(screenshotDataUrl);
+          } catch {
+            finalScreenshot = screenshotDataUrl;
+          }
+        } else {
+          finalScreenshot = screenshotDataUrl;
+        }
+      }
+
       const payload = {
         category: categoryLabels[category],
         subject: subject.trim(),
@@ -123,6 +207,7 @@ export function FeedbackFloatingButton() {
         projectName: includeDiagnostics && project?.name ? project.name : undefined,
         errorDetails: errorDetails.trim() || undefined,
         systemInfo: includeDiagnostics ? systemInfo : undefined,
+        screenshot: finalScreenshot,
       };
 
       const res = await fetch('/api/feedback', {
@@ -180,37 +265,28 @@ export function FeedbackFloatingButton() {
     <>
       {/* Floating Action Button (FAB) */}
       <aside
+        data-qa-ignore="true"
         aria-label={t('feedback.title', 'Send Feedback to Admin')}
-        className={`fixed bottom-5 ${isRtl ? 'left-5' : 'right-5'} z-40 print:hidden`}
+        className={`qa-feedback-trigger fixed bottom-5 ${isRtl ? 'left-5' : 'right-5'} z-40 print:hidden`}
       >
         <button
-          type="button"
           onClick={handleOpen}
-          className="group flex items-center justify-center gap-2 w-[142px] h-[40px] px-3.5 py-2 rounded-full bg-gradient-to-r from-orange-600 via-orange-500 to-amber-600 hover:from-orange-500 hover:to-amber-500 text-white font-semibold shadow-lg shadow-orange-950/50 hover:shadow-orange-500/30 border border-orange-400/40 transition-all duration-200 transform hover:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:ring-offset-2 focus:ring-offset-slate-950 text-xs"
+          className="group flex items-center justify-center gap-2 w-[142px] h-[40px] px-3.5 py-2 rounded-full bg-slate-900/95 hover:bg-slate-800 text-slate-200 border border-slate-700/80 shadow-lg shadow-black/40 hover:shadow-orange-500/10 hover:border-orange-500/50 transition-all duration-200 transform hover:scale-105 active:scale-95 text-xs font-semibold backdrop-blur-md focus:outline-none focus:ring-2 focus:ring-orange-400"
           title={t('feedback.tooltip', 'Report an Error or Send Feedback to Admin')}
-          aria-haspopup="dialog"
-          aria-expanded={isOpen}
         >
-          <div className="relative flex items-center justify-center shrink-0">
-            <MessageSquareWarning size={17} className="text-white group-hover:rotate-6 transition-transform" />
-            <span className="absolute -top-1 -right-1 flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-200 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-300"></span>
-            </span>
-          </div>
-          <span className="text-xs tracking-wide whitespace-nowrap font-medium">
-            {t('feedback.buttonLabel', 'Feedback')}
-          </span>
+          <MessageSquareWarning size={17} className="text-orange-400 group-hover:scale-110 transition-transform shrink-0" />
+          <span className="whitespace-nowrap font-medium text-xs">{t('feedback.buttonLabel', 'Feedback')}</span>
         </button>
       </aside>
 
       {/* Feedback & Error Reporting Modal Dialog */}
       {isOpen && (
         <div
+          data-qa-ignore="true"
           role="dialog"
           aria-modal="true"
           aria-labelledby="feedback-dialog-title"
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm overflow-y-auto animate-in fade-in duration-150"
+          className="qa-feedback-overlay fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm overflow-y-auto animate-in fade-in duration-150"
           onClick={(e) => {
             if (e.target === e.currentTarget) handleClose();
           }}
@@ -382,8 +458,8 @@ export function FeedbackFloatingButton() {
                   )}
                 </div>
 
-                {/* Diagnostics Toggle & Collapsible info */}
-                <div className="rounded-xl bg-slate-950/60 border border-slate-800 p-3 space-y-2">
+                {/* Diagnostics & Screenshot Options */}
+                <div className="rounded-xl bg-slate-950/60 border border-slate-800 p-3 space-y-3">
                   <div className="flex items-center justify-between">
                     <label className="flex items-center gap-2 cursor-pointer text-xs font-medium text-slate-300">
                       <input
@@ -424,6 +500,119 @@ export function FeedbackFloatingButton() {
                       </div>
                     </div>
                   )}
+
+                  {/* Include a screenshot toggle */}
+                  <div className="pt-2 border-t border-slate-800/80 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <label className="flex items-center gap-2 cursor-pointer text-xs font-medium text-slate-300 select-none">
+                        <input
+                          type="checkbox"
+                          checked={includeScreenshot}
+                          onChange={(e) => {
+                            const checked = e.target.checked;
+                            setIncludeScreenshot(checked);
+                            if (checked && !screenshotDataUrl) {
+                              handleCaptureScreen();
+                            }
+                          }}
+                          className="rounded border-slate-700 text-orange-500 focus:ring-orange-500 bg-slate-900 h-3.5 w-3.5"
+                        />
+                        <span className="flex items-center gap-1.5">
+                          <Camera size={13} className="text-orange-400" />
+                          {t('feedback.includeScreenshot', 'Include a screenshot')}
+                        </span>
+                      </label>
+
+                      {includeScreenshot && screenshotDataUrl && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setScreenshotDataUrl(null);
+                            setIncludeScreenshot(false);
+                            if (fileInputRef.current) fileInputRef.current.value = '';
+                          }}
+                          className="text-[11px] text-rose-400 hover:text-rose-300 transition-colors"
+                        >
+                          {t('feedback.removeScreenshot', 'Remove')}
+                        </button>
+                      )}
+                    </div>
+
+                    {includeScreenshot && (
+                      <div className="pt-1">
+                        {screenshotDataUrl ? (
+                          <div className="relative group rounded-lg overflow-hidden border border-slate-700 bg-slate-950">
+                            <img
+                              src={screenshotDataUrl}
+                              alt="Captured Screenshot"
+                              className="w-full max-h-32 object-cover object-top"
+                            />
+                            <div className="absolute inset-0 bg-slate-950/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                              <button
+                                type="button"
+                                onClick={() => setZoomImageUrl(screenshotDataUrl)}
+                                className="px-2 py-1 rounded bg-slate-800/90 text-white text-[11px] font-medium hover:bg-slate-700 flex items-center gap-1"
+                              >
+                                <Maximize2 size={11} />
+                                {t('common.preview', 'Preview')}
+                              </button>
+                              <button
+                                type="button"
+                                onClick={handleCaptureScreen}
+                                disabled={isCapturing}
+                                className="px-2 py-1 rounded bg-orange-600/90 text-white text-[11px] font-medium hover:bg-orange-500 flex items-center gap-1"
+                              >
+                                <Camera size={11} />
+                                {isCapturing ? t('feedback.capturing', 'Capturing...') : t('feedback.retake', 'Retake')}
+                              </button>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="flex flex-col gap-2">
+                            <div className="grid grid-cols-2 gap-2">
+                              <button
+                                type="button"
+                                onClick={handleCaptureScreen}
+                                disabled={isCapturing}
+                                className="flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-lg border border-slate-700 bg-slate-800/80 hover:bg-slate-700 text-slate-200 text-xs font-medium transition-colors"
+                              >
+                                {isCapturing ? (
+                                  <>
+                                    <Loader2 size={12} className="animate-spin text-orange-400" />
+                                    <span>{t('feedback.capturing', 'Capturing...')}</span>
+                                  </>
+                                ) : (
+                                  <>
+                                    <Camera size={12} className="text-orange-400" />
+                                    <span>{t('feedback.captureScreen', 'Capture Screen')}</span>
+                                  </>
+                                )}
+                              </button>
+
+                              <button
+                                type="button"
+                                onClick={() => fileInputRef.current?.click()}
+                                className="flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-lg border border-slate-700 bg-slate-800/80 hover:bg-slate-700 text-slate-200 text-xs font-medium transition-colors"
+                              >
+                                <Upload size={12} className="text-cyan-400" />
+                                <span>{t('feedback.uploadImage', 'Upload Image')}</span>
+                              </button>
+                            </div>
+                            <input
+                              ref={fileInputRef}
+                              type="file"
+                              accept="image/*"
+                              onChange={handleFileUpload}
+                              className="hidden"
+                            />
+                            <p className="text-[10px] text-slate-500 text-center">
+                              {t('feedback.pasteHint', 'Tip: You can also paste an image from clipboard (Ctrl + V)')}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 {/* Submit button bar */}
@@ -456,6 +645,33 @@ export function FeedbackFloatingButton() {
                 </div>
               </form>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Full-Screen Screenshot Lightbox Modal */}
+      {zoomImageUrl && (
+        <div
+          data-qa-ignore="true"
+          role="dialog"
+          aria-modal="true"
+          className="qa-lightbox-modal fixed inset-0 z-[60] flex items-center justify-center bg-black/90 backdrop-blur-sm p-4 animate-in fade-in duration-150"
+          onClick={() => setZoomImageUrl(null)}
+        >
+          <div className="relative max-w-5xl max-h-[90vh] flex flex-col items-center">
+            <button
+              onClick={() => setZoomImageUrl(null)}
+              className="absolute -top-10 right-0 p-1.5 text-white/80 hover:text-white bg-slate-800/80 hover:bg-slate-700 rounded-full transition-colors"
+              title={t('common.close', 'Close')}
+            >
+              <X size={18} />
+            </button>
+            <img
+              src={zoomImageUrl}
+              alt="Expanded Screenshot"
+              className="max-w-full max-h-[85vh] rounded-lg shadow-2xl border border-slate-700 object-contain"
+              onClick={(e) => e.stopPropagation()}
+            />
           </div>
         </div>
       )}

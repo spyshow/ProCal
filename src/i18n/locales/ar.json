@@ -1085,7 +1085,15 @@
     "saveNote": "حفظ الملاحظة",
     "saving": "جاري الحفظ...",
     "qaNotes": "ملاحظات التدقيق",
-    "qaReviewNotes": "ملاحظات وتوصيات التدقيق"
+    "qaReviewNotes": "ملاحظات وتوصيات التدقيق",
+    "includeScreenshot": "تضمين لقطة شاشة",
+    "captureScreen": "التقاط الشاشة",
+    "capturing": "جاري الالتقاط...",
+    "uploadImage": "رفع صورة",
+    "removeScreenshot": "إزالة",
+    "retake": "إعادة الالتقاط",
+    "viewScreenshot": "عرض لقطة الشاشة",
+    "pasteHint": "تلميح: يمكنك أيضاً لصق صورة من الحافظة مباشرة (Ctrl + V)"
   },
   "invite": {
     "acceptTitle": "الانضمام إلى مساحة العمل",
@@ -1289,5 +1297,38 @@
       "allowableLimitPerStandard": "الحد الأقصى المسموح به وفق المعيار:",
       "singleCircuitConfig": "تهيئة دارة أحادية."
     }
+  },
+  "feedback": {
+    "title": "إرسال ملاحظات للإدارة",
+    "subtitle": "هل واجهت خطأً أو لديك اقتراح هندسي؟ أبلغ فريقنا للمتابعة.",
+    "buttonLabel": "الملاحظات",
+    "tooltip": "الإبلاغ عن خطأ أو إرسال ملاحظات للإدارة",
+    "close": "إغلاق",
+    "successTitle": "تم إرسال الرسالة بنجاح!",
+    "successMessage": "شكراً لمساعدتنا في تحسين ProCal! لقد استلم فريق الهندسة والإدارة تقريرك.",
+    "sendAnother": "إرسال رسالة أخرى",
+    "categoryLabel": "التصنيف",
+    "categoryBug": "خطأ / عطل برمجي",
+    "categoryCalc": "فارق في الحسابات",
+    "categoryFeature": "طلب ميزة جديدة",
+    "categoryGeneral": "سؤال أو استفسار",
+    "subjectLabel": "الموضوع",
+    "subjectPlaceholder": "ملخص موجز للملاحظة...",
+    "messageLabel": "الوصف وخطوات إعادة تكرار المشكلة",
+    "messagePlaceholder": "صف الخلل الحسابي أو الواجهة، المدخلات، والنتيجة المتوقعة...",
+    "messagePlaceholderFeature": "صف الميزة أو المعيار القياسي أو طريقة الحساب التي ترغب بإضافتها...",
+    "emailLabel": "بريدك الإلكتروني (للمتابعة)",
+    "reportingAs": "المستخدم",
+    "emailFromProfile": "تمت تعبئة البريد تلقائياً من ملف حسابك",
+    "diagnosticsToggle": "تضمين معلومات النظام والتشخيص",
+    "includeScreenshot": "تضمين لقطة شاشة",
+    "captureScreen": "التقاط الشاشة",
+    "capturing": "جاري الالتقاط...",
+    "uploadImage": "رفع صورة",
+    "removeScreenshot": "إزالة",
+    "retake": "إعادة الالتقاط",
+    "pasteHint": "تلميح: يمكنك أيضاً لصق صورة من الحافظة مباشرة (Ctrl + V)",
+    "submit": "إرسال للإدارة",
+    "submitting": "جاري الإرسال..."
   }
 }

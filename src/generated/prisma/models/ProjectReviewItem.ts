@@ -32,6 +32,7 @@ export type ProjectReviewItemMinAggregateOutputType = {
   severity: string | null
   title: string | null
   description: string | null
+  screenshotUrl: string | null
   status: string | null
   createdAt: Date | null
   resolvedAt: Date | null
@@ -45,6 +46,7 @@ export type ProjectReviewItemMaxAggregateOutputType = {
   severity: string | null
   title: string | null
   description: string | null
+  screenshotUrl: string | null
   status: string | null
   createdAt: Date | null
   resolvedAt: Date | null
@@ -58,6 +60,7 @@ export type ProjectReviewItemCountAggregateOutputType = {
   severity: number
   title: number
   description: number
+  screenshotUrl: number
   status: number
   createdAt: number
   resolvedAt: number
@@ -73,6 +76,7 @@ export type ProjectReviewItemMinAggregateInputType = {
   severity?: true
   title?: true
   description?: true
+  screenshotUrl?: true
   status?: true
   createdAt?: true
   resolvedAt?: true
@@ -86,6 +90,7 @@ export type ProjectReviewItemMaxAggregateInputType = {
   severity?: true
   title?: true
   description?: true
+  screenshotUrl?: true
   status?: true
   createdAt?: true
   resolvedAt?: true
@@ -99,6 +104,7 @@ export type ProjectReviewItemCountAggregateInputType = {
   severity?: true
   title?: true
   description?: true
+  screenshotUrl?: true
   status?: true
   createdAt?: true
   resolvedAt?: true
@@ -185,6 +191,7 @@ export type ProjectReviewItemGroupByOutputType = {
   severity: string
   title: string
   description: string
+  screenshotUrl: string | null
   status: string
   createdAt: Date
   resolvedAt: Date | null
@@ -219,6 +226,7 @@ export type ProjectReviewItemWhereInput = {
   severity?: Prisma.StringFilter<"ProjectReviewItem"> | string
   title?: Prisma.StringFilter<"ProjectReviewItem"> | string
   description?: Prisma.StringFilter<"ProjectReviewItem"> | string
+  screenshotUrl?: Prisma.StringNullableFilter<"ProjectReviewItem"> | string | null
   status?: Prisma.StringFilter<"ProjectReviewItem"> | string
   createdAt?: Prisma.DateTimeFilter<"ProjectReviewItem"> | Date | string
   resolvedAt?: Prisma.DateTimeNullableFilter<"ProjectReviewItem"> | Date | string | null
@@ -234,6 +242,7 @@ export type ProjectReviewItemOrderByWithRelationInput = {
   severity?: Prisma.SortOrder
   title?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  screenshotUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   resolvedAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -252,6 +261,7 @@ export type ProjectReviewItemWhereUniqueInput = Prisma.AtLeast<{
   severity?: Prisma.StringFilter<"ProjectReviewItem"> | string
   title?: Prisma.StringFilter<"ProjectReviewItem"> | string
   description?: Prisma.StringFilter<"ProjectReviewItem"> | string
+  screenshotUrl?: Prisma.StringNullableFilter<"ProjectReviewItem"> | string | null
   status?: Prisma.StringFilter<"ProjectReviewItem"> | string
   createdAt?: Prisma.DateTimeFilter<"ProjectReviewItem"> | Date | string
   resolvedAt?: Prisma.DateTimeNullableFilter<"ProjectReviewItem"> | Date | string | null
@@ -267,6 +277,7 @@ export type ProjectReviewItemOrderByWithAggregationInput = {
   severity?: Prisma.SortOrder
   title?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  screenshotUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   resolvedAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -286,6 +297,7 @@ export type ProjectReviewItemScalarWhereWithAggregatesInput = {
   severity?: Prisma.StringWithAggregatesFilter<"ProjectReviewItem"> | string
   title?: Prisma.StringWithAggregatesFilter<"ProjectReviewItem"> | string
   description?: Prisma.StringWithAggregatesFilter<"ProjectReviewItem"> | string
+  screenshotUrl?: Prisma.StringNullableWithAggregatesFilter<"ProjectReviewItem"> | string | null
   status?: Prisma.StringWithAggregatesFilter<"ProjectReviewItem"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"ProjectReviewItem"> | Date | string
   resolvedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"ProjectReviewItem"> | Date | string | null
@@ -297,6 +309,7 @@ export type ProjectReviewItemCreateInput = {
   severity?: string
   title: string
   description: string
+  screenshotUrl?: string | null
   status?: string
   createdAt?: Date | string
   resolvedAt?: Date | string | null
@@ -312,6 +325,7 @@ export type ProjectReviewItemUncheckedCreateInput = {
   severity?: string
   title: string
   description: string
+  screenshotUrl?: string | null
   status?: string
   createdAt?: Date | string
   resolvedAt?: Date | string | null
@@ -323,6 +337,7 @@ export type ProjectReviewItemUpdateInput = {
   severity?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  screenshotUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -338,6 +353,7 @@ export type ProjectReviewItemUncheckedUpdateInput = {
   severity?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  screenshotUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -351,6 +367,7 @@ export type ProjectReviewItemCreateManyInput = {
   severity?: string
   title: string
   description: string
+  screenshotUrl?: string | null
   status?: string
   createdAt?: Date | string
   resolvedAt?: Date | string | null
@@ -362,6 +379,7 @@ export type ProjectReviewItemUpdateManyMutationInput = {
   severity?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  screenshotUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -375,6 +393,7 @@ export type ProjectReviewItemUncheckedUpdateManyInput = {
   severity?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  screenshotUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -398,6 +417,7 @@ export type ProjectReviewItemCountOrderByAggregateInput = {
   severity?: Prisma.SortOrder
   title?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  screenshotUrl?: Prisma.SortOrder
   status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   resolvedAt?: Prisma.SortOrder
@@ -411,6 +431,7 @@ export type ProjectReviewItemMaxOrderByAggregateInput = {
   severity?: Prisma.SortOrder
   title?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  screenshotUrl?: Prisma.SortOrder
   status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   resolvedAt?: Prisma.SortOrder
@@ -424,6 +445,7 @@ export type ProjectReviewItemMinOrderByAggregateInput = {
   severity?: Prisma.SortOrder
   title?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  screenshotUrl?: Prisma.SortOrder
   status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   resolvedAt?: Prisma.SortOrder
@@ -519,6 +541,7 @@ export type ProjectReviewItemCreateWithoutCreatedByInput = {
   severity?: string
   title: string
   description: string
+  screenshotUrl?: string | null
   status?: string
   createdAt?: Date | string
   resolvedAt?: Date | string | null
@@ -532,6 +555,7 @@ export type ProjectReviewItemUncheckedCreateWithoutCreatedByInput = {
   severity?: string
   title: string
   description: string
+  screenshotUrl?: string | null
   status?: string
   createdAt?: Date | string
   resolvedAt?: Date | string | null
@@ -574,6 +598,7 @@ export type ProjectReviewItemScalarWhereInput = {
   severity?: Prisma.StringFilter<"ProjectReviewItem"> | string
   title?: Prisma.StringFilter<"ProjectReviewItem"> | string
   description?: Prisma.StringFilter<"ProjectReviewItem"> | string
+  screenshotUrl?: Prisma.StringNullableFilter<"ProjectReviewItem"> | string | null
   status?: Prisma.StringFilter<"ProjectReviewItem"> | string
   createdAt?: Prisma.DateTimeFilter<"ProjectReviewItem"> | Date | string
   resolvedAt?: Prisma.DateTimeNullableFilter<"ProjectReviewItem"> | Date | string | null
@@ -585,6 +610,7 @@ export type ProjectReviewItemCreateWithoutProjectInput = {
   severity?: string
   title: string
   description: string
+  screenshotUrl?: string | null
   status?: string
   createdAt?: Date | string
   resolvedAt?: Date | string | null
@@ -598,6 +624,7 @@ export type ProjectReviewItemUncheckedCreateWithoutProjectInput = {
   severity?: string
   title: string
   description: string
+  screenshotUrl?: string | null
   status?: string
   createdAt?: Date | string
   resolvedAt?: Date | string | null
@@ -636,6 +663,7 @@ export type ProjectReviewItemCreateManyCreatedByInput = {
   severity?: string
   title: string
   description: string
+  screenshotUrl?: string | null
   status?: string
   createdAt?: Date | string
   resolvedAt?: Date | string | null
@@ -647,6 +675,7 @@ export type ProjectReviewItemUpdateWithoutCreatedByInput = {
   severity?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  screenshotUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -660,6 +689,7 @@ export type ProjectReviewItemUncheckedUpdateWithoutCreatedByInput = {
   severity?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  screenshotUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -672,6 +702,7 @@ export type ProjectReviewItemUncheckedUpdateManyWithoutCreatedByInput = {
   severity?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  screenshotUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -684,6 +715,7 @@ export type ProjectReviewItemCreateManyProjectInput = {
   severity?: string
   title: string
   description: string
+  screenshotUrl?: string | null
   status?: string
   createdAt?: Date | string
   resolvedAt?: Date | string | null
@@ -695,6 +727,7 @@ export type ProjectReviewItemUpdateWithoutProjectInput = {
   severity?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  screenshotUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -708,6 +741,7 @@ export type ProjectReviewItemUncheckedUpdateWithoutProjectInput = {
   severity?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  screenshotUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -720,6 +754,7 @@ export type ProjectReviewItemUncheckedUpdateManyWithoutProjectInput = {
   severity?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  screenshotUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -735,6 +770,7 @@ export type ProjectReviewItemSelect<ExtArgs extends runtime.Types.Extensions.Int
   severity?: boolean
   title?: boolean
   description?: boolean
+  screenshotUrl?: boolean
   status?: boolean
   createdAt?: boolean
   resolvedAt?: boolean
@@ -750,6 +786,7 @@ export type ProjectReviewItemSelectCreateManyAndReturn<ExtArgs extends runtime.T
   severity?: boolean
   title?: boolean
   description?: boolean
+  screenshotUrl?: boolean
   status?: boolean
   createdAt?: boolean
   resolvedAt?: boolean
@@ -765,6 +802,7 @@ export type ProjectReviewItemSelectUpdateManyAndReturn<ExtArgs extends runtime.T
   severity?: boolean
   title?: boolean
   description?: boolean
+  screenshotUrl?: boolean
   status?: boolean
   createdAt?: boolean
   resolvedAt?: boolean
@@ -780,12 +818,13 @@ export type ProjectReviewItemSelectScalar = {
   severity?: boolean
   title?: boolean
   description?: boolean
+  screenshotUrl?: boolean
   status?: boolean
   createdAt?: boolean
   resolvedAt?: boolean
 }
 
-export type ProjectReviewItemOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "projectId" | "createdById" | "pageKey" | "severity" | "title" | "description" | "status" | "createdAt" | "resolvedAt", ExtArgs["result"]["projectReviewItem"]>
+export type ProjectReviewItemOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "projectId" | "createdById" | "pageKey" | "severity" | "title" | "description" | "screenshotUrl" | "status" | "createdAt" | "resolvedAt", ExtArgs["result"]["projectReviewItem"]>
 export type ProjectReviewItemInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   project?: boolean | Prisma.ProjectDefaultArgs<ExtArgs>
   createdBy?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -813,6 +852,7 @@ export type $ProjectReviewItemPayload<ExtArgs extends runtime.Types.Extensions.I
     severity: string
     title: string
     description: string
+    screenshotUrl: string | null
     status: string
     createdAt: Date
     resolvedAt: Date | null
@@ -1248,6 +1288,7 @@ export interface ProjectReviewItemFieldRefs {
   readonly severity: Prisma.FieldRef<"ProjectReviewItem", 'String'>
   readonly title: Prisma.FieldRef<"ProjectReviewItem", 'String'>
   readonly description: Prisma.FieldRef<"ProjectReviewItem", 'String'>
+  readonly screenshotUrl: Prisma.FieldRef<"ProjectReviewItem", 'String'>
   readonly status: Prisma.FieldRef<"ProjectReviewItem", 'String'>
   readonly createdAt: Prisma.FieldRef<"ProjectReviewItem", 'DateTime'>
   readonly resolvedAt: Prisma.FieldRef<"ProjectReviewItem", 'DateTime'>

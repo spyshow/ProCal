@@ -1068,7 +1068,15 @@
     "saveNote": "Salva Nota QA",
     "saving": "Salvataggio in corso...",
     "qaNotes": "Note di Revisione",
-    "qaReviewNotes": "Note di Revisione & Lista di Controllo"
+    "qaReviewNotes": "Note di Revisione & Lista di Controllo",
+    "includeScreenshot": "Includi screenshot",
+    "captureScreen": "Cattura Schermata",
+    "capturing": "Cattura in corso...",
+    "uploadImage": "Carica Immagine",
+    "removeScreenshot": "Rimuovi",
+    "retake": "Riprova",
+    "viewScreenshot": "Visualizza Screenshot",
+    "pasteHint": "Suggerimento: puoi anche incollare un'immagine dagli appunti (Ctrl + V)"
   },
   "invite": {
     "acceptTitle": "Unisciti all'Area di Lavoro",

@@ -27,6 +27,7 @@ export async function POST(request: Request) {
     email: clientEmail = "",
     errorDetails = "",
     systemInfo = "",
+    screenshot = "",
   } = (body || {}) as {
     category?: string;
     subject?: string;
@@ -37,6 +38,7 @@ export async function POST(request: Request) {
     email?: string;
     errorDetails?: string;
     systemInfo?: string;
+    screenshot?: string;
   };
 
   if (typeof message !== "string" || message.trim().length < 3) {
@@ -50,6 +52,7 @@ export async function POST(request: Request) {
   const trimmedMessage = message.trim().slice(0, 4000);
   const trimmedSubject = typeof subject === "string" ? subject.trim().slice(0, 200) : "";
   const trimmedCategory = typeof category === "string" ? category.trim().slice(0, 50) : "Bug Report";
+  const trimmedScreenshot = typeof screenshot === "string" && screenshot.length > 0 ? screenshot : undefined;
 
   // Take the email address directly from authenticated user info
   const replyEmail =
@@ -71,6 +74,7 @@ export async function POST(request: Request) {
     projectName: typeof projectName === "string" ? projectName.slice(0, 200) : undefined,
     errorDetails: typeof errorDetails === "string" ? errorDetails.slice(0, 4000) : undefined,
     systemInfo: typeof systemInfo === "string" ? systemInfo.slice(0, 1000) : undefined,
+    screenshot: trimmedScreenshot,
   });
 
   // 2. Persist in database under contact requests if user is authenticated or email provided
@@ -79,6 +83,7 @@ export async function POST(request: Request) {
       `[FEEDBACK / ${trimmedCategory.toUpperCase()}] ${trimmedSubject ? trimmedSubject + " — " : ""}${trimmedMessage}`,
       pageUrl ? `📍 URL: ${pageUrl}` : "",
       projectName ? `📁 Project: ${projectName} (${projectId})` : "",
+      trimmedScreenshot ? `📷 Screenshot: Attached (${trimmedScreenshot.startsWith("data:") ? "Image Data" : trimmedScreenshot})` : "",
       errorDetails ? `⚠️ Technical Error:\n${errorDetails}` : "",
       systemInfo ? `💻 Diagnostics: ${systemInfo}` : "",
     ]

@@ -208,6 +208,7 @@ export const ProjectReviewItemScalarFieldEnum = {
   severity: 'severity',
   title: 'title',
   description: 'description',
+  screenshotUrl: 'screenshotUrl',
   status: 'status',
   createdAt: 'createdAt',
   resolvedAt: 'resolvedAt'

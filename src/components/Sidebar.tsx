@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useProject } from "@/context/ProjectContext";
 import { useUser } from "@/context/UserContext";
 import { useSidebar } from "@/context/SidebarContext";
@@ -19,11 +19,15 @@ import {
   Settings,
   LogOut,
   ChevronDown,
+  ChevronRight,
   Building2,
   PanelLeftClose,
   PanelLeftOpen,
   HelpCircle,
   Lock,
+  Users,
+  ClipboardCheck,
+  History,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -287,11 +291,46 @@ function MarqueeText({
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const currentTab = searchParams ? searchParams.get('tab') : null;
   const { user: currentUser } = useUser();
   const { isCollapsed, toggleSidebar } = useSidebar();
   const { selectedProject, currentMemberRole, canView } = useProject();
   const { t, isRtl } = useTranslation();
   const [loggingOut, setLoggingOut] = useState(false);
+
+  // Active Project Collapsible Sub-Navigation State
+  const [projectSubnavOpen, setProjectSubnavOpen] = useState(true);
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('procal-project-subnav-open');
+      if (saved !== null) {
+        setProjectSubnavOpen(saved === 'true');
+      }
+    } catch {}
+  }, []);
+
+  // Auto-expand subnav when user navigates to the active project page
+  useEffect(() => {
+    if (selectedProject && pathname.startsWith(`/projects/${selectedProject.id}`)) {
+      setProjectSubnavOpen(true);
+    }
+  }, [pathname, selectedProject]);
+
+  const toggleProjectSubnav = (e?: React.MouseEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    setProjectSubnavOpen((prev) => {
+      const next = !prev;
+      try {
+        localStorage.setItem('procal-project-subnav-open', String(next));
+      } catch {}
+      return next;
+    });
+  };
 
   const handleLogout = async () => {
     setLoggingOut(true);
@@ -335,7 +374,7 @@ export default function Sidebar() {
               "text-[9px] font-bold uppercase tracking-wider text-orange-400 bg-orange-500/10 border border-orange-500/20 px-1.5 py-0.5 rounded",
               isRtl ? "mr-auto" : "ml-auto"
             )}>
-              v1.2
+              v1.3.2
             </span>
           </>
         )}
@@ -448,47 +487,136 @@ export default function Sidebar() {
                 )}
               </Link>
 
-              {/* Selected Project Quick Navigation button under Projects */}
+              {/* Selected Project Collapsible Sub-Navigation */}
               {isProjectsItem && selectedProject && (
-                <Link
-                  href={`/projects/${selectedProject.id}`}
-                  title={isCollapsed ? `${selectedProject.name} (${t('projects.buildingsAndSettings', 'Buildings & Settings')})` : selectedProject.name}
-                  data-tour="selected-project-nav"
-                  className={cn(
-                    "group flex items-center rounded-lg text-xs font-medium transition-all duration-200 outline-none relative overflow-hidden",
-                    isCollapsed
-                      ? "justify-center p-2 mx-auto my-0.5 w-10 h-8"
-                      : isRtl
-                      ? "mr-3 pr-2.5 pl-2 py-1.5 gap-2 my-0.5 border-r-2 border-slate-800/80 hover:border-orange-500/40"
-                      : "ml-3 pl-2.5 pr-2 py-1.5 gap-2 my-0.5 border-l-2 border-slate-800/80 hover:border-orange-500/40",
-                    isSelectedProjectActive
-                      ? isRtl
-                        ? "bg-gradient-to-l from-orange-600/20 to-amber-600/10 text-orange-200 border-r-2 border-orange-500 shadow-[0_0_12px_rgba(234,88,12,0.12)] font-semibold"
-                        : "bg-gradient-to-r from-orange-600/20 to-amber-600/10 text-orange-200 border-l-2 border-orange-500 shadow-[0_0_12px_rgba(234,88,12,0.12)] font-semibold"
-                      : "text-slate-400 hover:text-slate-100 hover:bg-slate-900/70"
-                  )}
-                  aria-current={isSelectedProjectActive ? "page" : undefined}
-                >
-                  <Building2
-                    size={14}
+                <div className="my-1" data-tour="selected-project-nav">
+                  {/* Project Header Row */}
+                  <div
                     className={cn(
-                      "flex-shrink-0 transition-colors",
-                      isSelectedProjectActive ? "text-orange-400" : "text-slate-500 group-hover:text-orange-400/80"
+                      "group flex items-center justify-between rounded-lg text-xs font-medium transition-all duration-200 outline-none relative overflow-hidden",
+                      isCollapsed
+                        ? "justify-center p-2 mx-auto w-10 h-8"
+                        : isRtl
+                        ? "mr-2.5 pr-2.5 pl-1.5 py-1.5 gap-1.5 border-r-2"
+                        : "ml-2.5 pl-2.5 pr-1.5 py-1.5 gap-1.5 border-l-2",
+                      isSelectedProjectActive
+                        ? isRtl
+                          ? "bg-slate-900/90 text-orange-200 border-orange-500 shadow-[0_0_12px_rgba(234,88,12,0.12)] font-semibold"
+                          : "bg-slate-900/90 text-orange-200 border-orange-500 shadow-[0_0_12px_rgba(234,88,12,0.12)] font-semibold"
+                        : "border-slate-800/80 text-slate-400 hover:text-slate-100 hover:bg-slate-900/70"
                     )}
-                  />
-                  {!isCollapsed && (
-                    <MarqueeText
-                      text={selectedProject.name}
-                      className={cn(
-                        "text-xs",
-                        isSelectedProjectActive ? "text-orange-200 font-semibold" : "text-slate-300 group-hover:text-white"
+                  >
+                    <Link
+                      href={`/projects/${selectedProject.id}`}
+                      title={isCollapsed ? `${selectedProject.name} (${t('projects.buildingsAndSettings', 'Buildings & Settings')})` : selectedProject.name}
+                      className="flex items-center gap-2 flex-1 min-w-0"
+                    >
+                      <Building2
+                        size={14}
+                        className={cn(
+                          "flex-shrink-0 transition-colors",
+                          isSelectedProjectActive ? "text-orange-400" : "text-slate-500 group-hover:text-orange-400/80"
+                        )}
+                      />
+                      {!isCollapsed && (
+                        <MarqueeText
+                          text={selectedProject.name}
+                          className={cn(
+                            "text-xs",
+                            isSelectedProjectActive ? "text-orange-200 font-semibold" : "text-slate-300 group-hover:text-white"
+                          )}
+                        />
                       )}
-                    />
+                    </Link>
+
+                    {!isCollapsed && (
+                      <button
+                        type="button"
+                        onClick={toggleProjectSubnav}
+                        title={projectSubnavOpen ? t('common.collapse', 'Collapse') : t('common.expand', 'Expand')}
+                        className="p-1 rounded hover:bg-slate-800/80 text-slate-400 hover:text-orange-300 transition-colors shrink-0"
+                        aria-expanded={projectSubnavOpen}
+                      >
+                        <ChevronDown
+                          size={13}
+                          className={cn(
+                            "transition-transform duration-200",
+                            !projectSubnavOpen && (isRtl ? "rotate-90" : "-rotate-90")
+                          )}
+                        />
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Collapsible Sub-Items */}
+                  {!isCollapsed && projectSubnavOpen && (
+                    <div
+                      className={cn(
+                        "space-y-0.5 mt-1 pt-1 pb-0.5",
+                        isRtl
+                          ? "mr-4 pr-2.5 border-r border-slate-800/80"
+                          : "ml-4 pl-2.5 border-l border-slate-800/80"
+                      )}
+                    >
+                      {[
+                        {
+                          id: 'buildings',
+                          label: t('projects.buildings', 'Buildings & Specs'),
+                          href: `/projects/${selectedProject.id}`,
+                          icon: Building2,
+                          isActive: isSelectedProjectActive && (!currentTab || currentTab === 'buildings' || currentTab === 'templates' || currentTab === 'loads'),
+                        },
+                        {
+                          id: 'team',
+                          label: t('settings.team', 'Project Team'),
+                          href: `/projects/${selectedProject.id}?tab=team`,
+                          icon: Users,
+                          isActive: isSelectedProjectActive && currentTab === 'team',
+                        },
+                        {
+                          id: 'qa',
+                          label: t('settings.qa', 'QA & Compliance'),
+                          href: `/projects/${selectedProject.id}?tab=qa`,
+                          icon: ClipboardCheck,
+                          isActive: isSelectedProjectActive && (currentTab === 'qa' || currentTab === 'review'),
+                        },
+                        {
+                          id: 'activity',
+                          label: t('settings.activity', 'Activity Log'),
+                          href: `/projects/${selectedProject.id}?tab=activity`,
+                          icon: History,
+                          isActive: isSelectedProjectActive && (currentTab === 'activity' || currentTab === 'audit'),
+                        },
+                      ].map((sub) => {
+                        const SubIcon = sub.icon;
+                        return (
+                          <Link
+                            key={sub.id}
+                            href={sub.href}
+                            className={cn(
+                              "flex items-center gap-2 px-2.5 py-1.5 rounded-md text-[11px] font-medium transition-all duration-150 group/sub",
+                              sub.isActive
+                                ? "bg-orange-500/15 text-orange-300 font-semibold shadow-sm"
+                                : "text-slate-400 hover:text-slate-100 hover:bg-slate-900/60"
+                            )}
+                          >
+                            <SubIcon
+                              size={13}
+                              className={cn(
+                                "flex-shrink-0 transition-colors",
+                                sub.isActive ? "text-orange-400" : "text-slate-500 group-hover/sub:text-slate-300"
+                              )}
+                            />
+                            <span className="truncate flex-1">{sub.label}</span>
+                            {sub.isActive && (
+                              <span className="w-1.5 h-1.5 rounded-full bg-orange-400 shadow-[0_0_6px_rgba(234,88,12,0.8)] flex-shrink-0" />
+                            )}
+                          </Link>
+                        );
+                      })}
+                    </div>
                   )}
-                  {!isCollapsed && isSelectedProjectActive && (
-                    <span className="w-1.5 h-1.5 rounded-full bg-orange-400 shadow-[0_0_6px_rgba(234,88,12,0.9)] flex-shrink-0" />
-                  )}
-                </Link>
+                </div>
               )}
             </div>
           );

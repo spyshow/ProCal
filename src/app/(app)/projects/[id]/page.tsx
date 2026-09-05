@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars, react-hooks/set-state-in-effect, @next/next/no-img-element */
 
 import { useEffect, useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { useProject } from '@/context/ProjectContext';
 import { useTranslation } from '@/i18n';
 import {
@@ -18,11 +18,17 @@ import {
   Shield,
   Sparkles,
   RefreshCw,
+  Users,
+  ClipboardCheck,
+  History,
 } from 'lucide-react';
 import { RoomList } from '@/components/RoomList';
 import InfoTooltip from '@/components/InfoTooltip';
 import { PageSkeleton } from '@/components/ui/skeleton';
 import type { RoomData } from '@/components/RoomInput';
+import { ProjectTeamTab } from '@/components/settings/ProjectTeamTab';
+import { QAReviewTab } from '@/components/settings/QAReviewTab';
+import { ActivityLogTab } from '@/components/settings/ActivityLogTab';
 
 interface FloorDesign {
   id: string;
@@ -101,8 +107,43 @@ export default function ProjectDetailPage() {
     }
     return null;
   });
+  const searchParams = useSearchParams();
   const [loading, setLoading] = useState(() => !(selectedProject && selectedProject.id === projectId));
-  const [activeTab, setActiveTab] = useState<'buildings' | 'templates' | 'loads'>('buildings');
+
+  type ProjectDetailTab = 'buildings' | 'templates' | 'loads' | 'team' | 'qa' | 'activity';
+  const [activeTab, setActiveTab] = useState<ProjectDetailTab>(() => {
+    const tabParam = searchParams?.get('tab');
+    if (tabParam === 'team') return 'team';
+    if (tabParam === 'qa' || tabParam === 'review') return 'qa';
+    if (tabParam === 'activity' || tabParam === 'audit') return 'activity';
+    if (tabParam === 'templates') return 'templates';
+    if (tabParam === 'loads') return 'loads';
+    return 'buildings';
+  });
+
+  // Sync tab if URL query changes
+  useEffect(() => {
+    const tabParam = searchParams?.get('tab');
+    if (tabParam === 'team') setActiveTab('team');
+    else if (tabParam === 'qa' || tabParam === 'review') setActiveTab('qa');
+    else if (tabParam === 'activity' || tabParam === 'audit') setActiveTab('activity');
+    else if (tabParam === 'templates') setActiveTab('templates');
+    else if (tabParam === 'loads') setActiveTab('loads');
+    else if (tabParam === 'buildings') setActiveTab('buildings');
+  }, [searchParams]);
+
+  const handleTabChange = (key: ProjectDetailTab) => {
+    setActiveTab(key);
+    if (typeof window !== 'undefined') {
+      const url = new URL(window.location.href);
+      if (key === 'buildings') {
+        url.searchParams.delete('tab');
+      } else {
+        url.searchParams.set('tab', key);
+      }
+      window.history.replaceState(null, '', url.toString());
+    }
+  };
   const [expandedBuilding, setExpandedBuilding] = useState<string | null>(null);
   const [showNewBuilding, setShowNewBuilding] = useState(false);
   const [editingProject, setEditingProject] = useState(false);
@@ -656,18 +697,21 @@ export default function ProjectDetailPage() {
       )}
 
       {/* Tabs */}
-      <div className="flex gap-1 border-b border-gray-800">
+      <div className="flex gap-1 border-b border-gray-800 overflow-x-auto custom-scrollbar">
         {[
           { key: 'buildings' as const, label: t('projects.buildings', 'Buildings'), icon: Building2 },
           { key: 'templates' as const, label: t('projects.apartmentTemplates', 'Apartment Templates'), icon: Home },
           { key: 'loads' as const, label: t('projects.loadLibrary', 'Load Library'), icon: Zap },
+          { key: 'team' as const, label: t('settings.team', 'Project Team'), icon: Users },
+          { key: 'qa' as const, label: t('settings.qa', 'QA & Compliance'), icon: ClipboardCheck },
+          { key: 'activity' as const, label: t('settings.activity', 'Activity Log'), icon: History },
         ].map(({ key, label, icon: Icon }) => (
           <button
             key={key}
-            onClick={() => setActiveTab(key)}
-            className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${
+            onClick={() => handleTabChange(key)}
+            className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
               activeTab === key
-                ? 'border-orange-500 text-orange-400'
+                ? 'border-orange-500 text-orange-400 font-semibold'
                 : 'border-transparent text-gray-500 hover:text-gray-300'
             }`}
           >
@@ -1327,6 +1371,27 @@ export default function ProjectDetailPage() {
       {activeTab === 'loads' && (
         <div className="space-y-3">
           <LoadLibrary projectId={projectId} onRefresh={loadProject} loads={project.loadLibraryItems} isReadOnly={isReadOnly} />
+        </div>
+      )}
+
+      {/* Project Team Tab */}
+      {activeTab === 'team' && (
+        <div className="space-y-4">
+          <ProjectTeamTab projectId={projectId} />
+        </div>
+      )}
+
+      {/* QA & Compliance Tab */}
+      {activeTab === 'qa' && (
+        <div className="space-y-4">
+          <QAReviewTab projectId={projectId} />
+        </div>
+      )}
+
+      {/* Activity Log Tab */}
+      {activeTab === 'activity' && (
+        <div className="space-y-4">
+          <ActivityLogTab projectId={projectId} />
         </div>
       )}
     </div>

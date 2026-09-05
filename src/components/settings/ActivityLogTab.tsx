@@ -23,8 +23,13 @@ import { useProject } from "@/context/ProjectContext";
 import { useTranslation } from "@/i18n";
 import type { ProjectAuditLog } from "@/types";
 
-export function ActivityLogTab() {
-  const { selectedProjectId, selectedProject } = useProject();
+interface ActivityLogTabProps {
+  projectId?: string;
+}
+
+export function ActivityLogTab({ projectId: propProjectId }: ActivityLogTabProps = {}) {
+  const { selectedProjectId: ctxProjectId, selectedProject } = useProject();
+  const selectedProjectId = propProjectId || ctxProjectId;
   const { t } = useTranslation();
 
   const [logs, setLogs] = useState<ProjectAuditLog[]>([]);

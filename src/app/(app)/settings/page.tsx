@@ -2,6 +2,7 @@
 
 /* eslint-disable react-hooks/immutability, react-hooks/set-state-in-effect, @next/next/no-img-element */
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import {
   Settings,
   Save,
@@ -17,24 +18,19 @@ import {
   Lock,
   CheckCircle2,
   AlertCircle,
-  Users,
-  History,
-  ClipboardCheck,
 } from 'lucide-react';
 import { COUNTRY_DEFAULTS, ROOM_TYPES, CountryConfig, AcSizingRule } from '@/lib/country-defaults';
 import { useTranslation, SupportedLanguage } from '@/i18n';
 import { useUser } from '@/context/UserContext';
 import { useProject } from '@/context/ProjectContext';
-import { ProjectTeamTab } from '@/components/settings/ProjectTeamTab';
-import { ActivityLogTab } from '@/components/settings/ActivityLogTab';
-import { QAReviewTab } from '@/components/settings/QAReviewTab';
 
-type SettingsTab = 'engineering' | 'company' | 'team' | 'activity' | 'qa' | 'language' | 'account';
+type SettingsTab = 'engineering' | 'company' | 'language' | 'account';
 
 export default function SettingsPage() {
+  const router = useRouter();
   const { t, language, setLanguage, isRtl } = useTranslation();
   const { user: currentUser, refreshUser } = useUser();
-  const { isQA, canEdit, currentMemberRole } = useProject();
+  const { isQA, canEdit, currentMemberRole, selectedProjectId } = useProject();
   const isReadOnly = isQA || !canEdit('calculator') || currentMemberRole === 'QA';
 
   const [settings, setSettings] = useState<Record<string, CountryConfig>>({});
@@ -87,19 +83,16 @@ export default function SettingsPage() {
         setActiveTab('account');
       } else if (tabParam === 'company') {
         setActiveTab('company');
-      } else if (tabParam === 'team') {
-        setActiveTab('team');
-      } else if (tabParam === 'activity' || tabParam === 'audit') {
-        setActiveTab('activity');
-      } else if (tabParam === 'qa' || tabParam === 'review') {
-        setActiveTab('qa');
+      } else if (tabParam === 'team' || tabParam === 'activity' || tabParam === 'audit' || tabParam === 'qa' || tabParam === 'review') {
+        const targetTab = tabParam === 'audit' ? 'activity' : tabParam === 'review' ? 'qa' : tabParam;
+        router.replace(selectedProjectId ? `/projects/${selectedProjectId}?tab=${targetTab}` : '/projects');
       } else if (tabParam === 'language') {
         setActiveTab('language');
       } else if (tabParam === 'engineering') {
         setActiveTab('engineering');
       }
     }
-  }, []);
+  }, [selectedProjectId, router]);
 
   useEffect(() => {
     const saved = localStorage.getItem('procal-vd-limits');
@@ -413,9 +406,6 @@ export default function SettingsPage() {
         {([
           { key: 'engineering' as const, label: t('settings.engineering', 'Engineering Defaults'), icon: Settings },
           { key: 'company' as const, label: t('settings.company', 'Company & Branding'), icon: Building2 },
-          { key: 'team' as const, label: t('settings.team', 'Project Team'), icon: Users },
-          { key: 'activity' as const, label: t('settings.activity', 'Activity Log'), icon: History },
-          { key: 'qa' as const, label: t('settings.qa', 'QA & Compliance'), icon: ClipboardCheck },
           { key: 'language' as const, label: t('common.language', 'Language & RTL'), icon: Globe },
           { key: 'account' as const, label: t('settings.account', 'Account & Security'), icon: Shield },
         ]).map(({ key, label, icon: Icon }) => (
@@ -1084,15 +1074,6 @@ export default function SettingsPage() {
           </div>
         </div>
       )}
-
-      {/* Project Team Tab */}
-      {activeTab === 'team' && <ProjectTeamTab />}
-
-      {/* Activity Log Tab */}
-      {activeTab === 'activity' && <ActivityLogTab />}
-
-      {/* QA & Compliance Tab */}
-      {activeTab === 'qa' && <QAReviewTab />}
     </div>
   );
 }

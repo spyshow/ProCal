@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import Link from "next/link";
 import {
   ClipboardCheck,
   Plus,
@@ -16,6 +17,7 @@ import {
   Upload,
   Maximize2,
   Loader2,
+  ExternalLink,
 } from "lucide-react";
 import { useProject } from "@/context/ProjectContext";
 import { useTranslation } from "@/i18n";
@@ -254,9 +256,22 @@ export function QAReviewDrawer({ pageKey, pageTitle }: QAReviewDrawerProps) {
                   <h3 className="text-sm font-bold text-white">
                     {t("qa.drawerTitle", "QA Compliance & Punch List")}
                   </h3>
-                  <p className="text-[11px] text-slate-400">
-                    {pageTitle || pageKey} • {openCount} {t("qa.open", "open notes")}
-                  </p>
+                  <div className="text-[11px] text-slate-400 flex items-center gap-1.5 flex-wrap">
+                    <span>{pageTitle || pageKey} • {openCount} {t("qa.open", "open notes")}</span>
+                    {selectedProjectId && (
+                      <>
+                        <span>•</span>
+                        <Link
+                          href={`/projects/${selectedProjectId}?tab=qa`}
+                          onClick={() => setIsOpen(false)}
+                          className="text-[10px] text-orange-400 hover:text-orange-300 font-medium hover:underline inline-flex items-center gap-0.5"
+                        >
+                          {t("qa.viewAllProjectNotes", "Full Project QA")}
+                          <ExternalLink size={9} />
+                        </Link>
+                      </>
+                    )}
+                  </div>
                 </div>
               </div>
               <button

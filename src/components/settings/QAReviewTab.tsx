@@ -18,8 +18,13 @@ import { useProject } from "@/context/ProjectContext";
 import { useTranslation } from "@/i18n";
 import type { ProjectReviewItem } from "@/types";
 
-export function QAReviewTab() {
-  const { selectedProjectId, selectedProject, isProjectManager, isQA } = useProject();
+interface QAReviewTabProps {
+  projectId?: string;
+}
+
+export function QAReviewTab({ projectId: propProjectId }: QAReviewTabProps = {}) {
+  const { selectedProjectId: ctxProjectId, selectedProject, isProjectManager, isQA } = useProject();
+  const selectedProjectId = propProjectId || ctxProjectId;
   const { t } = useTranslation();
 
   const [items, setItems] = useState<ProjectReviewItem[]>([]);

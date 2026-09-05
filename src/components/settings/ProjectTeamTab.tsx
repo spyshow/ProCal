@@ -31,8 +31,13 @@ import {
 } from "@/lib/project-permissions";
 import type { ProjectMember, ProjectInvite } from "@/types";
 
-export function ProjectTeamTab() {
-  const { selectedProjectId, selectedProject, isProjectManager } = useProject();
+interface ProjectTeamTabProps {
+  projectId?: string;
+}
+
+export function ProjectTeamTab({ projectId: propProjectId }: ProjectTeamTabProps = {}) {
+  const { selectedProjectId: ctxProjectId, selectedProject, isProjectManager } = useProject();
+  const selectedProjectId = propProjectId || ctxProjectId;
   const { t } = useTranslation();
 
   const [members, setMembers] = useState<ProjectMember[]>([]);

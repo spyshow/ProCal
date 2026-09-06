@@ -1,7 +1,9 @@
 {
   "common": {
     "appName": "ProCal",
-    "appTagline": "Electrical Calculation Suite & Distribution Board Designer",
+    "appTagline": "Low-voltage Electrical design, Solved",
+    "appSloganPrefix": "Low-voltage Electrical design, ",
+    "appSloganHighlight": "Solved",
     "save": "Save",
     "saved": "Saved",
     "saving": "Saving...",

@@ -139,9 +139,9 @@ export default function LoginPage() {
               {t('common.appName', 'ProCal')}
             </h1>
 
-            {/* Subtitle */}
-            <p className="mt-2 text-sm font-medium tracking-widest text-gray-400 uppercase text-center">
-              {t('common.appTagline', 'Electrical Load & MDB Designer')}
+            {/* Slogan */}
+            <p className="mt-2 text-sm font-medium tracking-normal text-gray-300 text-center">
+              Low-voltage Electrical design, <span className="text-orange-400 font-bold">Solved</span>
             </p>
 
             {/* Divider */}
@@ -269,11 +269,10 @@ export default function LoginPage() {
           <LanguageSelector variant="footer" />
         </div>
 
-        {/* ── Copyright ── */}
         <p className="mt-4 text-center text-xs text-gray-600 select-none">
           &copy; 2026&nbsp;
           <span className="text-gray-500 font-medium">ProCal</span>
-          &nbsp;&mdash;&nbsp;{t('common.appTagline', 'Professional Electrical Engineering Software.')}
+          &nbsp;&mdash;&nbsp;Low-voltage Electrical design, <span className="text-orange-400 font-medium">Solved</span>
         </p>
       </div>
 

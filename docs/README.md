@@ -1,4 +1,6 @@
-# ProCal documentation
+# ProCal Documentation — Low-voltage Electrical design, <span style="color: #ea580c;">Solved</span>
+
+> **Low-voltage Electrical design, <span style="color: #ea580c;">Solved</span>.**
 
 ProCal is a multi-tenant electrical-design application: load calculations, per-phase
 balancing, cable/breaker sizing, short-circuit and protection coordination studies,

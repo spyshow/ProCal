@@ -129,7 +129,7 @@ export default function ReportHeader({
             {subtitle || "ELECTRICAL DESIGN & SCHEDULE PACKAGE"}
           </p>
           <p className="text-[9px] text-slate-400">
-            Prepared in accordance with IEC 60364 &amp; BS 7671 Electrical Regulations
+            ProCal — Low-voltage Electrical design, Solved | IEC 60364 &amp; BS 7671 / NEC Compliant
           </p>
         </div>
         <div className="text-right text-[10px] space-y-0.5 font-mono text-slate-300 flex flex-col items-end">

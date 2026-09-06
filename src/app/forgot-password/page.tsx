@@ -200,7 +200,7 @@ export default function ForgotPasswordPage() {
         <p className="mt-4 text-center text-xs text-gray-600 select-none">
           &copy; 2026&nbsp;
           <span className="text-gray-500 font-medium">ProCal</span>
-          &nbsp;&mdash;&nbsp;{t('common.appTagline', 'Professional Electrical Engineering Software.')}
+          &nbsp;&mdash;&nbsp;Low-voltage Electrical design, <span className="text-orange-400 font-medium">Solved</span>
         </p>
       </div>
     </div>

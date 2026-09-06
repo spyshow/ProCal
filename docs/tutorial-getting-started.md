@@ -1,5 +1,7 @@
 # Tutorial: your first ProCal project
 
+> **Low-voltage Electrical design, <span style="color: #ea580c;">Solved</span>.**
+
 A learning-oriented walk: install → run → create a project (IEC or NEC/NEMA) → add a building
 with an apartment template → put apartments on floors → balance phases & inspect calculation traces → size
 panels → draw the SLD → run a coordination study → view the riser → export PDF submittals & Excel workbooks → snapshot revisions & review QA items. You'll learn the shape of the app

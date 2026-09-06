@@ -19,9 +19,9 @@ const rubikArabic = Rubik({
 });
 
 export const metadata: Metadata = {
-  title: "ProCal – Electrical Load & MDB Designer",
+  title: "ProCal – Low-voltage Electrical design, Solved",
   description:
-    "Professional electrical engineering software for residential and commercial building load calculations, MDB panel design, cable sizing, and protection coordination.",
+    "ProCal — Low-voltage Electrical design, Solved. Precision electrical engineering software for residential and commercial building load calculations, MDB panel design, cable sizing, and protection coordination.",
   icons: {
     icon: [
       { url: "/icon.svg", type: "image/svg+xml" },

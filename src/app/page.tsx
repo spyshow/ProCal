@@ -111,8 +111,9 @@ export default function Home() {
                   PRO
                 </span>
               </span>
-              <p className="text-[10px] text-slate-400 tracking-wide font-mono uppercase">
-                {t('common.appTagline', 'Electrical Calculation Suite')}
+              <p className="text-[10.5px] text-slate-300 tracking-tight font-medium flex items-center gap-1">
+                <span>Low-voltage Electrical design,</span>
+                <span className="text-orange-400 font-bold">Solved</span>
               </p>
             </div>
           </Link>
@@ -158,7 +159,7 @@ export default function Home() {
         >
           <motion.div variants={heroItemVariants} className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-orange-500/10 border border-orange-500/30 text-orange-300 text-xs font-medium mb-8 shadow-[0_0_15px_rgba(234,88,12,0.2)]">
             <Sparkles className="w-3.5 h-3.5 text-orange-400 animate-pulse" />
-            <span>{t('landing.heroBadge', 'Next-Generation Load Calculation & Electrical Design System')}</span>
+            <span>Low-voltage Electrical design, <span className="text-orange-400 font-bold">Solved</span> &mdash; {t('landing.heroBadge', 'Next-Generation Load Calculation & Electrical Design System')}</span>
           </motion.div>
 
           <motion.h1
@@ -378,7 +379,7 @@ export default function Home() {
             <div className="w-6 h-6 rounded bg-orange-600/20 border border-orange-500/40 flex items-center justify-center text-orange-400 font-bold">
               ⚡
             </div>
-            <span>{t('common.appName', 'ProCal')} &copy; {new Date().getFullYear()} &mdash; {t('common.appTagline', 'Electrical Calculation Platform')}</span>
+            <span>{t('common.appName', 'ProCal')} &copy; {new Date().getFullYear()} &mdash; Low-voltage Electrical design, <span className="text-orange-400 font-medium">Solved</span></span>
           </div>
 
           <div className="flex items-center gap-6">

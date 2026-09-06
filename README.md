@@ -1,6 +1,8 @@
-# ProCal — Electrical Load & MDB Designer
+# ProCal — Low-voltage Electrical design, <span style="color: #ea580c;">Solved</span>
 
-ProCal is a multi-tenant web application for electrical engineers to design low-voltage power-distribution systems for residential and commercial buildings. It runs load calculations, sizes cables and breakers, performs per-phase balancing, checks protection coordination, draws single-line and riser diagrams, provides step-by-step mathematical traces with standard citations, and exports printable engineering schedules and multi-tab Excel workbooks — all against an equipment catalog of real ABB / Schneider breakers.
+> **Low-voltage Electrical design, <span style="color: #ea580c;">Solved</span>.**
+>
+> ProCal is a multi-tenant web application for electrical engineers to design low-voltage power-distribution systems for residential and commercial buildings. It runs load calculations, sizes cables and breakers, performs per-phase balancing, checks protection coordination, draws single-line and riser diagrams, provides step-by-step mathematical traces with standard citations, and exports printable engineering schedules and multi-tab Excel workbooks — all against an equipment catalog of real ABB / Schneider breakers.
 
 Built for the workflow: **project → buildings → floors → loads → panels → schedules → report**. Standards referenced throughout: **IEC 60364-5-52** (cable sizing, ampacity, installation methods, voltage drop), **NEC / NFPA 70** (standard ampere ratings & branch circuit limits), **IEC 60909** (short-circuit currents), **IEC 60076** (transformers), **ANSI/IEEE C57.12** (transformer impedance), and **IEC/EN 50160 / NEMA** (phase unbalance).
 

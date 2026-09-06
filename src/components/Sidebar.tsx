@@ -366,17 +366,26 @@ export default function Sidebar() {
           <LogoMark />
         </div>
         {!isCollapsed && (
-          <>
-            <span className="text-xl font-bold tracking-tight text-white flex items-center gap-1">
-              {t('common.appName', 'ProCal')}
-            </span>
-            <span className={cn(
-              "text-[9px] font-bold uppercase tracking-wider text-orange-400 bg-orange-500/10 border border-orange-500/20 px-1.5 py-0.5 rounded",
-              isRtl ? "mr-auto" : "ml-auto"
-            )}>
-              v1.3.2
-            </span>
-          </>
+          <div className="flex flex-col min-w-0 flex-1">
+            <div className="flex items-center justify-between">
+              <span className="text-xl font-bold tracking-tight text-white flex items-center gap-1">
+                {t('common.appName', 'ProCal')}
+              </span>
+              <span className={cn(
+                "text-[9px] font-bold uppercase tracking-wider text-orange-400 bg-orange-500/10 border border-orange-500/20 px-1.5 py-0.5 rounded",
+                isRtl ? "mr-auto" : "ml-auto"
+              )}>
+                v1.3.3
+              </span>
+            </div>
+            <p className="text-[9.5px] text-slate-400 tracking-tight font-medium truncate mt-0.5">
+              {isRtl ? (
+                <>تصميم كهربائي للجهد المنخفض، <span className="text-orange-400 font-semibold">محلول</span></>
+              ) : (
+                <>Low-voltage Electrical design, <span className="text-orange-400 font-semibold">Solved</span></>
+              )}
+            </p>
+          </div>
         )}
       </div>
 

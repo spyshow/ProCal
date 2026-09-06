@@ -1,7 +1,9 @@
 {
   "common": {
     "appName": "ProCal",
-    "appTagline": "Elektrotechnische Berechnungs- & Verteilerplanungssoftware",
+    "appTagline": "Niederspannungs-Elektroplanung, Gelöst",
+    "appSloganPrefix": "Niederspannungs-Elektroplanung, ",
+    "appSloganHighlight": "Gelöst",
     "save": "Speichern",
     "saved": "Gespeichert",
     "saving": "Wird gespeichert...",

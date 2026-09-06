@@ -101,7 +101,10 @@ export default function SignupPage() {
             <h1 className="text-4xl font-extrabold tracking-tight text-white leading-none">
               {t('common.appName', 'ProCal')}
             </h1>
-            <p className="mt-2 text-sm font-medium tracking-widest text-gray-400 uppercase text-center">
+            <p className="mt-2 text-sm font-medium tracking-normal text-gray-300 text-center">
+              Low-voltage Electrical design, <span className="text-orange-400 font-bold">Solved</span>
+            </p>
+            <p className="mt-1 text-xs font-medium tracking-widest text-gray-400 uppercase text-center">
               {t('auth.signupTitle', 'Create Your Account')}
             </p>
             <div className="mt-6 w-full border-t border-gray-700/60" />
@@ -245,7 +248,7 @@ export default function SignupPage() {
         <p className="mt-4 text-center text-xs text-gray-600 select-none">
           &copy; 2026&nbsp;
           <span className="text-gray-500 font-medium">ProCal</span>
-          &nbsp;&mdash;&nbsp;{t('common.appTagline', 'Professional Electrical Engineering Software.')}
+          &nbsp;&mdash;&nbsp;Low-voltage Electrical design, <span className="text-orange-400 font-medium">Solved</span>
         </p>
       </div>
     </div>

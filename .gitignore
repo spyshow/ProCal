@@ -73,3 +73,6 @@ claude_memory.md
 !.agents/rules/
 !.agents/skills/
 !.agents/workflows/
+
+# graphify cache
+graphify-out/cache/

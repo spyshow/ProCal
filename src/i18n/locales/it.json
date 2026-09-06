@@ -1,7 +1,9 @@
 {
   "common": {
     "appName": "ProCal",
-    "appTagline": "Suite di Calcolo Elettrotecnico & Progettazione Quadri di Distribuzione",
+    "appTagline": "Progettazione elettrica a bassa tensione, Risolta",
+    "appSloganPrefix": "Progettazione elettrica a bassa tensione, ",
+    "appSloganHighlight": "Risolta",
     "save": "Salva",
     "saved": "Salvato",
     "saving": "Salvataggio in corso...",

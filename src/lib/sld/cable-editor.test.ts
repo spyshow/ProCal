@@ -192,4 +192,26 @@ describe('Cable recalculation', () => {
     expect(result.changed).toBe(true);
     expect(result.isOverloaded).toBe(false);
   });
+
+  it('sizes cable to cover assignedBreakerSize (Ib <= In <= Iz)', () => {
+    // Current is low (10A), but assigned breaker is 63A.
+    // Cable must be sized for at least 63A, not just 10A.
+    const result = recalculateCable({
+      current: 10,
+      isThreePhase: true,
+      lengthMeters: 20,
+      existingCableSize: 2.5,
+      powerFactor: 0.85,
+      systemVoltage: 400,
+      maxVoltageDropPercent: 5,
+      method: 'C',
+      insulation: 'XLPE',
+      assignedBreakerSize: 63,
+    });
+
+    expect(result.breakerSize).toBe(63);
+    expect(result.cableSize).toBeGreaterThanOrEqual(10);
+    expect(result.ampacity).toBeGreaterThanOrEqual(63);
+    expect(result.changed).toBe(true);
+  });
 });

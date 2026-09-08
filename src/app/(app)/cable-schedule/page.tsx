@@ -19,7 +19,7 @@ import {
 } from '@/lib/calculations/cables';
 import { calculateThreePhaseCurrent } from '@/lib/calculations/loads';
 import { codeOf } from '@/lib/calculations/codes';
-import { isThreePhaseForItem } from '@/lib/calculations/feeders';
+import { isThreePhaseForItem, computeFeeders, createFindBreaker } from '@/lib/calculations/feeders';
 import { phaseBalance } from '@/lib/calculations/phaseBalance';
 import MethodSelector from '@/components/MethodSelector';
 import { useTranslation } from '@/i18n';
@@ -194,8 +194,11 @@ export default function CableSchedulePage() {
 
     // Build cable schedule from project data with pre-calculated VD
     const cableList: CableEntry[] = [];
+    const findBreaker = createFindBreaker([], {}, project.preferredManufacturer);
     for (const bldg of project.buildings) {
       if (selectedBuilding && bldg.id !== selectedBuilding) continue;
+
+      const feedersData = computeFeeders(bldg as any, project as any, findBreaker);
 
       // 0. MDB Main Incomer Cable (Transformer to Main Switchboard)
       const allBldgItems = [
@@ -211,9 +214,9 @@ export default function CableSchedulePage() {
 
       if (incomerCurrent > 0) {
         const parsedIncomer = parseCableSize(bldg.incomerCableSize);
-        const cableSizeNum = parsedIncomer?.size ?? 300;
-        const runs = parsedIncomer?.runs ?? 1;
-        const formattedSize = parsedIncomer?.formatted ?? `${cableSizeNum} mm²`;
+        const cableSizeNum = parsedIncomer?.size ?? feedersData.mainCableSize;
+        const runs = parsedIncomer?.runs ?? feedersData.mainParallelRuns;
+        const formattedSize = parsedIncomer?.formatted ?? (runs > 1 ? `${runs} \u00d7 ${cableSizeNum} mm\u00b2` : `${cableSizeNum} mm\u00b2`);
         const length = bldg.incomerCableLength ?? 15;
         const method = bldg.incomerInstallMethod || defaultMethod;
         const insulation = (bldg.incomerCableInsulation as 'PVC' | 'XLPE') || defaultInsulation;
@@ -227,6 +230,7 @@ export default function CableSchedulePage() {
           lengthMeters: length,
           existingCableSize: cableSizeNum,
           existingRuns: runs,
+          assignedBreakerSize: feedersData.mainBreakerIn,
           powerFactor: project.powerFactor || 0.85,
           systemVoltage: systemVoltageBase(project.voltage || 400, true),
           maxVoltageDropPercent: limits.power,
@@ -269,7 +273,7 @@ export default function CableSchedulePage() {
           ampacity: result.ampacity,
           singleAmpacity: result.singleAmpacity,
           isOverloaded: result.isOverloaded,
-          breakerSize: result.breakerSize,
+          breakerSize: feedersData.mainBreakerIn ?? result.breakerSize,
           kind: 'incomer',
         });
       }
@@ -281,10 +285,13 @@ export default function CableSchedulePage() {
           const letter = String.fromCharCode(97 + idx);
           const loadTag = `F${fd.floorNumber}-${letter.toUpperCase()}`;
           const cableTag = `Wf${fd.floorNumber}${letter}`;
+          const matchingFeeder = fd.hasFloorSubPanels
+            ? feedersData.smdbFeeders(fd.floorNumber).find((f) => f.itemId === item.id)
+            : feedersData.mdbFeeders.find((f) => f.itemId === item.id);
           const parsed = parseCableSize(item.cableSize);
-          const cableSizeNum = parsed?.size ?? 4;
-          const runs = parsed?.runs ?? 1;
-          const formattedSize = parsed?.formatted ?? `${cableSizeNum} mm²`;
+          const cableSizeNum = parsed?.size ?? matchingFeeder?.cableSize ?? 4;
+          const runs = parsed?.runs ?? matchingFeeder?.parallelRuns ?? 1;
+          const formattedSize = parsed?.formatted ?? (runs > 1 ? `${runs} \u00d7 ${cableSizeNum} mm\u00b2` : `${cableSizeNum} mm\u00b2`);
           const isThreePhase = isThreePhaseForItem(item);
           const length = getItemCableLength(item, fd.floorNumber);
           const method = (item as any).installMethod || defaultMethod;
@@ -307,6 +314,7 @@ export default function CableSchedulePage() {
             lengthMeters: length,
             existingCableSize: cableSizeNum,
             existingRuns: runs,
+            assignedBreakerSize: matchingFeeder?.breakerSize,
             powerFactor: project.powerFactor || 0.85,
             systemVoltage: systemVoltageBase(project.voltage || 400, isThreePhase),
             maxVoltageDropPercent: limits.power,
@@ -349,7 +357,7 @@ export default function CableSchedulePage() {
             ampacity: result.ampacity,
             singleAmpacity: result.singleAmpacity,
             isOverloaded: result.isOverloaded,
-            breakerSize: result.breakerSize,
+            breakerSize: matchingFeeder?.breakerSize ?? result.breakerSize,
             kind: 'floor',
           });
         });
@@ -361,18 +369,28 @@ export default function CableSchedulePage() {
       (bldg.buildingLoads || []).forEach((bl, idx) => {
         const lib = bl.loadLibraryItem;
         if (!lib) return; // orphaned (library item deleted) — skip
+        const matchingFeeder = feedersData.mdbFeeders.find((f) => f.buildingLoadId === bl.id);
         const letter = String.fromCharCode(97 + idx);
         const loadTag = `BL-${letter.toUpperCase()} ${lib.name}`;
         const cableTag = `Wbl${letter}`;
         const parsed = parseCableSize(bl.cableSize);
-        const cableSizeNum = parsed?.size ?? 4;
-        const runs = parsed?.runs ?? 1;
-        const formattedSize = parsed?.formatted ?? `${cableSizeNum} mm²`;
+        const cableSizeNum = parsed?.size ?? matchingFeeder?.cableSize ?? 4;
+        const runs = parsed?.runs ?? matchingFeeder?.parallelRuns ?? 1;
+        const formattedSize = parsed?.formatted ?? (runs > 1 ? `${runs} \u00d7 ${cableSizeNum} mm\u00b2` : `${cableSizeNum} mm\u00b2`);
         const isThreePhase = lib.phase === 3;
         const totalKw = lib.power * bl.quantity;
         const current = isThreePhase
           ? totalKw / (Math.sqrt(3) * (lib.voltage / 1000) * lib.powerFactor)
           : totalKw / ((lib.voltage / 1000) * lib.powerFactor);
+        const categoryUpper = (lib.category || '').toUpperCase();
+        const nameUpper = (lib.name || '').toUpperCase();
+        const isMotor =
+          ['PUMP', 'MOTOR', 'ELEVATOR'].some((k) =>
+            categoryUpper.includes(k) || nameUpper.includes(k)
+          ) ||
+          (lib.startingCurrent != null && lib.startingCurrent > 2 * current);
+        const designCurrent = isMotor ? current * 1.25 : current;
+
         const length = getBuildingLoadCableLength(bl);
         const method = bl.installMethod || defaultMethod;
         const insulation = (bl.cableInsulation as 'PVC' | 'XLPE') || defaultInsulation;
@@ -389,11 +407,12 @@ export default function CableSchedulePage() {
         }
 
         const result = recalculateCable({
-          current,
+          current: designCurrent,
           isThreePhase,
           lengthMeters: length,
           existingCableSize: cableSizeNum,
           existingRuns: runs,
+          assignedBreakerSize: matchingFeeder?.breakerSize,
           powerFactor: project.powerFactor || 0.85,
           systemVoltage: systemVoltageBase(project.voltage || 400, isThreePhase),
           maxVoltageDropPercent: limits.power,
@@ -436,7 +455,7 @@ export default function CableSchedulePage() {
           ampacity: result.ampacity,
           singleAmpacity: result.singleAmpacity,
           isOverloaded: result.isOverloaded,
-          breakerSize: result.breakerSize,
+          breakerSize: matchingFeeder?.breakerSize ?? result.breakerSize,
           kind: 'building',
         });
       });
@@ -444,14 +463,17 @@ export default function CableSchedulePage() {
       // SDBs (Sub-Distribution Boards) for floors with hasFloorSubPanels=true
       for (const fd of bldg.floorDesigns) {
         if (!fd.hasFloorSubPanels) continue;
+        const matchingFeeder = feedersData.mdbFeeders.find(
+          (f) => f.floorDesignId === fd.id && f.type === 'SMDB'
+        );
         // Riser current = worst-case per-phase current from the same imbalance-
         // aware balance used by the panel/riser pages (NOT the lumped √3
         // average, which under-sizes when phases are unevenly loaded).
         const floorCurrent = phaseBalance((fd.items || []) as any, project as any).maxPhaseCurrent;
         const parsed = parseCableSize(fd.riserCableSize);
-        const cableSizeNum = parsed?.size ?? 120;
-        const runs = parsed?.runs ?? 1;
-        const formattedSize = parsed?.formatted ?? `${cableSizeNum} mm²`;
+        const cableSizeNum = parsed?.size ?? matchingFeeder?.cableSize ?? 120;
+        const runs = parsed?.runs ?? matchingFeeder?.parallelRuns ?? 1;
+        const formattedSize = parsed?.formatted ?? (runs > 1 ? `${runs} \u00d7 ${cableSizeNum} mm\u00b2` : `${cableSizeNum} mm\u00b2`);
         const length = getRiserCableLength(fd);
         const sdbMethod = fd.riserInstallMethod || defaultMethod;
         const sdbInsulation = (fd.riserCableInsulation as 'PVC' | 'XLPE') || defaultInsulation;
@@ -465,6 +487,7 @@ export default function CableSchedulePage() {
           lengthMeters: length,
           existingCableSize: cableSizeNum,
           existingRuns: runs,
+          assignedBreakerSize: matchingFeeder?.breakerSize,
           powerFactor: project.powerFactor || 0.85,
           // Riser feeds the SDB — always a 3-phase circuit.
           systemVoltage: systemVoltageBase(project.voltage || 400, true),
@@ -508,7 +531,7 @@ export default function CableSchedulePage() {
           ampacity: result.ampacity,
           singleAmpacity: result.singleAmpacity,
           isOverloaded: result.isOverloaded,
-          breakerSize: result.breakerSize,
+          breakerSize: matchingFeeder?.breakerSize ?? result.breakerSize,
           kind: 'sdb',
         });
       }
@@ -536,6 +559,7 @@ export default function CableSchedulePage() {
         lengthMeters: newLength,
         existingCableSize: c.cableSize,
         existingRuns: targetRuns ?? c.parallelRuns,
+        assignedBreakerSize: c.breakerSize,
         powerFactor: project?.powerFactor || 0.85,
         systemVoltage: systemVoltageBase(project?.voltage || 400, c.isThreePhase),
         maxVoltageDropPercent: limits.power,
@@ -686,6 +710,7 @@ export default function CableSchedulePage() {
         lengthMeters: c.length,
         existingCableSize: c.cableSize,
         existingRuns: c.parallelRuns,
+        assignedBreakerSize: c.breakerSize,
         powerFactor: project?.powerFactor || 0.85,
         systemVoltage: systemVoltageBase(project?.voltage || 400, c.isThreePhase),
         maxVoltageDropPercent: limits.power,
@@ -707,6 +732,7 @@ export default function CableSchedulePage() {
         ampacity: result.ampacity,
         singleAmpacity: result.singleAmpacity,
         isOverloaded: result.isOverloaded,
+        breakerSize: result.breakerSize,
       };
     }));
   };
@@ -789,6 +815,7 @@ export default function CableSchedulePage() {
             lengthMeters: c.length,
             existingCableSize: newSize,
             existingRuns: newRuns,
+            assignedBreakerSize: c.breakerSize,
             powerFactor: project?.powerFactor || 0.85,
             systemVoltage: systemVoltageBase(project?.voltage || 400, c.isThreePhase),
             maxVoltageDropPercent: limits.power,
@@ -813,6 +840,7 @@ export default function CableSchedulePage() {
             ampacity: result.ampacity,
             singleAmpacity: result.singleAmpacity,
             isOverloaded: result.isOverloaded,
+            breakerSize: result.breakerSize,
           };
         }
         return c;
@@ -873,6 +901,7 @@ export default function CableSchedulePage() {
           lengthMeters: c.length,
           existingCableSize: c.cableSize,
           existingRuns: c.parallelRuns,
+          assignedBreakerSize: c.breakerSize,
           powerFactor: project?.powerFactor || 0.85,
           systemVoltage: systemVoltageBase(project?.voltage || 400, c.isThreePhase),
           maxVoltageDropPercent: limits.power,
@@ -899,6 +928,7 @@ export default function CableSchedulePage() {
           ampacity: result.ampacity,
           singleAmpacity: result.singleAmpacity,
           isOverloaded: result.isOverloaded,
+          breakerSize: result.breakerSize,
         };
       }));
     } catch (err) {

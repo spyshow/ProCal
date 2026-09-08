@@ -14,6 +14,7 @@ export interface CableEditorInput {
   lengthMeters: number;
   existingCableSize: number | string;
   existingRuns?: number;
+  assignedBreakerSize?: number;
   powerFactor: number;
   systemVoltage: number;
   maxVoltageDropPercent: number;
@@ -89,7 +90,7 @@ export function recalculateCable(input: CableEditorInput): CableEditorResult {
   const installedTotalAmpacity = installedSingleAmpacity * currentRuns;
   const installedVD = calculateVoltageDrop(current, lengthMeters, existingParsed.size, powerFactor, isThreePhase, systemVoltage, currentRuns, material);
 
-  const breakerSize = findBreakerSize(current, code);
+  const breakerSize = input.assignedBreakerSize ?? findBreakerSize(current, code);
   // Branch circuits with fixed thermal-magnetic breakers (<= 630A) must satisfy
   // Iz >= In (IEC 60364-4-43 §433.1) to ensure full overload protection.
   // Large mains (> 630A) use electronic trip units where Ir can be dialed down to match Iz.
@@ -116,7 +117,8 @@ export function recalculateCable(input: CableEditorInput): CableEditorResult {
 
   // 2. Otherwise delegate to the sizing authority: Ib ≤ In ≤ Iz plus the ΔU
   // limit (IEC 60364-5-52 §525), including parallel-run search and fallbacks.
-  const sizing = sizeCableAndBreaker(current, isThreePhase, {
+  const sizingCurrent = input.assignedBreakerSize ? Math.max(current, input.assignedBreakerSize) : current;
+  const sizing = sizeCableAndBreaker(sizingCurrent, isThreePhase, {
     material,
     insulation,
     ambientTemp,
@@ -135,7 +137,7 @@ export function recalculateCable(input: CableEditorInput): CableEditorResult {
     cableSize: sizing.cableSize,
     parallelRuns: runs,
     formattedCableSize: formatCableSize(sizing.cableSize, runs),
-    breakerSize: sizing.breakerSize,
+    breakerSize: input.assignedBreakerSize ?? sizing.breakerSize,
     voltageDropPercent: sizing.dropPercent ?? installedVD.dropPercent,
     voltageDropVolts: sizing.dropVolts ?? installedVD.dropVolts,
     changed: sizing.cableSize !== existingParsed.size || runs !== existingParsed.runs,

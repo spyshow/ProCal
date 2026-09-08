@@ -125,9 +125,11 @@ export default function BreakerSchedule({
       const incomerSaved = breakerSettings.find(
         (s) =>
           s.breakerId === `${project.id}-main-incomer-${bldg.id}` ||
-          s.breakerId === `${project.id}-main-incomer` ||
           s.breakerId === `main-incomer-${bldg.id}` ||
-          s.breakerId === 'main-incomer'
+          (project.buildings.length === 1 && (
+            s.breakerId === `${project.id}-main-incomer` ||
+            s.breakerId === 'main-incomer'
+          ))
       );
       const effectiveIncomerModel = resolveBreakerDisplayName(
         incomerSaved?.model,

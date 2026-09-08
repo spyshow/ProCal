@@ -275,9 +275,11 @@ export default function BreakerSchedulePage() {
       const incomerSaved = breakerSettings.find(
         (s) =>
           s.breakerId === `${project.id}-main-incomer-${bldg.id}` ||
-          s.breakerId === `${project.id}-main-incomer` ||
           s.breakerId === `main-incomer-${bldg.id}` ||
-          s.breakerId === 'main-incomer'
+          (project.buildings.length === 1 && (
+            s.breakerId === `${project.id}-main-incomer` ||
+            s.breakerId === 'main-incomer'
+          ))
       );
       const effectiveIncomerModel = resolveBreakerDisplayName(
         incomerSaved?.model,
@@ -561,7 +563,7 @@ export default function BreakerSchedulePage() {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              breakerId: `${project.id}-main-incomer`,
+              breakerId: bldg ? `${project.id}-main-incomer-${bldg.id}` : `${project.id}-main-incomer`,
               model: sug.suggestedModel || 'Main Incomer ACB',
               manufacturer: selectedFeederForModal.manufacturer || 'Schneider',
               frameSize: `${sug.suggestedFrameSize}A`,

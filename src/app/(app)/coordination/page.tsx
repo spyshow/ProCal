@@ -381,7 +381,9 @@ export default function CoordinationPage() {
 
     if (parentName === 'Main Incomer' && computedMainIncomer) {
       const saved = breakerSettings.find(
-        (s) => s.breakerId === `${project?.id}-main-incomer` || s.breakerId === 'Main Incomer'
+        (s) =>
+          (bldg && (s.breakerId === `${project?.id}-main-incomer-${bldg.id}` || s.breakerId === `main-incomer-${bldg.id}`)) ||
+          (project?.buildings.length === 1 && (s.breakerId === `${project?.id}-main-incomer` || s.breakerId === 'Main Incomer' || s.breakerId === 'main-incomer'))
       );
       const effectiveIn = saved ? (parseInt(saved.frameSize) || computedMainIncomer.inRating) : computedMainIncomer.inRating;
       const effectiveIr = saved?.ir ?? computedMainIncomer.ir;
@@ -635,7 +637,7 @@ export default function CoordinationPage() {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              breakerId: `${project.id}-main-incomer`,
+              breakerId: bldg ? `${project.id}-main-incomer-${bldg.id}` : `${project.id}-main-incomer`,
               model: sug.suggestedModel || 'Main Incomer ACB',
               manufacturer: selectedFeeder.manufacturer || 'Schneider',
               frameSize: `${sug.suggestedFrameSize}A`,

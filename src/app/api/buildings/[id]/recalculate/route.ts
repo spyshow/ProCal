@@ -11,6 +11,7 @@ export async function POST(
 ) {
   try {
     const { id: buildingId } = await params;
+    const body = await request.json().catch(() => ({}));
 
     const building = await db.building.findUnique({
       where: { id: buildingId },
@@ -66,14 +67,23 @@ export async function POST(
         calculatedCurrent = calculatedMaxDemand / ((voltageKv / Math.sqrt(3)) * powerFactor);
       }
 
+      const dataToUpdate: Record<string, any> = {
+        calculatedConnectedLoad,
+        calculatedMaxDemand,
+        calculatedCurrent: parseFloat(calculatedCurrent.toFixed(2)),
+      };
+      if (item.voltageDrop === 0.1) {
+        dataToUpdate.voltageDrop = null;
+      }
+      if (body?.resetSizing || item.breakerSize === '25A' || item.breakerSize === '32A' || item.breakerSize === '50A') {
+        dataToUpdate.breakerSize = null;
+        dataToUpdate.cableSize = null;
+      }
+
       updates.push(
         db.floorItem.update({
           where: { id: item.id },
-          data: {
-            calculatedConnectedLoad,
-            calculatedMaxDemand,
-            calculatedCurrent: parseFloat(calculatedCurrent.toFixed(2)),
-          },
+          data: dataToUpdate,
         })
       );
     }

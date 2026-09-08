@@ -4,6 +4,7 @@ import {
   getBuildingLoadCableLength,
   parseCableSize,
   formatCableSizeFor,
+  sizeCableAndBreaker,
 } from '@/lib/calculations/cables';
 import { isThreePhaseForItem } from '@/lib/calculations/feeders';
 import { TraceableCell } from '@/components/common/TraceableCell';
@@ -46,13 +47,29 @@ export default function VDSchedule({ project, buildingId, showHeader = true }: V
       for (const item of fd.items) {
         const isThreePhase = isThreePhaseForItem(item);
         const length = getItemCableLength(item, fd.floorNumber);
+        const pf = project.powerFactor || 0.85;
+        const connectedKw = item.calculatedConnectedLoad ?? 0;
+        const designCurrent = item.type === 'APARTMENT' && connectedKw > 0
+          ? (isThreePhase
+              ? connectedKw / (Math.sqrt(3) * (project.voltage / 1000) * pf)
+              : connectedKw / ((project.voltage / Math.sqrt(3) / 1000) * pf))
+          : item.calculatedCurrent;
+        const autoCable = sizeCableAndBreaker(designCurrent || item.calculatedCurrent, isThreePhase, {
+          material: (item.cableMaterial as 'copper' | 'aluminum' | undefined) || 'copper',
+          insulation: (item.cableInsulation as 'PVC' | 'XLPE' | undefined) || 'XLPE',
+          ambientTemp: item.ambientTemp ?? project.ambientTemp ?? 30,
+          groupingCount: item.groupingCount ?? project.groupingCount ?? 1,
+          installMethod: item.installMethod ?? 'C',
+        }).formattedCableSize;
+        const effectiveCableSize = item.cableSize || autoCable;
+
         // Shared engine helper: parses "2 × 240 mm²" parallel notation,
         // applies runs + conductor material, and uses Uo = U_LL/√3 as the
         // denominator for single-phase circuits.
         const calculatedVD = computeItemVoltageDrop({
           current: item.calculatedCurrent,
           lengthMeters: length,
-          cableSizeInput: item.cableSize,
+          cableSizeInput: effectiveCableSize,
           powerFactor: project.powerFactor || 0.85,
           isThreePhase,
           systemVoltageLL: project.voltage,
@@ -60,7 +77,8 @@ export default function VDSchedule({ project, buildingId, showHeader = true }: V
         })?.dropPercent;
         if (calculatedVD == null && !(item.voltageDrop && item.voltageDrop > 0)) continue;
 
-        const vd = item.voltageDrop && item.voltageDrop > 0 ? item.voltageDrop : (calculatedVD ?? 0);
+        const isStubbedVd = item.voltageDrop === 0.1;
+        const vd = item.voltageDrop && item.voltageDrop > 0 && !isStubbedVd ? item.voltageDrop : (calculatedVD ?? 0);
         const limit = item.type === 'APARTMENT' ? (project.maxVoltageDropLighting || 3) : (project.maxVoltageDropPower || 5);
         const status = vd <= limit ? 'OK' : vd <= limit * 1.2 ? 'WARNING' : 'FAIL';
 
@@ -70,7 +88,7 @@ export default function VDSchedule({ project, buildingId, showHeader = true }: V
           floor: fd.floorNumber,
           circuit: item.name,
           current: item.calculatedCurrent,
-          cable: item.cableSize,
+          cable: effectiveCableSize,
           length,
           vd,
           status,
@@ -87,11 +105,12 @@ export default function VDSchedule({ project, buildingId, showHeader = true }: V
         ? totalKw / (Math.sqrt(3) * (lib.voltage / 1000) * lib.powerFactor)
         : totalKw / ((lib.voltage / 1000) * lib.powerFactor);
       const length = getBuildingLoadCableLength(bl);
+      const effectiveBlCable = bl.cableSize || '4 mm²';
 
       const calculatedVD = computeItemVoltageDrop({
         current,
         lengthMeters: length,
-        cableSizeInput: bl.cableSize,
+        cableSizeInput: effectiveBlCable,
         powerFactor: lib.powerFactor || project.powerFactor || 0.85,
         isThreePhase,
         systemVoltageLL: project.voltage,
@@ -110,7 +129,7 @@ export default function VDSchedule({ project, buildingId, showHeader = true }: V
         floor: 0,
         circuit: lib.name,
         current,
-        cable: bl.cableSize || '4 mm²',
+        cable: effectiveBlCable,
         length,
         vd,
         status,

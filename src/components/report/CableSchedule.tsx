@@ -74,6 +74,12 @@ export default function CableSchedule({ project, buildingId, showHeader = true }
     for (const fd of b.floorDesigns) {
       for (const item of fd.items) {
         const isThreePhase = isThreePhaseForItem(item);
+        const matchingFeeder =
+          mdbFeeders.find((f) => f.floorDesignId === fd.id && f.name.includes(item.name)) ||
+          mdbFeeders.find((f) => f.name.includes(`F${fd.floorNumber}`) && f.name.includes(item.name));
+        const effectiveBreaker = item.breakerSize || (matchingFeeder ? `${matchingFeeder.breakerSize}A` : undefined);
+        const effectiveCable = item.cableSize || (matchingFeeder ? matchingFeeder.formattedCableSize : undefined);
+
         rows.push({
           id: item.id || `${b.id}-${fd.floorNumber}-${item.name}`,
           buildingName: b.name,
@@ -81,8 +87,8 @@ export default function CableSchedule({ project, buildingId, showHeader = true }
           circuit: item.name,
           phaseLabel: isThreePhase ? '3Φ' : '1Φ',
           current: item.calculatedCurrent,
-          breaker: item.breakerSize,
-          cable: item.cableSize,
+          breaker: effectiveBreaker,
+          cable: effectiveCable,
           method: item.installMethod || 'C',
           insulation: item.cableInsulation || 'XLPE',
           material: item.cableMaterial || 'copper',

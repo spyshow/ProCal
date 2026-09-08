@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { verifyProjectAccess } from "@/lib/project-auth";
 import { getApartmentDiversityFactor } from "@/lib/calculations/loads";
-import { sizeCableAndBreaker } from "@/lib/calculations/cables";
 import { errorResponse } from "@/lib/api-errors";
 
 export async function POST(
@@ -117,16 +116,6 @@ export async function POST(
             calculatedCurrent = calculatedMaxDemand / ((voltageKv / Math.sqrt(3)) * powerFactor);
           }
           calculatedCurrent = parseFloat(calculatedCurrent.toFixed(2));
-
-          const sizing = sizeCableAndBreaker(calculatedCurrent, isThreePhase, {
-            material: (item.cableMaterial as "copper" | "aluminum") ?? "copper",
-            insulation: (item.cableInsulation as "PVC" | "XLPE") ?? "XLPE",
-            ambientTemp: item.ambientTemp ?? 30,
-            groupingCount: item.groupingCount ?? 1,
-            installMethod: item.installMethod ?? "C",
-          });
-          breakerSize = `${sizing.breakerSize}A`;
-          cableSize = sizing.formattedCableSize;
         }
 
         return {
@@ -141,7 +130,7 @@ export async function POST(
           breakerSize,
           cableSize,
           cableLength: item.cableLength,
-          voltageDrop: item.voltageDrop ?? 0.1,
+          voltageDrop: item.voltageDrop ?? null,
           installMethod: item.installMethod ?? "C",
           cableInsulation: item.cableInsulation ?? "XLPE",
           cableMaterial: item.cableMaterial ?? "copper",

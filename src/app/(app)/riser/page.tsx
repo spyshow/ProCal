@@ -489,6 +489,13 @@ export default function RiserPage() {
                         {fd.items.slice(0, 4).map((item, fi) => {
                           const nodeCY = cy + (fi - (N - 1) / 2) * 26;
                           const aptLeft = 740;
+                          const itemCableSize = item.cableSize || sizeCableAndBreaker(
+                            (item.calculatedConnectedLoad && item.calculatedConnectedLoad > 0)
+                              ? (item.calculatedConnectedLoad / ((project.voltage / Math.sqrt(3) / 1000) * (project.powerFactor || 0.85)))
+                              : (item.calculatedCurrent || 10),
+                            (item.apartmentTemplate?.phases ?? 1) === 3,
+                            { material: (item.cableMaterial as any) || 'copper', insulation: (item.cableInsulation as any) || 'XLPE' }
+                          ).formattedCableSize;
                           return (
                             <g key={fi}>
                               <line x1={railX} y1={nodeCY} x2={aptLeft} y2={nodeCY} stroke="#3b82f6" strokeWidth="1.5" />
@@ -497,7 +504,7 @@ export default function RiserPage() {
                                 {item.name}
                               </text>
                               <text x={aptLeft + 52.5} y={nodeCY + 8} textAnchor="middle" fill="#6b7280" fontSize="6.5">
-                                {item.cableSize} · {(item.calculatedMaxDemand || 0).toFixed(1)}kW
+                                {itemCableSize} · {(item.calculatedMaxDemand || 0).toFixed(1)}kW
                               </text>
                             </g>
                           );

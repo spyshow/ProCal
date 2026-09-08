@@ -184,10 +184,12 @@ export default function CoordinationPage() {
       return breakerSettings.find(
         (s) =>
           normalizeBreakerId(s.breakerId) === `${project.id}-${normName}` ||
-          normalizeBreakerId(s.breakerId) === normName ||
-          s.breakerId === f.name ||
+          (f.itemId && s.breakerId === `${project.id}-${f.itemId}`) ||
+          (f.buildingLoadId && s.breakerId === `${project.id}-${f.buildingLoadId}`) ||
           (f.itemId && s.breakerId === f.itemId) ||
-          (f.buildingLoadId && s.breakerId === f.buildingLoadId)
+          (f.buildingLoadId && s.breakerId === f.buildingLoadId) ||
+          normalizeBreakerId(s.breakerId) === normName ||
+          s.breakerId === f.name
       );
     };
 
@@ -646,6 +648,7 @@ export default function CoordinationPage() {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
+              projectId: project.id,
               breakerId: bldg ? `${project.id}-main-incomer-${bldg.id}` : `${project.id}-main-incomer`,
               model: sug.suggestedModel || 'Main Incomer ACB',
               manufacturer: selectedFeeder.manufacturer || 'Schneider',
@@ -723,12 +726,9 @@ export default function CoordinationPage() {
         }
       } else if (sug.type === 'SETTINGS_ADJUSTMENT' || sug.type === 'ELECTRONIC_TRIP_UNIT') {
         const isMainIncomer = selectedFeeder.name === 'Main Incomer' || selectedFeeder.type === 'INCOMER';
-        const stableBreakerId =
-          selectedFeeder.buildingLoadId ||
-          selectedFeeder.itemId ||
-          (isMainIncomer
-            ? (bldg ? `${project.id}-main-incomer-${bldg.id}` : `${project.id}-main-incomer`)
-            : `${project.id}-${selectedFeeder.name}`);
+        const stableBreakerId = isMainIncomer
+          ? (bldg ? `${project.id}-main-incomer-${bldg.id}` : `${project.id}-main-incomer`)
+          : `${project.id}-${selectedFeeder.name}`;
         const fullModel = resolveBreakerDisplayName(
           sug.suggestedModel || selectedFeeder.breakerModel,
           selectedFeeder.breakerModel
@@ -737,6 +737,7 @@ export default function CoordinationPage() {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
+            projectId: project.id,
             breakerId: stableBreakerId,
             model: fullModel,
             manufacturer: selectedFeeder.manufacturer || 'Schneider',
@@ -748,23 +749,42 @@ export default function CoordinationPage() {
             ii: sug.suggestedSettings?.ii ?? selectedFeeder.breakerSize * 8,
           }),
         });
-        if (selectedFeeder.buildingLoadId || selectedFeeder.itemId) {
+
+        // If this is LSI delay grading and upstream feeder exists, grade upstream electronic breaker to tsd = 0.3s
+        const upstreamFeeder = selectedFeeder.parentFeederName
+          ? (
+              allProjectFeeders.find((f) => f.name === selectedFeeder.parentFeederName) ||
+              allProjectFeeders.find((f) => f.name.includes(selectedFeeder.parentFeederName!)) ||
+              allProjectFeeders.find((f) => selectedFeeder.parentFeederName!.includes(f.name))
+            )
+          : null;
+
+        if (sug.id === 'sug-lsi-tuning' && upstreamFeeder) {
+          const upstreamSaved = breakerSettings.find(
+            (s) => s.breakerId === `${project.id}-${upstreamFeeder.name}` || s.breakerId === upstreamFeeder.name
+          );
+          const isUpIncomer = upstreamFeeder.name === 'Main Incomer' || upstreamFeeder.type === 'INCOMER';
+          const upstreamBreakerId = isUpIncomer
+            ? (bldg ? `${project.id}-main-incomer-${bldg.id}` : `${project.id}-main-incomer`)
+            : `${project.id}-${upstreamFeeder.name}`;
           await fetch('/api/breaker-settings', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              breakerId: `${project.id}-${selectedFeeder.name}`,
-              model: fullModel,
-              manufacturer: selectedFeeder.manufacturer || 'Schneider',
-              frameSize: `${selectedFeeder.breakerSize}A`,
-              ir: selectedFeeder.current,
-              tr: 12,
-              isd: sug.suggestedSettings?.isd ?? selectedFeeder.breakerSize * 4,
-              tsd: sug.suggestedSettings?.tsd ?? 0.05,
-              ii: sug.suggestedSettings?.ii ?? selectedFeeder.breakerSize * 8,
+              projectId: project.id,
+              breakerId: upstreamBreakerId,
+              model: upstreamSaved?.model || upstreamFeeder.breakerModel || 'MCCB Electronic',
+              manufacturer: upstreamSaved?.manufacturer || upstreamFeeder.manufacturer || 'Schneider',
+              frameSize: upstreamSaved?.frameSize || `${upstreamFeeder.breakerSize}A`,
+              ir: upstreamSaved?.ir ?? upstreamFeeder.current,
+              tr: upstreamSaved?.tr ?? 12,
+              isd: upstreamSaved?.isd ?? upstreamFeeder.breakerSize * 4,
+              tsd: 0.3,
+              ii: upstreamSaved?.ii ?? upstreamFeeder.breakerSize * 10,
             }),
           });
         }
+
         await loadBreakerSettings();
       }
 

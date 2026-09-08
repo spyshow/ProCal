@@ -241,10 +241,12 @@ export default function BreakerSchedulePage() {
       return breakerSettings.find(
         (s) =>
           normalizeBreakerId(s.breakerId) === `${project.id}-${normName}` ||
-          normalizeBreakerId(s.breakerId) === normName ||
-          s.breakerId === f.name ||
+          (f.itemId && s.breakerId === `${project.id}-${f.itemId}`) ||
+          (f.buildingLoadId && s.breakerId === `${project.id}-${f.buildingLoadId}`) ||
           (f.itemId && s.breakerId === f.itemId) ||
-          (f.buildingLoadId && s.breakerId === f.buildingLoadId)
+          (f.buildingLoadId && s.breakerId === f.buildingLoadId) ||
+          normalizeBreakerId(s.breakerId) === normName ||
+          s.breakerId === f.name
       );
     },
     [project, breakerSettings]
@@ -566,6 +568,7 @@ export default function BreakerSchedulePage() {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
+              projectId: project.id,
               breakerId: bldg ? `${project.id}-main-incomer-${bldg.id}` : `${project.id}-main-incomer`,
               model: sug.suggestedModel || 'Main Incomer ACB',
               manufacturer: selectedFeederForModal.manufacturer || 'Schneider',
@@ -643,12 +646,9 @@ export default function BreakerSchedulePage() {
         }
       } else if (sug.type === 'SETTINGS_ADJUSTMENT' || sug.type === 'ELECTRONIC_TRIP_UNIT') {
         const isMainIncomer = selectedFeederForModal.name === 'Main Incomer' || selectedFeederForModal.type === 'INCOMER';
-        const stableBreakerId =
-          selectedFeederForModal.buildingLoadId ||
-          selectedFeederForModal.itemId ||
-          (isMainIncomer
-            ? (bldg ? `${project.id}-main-incomer-${bldg.id}` : `${project.id}-main-incomer`)
-            : `${project.id}-${selectedFeederForModal.name}`);
+        const stableBreakerId = isMainIncomer
+          ? (bldg ? `${project.id}-main-incomer-${bldg.id}` : `${project.id}-main-incomer`)
+          : `${project.id}-${selectedFeederForModal.name}`;
         const fullModel = resolveBreakerDisplayName(
           sug.suggestedModel || selectedFeederForModal.breakerModel,
           selectedFeederForModal.breakerModel
@@ -657,6 +657,7 @@ export default function BreakerSchedulePage() {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
+            projectId: project.id,
             breakerId: stableBreakerId,
             model: fullModel,
             manufacturer: selectedFeederForModal.manufacturer || 'Schneider',
@@ -668,23 +669,43 @@ export default function BreakerSchedulePage() {
             ii: sug.suggestedSettings?.ii ?? selectedFeederForModal.breakerSize * 8,
           }),
         });
-        if (selectedFeederForModal.buildingLoadId || selectedFeederForModal.itemId) {
-          await fetch('/api/breaker-settings', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              breakerId: `${project.id}-${selectedFeederForModal.name}`,
-              model: fullModel,
-              manufacturer: selectedFeederForModal.manufacturer || 'Schneider',
-              frameSize: `${selectedFeederForModal.breakerSize}A`,
-              ir: selectedFeederForModal.current,
-              tr: 12,
-              isd: sug.suggestedSettings?.isd ?? selectedFeederForModal.breakerSize * 4,
-              tsd: sug.suggestedSettings?.tsd ?? 0.05,
-              ii: sug.suggestedSettings?.ii ?? selectedFeederForModal.breakerSize * 8,
-            }),
-          });
+
+        // For LSI delay grading, also ensure the upstream electronic breaker has tsd = 0.3s
+        if (sug.id === 'sug-lsi-tuning') {
+          const upstreamFeeder = selectedFeederForModal.parentFeederName
+            ? breakers.find(
+                (b) =>
+                  (b.name === selectedFeederForModal.parentFeederName ||
+                    (selectedFeederForModal.parentFeederName === 'Main Incomer' && b.type === 'INCOMER')) &&
+                  b.buildingId === selectedFeederForModal.buildingId
+              )
+            : null;
+
+          if (upstreamFeeder) {
+            const upstreamSaved = findSavedBreakerSetting(upstreamFeeder as any);
+            const isUpIncomer = upstreamFeeder.name === 'Main Incomer' || upstreamFeeder.type === 'INCOMER';
+            const upstreamBreakerId = isUpIncomer
+              ? (bldg ? `${project.id}-main-incomer-${bldg.id}` : `${project.id}-main-incomer`)
+              : `${project.id}-${upstreamFeeder.name}`;
+            await fetch('/api/breaker-settings', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                projectId: project.id,
+                breakerId: upstreamBreakerId,
+                model: upstreamSaved?.model || upstreamFeeder.breakerModel || 'MCCB Electronic',
+                manufacturer: upstreamSaved?.manufacturer || upstreamFeeder.manufacturer || 'Schneider',
+                frameSize: upstreamSaved?.frameSize || `${upstreamFeeder.breakerSize}A`,
+                ir: upstreamSaved?.ir ?? upstreamFeeder.current,
+                tr: upstreamSaved?.tr ?? 12,
+                isd: upstreamSaved?.isd ?? upstreamFeeder.breakerSize * 4,
+                tsd: 0.3,
+                ii: upstreamSaved?.ii ?? upstreamFeeder.breakerSize * 10,
+              }),
+            });
+          }
         }
+
         await loadBreakerSettings();
       }
 

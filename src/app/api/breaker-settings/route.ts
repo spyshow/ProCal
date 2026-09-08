@@ -53,9 +53,47 @@ export async function POST(request: Request) {
 
     // Breaker settings are keyed per-project ("<projectId>-..."): verify the
     // caller holds EDIT on a breaker-related module before mutating.
-    const projectId = breakerId.match(
-      /^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/
-    )?.[1];
+    let projectId = data.projectId;
+    if (!projectId) {
+      const candidateId = breakerId.match(
+        /^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/i
+      )?.[1];
+
+      if (candidateId) {
+        // If candidateId is an item, buildingLoad, or building UUID, resolve its project
+        try {
+          const floorItem = await db.floorItem?.findUnique?.({
+            where: { id: candidateId },
+            select: { floorDesign: { select: { building: { select: { projectId: true } } } } },
+          });
+          if (floorItem?.floorDesign?.building?.projectId) {
+            projectId = floorItem.floorDesign.building.projectId;
+          } else {
+            const bLoad = await db.buildingLoad?.findUnique?.({
+              where: { id: candidateId },
+              select: { building: { select: { projectId: true } } },
+            });
+            if (bLoad?.building?.projectId) {
+              projectId = bLoad.building.projectId;
+            } else {
+              const bldg = await db.building?.findUnique?.({
+                where: { id: candidateId },
+                select: { projectId: true },
+              });
+              if (bldg?.projectId) {
+                projectId = bldg.projectId;
+              }
+            }
+          }
+        } catch {
+          // ignore lookup failure in test environments
+        }
+
+        if (!projectId) {
+          projectId = candidateId;
+        }
+      }
+    }
 
     if (!projectId) {
       return NextResponse.json(

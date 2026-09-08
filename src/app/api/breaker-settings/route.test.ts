@@ -9,6 +9,8 @@ const mocks = {
   breakerDelete: vi.fn(),
   breakerFindUnique: vi.fn(),
   breakerUpdate: vi.fn(),
+  floorItemFindUnique: vi.fn(),
+  buildingLoadFindUnique: vi.fn(),
 };
 
 vi.mock("@/lib/auth", () => ({
@@ -27,6 +29,12 @@ vi.mock("@/lib/db", () => ({
       delete: vi.fn(async (...args) => mocks.breakerDelete(...args)),
       findUnique: vi.fn(async (...args) => mocks.breakerFindUnique(...args)),
       update: vi.fn(async (...args) => mocks.breakerUpdate(...args)),
+    },
+    floorItem: {
+      findUnique: vi.fn(async (...args) => mocks.floorItemFindUnique(...args)),
+    },
+    buildingLoad: {
+      findUnique: vi.fn(async (...args) => mocks.buildingLoadFindUnique(...args)),
     },
   },
 }));
@@ -108,6 +116,52 @@ describe("POST /api/breaker-settings", () => {
     expect(mocks.breakerUpsert).toHaveBeenCalledTimes(1);
     const args = mocks.breakerUpsert.mock.calls[0][0];
     expect(args.where).toEqual({ breakerId: validBody.breakerId });
+  });
+
+  it("uses explicit projectId in body when provided", async () => {
+    const { POST } = await import("./route");
+    const explicitProjectId = "bbbbbbbb-8920-47ba-9ac8-1e515c921988";
+    const res = await POST(
+      new Request("http://localhost/api/breaker-settings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...validBody,
+          projectId: explicitProjectId,
+          breakerId: "custom-non-uuid-feeder",
+        }),
+      })
+    );
+    expect(res.status).toBe(200);
+    expect(mocks.verifyProjectAccess).toHaveBeenCalledWith(
+      explicitProjectId,
+      expect.objectContaining({ requiredAction: "EDIT" })
+    );
+  });
+
+  it("resolves projectId from floorItem when breakerId is a floorItem ID", async () => {
+    const floorItemId = "cccccccc-8920-47ba-9ac8-1e515c921988";
+    const resolvedProjectId = "dddddddd-8920-47ba-9ac8-1e515c921988";
+    mocks.floorItemFindUnique.mockResolvedValue({
+      floorDesign: { building: { projectId: resolvedProjectId } },
+    });
+
+    const { POST } = await import("./route");
+    const res = await POST(
+      new Request("http://localhost/api/breaker-settings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...validBody,
+          breakerId: floorItemId,
+        }),
+      })
+    );
+    expect(res.status).toBe(200);
+    expect(mocks.verifyProjectAccess).toHaveBeenCalledWith(
+      resolvedProjectId,
+      expect.objectContaining({ requiredAction: "EDIT" })
+    );
   });
 });
 

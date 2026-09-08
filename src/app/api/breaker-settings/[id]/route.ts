@@ -3,10 +3,47 @@ import { db } from "@/lib/db";
 import { getSessionUser } from "@/lib/auth";
 import { verifyProjectAccess } from "@/lib/project-auth";
 
-async function verifyBreakerEdit(breakerId: string | null) {
-  const projectId = breakerId?.match(
-    /^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/
-  )?.[1];
+async function verifyBreakerEdit(breakerId: string | null, explicitProjectId?: string) {
+  let projectId = explicitProjectId;
+  if (!projectId && breakerId) {
+    const candidateId = breakerId.match(
+      /^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/i
+    )?.[1];
+
+    if (candidateId) {
+      try {
+        const floorItem = await db.floorItem?.findUnique?.({
+          where: { id: candidateId },
+          select: { floorDesign: { select: { building: { select: { projectId: true } } } } },
+        });
+        if (floorItem?.floorDesign?.building?.projectId) {
+          projectId = floorItem.floorDesign.building.projectId;
+        } else {
+          const bLoad = await db.buildingLoad?.findUnique?.({
+            where: { id: candidateId },
+            select: { building: { select: { projectId: true } } },
+          });
+          if (bLoad?.building?.projectId) {
+            projectId = bLoad.building.projectId;
+          } else {
+            const bldg = await db.building?.findUnique?.({
+              where: { id: candidateId },
+              select: { projectId: true },
+            });
+            if (bldg?.projectId) {
+              projectId = bldg.projectId;
+            }
+          }
+        }
+      } catch {
+        // ignore lookup failure in test environments
+      }
+
+      if (!projectId) {
+        projectId = candidateId;
+      }
+    }
+  }
 
   if (!projectId) {
     return NextResponse.json(
@@ -57,7 +94,7 @@ export async function PUT(
       tg,
     } = data;
 
-    const denied = await verifyBreakerEdit(breakerId ?? null);
+    const denied = await verifyBreakerEdit(breakerId ?? null, data.projectId);
     if (denied) return denied;
 
     const settings = await db.breakerSettings.update({

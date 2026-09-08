@@ -72,10 +72,24 @@ export async function POST(
         calculatedMaxDemand,
         calculatedCurrent: parseFloat(calculatedCurrent.toFixed(2)),
       };
-      if (item.voltageDrop === 0.1) {
+      if (item.voltageDrop === 0.1 || body?.resetSizing) {
         dataToUpdate.voltageDrop = null;
       }
-      if (body?.resetSizing || item.breakerSize === '25A' || item.breakerSize === '32A' || item.breakerSize === '50A') {
+
+      const connectedKw = calculatedConnectedLoad;
+      const connectedDesignCurrent = isThreePhase
+        ? connectedKw / (Math.sqrt(3) * voltageKv * powerFactor)
+        : connectedKw / ((voltageKv / Math.sqrt(3)) * powerFactor);
+      const manualBreaker = item.breakerSize
+        ? parseInt(item.breakerSize.replace(/[^\d.]/g, ''), 10)
+        : null;
+      // An apartment branch circuit must carry its undiversified connected load.
+      // Breakers smaller than connected load design current (e.g. from diversified copy-items bug)
+      // or explicitly requested resets are cleared.
+      const isUndersizedForConnectedLoad =
+        manualBreaker != null && !isNaN(manualBreaker) && manualBreaker < connectedDesignCurrent - 0.1;
+
+      if (body?.resetSizing || isUndersizedForConnectedLoad) {
         dataToUpdate.breakerSize = null;
         dataToUpdate.cableSize = null;
       }

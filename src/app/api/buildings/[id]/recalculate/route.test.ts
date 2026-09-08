@@ -30,11 +30,13 @@ vi.mock("@/lib/db", () => ({
   },
 }));
 
-async function postRecalculate(buildingId: string) {
+async function postRecalculate(buildingId: string, body?: any) {
   const { POST } = await import("./route");
   return POST(
     new Request(`http://localhost/api/buildings/${buildingId}/recalculate`, {
       method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: body ? JSON.stringify(body) : undefined,
     }),
     { params: Promise.resolve({ id: buildingId }) }
   );
@@ -132,5 +134,78 @@ describe("POST /api/buildings/[id]/recalculate", () => {
     expect(projectUpdate.where).toEqual({ id: "proj-1" });
     expect(typeof projectUpdate.data.engineVersion).toBe("string");
     expect(projectUpdate.data.engineVersion.length).toBeGreaterThan(0);
+  });
+
+  it("clears undersized apartment breakers that cannot carry connected load", async () => {
+    mocks.buildingFindUnique.mockResolvedValue({
+      id: "bldg-1",
+      projectId: "proj-1",
+      project: { id: "proj-1", voltage: 400, powerFactor: 0.85 },
+    });
+    // 10 kW 1-phase apartment has connected design current = 10 / (0.23 * 0.85) = 51.15 A.
+    // An apartment breaker of 16A or 25A is dangerously undersized (violates Ib <= In).
+    mocks.floorItemFindMany.mockResolvedValue([
+      {
+        id: "item-undersized",
+        type: "APARTMENT",
+        breakerSize: "16A",
+        cableSize: "2.5 mm²",
+        voltageDrop: 0.1,
+        apartmentTemplate: { phases: 1, rooms: [{ connectedLoad: 10000 }] },
+      },
+      {
+        id: "item-compliant",
+        type: "APARTMENT",
+        breakerSize: "63A",
+        cableSize: "16 mm²",
+        voltageDrop: 1.2,
+        apartmentTemplate: { phases: 1, rooms: [{ connectedLoad: 10000 }] },
+      },
+    ]);
+    mocks.floorItemUpdate.mockResolvedValue({});
+    mocks.transaction.mockResolvedValue([]);
+
+    const res = await postRecalculate("bldg-1");
+    expect(res.status).toBe(200);
+
+    const [firstCall, secondCall] = mocks.floorItemUpdate.mock.calls;
+    expect(firstCall[0].where).toEqual({ id: "item-undersized" });
+    expect(firstCall[0].data.breakerSize).toBeNull();
+    expect(firstCall[0].data.cableSize).toBeNull();
+    expect(firstCall[0].data.voltageDrop).toBeNull();
+
+    expect(secondCall[0].where).toEqual({ id: "item-compliant" });
+    expect(secondCall[0].data.breakerSize).toBeUndefined();
+    expect(secondCall[0].data.cableSize).toBeUndefined();
+    expect(secondCall[0].data.voltageDrop).toBeUndefined();
+  });
+
+  it("resets sizing and voltage drop when resetSizing is requested", async () => {
+    mocks.buildingFindUnique.mockResolvedValue({
+      id: "bldg-1",
+      projectId: "proj-1",
+      project: { id: "proj-1", voltage: 400, powerFactor: 0.85 },
+    });
+    mocks.floorItemFindMany.mockResolvedValue([
+      {
+        id: "item-1",
+        type: "APARTMENT",
+        breakerSize: "63A",
+        cableSize: "16 mm²",
+        voltageDrop: 1.5,
+        apartmentTemplate: { phases: 1, rooms: [{ connectedLoad: 10000 }] },
+      },
+    ]);
+    mocks.floorItemUpdate.mockResolvedValue({});
+    mocks.transaction.mockResolvedValue([]);
+
+    const res = await postRecalculate("bldg-1", { resetSizing: true });
+    expect(res.status).toBe(200);
+
+    const [updateCall] = mocks.floorItemUpdate.mock.calls;
+    expect(updateCall[0].where).toEqual({ id: "item-1" });
+    expect(updateCall[0].data.breakerSize).toBeNull();
+    expect(updateCall[0].data.cableSize).toBeNull();
+    expect(updateCall[0].data.voltageDrop).toBeNull();
   });
 });

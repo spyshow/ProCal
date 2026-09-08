@@ -45,7 +45,7 @@ export default function CableSchedule({ project, buildingId, showHeader = true }
     if (buildingId && b.id !== buildingId) continue;
 
     // 1. Main Incomer Feeder Cable
-    const { mdbFeeders, mainIncomerSettings, mainBreakerIn, mainCableSize, mainParallelRuns, mainIncomerCurrent } = computeFeeders(b, project, () => ({
+    const { mdbFeeders, smdbFeeders, mainIncomerSettings, mainBreakerIn, mainCableSize, mainParallelRuns, mainIncomerCurrent } = computeFeeders(b, project, () => ({
       model: null,
       manufacturer: null,
       familyName: null,
@@ -72,11 +72,31 @@ export default function CableSchedule({ project, buildingId, showHeader = true }
     });
 
     for (const fd of b.floorDesigns) {
+      if (fd.hasFloorSubPanels) {
+        const smdbFeeder = mdbFeeders.find(f => f.floorDesignId === fd.id && f.type === 'SMDB');
+        const riserCable = fd.riserCableSize || smdbFeeder?.formattedCableSize || `${smdbFeeder?.cableSize || 120} mm²`;
+        const riserCurrent = smdbFeeder?.current || 0;
+        rows.push({
+          id: `${b.id}-${fd.id}-riser-cable`,
+          buildingName: b.name,
+          floor: fd.floorNumber,
+          circuit: `F${fd.floorNumber} Sub-Panel (SMDB) Riser`,
+          phaseLabel: '3Φ',
+          current: riserCurrent,
+          breaker: smdbFeeder ? `${smdbFeeder.breakerSize}A` : '—',
+          cable: riserCable,
+          method: fd.riserInstallMethod || 'C',
+          insulation: (fd.riserCableInsulation as any) || 'XLPE',
+          material: (fd.riserCableMaterial as any) || 'copper',
+        });
+      }
+
       for (const item of fd.items) {
         const isThreePhase = isThreePhaseForItem(item);
-        const matchingFeeder =
-          mdbFeeders.find((f) => f.floorDesignId === fd.id && f.name.includes(item.name)) ||
-          mdbFeeders.find((f) => f.name.includes(`F${fd.floorNumber}`) && f.name.includes(item.name));
+        const matchingFeeder = fd.hasFloorSubPanels
+          ? smdbFeeders(fd.floorNumber).find((f) => (f.itemId && f.itemId === item.id) || f.name.includes(item.name))
+          : (mdbFeeders.find((f) => (f.itemId && f.itemId === item.id) || (f.floorDesignId === fd.id && f.name.includes(item.name))) ||
+             mdbFeeders.find((f) => f.name.includes(`F${fd.floorNumber}`) && f.name.includes(item.name)));
         const effectiveBreaker = (item.breakerSize || (matchingFeeder?.breakerSize ? `${matchingFeeder.breakerSize}A` : '—')) || '—';
         const effectiveCable = (item.cableSize || matchingFeeder?.formattedCableSize) || '—';
 
@@ -103,6 +123,9 @@ export default function CableSchedule({ project, buildingId, showHeader = true }
       const current = isThreePhase
         ? totalKw / (Math.sqrt(3) * (lib.voltage / 1000) * lib.powerFactor)
         : totalKw / ((lib.voltage / 1000) * lib.powerFactor);
+      const matchingFeeder = mdbFeeders.find(f => f.buildingLoadId === bl.id);
+      const effectiveBreaker = (bl as any).breakerSize || (matchingFeeder?.breakerSize ? `${matchingFeeder.breakerSize}A` : '32A');
+      const effectiveCable = bl.cableSize || matchingFeeder?.formattedCableSize || '4 mm²';
       rows.push({
         id: bl.id,
         buildingName: b.name,
@@ -110,8 +133,8 @@ export default function CableSchedule({ project, buildingId, showHeader = true }
         circuit: lib.name,
         phaseLabel: isThreePhase ? '3Φ' : '1Φ',
         current,
-        breaker: (bl as any).breakerSize || '32A',
-        cable: bl.cableSize || '4 mm²',
+        breaker: effectiveBreaker,
+        cable: effectiveCable,
         method: bl.installMethod || 'C',
         insulation: bl.cableInsulation || 'XLPE',
         material: bl.cableMaterial || 'copper',

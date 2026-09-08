@@ -382,8 +382,17 @@ export default function CoordinationPage() {
     if (parentName === 'Main Incomer' && computedMainIncomer) {
       const saved = breakerSettings.find(
         (s) =>
-          (bldg && (s.breakerId === `${project?.id}-main-incomer-${bldg.id}` || s.breakerId === `main-incomer-${bldg.id}`)) ||
-          (project?.buildings.length === 1 && (s.breakerId === `${project?.id}-main-incomer` || s.breakerId === 'Main Incomer' || s.breakerId === 'main-incomer'))
+          (bldg && (
+            s.breakerId === `${project?.id}-main-incomer-${bldg.id}` ||
+            s.breakerId === `main-incomer-${bldg.id}` ||
+            s.breakerId === `${project?.id}-Main Incomer-${bldg.id}`
+          )) ||
+          (project?.buildings.length === 1 && (
+            s.breakerId === `${project?.id}-main-incomer` ||
+            s.breakerId === `${project?.id}-Main Incomer` ||
+            s.breakerId === 'Main Incomer' ||
+            s.breakerId === 'main-incomer'
+          ))
       );
       const effectiveIn = saved ? (parseInt(saved.frameSize) || computedMainIncomer.inRating) : computedMainIncomer.inRating;
       const effectiveIr = saved?.ir ?? computedMainIncomer.ir;
@@ -713,10 +722,13 @@ export default function CoordinationPage() {
           }
         }
       } else if (sug.type === 'SETTINGS_ADJUSTMENT' || sug.type === 'ELECTRONIC_TRIP_UNIT') {
+        const isMainIncomer = selectedFeeder.name === 'Main Incomer' || selectedFeeder.type === 'INCOMER';
         const stableBreakerId =
           selectedFeeder.buildingLoadId ||
           selectedFeeder.itemId ||
-          `${project.id}-${selectedFeeder.name}`;
+          (isMainIncomer
+            ? (bldg ? `${project.id}-main-incomer-${bldg.id}` : `${project.id}-main-incomer`)
+            : `${project.id}-${selectedFeeder.name}`);
         const fullModel = resolveBreakerDisplayName(
           sug.suggestedModel || selectedFeeder.breakerModel,
           selectedFeeder.breakerModel

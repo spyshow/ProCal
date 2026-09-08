@@ -281,8 +281,8 @@ export default function PanelDesignerPage() {
     const voltageKv = project.voltage / 1000;
     const kw = f.phaseKw
       ? f.phaseKw[0] + f.phaseKw[1] + f.phaseKw[2]
-      : project.voltage === 230
-        ? f.current * voltageKv * project.powerFactor
+      : !f.isThreePhase
+        ? f.current * (voltageKv / Math.sqrt(3)) * project.powerFactor
         : f.current * Math.sqrt(3) * voltageKv * project.powerFactor;
     // Accumulate per-phase kVA for transformer sizing (max-winding-limited).
     if (f.phaseKw) {

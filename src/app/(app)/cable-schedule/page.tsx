@@ -469,7 +469,8 @@ export default function CableSchedulePage() {
         // Riser current = worst-case per-phase current from the same imbalance-
         // aware balance used by the panel/riser pages (NOT the lumped √3
         // average, which under-sizes when phases are unevenly loaded).
-        const floorCurrent = phaseBalance((fd.items || []) as any, project as any).maxPhaseCurrent;
+        const floorBalance = phaseBalance((fd.items || []) as any, project as any);
+        const floorCurrent = floorBalance.maxPhaseCurrent;
         const parsed = parseCableSize(fd.riserCableSize);
         const cableSizeNum = parsed?.size ?? matchingFeeder?.cableSize ?? 120;
         const runs = parsed?.runs ?? matchingFeeder?.parallelRuns ?? 1;
@@ -514,10 +515,10 @@ export default function CableSchedulePage() {
           current: floorCurrent,
           isThreePhase: true,
           assignedPhase: null,
-          phaseCurrent: [floorCurrent, floorCurrent, floorCurrent],
-          neutralCurrent: 0,
-          unbalancePct: 0,
-          imbalanced: false,
+          phaseCurrent: floorBalance.phaseCurrent,
+          neutralCurrent: floorBalance.neutralCurrent,
+          unbalancePct: floorBalance.unbalancePct,
+          imbalanced: floorBalance.imbalanced,
           newCableSize: result.cableSize,
           newParallelRuns: result.parallelRuns,
           newFormattedSize: result.formattedCableSize,

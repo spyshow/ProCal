@@ -161,7 +161,7 @@ export function aggregateFeederRows(
         breakerAmps: f.breakerSize,
         cableMm2: f.cableSize,
         breakerModel: f.breakerModel,
-        isThreePhase: f.type !== 'APARTMENT',
+        isThreePhase: f.isThreePhase,
         isSubPanel: f.type === 'SMDB',
       });
     }
@@ -181,7 +181,7 @@ export function aggregateFeederRows(
           breakerAmps: f.breakerSize,
           cableMm2: f.cableSize,
           breakerModel: f.breakerModel,
-          isThreePhase: f.type !== 'APARTMENT',
+          isThreePhase: f.isThreePhase,
           isSubPanel: false,
         });
       }
@@ -278,8 +278,9 @@ export function aggregateBreakerRows(
         current: f.current,
         breakerAmps: f.breakerSize,
         cableMm2: f.cableSize,
+        parallelRuns: f.parallelRuns,
         breakerModel: f.breakerModel,
-        isThreePhase: f.type !== 'APARTMENT',
+        isThreePhase: f.isThreePhase,
       });
     }
 
@@ -294,8 +295,9 @@ export function aggregateBreakerRows(
           current: f.current,
           breakerAmps: f.breakerSize,
           cableMm2: f.cableSize,
+          parallelRuns: f.parallelRuns,
           breakerModel: f.breakerModel,
-          isThreePhase: f.type !== 'APARTMENT',
+          isThreePhase: f.isThreePhase,
         });
       }
     }

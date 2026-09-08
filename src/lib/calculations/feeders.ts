@@ -788,9 +788,6 @@ export function computeFeeders(
     ...(building.buildingLoads ?? []),
   ];
   const overallBalance = phaseBalance(allItems, project);
-  const overallPhaseById = new Map(
-    overallBalance.assignments.map((a) => [a.id, a.assignedPhase])
-  );
 
   for (const fd of building.floorDesigns) {
     // Per-phase balance for this floor. 3-phase loads split equally; 1-phase

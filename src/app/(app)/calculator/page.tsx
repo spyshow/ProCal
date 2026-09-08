@@ -183,7 +183,11 @@ function CalculatorContent() {
   };
 
   const handleRecalculate = async (floorDesignId: string) => {
-    await fetch(`/api/floors/${floorDesignId}/recalculate`, { method: 'POST' });
+    await fetch(`/api/floors/${floorDesignId}/recalculate`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ resetSizing: true }),
+    });
     loadProject();
   };
 
@@ -321,7 +325,11 @@ function CalculatorContent() {
             <div className="flex items-center gap-2">
               <button
                 onClick={async () => {
-                  await fetch(`/api/buildings/${bldg.id}/recalculate`, { method: 'POST' });
+                  await fetch(`/api/buildings/${bldg.id}/recalculate`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ resetSizing: true }),
+                  });
                   loadProject();
                 }}
                 className={`group flex items-center gap-2 px-4 py-2 rounded-lg text-white text-sm font-semibold transition-all duration-300 ${

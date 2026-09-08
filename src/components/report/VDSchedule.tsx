@@ -2,11 +2,12 @@ import {
   computeItemVoltageDrop,
   getItemCableLength,
   getBuildingLoadCableLength,
+  getRiserCableLength,
   parseCableSize,
   formatCableSizeFor,
   sizeCableAndBreaker,
 } from '@/lib/calculations/cables';
-import { isThreePhaseForItem } from '@/lib/calculations/feeders';
+import { isThreePhaseForItem, computeFeeders } from '@/lib/calculations/feeders';
 import { TraceableCell } from '@/components/common/TraceableCell';
 import {
   buildVoltageDropTrace,
@@ -43,31 +44,94 @@ export default function VDSchedule({ project, buildingId, showHeader = true }: V
 
   for (const b of project.buildings) {
     if (buildingId && b.id !== buildingId) continue;
+
+    const { mdbFeeders, smdbFeeders, mainIncomerSettings, mainCableSize, mainParallelRuns, mainIncomerCurrent } = computeFeeders(b, project, () => ({
+      model: null,
+      manufacturer: null,
+      familyName: null,
+      ratedCurrent: null,
+      fallback: true,
+      fallbackType: 'GENERIC_SPEC',
+    }));
+
+    // 1. Main Incomer Feeder VD
+    const incomerLength = b.incomerCableLength ?? 15;
+    const incomerCable = mainParallelRuns > 1 ? `${mainParallelRuns} × ${mainCableSize} mm²` : `${mainCableSize} mm²`;
+    const incomerCurrent = mainIncomerCurrent || mainIncomerSettings.ir;
+    const incomerVD = computeItemVoltageDrop({
+      current: incomerCurrent,
+      lengthMeters: incomerLength,
+      cableSizeInput: incomerCable,
+      powerFactor: project.powerFactor || 0.85,
+      isThreePhase: true,
+      systemVoltageLL: project.voltage,
+      material: (b.incomerCableMaterial as 'copper' | 'aluminum' | undefined) || 'copper',
+    })?.dropPercent;
+    if (incomerVD != null) {
+      const limit = project.maxVoltageDropPower || 5;
+      const status = incomerVD <= limit ? 'OK' : incomerVD <= limit * 1.2 ? 'WARNING' : 'FAIL';
+      rows.push({
+        id: `${b.id}-main-incomer-vd`,
+        buildingName: b.name,
+        floor: 0,
+        circuit: project.buildings.length > 1 ? `${b.name} – Main Incomer Feeder` : 'Main Incomer Feeder',
+        current: incomerCurrent,
+        cable: incomerCable,
+        length: incomerLength,
+        vd: incomerVD,
+        status,
+      });
+    }
+
     for (const fd of b.floorDesigns) {
+      // 2. SMDB Riser Feeder VD (if sub-panel exists)
+      if (fd.hasFloorSubPanels) {
+        const smdbFeeder = mdbFeeders.find(f => f.floorDesignId === fd.id && f.type === 'SMDB');
+        const riserCable = fd.riserCableSize || smdbFeeder?.formattedCableSize || `${smdbFeeder?.cableSize || 120} mm²`;
+        const riserCurrent = smdbFeeder?.current || 0;
+        const riserLength = getRiserCableLength(fd);
+        const calculatedRiserVD = computeItemVoltageDrop({
+          current: riserCurrent,
+          lengthMeters: riserLength,
+          cableSizeInput: riserCable,
+          powerFactor: project.powerFactor || 0.85,
+          isThreePhase: true,
+          systemVoltageLL: project.voltage,
+          material: (fd.riserCableMaterial as 'copper' | 'aluminum' | undefined) || 'copper',
+        })?.dropPercent;
+        if (calculatedRiserVD != null) {
+          const limit = project.maxVoltageDropPower || 5;
+          const status = calculatedRiserVD <= limit ? 'OK' : calculatedRiserVD <= limit * 1.2 ? 'WARNING' : 'FAIL';
+          rows.push({
+            id: `${b.id}-${fd.id}-riser-vd`,
+            buildingName: b.name,
+            floor: fd.floorNumber,
+            circuit: `F${fd.floorNumber} Sub-Panel (SMDB) Riser`,
+            current: riserCurrent,
+            cable: riserCable,
+            length: riserLength,
+            vd: calculatedRiserVD,
+            status,
+          });
+        }
+      }
+
       for (const item of fd.items) {
         const isThreePhase = isThreePhaseForItem(item);
         const length = getItemCableLength(item, fd.floorNumber);
-        const pf = project.powerFactor || 0.85;
-        const connectedKw = item.calculatedConnectedLoad ?? 0;
-        const designCurrent = item.type === 'APARTMENT' && connectedKw > 0
-          ? (isThreePhase
-              ? connectedKw / (Math.sqrt(3) * (project.voltage / 1000) * pf)
-              : connectedKw / ((project.voltage / Math.sqrt(3) / 1000) * pf))
-          : item.calculatedCurrent;
-        const autoCable = sizeCableAndBreaker(designCurrent || item.calculatedCurrent, isThreePhase, {
-          material: (item.cableMaterial as 'copper' | 'aluminum' | undefined) || 'copper',
-          insulation: (item.cableInsulation as 'PVC' | 'XLPE' | undefined) || 'XLPE',
-          ambientTemp: item.ambientTemp ?? project.ambientTemp ?? 30,
-          groupingCount: item.groupingCount ?? project.groupingCount ?? 1,
-          installMethod: item.installMethod ?? 'C',
-        }).formattedCableSize;
-        const effectiveCableSize = item.cableSize || autoCable;
+        const matchingFeeder = fd.hasFloorSubPanels
+          ? smdbFeeders(fd.floorNumber).find((f) => (f.itemId && f.itemId === item.id) || f.name.includes(item.name))
+          : (mdbFeeders.find((f) => (f.itemId && f.itemId === item.id) || (f.floorDesignId === fd.id && f.name.includes(item.name))) ||
+             mdbFeeders.find((f) => f.name.includes(`F${fd.floorNumber}`) && f.name.includes(item.name)));
+
+        const effectiveCableSize = item.cableSize || matchingFeeder?.formattedCableSize || '4 mm²';
+        const effectiveCurrent = item.calculatedCurrent || matchingFeeder?.current || 0;
 
         // Shared engine helper: parses "2 × 240 mm²" parallel notation,
         // applies runs + conductor material, and uses Uo = U_LL/√3 as the
         // denominator for single-phase circuits.
         const calculatedVD = computeItemVoltageDrop({
-          current: item.calculatedCurrent,
+          current: effectiveCurrent,
           lengthMeters: length,
           cableSizeInput: effectiveCableSize,
           powerFactor: project.powerFactor || 0.85,
@@ -87,7 +151,7 @@ export default function VDSchedule({ project, buildingId, showHeader = true }: V
           buildingName: b.name,
           floor: fd.floorNumber,
           circuit: item.name,
-          current: item.calculatedCurrent,
+          current: effectiveCurrent,
           cable: effectiveCableSize,
           length,
           vd,
@@ -105,7 +169,8 @@ export default function VDSchedule({ project, buildingId, showHeader = true }: V
         ? totalKw / (Math.sqrt(3) * (lib.voltage / 1000) * lib.powerFactor)
         : totalKw / ((lib.voltage / 1000) * lib.powerFactor);
       const length = getBuildingLoadCableLength(bl);
-      const effectiveBlCable = bl.cableSize || '4 mm²';
+      const matchingFeeder = mdbFeeders.find(f => f.buildingLoadId === bl.id);
+      const effectiveBlCable = bl.cableSize || matchingFeeder?.formattedCableSize || '4 mm²';
 
       const calculatedVD = computeItemVoltageDrop({
         current,

@@ -488,12 +488,17 @@ export default function RiserPage() {
                         {/* apartment nodes tap off the rail, stacked vertically */}
                         {fd.items.slice(0, 4).map((item, fi) => {
                           const nodeCY = cy + (fi - (N - 1) / 2) * 26;
-                          const aptLeft = 740;
+                          const isThreePhase = (item.apartmentTemplate?.phases ?? 1) === 3;
+                          const connectedKw = item.calculatedConnectedLoad ?? 0;
+                          const pf = project.powerFactor || 0.85;
+                          const designCurrent = connectedKw > 0
+                            ? (isThreePhase
+                                ? connectedKw / (Math.sqrt(3) * (project.voltage / 1000) * pf)
+                                : connectedKw / ((project.voltage / Math.sqrt(3) / 1000) * pf))
+                            : (item.calculatedCurrent || 10);
                           const itemCableSize = item.cableSize || sizeCableAndBreaker(
-                            (item.calculatedConnectedLoad && item.calculatedConnectedLoad > 0)
-                              ? (item.calculatedConnectedLoad / ((project.voltage / Math.sqrt(3) / 1000) * (project.powerFactor || 0.85)))
-                              : (item.calculatedCurrent || 10),
-                            (item.apartmentTemplate?.phases ?? 1) === 3,
+                            designCurrent,
+                            isThreePhase,
                             {
                               material: (item.cableMaterial as any) || 'copper',
                               insulation: (item.cableInsulation as any) || 'XLPE',
@@ -501,6 +506,7 @@ export default function RiserPage() {
                               groupingCount: item.groupingCount ?? 1,
                             }
                           ).formattedCableSize;
+                          const aptLeft = 740;
                           return (
                             <g key={fi}>
                               <line x1={railX} y1={nodeCY} x2={aptLeft} y2={nodeCY} stroke="#3b82f6" strokeWidth="1.5" />

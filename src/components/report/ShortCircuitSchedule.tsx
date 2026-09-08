@@ -71,7 +71,7 @@ export default function ShortCircuitSchedule({
       balance.phaseKw[2] / pf,
     ];
     const bldgTx = buildingId ? relevantBuildings[0]?.transformer : undefined;
-    const transformerKva = bldgTx || project.transformerSize || sizeTransformer(demandKva || 500, 1.2, perPhaseKva);
+    const transformerKva = bldgTx || project.transformerSize || (demandKva > 0 ? sizeTransformer(demandKva, 1.2, perPhaseKva) : 500);
 
     const sc = calculateShortCircuitCurrent({
       ratedPower: transformerKva,

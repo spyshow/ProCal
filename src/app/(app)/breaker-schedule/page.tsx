@@ -276,9 +276,12 @@ export default function BreakerSchedulePage() {
         (s) =>
           s.breakerId === `${project.id}-main-incomer-${bldg.id}` ||
           s.breakerId === `main-incomer-${bldg.id}` ||
+          s.breakerId === `${project.id}-Main Incomer-${bldg.id}` ||
           (project.buildings.length === 1 && (
             s.breakerId === `${project.id}-main-incomer` ||
-            s.breakerId === 'main-incomer'
+            s.breakerId === `${project.id}-Main Incomer` ||
+            s.breakerId === 'main-incomer' ||
+            s.breakerId === 'Main Incomer'
           ))
       );
       const effectiveIncomerModel = resolveBreakerDisplayName(
@@ -639,10 +642,13 @@ export default function BreakerSchedulePage() {
           }
         }
       } else if (sug.type === 'SETTINGS_ADJUSTMENT' || sug.type === 'ELECTRONIC_TRIP_UNIT') {
+        const isMainIncomer = selectedFeederForModal.name === 'Main Incomer' || selectedFeederForModal.type === 'INCOMER';
         const stableBreakerId =
           selectedFeederForModal.buildingLoadId ||
           selectedFeederForModal.itemId ||
-          `${project.id}-${selectedFeederForModal.name}`;
+          (isMainIncomer
+            ? (bldg ? `${project.id}-main-incomer-${bldg.id}` : `${project.id}-main-incomer`)
+            : `${project.id}-${selectedFeederForModal.name}`);
         const fullModel = resolveBreakerDisplayName(
           sug.suggestedModel || selectedFeederForModal.breakerModel,
           selectedFeederForModal.breakerModel

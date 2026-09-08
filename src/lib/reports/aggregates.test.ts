@@ -594,5 +594,26 @@ describe('aggregateShortCircuitRows', () => {
     expect(rows[0].transformerKva).toBeDefined();
     expect(rows[0].transformerKva).toBeGreaterThan(0);
   });
+
+  it('preserves isThreePhase correctly for 3-phase apartments and 1-phase loads', () => {
+    const bldg = building({
+      floorDesigns: [{
+        id: 'f1', floorNumber: 1, hasFloorSubPanels: false,
+        items: [
+          item({ name: '3P Apt', type: 'APARTMENT', calculatedCurrent: 40, apartmentTemplate: { phases: 3, rooms: [] } as any }),
+          item({ name: '1P Light', type: 'LIGHTING', calculatedCurrent: 10, loadLibraryItem: { phase: 1 } as any }),
+        ],
+      }],
+    });
+
+    const rows = aggregateBreakerRows(projectWithBuildings([bldg]), findBreaker);
+    const aptRow = rows.find(r => r.feeder.includes('3P Apt'));
+    const lightRow = rows.find(r => r.feeder.includes('1P Light'));
+
+    expect(aptRow).toBeDefined();
+    expect(aptRow!.isThreePhase).toBe(true);
+    expect(lightRow).toBeDefined();
+    expect(lightRow!.isThreePhase).toBe(false);
+  });
 });
 

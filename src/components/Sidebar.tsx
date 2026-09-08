@@ -375,7 +375,7 @@ export default function Sidebar() {
                 "text-[9px] font-bold uppercase tracking-wider text-orange-400 bg-orange-500/10 border border-orange-500/20 px-1.5 py-0.5 rounded",
                 isRtl ? "mr-auto" : "ml-auto"
               )}>
-                v1.3.3
+                v1.3.4
               </span>
             </div>
             <p className="text-[9.5px] text-slate-400 tracking-tight font-medium truncate mt-0.5">

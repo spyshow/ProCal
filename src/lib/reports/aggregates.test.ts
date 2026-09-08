@@ -5,6 +5,7 @@ import {
   aggregateCableRows,
   aggregateBreakerRows,
   aggregateVoltageDropRows,
+  aggregateShortCircuitRows,
   type EquipmentItem,
 } from './aggregates';
 import type { Building, FloorItem, Project } from '@/types';
@@ -556,3 +557,42 @@ describe('aggregateVoltageDropRows', () => {
     expect(rows230[0].voltageDropPercent).toBeGreaterThan(rows400[0].voltageDropPercent);
   });
 });
+
+// ---------------------------------------------------------------------------
+// aggregateBreakerRows parallelRuns & aggregateShortCircuitRows
+// ---------------------------------------------------------------------------
+
+describe('aggregateBreakerRows parallel runs', () => {
+  it('includes parallelRuns on the incomer row when sized with parallel cables', () => {
+    // Large load (e.g. 700A) requiring parallel runs
+    const bldg = building({
+      floorDesigns: [{
+        id: 'f1', floorNumber: 1, hasFloorSubPanels: false,
+        items: [item({ calculatedCurrent: 350 }), item({ calculatedCurrent: 350 })],
+      }],
+    });
+
+    const rows = aggregateBreakerRows(projectWithBuildings([bldg]), findBreaker);
+    const incomer = rows.find((r) => r.type === 'INCOMER');
+    expect(incomer).toBeDefined();
+    expect(incomer!.parallelRuns).toBeDefined();
+    expect(incomer!.parallelRuns).toBeGreaterThanOrEqual(1);
+  });
+});
+
+describe('aggregateShortCircuitRows', () => {
+  it('populates transformerKva on short circuit rows from computeFeeders', () => {
+    const bldg = building({
+      floorDesigns: [{
+        id: 'f1', floorNumber: 1, hasFloorSubPanels: false,
+        items: [item({ calculatedCurrent: 30 })],
+      }],
+    });
+
+    const rows = aggregateShortCircuitRows(projectWithBuildings([bldg]), findBreaker);
+    expect(rows.length).toBeGreaterThan(0);
+    expect(rows[0].transformerKva).toBeDefined();
+    expect(rows[0].transformerKva).toBeGreaterThan(0);
+  });
+});
+

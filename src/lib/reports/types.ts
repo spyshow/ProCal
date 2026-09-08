@@ -68,6 +68,7 @@ export interface BreakerRow {
   current: number;
   breakerAmps: number;
   cableMm2: number;
+  parallelRuns?: number;
   breakerModel: string;
   isThreePhase: boolean;
 }
@@ -120,6 +121,7 @@ export interface ShortCircuitRow {
   threePhaseIscKa: number;
   twoPhaseIscKa: number;
   breakerIcuKa?: number;
+  transformerKva?: number;
   status: 'SAFE' | 'MARGINAL' | 'OVERLOAD';
 }
 

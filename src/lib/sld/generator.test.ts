@@ -83,4 +83,14 @@ describe('SLD Generator', () => {
     const dsl = generateSLD(mockProject as Parameters<typeof generateSLD>[0]);
     expect(dsl).toContain('= load');
   });
+
+  it('dynamically sizes transformer from project loads when transformerSize is null', () => {
+    const projectWithoutTx = {
+      ...mockProject,
+      transformerSize: null,
+    };
+    const dsl = generateSLD(projectWithoutTx as Parameters<typeof generateSLD>[0]);
+    // 3 apartments of 5kW = 15kW total demand / 0.85 * 1.2 = 21.2 kVA -> sizes to standard 100 kVA
+    expect(dsl).toContain('rating: "100 kVA"');
+  });
 });

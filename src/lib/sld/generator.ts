@@ -1,4 +1,6 @@
 import { formatCableSizeFor } from "@/lib/calculations/cables";
+import { sizeTransformer } from "@/lib/calculations/loads";
+import { phaseBalance } from "@/lib/calculations/phaseBalance";
 
 interface SLDProject {
   name: string;
@@ -11,6 +13,7 @@ interface SLDProject {
     id?: string;
     name: string;
     floors: number;
+    buildingLoads?: any[];
     floorDesigns: {
       id?: string;
       floorNumber: number;
@@ -25,6 +28,7 @@ interface SLDProject {
         calculatedCurrent: number;
         breakerSize?: string | null;
         cableSize?: string | null;
+        [key: string]: any;
       }[];
     }[];
   }[];
@@ -42,7 +46,26 @@ export function generateSLD(project: SLDProject): string {
   lines.push('');
 
   // Transformer
-  const txKva = project.transformerSize || 1000;
+  let txKva = project.transformerSize;
+  if (!txKva) {
+    const allItems = project.buildings?.flatMap((b) => [
+      ...(b.floorDesigns?.flatMap((fd) => fd.items || []) || []),
+      ...(b.buildingLoads || []),
+    ]) || [];
+    if (allItems.length > 0) {
+      const balance = phaseBalance(allItems as any, project as any);
+      const pf = project.powerFactor || 0.85;
+      const demandKva = balance.totalKw / pf;
+      const perPhaseKva: [number, number, number] = [
+        balance.phaseKw[0] / pf,
+        balance.phaseKw[1] / pf,
+        balance.phaseKw[2] / pf,
+      ];
+      txKva = sizeTransformer(demandKva || 500, 1.2, perPhaseKva);
+    } else {
+      txKva = 1000;
+    }
+  }
   lines.push(`xfmr = transformer_dy [label: "Main Transformer", rating: "${txKva} kVA", voltage: "${project.voltage}V"]`);
   lines.push('');
 

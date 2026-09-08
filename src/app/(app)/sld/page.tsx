@@ -6,6 +6,8 @@ import { useProject } from '@/context/ProjectContext';
 import { useTranslation } from '@/i18n';
 import { SchematexDiagram } from 'schematex/react';
 import { generateSLDPages, generateSLD, type SLDPage as SLDPageType } from '@/lib/sld/generator';
+import { sizeTransformer } from '@/lib/calculations/loads';
+import { phaseBalance } from '@/lib/calculations/phaseBalance';
 import {
   GitBranch,
   ZoomIn,
@@ -145,8 +147,24 @@ export default function SLDPage() {
     setPages(generatedPages);
     setActivePage(0);
 
-    const txRating = project.transformerSize ? `${project.transformerSize} kVA` : '1000 kVA';
-    const txKvaVal = project.transformerSize || 1000;
+    let calculatedTx = 1000;
+    const allProjectItems = project.buildings?.flatMap((b) => [
+      ...(b.floorDesigns?.flatMap((fd) => fd.items || []) || []),
+      ...(b.buildingLoads || []),
+    ]) || [];
+    if (allProjectItems.length > 0) {
+      const balance = phaseBalance(allProjectItems as any, project as any);
+      const pf = project.powerFactor || 0.85;
+      const demandKva = balance.totalKw / pf;
+      const perPhaseKva: [number, number, number] = [
+        balance.phaseKw[0] / pf,
+        balance.phaseKw[1] / pf,
+        balance.phaseKw[2] / pf,
+      ];
+      calculatedTx = sizeTransformer(demandKva || 500, 1.2, perPhaseKva);
+    }
+    const txKvaVal = project.transformerSize || calculatedTx;
+    const txRating = `${txKvaVal} kVA`;
     setSelectedComponent({
       id: 'xfmr-main',
       name: `${project.name} Main Transformer`,
@@ -227,7 +245,23 @@ export default function SLDPage() {
     }> = [];
 
     // 1. Grid Incomer
-    const txKva = project.transformerSize || 1000;
+    let dynamicTx = 1000;
+    const allItems = project.buildings?.flatMap((b) => [
+      ...(b.floorDesigns?.flatMap((fd) => fd.items || []) || []),
+      ...(b.buildingLoads || []),
+    ]) || [];
+    if (allItems.length > 0) {
+      const balance = phaseBalance(allItems as any, project as any);
+      const pf = project.powerFactor || 0.85;
+      const demandKva = balance.totalKw / pf;
+      const perPhaseKva: [number, number, number] = [
+        balance.phaseKw[0] / pf,
+        balance.phaseKw[1] / pf,
+        balance.phaseKw[2] / pf,
+      ];
+      dynamicTx = sizeTransformer(demandKva || 500, 1.2, perPhaseKva);
+    }
+    const txKva = project.transformerSize || dynamicTx;
     rootItems.push({
       id: 'grid-utility',
       name: `Utility Grid Incomer (${project.voltage}V)`,

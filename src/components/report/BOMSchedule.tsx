@@ -166,9 +166,24 @@ export default function BOMSchedule({ project, buildingId, showHeader = true }: 
       }
 
       const processFeeder = (f: { breakerSize: number; isThreePhase: boolean; type: string; breakerModel: string; manufacturer: string | null; fallbackType?: FallbackType; genericSpec?: GenericBreakerSpec }) => {
+        const modelUpper = (f.breakerModel || '').toUpperCase();
+        const isMcbModel = modelUpper.includes('MCB') || modelUpper.includes('S200') || modelUpper.includes('FAZ') || modelUpper.includes('IC60') || modelUpper.includes('C60');
+        const isMccbModel = modelUpper.includes('MCCB') || modelUpper.includes('NSX') || modelUpper.includes('XT') || modelUpper.includes('DPX') || modelUpper.includes('NZM');
+        const isAcbModel = modelUpper.includes('ACB') || modelUpper.includes('MASTERPACT') || modelUpper.includes('EVAL') || modelUpper.includes('AIR');
+
         const cat: 'ACB' | 'MCCB' | 'MCB' =
-          f.breakerSize >= 630 ? 'ACB' : f.breakerSize > 63 || f.type !== 'APARTMENT' ? 'MCCB' : 'MCB';
-        const polesStr = f.isThreePhase ? '3P' : cat === 'MCB' ? '1P' : '3P';
+          isAcbModel || f.breakerSize >= 630
+            ? 'ACB'
+            : isMcbModel
+            ? 'MCB'
+            : isMccbModel
+            ? 'MCCB'
+            : f.type === 'INCOMER'
+            ? 'MCCB'
+            : f.breakerSize > 63
+            ? 'MCCB'
+            : 'MCB';
+        const polesStr = f.isThreePhase ? '3P' : '1P';
         const key = `${f.breakerSize}-${cat}-${polesStr}-${f.breakerModel}`;
 
         const existing = breakerMap.get(key);

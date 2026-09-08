@@ -55,7 +55,10 @@ export default function ShortCircuitSchedule({
 
   // Overall transformer source short-circuit metrics
   const scSummary = useMemo(() => {
-    const allItems = project.buildings.flatMap((b) => [
+    const relevantBuildings = buildingId
+      ? project.buildings.filter((b) => b.id === buildingId)
+      : project.buildings;
+    const allItems = relevantBuildings.flatMap((b) => [
       ...b.floorDesigns.flatMap((fd) => fd.items),
       ...(b.buildingLoads ?? []),
     ]);
@@ -67,16 +70,18 @@ export default function ShortCircuitSchedule({
       balance.phaseKw[1] / pf,
       balance.phaseKw[2] / pf,
     ];
-    const transformerKva = project.transformerSize || sizeTransformer(demandKva || 500, 1.2, perPhaseKva);
+    const bldgTx = buildingId ? relevantBuildings[0]?.transformer : undefined;
+    const transformerKva = bldgTx || project.transformerSize || sizeTransformer(demandKva || 500, 1.2, perPhaseKva);
 
-    return calculateShortCircuitCurrent({
+    const sc = calculateShortCircuitCurrent({
       ratedPower: transformerKva,
       voltagePrimary: 11000,
       voltageSecondary: project.voltage,
       impedancePercent: getTypicalImpedance(transformerKva),
       earthingSystem: 'TN-S',
     });
-  }, [project]);
+    return { ...sc, transformerKva };
+  }, [project, buildingId]);
 
   return (
     <div className="space-y-4 font-sans text-slate-900">
@@ -104,8 +109,8 @@ export default function ShortCircuitSchedule({
             getTrace={() =>
               buildShortCircuitTrace({
                 locationName: "Main Transformer Secondary (3-Phase)",
-                transformerKva: scSummary.faultMVA ? Math.round(scSummary.faultMVA * 50) : 1000,
-                transformerZPercent: 5.5,
+                transformerKva: scSummary.transformerKva,
+                transformerZPercent: getTypicalImpedance(scSummary.transformerKva),
                 voltageSecondaryV: project.voltage || 400,
                 threePhaseIscKa: scSummary.threePhaseIsc,
                 peakCurrentKa: scSummary.peakCurrent,
@@ -122,8 +127,8 @@ export default function ShortCircuitSchedule({
             getTrace={() =>
               buildShortCircuitTrace({
                 locationName: "Main Transformer Secondary (2-Phase)",
-                transformerKva: scSummary.faultMVA ? Math.round(scSummary.faultMVA * 50) : 1000,
-                transformerZPercent: 5.5,
+                transformerKva: scSummary.transformerKva,
+                transformerZPercent: getTypicalImpedance(scSummary.transformerKva),
                 voltageSecondaryV: project.voltage || 400,
                 threePhaseIscKa: scSummary.twoPhaseIsc,
                 calculationStandard: project.calculationStandard,
@@ -139,8 +144,8 @@ export default function ShortCircuitSchedule({
             getTrace={() =>
               buildShortCircuitTrace({
                 locationName: "Peak Electrodynamic Stress",
-                transformerKva: scSummary.faultMVA ? Math.round(scSummary.faultMVA * 50) : 1000,
-                transformerZPercent: 5.5,
+                transformerKva: scSummary.transformerKva,
+                transformerZPercent: getTypicalImpedance(scSummary.transformerKva),
                 voltageSecondaryV: project.voltage || 400,
                 threePhaseIscKa: scSummary.threePhaseIsc,
                 peakCurrentKa: scSummary.peakCurrent,
@@ -200,33 +205,35 @@ export default function ShortCircuitSchedule({
               </td>
               <td className="p-2 border-r border-slate-200 text-center font-mono font-bold text-red-600">
                 <TraceableCell
-                  getTrace={() =>
-                    buildShortCircuitTrace({
+                  getTrace={() => {
+                    const trafoKva = row.transformerKva || scSummary.transformerKva;
+                    return buildShortCircuitTrace({
                       locationName: `${row.buildingName} - ${row.feeder} (3-Phase Fault)`,
-                      transformerKva: 1000,
-                      transformerZPercent: 5.5,
+                      transformerKva: trafoKva,
+                      transformerZPercent: getTypicalImpedance(trafoKva),
                       voltageSecondaryV: project.voltage || 400,
                       threePhaseIscKa: row.threePhaseIscKa,
                       peakCurrentKa: row.threePhaseIscKa * 2.1,
                       calculationStandard: project.calculationStandard,
-                    })
-                  }
+                    });
+                  }}
                 >
                   {row.threePhaseIscKa.toFixed(2)} kA
                 </TraceableCell>
               </td>
               <td className="p-2 border-r border-slate-200 text-center font-mono text-amber-700">
                 <TraceableCell
-                  getTrace={() =>
-                    buildShortCircuitTrace({
+                  getTrace={() => {
+                    const trafoKva = row.transformerKva || scSummary.transformerKva;
+                    return buildShortCircuitTrace({
                       locationName: `${row.buildingName} - ${row.feeder} (2-Phase Fault)`,
-                      transformerKva: 1000,
-                      transformerZPercent: 5.5,
+                      transformerKva: trafoKva,
+                      transformerZPercent: getTypicalImpedance(trafoKva),
                       voltageSecondaryV: project.voltage || 400,
                       threePhaseIscKa: row.twoPhaseIscKa,
                       calculationStandard: project.calculationStandard,
-                    })
-                  }
+                    });
+                  }}
                 >
                   {row.twoPhaseIscKa.toFixed(2)} kA
                 </TraceableCell>

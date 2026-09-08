@@ -494,7 +494,12 @@ export default function RiserPage() {
                               ? (item.calculatedConnectedLoad / ((project.voltage / Math.sqrt(3) / 1000) * (project.powerFactor || 0.85)))
                               : (item.calculatedCurrent || 10),
                             (item.apartmentTemplate?.phases ?? 1) === 3,
-                            { material: (item.cableMaterial as any) || 'copper', insulation: (item.cableInsulation as any) || 'XLPE' }
+                            {
+                              material: (item.cableMaterial as any) || 'copper',
+                              insulation: (item.cableInsulation as any) || 'XLPE',
+                              ambientTemp: item.ambientTemp ?? 30,
+                              groupingCount: item.groupingCount ?? 1,
+                            }
                           ).formattedCableSize;
                           return (
                             <g key={fi}>

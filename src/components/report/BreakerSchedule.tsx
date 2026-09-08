@@ -3,6 +3,7 @@
 import { useMemo, useState, useEffect } from 'react';
 import { computeFeeders, createFindBreaker, type FindBreaker } from '@/lib/calculations/feeders';
 import { formatCableSizeFor } from '@/lib/calculations/cables';
+import { getTypicalImpedance } from '@/lib/calculations/shortCircuit';
 import { useEquipmentCatalog } from '@/hooks/useEquipmentCatalog';
 import { TraceableCell } from '@/components/common/TraceableCell';
 import {
@@ -31,6 +32,8 @@ interface BreakerRow {
   isBreakerUpsized?: boolean;
   upsizeReason?: string;
   cableSize: number;
+  parallelRuns?: number;
+  transformerKva?: number;
   breakerModel: string;
   isThreePhase: boolean;
   parentFeederName?: string | null;
@@ -115,10 +118,12 @@ export default function BreakerSchedule({
         mainIncomerSettings,
         mainBreakerIn,
         mainCableSize,
+        mainParallelRuns,
         mainCableIz,
         mainCableUnderProtected,
         mainIncomerCurrent,
         transformerIscKa,
+        transformerSizeKva,
       } = computeFeeders(bldg, project, findBreaker);
 
       // 1. Main Incomer Row
@@ -162,6 +167,8 @@ export default function BreakerSchedule({
         breakerSize: effectiveIncomerIn,
         baseBreakerSize: mainBreakerIn,
         cableSize: mainCableSize,
+        parallelRuns: mainParallelRuns,
+        transformerKva: transformerSizeKva,
         breakerModel: effectiveIncomerModel,
         isThreePhase: true,
         parentFeederName: 'Utility / Transformer Supply',
@@ -405,16 +412,19 @@ export default function BreakerSchedule({
                     )}
                   </td>
                   <td className="p-2 border-r border-slate-200 text-center font-mono text-slate-800">
-                    {b.cableSize ? formatCableSizeFor(b.cableSize, project.calculationStandard) : 'Busbar'}
+                    {b.cableSize
+                      ? `${b.parallelRuns && b.parallelRuns > 1 ? `${b.parallelRuns} × ` : ''}${formatCableSizeFor(b.cableSize, project.calculationStandard)}`
+                      : 'Busbar'}
                   </td>
                   <td className="p-2 border-r border-slate-200 text-right font-mono text-red-600 font-bold">
                     {b.faultCurrentKa ? (
                       <TraceableCell
                         getTrace={() => {
+                          const trafoKva = b.transformerKva || 1000;
                           return buildShortCircuitTrace({
                             locationName: `${b.buildingName} - ${b.name}`,
-                            transformerKva: 1000,
-                            transformerZPercent: 5.5,
+                            transformerKva: trafoKva,
+                            transformerZPercent: getTypicalImpedance(trafoKva),
                             voltageSecondaryV: project.voltage || 400,
                             threePhaseIscKa: b.faultCurrentKa || 25,
                             peakCurrentKa: (b.faultCurrentKa || 25) * 2.1,

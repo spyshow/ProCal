@@ -45,7 +45,7 @@ export default function CableSchedule({ project, buildingId, showHeader = true }
     if (buildingId && b.id !== buildingId) continue;
 
     // 1. Main Incomer Feeder Cable
-    const { mainIncomerSettings, mainBreakerIn, mainCableSize, mainParallelRuns, mainIncomerCurrent } = computeFeeders(b, project, () => ({
+    const { mdbFeeders, mainIncomerSettings, mainBreakerIn, mainCableSize, mainParallelRuns, mainIncomerCurrent } = computeFeeders(b, project, () => ({
       model: null,
       manufacturer: null,
       familyName: null,
@@ -77,8 +77,8 @@ export default function CableSchedule({ project, buildingId, showHeader = true }
         const matchingFeeder =
           mdbFeeders.find((f) => f.floorDesignId === fd.id && f.name.includes(item.name)) ||
           mdbFeeders.find((f) => f.name.includes(`F${fd.floorNumber}`) && f.name.includes(item.name));
-        const effectiveBreaker = item.breakerSize || (matchingFeeder ? `${matchingFeeder.breakerSize}A` : undefined);
-        const effectiveCable = item.cableSize || (matchingFeeder ? matchingFeeder.formattedCableSize : undefined);
+        const effectiveBreaker = (item.breakerSize || (matchingFeeder?.breakerSize ? `${matchingFeeder.breakerSize}A` : '—')) || '—';
+        const effectiveCable = (item.cableSize || matchingFeeder?.formattedCableSize) || '—';
 
         rows.push({
           id: item.id || `${b.id}-${fd.floorNumber}-${item.name}`,

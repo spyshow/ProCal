@@ -244,6 +244,7 @@ export function aggregateBreakerRows(
       mainIncomerSettings,
       mainBreakerIn,
       mainCableSize,
+      mainParallelRuns,
       mainIncomerCurrent,
     } = computeFeeders(bldg, project, findBreaker);
 
@@ -257,6 +258,7 @@ export function aggregateBreakerRows(
       current: mainIncomerCurrent || mainIncomerSettings.ir,
       breakerAmps: mainBreakerIn,
       cableMm2: mainCableSize,
+      parallelRuns: mainParallelRuns,
       breakerModel: mainIncomerSettings.model || 'Main Incomer ACB',
       isThreePhase: true,
     });
@@ -528,7 +530,7 @@ export function aggregateShortCircuitRows(
   const rows: ShortCircuitRow[] = [];
 
   for (const bldg of project.buildings) {
-    const { mdbFeeders, smdbFloorNumbers, smdbFeeders, transformerIscKa, mainBreakingCapacityKa } = computeFeeders(
+    const { mdbFeeders, smdbFloorNumbers, smdbFeeders, transformerIscKa, transformerSizeKva, mainBreakingCapacityKa } = computeFeeders(
       bldg,
       project,
       findBreaker
@@ -549,6 +551,7 @@ export function aggregateShortCircuitRows(
       threePhaseIscKa: transformerIscKa,
       twoPhaseIscKa: parseFloat((transformerIscKa * 0.866).toFixed(2)),
       breakerIcuKa: incomerIcu,
+      transformerKva: transformerSizeKva,
       status: scStatus(incomerIcu, transformerIscKa),
     });
 
@@ -566,6 +569,7 @@ export function aggregateShortCircuitRows(
         threePhaseIscKa: isc,
         twoPhaseIscKa: parseFloat((isc * 0.866).toFixed(2)),
         breakerIcuKa: icu,
+        transformerKva: transformerSizeKva,
         status: scStatus(icu, isc),
       });
     }
@@ -585,6 +589,7 @@ export function aggregateShortCircuitRows(
           threePhaseIscKa: isc,
           twoPhaseIscKa: parseFloat((isc * 0.866).toFixed(2)),
           breakerIcuKa: icu,
+          transformerKva: transformerSizeKva,
           status: scStatus(icu, isc),
         });
       }

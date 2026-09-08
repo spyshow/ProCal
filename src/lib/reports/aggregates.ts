@@ -402,14 +402,23 @@ export function aggregateLoadRows(project: Project): LoadRow[] {
   const pf = project.powerFactor || 0.85;
 
   for (const bldg of project.buildings) {
+    const allBldgItems = [
+      ...bldg.floorDesigns.flatMap((fd) => fd.items),
+      ...(bldg.buildingLoads ?? []),
+    ];
+    const bldgBalance = phaseBalance(allBldgItems as any, project as any);
+    const bldgPhaseById = new Map(
+      bldgBalance.assignments.filter((a) => a.phaseCount === 1).map((a) => [a.id, a.assignedPhase])
+    );
+
     for (const fd of bldg.floorDesigns) {
       // Phase assignment comes from the SAME balance the panel uses, so the
       // report's L1/L2/L3 columns match the board instead of an independent
       // (floor+index)%3 cycling that disagreed with it.
-      const balance = phaseBalance(fd.items, project as never);
-      const phaseById = new Map(
-        balance.assignments.filter((a) => a.phaseCount === 1).map((a) => [a.id, a.assignedPhase])
-      );
+      const floorBalance = fd.hasFloorSubPanels ? phaseBalance(fd.items, project as never) : null;
+      const phaseById = floorBalance
+        ? new Map(floorBalance.assignments.filter((a) => a.phaseCount === 1).map((a) => [a.id, a.assignedPhase]))
+        : bldgPhaseById;
 
       fd.items.forEach((item, idx) => {
         const letter = String.fromCharCode(65 + (idx % 26));
@@ -433,7 +442,7 @@ export function aggregateLoadRows(project: Project): LoadRow[] {
           currentL2 = current;
           currentL3 = current;
         } else {
-          const assigned = phaseById.get(item.id) ?? 1;
+          const assigned = item.assignedPhase ?? phaseById.get(item.id) ?? 1;
           if (assigned === 1) currentL1 = current;
           else if (assigned === 2) currentL2 = current;
           else currentL3 = current;

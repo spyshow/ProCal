@@ -752,6 +752,8 @@ export interface ComputeFeedersResult {
   mainBreakingCapacityKa: number | null;
   /** Prospective secondary short-circuit current (kA) at the main incomer. */
   transformerIscKa: number;
+  /** Vector sum neutral current (A) for the main incoming supply. */
+  mainNeutralCurrent?: number;
   /** Sized or specified transformer rating (kVA) for this building's supply. */
   transformerSizeKva: number;
 }
@@ -780,6 +782,15 @@ export function computeFeeders(
   const mdbFeeders: PanelFeeder[] = [];
   // Project's code decides the breaker-rating catalog (NEC 240.6(A) vs IEC).
   const code = codeOf(project.calculationStandard);
+
+  const allItems = [
+    ...building.floorDesigns.flatMap((fd) => fd.items),
+    ...(building.buildingLoads ?? []),
+  ];
+  const overallBalance = phaseBalance(allItems, project);
+  const overallPhaseById = new Map(
+    overallBalance.assignments.map((a) => [a.id, a.assignedPhase])
+  );
 
   for (const fd of building.floorDesigns) {
     // Per-phase balance for this floor. 3-phase loads split equally; 1-phase
@@ -939,11 +950,6 @@ export function computeFeeders(
   // -------------------------------------------------------------------------
 
   // 1. Calculate transformer capacity and prospective secondary short-circuit current
-  const allItems = [
-    ...building.floorDesigns.flatMap((fd) => fd.items),
-    ...(building.buildingLoads ?? []),
-  ];
-  const overallBalance = phaseBalance(allItems, project);
   const transformerPf = project.powerFactor || 0.85;
   const totalDemandKva = overallBalance.totalKw / transformerPf;
   // Size on the worst-loaded winding, not the lumped total: a transformer
@@ -1332,6 +1338,7 @@ export function computeFeeders(
     mainCableUnderProtected,
     mainBreakerIn,
     mainIncomerCurrent,
+    mainNeutralCurrent: overallBalance.neutralCurrent,
     mainBreakingCapacityKa: mainMatch.breakingCapacity ?? null,
     transformerIscKa,
     transformerSizeKva,

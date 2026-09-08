@@ -261,6 +261,8 @@ export default function PanelDesignerPage() {
     mainCableIz,
     mainCableUnderProtected,
     transformerSizeKva,
+    mainIncomerCurrent,
+    mainNeutralCurrent,
   } = feederResult!;
 
   const busbarRating = mainBreakerIn <= 800 ? 800 : mainBreakerIn <= 1600 ? 1600 : 3200;
@@ -292,7 +294,7 @@ export default function PanelDesignerPage() {
   }, 0);
   // Main Current mirrors computeFeeders: worst-loaded phase current (the
   // lumped √3 average understates an unbalanced board's loaded phase).
-  const mainBreakerCurrent = Math.max(
+  const mainBreakerCurrent = mainIncomerCurrent ?? Math.max(
     Math.max(
       mdbFeeders.reduce((s, f) => s + (f.phaseCurrent?.[0] ?? 0), 0),
       mdbFeeders.reduce((s, f) => s + (f.phaseCurrent?.[1] ?? 0), 0),
@@ -313,20 +315,20 @@ export default function PanelDesignerPage() {
   // Parallel cables per phase from the sizing engine (re-sized to the catalog frame)
   const cablesPerPhase = mainParallelRuns;
 
-  // Neutral: sum per-phase unbalance across all feeders
-  const maxPhaseCurrent = Math.max(
-    mdbFeeders.reduce((s, f) => s + (f.phaseCurrent?.[0] ?? 0), 0),
-    mdbFeeders.reduce((s, f) => s + (f.phaseCurrent?.[1] ?? 0), 0),
-    mdbFeeders.reduce((s, f) => s + (f.phaseCurrent?.[2] ?? 0), 0),
-  );
-  const neutralCurrent = mdbFeeders.reduce((s, f) => s + (f.neutralCurrent ?? 0), 0);
-  // Reduce N cable if neutral current < 50% of max phase current
-  const canReduceN = maxPhaseCurrent > 0 && neutralCurrent < maxPhaseCurrent * 0.5;
+  // Neutral: vector neutral current from whole-building balance (IEC 60364-5-52 §524)
+  const maxPhaseCurrent = mainBreakerCurrent;
+  const neutralCurrent = mainNeutralCurrent ?? mdbFeeders.reduce((s, f) => s + (f.neutralCurrent ?? 0), 0);
+  // Neutral cross-section rules per IEC 60364-5-52 §524:
+  // 1. S_N >= 16 mm² for copper (or phase size if S_phase <= 16 mm²).
+  // 2. S_N >= S_phase / 2 (half-size neutral allowed only when Ineutral <= 0.5 * Iphase and S_phase > 16 mm²).
+  // 3. For parallel installations, number of neutral conductors matches phase runs.
+  const minNeutralSize = Math.max(16, mainCable.size <= 16 ? mainCable.size : Math.ceil(mainCable.size / 2));
+  const canReduceN = mainCable.size > 16 && maxPhaseCurrent > 0 && neutralCurrent < maxPhaseCurrent * 0.5;
   const neutralSize = canReduceN
-    ? (CABLE_CATALOG.find((c) => c.copperXlpe3Ph >= neutralCurrent && c.size < mainCable.size) ?? mainCable).size
+    ? (CABLE_CATALOG.find((c) => c.size >= minNeutralSize && c.copperXlpe3Ph * cablesPerPhase >= neutralCurrent && c.size < mainCable.size) ?? mainCable).size
     : mainCable.size;
   const neutralCable = CABLE_CATALOG.find((c) => c.size === neutralSize) ?? mainCable;
-  const neutralCables = Math.ceil(neutralCurrent / (neutralCable.copperXlpe3Ph || 1));
+  const neutralCables = cablesPerPhase;
 
   // Earthing & Short Circuit calculations
   const earthingSystem = bldg.earthingSystem || 'TN-S';

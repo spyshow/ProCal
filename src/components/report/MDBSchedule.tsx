@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { computeFeeders, createFindBreaker, type FindBreaker } from '@/lib/calculations/feeders';
+import { phaseBalance } from '@/lib/calculations/phaseBalance';
 import { formatCableSizeFor, parseCableSize, calculateCableAmpacity } from '@/lib/calculations/cables';
 import { codeOf } from '@/lib/calculations/codes';
 import { useEquipmentCatalog } from '@/hooks/useEquipmentCatalog';
@@ -81,6 +82,7 @@ export default function MDBSchedule({ project, buildingId, showHeader = true }: 
         mainCableSize,
         mainParallelRuns,
         mainCableIz,
+        mainIncomerCurrent,
       } = computeFeeders(bldg, project, findBreaker);
 
       const feederFloor = (feederName: string): number => {
@@ -88,13 +90,18 @@ export default function MDBSchedule({ project, buildingId, showHeader = true }: 
         return m ? parseInt(m[1], 10) : 0;
       };
 
-      const currentToKw = (current: number) =>
-        (Math.sqrt(3) * (project.voltage / 1000) * current * project.powerFactor);
+      const currentToKw = (current: number, isThreePhase: boolean = true) =>
+        isThreePhase
+          ? (Math.sqrt(3) * (project.voltage / 1000) * current * project.powerFactor)
+          : ((project.voltage / Math.sqrt(3) / 1000) * current * project.powerFactor);
 
-      // Main incomer row: the catalog-frame breaker and its re-sized cable
-      // (size + parallel runs + derated ampacity Iz) come from computeFeeders,
-      // so this report shows the same device as the panel / breaker-schedule /
-      // coordination pages. Demand/current use the tuned pickup Ir.
+      // Main incomer row: demand uses building total demand kW directly from balance
+      const allBldgItems = [
+        ...bldg.floorDesigns.flatMap((fd) => fd.items),
+        ...(bldg.buildingLoads ?? []),
+      ];
+      const bldgBalance = phaseBalance(allBldgItems as any, project as any);
+
       mdbIndex += 1;
       rows.push({
         idx: mdbIndex,
@@ -102,8 +109,8 @@ export default function MDBSchedule({ project, buildingId, showHeader = true }: 
         floor: 0,
         feeder: 'Main Incomer',
         type: mainIncomerSettings.category ?? (mainBreakerIn >= 630 ? 'ACB' : 'MCCB'),
-        demand: currentToKw(mainIncomerSettings.ir),
-        current: mainIncomerSettings.ir,
+        demand: bldgBalance.totalKw,
+        current: mainIncomerCurrent,
         breaker: `${mainBreakerIn}A`,
         cable: mainParallelRuns > 1
           ? `${mainParallelRuns} × ${mainCableSize} mm²`
@@ -121,7 +128,7 @@ export default function MDBSchedule({ project, buildingId, showHeader = true }: 
           floor,
           feeder: f.name,
           type: f.type,
-          demand: currentToKw(f.current),
+          demand: currentToKw(f.current, f.isThreePhase),
           current: f.current,
           breaker: `${f.breakerSize}A`,
           cable: f.formattedCableSize ?? `${f.cableSize} mm²`,
@@ -139,7 +146,7 @@ export default function MDBSchedule({ project, buildingId, showHeader = true }: 
             floor: floorNumber,
             feeder: f.name,
             type: f.type,
-            demand: currentToKw(f.current),
+            demand: currentToKw(f.current, f.isThreePhase),
             current: f.current,
             breaker: `${f.breakerSize}A`,
             cable: f.formattedCableSize ?? `${f.cableSize} mm²`,

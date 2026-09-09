@@ -1,7 +1,7 @@
 'use client';
 /* eslint-disable react-hooks/set-state-in-effect, @typescript-eslint/no-explicit-any */
 
-import { useEffect, useState, useCallback, useRef } from 'react';
+import { useEffect, useState, useCallback, useMemo, useRef } from 'react';
 import { useReactToPrint } from 'react-to-print';
 import { useProject } from '@/context/ProjectContext';
 import { useTranslation } from '@/i18n';

@@ -33,7 +33,9 @@ import BreakerSchedule from '@/components/report/BreakerSchedule';
 import VDSchedule from '@/components/report/VDSchedule';
 import ShortCircuitSchedule from '@/components/report/ShortCircuitSchedule';
 import type { Project, ProjectRevision, ReportTab } from '@/types';
-import { createFindBreaker, computeFeeders, type EquipmentItem } from '@/lib/calculations/feeders';
+import { createFindBreaker, computeFeeders, type EquipmentItem, type FindBreaker } from '@/lib/calculations/feeders';
+import { useEquipmentCatalog } from '@/hooks/useEquipmentCatalog';
+import { resolveBuildingIncomer } from '@/lib/reports/aggregates';
 import WorkflowStepper from '@/components/layout/WorkflowStepper';
 import { AccessRestricted } from '@/components/AccessRestricted';
 import { ReadOnlyBanner } from '@/components/ReadOnlyBanner';
@@ -102,21 +104,47 @@ export default function ReportsPage() {
     loadRevisions();
   }, [loadRevisions]);
 
+  const [breakerSettings, setBreakerSettings] = useState<any[]>([]);
+
+  useEffect(() => {
+    fetch(`/api/breaker-settings?t=${Date.now()}`, {
+      cache: 'no-store',
+      headers: { 'Cache-Control': 'no-cache' },
+    })
+      .then((res) => (res.ok ? res.json() : []))
+      .then((data) => setBreakerSettings(data))
+      .catch(() => {});
+  }, []);
+
+  const catalogQuery = useMemo(() => {
+    const params = new URLSearchParams();
+    const m = preferredManufacturer || project?.preferredManufacturer;
+    if (m && m !== 'MIXED') {
+      params.set('manufacturer', m);
+    }
+    return params.toString();
+  }, [preferredManufacturer, project?.preferredManufacturer]);
+
+  const { equipment } = useEquipmentCatalog(catalogQuery);
+
+  const findBreaker: FindBreaker = useMemo(
+    () =>
+      createFindBreaker(
+        equipment,
+        {
+          ACB: project?.defaultAcbFamilyId ?? undefined,
+          MCCB: project?.defaultMccbFamilyId ?? undefined,
+          MCB: project?.defaultMcbFamilyId ?? undefined,
+        },
+        preferredManufacturer || project?.preferredManufacturer
+      ),
+    [equipment, project, preferredManufacturer]
+  );
+
   const handleExportExcel = async () => {
     if (!project || exporting) return;
     setExporting(true);
     try {
-      const res = await fetch(`/api/equipment?category=ACB,MCCB,MCB`);
-      const equipment: EquipmentItem[] = res.ok ? await res.json() : [];
-      const findBreaker = createFindBreaker(
-        equipment,
-        {
-          ACB: project.defaultAcbFamilyId ?? undefined,
-          MCCB: project.defaultMccbFamilyId ?? undefined,
-          MCB: project.defaultMcbFamilyId ?? undefined,
-        },
-        preferredManufacturer
-      );
       const [{ buildReportWorkbook }, XLSX] = await Promise.all([
         import('@/lib/reports/excel'),
         import('xlsx'),
@@ -326,7 +354,7 @@ export default function ReportsPage() {
         <div className="grid grid-cols-4 gap-3 mb-2">
           <div className="border border-amber-200 rounded-xl p-2.5 text-center bg-amber-50/60">
             <span className="text-[10px] font-bold uppercase text-amber-800 block">Total Max Demand</span>
-            <span className="text-base font-black text-amber-950 font-mono">{totalDemandKw.toFixed(1)} kVA</span>
+            <span className="text-base font-black text-amber-950 font-mono">{demandKva.toFixed(1)} kVA</span>
           </div>
           <div className="border border-sky-200 rounded-xl p-2.5 text-center bg-sky-50/60">
             <span className="text-[10px] font-bold uppercase text-sky-800 block">Calculated Current</span>
@@ -356,7 +384,7 @@ export default function ReportsPage() {
               <th className="p-2 border-r border-slate-800 text-center">Main Incomer Breaker</th>
               <th className="p-2 border-r border-slate-800 text-center">Main Feeder Cable</th>
               <th className="p-2 border-r border-slate-800 text-center">Sub-Panels (DB/SMDB)</th>
-              <th className="p-2 text-right">Max Demand (kVA)</th>
+              <th className="p-2 text-right">Max Demand (kW / Amps)</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-200 text-slate-800">
@@ -366,19 +394,7 @@ export default function ReportsPage() {
                 ...(bldg.buildingLoads ?? []),
               ];
               const bldgBalance = phaseBalance(bldgItems as never, project as never);
-              const { mainBreakerIn, mainCableSize, mainParallelRuns } = computeFeeders(bldg, project, () => ({
-                model: null,
-                manufacturer: null,
-                familyName: null,
-                ratedCurrent: null,
-                fallback: true,
-                fallbackType: 'GENERIC_SPEC',
-              }));
-
-              const incomerCat = mainBreakerIn >= 630 ? 'ACB' : 'MCCB';
-              const cableSpec = mainParallelRuns > 1
-                ? `${mainParallelRuns} × (4C × ${formatCableSizeFor(mainCableSize, project.calculationStandard)})`
-                : `4C × ${formatCableSizeFor(mainCableSize, project.calculationStandard)}`;
+              const incomer = resolveBuildingIncomer(bldg, project, findBreaker, breakerSettings);
 
               return (
                 <tr key={bldg.id} className={idx % 2 === 0 ? 'bg-white' : 'bg-slate-50/80'}>
@@ -386,17 +402,17 @@ export default function ReportsPage() {
                   <td className="p-2 border-r border-slate-200 text-center font-mono">{bldg.floors}</td>
                   <td className="p-2 border-r border-slate-200 text-center font-mono font-bold text-slate-900">
                     <span className="px-2 py-0.5 rounded bg-amber-50 border border-amber-200 text-amber-900">
-                      {mainBreakerIn}A {incomerCat}
+                      {incomer.breakerRating}A {incomer.breakerCategory}
                     </span>
                   </td>
                   <td className="p-2 border-r border-slate-200 text-center font-mono text-[11px] text-slate-700">
-                    {cableSpec}
+                    {incomer.cableSpec}
                   </td>
                   <td className="p-2 border-r border-slate-200 text-center font-mono text-slate-700">
                     {bldg.floorDesigns?.length || 0} Panels
                   </td>
                   <td className="p-2 text-right font-bold text-slate-900 font-mono">
-                    {bldgBalance.totalKw.toFixed(1)} kVA{' '}
+                    {bldgBalance.totalKw.toFixed(1)} kW{' '}
                     <span className="text-amber-700 font-normal text-[11px]">
                       ({bldgBalance.maxPhaseCurrent.toFixed(1)}A)
                     </span>
@@ -544,9 +560,14 @@ export default function ReportsPage() {
       {/* Rendered into react-to-print iframe with clean A4 page breaks */}
       <div ref={printRef} id="print-all-tabs" className="hidden print:block w-full">
         {/* Page 1: Executive Cover Page */}
-        <div className="print-page-container w-full p-2 bg-white text-slate-900">
-          <CoverPage project={project} companyName={company.companyName} companyLogoUrl={company.logoUrl} revisions={revisions} />
-        </div>
+          <CoverPage
+            project={project}
+            companyName={company.companyName}
+            companyLogoUrl={company.logoUrl}
+            revisions={revisions}
+            findBreaker={findBreaker}
+            breakerSettings={breakerSettings}
+          />
 
         {/* Page 2: Load Analysis & Balancing */}
         <div style={{ pageBreakBefore: 'always', breakBefore: 'page' }} className="print-page-container w-full p-2 bg-white text-slate-900">

@@ -6,6 +6,7 @@ import {
   aggregateBreakerRows,
   aggregateVoltageDropRows,
   aggregateShortCircuitRows,
+  resolveBuildingIncomer,
   type EquipmentItem,
 } from './aggregates';
 import type { Building, FloorItem, Project } from '@/types';
@@ -614,6 +615,47 @@ describe('aggregateShortCircuitRows', () => {
     expect(aptRow!.isThreePhase).toBe(true);
     expect(lightRow).toBeDefined();
     expect(lightRow!.isThreePhase).toBe(false);
+  });
+});
+
+describe('resolveBuildingIncomer (Breaker Schedule as Source of Truth)', () => {
+  it('resolves catalog frame breaker and sizes cable ampacity to cover breaker rating', () => {
+    const bldg = building({
+      floorDesigns: [{
+        id: 'f1', floorNumber: 1, hasFloorSubPanels: false,
+        items: [item({ calculatedCurrent: 200 })],
+      }],
+    });
+    const proj = projectWithBuildings([bldg]);
+    const incomer = resolveBuildingIncomer(bldg, proj, findBreaker);
+
+    expect(incomer.breakerRating).toBe(250);
+    expect(incomer.breakerCategory).toBe('MCCB');
+    expect(incomer.breakerModel).toContain('ABB Tmax T5');
+    expect(incomer.cableSize).toBeGreaterThan(0);
+    expect(incomer.cableSpec).toContain('mm²');
+  });
+
+  it('respects saved overrides from Step 2 breaker settings', () => {
+    const bldg = building({
+      id: 'bldg-override',
+      floorDesigns: [{
+        id: 'f1', floorNumber: 1, hasFloorSubPanels: false,
+        items: [item({ calculatedCurrent: 100 })],
+      }],
+    });
+    const proj = projectWithBuildings([bldg]);
+    const savedOverrides = [
+      {
+        breakerId: `${proj.id}-main-incomer-${bldg.id}`,
+        frameSize: '400',
+        model: 'Custom Engineered ABB XT5 Incomer',
+      },
+    ];
+    const incomer = resolveBuildingIncomer(bldg, proj, findBreaker, savedOverrides);
+
+    expect(incomer.breakerRating).toBe(400);
+    expect(incomer.breakerModel).toBe('Custom Engineered ABB XT5 Incomer');
   });
 });
 

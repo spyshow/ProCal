@@ -3,7 +3,8 @@
 
 import { phaseBalance } from '@/lib/calculations/phaseBalance';
 import { sizeTransformer } from '@/lib/calculations/loads';
-import { computeFeeders } from '@/lib/calculations/feeders';
+import { computeFeeders, type FindBreaker } from '@/lib/calculations/feeders';
+import { resolveBuildingIncomer } from '@/lib/reports/aggregates';
 import type { Project, ProjectRevision } from '@/types';
 
 export interface CoverPageProps {
@@ -11,6 +12,8 @@ export interface CoverPageProps {
   companyName?: string;
   companyLogoUrl?: string;
   revisions?: ProjectRevision[];
+  findBreaker?: FindBreaker;
+  breakerSettings?: any[];
 }
 
 export default function CoverPage({
@@ -18,6 +21,8 @@ export default function CoverPage({
   companyName,
   companyLogoUrl,
   revisions = [],
+  findBreaker,
+  breakerSettings,
 }: CoverPageProps) {
   const displayLogo = project.logoUrl || companyLogoUrl;
   const displayCompany = companyName || 'ProCal — Low-voltage Electrical design, Solved';
@@ -114,7 +119,7 @@ export default function CoverPage({
           <div className="grid grid-cols-4 gap-2">
             <div className="border border-amber-200 rounded-lg p-1.5 text-center bg-amber-50/60">
               <span className="text-[8.5px] font-bold uppercase text-amber-800 block">Total Max Demand</span>
-              <span className="text-xs font-black text-amber-950 font-mono">{totalDemandKw.toFixed(1)} kW</span>
+              <span className="text-xs font-black text-amber-950 font-mono">{demandKva.toFixed(1)} kVA</span>
             </div>
             <div className="border border-sky-200 rounded-lg p-1.5 text-center bg-sky-50/60">
               <span className="text-[8.5px] font-bold uppercase text-sky-800 block">Calculated Current</span>
@@ -154,18 +159,20 @@ export default function CoverPage({
                   ...(bldg.buildingLoads ?? []),
                 ];
                 const bldgBalance = phaseBalance(bldgItems as any, project as any);
-                const { mainBreakerIn, mainCableSize, mainParallelRuns } = computeFeeders(bldg, project, () => ({
+                const fallbackFindBreaker: FindBreaker = () => ({
                   model: null,
                   manufacturer: null,
                   familyName: null,
                   ratedCurrent: null,
                   fallback: true,
                   fallbackType: 'GENERIC_SPEC',
-                }));
-                const incomerCat = mainBreakerIn >= 630 ? 'ACB' : 'MCCB';
-                const cableSpec = mainParallelRuns > 1
-                  ? `${mainParallelRuns} × (4C × ${mainCableSize} mm²)`
-                  : `4C × ${mainCableSize} mm²`;
+                });
+                const incomer = resolveBuildingIncomer(
+                  bldg,
+                  project,
+                  findBreaker || fallbackFindBreaker,
+                  breakerSettings
+                );
 
                 return (
                   <tr key={bldg.id} className={idx % 2 === 0 ? 'bg-white' : 'bg-slate-50/80'}>
@@ -173,11 +180,11 @@ export default function CoverPage({
                     <td className="p-1.5 border-r border-slate-200 text-center font-mono whitespace-nowrap">{bldg.floors} Floors</td>
                     <td className="p-1.5 border-r border-slate-200 text-center font-mono font-bold text-slate-900 whitespace-nowrap">
                       <span className="px-2 py-0.5 rounded bg-amber-50 border border-amber-200 text-amber-900 text-[9px]">
-                        {mainBreakerIn}A {incomerCat}
+                        {incomer.breakerRating}A {incomer.breakerCategory}
                       </span>
                     </td>
                     <td className="p-1.5 border-r border-slate-200 text-center font-mono text-[9px] text-slate-700 whitespace-nowrap">
-                      {cableSpec}
+                      {incomer.cableSpec}
                     </td>
                     <td className="p-1.5 border-r border-slate-200 text-center font-mono text-[9px] text-slate-600 whitespace-nowrap">
                       {bldg.floorDesigns?.length || 0} Sub-Panels

@@ -3,11 +3,12 @@ import {
   parseMm2,
   getItemCableLength,
   getBuildingLoadCableLength,
+  formatCableSizeFor,
 } from "@/lib/calculations/cables";
 import { phaseBalance } from "@/lib/calculations/phaseBalance";
 import { awgLabel } from "@/lib/calculations/codes";
 import { computeFeeders, type EquipmentItem, type FindBreaker } from "@/lib/calculations/feeders";
-import type { FloorItem, Project } from "@/types";
+import type { Building, FloorItem, Project } from "@/types";
 import type {
   BOMResult,
   BreakerRow,
@@ -222,6 +223,82 @@ export function aggregateCableRows(project: Project): CableRow[] {
   }
 
   return rows;
+}
+
+export interface BuildingIncomerResolution {
+  breakerRating: number;
+  breakerCategory: 'ACB' | 'MCCB';
+  breakerModel: string;
+  cableSize: number;
+  parallelRuns: number;
+  cableSpec: string;
+  cableIz?: number;
+  designCurrent: number;
+  isUnderProtected?: boolean;
+}
+
+/**
+ * Resolves a building's main incomer breaker and feeder cable according to the
+ * Breaker Schedule (single source of truth).
+ *
+ * Consults computeFeeders with the real equipment catalog, applies the matched
+ * frame size and Iz >= In cable sizing, and incorporates any persisted user overrides
+ * from the Breaker Schedule.
+ */
+export function resolveBuildingIncomer(
+  building: Building,
+  project: Project,
+  findBreaker: FindBreaker,
+  breakerSettings?: any[]
+): BuildingIncomerResolution {
+  const {
+    mainIncomerSettings,
+    mainBreakerIn,
+    mainCableSize,
+    mainParallelRuns,
+    mainCableIz,
+    mainCableUnderProtected,
+    mainIncomerCurrent,
+  } = computeFeeders(building, project, findBreaker);
+
+  // Check persisted user overrides from Step 2 (/breaker-schedule)
+  const incomerSaved = breakerSettings?.find(
+    (s: any) =>
+      s.breakerId === `${project.id}-main-incomer-${building.id}` ||
+      s.breakerId === `main-incomer-${building.id}` ||
+      s.breakerId === `${project.id}-Main Incomer-${building.id}` ||
+      (project.buildings.length === 1 && (
+        s.breakerId === `${project.id}-main-incomer` ||
+        s.breakerId === `${project.id}-Main Incomer` ||
+        s.breakerId === 'main-incomer' ||
+        s.breakerId === 'Main Incomer'
+      ))
+  );
+
+  const savedFrame = incomerSaved?.frameSize ? parseInt(incomerSaved.frameSize, 10) : NaN;
+  const effectiveIn = !isNaN(savedFrame) && savedFrame > 0 ? savedFrame : mainBreakerIn;
+  const effectiveModel =
+    incomerSaved?.model ||
+    mainIncomerSettings.model ||
+    `Main Incomer ${mainIncomerSettings.category ?? 'MCCB'}`;
+  const category = (effectiveIn >= 630 ? 'ACB' : 'MCCB') as 'ACB' | 'MCCB';
+
+  const cableSpec =
+    mainParallelRuns > 1
+      ? `${mainParallelRuns} × (4C × ${formatCableSizeFor(mainCableSize, project.calculationStandard)})`
+      : `4C × ${formatCableSizeFor(mainCableSize, project.calculationStandard)}`;
+
+  return {
+    breakerRating: effectiveIn,
+    breakerCategory: category,
+    breakerModel: effectiveModel,
+    cableSize: mainCableSize,
+    parallelRuns: mainParallelRuns,
+    cableSpec,
+    cableIz: mainCableIz,
+    designCurrent: mainIncomerCurrent || mainIncomerSettings.ir,
+    isUnderProtected: effectiveIn > (mainCableIz ?? Infinity) || mainCableUnderProtected,
+  };
 }
 
 /**

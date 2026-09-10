@@ -713,6 +713,7 @@ export interface CatalogItemInfo {
   model: string;
   ratedCurrent: number;
   breakingCapacity?: number | null;
+  tripUnit?: string | null;
 }
 
 export interface SuggestAlternativeOptions {
@@ -772,7 +773,22 @@ export function suggestAlternativeBreaker(
     let upstreamFallbackType: FallbackType = 'GENERIC_SPEC';
     let upstreamGenericSpec: GenericBreakerSpec | undefined;
 
-    if (isSchneider) {
+    const matchingCatalogItems = options?.equipmentCatalog?.filter(
+      (e) =>
+        e.ratedCurrent === targetUpstreamSize &&
+        e.manufacturer.toUpperCase() === mfg &&
+        (e.category === 'MCCB' || e.category === 'ACB')
+    ) || [];
+    const preferredCatalogMatch =
+      matchingCatalogItems.find((e) => e.tripUnit && (e.tripUnit.includes('LSI') || e.tripUnit.includes('MicroLogic') || e.tripUnit.includes('Ekip') || e.tripUnit.includes('ETU'))) ||
+      matchingCatalogItems[0];
+
+    if (preferredCatalogMatch) {
+      upstreamFallbackType = 'SAME_FAMILY';
+      suggestedUpstreamModel = preferredCatalogMatch.series
+        ? `${preferredCatalogMatch.manufacturer} ${preferredCatalogMatch.series} ${preferredCatalogMatch.model}`
+        : `${preferredCatalogMatch.manufacturer} ${preferredCatalogMatch.model}`;
+    } else if (isSchneider) {
       upstreamFallbackType = 'SAME_FAMILY';
       if (physicalFrameSize <= 630) {
         const frame = physicalFrameSize <= 100 ? '100' : physicalFrameSize <= 160 ? '160' : physicalFrameSize <= 250 ? '250' : physicalFrameSize <= 400 ? '400' : '630';
@@ -787,7 +803,9 @@ export function suggestAlternativeBreaker(
       if (physicalFrameSize <= 250) {
         suggestedUpstreamModel = `ABB Tmax XT4 ${targetUpstreamSize}A Ekip Dip LSI`;
       } else if (physicalFrameSize <= 630) {
-        suggestedUpstreamModel = `ABB Tmax XT5 ${physicalFrameSize}A Ekip Dip LSI`;
+        suggestedUpstreamModel = targetUpstreamSize === 320
+          ? `ABB Tmax XT5 XT5N 400 Ekip Dip LSI 320A`
+          : `ABB Tmax XT5 ${physicalFrameSize}A Ekip Dip LSI`;
       } else {
         suggestedUpstreamModel = `ABB Emax 2 E1.2 ${targetUpstreamSize}A Ekip Touch`;
       }
@@ -803,9 +821,7 @@ export function suggestAlternativeBreaker(
       };
     }
 
-    const description = targetUpstreamSize === 320
-      ? `Current grading requires Upstream Ir ≥ 1.6× Downstream Ir (${downstream.ir.toFixed(1)}A). A 320A discrete frame is not manufactured in the catalog; upgrading upstream to a 400A frame dialed to Ir = 320A provides the required margin (ratio: ${(targetUpstreamSize / downstream.ir).toFixed(2)}x) and achieves FULL discrimination up to 36 kA.`
-      : `Current grading requires Upstream Ir ≥ 1.6× Downstream Ir (${downstream.ir.toFixed(1)}A). Upgrading upstream to ${targetUpstreamSize}A provides the required margin (ratio: ${(targetUpstreamSize / downstream.ir).toFixed(2)}x) and achieves FULL discrimination.`;
+    const description = `Current grading requires Upstream Ir ≥ 1.6× Downstream Ir (${downstream.ir.toFixed(1)}A). Upgrading upstream to ${targetUpstreamSize}A provides the required margin (ratio: ${(targetUpstreamSize / downstream.ir).toFixed(2)}x) and achieves FULL discrimination.`;
 
     suggestions.push({
       id: 'sug-upstream-upgrade',
@@ -1024,12 +1040,15 @@ export function resolveCatalogBreakerOrAlternative(
     : 'Schneider').toUpperCase();
 
   // 1. Check if the chosen manufacturer has an exact rating match in the catalog
-  const exactChosen = catalog.find(
+  const matchingChosen = catalog.filter(
     (e) =>
       e.manufacturer.toUpperCase() === normMfg &&
       e.category === category &&
       e.ratedCurrent === targetRating
   );
+  const exactChosen =
+    matchingChosen.find((e) => e.tripUnit && (e.tripUnit.includes('LSI') || e.tripUnit.includes('MicroLogic') || e.tripUnit.includes('Ekip') || e.tripUnit.includes('ETU'))) ||
+    matchingChosen[0];
 
   if (exactChosen) {
     const fullModel = exactChosen.series
@@ -1047,12 +1066,18 @@ export function resolveCatalogBreakerOrAlternative(
 
   // 2. Not found in chosen manufacturer's catalog -> Search for an alternative!
   // 2a. Search other active manufacturers in the catalog for an exact match (Cross-Brand Alternative)
-  const exactOtherBrand = catalog.find(
+  const matchingOtherBrand = catalog.filter(
     (e) =>
       e.category === category &&
       e.ratedCurrent === targetRating &&
       e.manufacturer.toUpperCase() !== normMfg
   );
+  const exactOtherBrand =
+    matchingOtherBrand.find(
+      (e) =>
+        (e.tripUnit && (e.tripUnit.includes('LSI') || e.tripUnit.includes('MicroLogic') || e.tripUnit.includes('Ekip') || e.tripUnit.includes('ETU'))) ||
+        (e.model && (e.model.includes('LSI') || e.model.includes('MicroLogic') || e.model.includes('Ekip') || e.model.includes('ETU')))
+    ) || matchingOtherBrand[0];
 
   if (exactOtherBrand) {
     const fullModel = exactOtherBrand.series

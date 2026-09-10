@@ -807,5 +807,66 @@ describe('suggestAlternativeBreaker', () => {
       expect(res.alternativeReason).toContain('320A');
       expect(res.alternativeReason).toContain('400A');
     });
+
+    it('resolves 320A as exact match (not alternative) when catalog includes 320A for chosen manufacturer', () => {
+      const fullCatalog = [
+        ...catalog,
+        {
+          category: 'MCCB',
+          manufacturer: 'Schneider',
+          series: 'ComPacT NSX400',
+          model: 'NSX320F TM320DC',
+          ratedCurrent: 320,
+        },
+        {
+          category: 'MCCB',
+          manufacturer: 'Schneider',
+          series: 'ComPacT NSX400',
+          model: 'NSX400F MicroLogic 2.3 320A',
+          ratedCurrent: 320,
+          tripUnit: 'MicroLogic 2.3',
+        },
+        {
+          category: 'MCCB',
+          manufacturer: 'ABB',
+          series: 'Tmax XT5',
+          model: 'XT5N 400 Ekip Dip LSI 320A',
+          ratedCurrent: 320,
+          tripUnit: 'Ekip Dip LSI',
+        },
+        {
+          category: 'MCCB',
+          manufacturer: 'Siemens',
+          series: 'SENTRON 3VA2',
+          model: '3VA2332-5HN32',
+          ratedCurrent: 320,
+          tripUnit: 'ETU350 LSI',
+        },
+      ];
+
+      // Schneider test
+      const schneiderRes = resolveCatalogBreakerOrAlternative(320, 'MCCB', 'Schneider', fullCatalog);
+      expect(schneiderRes.isAlternative).toBe(false);
+      expect(schneiderRes.frameSize).toBe(320);
+      expect(schneiderRes.ir).toBe(320);
+      expect(schneiderRes.manufacturer).toBe('Schneider');
+      expect(schneiderRes.model).toContain('320');
+
+      // ABB test
+      const abbRes = resolveCatalogBreakerOrAlternative(320, 'MCCB', 'ABB', fullCatalog);
+      expect(abbRes.isAlternative).toBe(false);
+      expect(abbRes.frameSize).toBe(320);
+      expect(abbRes.ir).toBe(320);
+      expect(abbRes.manufacturer).toBe('ABB');
+      expect(abbRes.model).toContain('XT5N 400');
+
+      // Siemens test
+      const siemensRes = resolveCatalogBreakerOrAlternative(320, 'MCCB', 'Siemens', fullCatalog);
+      expect(siemensRes.isAlternative).toBe(false);
+      expect(siemensRes.frameSize).toBe(320);
+      expect(siemensRes.ir).toBe(320);
+      expect(siemensRes.manufacturer).toBe('Siemens');
+      expect(siemensRes.model).toContain('3VA2332');
+    });
   });
 });

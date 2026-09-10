@@ -750,7 +750,8 @@ export function suggestAlternativeBreaker(
     if (isSchneider) {
       upstreamFallbackType = 'SAME_FAMILY';
       if (targetUpstreamSize <= 630) {
-        suggestedUpstreamModel = `Schneider ComPacT NSX${targetUpstreamSize} ${targetUpstreamSize}A MicroLogic 2.3`;
+        const frame = targetUpstreamSize <= 100 ? '100' : targetUpstreamSize <= 160 ? '160' : targetUpstreamSize <= 250 ? '250' : targetUpstreamSize <= 400 ? '400' : '630';
+        suggestedUpstreamModel = `Schneider ComPacT NSX${frame} ${targetUpstreamSize}A MicroLogic 2.3`;
       } else {
         suggestedUpstreamModel = `Schneider MasterPact MTZ1 ${targetUpstreamSize}A MicroLogic 5.0 X`;
       }
@@ -787,6 +788,21 @@ export function suggestAlternativeBreaker(
       genericSpec: upstreamGenericSpec,
       expectedSelectivity: 'FULL',
       actionText: `Select ${targetUpstreamSize}A Upstream Breaker`,
+    });
+  } else if (upstream.ir < downstream.ir * 1.59) {
+    // 1b. Upstream Overload (Ir) Dial Tuning (when upstream frame size is already large enough, but Ir was dialed down too low)
+    const minTargetIr = Math.min(upstream.inRating, Math.ceil(downstream.ir * 1.6));
+    suggestions.push({
+      id: 'sug-upstream-ir-tuning',
+      type: 'SETTINGS_ADJUSTMENT',
+      badge: 'Upstream Ir Tuning',
+      title: `Adjust Upstream Overload Dial Ir to ≥ ${minTargetIr}A`,
+      description: `Upstream breaker frame (${upstream.inRating}A) is sufficient, but its current overload setting Ir (${upstream.ir.toFixed(1)}A) is dialed too low. Increasing upstream Ir to at least ${minTargetIr}A restores current grading margin (≥ 1.6×).`,
+      suggestedSettings: {
+        ir: minTargetIr,
+      },
+      expectedSelectivity: 'FULL',
+      actionText: `Set Upstream Ir to ${minTargetIr}A`,
     });
   }
 
@@ -847,8 +863,10 @@ export function suggestAlternativeBreaker(
     actionText: 'Apply LSI Settings',
   });
 
-  // 4. Downstream resize check (if load current is smaller than breaker frame)
-  const optimalDownstreamSize = STANDARD_BREAKER_SIZES.find((s) => s >= loadCurrent * 1.25);
+  // 4. Downstream resize check (if load current allows a smaller standard breaker frame)
+  const optimalDownstreamSize =
+    STANDARD_BREAKER_SIZES.find((s) => s >= loadCurrent * 1.25 && s < downstream.inRating) ??
+    STANDARD_BREAKER_SIZES.find((s) => s >= loadCurrent && s < downstream.inRating);
   if (optimalDownstreamSize && optimalDownstreamSize < downstream.inRating) {
     let suggestedDownstreamModel = `${optimalDownstreamSize}A LSI Breaker`;
     let downFallbackType: FallbackType = 'GENERIC_SPEC';

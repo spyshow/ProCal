@@ -202,6 +202,8 @@ export default function CoordinationPage() {
         let effectiveStatus = f.selectivityStatus;
         let effectiveLimitKa = f.selectivityLimitKa;
         let effectiveReason = f.selectivityReason;
+        let effectiveAlternativeSuggestions = f.alternativeSuggestions ?? [];
+        let effectiveSuggestedAlternative = f.suggestedAlternative ?? null;
 
         if (saved) {
           const customDownstream: BreakerCurveSettings = {
@@ -234,10 +236,59 @@ export default function CoordinationPage() {
           effectiveStatus = reCoord.status;
           effectiveLimitKa = reCoord.status === 'PARTIAL' && reCoord.limitCurrent ? reCoord.limitCurrent / 1000 : null;
           effectiveReason = reCoord.overlapDetails;
+
+          if (effectiveStatus !== 'FULL') {
+            effectiveAlternativeSuggestions = suggestAlternativeBreaker(
+              mainIncomerSettings,
+              customDownstream,
+              (f.faultCurrentKa || 15) * 1000,
+              {
+                downstreamLoadCurrent: f.current,
+                cableSizeMm2: f.cableSize,
+                parentFeederName: f.parentFeederName,
+                preferredManufacturer: project.preferredManufacturer,
+              }
+            );
+            effectiveSuggestedAlternative = effectiveAlternativeSuggestions[0]?.title ?? 'Resolve Coordination';
+          } else {
+            effectiveAlternativeSuggestions = [];
+            effectiveSuggestedAlternative = null;
+          }
         }
 
-        const effectiveSuggestedAlternative = effectiveStatus === 'FULL' ? null : f.suggestedAlternative;
-        const effectiveAlternativeSuggestions = effectiveStatus === 'FULL' ? [] : f.alternativeSuggestions;
+        if (effectiveStatus !== 'FULL') {
+          if (!effectiveAlternativeSuggestions || effectiveAlternativeSuggestions.length === 0) {
+            const downSettings: BreakerCurveSettings = {
+              inRating: f.breakerSize,
+              ir: f.current,
+              tr: 12,
+              isd: f.breakerSize * 4,
+              tsd: 0.05,
+              ii: f.breakerSize * 10,
+              category: f.type === 'SMDB' || f.type === 'SERVICE_PANEL' || f.type === 'PUMP_PANEL' || f.type === 'ELEVATOR_PANEL' ? 'MCCB' : (f.breakerSize <= 63 ? 'MCB' : 'MCCB'),
+              manufacturer: f.manufacturer ?? project.preferredManufacturer ?? 'Schneider',
+              model: effectiveModel,
+              isGeneric: false,
+            };
+            effectiveAlternativeSuggestions = suggestAlternativeBreaker(
+              mainIncomerSettings,
+              downSettings,
+              (f.faultCurrentKa || 15) * 1000,
+              {
+                downstreamLoadCurrent: f.current,
+                cableSizeMm2: f.cableSize,
+                parentFeederName: f.parentFeederName,
+                preferredManufacturer: project.preferredManufacturer,
+              }
+            );
+          }
+          if (!effectiveSuggestedAlternative) {
+            effectiveSuggestedAlternative = effectiveAlternativeSuggestions[0]?.title ?? 'Resolve Coordination';
+          }
+        } else {
+          effectiveAlternativeSuggestions = [];
+          effectiveSuggestedAlternative = null;
+        }
 
         list.push({
           ...f,
@@ -260,38 +311,45 @@ export default function CoordinationPage() {
           let effectiveStatus = f.selectivityStatus;
           let effectiveLimitKa = f.selectivityLimitKa;
           let effectiveReason = f.selectivityReason;
+          let effectiveAlternativeSuggestions = f.alternativeSuggestions ?? [];
+          let effectiveSuggestedAlternative = f.suggestedAlternative ?? null;
+
+          const upFeeder = mdbFeeders.find(
+            (uf) =>
+              normalizeBreakerId(uf.name) === normalizeBreakerId(f.parentFeederName || '') ||
+              uf.name === `F${floorNumber} – SMDB` ||
+              uf.name === `F${floorNumber} - SMDB`
+          );
+          const upSaved = upFeeder ? findSavedBreakerSetting(upFeeder) : null;
+          const upIn = upSaved?.frameSize ? parseInt(upSaved.frameSize) : (upFeeder?.breakerSize ?? 400);
+          const upIr = upSaved?.ir ?? Math.max(upFeeder?.current ?? 0, upIn * 0.85);
+          const customUpstream: BreakerCurveSettings = {
+            inRating: upIn,
+            ir: upIr,
+            tr: upSaved?.tr ?? 12,
+            isd: upSaved?.isd ?? (upIn * 4),
+            tsd: upSaved?.tsd ?? 0.3,
+            ii: upSaved?.ii ?? (upIn * 10),
+            category: upIn >= 630 ? 'ACB' : 'MCCB',
+            manufacturer: upSaved?.manufacturer ?? upFeeder?.manufacturer ?? project.preferredManufacturer ?? 'Schneider',
+            model: upSaved?.model ?? upFeeder?.breakerModel,
+            isGeneric: false,
+          };
+
+          const customDownstream: BreakerCurveSettings = {
+            inRating: f.breakerSize,
+            ir: saved?.ir ?? f.current,
+            tr: saved?.tr ?? 12,
+            isd: saved?.isd ?? (f.breakerSize * 4),
+            tsd: saved?.tsd ?? 0.05,
+            ii: saved?.ii ?? (f.breakerSize * 10),
+            category: f.breakerSize <= 63 ? 'MCB' : (f.breakerSize >= 630 ? 'ACB' : 'MCCB'),
+            manufacturer: saved?.manufacturer ?? f.manufacturer ?? project.preferredManufacturer ?? 'Schneider',
+            model: effectiveModel,
+            isGeneric: false,
+          };
 
           if (saved) {
-            const upFeeder = mdbFeeders.find((uf) => uf.name === f.parentFeederName || uf.name === `F${floorNumber} – SMDB` || uf.name === `F${floorNumber} - SMDB`);
-            const upSaved = upFeeder ? findSavedBreakerSetting(upFeeder) : null;
-            const upIn = upSaved?.frameSize ? parseInt(upSaved.frameSize) : (upFeeder?.breakerSize ?? 400);
-            const upIr = upSaved?.ir ?? Math.max(upFeeder?.current ?? 0, upIn * 0.85);
-            const customUpstream: BreakerCurveSettings = {
-              inRating: upIn,
-              ir: upIr,
-              tr: upSaved?.tr ?? 12,
-              isd: upSaved?.isd ?? (upIn * 4),
-              tsd: upSaved?.tsd ?? 0.3,
-              ii: upSaved?.ii ?? (upIn * 10),
-              category: upIn >= 630 ? 'ACB' : 'MCCB',
-              manufacturer: upSaved?.manufacturer ?? upFeeder?.manufacturer ?? project.preferredManufacturer ?? 'Schneider',
-              model: upSaved?.model ?? upFeeder?.breakerModel,
-              isGeneric: false,
-            };
-
-            const customDownstream: BreakerCurveSettings = {
-              inRating: f.breakerSize,
-              ir: saved.ir ?? f.current,
-              tr: saved.tr ?? 12,
-              isd: saved.isd ?? (f.breakerSize * 4),
-              tsd: saved.tsd ?? 0.05,
-              ii: saved.ii ?? (f.breakerSize * 10),
-              category: f.breakerSize <= 63 ? 'MCB' : (f.breakerSize >= 630 ? 'ACB' : 'MCCB'),
-              manufacturer: saved.manufacturer ?? f.manufacturer ?? project.preferredManufacturer ?? 'Schneider',
-              model: effectiveModel,
-              isGeneric: false,
-            };
-
             const reCoord = verifyCoordination(
               customUpstream,
               customDownstream,
@@ -310,10 +368,47 @@ export default function CoordinationPage() {
             effectiveStatus = reCoord.status;
             effectiveLimitKa = reCoord.status === 'PARTIAL' && reCoord.limitCurrent ? reCoord.limitCurrent / 1000 : null;
             effectiveReason = reCoord.overlapDetails;
+
+            if (effectiveStatus !== 'FULL') {
+              effectiveAlternativeSuggestions = suggestAlternativeBreaker(
+                customUpstream,
+                customDownstream,
+                (f.faultCurrentKa || 15) * 1000,
+                {
+                  downstreamLoadCurrent: f.current,
+                  cableSizeMm2: f.cableSize,
+                  parentFeederName: f.parentFeederName,
+                  preferredManufacturer: project.preferredManufacturer,
+                }
+              );
+              effectiveSuggestedAlternative = effectiveAlternativeSuggestions[0]?.title ?? 'Resolve Coordination';
+            } else {
+              effectiveAlternativeSuggestions = [];
+              effectiveSuggestedAlternative = null;
+            }
           }
 
-          const effectiveSuggestedAlternative = effectiveStatus === 'FULL' ? null : f.suggestedAlternative;
-          const effectiveAlternativeSuggestions = effectiveStatus === 'FULL' ? [] : f.alternativeSuggestions;
+          if (effectiveStatus !== 'FULL') {
+            if (!effectiveAlternativeSuggestions || effectiveAlternativeSuggestions.length === 0) {
+              effectiveAlternativeSuggestions = suggestAlternativeBreaker(
+                customUpstream,
+                customDownstream,
+                (f.faultCurrentKa || 15) * 1000,
+                {
+                  downstreamLoadCurrent: f.current,
+                  cableSizeMm2: f.cableSize,
+                  parentFeederName: f.parentFeederName,
+                  preferredManufacturer: project.preferredManufacturer,
+                }
+              );
+            }
+            if (!effectiveSuggestedAlternative) {
+              effectiveSuggestedAlternative = effectiveAlternativeSuggestions[0]?.title ?? 'Resolve Coordination';
+            }
+          } else {
+            effectiveAlternativeSuggestions = [];
+            effectiveSuggestedAlternative = null;
+          }
 
           list.push({
             ...f,

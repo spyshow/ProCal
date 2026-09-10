@@ -11628,6 +11628,19 @@
       "norm_label": "projectmemberwhereuniqueinput"
     },
     {
+      "label": "BreakerEntry",
+      "file_type": "code",
+      "source_file": "src/app/(app)/breaker-schedule/page.tsx",
+      "source_location": "L45",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_app_app_breaker_schedule_page_breakerentry",
+      "community": 133,
+      "community_name": "selectivity.ts",
+      "norm_label": "breakerentry"
+    },
+    {
       "label": "TccPlotModalProps",
       "file_type": "code",
       "source_file": "src/components/coordination/TccPlotModal.tsx",
@@ -11639,6 +11652,32 @@
       "community": 133,
       "community_name": "selectivity.ts",
       "norm_label": "tccplotmodalprops"
+    },
+    {
+      "label": "BreakerBOMItem",
+      "file_type": "code",
+      "source_file": "src/components/report/BOMSchedule.tsx",
+      "source_location": "L26",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_components_report_bomschedule_breakerbomitem",
+      "community": 133,
+      "community_name": "selectivity.ts",
+      "norm_label": "breakerbomitem"
+    },
+    {
+      "label": "FoundBreaker",
+      "file_type": "code",
+      "source_file": "src/lib/calculations/feeders.ts",
+      "source_location": "L42",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_lib_calculations_feeders_foundbreaker",
+      "community": 133,
+      "community_name": "selectivity.ts",
+      "norm_label": "foundbreaker"
     },
     {
       "label": "BreakerCurveSettings",
@@ -11797,6 +11836,32 @@
       "norm_label": "breakeralternativesuggestion"
     },
     {
+      "label": "FallbackType",
+      "file_type": "code",
+      "source_file": "src/types/index.ts",
+      "source_location": "L248",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_types_index_fallbacktype",
+      "community": 133,
+      "community_name": "selectivity.ts",
+      "norm_label": "fallbacktype"
+    },
+    {
+      "label": "GenericBreakerSpec",
+      "file_type": "code",
+      "source_file": "src/types/index.ts",
+      "source_location": "L250",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_types_index_genericbreakerspec",
+      "community": 133,
+      "community_name": "selectivity.ts",
+      "norm_label": "genericbreakerspec"
+    },
+    {
       "label": "Lead",
       "file_type": "code",
       "source_file": "src/app/(admin)/admin/leads/page.tsx",
@@ -11860,45 +11925,6 @@
       "community": 135,
       "community_name": "admin/page.tsx",
       "norm_label": "weeklypoint"
-    },
-    {
-      "label": "BreakerEntry",
-      "file_type": "code",
-      "source_file": "src/app/(app)/breaker-schedule/page.tsx",
-      "source_location": "L45",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_app_app_breaker_schedule_page_breakerentry",
-      "community": 136,
-      "community_name": "feeders.ts",
-      "norm_label": "breakerentry"
-    },
-    {
-      "label": "BOMScheduleProps",
-      "file_type": "code",
-      "source_file": "src/components/report/BOMSchedule.tsx",
-      "source_location": "L10",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_components_report_bomschedule_bomscheduleprops",
-      "community": 136,
-      "community_name": "feeders.ts",
-      "norm_label": "bomscheduleprops"
-    },
-    {
-      "label": "BreakerBOMItem",
-      "file_type": "code",
-      "source_file": "src/components/report/BOMSchedule.tsx",
-      "source_location": "L26",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_components_report_bomschedule_breakerbomitem",
-      "community": 136,
-      "community_name": "feeders.ts",
-      "norm_label": "breakerbomitem"
     },
     {
       "label": "CableBOMItem",
@@ -11990,45 +12016,6 @@
       "community": 136,
       "community_name": "feeders.ts",
       "norm_label": "equipmentitem"
-    },
-    {
-      "label": "FoundBreaker",
-      "file_type": "code",
-      "source_file": "src/lib/calculations/feeders.ts",
-      "source_location": "L42",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_lib_calculations_feeders_foundbreaker",
-      "community": 136,
-      "community_name": "feeders.ts",
-      "norm_label": "foundbreaker"
-    },
-    {
-      "label": "FallbackType",
-      "file_type": "code",
-      "source_file": "src/types/index.ts",
-      "source_location": "L248",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_types_index_fallbacktype",
-      "community": 136,
-      "community_name": "feeders.ts",
-      "norm_label": "fallbacktype"
-    },
-    {
-      "label": "GenericBreakerSpec",
-      "file_type": "code",
-      "source_file": "src/types/index.ts",
-      "source_location": "L250",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_types_index_genericbreakerspec",
-      "community": 136,
-      "community_name": "feeders.ts",
-      "norm_label": "genericbreakerspec"
     },
     {
       "label": "RoomData",
@@ -15307,6 +15294,19 @@
       "norm_label": "familykey"
     },
     {
+      "label": "BOMScheduleProps",
+      "file_type": "code",
+      "source_file": "src/components/report/BOMSchedule.tsx",
+      "source_location": "L10",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_components_report_bomschedule_bomscheduleprops",
+      "community": 168,
+      "community_name": "reports/page.tsx",
+      "norm_label": "bomscheduleprops"
+    },
+    {
       "label": "BreakerScheduleProps",
       "file_type": "code",
       "source_file": "src/components/report/BreakerSchedule.tsx",
@@ -17697,58 +17697,6 @@
       "community": 216,
       "community_name": "remotion-best-practices/remotion-maps/techniques/maptiler/assets/RiverReveal.tsx",
       "norm_label": "country"
-    },
-    {
-      "label": "NeutralAccum",
-      "file_type": "code",
-      "source_file": "src/lib/calculations/phaseBalance.ts",
-      "source_location": "L285",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_lib_calculations_phasebalance_neutralaccum",
-      "community": 218,
-      "community_name": "phaseBalance.ts",
-      "norm_label": "neutralaccum"
-    },
-    {
-      "label": "PhaseIdx",
-      "file_type": "code",
-      "source_file": "src/lib/calculations/phaseBalance.ts",
-      "source_location": "L51",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_lib_calculations_phasebalance_phaseidx",
-      "community": 218,
-      "community_name": "phaseBalance.ts",
-      "norm_label": "phaseidx"
-    },
-    {
-      "label": "PhaseLoad",
-      "file_type": "code",
-      "source_file": "src/lib/calculations/phaseBalance.ts",
-      "source_location": "L78",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_lib_calculations_phasebalance_phaseload",
-      "community": 218,
-      "community_name": "phaseBalance.ts",
-      "norm_label": "phaseload"
-    },
-    {
-      "label": "CalculationStandard",
-      "file_type": "code",
-      "source_file": "src/types/index.ts",
-      "source_location": "L225",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_types_index_calculationstandard",
-      "community": 218,
-      "community_name": "phaseBalance.ts",
-      "norm_label": "calculationstandard"
     },
     {
       "label": "BM25",
@@ -31765,6 +31713,45 @@
       "norm_label": "prisma__projectclient"
     },
     {
+      "label": "NeutralAccum",
+      "file_type": "code",
+      "source_file": "src/lib/calculations/phaseBalance.ts",
+      "source_location": "L285",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_lib_calculations_phasebalance_neutralaccum",
+      "community": 99,
+      "community_name": "types/index.ts",
+      "norm_label": "neutralaccum"
+    },
+    {
+      "label": "PhaseIdx",
+      "file_type": "code",
+      "source_file": "src/lib/calculations/phaseBalance.ts",
+      "source_location": "L51",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_lib_calculations_phasebalance_phaseidx",
+      "community": 99,
+      "community_name": "types/index.ts",
+      "norm_label": "phaseidx"
+    },
+    {
+      "label": "PhaseLoad",
+      "file_type": "code",
+      "source_file": "src/lib/calculations/phaseBalance.ts",
+      "source_location": "L78",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_lib_calculations_phasebalance_phaseload",
+      "community": 99,
+      "community_name": "types/index.ts",
+      "norm_label": "phaseload"
+    },
+    {
       "label": "ApartmentRoom",
       "file_type": "code",
       "source_file": "src/types/index.ts",
@@ -31828,6 +31815,19 @@
       "community": 99,
       "community_name": "types/index.ts",
       "norm_label": "buildingload"
+    },
+    {
+      "label": "CalculationStandard",
+      "file_type": "code",
+      "source_file": "src/types/index.ts",
+      "source_location": "L225",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_types_index_calculationstandard",
+      "community": 99,
+      "community_name": "types/index.ts",
+      "norm_label": "calculationstandard"
     },
     {
       "label": "EarthingSystem",
@@ -34274,6 +34274,30 @@
       "norm_label": "oneitemphasefields()"
     },
     {
+      "label": "building()",
+      "file_type": "code",
+      "source_file": "src/lib/calculations/feeders.test.ts",
+      "source_location": "L38",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_lib_calculations_feeders_test_building",
+      "community": 136,
+      "community_name": "feeders.ts",
+      "norm_label": "building()"
+    },
+    {
+      "label": "item()",
+      "file_type": "code",
+      "source_file": "src/lib/calculations/feeders.test.ts",
+      "source_location": "L29",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_lib_calculations_feeders_test_item",
+      "community": 136,
+      "community_name": "feeders.ts",
+      "norm_label": "item()"
+    },
+    {
       "label": "calculateThreePhaseCurrent()",
       "file_type": "code",
       "source_file": "src/lib/calculations/loads.ts",
@@ -35520,6 +35544,54 @@
       "community": 168,
       "community_name": "reports/page.tsx",
       "norm_label": "round()"
+    },
+    {
+      "label": "building()",
+      "file_type": "code",
+      "source_file": "src/lib/reports/excel.test.ts",
+      "source_location": "L39",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_lib_reports_excel_test_building",
+      "community": 168,
+      "community_name": "reports/page.tsx",
+      "norm_label": "building()"
+    },
+    {
+      "label": "findBreaker()",
+      "file_type": "code",
+      "source_file": "src/lib/reports/excel.test.ts",
+      "source_location": "L7",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_lib_reports_excel_test_findbreaker",
+      "community": 168,
+      "community_name": "reports/page.tsx",
+      "norm_label": "findbreaker()"
+    },
+    {
+      "label": "item()",
+      "file_type": "code",
+      "source_file": "src/lib/reports/excel.test.ts",
+      "source_location": "L30",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_lib_reports_excel_test_item",
+      "community": 168,
+      "community_name": "reports/page.tsx",
+      "norm_label": "item()"
+    },
+    {
+      "label": "projectWith()",
+      "file_type": "code",
+      "source_file": "src/lib/reports/excel.test.ts",
+      "source_location": "L48",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_lib_reports_excel_test_projectwith",
+      "community": 168,
+      "community_name": "reports/page.tsx",
+      "norm_label": "projectwith()"
     },
     {
       "label": "generateSLD()",
@@ -37994,174 +38066,6 @@
       "norm_label": "trigger()"
     },
     {
-      "label": "displacementAngle()",
-      "file_type": "code",
-      "source_file": "src/lib/calculations/feeders.ts",
-      "source_location": "L133",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_lib_calculations_feeders_displacementangle",
-      "community": 218,
-      "community_name": "phaseBalance.ts",
-      "norm_label": "displacementangle()"
-    },
-    {
-      "label": "isThreePhaseForBuildingLoad()",
-      "file_type": "code",
-      "source_file": "src/lib/calculations/feeders.ts",
-      "source_location": "L85",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_lib_calculations_feeders_isthreephaseforbuildingload",
-      "community": 218,
-      "community_name": "phaseBalance.ts",
-      "norm_label": "isthreephaseforbuildingload()"
-    },
-    {
-      "label": "pfAngleForBuildingLoad()",
-      "file_type": "code",
-      "source_file": "src/lib/calculations/feeders.ts",
-      "source_location": "L116",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_lib_calculations_feeders_pfangleforbuildingload",
-      "community": 218,
-      "community_name": "phaseBalance.ts",
-      "norm_label": "pfangleforbuildingload()"
-    },
-    {
-      "label": "pfAngleForItem()",
-      "file_type": "code",
-      "source_file": "src/lib/calculations/feeders.ts",
-      "source_location": "L108",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_lib_calculations_feeders_pfangleforitem",
-      "community": 218,
-      "community_name": "phaseBalance.ts",
-      "norm_label": "pfangleforitem()"
-    },
-    {
-      "label": "compute()",
-      "file_type": "code",
-      "source_file": "src/lib/calculations/phaseBalance.ts",
-      "source_location": "L212",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_lib_calculations_phasebalance_compute",
-      "community": 218,
-      "community_name": "phaseBalance.ts",
-      "norm_label": "compute()"
-    },
-    {
-      "label": "finalize()",
-      "file_type": "code",
-      "source_file": "src/lib/calculations/phaseBalance.ts",
-      "source_location": "L334",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_lib_calculations_phasebalance_finalize",
-      "community": 218,
-      "community_name": "phaseBalance.ts",
-      "norm_label": "finalize()"
-    },
-    {
-      "label": "fromBuildingLoad()",
-      "file_type": "code",
-      "source_file": "src/lib/calculations/phaseBalance.ts",
-      "source_location": "L182",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_lib_calculations_phasebalance_frombuildingload",
-      "community": 218,
-      "community_name": "phaseBalance.ts",
-      "norm_label": "frombuildingload()"
-    },
-    {
-      "label": "fromFloorItem()",
-      "file_type": "code",
-      "source_file": "src/lib/calculations/phaseBalance.ts",
-      "source_location": "L159",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_lib_calculations_phasebalance_fromflooritem",
-      "community": 218,
-      "community_name": "phaseBalance.ts",
-      "norm_label": "fromflooritem()"
-    },
-    {
-      "label": "leastLoadedPhase()",
-      "file_type": "code",
-      "source_file": "src/lib/calculations/phaseBalance.ts",
-      "source_location": "L318",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_lib_calculations_phasebalance_leastloadedphase",
-      "community": 218,
-      "community_name": "phaseBalance.ts",
-      "norm_label": "leastloadedphase()"
-    },
-    {
-      "label": "neutralFromPhasors()",
-      "file_type": "code",
-      "source_file": "src/lib/calculations/phaseBalance.ts",
-      "source_location": "L376",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_lib_calculations_phasebalance_neutralfromphasors",
-      "community": 218,
-      "community_name": "phaseBalance.ts",
-      "norm_label": "neutralfromphasors()"
-    },
-    {
-      "label": "normalize()",
-      "file_type": "code",
-      "source_file": "src/lib/calculations/phaseBalance.ts",
-      "source_location": "L146",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_lib_calculations_phasebalance_normalize",
-      "community": 218,
-      "community_name": "phaseBalance.ts",
-      "norm_label": "normalize()"
-    },
-    {
-      "label": "placeOnePhase()",
-      "file_type": "code",
-      "source_file": "src/lib/calculations/phaseBalance.ts",
-      "source_location": "L305",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_lib_calculations_phasebalance_placeonephase",
-      "community": 218,
-      "community_name": "phaseBalance.ts",
-      "norm_label": "placeonephase()"
-    },
-    {
-      "label": "placeThreePhase()",
-      "file_type": "code",
-      "source_file": "src/lib/calculations/phaseBalance.ts",
-      "source_location": "L287",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_lib_calculations_phasebalance_placethreephase",
-      "community": 218,
-      "community_name": "phaseBalance.ts",
-      "norm_label": "placethreephase()"
-    },
-    {
-      "label": "standardOf()",
-      "file_type": "code",
-      "source_file": "src/lib/calculations/phaseBalance.ts",
-      "source_location": "L400",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_lib_calculations_phasebalance_standardof",
-      "community": 218,
-      "community_name": "phaseBalance.ts",
-      "norm_label": "standardof()"
-    },
-    {
       "label": "format_context()",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/scripts/search-slides.py",
@@ -38664,6 +38568,18 @@
       "community": 229,
       "community_name": "Prisma__ProjectAuditLogClient",
       "norm_label": ".user()"
+    },
+    {
+      "label": ".test_add_components_no_components()",
+      "file_type": "code",
+      "source_file": ".agents/skills/ui-styling/scripts/tests/test_shadcn_add.py",
+      "source_location": "L95",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "agents_skills_ui_styling_scripts_tests_test_shadcn_add_testshadcninstaller_test_add_components_no_components",
+      "community": 231,
+      "community_name": ".test_add_components_no_components",
+      "norm_label": ".test_add_components_no_components()"
     },
     {
       "label": ".catch()",
@@ -42170,18 +42086,6 @@
       "norm_label": "persist_design_system()"
     },
     {
-      "label": "_resolve_dial()",
-      "file_type": "code",
-      "source_file": ".agents/skills/ui-ux-pro-max/scripts/design_system.py",
-      "source_location": "L69",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "agents_skills_ui_ux_pro_max_scripts_design_system_resolve_dial",
-      "community": 36,
-      "community_name": "design_system.py",
-      "norm_label": "_resolve_dial()"
-    },
-    {
       "label": "safe_slug()",
       "file_type": "code",
       "source_file": ".agents/skills/ui-ux-pro-max/scripts/design_system.py",
@@ -43142,18 +43046,6 @@
       "norm_label": ".test_zero_result_query_reports_suggestions_not_error()"
     },
     {
-      "label": ".test_add_components_already_installed()",
-      "file_type": "code",
-      "source_file": ".agents/skills/ui-styling/scripts/tests/test_shadcn_add.py",
-      "source_location": "L111",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "agents_skills_ui_styling_scripts_tests_test_shadcn_add_testshadcninstaller_test_add_components_already_installed",
-      "community": 441,
-      "community_name": ".test_add_components_already_installed",
-      "norm_label": ".test_add_components_already_installed()"
-    },
-    {
       "label": "main()",
       "file_type": "code",
       "source_file": ".agents/skills/ui-styling/scripts/tailwind_config_gen.py",
@@ -43368,6 +43260,18 @@
       "community": 49,
       "community_name": "DesignSystemGenerator",
       "norm_label": "._select_best_match()"
+    },
+    {
+      "label": "_resolve_dial()",
+      "file_type": "code",
+      "source_file": ".agents/skills/ui-ux-pro-max/scripts/design_system.py",
+      "source_location": "L69",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "agents_skills_ui_ux_pro_max_scripts_design_system_resolve_dial",
+      "community": 49,
+      "community_name": "DesignSystemGenerator",
+      "norm_label": "_resolve_dial()"
     },
     {
       "label": ".test_known_category_matches_exactly()",
@@ -48302,16 +48206,16 @@
       "norm_label": "main()"
     },
     {
-      "label": ".test_add_components_no_components()",
+      "label": ".test_add_components_already_installed()",
       "file_type": "code",
       "source_file": ".agents/skills/ui-styling/scripts/tests/test_shadcn_add.py",
-      "source_location": "L95",
+      "source_location": "L111",
       "_callable": true,
       "_origin": "ast",
-      "id": "agents_skills_ui_styling_scripts_tests_test_shadcn_add_testshadcninstaller_test_add_components_no_components",
+      "id": "agents_skills_ui_styling_scripts_tests_test_shadcn_add_testshadcninstaller_test_add_components_already_installed",
       "community": 85,
       "community_name": "ShadcnInstaller",
-      "norm_label": ".test_add_components_no_components()"
+      "norm_label": ".test_add_components_already_installed()"
     },
     {
       "label": ".test_get_installed_components_no_config()",
@@ -49706,6 +49610,54 @@
       "norm_label": "parsemm2()"
     },
     {
+      "label": "displacementAngle()",
+      "file_type": "code",
+      "source_file": "src/lib/calculations/feeders.ts",
+      "source_location": "L133",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_lib_calculations_feeders_displacementangle",
+      "community": 99,
+      "community_name": "types/index.ts",
+      "norm_label": "displacementangle()"
+    },
+    {
+      "label": "isThreePhaseForBuildingLoad()",
+      "file_type": "code",
+      "source_file": "src/lib/calculations/feeders.ts",
+      "source_location": "L85",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_lib_calculations_feeders_isthreephaseforbuildingload",
+      "community": 99,
+      "community_name": "types/index.ts",
+      "norm_label": "isthreephaseforbuildingload()"
+    },
+    {
+      "label": "pfAngleForBuildingLoad()",
+      "file_type": "code",
+      "source_file": "src/lib/calculations/feeders.ts",
+      "source_location": "L116",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_lib_calculations_feeders_pfangleforbuildingload",
+      "community": 99,
+      "community_name": "types/index.ts",
+      "norm_label": "pfangleforbuildingload()"
+    },
+    {
+      "label": "pfAngleForItem()",
+      "file_type": "code",
+      "source_file": "src/lib/calculations/feeders.ts",
+      "source_location": "L108",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_lib_calculations_feeders_pfangleforitem",
+      "community": 99,
+      "community_name": "types/index.ts",
+      "norm_label": "pfangleforitem()"
+    },
+    {
       "label": "pfForFloorItem()",
       "file_type": "code",
       "source_file": "src/lib/calculations/feeders.ts",
@@ -49716,30 +49668,6 @@
       "community": 99,
       "community_name": "types/index.ts",
       "norm_label": "pfforflooritem()"
-    },
-    {
-      "label": "building()",
-      "file_type": "code",
-      "source_file": "src/lib/calculations/feeders.test.ts",
-      "source_location": "L38",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_lib_calculations_feeders_test_building",
-      "community": 99,
-      "community_name": "types/index.ts",
-      "norm_label": "building()"
-    },
-    {
-      "label": "item()",
-      "file_type": "code",
-      "source_file": "src/lib/calculations/feeders.test.ts",
-      "source_location": "L29",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_lib_calculations_feeders_test_item",
-      "community": 99,
-      "community_name": "types/index.ts",
-      "norm_label": "item()"
     },
     {
       "label": "apartmentItem()",
@@ -49862,6 +49790,126 @@
       "norm_label": "createicubuilding()"
     },
     {
+      "label": "compute()",
+      "file_type": "code",
+      "source_file": "src/lib/calculations/phaseBalance.ts",
+      "source_location": "L212",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_lib_calculations_phasebalance_compute",
+      "community": 99,
+      "community_name": "types/index.ts",
+      "norm_label": "compute()"
+    },
+    {
+      "label": "finalize()",
+      "file_type": "code",
+      "source_file": "src/lib/calculations/phaseBalance.ts",
+      "source_location": "L334",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_lib_calculations_phasebalance_finalize",
+      "community": 99,
+      "community_name": "types/index.ts",
+      "norm_label": "finalize()"
+    },
+    {
+      "label": "fromBuildingLoad()",
+      "file_type": "code",
+      "source_file": "src/lib/calculations/phaseBalance.ts",
+      "source_location": "L182",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_lib_calculations_phasebalance_frombuildingload",
+      "community": 99,
+      "community_name": "types/index.ts",
+      "norm_label": "frombuildingload()"
+    },
+    {
+      "label": "fromFloorItem()",
+      "file_type": "code",
+      "source_file": "src/lib/calculations/phaseBalance.ts",
+      "source_location": "L159",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_lib_calculations_phasebalance_fromflooritem",
+      "community": 99,
+      "community_name": "types/index.ts",
+      "norm_label": "fromflooritem()"
+    },
+    {
+      "label": "leastLoadedPhase()",
+      "file_type": "code",
+      "source_file": "src/lib/calculations/phaseBalance.ts",
+      "source_location": "L318",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_lib_calculations_phasebalance_leastloadedphase",
+      "community": 99,
+      "community_name": "types/index.ts",
+      "norm_label": "leastloadedphase()"
+    },
+    {
+      "label": "neutralFromPhasors()",
+      "file_type": "code",
+      "source_file": "src/lib/calculations/phaseBalance.ts",
+      "source_location": "L376",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_lib_calculations_phasebalance_neutralfromphasors",
+      "community": 99,
+      "community_name": "types/index.ts",
+      "norm_label": "neutralfromphasors()"
+    },
+    {
+      "label": "normalize()",
+      "file_type": "code",
+      "source_file": "src/lib/calculations/phaseBalance.ts",
+      "source_location": "L146",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_lib_calculations_phasebalance_normalize",
+      "community": 99,
+      "community_name": "types/index.ts",
+      "norm_label": "normalize()"
+    },
+    {
+      "label": "placeOnePhase()",
+      "file_type": "code",
+      "source_file": "src/lib/calculations/phaseBalance.ts",
+      "source_location": "L305",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_lib_calculations_phasebalance_placeonephase",
+      "community": 99,
+      "community_name": "types/index.ts",
+      "norm_label": "placeonephase()"
+    },
+    {
+      "label": "placeThreePhase()",
+      "file_type": "code",
+      "source_file": "src/lib/calculations/phaseBalance.ts",
+      "source_location": "L287",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_lib_calculations_phasebalance_placethreephase",
+      "community": 99,
+      "community_name": "types/index.ts",
+      "norm_label": "placethreephase()"
+    },
+    {
+      "label": "standardOf()",
+      "file_type": "code",
+      "source_file": "src/lib/calculations/phaseBalance.ts",
+      "source_location": "L400",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_lib_calculations_phasebalance_standardof",
+      "community": 99,
+      "community_name": "types/index.ts",
+      "norm_label": "standardof()"
+    },
+    {
       "label": "buildingLoadFixture()",
       "file_type": "code",
       "source_file": "src/lib/calculations/phaseBalance.test.ts",
@@ -49968,54 +50016,6 @@
       "community": 99,
       "community_name": "types/index.ts",
       "norm_label": "floor()"
-    },
-    {
-      "label": "building()",
-      "file_type": "code",
-      "source_file": "src/lib/reports/excel.test.ts",
-      "source_location": "L39",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_lib_reports_excel_test_building",
-      "community": 99,
-      "community_name": "types/index.ts",
-      "norm_label": "building()"
-    },
-    {
-      "label": "findBreaker()",
-      "file_type": "code",
-      "source_file": "src/lib/reports/excel.test.ts",
-      "source_location": "L7",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_lib_reports_excel_test_findbreaker",
-      "community": 99,
-      "community_name": "types/index.ts",
-      "norm_label": "findbreaker()"
-    },
-    {
-      "label": "item()",
-      "file_type": "code",
-      "source_file": "src/lib/reports/excel.test.ts",
-      "source_location": "L30",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_lib_reports_excel_test_item",
-      "community": 99,
-      "community_name": "types/index.ts",
-      "norm_label": "item()"
-    },
-    {
-      "label": "projectWith()",
-      "file_type": "code",
-      "source_file": "src/lib/reports/excel.test.ts",
-      "source_location": "L48",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_lib_reports_excel_test_projectwith",
-      "community": 99,
-      "community_name": "types/index.ts",
-      "norm_label": "projectwith()"
     },
     {
       "label": "Project.ts",
@@ -50223,7 +50223,7 @@
       "_origin": "ast",
       "id": "agents_skills_design_system_templates_design_tokens_starter_duration_fast",
       "community": 101,
-      "community_name": "duration",
+      "community_name": "primitive",
       "norm_label": "fast"
     },
     {
@@ -50234,7 +50234,7 @@
       "_origin": "ast",
       "id": "agents_skills_design_system_templates_design_tokens_starter_duration_normal",
       "community": 101,
-      "community_name": "duration",
+      "community_name": "primitive",
       "norm_label": "normal"
     },
     {
@@ -50245,7 +50245,7 @@
       "_origin": "ast",
       "id": "agents_skills_design_system_templates_design_tokens_starter_duration_slow",
       "community": 101,
-      "community_name": "duration",
+      "community_name": "primitive",
       "norm_label": "slow"
     },
     {
@@ -50256,7 +50256,7 @@
       "_origin": "ast",
       "id": "agents_skills_design_system_templates_design_tokens_starter_fast_type",
       "community": 101,
-      "community_name": "duration",
+      "community_name": "primitive",
       "norm_label": "$type"
     },
     {
@@ -50267,7 +50267,7 @@
       "_origin": "ast",
       "id": "agents_skills_design_system_templates_design_tokens_starter_fast_value",
       "community": 101,
-      "community_name": "duration",
+      "community_name": "primitive",
       "norm_label": "$value"
     },
     {
@@ -50278,7 +50278,7 @@
       "_origin": "ast",
       "id": "agents_skills_design_system_templates_design_tokens_starter_normal_type",
       "community": 101,
-      "community_name": "duration",
+      "community_name": "primitive",
       "norm_label": "$type"
     },
     {
@@ -50289,8 +50289,19 @@
       "_origin": "ast",
       "id": "agents_skills_design_system_templates_design_tokens_starter_normal_value",
       "community": 101,
-      "community_name": "duration",
+      "community_name": "primitive",
       "norm_label": "$value"
+    },
+    {
+      "label": "primitive",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L3",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_primitive",
+      "community": 101,
+      "community_name": "primitive",
+      "norm_label": "primitive"
     },
     {
       "label": "duration",
@@ -50300,7 +50311,7 @@
       "_origin": "ast",
       "id": "agents_skills_design_system_templates_design_tokens_starter_primitive_duration",
       "community": 101,
-      "community_name": "duration",
+      "community_name": "primitive",
       "norm_label": "duration"
     },
     {
@@ -50311,7 +50322,7 @@
       "_origin": "ast",
       "id": "agents_skills_design_system_templates_design_tokens_starter_slow_type",
       "community": 101,
-      "community_name": "duration",
+      "community_name": "primitive",
       "norm_label": "$type"
     },
     {
@@ -50322,7 +50333,7 @@
       "_origin": "ast",
       "id": "agents_skills_design_system_templates_design_tokens_starter_slow_value",
       "community": 101,
-      "community_name": "duration",
+      "community_name": "primitive",
       "norm_label": "$value"
     },
     {
@@ -53461,6 +53472,39 @@
       "norm_label": "feeders.ts"
     },
     {
+      "label": "feeders.test.ts",
+      "file_type": "code",
+      "source_file": "src/lib/calculations/feeders.test.ts",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_lib_calculations_feeders_test",
+      "community": 136,
+      "community_name": "feeders.ts",
+      "norm_label": "feeders.test.ts"
+    },
+    {
+      "label": "baseProject",
+      "file_type": "code",
+      "source_file": "src/lib/calculations/feeders.test.ts",
+      "source_location": "L22",
+      "_origin": "ast",
+      "id": "src_lib_calculations_feeders_test_baseproject",
+      "community": 136,
+      "community_name": "feeders.ts",
+      "norm_label": "baseproject"
+    },
+    {
+      "label": "equipment",
+      "file_type": "code",
+      "source_file": "src/lib/calculations/feeders.test.ts",
+      "source_location": "L10",
+      "_origin": "ast",
+      "id": "src_lib_calculations_feeders_test_equipment",
+      "community": 136,
+      "community_name": "feeders.ts",
+      "norm_label": "equipment"
+    },
+    {
       "label": "trace-engine.test.ts",
       "file_type": "code",
       "source_file": "src/lib/calculations/trace-engine.test.ts",
@@ -54938,28 +54982,6 @@
       "label": "$type",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L11",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_500_type",
-      "community": 16,
-      "community_name": "gray",
-      "norm_label": "$type"
-    },
-    {
-      "label": "$value",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L11",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_500_value",
-      "community": 16,
-      "community_name": "gray",
-      "norm_label": "$value"
-    },
-    {
-      "label": "$type",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
       "source_location": "L6",
       "_origin": "ast",
       "id": "agents_skills_design_system_templates_design_tokens_starter_50_type",
@@ -54974,72 +54996,6 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "agents_skills_design_system_templates_design_tokens_starter_50_value",
-      "community": 16,
-      "community_name": "gray",
-      "norm_label": "$value"
-    },
-    {
-      "label": "$type",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L12",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_600_type",
-      "community": 16,
-      "community_name": "gray",
-      "norm_label": "$type"
-    },
-    {
-      "label": "$value",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L12",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_600_value",
-      "community": 16,
-      "community_name": "gray",
-      "norm_label": "$value"
-    },
-    {
-      "label": "$type",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L13",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_700_type",
-      "community": 16,
-      "community_name": "gray",
-      "norm_label": "$type"
-    },
-    {
-      "label": "$value",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L13",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_700_value",
-      "community": 16,
-      "community_name": "gray",
-      "norm_label": "$value"
-    },
-    {
-      "label": "$type",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L14",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_800_type",
-      "community": 16,
-      "community_name": "gray",
-      "norm_label": "$type"
-    },
-    {
-      "label": "$value",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L14",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_800_value",
       "community": 16,
       "community_name": "gray",
       "norm_label": "$value"
@@ -55100,61 +55056,6 @@
       "norm_label": "50"
     },
     {
-      "label": "500",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L20",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_blue_500",
-      "community": 16,
-      "community_name": "gray",
-      "norm_label": "500"
-    },
-    {
-      "label": "600",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L21",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_blue_600",
-      "community": 16,
-      "community_name": "gray",
-      "norm_label": "600"
-    },
-    {
-      "label": "700",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L22",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_blue_700",
-      "community": 16,
-      "community_name": "gray",
-      "norm_label": "700"
-    },
-    {
-      "label": "800",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L23",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_blue_800",
-      "community": 16,
-      "community_name": "gray",
-      "norm_label": "800"
-    },
-    {
-      "label": "blue",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L18",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_color_blue",
-      "community": 16,
-      "community_name": "gray",
-      "norm_label": "blue"
-    },
-    {
       "label": "gray",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
@@ -55164,50 +55065,6 @@
       "community": 16,
       "community_name": "gray",
       "norm_label": "gray"
-    },
-    {
-      "label": "green",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L30",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_color_green",
-      "community": 16,
-      "community_name": "gray",
-      "norm_label": "green"
-    },
-    {
-      "label": "red",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L25",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_color_red",
-      "community": 16,
-      "community_name": "gray",
-      "norm_label": "red"
-    },
-    {
-      "label": "white",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L37",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_color_white",
-      "community": 16,
-      "community_name": "gray",
-      "norm_label": "white"
-    },
-    {
-      "label": "yellow",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L34",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_color_yellow",
-      "community": 16,
-      "community_name": "gray",
-      "norm_label": "yellow"
     },
     {
       "label": "100",
@@ -55265,50 +55122,6 @@
       "norm_label": "50"
     },
     {
-      "label": "500",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L11",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_gray_500",
-      "community": 16,
-      "community_name": "gray",
-      "norm_label": "500"
-    },
-    {
-      "label": "600",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L12",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_gray_600",
-      "community": 16,
-      "community_name": "gray",
-      "norm_label": "600"
-    },
-    {
-      "label": "700",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L13",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_gray_700",
-      "community": 16,
-      "community_name": "gray",
-      "norm_label": "700"
-    },
-    {
-      "label": "800",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L14",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_gray_800",
-      "community": 16,
-      "community_name": "gray",
-      "norm_label": "800"
-    },
-    {
       "label": "900",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
@@ -55329,105 +55142,6 @@
       "community": 16,
       "community_name": "gray",
       "norm_label": "950"
-    },
-    {
-      "label": "500",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L31",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_green_500",
-      "community": 16,
-      "community_name": "gray",
-      "norm_label": "500"
-    },
-    {
-      "label": "600",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L32",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_green_600",
-      "community": 16,
-      "community_name": "gray",
-      "norm_label": "600"
-    },
-    {
-      "label": "color",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L4",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_primitive_color",
-      "community": 16,
-      "community_name": "gray",
-      "norm_label": "color"
-    },
-    {
-      "label": "500",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L26",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_red_500",
-      "community": 16,
-      "community_name": "gray",
-      "norm_label": "500"
-    },
-    {
-      "label": "600",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L27",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_red_600",
-      "community": 16,
-      "community_name": "gray",
-      "norm_label": "600"
-    },
-    {
-      "label": "700",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L28",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_red_700",
-      "community": 16,
-      "community_name": "gray",
-      "norm_label": "700"
-    },
-    {
-      "label": "$type",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L37",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_white_type",
-      "community": 16,
-      "community_name": "gray",
-      "norm_label": "$type"
-    },
-    {
-      "label": "$value",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L37",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_white_value",
-      "community": 16,
-      "community_name": "gray",
-      "norm_label": "$value"
-    },
-    {
-      "label": "500",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L35",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_yellow_500",
-      "community": 16,
-      "community_name": "gray",
-      "norm_label": "500"
     },
     {
       "label": "ProjectReviewItem.ts",
@@ -56000,6 +55714,72 @@
       "community": 164,
       "community_name": "Using calculateMetadata",
       "norm_label": "stills"
+    },
+    {
+      "label": "remotion-best-practices/remotion-multimedia/get-audio-duration.md",
+      "file_type": "document",
+      "source_file": ".agents/skills/remotion-best-practices/remotion-multimedia/get-audio-duration.md",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "agents_skills_remotion_best_practices_remotion_multimedia_get_audio_duration",
+      "community": 164,
+      "community_name": "Using calculateMetadata",
+      "norm_label": "remotion-best-practices/remotion-multimedia/get-audio-duration.md"
+    },
+    {
+      "label": "Getting audio duration",
+      "file_type": "document",
+      "source_file": ".agents/skills/remotion-best-practices/remotion-multimedia/get-audio-duration.md",
+      "source_location": "L12",
+      "_origin": "ast",
+      "id": "agents_skills_remotion_best_practices_remotion_multimedia_get_audio_duration_getting_audio_duration",
+      "community": 164,
+      "community_name": "Using calculateMetadata",
+      "norm_label": "getting audio duration"
+    },
+    {
+      "label": "Getting audio duration with Mediabunny",
+      "file_type": "document",
+      "source_file": ".agents/skills/remotion-best-practices/remotion-multimedia/get-audio-duration.md",
+      "source_location": "L8",
+      "_origin": "ast",
+      "id": "agents_skills_remotion_best_practices_remotion_multimedia_get_audio_duration_getting_audio_duration_with_mediabunny",
+      "community": 164,
+      "community_name": "Using calculateMetadata",
+      "norm_label": "getting audio duration with mediabunny"
+    },
+    {
+      "label": "In Node.js and Bun",
+      "file_type": "document",
+      "source_file": ".agents/skills/remotion-best-practices/remotion-multimedia/get-audio-duration.md",
+      "source_location": "L45",
+      "_origin": "ast",
+      "id": "agents_skills_remotion_best_practices_remotion_multimedia_get_audio_duration_in_node_js_and_bun",
+      "community": 164,
+      "community_name": "Using calculateMetadata",
+      "norm_label": "in node.js and bun"
+    },
+    {
+      "label": "Usage",
+      "file_type": "document",
+      "source_file": ".agents/skills/remotion-best-practices/remotion-multimedia/get-audio-duration.md",
+      "source_location": "L28",
+      "_origin": "ast",
+      "id": "agents_skills_remotion_best_practices_remotion_multimedia_get_audio_duration_usage",
+      "community": 164,
+      "community_name": "Using calculateMetadata",
+      "norm_label": "usage"
+    },
+    {
+      "label": "Using with staticFile in Remotion",
+      "file_type": "document",
+      "source_file": ".agents/skills/remotion-best-practices/remotion-multimedia/get-audio-duration.md",
+      "source_location": "L35",
+      "_origin": "ast",
+      "id": "agents_skills_remotion_best_practices_remotion_multimedia_get_audio_duration_using_with_staticfile_in_remotion",
+      "community": 164,
+      "community_name": "Using calculateMetadata",
+      "norm_label": "using with staticfile in remotion"
     },
     {
       "label": "remotion-best-practices/remotion-multimedia/get-video-dimensions.md",
@@ -56605,6 +56385,28 @@
       "community": 168,
       "community_name": "reports/page.tsx",
       "norm_label": "excel.ts"
+    },
+    {
+      "label": "excel.test.ts",
+      "file_type": "code",
+      "source_file": "src/lib/reports/excel.test.ts",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_lib_reports_excel_test",
+      "community": 168,
+      "community_name": "reports/page.tsx",
+      "norm_label": "excel.test.ts"
+    },
+    {
+      "label": "baseProject",
+      "file_type": "code",
+      "source_file": "src/lib/reports/excel.test.ts",
+      "source_location": "L22",
+      "_origin": "ast",
+      "id": "src_lib_reports_excel_test_baseproject",
+      "community": 168,
+      "community_name": "reports/page.tsx",
+      "norm_label": "baseproject"
     },
     {
       "label": "reports/types.ts",
@@ -57795,59 +57597,235 @@
       "norm_label": "when to use"
     },
     {
-      "label": "sm",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L54",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_fontsize_sm",
-      "community": 182,
-      "community_name": "sm",
-      "norm_label": "sm"
-    },
-    {
-      "label": "sm",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L64",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_radius_sm",
-      "community": 182,
-      "community_name": "sm",
-      "norm_label": "sm"
-    },
-    {
-      "label": "sm",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L73",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_shadow_sm",
-      "community": 182,
-      "community_name": "sm",
-      "norm_label": "sm"
-    },
-    {
       "label": "$type",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L54",
+      "source_location": "L11",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_sm_type",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_500_type",
       "community": 182,
-      "community_name": "sm",
+      "community_name": "color",
       "norm_label": "$type"
     },
     {
       "label": "$value",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L54",
+      "source_location": "L11",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_sm_value",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_500_value",
       "community": 182,
-      "community_name": "sm",
+      "community_name": "color",
       "norm_label": "$value"
+    },
+    {
+      "label": "$type",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L12",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_600_type",
+      "community": 182,
+      "community_name": "color",
+      "norm_label": "$type"
+    },
+    {
+      "label": "$value",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L12",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_600_value",
+      "community": 182,
+      "community_name": "color",
+      "norm_label": "$value"
+    },
+    {
+      "label": "500",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L20",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_blue_500",
+      "community": 182,
+      "community_name": "color",
+      "norm_label": "500"
+    },
+    {
+      "label": "600",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L21",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_blue_600",
+      "community": 182,
+      "community_name": "color",
+      "norm_label": "600"
+    },
+    {
+      "label": "blue",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L18",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_color_blue",
+      "community": 182,
+      "community_name": "color",
+      "norm_label": "blue"
+    },
+    {
+      "label": "green",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L30",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_color_green",
+      "community": 182,
+      "community_name": "color",
+      "norm_label": "green"
+    },
+    {
+      "label": "red",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L25",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_color_red",
+      "community": 182,
+      "community_name": "color",
+      "norm_label": "red"
+    },
+    {
+      "label": "white",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L37",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_color_white",
+      "community": 182,
+      "community_name": "color",
+      "norm_label": "white"
+    },
+    {
+      "label": "yellow",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L34",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_color_yellow",
+      "community": 182,
+      "community_name": "color",
+      "norm_label": "yellow"
+    },
+    {
+      "label": "500",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L11",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_gray_500",
+      "community": 182,
+      "community_name": "color",
+      "norm_label": "500"
+    },
+    {
+      "label": "600",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L12",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_gray_600",
+      "community": 182,
+      "community_name": "color",
+      "norm_label": "600"
+    },
+    {
+      "label": "500",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L31",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_green_500",
+      "community": 182,
+      "community_name": "color",
+      "norm_label": "500"
+    },
+    {
+      "label": "600",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L32",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_green_600",
+      "community": 182,
+      "community_name": "color",
+      "norm_label": "600"
+    },
+    {
+      "label": "color",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L4",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_primitive_color",
+      "community": 182,
+      "community_name": "color",
+      "norm_label": "color"
+    },
+    {
+      "label": "500",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L26",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_red_500",
+      "community": 182,
+      "community_name": "color",
+      "norm_label": "500"
+    },
+    {
+      "label": "600",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L27",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_red_600",
+      "community": 182,
+      "community_name": "color",
+      "norm_label": "600"
+    },
+    {
+      "label": "$type",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L37",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_white_type",
+      "community": 182,
+      "community_name": "color",
+      "norm_label": "$type"
+    },
+    {
+      "label": "$value",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L37",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_white_value",
+      "community": 182,
+      "community_name": "color",
+      "norm_label": "$value"
+    },
+    {
+      "label": "500",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L35",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_yellow_500",
+      "community": 182,
+      "community_name": "color",
+      "norm_label": "500"
     },
     {
       "label": "motion-icons-react",
@@ -59332,48 +59310,59 @@
       "norm_label": "$value"
     },
     {
-      "label": "xl",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L57",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_fontsize_xl",
-      "community": 215,
-      "community_name": "xl",
-      "norm_label": "xl"
-    },
-    {
-      "label": "xl",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L68",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_radius_xl",
-      "community": 215,
-      "community_name": "xl",
-      "norm_label": "xl"
-    },
-    {
       "label": "$type",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L57",
+      "source_location": "L13",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_xl_type",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_700_type",
       "community": 215,
-      "community_name": "xl",
+      "community_name": "$type",
       "norm_label": "$type"
     },
     {
       "label": "$value",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L57",
+      "source_location": "L13",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_xl_value",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_700_value",
       "community": 215,
-      "community_name": "xl",
+      "community_name": "$type",
       "norm_label": "$value"
+    },
+    {
+      "label": "700",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L22",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_blue_700",
+      "community": 215,
+      "community_name": "$type",
+      "norm_label": "700"
+    },
+    {
+      "label": "700",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L13",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_gray_700",
+      "community": 215,
+      "community_name": "$type",
+      "norm_label": "700"
+    },
+    {
+      "label": "700",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L28",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_red_700",
+      "community": 215,
+      "community_name": "$type",
+      "norm_label": "700"
     },
     {
       "label": "remotion-best-practices/remotion-maps/techniques/maptiler/assets/CountryLabel.tsx",
@@ -59651,37 +59640,48 @@
       "norm_label": "[static map](techniques/static-map/technique.md)"
     },
     {
-      "label": "phaseBalance.ts",
+      "label": "$type",
       "file_type": "code",
-      "source_file": "src/lib/calculations/phaseBalance.ts",
-      "source_location": "L1",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L14",
       "_origin": "ast",
-      "id": "src_lib_calculations_phasebalance",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_800_type",
       "community": 218,
-      "community_name": "phaseBalance.ts",
-      "norm_label": "phasebalance.ts"
+      "community_name": "800",
+      "norm_label": "$type"
     },
     {
-      "label": "PHASE_OFFSET_RAD",
+      "label": "$value",
       "file_type": "code",
-      "source_file": "src/lib/calculations/phaseBalance.ts",
-      "source_location": "L54",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L14",
       "_origin": "ast",
-      "id": "src_lib_calculations_phasebalance_phase_offset_rad",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_800_value",
       "community": 218,
-      "community_name": "phaseBalance.ts",
-      "norm_label": "phase_offset_rad"
+      "community_name": "800",
+      "norm_label": "$value"
     },
     {
-      "label": "UNBALANCE_LIMIT_PCT",
+      "label": "800",
       "file_type": "code",
-      "source_file": "src/lib/calculations/phaseBalance.ts",
-      "source_location": "L69",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L23",
       "_origin": "ast",
-      "id": "src_lib_calculations_phasebalance_unbalance_limit_pct",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_blue_800",
       "community": 218,
-      "community_name": "phaseBalance.ts",
-      "norm_label": "unbalance_limit_pct"
+      "community_name": "800",
+      "norm_label": "800"
+    },
+    {
+      "label": "800",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L14",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_gray_800",
+      "community": 218,
+      "community_name": "800",
+      "norm_label": "800"
     },
     {
       "label": "skills/remotion-markup/remotion-maps/techniques/mapbox/references/render-stability.md",
@@ -60663,37 +60663,15 @@
       "norm_label": "@radix-ui/react-tabs"
     },
     {
-      "label": "$type",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L47",
+      "label": "Test adding components with empty list.",
+      "file_type": "rationale",
+      "source_file": ".agents/skills/ui-styling/scripts/tests/test_shadcn_add.py",
+      "source_location": "L96",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_8_type",
+      "id": "agents_skills_ui_styling_scripts_tests_test_shadcn_add_rationale_96",
       "community": 231,
-      "community_name": "8",
-      "norm_label": "$type"
-    },
-    {
-      "label": "$value",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L47",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_8_value",
-      "community": 231,
-      "community_name": "8",
-      "norm_label": "$value"
-    },
-    {
-      "label": "8",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L47",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_spacing_8",
-      "community": 231,
-      "community_name": "8",
-      "norm_label": "8"
+      "community_name": ".test_add_components_no_components",
+      "norm_label": "test adding components with empty list."
     },
     {
       "label": "skills/remotion-markup/remotion-maps/techniques/maptiler/assets/CountryLabel.tsx",
@@ -62522,72 +62500,6 @@
       "norm_label": "rendering audio in the component"
     },
     {
-      "label": "remotion-best-practices/remotion-multimedia/get-audio-duration.md",
-      "file_type": "document",
-      "source_file": ".agents/skills/remotion-best-practices/remotion-multimedia/get-audio-duration.md",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "agents_skills_remotion_best_practices_remotion_multimedia_get_audio_duration",
-      "community": 250,
-      "community_name": "Using audio in Remotion",
-      "norm_label": "remotion-best-practices/remotion-multimedia/get-audio-duration.md"
-    },
-    {
-      "label": "Getting audio duration",
-      "file_type": "document",
-      "source_file": ".agents/skills/remotion-best-practices/remotion-multimedia/get-audio-duration.md",
-      "source_location": "L12",
-      "_origin": "ast",
-      "id": "agents_skills_remotion_best_practices_remotion_multimedia_get_audio_duration_getting_audio_duration",
-      "community": 250,
-      "community_name": "Using audio in Remotion",
-      "norm_label": "getting audio duration"
-    },
-    {
-      "label": "Getting audio duration with Mediabunny",
-      "file_type": "document",
-      "source_file": ".agents/skills/remotion-best-practices/remotion-multimedia/get-audio-duration.md",
-      "source_location": "L8",
-      "_origin": "ast",
-      "id": "agents_skills_remotion_best_practices_remotion_multimedia_get_audio_duration_getting_audio_duration_with_mediabunny",
-      "community": 250,
-      "community_name": "Using audio in Remotion",
-      "norm_label": "getting audio duration with mediabunny"
-    },
-    {
-      "label": "In Node.js and Bun",
-      "file_type": "document",
-      "source_file": ".agents/skills/remotion-best-practices/remotion-multimedia/get-audio-duration.md",
-      "source_location": "L45",
-      "_origin": "ast",
-      "id": "agents_skills_remotion_best_practices_remotion_multimedia_get_audio_duration_in_node_js_and_bun",
-      "community": 250,
-      "community_name": "Using audio in Remotion",
-      "norm_label": "in node.js and bun"
-    },
-    {
-      "label": "Usage",
-      "file_type": "document",
-      "source_file": ".agents/skills/remotion-best-practices/remotion-multimedia/get-audio-duration.md",
-      "source_location": "L28",
-      "_origin": "ast",
-      "id": "agents_skills_remotion_best_practices_remotion_multimedia_get_audio_duration_usage",
-      "community": 250,
-      "community_name": "Using audio in Remotion",
-      "norm_label": "usage"
-    },
-    {
-      "label": "Using with staticFile in Remotion",
-      "file_type": "document",
-      "source_file": ".agents/skills/remotion-best-practices/remotion-multimedia/get-audio-duration.md",
-      "source_location": "L35",
-      "_origin": "ast",
-      "id": "agents_skills_remotion_best_practices_remotion_multimedia_get_audio_duration_using_with_staticfile_in_remotion",
-      "community": 250,
-      "community_name": "Using audio in Remotion",
-      "norm_label": "using with staticfile in remotion"
-    },
-    {
       "label": "Test getting installed components when none exist.",
       "file_type": "rationale",
       "source_file": ".agents/skills/ui-styling/scripts/tests/test_shadcn_add.py",
@@ -62619,39 +62531,6 @@
       "community": 252,
       "community_name": "tailwind-merge",
       "norm_label": "tailwind-merge"
-    },
-    {
-      "label": "$type",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L40",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_0_type",
-      "community": 253,
-      "community_name": "0",
-      "norm_label": "$type"
-    },
-    {
-      "label": "$value",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L40",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_0_value",
-      "community": 253,
-      "community_name": "0",
-      "norm_label": "$value"
-    },
-    {
-      "label": "0",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L40",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_spacing_0",
-      "community": 253,
-      "community_name": "0",
-      "norm_label": "0"
     },
     {
       "label": "postcss.config.mjs",
@@ -67296,6 +67175,17 @@
       "norm_label": "lg"
     },
     {
+      "label": "sm",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L54",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_fontsize_sm",
+      "community": 31,
+      "community_name": "radius",
+      "norm_label": "sm"
+    },
+    {
       "label": "$type",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
@@ -67340,15 +67230,48 @@
       "norm_label": "$value"
     },
     {
-      "label": "primitive",
+      "label": "$type",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L3",
+      "source_location": "L66",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_primitive",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_md_type",
       "community": 31,
       "community_name": "radius",
-      "norm_label": "primitive"
+      "norm_label": "$type"
+    },
+    {
+      "label": "$value",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L66",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_md_value",
+      "community": 31,
+      "community_name": "radius",
+      "norm_label": "$value"
+    },
+    {
+      "label": "$type",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L63",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_none_type",
+      "community": 31,
+      "community_name": "radius",
+      "norm_label": "$type"
+    },
+    {
+      "label": "$value",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L63",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_none_value",
+      "community": 31,
+      "community_name": "radius",
+      "norm_label": "$value"
     },
     {
       "label": "radius",
@@ -67406,6 +67329,39 @@
       "norm_label": "lg"
     },
     {
+      "label": "md",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L66",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_radius_md",
+      "community": 31,
+      "community_name": "radius",
+      "norm_label": "md"
+    },
+    {
+      "label": "none",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L63",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_radius_none",
+      "community": 31,
+      "community_name": "radius",
+      "norm_label": "none"
+    },
+    {
+      "label": "sm",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L64",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_radius_sm",
+      "community": 31,
+      "community_name": "radius",
+      "norm_label": "sm"
+    },
+    {
       "label": "default",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
@@ -67426,6 +67382,61 @@
       "community": 31,
       "community_name": "radius",
       "norm_label": "lg"
+    },
+    {
+      "label": "md",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L75",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_shadow_md",
+      "community": 31,
+      "community_name": "radius",
+      "norm_label": "md"
+    },
+    {
+      "label": "none",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L72",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_shadow_none",
+      "community": 31,
+      "community_name": "radius",
+      "norm_label": "none"
+    },
+    {
+      "label": "sm",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L73",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_shadow_sm",
+      "community": 31,
+      "community_name": "radius",
+      "norm_label": "sm"
+    },
+    {
+      "label": "$type",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L54",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_sm_type",
+      "community": 31,
+      "community_name": "radius",
+      "norm_label": "$type"
+    },
+    {
+      "label": "$value",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L54",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_sm_value",
+      "community": 31,
+      "community_name": "radius",
+      "norm_label": "$value"
     },
     {
       "label": "remotion-best-practices/remotion-markup/remotion-maps/techniques/cesium/scripts/prep-cesium-path.mjs",
@@ -74479,17 +74490,6 @@
       "norm_label": "format design system as markdown."
     },
     {
-      "label": "Bucket a 1-10 dial value into its tier config. Returns None if value is None.",
-      "file_type": "rationale",
-      "source_file": ".agents/skills/ui-ux-pro-max/scripts/design_system.py",
-      "source_location": "L70",
-      "_origin": "ast",
-      "id": "agents_skills_ui_ux_pro_max_scripts_design_system_rationale_70",
-      "community": 36,
-      "community_name": "design_system.py",
-      "norm_label": "bucket a 1-10 dial value into its tier config. returns none if value is none."
-    },
-    {
       "label": "Main entry point for design system generation. Args: query: Search query (e.g.,\u2026",
       "file_type": "rationale",
       "source_file": ".agents/skills/ui-ux-pro-max/scripts/design_system.py",
@@ -76193,50 +76193,6 @@
       "community": 378,
       "community_name": "CesiumJS \u2014 3D flyovers in Remotion",
       "norm_label": "modes"
-    },
-    {
-      "label": "$type",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L66",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_md_type",
-      "community": 379,
-      "community_name": "md",
-      "norm_label": "$type"
-    },
-    {
-      "label": "$value",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L66",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_md_value",
-      "community": 379,
-      "community_name": "md",
-      "norm_label": "$value"
-    },
-    {
-      "label": "md",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L66",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_radius_md",
-      "community": 379,
-      "community_name": "md",
-      "norm_label": "md"
-    },
-    {
-      "label": "md",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L75",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_shadow_md",
-      "community": 379,
-      "community_name": "md",
-      "norm_label": "md"
     },
     {
       "label": "html-token-validator.py",
@@ -80177,17 +80133,6 @@
       "norm_label": "4. section 2: test suite execution, coverage gaps & false-positive assertions"
     },
     {
-      "label": "Test adding components that are already installed.",
-      "file_type": "rationale",
-      "source_file": ".agents/skills/ui-styling/scripts/tests/test_shadcn_add.py",
-      "source_location": "L112",
-      "_origin": "ast",
-      "id": "agents_skills_ui_styling_scripts_tests_test_shadcn_add_rationale_112",
-      "community": 441,
-      "community_name": ".test_add_components_already_installed",
-      "norm_label": "test adding components that are already installed."
-    },
-    {
       "label": "@tanstack/react-table",
       "file_type": "code",
       "source_file": "package.json",
@@ -80397,50 +80342,6 @@
       "norm_label": "$value"
     },
     {
-      "label": "$type",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L63",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_none_type",
-      "community": 446,
-      "community_name": "none",
-      "norm_label": "$type"
-    },
-    {
-      "label": "$value",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L63",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_none_value",
-      "community": 446,
-      "community_name": "none",
-      "norm_label": "$value"
-    },
-    {
-      "label": "none",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L63",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_radius_none",
-      "community": 446,
-      "community_name": "none",
-      "norm_label": "none"
-    },
-    {
-      "label": "none",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L72",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_shadow_none",
-      "community": 446,
-      "community_name": "none",
-      "norm_label": "none"
-    },
-    {
       "label": "remotion-best-practices/remotion-markup/images.md",
       "file_type": "document",
       "source_file": ".agents/skills/remotion-best-practices/remotion-markup/images.md",
@@ -80483,72 +80384,6 @@
       "community": 447,
       "community_name": "remotion-best-practices/remotion-markup/images.md",
       "norm_label": "sizing and positioning"
-    },
-    {
-      "label": "$type",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L49",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_12_type",
-      "community": 448,
-      "community_name": "12",
-      "norm_label": "$type"
-    },
-    {
-      "label": "$value",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L49",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_12_value",
-      "community": 448,
-      "community_name": "12",
-      "norm_label": "$value"
-    },
-    {
-      "label": "12",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L49",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_spacing_12",
-      "community": 448,
-      "community_name": "12",
-      "norm_label": "12"
-    },
-    {
-      "label": "$type",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L42",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_2_type",
-      "community": 449,
-      "community_name": "2",
-      "norm_label": "$type"
-    },
-    {
-      "label": "$value",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L42",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_2_value",
-      "community": 449,
-      "community_name": "2",
-      "norm_label": "$value"
-    },
-    {
-      "label": "2",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L42",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_spacing_2",
-      "community": 449,
-      "community_name": "2",
-      "norm_label": "2"
     },
     {
       "label": "prismaNamespaceBrowser.ts",
@@ -81049,6 +80884,28 @@
       "label": "$type",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L40",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_0_type",
+      "community": 47,
+      "community_name": "spacing",
+      "norm_label": "$type"
+    },
+    {
+      "label": "$value",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L40",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_0_value",
+      "community": 47,
+      "community_name": "spacing",
+      "norm_label": "$value"
+    },
+    {
+      "label": "$type",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
       "source_location": "L48",
       "_origin": "ast",
       "id": "agents_skills_design_system_templates_design_tokens_starter_10_type",
@@ -81063,6 +80920,28 @@
       "source_location": "L48",
       "_origin": "ast",
       "id": "agents_skills_design_system_templates_design_tokens_starter_10_value",
+      "community": 47,
+      "community_name": "spacing",
+      "norm_label": "$value"
+    },
+    {
+      "label": "$type",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L49",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_12_type",
+      "community": 47,
+      "community_name": "spacing",
+      "norm_label": "$type"
+    },
+    {
+      "label": "$value",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L49",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_12_value",
       "community": 47,
       "community_name": "spacing",
       "norm_label": "$value"
@@ -81107,6 +80986,28 @@
       "source_location": "L41",
       "_origin": "ast",
       "id": "agents_skills_design_system_templates_design_tokens_starter_1_value",
+      "community": 47,
+      "community_name": "spacing",
+      "norm_label": "$value"
+    },
+    {
+      "label": "$type",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L42",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_2_type",
+      "community": 47,
+      "community_name": "spacing",
+      "norm_label": "$type"
+    },
+    {
+      "label": "$value",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L42",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_2_value",
       "community": 47,
       "community_name": "spacing",
       "norm_label": "$value"
@@ -81200,6 +81101,28 @@
       "norm_label": "$value"
     },
     {
+      "label": "$type",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L47",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_8_type",
+      "community": 47,
+      "community_name": "spacing",
+      "norm_label": "$type"
+    },
+    {
+      "label": "$value",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L47",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_8_value",
+      "community": 47,
+      "community_name": "spacing",
+      "norm_label": "$value"
+    },
+    {
       "label": "spacing",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
@@ -81209,6 +81132,17 @@
       "community": 47,
       "community_name": "spacing",
       "norm_label": "spacing"
+    },
+    {
+      "label": "0",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L40",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_spacing_0",
+      "community": 47,
+      "community_name": "spacing",
+      "norm_label": "0"
     },
     {
       "label": "1",
@@ -81233,6 +81167,17 @@
       "norm_label": "10"
     },
     {
+      "label": "12",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L49",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_spacing_12",
+      "community": 47,
+      "community_name": "spacing",
+      "norm_label": "12"
+    },
+    {
       "label": "16",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
@@ -81242,6 +81187,17 @@
       "community": 47,
       "community_name": "spacing",
       "norm_label": "16"
+    },
+    {
+      "label": "2",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L42",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_spacing_2",
+      "community": 47,
+      "community_name": "spacing",
+      "norm_label": "2"
     },
     {
       "label": "3",
@@ -81286,6 +81242,17 @@
       "community": 47,
       "community_name": "spacing",
       "norm_label": "6"
+    },
+    {
+      "label": "8",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L47",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_spacing_8",
+      "community": 47,
+      "community_name": "spacing",
+      "norm_label": "8"
     },
     {
       "label": "tailwind_config_gen.py",
@@ -81495,6 +81462,17 @@
       "community": 49,
       "community_name": "DesignSystemGenerator",
       "norm_label": "generate complete design system recommendation. variance/motion/density are..."
+    },
+    {
+      "label": "Bucket a 1-10 dial value into its tier config. Returns None if value is None.",
+      "file_type": "rationale",
+      "source_file": ".agents/skills/ui-ux-pro-max/scripts/design_system.py",
+      "source_location": "L70",
+      "_origin": "ast",
+      "id": "agents_skills_ui_ux_pro_max_scripts_design_system_rationale_70",
+      "community": 49,
+      "community_name": "DesignSystemGenerator",
+      "norm_label": "bucket a 1-10 dial value into its tier config. returns none if value is none."
     },
     {
       "label": "LoadLibraryItem.ts",
@@ -82927,6 +82905,17 @@
       "norm_label": "base"
     },
     {
+      "label": "xl",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L57",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_fontsize_xl",
+      "community": 74,
+      "community_name": "fontSize",
+      "norm_label": "xl"
+    },
+    {
       "label": "xs",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
@@ -82947,6 +82936,39 @@
       "community": 74,
       "community_name": "fontSize",
       "norm_label": "fontsize"
+    },
+    {
+      "label": "xl",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L68",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_radius_xl",
+      "community": 74,
+      "community_name": "fontSize",
+      "norm_label": "xl"
+    },
+    {
+      "label": "$type",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L57",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_xl_type",
+      "community": 74,
+      "community_name": "fontSize",
+      "norm_label": "$type"
+    },
+    {
+      "label": "$value",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L57",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_xl_value",
+      "community": 74,
+      "community_name": "fontSize",
+      "norm_label": "$value"
     },
     {
       "label": "$type",
@@ -83664,6 +83686,17 @@
       "norm_label": "tests for shadcn_add.py"
     },
     {
+      "label": "Test adding components that are already installed.",
+      "file_type": "rationale",
+      "source_file": ".agents/skills/ui-styling/scripts/tests/test_shadcn_add.py",
+      "source_location": "L112",
+      "_origin": "ast",
+      "id": "agents_skills_ui_styling_scripts_tests_test_shadcn_add_rationale_112",
+      "community": 85,
+      "community_name": "ShadcnInstaller",
+      "norm_label": "test adding components that are already installed."
+    },
+    {
       "label": "Test listing installed components when they exist.",
       "file_type": "rationale",
       "source_file": ".agents/skills/ui-styling/scripts/tests/test_shadcn_add.py",
@@ -83684,17 +83717,6 @@
       "community": 85,
       "community_name": "ShadcnInstaller",
       "norm_label": "test getting installed components without config."
-    },
-    {
-      "label": "Test adding components with empty list.",
-      "file_type": "rationale",
-      "source_file": ".agents/skills/ui-styling/scripts/tests/test_shadcn_add.py",
-      "source_location": "L96",
-      "_origin": "ast",
-      "id": "agents_skills_ui_styling_scripts_tests_test_shadcn_add_rationale_96",
-      "community": 85,
-      "community_name": "ShadcnInstaller",
-      "norm_label": "test adding components with empty list."
     },
     {
       "label": "Add all available shadcn/ui components. Args: overwrite: If True, overwrite\u2026",
@@ -85457,39 +85479,6 @@
       "norm_label": "project"
     },
     {
-      "label": "feeders.test.ts",
-      "file_type": "code",
-      "source_file": "src/lib/calculations/feeders.test.ts",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "src_lib_calculations_feeders_test",
-      "community": 99,
-      "community_name": "types/index.ts",
-      "norm_label": "feeders.test.ts"
-    },
-    {
-      "label": "baseProject",
-      "file_type": "code",
-      "source_file": "src/lib/calculations/feeders.test.ts",
-      "source_location": "L22",
-      "_origin": "ast",
-      "id": "src_lib_calculations_feeders_test_baseproject",
-      "community": 99,
-      "community_name": "types/index.ts",
-      "norm_label": "baseproject"
-    },
-    {
-      "label": "equipment",
-      "file_type": "code",
-      "source_file": "src/lib/calculations/feeders.test.ts",
-      "source_location": "L10",
-      "_origin": "ast",
-      "id": "src_lib_calculations_feeders_test_equipment",
-      "community": 99,
-      "community_name": "types/index.ts",
-      "norm_label": "equipment"
-    },
-    {
       "label": "integration-multibuilding.test.ts",
       "file_type": "code",
       "source_file": "src/lib/calculations/integration-multibuilding.test.ts",
@@ -85589,6 +85578,28 @@
       "norm_label": "project"
     },
     {
+      "label": "phaseBalance.ts",
+      "file_type": "code",
+      "source_file": "src/lib/calculations/phaseBalance.ts",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_lib_calculations_phasebalance",
+      "community": 99,
+      "community_name": "types/index.ts",
+      "norm_label": "phasebalance.ts"
+    },
+    {
+      "label": "PHASE_OFFSET_RAD",
+      "file_type": "code",
+      "source_file": "src/lib/calculations/phaseBalance.ts",
+      "source_location": "L54",
+      "_origin": "ast",
+      "id": "src_lib_calculations_phasebalance_phase_offset_rad",
+      "community": 99,
+      "community_name": "types/index.ts",
+      "norm_label": "phase_offset_rad"
+    },
+    {
       "label": "phaseBalance.test.ts",
       "file_type": "code",
       "source_file": "src/lib/calculations/phaseBalance.test.ts",
@@ -85598,6 +85609,17 @@
       "community": 99,
       "community_name": "types/index.ts",
       "norm_label": "phasebalance.test.ts"
+    },
+    {
+      "label": "UNBALANCE_LIMIT_PCT",
+      "file_type": "code",
+      "source_file": "src/lib/calculations/phaseBalance.ts",
+      "source_location": "L69",
+      "_origin": "ast",
+      "id": "src_lib_calculations_phasebalance_unbalance_limit_pct",
+      "community": 99,
+      "community_name": "types/index.ts",
+      "norm_label": "unbalance_limit_pct"
     },
     {
       "label": "riser.ts",
@@ -85631,28 +85653,6 @@
       "community": 99,
       "community_name": "types/index.ts",
       "norm_label": "proj"
-    },
-    {
-      "label": "excel.test.ts",
-      "file_type": "code",
-      "source_file": "src/lib/reports/excel.test.ts",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "src_lib_reports_excel_test",
-      "community": 99,
-      "community_name": "types/index.ts",
-      "norm_label": "excel.test.ts"
-    },
-    {
-      "label": "baseProject",
-      "file_type": "code",
-      "source_file": "src/lib/reports/excel.test.ts",
-      "source_location": "L22",
-      "_origin": "ast",
-      "id": "src_lib_reports_excel_test_baseproject",
-      "community": 99,
-      "community_name": "types/index.ts",
-      "norm_label": "baseproject"
     },
     {
       "label": "types/index.ts",
@@ -95672,6 +95672,42 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/app/(app)/breaker-schedule/page.tsx",
+      "source_location": "L1031",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_app_app_breaker_schedule_page_breakerschedulepage",
+      "target": "src_lib_calculations_trace_engine_builddesigncurrenttrace"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/app/(app)/breaker-schedule/page.tsx",
+      "source_location": "L1048",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_app_app_breaker_schedule_page_breakerschedulepage",
+      "target": "src_lib_calculations_trace_engine_buildbreakersizingtrace"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/app/(app)/breaker-schedule/page.tsx",
+      "source_location": "L1110",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_app_app_breaker_schedule_page_breakerschedulepage",
+      "target": "src_lib_calculations_trace_engine_buildshortcircuittrace"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/app/(app)/breaker-schedule/page.tsx",
       "source_location": "L210",
       "weight": 1.0,
       "_origin": "ast",
@@ -95696,11 +95732,23 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/app/(app)/breaker-schedule/page.tsx",
-      "source_location": "L359",
+      "source_location": "L361",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_app_app_breaker_schedule_page_breakerschedulepage",
       "target": "src_lib_calculations_selectivity_verifycoordination"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/app/(app)/breaker-schedule/page.tsx",
+      "source_location": "L381",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_app_app_breaker_schedule_page_breakerschedulepage",
+      "target": "src_lib_calculations_selectivity_suggestalternativebreaker"
     },
     {
       "relation": "calls",
@@ -95725,42 +95773,6 @@
       "_origin": "ast",
       "source": "src_app_app_breaker_schedule_page_breakerschedulepage",
       "target": "src_i18n_i18nprovider_usetranslation"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "src/app/(app)/breaker-schedule/page.tsx",
-      "source_location": "L911",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "src_app_app_breaker_schedule_page_breakerschedulepage",
-      "target": "src_lib_calculations_trace_engine_builddesigncurrenttrace"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "src/app/(app)/breaker-schedule/page.tsx",
-      "source_location": "L928",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "src_app_app_breaker_schedule_page_breakerschedulepage",
-      "target": "src_lib_calculations_trace_engine_buildbreakersizingtrace"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "src/app/(app)/breaker-schedule/page.tsx",
-      "source_location": "L990",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "src_app_app_breaker_schedule_page_breakerschedulepage",
-      "target": "src_lib_calculations_trace_engine_buildshortcircuittrace"
     },
     {
       "relation": "calls",
@@ -96116,11 +96128,23 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/app/(app)/coordination/page.tsx",
-      "source_location": "L219",
+      "source_location": "L221",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_app_app_coordination_page_coordinationpage",
       "target": "src_lib_calculations_selectivity_verifycoordination"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/app/(app)/coordination/page.tsx",
+      "source_location": "L241",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_app_app_coordination_page_coordinationpage",
+      "target": "src_lib_calculations_selectivity_suggestalternativebreaker"
     },
     {
       "relation": "calls",
@@ -96152,7 +96176,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/app/(app)/coordination/page.tsx",
-      "source_location": "L504",
+      "source_location": "L599",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_app_app_coordination_page_coordinationpage",
@@ -96164,23 +96188,11 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/app/(app)/coordination/page.tsx",
-      "source_location": "L523",
+      "source_location": "L618",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_app_app_coordination_page_coordinationpage",
       "target": "src_lib_calculations_selectivity_generatecabledamagecurve"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "src/app/(app)/coordination/page.tsx",
-      "source_location": "L560",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "src_app_app_coordination_page_coordinationpage",
-      "target": "src_lib_calculations_selectivity_suggestalternativebreaker"
     },
     {
       "relation": "calls",
@@ -110844,6 +110856,18 @@
       "_origin": "ast",
       "source": "src_app_app_breaker_schedule_page",
       "target": "src_lib_calculations_selectivity_breakercurvesettings",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/app/(app)/breaker-schedule/page.tsx",
+      "source_location": "L22",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_app_app_breaker_schedule_page",
+      "target": "src_lib_calculations_selectivity_suggestalternativebreaker",
       "confidence_score": 1.0
     },
     {
@@ -208147,5 +208171,5 @@
       "source_file": "public/slides/slide_load_calc.webp"
     }
   ],
-  "built_at_commit": "9f8f6452da777bcafc70020e592b79e3f032adf6"
+  "built_at_commit": "652241edf37704bde592c432e3dcbcf9e7cb7add"
 }

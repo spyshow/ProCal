@@ -620,6 +620,57 @@ describe('suggestAlternativeBreaker', () => {
     expect(tripUnitSug?.suggestedModel || tripUnitSug?.title).toContain('Ekip');
   });
 
+  it('suggests upstream upgrade to 630A and direct MDB feed for F4 Cinema (400A vs 400A)', () => {
+    const upstream = { inRating: 400, ir: 400, tr: 12, manufacturer: 'Schneider' };
+    const downstream = { inRating: 400, ir: 305.7, tr: 12, manufacturer: 'Schneider', category: 'MCCB' as const };
+    const suggestions = suggestAlternativeBreaker(upstream, downstream, 15000, {
+      downstreamLoadCurrent: 305.7,
+      parentFeederName: 'F4 – SMDB',
+      preferredManufacturer: 'Schneider',
+    });
+
+    const upSug = suggestions.find((s) => s.type === 'UPSTREAM_UPGRADE');
+    expect(upSug).toBeDefined();
+    expect(upSug?.suggestedFrameSize).toBe(630);
+    expect(upSug?.suggestedModel).toContain('NSX630');
+
+    const directSug = suggestions.find((s) => s.type === 'DIRECT_MDB_FEED');
+    expect(directSug).toBeDefined();
+  });
+
+  it('suggests upstream upgrade to 320A and downstream resize to 160A for F5 Parking (200A vs 200A, 135.8A load)', () => {
+    const upstream = { inRating: 200, ir: 200, tr: 12, manufacturer: 'Schneider' };
+    const downstream = { inRating: 200, ir: 135.8, tr: 12, manufacturer: 'Schneider', category: 'MCCB' as const };
+    const suggestions = suggestAlternativeBreaker(upstream, downstream, 15000, {
+      downstreamLoadCurrent: 135.8,
+      parentFeederName: 'F5 – SMDB',
+      preferredManufacturer: 'Schneider',
+    });
+
+    const upSug = suggestions.find((s) => s.type === 'UPSTREAM_UPGRADE');
+    expect(upSug).toBeDefined();
+    expect(upSug?.suggestedFrameSize).toBe(320);
+
+    const downSug = suggestions.find((s) => s.type === 'DOWNSTREAM_RESIZE');
+    expect(downSug).toBeDefined();
+    expect(downSug?.suggestedFrameSize).toBe(160);
+  });
+
+  it('suggests upstream Ir dial tuning when frame is adequate but Ir is dialed too low', () => {
+    const upstream = { inRating: 630, ir: 160, tr: 12, manufacturer: 'Schneider' };
+    const downstream = { inRating: 100, ir: 120, tr: 12, manufacturer: 'Schneider', category: 'MCCB' as const };
+    const suggestions = suggestAlternativeBreaker(upstream, downstream, 15000, {
+      downstreamLoadCurrent: 120,
+      parentFeederName: 'Main Incomer',
+      preferredManufacturer: 'Schneider',
+    });
+
+    const irSug = suggestions.find((s) => s.type === 'SETTINGS_ADJUSTMENT' && s.id === 'sug-upstream-ir-tuning');
+    expect(irSug).toBeDefined();
+    expect(irSug?.title).toContain('Adjust Upstream Overload Dial Ir');
+    expect(irSug?.suggestedSettings?.ir).toBeGreaterThanOrEqual(192);
+  });
+
   describe('CALC-MAJ-07: Adiabatic Energy Withstand (IEC 60364-4-43 §434.5.2)', () => {
     it('passes let-through check when k²S² >= I²t for fast clearing (< 0.1s)', () => {
       // 2.5 mm² Cu XLPE cable (k = 143):

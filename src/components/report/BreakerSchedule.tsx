@@ -458,6 +458,11 @@ export default function BreakerSchedule({
                     >
                       {b.selectivityStatus}{b.selectivityStatus === 'PARTIAL' && b.selectivityLimitKa ? ` (${b.selectivityLimitKa} kA)` : ''}
                     </span>
+                    {b.selectivityStatus !== 'FULL' && b.suggestedAlternative && (
+                      <div className="text-[9px] text-amber-700 font-sans mt-0.5 font-medium">
+                        {b.suggestedAlternative}
+                      </div>
+                    )}
                   </td>
                   <td className="p-2 text-center text-xs font-mono">
                     <span className="px-2 py-0.5 rounded bg-slate-100 text-emerald-700 font-bold border border-slate-200">

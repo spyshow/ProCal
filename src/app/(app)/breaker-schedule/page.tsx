@@ -19,7 +19,7 @@ import {
   BookOpen,
 } from 'lucide-react';
 import { computeFeeders, createFindBreaker, type EquipmentItem, type DefaultFamilies } from '@/lib/calculations/feeders';
-import { verifyCoordination, type BreakerCurveSettings } from '@/lib/calculations/selectivity';
+import { verifyCoordination, suggestAlternativeBreaker, type BreakerCurveSettings } from '@/lib/calculations/selectivity';
 import TccPlotModal from '@/components/coordination/TccPlotModal';
 import { BreakerSizingGuideModal } from '@/components/breaker/BreakerSizingGuideModal';
 import InfoTooltip from '@/components/InfoTooltip';
@@ -342,6 +342,8 @@ export default function BreakerSchedulePage() {
         let effectiveStatus = f.selectivityStatus;
         let effectiveLimitKa = f.selectivityLimitKa;
         let effectiveReason = f.selectivityReason;
+        let effectiveAlternativeSuggestions = f.alternativeSuggestions ?? [];
+        let effectiveSuggestedAlternative = f.suggestedAlternative ?? null;
 
         if (saved) {
           const customDownstream: BreakerCurveSettings = {
@@ -374,10 +376,59 @@ export default function BreakerSchedulePage() {
           effectiveStatus = reCoord.status;
           effectiveLimitKa = reCoord.status === 'PARTIAL' && reCoord.limitCurrent ? reCoord.limitCurrent / 1000 : null;
           effectiveReason = reCoord.overlapDetails;
+
+          if (effectiveStatus !== 'FULL') {
+            effectiveAlternativeSuggestions = suggestAlternativeBreaker(
+              mainIncomerSettings,
+              customDownstream,
+              (f.faultCurrentKa || transformerIscKa || 15) * 1000,
+              {
+                downstreamLoadCurrent: f.current,
+                cableSizeMm2: f.cableSize,
+                parentFeederName: f.parentFeederName,
+                preferredManufacturer: project.preferredManufacturer,
+              }
+            );
+            effectiveSuggestedAlternative = effectiveAlternativeSuggestions[0]?.title ?? 'Resolve Coordination';
+          } else {
+            effectiveAlternativeSuggestions = [];
+            effectiveSuggestedAlternative = null;
+          }
         }
 
-        const effectiveSuggestedAlternative = effectiveStatus === 'FULL' ? null : f.suggestedAlternative;
-        const effectiveAlternativeSuggestions = effectiveStatus === 'FULL' ? [] : f.alternativeSuggestions;
+        if (effectiveStatus !== 'FULL') {
+          if (!effectiveAlternativeSuggestions || effectiveAlternativeSuggestions.length === 0) {
+            const downSettings: BreakerCurveSettings = {
+              inRating: f.breakerSize,
+              ir: f.current,
+              tr: 12,
+              isd: f.breakerSize * 4,
+              tsd: 0.05,
+              ii: f.breakerSize * 10,
+              category: f.type === 'SMDB' || f.type === 'SERVICE_PANEL' || f.type === 'PUMP_PANEL' || f.type === 'ELEVATOR_PANEL' ? 'MCCB' : (f.breakerSize <= 63 ? 'MCB' : 'MCCB'),
+              manufacturer: f.manufacturer ?? project.preferredManufacturer ?? 'Schneider',
+              model: effectiveModel,
+              isGeneric: false,
+            };
+            effectiveAlternativeSuggestions = suggestAlternativeBreaker(
+              mainIncomerSettings,
+              downSettings,
+              (f.faultCurrentKa || transformerIscKa || 15) * 1000,
+              {
+                downstreamLoadCurrent: f.current,
+                cableSizeMm2: f.cableSize,
+                parentFeederName: f.parentFeederName,
+                preferredManufacturer: project.preferredManufacturer,
+              }
+            );
+          }
+          if (!effectiveSuggestedAlternative) {
+            effectiveSuggestedAlternative = effectiveAlternativeSuggestions[0]?.title ?? 'Resolve Coordination';
+          }
+        } else {
+          effectiveAlternativeSuggestions = [];
+          effectiveSuggestedAlternative = null;
+        }
 
         list.push({
           id: `${bldg.id}-mdb-${list.length}`,
@@ -426,38 +477,45 @@ export default function BreakerSchedulePage() {
           let effectiveStatus = f.selectivityStatus;
           let effectiveLimitKa = f.selectivityLimitKa;
           let effectiveReason = f.selectivityReason;
+          let effectiveAlternativeSuggestions = f.alternativeSuggestions ?? [];
+          let effectiveSuggestedAlternative = f.suggestedAlternative ?? null;
+
+          const upFeeder = mdbFeeders.find(
+            (uf) =>
+              normalizeBreakerId(uf.name) === normalizeBreakerId(f.parentFeederName || '') ||
+              uf.name === `F${floorNumber} – SMDB` ||
+              uf.name === `F${floorNumber} - SMDB`
+          );
+          const upSaved = upFeeder ? findSavedBreakerSetting(upFeeder) : null;
+          const upIn = upSaved?.frameSize ? parseInt(upSaved.frameSize) : (upFeeder?.breakerSize ?? 400);
+          const upIr = upSaved?.ir ?? Math.max(upFeeder?.current ?? 0, upIn * 0.85);
+          const customUpstream: BreakerCurveSettings = {
+            inRating: upIn,
+            ir: upIr,
+            tr: upSaved?.tr ?? 12,
+            isd: upSaved?.isd ?? (upIn * 4),
+            tsd: upSaved?.tsd ?? 0.3,
+            ii: upSaved?.ii ?? (upIn * 10),
+            category: upIn >= 630 ? 'ACB' : 'MCCB',
+            manufacturer: upSaved?.manufacturer ?? upFeeder?.manufacturer ?? project.preferredManufacturer ?? 'Schneider',
+            model: upSaved?.model ?? upFeeder?.breakerModel,
+            isGeneric: false,
+          };
+
+          const customDownstream: BreakerCurveSettings = {
+            inRating: f.breakerSize,
+            ir: saved?.ir ?? f.current,
+            tr: saved?.tr ?? 12,
+            isd: saved?.isd ?? (f.breakerSize * 4),
+            tsd: saved?.tsd ?? 0.05,
+            ii: saved?.ii ?? (f.breakerSize * 10),
+            category: f.breakerSize <= 63 ? 'MCB' : (f.breakerSize >= 630 ? 'ACB' : 'MCCB'),
+            manufacturer: saved?.manufacturer ?? f.manufacturer ?? project.preferredManufacturer ?? 'Schneider',
+            model: effectiveModel,
+            isGeneric: false,
+          };
 
           if (saved) {
-            const upFeeder = mdbFeeders.find((uf) => uf.name === f.parentFeederName || uf.name === `F${floorNumber} – SMDB` || uf.name === `F${floorNumber} - SMDB`);
-            const upSaved = upFeeder ? findSavedBreakerSetting(upFeeder) : null;
-            const upIn = upSaved?.frameSize ? parseInt(upSaved.frameSize) : (upFeeder?.breakerSize ?? 400);
-            const upIr = upSaved?.ir ?? Math.max(upFeeder?.current ?? 0, upIn * 0.85);
-            const customUpstream: BreakerCurveSettings = {
-              inRating: upIn,
-              ir: upIr,
-              tr: upSaved?.tr ?? 12,
-              isd: upSaved?.isd ?? (upIn * 4),
-              tsd: upSaved?.tsd ?? 0.3,
-              ii: upSaved?.ii ?? (upIn * 10),
-              category: upIn >= 630 ? 'ACB' : 'MCCB',
-              manufacturer: upSaved?.manufacturer ?? upFeeder?.manufacturer ?? project.preferredManufacturer ?? 'Schneider',
-              model: upSaved?.model ?? upFeeder?.breakerModel,
-              isGeneric: false,
-            };
-
-            const customDownstream: BreakerCurveSettings = {
-              inRating: f.breakerSize,
-              ir: saved.ir ?? f.current,
-              tr: saved.tr ?? 12,
-              isd: saved.isd ?? (f.breakerSize * 4),
-              tsd: saved.tsd ?? 0.05,
-              ii: saved.ii ?? (f.breakerSize * 10),
-              category: f.breakerSize <= 63 ? 'MCB' : (f.breakerSize >= 630 ? 'ACB' : 'MCCB'),
-              manufacturer: saved.manufacturer ?? f.manufacturer ?? project.preferredManufacturer ?? 'Schneider',
-              model: effectiveModel,
-              isGeneric: false,
-            };
-
             const reCoord = verifyCoordination(
               customUpstream,
               customDownstream,
@@ -476,10 +534,47 @@ export default function BreakerSchedulePage() {
             effectiveStatus = reCoord.status;
             effectiveLimitKa = reCoord.status === 'PARTIAL' && reCoord.limitCurrent ? reCoord.limitCurrent / 1000 : null;
             effectiveReason = reCoord.overlapDetails;
+
+            if (effectiveStatus !== 'FULL') {
+              effectiveAlternativeSuggestions = suggestAlternativeBreaker(
+                customUpstream,
+                customDownstream,
+                (f.faultCurrentKa || 15) * 1000,
+                {
+                  downstreamLoadCurrent: f.current,
+                  cableSizeMm2: f.cableSize,
+                  parentFeederName: f.parentFeederName,
+                  preferredManufacturer: project.preferredManufacturer,
+                }
+              );
+              effectiveSuggestedAlternative = effectiveAlternativeSuggestions[0]?.title ?? 'Resolve Coordination';
+            } else {
+              effectiveAlternativeSuggestions = [];
+              effectiveSuggestedAlternative = null;
+            }
           }
 
-          const effectiveSuggestedAlternative = effectiveStatus === 'FULL' ? null : f.suggestedAlternative;
-          const effectiveAlternativeSuggestions = effectiveStatus === 'FULL' ? [] : f.alternativeSuggestions;
+          if (effectiveStatus !== 'FULL') {
+            if (!effectiveAlternativeSuggestions || effectiveAlternativeSuggestions.length === 0) {
+              effectiveAlternativeSuggestions = suggestAlternativeBreaker(
+                customUpstream,
+                customDownstream,
+                (f.faultCurrentKa || 15) * 1000,
+                {
+                  downstreamLoadCurrent: f.current,
+                  cableSizeMm2: f.cableSize,
+                  parentFeederName: f.parentFeederName,
+                  preferredManufacturer: project.preferredManufacturer,
+                }
+              );
+            }
+            if (!effectiveSuggestedAlternative) {
+              effectiveSuggestedAlternative = effectiveAlternativeSuggestions[0]?.title ?? 'Resolve Coordination';
+            }
+          } else {
+            effectiveAlternativeSuggestions = [];
+            effectiveSuggestedAlternative = null;
+          }
 
           list.push({
             id: `${bldg.id}-smdb-${list.length}`,
@@ -562,6 +657,31 @@ export default function BreakerSchedulePage() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ riserBreakerSize: `${sug.suggestedFrameSize}A` }),
           });
+          const upFeeder = breakers.find(
+            (b) =>
+              b.buildingId === selectedFeederForModal.buildingId &&
+              normalizeBreakerId(b.name) === normalizeBreakerId(selectedFeederForModal.parentFeederName || '')
+          );
+          if (upFeeder) {
+            const upSaved = findSavedBreakerSetting(upFeeder as any);
+            const stableBreakerId = `${project.id}-${upFeeder.name}`;
+            await fetch('/api/breaker-settings', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                projectId: project.id,
+                breakerId: stableBreakerId,
+                model: sug.suggestedModel || upSaved?.model || upFeeder.breakerModel,
+                manufacturer: upSaved?.manufacturer || upFeeder.manufacturer || 'Schneider',
+                frameSize: `${sug.suggestedFrameSize}A`,
+                ir: sug.suggestedFrameSize,
+                tr: upSaved?.tr ?? 12,
+                isd: (sug.suggestedFrameSize || 630) * 4,
+                tsd: 0.3,
+                ii: (sug.suggestedFrameSize || 630) * 10,
+              }),
+            });
+          }
         } else {
           // Save to BreakerSettings for Main Incomer
           await fetch('/api/breaker-settings', {
@@ -1025,14 +1145,14 @@ export default function BreakerSchedulePage() {
                             <XCircle size={11} /> {t('breakerSchedule.noneSelectivity', 'NONE')}
                           </span>
                         )}
-                        {b.selectivityStatus !== 'FULL' && b.suggestedAlternative && (
+                        {b.selectivityStatus !== 'FULL' && (
                           <button
                             onClick={() => setSelectedFeederForModal(b)}
                             className="flex items-center gap-1 text-[10px] text-orange-400 hover:text-orange-300 bg-orange-500/10 hover:bg-orange-500/20 px-1.5 py-0.5 rounded border border-orange-500/30 transition-all font-medium group"
                             title="Click to view full coordination plot and alternative sizing recommendation"
                           >
                             <Sparkles size={10} className="text-orange-400 shrink-0 group-hover:scale-110 transition-transform" />
-                            <span className="truncate max-w-[130px]">{b.suggestedAlternative}</span>
+                            <span className="truncate max-w-[130px]">{b.suggestedAlternative || 'Resolve Coordination'}</span>
                           </button>
                         )}
                       </div>
@@ -1075,7 +1195,7 @@ export default function BreakerSchedulePage() {
         const upstreamFeederForModal = selectedFeederForModal.parentFeederName
           ? breakers.find(
               (b) =>
-                (b.name === selectedFeederForModal.parentFeederName ||
+                (normalizeBreakerId(b.name) === normalizeBreakerId(selectedFeederForModal.parentFeederName || '') ||
                   (selectedFeederForModal.parentFeederName === 'Main Incomer' && b.type === 'INCOMER')) &&
                 b.buildingId === selectedFeederForModal.buildingId
             )

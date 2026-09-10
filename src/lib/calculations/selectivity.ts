@@ -447,11 +447,19 @@ export function lookupTestedSelectivity(
   const upCat = upstream.category ?? (upstream.inRating >= 630 ? 'ACB' : 'MCCB');
   const downCat = downstream.category ?? (downstream.inRating >= 630 ? 'ACB' : downstream.inRating <= 63 ? 'MCB' : 'MCCB');
 
+  // In IEC 60947-2 distribution systems, MCCBs with trip ratings from 320A to 400A
+  // utilize a standard 400A frame chassis (e.g. ComPacT NSX400, Tmax XT5 400).
+  // They inherit the arc quenching and tested energy selectivity of the 400A frame.
+  const effectiveUpIn =
+    upCat === 'MCCB' && upstream.inRating >= 320 && upstream.inRating < 400
+      ? 400
+      : upstream.inRating;
+
   for (const rule of TESTED_SELECTIVITY_TABLES) {
     if (
       rule.upstreamCategory === upCat &&
       rule.downstreamCategory === downCat &&
-      upstream.inRating >= rule.minUpstreamIn &&
+      effectiveUpIn >= rule.minUpstreamIn &&
       downstream.inRating <= rule.maxDownstreamIn
     ) {
       return rule.testedLimitKa * 1000; // Return in Amperes
@@ -698,11 +706,21 @@ export function recommendBreakerSettings(
 // 6. Intelligent Alternative Breaker Recommendation Engine
 // ---------------------------------------------------------------------------
 
+export interface CatalogItemInfo {
+  category: string;
+  manufacturer: string;
+  series: string;
+  model: string;
+  ratedCurrent: number;
+  breakingCapacity?: number | null;
+}
+
 export interface SuggestAlternativeOptions {
   downstreamLoadCurrent?: number;
   cableSizeMm2?: number;
   parentFeederName?: string | null;
   preferredManufacturer?: string;
+  equipmentCatalog?: CatalogItemInfo[];
 }
 
 export type { BreakerAlternativeSuggestion, FallbackType, GenericBreakerSpec } from "@/types";
@@ -743,24 +761,33 @@ export function suggestAlternativeBreaker(
       STANDARD_BREAKER_SIZES.find((s) => s > upstream.inRating) ||
       Math.max(250, upstream.inRating * 2);
 
+    // In IEC 60947-2, discrete MCCB physical chassis frames are standard: 100A, 160A, 250A, 400A, 630A.
+    // Intermediate trip ratings such as 320A are housed in the standard 400A frame with dial Ir = 320A.
+    const physicalFrameSize =
+      targetUpstreamSize > 250 && targetUpstreamSize <= 400
+        ? 400
+        : targetUpstreamSize;
+
     let suggestedUpstreamModel = `${targetUpstreamSize}A Electronic LSI Breaker`;
     let upstreamFallbackType: FallbackType = 'GENERIC_SPEC';
     let upstreamGenericSpec: GenericBreakerSpec | undefined;
 
     if (isSchneider) {
       upstreamFallbackType = 'SAME_FAMILY';
-      if (targetUpstreamSize <= 630) {
-        const frame = targetUpstreamSize <= 100 ? '100' : targetUpstreamSize <= 160 ? '160' : targetUpstreamSize <= 250 ? '250' : targetUpstreamSize <= 400 ? '400' : '630';
-        suggestedUpstreamModel = `Schneider ComPacT NSX${frame} ${targetUpstreamSize}A MicroLogic 2.3`;
+      if (physicalFrameSize <= 630) {
+        const frame = physicalFrameSize <= 100 ? '100' : physicalFrameSize <= 160 ? '160' : physicalFrameSize <= 250 ? '250' : physicalFrameSize <= 400 ? '400' : '630';
+        suggestedUpstreamModel = targetUpstreamSize === 320
+          ? `Schneider ComPacT NSX400 NSX400N 400A MicroLogic 2.3`
+          : `Schneider ComPacT NSX${frame} ${targetUpstreamSize}A MicroLogic 2.3`;
       } else {
         suggestedUpstreamModel = `Schneider MasterPact MTZ1 ${targetUpstreamSize}A MicroLogic 5.0 X`;
       }
     } else if (isAbb) {
       upstreamFallbackType = 'SAME_FAMILY';
-      if (targetUpstreamSize <= 250) {
+      if (physicalFrameSize <= 250) {
         suggestedUpstreamModel = `ABB Tmax XT4 ${targetUpstreamSize}A Ekip Dip LSI`;
-      } else if (targetUpstreamSize <= 630) {
-        suggestedUpstreamModel = `ABB Tmax XT5 ${targetUpstreamSize}A Ekip Dip LSI`;
+      } else if (physicalFrameSize <= 630) {
+        suggestedUpstreamModel = `ABB Tmax XT5 ${physicalFrameSize}A Ekip Dip LSI`;
       } else {
         suggestedUpstreamModel = `ABB Emax 2 E1.2 ${targetUpstreamSize}A Ekip Touch`;
       }
@@ -776,19 +803,56 @@ export function suggestAlternativeBreaker(
       };
     }
 
+    const description = targetUpstreamSize === 320
+      ? `Current grading requires Upstream Ir ≥ 1.6× Downstream Ir (${downstream.ir.toFixed(1)}A). A 320A discrete frame is not manufactured in the catalog; upgrading upstream to a 400A frame dialed to Ir = 320A provides the required margin (ratio: ${(targetUpstreamSize / downstream.ir).toFixed(2)}x) and achieves FULL discrimination up to 36 kA.`
+      : `Current grading requires Upstream Ir ≥ 1.6× Downstream Ir (${downstream.ir.toFixed(1)}A). Upgrading upstream to ${targetUpstreamSize}A provides the required margin (ratio: ${(targetUpstreamSize / downstream.ir).toFixed(2)}x) and achieves FULL discrimination.`;
+
     suggestions.push({
       id: 'sug-upstream-upgrade',
       type: 'UPSTREAM_UPGRADE',
       badge: 'Upgrade Upstream Frame',
       title: `Upgrade Upstream (${upstream.model || 'Feeder'}) to ${targetUpstreamSize}A`,
-      description: `Current grading requires Upstream Ir ≥ 1.6× Downstream Ir (${downstream.ir.toFixed(1)}A). Upgrading upstream to ${targetUpstreamSize}A provides the required margin (ratio: ${(targetUpstreamSize / downstream.ir).toFixed(2)}x) and achieves FULL discrimination.`,
+      description,
       suggestedModel: suggestedUpstreamModel,
       suggestedFrameSize: targetUpstreamSize,
+      suggestedSettings: {
+        ir: targetUpstreamSize,
+        tsd: 0.3,
+        isd: targetUpstreamSize * 4,
+        ii: physicalFrameSize * 10,
+      },
       fallbackType: upstreamFallbackType,
       genericSpec: upstreamGenericSpec,
       expectedSelectivity: 'FULL',
       actionText: `Select ${targetUpstreamSize}A Upstream Breaker`,
     });
+
+    // Cross-brand alternative if catalog has an exact match from another manufacturer
+    if (options?.equipmentCatalog) {
+      const altBrand = options.equipmentCatalog.find(
+        (e) => e.ratedCurrent === targetUpstreamSize && e.manufacturer.toUpperCase() !== mfg && (e.category === 'MCCB' || e.category === 'ACB')
+      );
+      if (altBrand) {
+        suggestions.push({
+          id: 'sug-upstream-alt-brand',
+          type: 'UPSTREAM_UPGRADE',
+          badge: 'Cross-Brand Alternative',
+          title: `Alternative Brand: ${altBrand.manufacturer} ${altBrand.series} ${targetUpstreamSize}A`,
+          description: `${altBrand.manufacturer} offers a verified ${targetUpstreamSize}A device (${altBrand.model}) matching the exact grading requirement.`,
+          suggestedModel: `${altBrand.manufacturer} ${altBrand.series} ${altBrand.model}`,
+          suggestedFrameSize: targetUpstreamSize,
+          suggestedSettings: {
+            ir: targetUpstreamSize,
+            tsd: 0.3,
+            isd: targetUpstreamSize * 4,
+            ii: targetUpstreamSize * 10,
+          },
+          fallbackType: 'OTHER_BRAND',
+          expectedSelectivity: 'FULL',
+          actionText: `Select ${altBrand.manufacturer} ${targetUpstreamSize}A Breaker`,
+        });
+      }
+    }
   } else if (upstream.ir < downstream.ir * 1.59) {
     // 1b. Upstream Overload (Ir) Dial Tuning (when upstream frame size is already large enough, but Ir was dialed down too low)
     const minTargetIr = Math.min(upstream.inRating, Math.ceil(downstream.ir * 1.6));
@@ -928,4 +992,149 @@ export function suggestAlternativeBreaker(
   }
 
   return suggestions;
+}
+
+export interface ResolvedCatalogBreaker {
+  frameSize: number;
+  frameSizeFormatted: string;
+  ir: number;
+  model: string;
+  manufacturer: string;
+  isAlternative: boolean;
+  isCrossBrand?: boolean;
+  alternativeReason?: string;
+}
+
+/**
+ * Searches the catalog for the requested breaker rating in the chosen manufacturer.
+ * If not found, searches for an alternative breaker:
+ * 1. Checks other active manufacturers in the catalog for an exact match (Cross-Brand Alternative).
+ * 2. Checks the catalog for the next standard available physical frame (e.g. 400A for 320A load)
+ *    in the preferred brand (or across brands) with trip dial Ir tuned to the target current.
+ */
+export function resolveCatalogBreakerOrAlternative(
+  targetRating: number,
+  category: 'ACB' | 'MCCB' | 'MCB',
+  preferredManufacturer: string | undefined | null,
+  catalog: CatalogItemInfo[],
+  fallbackModel?: string
+): ResolvedCatalogBreaker {
+  const normMfg = (preferredManufacturer && preferredManufacturer !== 'MIXED'
+    ? preferredManufacturer
+    : 'Schneider').toUpperCase();
+
+  // 1. Check if the chosen manufacturer has an exact rating match in the catalog
+  const exactChosen = catalog.find(
+    (e) =>
+      e.manufacturer.toUpperCase() === normMfg &&
+      e.category === category &&
+      e.ratedCurrent === targetRating
+  );
+
+  if (exactChosen) {
+    const fullModel = exactChosen.series
+      ? `${exactChosen.manufacturer} ${exactChosen.series} ${exactChosen.model}`
+      : exactChosen.model;
+    return {
+      frameSize: targetRating,
+      frameSizeFormatted: `${targetRating}A`,
+      ir: targetRating,
+      model: fullModel,
+      manufacturer: exactChosen.manufacturer,
+      isAlternative: false,
+    };
+  }
+
+  // 2. Not found in chosen manufacturer's catalog -> Search for an alternative!
+  // 2a. Search other active manufacturers in the catalog for an exact match (Cross-Brand Alternative)
+  const exactOtherBrand = catalog.find(
+    (e) =>
+      e.category === category &&
+      e.ratedCurrent === targetRating &&
+      e.manufacturer.toUpperCase() !== normMfg
+  );
+
+  if (exactOtherBrand) {
+    const fullModel = exactOtherBrand.series
+      ? `${exactOtherBrand.manufacturer} ${exactOtherBrand.series} ${exactOtherBrand.model}`
+      : exactOtherBrand.model;
+    return {
+      frameSize: targetRating,
+      frameSizeFormatted: `${targetRating}A`,
+      ir: targetRating,
+      model: fullModel,
+      manufacturer: exactOtherBrand.manufacturer,
+      isAlternative: true,
+      isCrossBrand: true,
+      alternativeReason: `${targetRating}A frame not found in ${preferredManufacturer || 'chosen'} catalog. Found cross-brand alternative: ${exactOtherBrand.manufacturer} ${fullModel}.`,
+    };
+  }
+
+  // 2b. No manufacturer in catalog has the exact discrete rating (e.g. 320A MCCB).
+  // Search the chosen manufacturer for the next standard available frame (ratedCurrent >= targetRating)
+  const nextFrameInBrand = catalog
+    .filter(
+      (e) =>
+        e.manufacturer.toUpperCase() === normMfg &&
+        e.category === category &&
+        e.ratedCurrent >= targetRating
+    )
+    .sort((a, b) => a.ratedCurrent - b.ratedCurrent)[0];
+
+  if (nextFrameInBrand) {
+    const fullModel = nextFrameInBrand.series
+      ? `${nextFrameInBrand.manufacturer} ${nextFrameInBrand.series} ${nextFrameInBrand.model}`
+      : nextFrameInBrand.model;
+    return {
+      frameSize: nextFrameInBrand.ratedCurrent,
+      frameSizeFormatted: `${nextFrameInBrand.ratedCurrent}A`,
+      ir: targetRating,
+      model: fullModel,
+      manufacturer: nextFrameInBrand.manufacturer,
+      isAlternative: true,
+      isCrossBrand: false,
+      alternativeReason: `${targetRating}A discrete frame not found in ${preferredManufacturer || 'chosen'} catalog. Selected next standard frame: ${nextFrameInBrand.manufacturer} ${nextFrameInBrand.ratedCurrent}A (${fullModel}) with trip dial Ir tuned to ${targetRating}A.`,
+    };
+  }
+
+  // 2c. Search any manufacturer for the next available frame
+  const nextFrameAnyBrand = catalog
+    .filter((e) => e.category === category && e.ratedCurrent >= targetRating)
+    .sort((a, b) => a.ratedCurrent - b.ratedCurrent)[0];
+
+  if (nextFrameAnyBrand) {
+    const fullModel = nextFrameAnyBrand.series
+      ? `${nextFrameAnyBrand.manufacturer} ${nextFrameAnyBrand.series} ${nextFrameAnyBrand.model}`
+      : nextFrameAnyBrand.model;
+    return {
+      frameSize: nextFrameAnyBrand.ratedCurrent,
+      frameSizeFormatted: `${nextFrameAnyBrand.ratedCurrent}A`,
+      ir: targetRating,
+      model: fullModel,
+      manufacturer: nextFrameAnyBrand.manufacturer,
+      isAlternative: true,
+      isCrossBrand: true,
+      alternativeReason: `${targetRating}A discrete frame not found in catalog. Selected next standard frame: ${nextFrameAnyBrand.manufacturer} ${nextFrameAnyBrand.ratedCurrent}A (${fullModel}) with trip dial Ir tuned to ${targetRating}A.`,
+    };
+  }
+
+  // 2d. Engineering fallback when catalog is exhausted
+  const standardPhysicalFrame =
+    category === 'MCCB' && targetRating > 250 && targetRating <= 400
+      ? 400
+      : category === 'MCCB' && targetRating > 400 && targetRating <= 630
+      ? 630
+      : targetRating;
+
+  const mfgName = preferredManufacturer && preferredManufacturer !== 'MIXED' ? preferredManufacturer : 'Schneider';
+  return {
+    frameSize: standardPhysicalFrame,
+    frameSizeFormatted: `${standardPhysicalFrame}A`,
+    ir: targetRating,
+    model: fallbackModel || `${mfgName} ${category} ${standardPhysicalFrame}A (Ir=${targetRating}A)`,
+    manufacturer: mfgName,
+    isAlternative: standardPhysicalFrame !== targetRating,
+    isCrossBrand: false,
+    alternativeReason: `${targetRating}A frame not in catalog. Using standard ${standardPhysicalFrame}A frame with Ir = ${targetRating}A.`,
+  };
 }

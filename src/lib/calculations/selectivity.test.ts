@@ -11,6 +11,7 @@ import {
   verifyCoordination,
   recommendBreakerSettings,
   suggestAlternativeBreaker,
+  resolveCatalogBreakerOrAlternative,
   verifyShortCircuitThermalWithstand,
   type BreakerCurveSettings,
 } from './selectivity';
@@ -650,10 +651,47 @@ describe('suggestAlternativeBreaker', () => {
     const upSug = suggestions.find((s) => s.type === 'UPSTREAM_UPGRADE');
     expect(upSug).toBeDefined();
     expect(upSug?.suggestedFrameSize).toBe(320);
+    expect(upSug?.suggestedModel).toContain('NSX400');
+    expect(upSug?.suggestedSettings?.ir).toBe(320);
+    expect(upSug?.suggestedSettings?.tsd).toBe(0.3);
 
     const downSug = suggestions.find((s) => s.type === 'DOWNSTREAM_RESIZE');
     expect(downSug).toBeDefined();
     expect(downSug?.suggestedFrameSize).toBe(160);
+  });
+
+  it('searches for cross-brand alternative when alternative brand catalog has exact match', () => {
+    const upstream = { inRating: 200, ir: 200, tr: 12, manufacturer: 'Schneider' };
+    const downstream = { inRating: 200, ir: 135.8, tr: 12, manufacturer: 'Schneider', category: 'MCCB' as const };
+    const suggestions = suggestAlternativeBreaker(upstream, downstream, 15000, {
+      downstreamLoadCurrent: 135.8,
+      parentFeederName: 'F5 – SMDB',
+      preferredManufacturer: 'Schneider',
+      equipmentCatalog: [
+        {
+          category: 'MCCB',
+          manufacturer: 'Eaton',
+          series: 'NZM3',
+          model: 'NZMN3-AE320',
+          ratedCurrent: 320,
+          breakingCapacity: 50,
+        },
+      ],
+    });
+
+    const altBrandSug = suggestions.find((s) => s.fallbackType === 'OTHER_BRAND');
+    expect(altBrandSug).toBeDefined();
+    expect(altBrandSug?.badge).toBe('Cross-Brand Alternative');
+    expect(altBrandSug?.suggestedModel).toContain('Eaton');
+  });
+
+  it('verifies tested selectivity for 320A MCCB upstream against 160A/200A downstream', () => {
+    const upstream = { inRating: 320, ir: 320, tr: 12, category: 'MCCB' as const, manufacturer: 'Schneider' };
+    const downstream160 = { inRating: 160, ir: 135.8, tr: 12, category: 'MCCB' as const, manufacturer: 'Schneider' };
+    const downstream200 = { inRating: 200, ir: 135.8, tr: 12, category: 'MCCB' as const, manufacturer: 'Schneider' };
+
+    expect(lookupTestedSelectivity(upstream, downstream160)).toBe(36000);
+    expect(lookupTestedSelectivity(upstream, downstream200)).toBe(36000);
   });
 
   it('suggests upstream Ir dial tuning when frame is adequate but Ir is dialed too low', () => {
@@ -696,6 +734,78 @@ describe('suggestAlternativeBreaker', () => {
       // With let-through verification, 2.5 mm² cable withstands fast clearing (<= 35,000 A²s)
       const protectedOk = checkCableProtection(2.5, downstream, 6000, 'copper', 'XLPE', 1);
       expect(protectedOk).toBe(true);
+    });
+  });
+
+  describe('resolveCatalogBreakerOrAlternative', () => {
+    const catalog = [
+      {
+        category: 'MCCB',
+        manufacturer: 'Schneider',
+        series: 'ComPacT NSX160',
+        model: 'NSX160F MicroLogic 2.2',
+        ratedCurrent: 160,
+      },
+      {
+        category: 'MCCB',
+        manufacturer: 'Schneider',
+        series: 'ComPacT NSX250',
+        model: 'NSX250F MicroLogic 2.2',
+        ratedCurrent: 250,
+      },
+      {
+        category: 'MCCB',
+        manufacturer: 'Schneider',
+        series: 'ComPacT NSX400',
+        model: 'NSX400F MicroLogic 2.3',
+        ratedCurrent: 400,
+      },
+      {
+        category: 'MCCB',
+        manufacturer: 'Schneider',
+        series: 'ComPacT NSX630',
+        model: 'NSX630F MicroLogic 2.3',
+        ratedCurrent: 630,
+      },
+      {
+        category: 'MCCB',
+        manufacturer: 'Eaton',
+        series: 'NZM3',
+        model: 'NZMN3-AE320',
+        ratedCurrent: 320,
+      },
+    ];
+
+    it('returns exact match when chosen manufacturer has the rating in catalog', () => {
+      const res = resolveCatalogBreakerOrAlternative(160, 'MCCB', 'Schneider', catalog);
+      expect(res.isAlternative).toBe(false);
+      expect(res.frameSize).toBe(160);
+      expect(res.frameSizeFormatted).toBe('160A');
+      expect(res.ir).toBe(160);
+      expect(res.manufacturer).toBe('Schneider');
+    });
+
+    it('finds cross-brand exact alternative when chosen manufacturer does not have rating', () => {
+      const res = resolveCatalogBreakerOrAlternative(320, 'MCCB', 'ABB', catalog);
+      expect(res.isAlternative).toBe(true);
+      expect(res.isCrossBrand).toBe(true);
+      expect(res.frameSize).toBe(320);
+      expect(res.ir).toBe(320);
+      expect(res.manufacturer).toBe('Eaton');
+      expect(res.model).toContain('NZMN3-AE320');
+    });
+
+    it('searches for next standard catalog frame (400A) with tuned Ir=320A when Schneider lacks 320A', () => {
+      const catalogSchneiderOnly = catalog.filter((e) => e.manufacturer === 'Schneider');
+      const res = resolveCatalogBreakerOrAlternative(320, 'MCCB', 'Schneider', catalogSchneiderOnly);
+      expect(res.isAlternative).toBe(true);
+      expect(res.frameSize).toBe(400);
+      expect(res.frameSizeFormatted).toBe('400A');
+      expect(res.ir).toBe(320);
+      expect(res.manufacturer).toBe('Schneider');
+      expect(res.model).toContain('NSX400');
+      expect(res.alternativeReason).toContain('320A');
+      expect(res.alternativeReason).toContain('400A');
     });
   });
 });

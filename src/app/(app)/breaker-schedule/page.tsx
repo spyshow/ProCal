@@ -19,7 +19,7 @@ import {
   BookOpen,
 } from 'lucide-react';
 import { computeFeeders, createFindBreaker, type EquipmentItem, type DefaultFamilies } from '@/lib/calculations/feeders';
-import { verifyCoordination, suggestAlternativeBreaker, type BreakerCurveSettings } from '@/lib/calculations/selectivity';
+import { verifyCoordination, suggestAlternativeBreaker, resolveCatalogBreakerOrAlternative, type BreakerCurveSettings } from '@/lib/calculations/selectivity';
 import TccPlotModal from '@/components/coordination/TccPlotModal';
 import { BreakerSizingGuideModal } from '@/components/breaker/BreakerSizingGuideModal';
 import InfoTooltip from '@/components/InfoTooltip';
@@ -387,6 +387,7 @@ export default function BreakerSchedulePage() {
                 cableSizeMm2: f.cableSize,
                 parentFeederName: f.parentFeederName,
                 preferredManufacturer: project.preferredManufacturer,
+                equipmentCatalog: equipment,
               }
             );
             effectiveSuggestedAlternative = effectiveAlternativeSuggestions[0]?.title ?? 'Resolve Coordination';
@@ -419,6 +420,7 @@ export default function BreakerSchedulePage() {
                 cableSizeMm2: f.cableSize,
                 parentFeederName: f.parentFeederName,
                 preferredManufacturer: project.preferredManufacturer,
+                equipmentCatalog: equipment,
               }
             );
           }
@@ -545,6 +547,7 @@ export default function BreakerSchedulePage() {
                   cableSizeMm2: f.cableSize,
                   parentFeederName: f.parentFeederName,
                   preferredManufacturer: project.preferredManufacturer,
+                  equipmentCatalog: equipment,
                 }
               );
               effectiveSuggestedAlternative = effectiveAlternativeSuggestions[0]?.title ?? 'Resolve Coordination';
@@ -565,6 +568,7 @@ export default function BreakerSchedulePage() {
                   cableSizeMm2: f.cableSize,
                   parentFeederName: f.parentFeederName,
                   preferredManufacturer: project.preferredManufacturer,
+                  equipmentCatalog: equipment,
                 }
               );
             }
@@ -618,7 +622,7 @@ export default function BreakerSchedulePage() {
       }
     }
     return list;
-  }, [project, findBreaker, breakerSettings]);
+  }, [project, findBreaker, breakerSettings, equipment]);
 
   const filteredBreakers = selectedBuilding === 'all'
     ? breakers
@@ -650,12 +654,24 @@ export default function BreakerSchedulePage() {
           const fd = (bldg.floorDesigns ?? []).find((f) => f.floorNumber === floorNum);
           if (fd) floorDesignId = fd.id;
         }
+
+        const isSmdb = selectedFeederForModal.parentFeederName?.includes('SMDB');
+        const targetRating = sug.suggestedFrameSize || 400;
+        const targetCat = isSmdb ? 'MCCB' : (targetRating >= 630 ? 'ACB' : 'MCCB');
+        const prefMfg = project.preferredManufacturer || 'Schneider';
+        const resolved = resolveCatalogBreakerOrAlternative(
+          targetRating,
+          targetCat,
+          prefMfg,
+          equipment,
+          sug.suggestedModel
+        );
         
-        if (floorDesignId && selectedFeederForModal.parentFeederName?.includes('SMDB')) {
+        if (floorDesignId && isSmdb) {
           await fetch(`/api/floors/${floorDesignId}`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ riserBreakerSize: `${sug.suggestedFrameSize}A` }),
+            body: JSON.stringify({ riserBreakerSize: resolved.frameSizeFormatted }),
           });
           const upFeeder = breakers.find(
             (b) =>
@@ -671,14 +687,14 @@ export default function BreakerSchedulePage() {
               body: JSON.stringify({
                 projectId: project.id,
                 breakerId: stableBreakerId,
-                model: sug.suggestedModel || upSaved?.model || upFeeder.breakerModel,
-                manufacturer: upSaved?.manufacturer || upFeeder.manufacturer || 'Schneider',
-                frameSize: `${sug.suggestedFrameSize}A`,
-                ir: sug.suggestedFrameSize,
+                model: resolved.model || sug.suggestedModel || upSaved?.model || upFeeder.breakerModel,
+                manufacturer: resolved.manufacturer || upSaved?.manufacturer || upFeeder.manufacturer || 'Schneider',
+                frameSize: resolved.frameSizeFormatted,
+                ir: resolved.ir,
                 tr: upSaved?.tr ?? 12,
-                isd: (sug.suggestedFrameSize || 630) * 4,
+                isd: resolved.ir * 4,
                 tsd: 0.3,
-                ii: (sug.suggestedFrameSize || 630) * 10,
+                ii: resolved.frameSize * 10,
               }),
             });
           }
@@ -690,14 +706,14 @@ export default function BreakerSchedulePage() {
             body: JSON.stringify({
               projectId: project.id,
               breakerId: bldg ? `${project.id}-main-incomer-${bldg.id}` : `${project.id}-main-incomer`,
-              model: sug.suggestedModel || 'Main Incomer ACB',
-              manufacturer: selectedFeederForModal.manufacturer || 'Schneider',
-              frameSize: `${sug.suggestedFrameSize}A`,
-              ir: selectedFeederForModal.current * 1.6,
+              model: resolved.model || sug.suggestedModel || 'Main Incomer ACB',
+              manufacturer: resolved.manufacturer || selectedFeederForModal.manufacturer || 'Schneider',
+              frameSize: resolved.frameSizeFormatted,
+              ir: resolved.ir,
               tr: 12,
-              isd: (sug.suggestedFrameSize || 630) * 4,
+              isd: resolved.ir * 4,
               tsd: 0.3,
-              ii: (sug.suggestedFrameSize || 630) * 10,
+              ii: resolved.frameSize * 10,
             }),
           });
         }
@@ -718,6 +734,17 @@ export default function BreakerSchedulePage() {
         }
       } else if (sug.type === 'DOWNSTREAM_RESIZE') {
         const isSmdb = selectedFeederForModal.type === 'SMDB' || selectedFeederForModal.name.includes('SMDB');
+        const targetRating = sug.suggestedFrameSize || selectedFeederForModal.breakerSize;
+        const targetCat = isSmdb ? 'MCCB' : (targetRating > 63 ? 'MCCB' : 'MCB');
+        const prefMfg = project.preferredManufacturer || 'Schneider';
+        const resolved = resolveCatalogBreakerOrAlternative(
+          targetRating,
+          targetCat,
+          prefMfg,
+          equipment,
+          sug.suggestedModel
+        );
+
         if (isSmdb) {
           let floorDesignId = selectedFeederForModal.floorDesignId;
           if (!floorDesignId && bldg) {
@@ -730,14 +757,31 @@ export default function BreakerSchedulePage() {
             await fetch(`/api/floors/${floorDesignId}`, {
               method: 'PATCH',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ riserBreakerSize: `${sug.suggestedFrameSize}A` }),
+              body: JSON.stringify({ riserBreakerSize: resolved.frameSizeFormatted }),
+            });
+            const stableBreakerId = `${project.id}-${selectedFeederForModal.name}`;
+            await fetch('/api/breaker-settings', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                projectId: project.id,
+                breakerId: stableBreakerId,
+                model: resolved.model || sug.suggestedModel || selectedFeederForModal.breakerModel,
+                manufacturer: resolved.manufacturer || selectedFeederForModal.manufacturer || 'Schneider',
+                frameSize: resolved.frameSizeFormatted,
+                ir: resolved.ir,
+                tr: 12,
+                isd: resolved.ir * 4,
+                tsd: 0.3,
+                ii: resolved.frameSize * 10,
+              }),
             });
           }
         } else if (selectedFeederForModal.buildingLoadId) {
           await fetch(`/api/building-loads/${selectedFeederForModal.buildingLoadId}`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ breakerSize: `${sug.suggestedFrameSize}A` }),
+            body: JSON.stringify({ breakerSize: resolved.frameSizeFormatted }),
           });
         } else {
           let itemId = selectedFeederForModal.itemId;
@@ -760,7 +804,7 @@ export default function BreakerSchedulePage() {
             await fetch(`/api/floor-items/${itemId}`, {
               method: 'PATCH',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ breakerSize: `${sug.suggestedFrameSize}A` }),
+              body: JSON.stringify({ breakerSize: resolved.frameSizeFormatted }),
             });
           }
         }

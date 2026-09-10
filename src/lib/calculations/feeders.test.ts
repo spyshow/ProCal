@@ -565,6 +565,25 @@ describe('regression: three-phase classification', () => {
     expect(pumpFeeder!.breakerSize).toBeGreaterThanOrEqual(50);
     expect(pumpFeeder!.warnings?.some((w) => w.includes('125% FLA'))).toBe(true);
   });
+
+  it('guarantees main incomer Ir >= Ib (no overload trip violation) for electronic trip units (Fix 1)', () => {
+    const findBreaker = createFindBreaker(equipment, {}, 'ABB');
+    // 385.7 A load (similar to Office Tower in Hermes audit)
+    const bldg = building({
+      floorDesigns: [{
+        id: 'f1', floorNumber: 1, hasFloorSubPanels: false,
+        items: [item({ type: 'SERVICE_PANEL', name: 'Tower Load', calculatedCurrent: 385.7, calculatedMaxDemand: 226, apartmentTemplate: null, loadLibraryItem: null })],
+      }],
+    });
+    const result = computeFeeders(bldg, baseProject, findBreaker);
+
+    // Frame covers design current
+    expect(result.mainBreakerIn).toBeGreaterThanOrEqual(385.7);
+    // Ir covers design current: Ib <= Ir <= In (eliminates 360A < 385.7A overload tripping)
+    expect(result.mainIncomerSettings.ir).toBeGreaterThanOrEqual(result.mainIncomerCurrent);
+    expect(result.mainIncomerSettings.ir).toBeLessThanOrEqual(result.mainBreakerIn);
+    expect(result.mainCableIz).toBeGreaterThanOrEqual(result.mainBreakerIn);
+  });
 });
 
 

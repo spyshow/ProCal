@@ -158,13 +158,18 @@ export default function BreakerSchedule({
         );
       };
 
+      const incomerCurrent = mainIncomerCurrent || mainIncomerSettings.ir || 0;
+      const defaultIncomerIr = incomerSaved?.ir ?? mainIncomerSettings.ir ?? effectiveIncomerIn;
+      // IEC 60364-4-43: Ib <= Ir <= In <= Iz. Never allow Ir to fall below design current Ib.
+      const safeIncomerIr = Math.min(effectiveIncomerIn, Math.max(incomerCurrent, defaultIncomerIr));
+
       list.push({
         id: `${bldg.id}-incomer`,
         name: project.buildings.length > 1 ? `${bldg.name} – Main Incomer` : 'Main Incomer',
         type: 'INCOMER',
         floor: 0,
         buildingName: bldg.name,
-        current: mainIncomerCurrent || mainIncomerSettings.ir,
+        current: incomerCurrent,
         breakerSize: effectiveIncomerIn,
         baseBreakerSize: mainBreakerIn,
         cableSize: mainCableSize,
@@ -177,7 +182,7 @@ export default function BreakerSchedule({
         faultCurrentKa: transformerIscKa,
         selectivityStatus: 'FULL',
         cableDamageOk: !isUnderProtected,
-        irSetting: incomerSaved?.ir ?? parseFloat((effectiveIncomerIn * 0.9).toFixed(1)),
+        irSetting: safeIncomerIr,
         isdSetting: incomerSaved?.isd ?? effectiveIncomerIn * 4,
         tsdSetting: incomerSaved?.tsd ?? 0.3,
         iiSetting: incomerSaved?.ii ?? effectiveIncomerIn * 10,

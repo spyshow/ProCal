@@ -208,4 +208,50 @@ describe("POST /api/buildings/[id]/recalculate", () => {
     expect(updateCall[0].data.cableSize).toBeNull();
     expect(updateCall[0].data.voltageDrop).toBeNull();
   });
+
+  it("applies uniform project-wide residential diversity factor across multiple towers (Fix 2)", async () => {
+    // Multi-building project: Tower 1 has 32 apartments, Tower 2 has 18 apartments -> total 50.
+    // When Tower 2 (with 18 apartments) is recalculated, it should use the uniform project-wide
+    // residential count (50 -> factor 0.50), rather than its isolated count (18 -> factor 0.55).
+    mocks.buildingFindUnique.mockResolvedValue({
+      id: "bldg-tower-2",
+      name: "Residential Tower 2",
+      projectId: "proj-multi",
+      project: {
+        id: "proj-multi",
+        voltage: 400,
+        powerFactor: 0.85,
+        buildings: [
+          {
+            id: "bldg-tower-1",
+            name: "Residential Tower 1",
+            floorDesigns: [{ items: Array.from({ length: 32 }, () => ({ type: "APARTMENT" })) }],
+          },
+          {
+            id: "bldg-tower-2",
+            name: "Residential Tower 2",
+            floorDesigns: [{ items: Array.from({ length: 18 }, () => ({ type: "APARTMENT" })) }],
+          },
+        ],
+      },
+    });
+    mocks.floorItemFindMany.mockResolvedValue([
+      {
+        id: "item-t2-1",
+        type: "APARTMENT",
+        apartmentTemplate: { phases: 1, rooms: [{ connectedLoad: 10000 }] },
+      },
+    ]);
+    mocks.floorItemUpdate.mockResolvedValue({});
+    mocks.transaction.mockResolvedValue([]);
+
+    const res = await postRecalculate("bldg-tower-2");
+    expect(res.status).toBe(200);
+    const data = await res.json();
+    expect(data.success).toBe(true);
+    // 50 total apartments -> getBuildingDiversityFactor(50) = 0.50 (instead of isolated 0.55)
+    expect(data.diversityFactor).toBe(0.5);
+    const [updateCall] = mocks.floorItemUpdate.mock.calls;
+    expect(updateCall[0].data.calculatedMaxDemand).toBe(5); // 10 kW * 0.50
+  });
 });

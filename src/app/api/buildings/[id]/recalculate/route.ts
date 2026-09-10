@@ -15,7 +15,23 @@ export async function POST(
 
     const building = await db.building.findUnique({
       where: { id: buildingId },
-      include: { project: true },
+      include: {
+        project: {
+          include: {
+            buildings: {
+              include: {
+                floorDesigns: {
+                  include: {
+                    items: {
+                      where: { type: "APARTMENT" },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
     });
     if (!building) {
       return NextResponse.json({ error: "Building not found" }, { status: 404 });
@@ -42,8 +58,43 @@ export async function POST(
       include: { apartmentTemplate: { include: { rooms: true } } },
     });
 
-    // Apply IEC diversity factor based on total count and building occupancy.
-    const apartmentCount = items.length;
+    // Apply IEC diversity factor based on total count and building occupancy profile.
+    // For residential towers in a multi-building project, evaluate the coincidence factor
+    // across all residential units in the project (IEC 61439-2 Clause 10.10) so identical
+    // templates have a consistent, uniform demand factor policy across towers.
+    const isCommercial =
+      (building.name || '').toUpperCase().includes('OFFICE') ||
+      (building.name || '').toUpperCase().includes('COMMERCIAL') ||
+      (building.name || '').toUpperCase().includes('RETAIL') ||
+      (building.name || '').toUpperCase().includes('MALL');
+
+    let apartmentCount = items.length;
+    if (!isCommercial && building.project?.buildings) {
+      const totalResidentialApts = building.project.buildings
+        .filter((b) => {
+          const name = (b.name || '').toUpperCase();
+          return (
+            !name.includes('OFFICE') &&
+            !name.includes('COMMERCIAL') &&
+            !name.includes('RETAIL') &&
+            !name.includes('MALL')
+          );
+        })
+        .reduce((sum, b) => {
+          return (
+            sum +
+            (b.floorDesigns?.reduce(
+              (fSum, fd) =>
+                fSum +
+                (fd.items?.filter((i) => i.type === 'APARTMENT').length || 0),
+              0
+            ) || 0)
+          );
+        }, 0);
+      if (totalResidentialApts > 0) {
+        apartmentCount = totalResidentialApts;
+      }
+    }
     const diversityFactor = getBuildingDiversityFactor(apartmentCount, building.name);
 
     const updates = [];

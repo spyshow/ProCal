@@ -321,15 +321,20 @@ function CalculatorContent() {
             {t('cableSchedule.pageTour', 'Page Tour')}
           </button>
 
-          {!isReadOnly && bldg && bldg.floorDesigns.some(fd => fd.items.some(i => i.type === 'APARTMENT')) && (
+          {!isReadOnly && project && project.buildings.some(b => b.floorDesigns.some(fd => fd.items.some(i => i.type === 'APARTMENT'))) && (
             <div className="flex items-center gap-2">
               <button
                 onClick={async () => {
-                  await fetch(`/api/buildings/${bldg.id}/recalculate`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ resetSizing: true }),
-                  });
+                  if (!project) return;
+                  await Promise.all(
+                    project.buildings.map((b) =>
+                      fetch(`/api/buildings/${b.id}/recalculate`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ resetSizing: true }),
+                      })
+                    )
+                  );
                   loadProject();
                 }}
                 className={`group flex items-center gap-2 px-4 py-2 rounded-lg text-white text-sm font-semibold transition-all duration-300 ${
@@ -348,13 +353,19 @@ function CalculatorContent() {
               </button>
               <button
                 onClick={async () => {
+                  if (!project) return;
                   try {
-                    const res = await fetch(`/api/buildings/${bldg.id}/rebalance`, { method: 'POST' });
-                    if (res.ok) {
+                    const results = await Promise.all(
+                      project.buildings.map((b) =>
+                        fetch(`/api/buildings/${b.id}/rebalance`, { method: 'POST' })
+                      )
+                    );
+                    const allOk = results.every((res) => res.ok);
+                    if (allOk) {
                       loadProject();
                     } else {
-                      const err = await res.json().catch(() => ({}));
-                      alert(err.error || 'Rebalance failed');
+                      alert('Rebalance failed for some buildings');
+                      loadProject();
                     }
                   } catch (e) {
                     alert('Network error during rebalance');

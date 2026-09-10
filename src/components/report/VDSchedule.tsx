@@ -1,3 +1,6 @@
+'use client';
+
+import { useMemo } from 'react';
 import {
   computeItemVoltageDrop,
   getItemCableLength,
@@ -7,12 +10,13 @@ import {
   formatCableSizeFor,
   sizeCableAndBreaker,
 } from '@/lib/calculations/cables';
-import { isThreePhaseForItem, computeFeeders } from '@/lib/calculations/feeders';
+import { isThreePhaseForItem, computeFeeders, createFindBreaker } from '@/lib/calculations/feeders';
 import { TraceableCell } from '@/components/common/TraceableCell';
 import {
   buildVoltageDropTrace,
   buildDesignCurrentTrace,
 } from '@/lib/calculations/trace-engine';
+import { useEquipmentCatalog } from '@/hooks/useEquipmentCatalog';
 import type { Project } from '@/types';
 
 export interface VDScheduleProps {
@@ -40,22 +44,38 @@ interface VDRow {
  * IEC 60364-5-52 limits used elsewhere in the app (3% lighting, 5% power).
  */
 export default function VDSchedule({ project, buildingId, showHeader = true }: VDScheduleProps) {
+  const query = useMemo(() => {
+    const params = new URLSearchParams();
+    if (project.preferredManufacturer && project.preferredManufacturer !== 'MIXED') {
+      params.set('manufacturer', project.preferredManufacturer);
+    }
+    return params.toString();
+  }, [project.preferredManufacturer]);
+  const { equipment } = useEquipmentCatalog(query);
+
+  const findBreaker = useMemo(
+    () =>
+      createFindBreaker(
+        equipment,
+        {
+          ACB: project.defaultAcbFamilyId ?? undefined,
+          MCCB: project.defaultMccbFamilyId ?? undefined,
+          MCB: project.defaultMcbFamilyId ?? undefined,
+        },
+        project.preferredManufacturer
+      ),
+    [equipment, project]
+  );
+
   const rows: VDRow[] = [];
 
   for (const b of project.buildings) {
     if (buildingId && b.id !== buildingId) continue;
 
-    const { mdbFeeders, smdbFeeders, mainIncomerSettings, mainCableSize, mainParallelRuns, mainIncomerCurrent } = computeFeeders(b, project, () => ({
-      model: null,
-      manufacturer: null,
-      familyName: null,
-      ratedCurrent: null,
-      fallback: true,
-      fallbackType: 'GENERIC_SPEC',
-    }));
+    const { mdbFeeders, smdbFeeders, mainIncomerSettings, mainCableSize, mainParallelRuns, mainIncomerCurrent } = computeFeeders(b, project, findBreaker);
 
     // 1. Main Incomer Feeder VD
-    const incomerLength = b.incomerCableLength ?? 15;
+    const incomerLength = b.incomerCableLength ?? 20;
     const incomerCable = mainParallelRuns > 1 ? `${mainParallelRuns} × ${mainCableSize} mm²` : `${mainCableSize} mm²`;
     const incomerCurrent = mainIncomerCurrent || mainIncomerSettings.ir;
     const incomerVD = computeItemVoltageDrop({
@@ -140,10 +160,13 @@ export default function VDSchedule({ project, buildingId, showHeader = true }: V
           material: (item.cableMaterial as 'copper' | 'aluminum' | undefined) || 'copper',
         })?.dropPercent;
         if (calculatedVD == null && !(item.voltageDrop && item.voltageDrop > 0)) continue;
+        const vd = calculatedVD ?? item.voltageDrop ?? 0;
 
-        const isStubbedVd = item.voltageDrop === 0.1;
-        const vd = item.voltageDrop && item.voltageDrop > 0 && !isStubbedVd ? item.voltageDrop : (calculatedVD ?? 0);
-        const limit = item.type === 'APARTMENT' ? (project.maxVoltageDropLighting || 3) : (project.maxVoltageDropPower || 5);
+        const isLighting =
+          item.type === 'APARTMENT' ||
+          (item.name || '').toLowerCase().includes('light') ||
+          (item.loadLibraryItem?.category || '').toLowerCase().includes('light');
+        const limit = isLighting ? (project.maxVoltageDropLighting || 3) : (project.maxVoltageDropPower || 5);
         const status = vd <= limit ? 'OK' : vd <= limit * 1.2 ? 'WARNING' : 'FAIL';
 
         rows.push({

@@ -30,6 +30,9 @@ interface MDBRow {
   cable: string;
   /** Derated cable ampacity (Iz, A) — must cover the breaker rating. */
   cableIz?: number;
+  powerFactor?: number;
+  isThreePhase?: boolean;
+  upsizeReason?: string;
   isSubPanel?: boolean;
   isMainIncomer?: boolean;
 }
@@ -90,10 +93,10 @@ export default function MDBSchedule({ project, buildingId, showHeader = true }: 
         return m ? parseInt(m[1], 10) : 0;
       };
 
-      const currentToKw = (current: number, isThreePhase: boolean = true) =>
+      const currentToKw = (current: number, isThreePhase: boolean = true, pf: number = project.powerFactor) =>
         isThreePhase
-          ? (Math.sqrt(3) * (project.voltage / 1000) * current * project.powerFactor)
-          : ((project.voltage / Math.sqrt(3) / 1000) * current * project.powerFactor);
+          ? (Math.sqrt(3) * (project.voltage / 1000) * current * pf)
+          : ((project.voltage / Math.sqrt(3) / 1000) * current * pf);
 
       // Main incomer row: demand uses building total demand kW directly from balance
       const allBldgItems = [
@@ -116,6 +119,8 @@ export default function MDBSchedule({ project, buildingId, showHeader = true }: 
           ? `${mainParallelRuns} × ${mainCableSize} mm²`
           : `${mainCableSize} mm²`,
         cableIz: mainCableIz,
+        powerFactor: project.powerFactor,
+        isThreePhase: true,
         isMainIncomer: true,
       });
 
@@ -128,11 +133,14 @@ export default function MDBSchedule({ project, buildingId, showHeader = true }: 
           floor,
           feeder: f.name,
           type: f.type,
-          demand: currentToKw(f.current, f.isThreePhase),
+          demand: f.demandKw ?? currentToKw(f.current, f.isThreePhase, f.powerFactor ?? project.powerFactor),
           current: f.current,
           breaker: `${f.breakerSize}A`,
           cable: f.formattedCableSize ?? `${f.cableSize} mm²`,
           cableIz: f.cableIz,
+          powerFactor: f.powerFactor ?? project.powerFactor,
+          isThreePhase: f.isThreePhase,
+          upsizeReason: f.upsizeReason,
           isSubPanel: f.type === 'SMDB',
         });
       }
@@ -146,11 +154,14 @@ export default function MDBSchedule({ project, buildingId, showHeader = true }: 
             floor: floorNumber,
             feeder: f.name,
             type: f.type,
-            demand: currentToKw(f.current, f.isThreePhase),
+            demand: f.demandKw ?? currentToKw(f.current, f.isThreePhase, f.powerFactor ?? project.powerFactor),
             current: f.current,
             breaker: `${f.breakerSize}A`,
             cable: f.formattedCableSize ?? `${f.cableSize} mm²`,
             cableIz: f.cableIz,
+            powerFactor: f.powerFactor ?? project.powerFactor,
+            isThreePhase: f.isThreePhase,
+            upsizeReason: f.upsizeReason,
             isSubPanel: false,
           });
         }
@@ -241,11 +252,14 @@ export default function MDBSchedule({ project, buildingId, showHeader = true }: 
                     buildDesignCurrentTrace({
                       loadName: `${row.building} - ${row.feeder}`,
                       powerKw: row.demand,
-                      powerFactor: project.powerFactor || 0.85,
+                      powerFactor: row.powerFactor ?? project.powerFactor ?? 0.85,
                       voltageV: project.voltage || 400,
-                      isThreePhase: true,
+                      isThreePhase: row.isThreePhase ?? true,
                       calculatedCurrentA: row.current,
                       calculationStandard: project.calculationStandard,
+                      isFirePump: (row.feeder || '').toLowerCase().includes('fire') || (row.type || '').toLowerCase().includes('fire'),
+                      isMotor: ['pump', 'motor', 'elevator', 'hvac', 'chiller', 'ac', 'fan'].some(k => (row.feeder || '').toLowerCase().includes(k) || (row.type || '').toLowerCase().includes(k)),
+                      sizingReason: row.upsizeReason,
                     })
                   }
                 >
@@ -258,11 +272,14 @@ export default function MDBSchedule({ project, buildingId, showHeader = true }: 
                     buildDesignCurrentTrace({
                       loadName: `${row.building} - ${row.feeder}`,
                       powerKw: row.demand,
-                      powerFactor: project.powerFactor || 0.85,
+                      powerFactor: row.powerFactor ?? project.powerFactor ?? 0.85,
                       voltageV: project.voltage || 400,
-                      isThreePhase: true,
+                      isThreePhase: row.isThreePhase ?? true,
                       calculatedCurrentA: row.current,
                       calculationStandard: project.calculationStandard,
+                      isFirePump: (row.feeder || '').toLowerCase().includes('fire') || (row.type || '').toLowerCase().includes('fire'),
+                      isMotor: ['pump', 'motor', 'elevator', 'hvac', 'chiller', 'ac', 'fan'].some(k => (row.feeder || '').toLowerCase().includes(k) || (row.type || '').toLowerCase().includes(k)),
+                      sizingReason: row.upsizeReason,
                     })
                   }
                 >
@@ -281,6 +298,9 @@ export default function MDBSchedule({ project, buildingId, showHeader = true }: 
                       breakingCapacityKa: breakerNumeric >= 630 ? 65 : 36,
                       cableAmpacityA: row.cableIz,
                       calculationStandard: project.calculationStandard,
+                      isFirePump: (row.feeder || '').toLowerCase().includes('fire') || (row.type || '').toLowerCase().includes('fire'),
+                      isMotor: ['pump', 'motor', 'elevator', 'hvac', 'chiller', 'ac', 'fan'].some(k => (row.feeder || '').toLowerCase().includes(k) || (row.type || '').toLowerCase().includes(k)),
+                      sizingReason: row.upsizeReason,
                     });
                   }}
                 >

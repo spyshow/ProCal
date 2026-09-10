@@ -276,6 +276,10 @@ export interface PanelFeeder {
   fallbackType?: FallbackType;
   genericSpec?: GenericBreakerSpec;
   isThreePhase: boolean;
+  /** Power factor of this feeder's load. Used for accurate kW display in schedules. */
+  powerFactor?: number;
+  /** Exact maximum demand (kW) for this feeder, preventing roundtripping error. */
+  demandKw?: number;
   // Per-phase balancing fields (T4/T6). For 1-phase items, assignedPhase is the
   // resolved L1/L2/L3 phase (1/2/3). For SMDB risers, phaseCurrent/phaseKw reflect
   // the aggregated floor board, and neutralCurrent/unbalancePct track imbalance.

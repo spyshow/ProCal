@@ -315,6 +315,9 @@ export interface DesignCurrentTraceInputs {
   calculatedCurrentA: number;
   calculationStandard?: string | null;
   code?: CodeStandard;
+  isMotor?: boolean;
+  isFirePump?: boolean;
+  sizingReason?: string;
 }
 
 export function buildDesignCurrentTrace(inputs: DesignCurrentTraceInputs): TraceDefinition {
@@ -334,6 +337,22 @@ export function buildDesignCurrentTrace(inputs: DesignCurrentTraceInputs): Trace
       label: "Demand Load Application",
       formula: "P_design = P_connected × DF",
       substituted: `P_design = ${inputs.powerKw.toFixed(2)} kW × ${df.toFixed(2)} = ${pDesign.toFixed(2)} kW`,
+    });
+  }
+
+  if (inputs.isFirePump) {
+    steps.push({
+      label: "Fire Pump Continuous / Starting Duty Rating",
+      formula: "I_design = I_FLA × 1.25 (Minimum Continuous Conductor Rating)",
+      substituted: `I_design = ${(inputs.calculatedCurrentA / 1.25).toFixed(1)} A × 1.25 = ${inputs.calculatedCurrentA.toFixed(1)} A`,
+      description: "Conductor sized for ≥125% Full Load Amps. Overcurrent protection sized for locked-rotor ride-through per NFPA 20 §9.2 and IEC 60364-5-56.",
+    });
+  } else if (inputs.isMotor) {
+    steps.push({
+      label: "Motor Conductor Design Sizing (125% FLA)",
+      formula: "I_design = I_FLA × 1.25",
+      substituted: `I_design = ${(inputs.calculatedCurrentA / 1.25).toFixed(1)} A × 1.25 = ${inputs.calculatedCurrentA.toFixed(1)} A`,
+      description: "Conductors supplying a single motor load must be sized for at least 125% of the motor full-load current (IEC 60947-4-1 / NEC 430.22).",
     });
   }
 
@@ -477,6 +496,9 @@ export interface BreakerSizingTraceInputs {
   poles?: number;
   calculationStandard?: string | null;
   code?: CodeStandard;
+  isMotor?: boolean;
+  isFirePump?: boolean;
+  sizingReason?: string;
 }
 
 export function buildBreakerSizingTrace(inputs: BreakerSizingTraceInputs): TraceDefinition {
@@ -488,16 +510,32 @@ export function buildBreakerSizingTrace(inputs: BreakerSizingTraceInputs): Trace
   const icu = inputs.breakingCapacityKa;
   const isc = inputs.prospectiveFaultKa ?? 0;
 
-  const steps: TraceStep[] = [
-    {
-      label: "Nominal Trip Rating Selection (In)",
-      formula: "Ib ≤ In",
-      substituted: `${ib.toFixed(1)} A (Ib) ≤ ${inRating} A (In)`,
-      description: isNec
-        ? "Trip rating chosen from standard NEC 240.6(A) ratings to carry continuous design current without nuisance tripping."
-        : "Trip rating chosen from standard IEC ratings to carry continuous design current without nuisance tripping.",
-    },
-  ];
+  const steps: TraceStep[] = [];
+
+  if (inputs.isFirePump) {
+    steps.push({
+      label: "Fire Pump Protection Sizing Criteria",
+      formula: "In ≥ 150% FLA & Locked-Rotor Ride-Through",
+      substituted: `${inRating} A (In) ≥ 150% × ${ib.toFixed(1)} A (FLA)`,
+      description: "Per NFPA 20 §9.2 and IEC 60364-5-56, fire pump overcurrent protection must carry motor locked-rotor current continuously without thermal nuisance tripping.",
+    });
+  } else if (inputs.sizingReason) {
+    steps.push({
+      label: "Frame Sizing & Protection Coordination",
+      formula: "Catalog Frame & Selectivity Sizing",
+      substituted: `${inRating} A selected frame`,
+      description: inputs.sizingReason,
+    });
+  }
+
+  steps.push({
+    label: "Nominal Trip Rating Selection (In)",
+    formula: "Ib ≤ In",
+    substituted: `${ib.toFixed(1)} A (Ib) ≤ ${inRating} A (In)`,
+    description: isNec
+      ? "Trip rating chosen from standard NEC 240.6(A) ratings to carry continuous design current without nuisance tripping."
+      : "Trip rating chosen from standard IEC ratings to carry continuous design current without nuisance tripping.",
+  });
 
   if (iz != null && iz > 0) {
     steps.push({
@@ -536,6 +574,7 @@ export function buildBreakerSizingTrace(inputs: BreakerSizingTraceInputs): Trace
       unit: "kA",
       source: isNec ? "NEMA AB-1 / UL 489 / IEC 60947-2" : "IEC 60947-2 Test Duty",
     },
+    ...(inputs.sizingReason ? [{ name: "Sizing Reason", symbol: "Reason", value: inputs.sizingReason, source: "Engineering Coordination" }] : []),
   ];
 
   return {

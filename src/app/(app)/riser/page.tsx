@@ -1,7 +1,7 @@
 'use client';
 /* eslint-disable react-hooks/set-state-in-effect, react-hooks/immutability, react-hooks/exhaustive-deps, @typescript-eslint/no-unused-vars */
 
-import { useEffect, useState, useCallback, useRef } from 'react';
+import { useEffect, useState, useCallback, useRef, useMemo } from 'react';
 import { useProject } from '@/context/ProjectContext';
 import { useTranslation } from '@/i18n';
 import {
@@ -15,6 +15,8 @@ import { sizeCableAndBreaker, formatCableSizeFor } from '@/lib/calculations/cabl
 import { codeOf } from '@/lib/calculations/codes';
 import { calculateThreePhaseCurrent, sizeTransformer } from '@/lib/calculations/loads';
 import { phaseBalance } from '@/lib/calculations/phaseBalance';
+import { computeFeeders, createFindBreaker } from '@/lib/calculations/feeders';
+import { useEquipmentCatalog } from '@/hooks/useEquipmentCatalog';
 import { computeFloorRiserVd, type RiserFloorVd } from '@/lib/calculations/riser';
 import { PageSkeleton } from '@/components/ui/skeleton';
 import type { FloorDesign, Project } from '@/types';
@@ -95,8 +97,32 @@ export default function RiserPage() {
     );
   }
 
+  const query = useMemo(() => {
+    const params = new URLSearchParams();
+    if (project?.preferredManufacturer && project.preferredManufacturer !== 'MIXED') {
+      params.set('manufacturer', project.preferredManufacturer);
+    }
+    return params.toString();
+  }, [project?.preferredManufacturer]);
+  const { equipment } = useEquipmentCatalog(query);
+
+  const findBreaker = useMemo(
+    () =>
+      createFindBreaker(
+        equipment,
+        {
+          ACB: project?.defaultAcbFamilyId ?? undefined,
+          MCCB: project?.defaultMccbFamilyId ?? undefined,
+          MCB: project?.defaultMcbFamilyId ?? undefined,
+        },
+        project?.preferredManufacturer
+      ),
+    [equipment, project]
+  );
+
   const bldg = project.buildings.find((b) => b.id === selectedBuilding) || project.buildings[0];
   const sortedFloors = [...bldg.floorDesigns].sort((a, b) => a.floorNumber - b.floorNumber);
+  const feedersData = computeFeeders(bldg as any, project as any, findBreaker);
 
   // Layout constants
   const floorHeight = 110;
@@ -339,10 +365,10 @@ export default function RiserPage() {
                 {t('sld.mdb', 'MDB — Main Distribution Board')}
               </text>
               <text x="100" y="38" textAnchor="middle" fill="#e5e7eb" fontSize="10" fontWeight="600">
-                {mdbSizing.breakerSize}A MCCB · {totalDemandKva.toFixed(1)} kVA
+                {feedersData.mainBreakerIn}A {feedersData.mainIncomerSettings.category} · {totalDemandKva.toFixed(1)} kVA
               </text>
               <text x="100" y="54" textAnchor="middle" fill="#9ca3af" fontSize="9">
-                {totalCurrent.toFixed(0)}A · {formatCableSizeFor(mdbSizing.cableSize, project.calculationStandard)}
+                {feedersData.mainIncomerCurrent.toFixed(0)}A · {feedersData.mainParallelRuns > 1 ? `${feedersData.mainParallelRuns} × ${formatCableSizeFor(feedersData.mainCableSize, project.calculationStandard)}` : formatCableSizeFor(feedersData.mainCableSize, project.calculationStandard)}
               </text>
             </g>
 
@@ -488,24 +514,11 @@ export default function RiserPage() {
                         {/* apartment nodes tap off the rail, stacked vertically */}
                         {fd.items.slice(0, 4).map((item, fi) => {
                           const nodeCY = cy + (fi - (N - 1) / 2) * 26;
-                          const isThreePhase = (item.apartmentTemplate?.phases ?? 1) === 3;
-                          const connectedKw = item.calculatedConnectedLoad ?? 0;
-                          const pf = project.powerFactor || 0.85;
-                          const designCurrent = connectedKw > 0
-                            ? (isThreePhase
-                                ? connectedKw / (Math.sqrt(3) * (project.voltage / 1000) * pf)
-                                : connectedKw / ((project.voltage / Math.sqrt(3) / 1000) * pf))
-                            : (item.calculatedCurrent || 10);
-                          const itemCableSize = item.cableSize || sizeCableAndBreaker(
-                            designCurrent,
-                            isThreePhase,
-                            {
-                              material: (item.cableMaterial as any) || 'copper',
-                              insulation: (item.cableInsulation as any) || 'XLPE',
-                              ambientTemp: item.ambientTemp ?? 30,
-                              groupingCount: item.groupingCount ?? 1,
-                            }
-                          ).formattedCableSize;
+                          const matchingFeeder = fd.hasFloorSubPanels
+                            ? feedersData.smdbFeeders(fd.floorNumber).find((f) => (f.itemId && f.itemId === item.id) || f.name.includes(item.name))
+                            : (feedersData.mdbFeeders.find((f) => (f.itemId && f.itemId === item.id) || (f.floorDesignId === fd.id && f.name.includes(item.name))) ||
+                               feedersData.mdbFeeders.find((f) => f.name.includes(`F${fd.floorNumber}`) && f.name.includes(item.name)));
+                          const itemCableSize = item.cableSize || matchingFeeder?.formattedCableSize || '4 mm²';
                           const aptLeft = 740;
                           return (
                             <g key={fi}>

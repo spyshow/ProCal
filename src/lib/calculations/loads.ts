@@ -20,6 +20,26 @@ export function getApartmentDiversityFactor(count: number): number {
 }
 
 /**
+ * Standardized diversity factor based on building occupancy profile.
+ * - Residential: Uses the stepped unit-count simultaneity curve (IEC 61439-2 / NF C 14-100 §5.3)
+ * - Office / Commercial: Fixed diversity of 0.80–0.85 (IEC 60364-3 / CIBSE Guide K / ASHRAE 90.1)
+ * - Retail / Mall: Fixed diversity of 0.85–0.90
+ */
+export function getBuildingDiversityFactor(count: number, occupancyOrBuildingName?: string | null): number {
+  assertNonNegative('count', count);
+  if (count <= 0) return 1.0;
+  const tag = (occupancyOrBuildingName || '').toUpperCase();
+  if (tag.includes('OFFICE') || tag.includes('COMMERCIAL')) {
+    return 0.80;
+  }
+  if (tag.includes('RETAIL') || tag.includes('MALL')) {
+    return 0.85;
+  }
+  return getApartmentDiversityFactor(count);
+}
+
+
+/**
  * Calculates current (Amperes) for a three-phase system.
  * Power in kVA. Caller must convert kW → kVA (divide by powerFactor) before passing.
  */

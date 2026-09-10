@@ -1,6 +1,7 @@
 'use client';
 
-import { isThreePhaseForItem, computeFeeders } from '@/lib/calculations/feeders';
+import { useMemo } from 'react';
+import { isThreePhaseForItem, computeFeeders, createFindBreaker } from '@/lib/calculations/feeders';
 import { parseCableSize, formatCableSizeFor, calculateCableAmpacity } from '@/lib/calculations/cables';
 import { codeOf } from '@/lib/calculations/codes';
 import { TraceableCell } from '@/components/common/TraceableCell';
@@ -9,6 +10,7 @@ import {
   buildBreakerSizingTrace,
   buildCableAmpacityTrace,
 } from '@/lib/calculations/trace-engine';
+import { useEquipmentCatalog } from '@/hooks/useEquipmentCatalog';
 import type { Project } from '@/types';
 
 export interface CableScheduleProps {
@@ -39,20 +41,36 @@ interface CableRow {
  * selected cable size, installation method and insulation.
  */
 export default function CableSchedule({ project, buildingId, showHeader = true }: CableScheduleProps) {
+  const query = useMemo(() => {
+    const params = new URLSearchParams();
+    if (project.preferredManufacturer && project.preferredManufacturer !== 'MIXED') {
+      params.set('manufacturer', project.preferredManufacturer);
+    }
+    return params.toString();
+  }, [project.preferredManufacturer]);
+  const { equipment } = useEquipmentCatalog(query);
+
+  const findBreaker = useMemo(
+    () =>
+      createFindBreaker(
+        equipment,
+        {
+          ACB: project.defaultAcbFamilyId ?? undefined,
+          MCCB: project.defaultMccbFamilyId ?? undefined,
+          MCB: project.defaultMcbFamilyId ?? undefined,
+        },
+        project.preferredManufacturer
+      ),
+    [equipment, project]
+  );
+
   const rows: CableRow[] = [];
 
   for (const b of project.buildings) {
     if (buildingId && b.id !== buildingId) continue;
 
     // 1. Main Incomer Feeder Cable
-    const { mdbFeeders, smdbFeeders, mainIncomerSettings, mainBreakerIn, mainCableSize, mainParallelRuns, mainIncomerCurrent } = computeFeeders(b, project, () => ({
-      model: null,
-      manufacturer: null,
-      familyName: null,
-      ratedCurrent: null,
-      fallback: true,
-      fallbackType: 'GENERIC_SPEC',
-    }));
+    const { mdbFeeders, smdbFeeders, mainIncomerSettings, mainBreakerIn, mainCableSize, mainParallelRuns, mainIncomerCurrent } = computeFeeders(b, project, findBreaker);
 
     rows.push({
       id: `${b.id}-main-incomer-cable`,

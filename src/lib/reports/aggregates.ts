@@ -416,7 +416,11 @@ export function aggregateVoltageDropRows(project: Project): VoltageDropRow[] {
         });
         if (!vd) continue; // no computable cable data — skip rather than fabricate
 
-        const limit = item.type === 'APARTMENT' ? project.maxVoltageDropLighting : project.maxVoltageDropPower;
+        const isLighting =
+          item.type === 'APARTMENT' ||
+          (item.name || '').toLowerCase().includes('light') ||
+          (item.loadLibraryItem?.category || '').toLowerCase().includes('light');
+        const limit = isLighting ? project.maxVoltageDropLighting : project.maxVoltageDropPower;
         const status = deriveStatus(vd.dropPercent, limit);
 
         rows.push({
@@ -543,7 +547,7 @@ export function aggregateLoadRows(project: Project): LoadRow[] {
           currentL1: parseFloat(currentL1.toFixed(1)),
           currentL2: parseFloat(currentL2.toFixed(1)),
           currentL3: parseFloat(currentL3.toFixed(1)),
-          powerFactor: pf,
+          powerFactor: item.loadLibraryItem?.powerFactor || pf,
         });
       });
     }
@@ -557,8 +561,8 @@ export function aggregateLoadRows(project: Project): LoadRow[] {
 
     for (const bl of blLoads) {
       const lib = bl.loadLibraryItem;
-      const powerKw = lib?.power || 0;
-      const current = lib?.runningCurrent || 0;
+      const powerKw = (lib?.power || 0) * (bl.quantity || 1);
+      const current = (lib?.runningCurrent || 0) * (bl.quantity || 1);
       const phases = lib?.phase || 3;
       const maxDemandKw = powerKw * (lib?.demandFactor || 1);
       const maxDemandKva = maxDemandKw / pf;

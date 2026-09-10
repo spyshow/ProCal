@@ -206,7 +206,7 @@ export type FindBreaker = (
  * Build a model display string from matched equipment.
  */
 function formatBreakerModel(item: EquipmentItem, targetRating?: number): string {
-  if (targetRating && targetRating < item.ratedCurrent) {
+  if (targetRating && targetRating !== item.ratedCurrent) {
     const replaced = item.model.replace(new RegExp(`\\b${item.ratedCurrent}A?\\b`, 'i'), `${targetRating}A`);
     return `${item.manufacturer} ${item.series} ${replaced}`;
   }
@@ -261,9 +261,17 @@ export function createFindBreaker(
       );
     };
 
+    // When a prospective fault current is given, prefer catalog devices whose
+    // Icu covers it; only fall back to a lower-Icu device when nothing
+    // compliant exists, so the shortfall stays visible for icuOk reporting.
+    const requiredIcuKa =
+      options.requiredIcuKa !== undefined && options.requiredIcuKa > 0
+        ? options.requiredIcuKa
+        : undefined;
+
     // Categories to attempt if rating exceeds or falls below standard category limits
     const categoriesToAttempt: ("ACB" | "MCCB" | "MCB")[] = [category];
-    if (category === "MCB" && currentRating > 63) {
+    if (category === "MCB" && (currentRating > 63 || (requiredIcuKa && requiredIcuKa > 10))) {
       categoriesToAttempt.push("MCCB");
     }
     if (category === "MCCB" && currentRating <= 63) {
@@ -397,13 +405,6 @@ export function createFindBreaker(
       return null;
     };
 
-    // When a prospective fault current is given, prefer catalog devices whose
-    // Icu covers it; only fall back to a lower-Icu device when nothing
-    // compliant exists, so the shortfall stays visible for icuOk reporting.
-    const requiredIcuKa =
-      options.requiredIcuKa !== undefined && options.requiredIcuKa > 0
-        ? options.requiredIcuKa
-        : undefined;
     const catalogMatch =
       (requiredIcuKa !== undefined ? searchCatalog(requiredIcuKa) : null) ??
       searchCatalog();
@@ -592,6 +593,8 @@ function feederFromItem(
     genericSpec: match.genericSpec,
     breakingCapacityKa: match.breakingCapacity ?? null,
     isThreePhase,
+    powerFactor: pf,
+    demandKw: item.calculatedMaxDemand,
     assignedPhase: item.assignedPhase ?? null,
     itemId: item.id,
     floorDesignId: floorDesignId ?? item.floorDesignId,
@@ -626,10 +629,18 @@ function feederFromBuildingLoad(
   const categoryUpper = (load.loadLibraryItem?.category ?? '').toUpperCase();
   const nameUpper = (name || '').toUpperCase();
   const typeUpper = (type || '').toUpperCase();
+  const isFirePump =
+    categoryUpper.includes('FIRE') ||
+    nameUpper.includes('FIRE') ||
+    typeUpper.includes('FIRE');
   const isMotor =
+    isFirePump ||
     ['PUMP', 'MOTOR', 'ELEVATOR'].some((k) =>
       categoryUpper.includes(k) || nameUpper.includes(k) || typeUpper.includes(k)
     ) ||
+    (current <= 63 && ['HVAC', 'AC', 'AIR CONDITION', 'CHILLER', 'COMPRESSOR'].some((k) =>
+      categoryUpper.includes(k) || nameUpper.includes(k)
+    )) ||
     (load.loadLibraryItem?.startingCurrent != null &&
       load.loadLibraryItem.startingCurrent > 2 * current);
 
@@ -678,7 +689,9 @@ function feederFromBuildingLoad(
     ...sizing.warnings,
     ...finalSizing.warnings,
     ...protEval.warnings,
-    ...(isMotor
+    ...(isFirePump
+      ? [`Fire pump branch circuit: overcurrent protection sized for locked-rotor inrush and continuous duty per NFPA 20 §9.2 / IEC 60364-5-56.`]
+      : isMotor
       ? [`Motor / mechanical load: conductor sized for 125% FLA (${designCurrent.toFixed(1)} A) per IEC 60947-4-1 / NEC 430.22.`]
       : []),
     ...(manualBreaker && !isNaN(manualBreaker) && manualBreaker < designCurrent - 1e-9
@@ -686,8 +699,12 @@ function feederFromBuildingLoad(
       : []),
   ];
 
-  const isBreakerUpsized = actualBreakerSize > sizing.breakerSize;
-  const upsizeReason = isBreakerUpsized
+  const isBreakerUpsized = actualBreakerSize > sizing.breakerSize || isMotor;
+  const upsizeReason = isFirePump
+    ? `Sized to ${actualBreakerSize}A for Fire Pump locked-rotor & continuous duty (125% FLA = ${designCurrent.toFixed(1)}A) per NFPA 20 §9.2 and IEC 60364-5-56.`
+    : isMotor
+    ? `Sized to ${actualBreakerSize}A for motor continuous duty (125% FLA = ${designCurrent.toFixed(1)}A) per IEC 60947-4-1 / NEC 430.22.`
+    : actualBreakerSize > sizing.breakerSize
     ? `Sized to ${actualBreakerSize}A (exceeds minimal ${sizing.breakerSize}A rating): Selected catalog frame rating with electronic trip unit protection for ${designCurrent.toFixed(1)}A design current.`
     : undefined;
 
@@ -718,6 +735,8 @@ function feederFromBuildingLoad(
     genericSpec: match.genericSpec,
     breakingCapacityKa: match.breakingCapacity ?? null,
     isThreePhase,
+    powerFactor: load.loadLibraryItem?.powerFactor ?? project.powerFactor,
+    demandKw: (load.loadLibraryItem?.power ?? 0) * load.quantity * (load.loadLibraryItem?.demandFactor ?? 1),
     assignedPhase: load.assignedPhase ?? null,
     buildingLoadId: load.id,
     ...oneItemPhaseFields(load, project, resolvedPhase),
@@ -881,6 +900,8 @@ export function computeFeeders(
         genericSpec: match.genericSpec,
         breakingCapacityKa: match.breakingCapacity ?? null,
         isThreePhase: riserIsThreePhase, // physical riser is always 3-phase off the MDB bus
+        powerFactor: project.powerFactor,
+        demandKw: floorBalance.totalKw,
         floorDesignId: fd.id,
         // Per-phase balance fields for the MDB schedule columns (T6).
         phaseCurrent: floorBalance.phaseCurrent,
@@ -1089,7 +1110,7 @@ export function computeFeeders(
       f.fallback = upgrade.fallback;
       f.fallbackType = upgrade.fallbackType;
       f.genericSpec = upgrade.genericSpec;
-      f.breakingCapacityKa = upgrade.breakingCapacity ?? null;
+      f.breakingCapacityKa = upgrade.breakingCapacity ?? upgrade.genericSpec?.requiredIcuKa ?? Math.ceil(faultKa);
       f.icuOk = true;
     } else {
       f.icuOk = false;

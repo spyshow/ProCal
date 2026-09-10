@@ -32,6 +32,7 @@ interface BreakerRow {
   isBreakerUpsized?: boolean;
   upsizeReason?: string;
   cableSize: number;
+  cableIz?: number;
   parallelRuns?: number;
   transformerKva?: number;
   breakerModel: string;
@@ -167,6 +168,7 @@ export default function BreakerSchedule({
         breakerSize: effectiveIncomerIn,
         baseBreakerSize: mainBreakerIn,
         cableSize: mainCableSize,
+        cableIz: mainCableIz,
         parallelRuns: mainParallelRuns,
         transformerKva: transformerSizeKva,
         breakerModel: effectiveIncomerModel,
@@ -203,6 +205,7 @@ export default function BreakerSchedule({
           isBreakerUpsized: f.isBreakerUpsized,
           upsizeReason: f.upsizeReason,
           cableSize: f.cableSize,
+          cableIz: f.cableIz,
           breakerModel: effectiveModel,
           isThreePhase: f.type !== 'APARTMENT',
           parentFeederName: f.parentFeederName,
@@ -236,6 +239,7 @@ export default function BreakerSchedule({
             isBreakerUpsized: f.isBreakerUpsized,
             upsizeReason: f.upsizeReason,
             cableSize: f.cableSize,
+            cableIz: f.cableIz,
             breakerModel: effectiveModel,
             isThreePhase: f.type !== 'APARTMENT',
             parentFeederName: f.parentFeederName,
@@ -375,7 +379,11 @@ export default function BreakerSchedule({
                           frameSizeA: b.breakerSize >= 630 ? b.breakerSize : b.breakerSize > 160 ? 250 : 160,
                           breakingCapacityKa: b.breakerSize >= 630 ? 65 : 36,
                           prospectiveFaultKa: b.faultCurrentKa,
+                          cableAmpacityA: b.cableIz,
                           calculationStandard: project.calculationStandard,
+                          isFirePump: (b.name || '').toLowerCase().includes('fire') || (b.type || '').toLowerCase().includes('fire'),
+                          isMotor: ['pump', 'motor', 'elevator', 'hvac', 'chiller', 'ac', 'fan'].some(k => (b.name || '').toLowerCase().includes(k) || (b.type || '').toLowerCase().includes(k)),
+                          sizingReason: b.upsizeReason,
                         });
                       }}
                     >

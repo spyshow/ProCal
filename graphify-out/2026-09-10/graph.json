@@ -8023,8 +8023,21 @@
       "_origin": "ast",
       "id": "agents_skills_ui_ux_pro_max_scripts_tests_test_core_testdomaindetection",
       "community": 116,
-      "community_name": "detect_domain",
+      "community_name": "test_core.py",
       "norm_label": "testdomaindetection"
+    },
+    {
+      "label": "TestPersistence",
+      "file_type": "code",
+      "source_file": ".agents/skills/ui-ux-pro-max/scripts/tests/test_core.py",
+      "source_location": "L95",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "agents_skills_ui_ux_pro_max_scripts_tests_test_core_testpersistence",
+      "community": 116,
+      "community_name": "test_core.py",
+      "norm_label": "testpersistence"
     },
     {
       "label": "TestPaletteSelection",
@@ -11628,6 +11641,19 @@
       "norm_label": "projectmemberwhereuniqueinput"
     },
     {
+      "label": "BreakerEntry",
+      "file_type": "code",
+      "source_file": "src/app/(app)/breaker-schedule/page.tsx",
+      "source_location": "L45",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_app_app_breaker_schedule_page_breakerentry",
+      "community": 133,
+      "community_name": "selectivity.ts",
+      "norm_label": "breakerentry"
+    },
+    {
       "label": "TccPlotModalProps",
       "file_type": "code",
       "source_file": "src/components/coordination/TccPlotModal.tsx",
@@ -11639,6 +11665,32 @@
       "community": 133,
       "community_name": "selectivity.ts",
       "norm_label": "tccplotmodalprops"
+    },
+    {
+      "label": "BreakerBOMItem",
+      "file_type": "code",
+      "source_file": "src/components/report/BOMSchedule.tsx",
+      "source_location": "L26",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_components_report_bomschedule_breakerbomitem",
+      "community": 133,
+      "community_name": "selectivity.ts",
+      "norm_label": "breakerbomitem"
+    },
+    {
+      "label": "FoundBreaker",
+      "file_type": "code",
+      "source_file": "src/lib/calculations/feeders.ts",
+      "source_location": "L42",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_lib_calculations_feeders_foundbreaker",
+      "community": 133,
+      "community_name": "selectivity.ts",
+      "norm_label": "foundbreaker"
     },
     {
       "label": "BreakerCurveSettings",
@@ -11797,6 +11849,32 @@
       "norm_label": "breakeralternativesuggestion"
     },
     {
+      "label": "FallbackType",
+      "file_type": "code",
+      "source_file": "src/types/index.ts",
+      "source_location": "L248",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_types_index_fallbacktype",
+      "community": 133,
+      "community_name": "selectivity.ts",
+      "norm_label": "fallbacktype"
+    },
+    {
+      "label": "GenericBreakerSpec",
+      "file_type": "code",
+      "source_file": "src/types/index.ts",
+      "source_location": "L250",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_types_index_genericbreakerspec",
+      "community": 133,
+      "community_name": "selectivity.ts",
+      "norm_label": "genericbreakerspec"
+    },
+    {
       "label": "Lead",
       "file_type": "code",
       "source_file": "src/app/(admin)/admin/leads/page.tsx",
@@ -11860,45 +11938,6 @@
       "community": 135,
       "community_name": "admin/page.tsx",
       "norm_label": "weeklypoint"
-    },
-    {
-      "label": "BreakerEntry",
-      "file_type": "code",
-      "source_file": "src/app/(app)/breaker-schedule/page.tsx",
-      "source_location": "L45",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_app_app_breaker_schedule_page_breakerentry",
-      "community": 136,
-      "community_name": "feeders.ts",
-      "norm_label": "breakerentry"
-    },
-    {
-      "label": "BOMScheduleProps",
-      "file_type": "code",
-      "source_file": "src/components/report/BOMSchedule.tsx",
-      "source_location": "L10",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_components_report_bomschedule_bomscheduleprops",
-      "community": 136,
-      "community_name": "feeders.ts",
-      "norm_label": "bomscheduleprops"
-    },
-    {
-      "label": "BreakerBOMItem",
-      "file_type": "code",
-      "source_file": "src/components/report/BOMSchedule.tsx",
-      "source_location": "L26",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_components_report_bomschedule_breakerbomitem",
-      "community": 136,
-      "community_name": "feeders.ts",
-      "norm_label": "breakerbomitem"
     },
     {
       "label": "CableBOMItem",
@@ -11990,45 +12029,6 @@
       "community": 136,
       "community_name": "feeders.ts",
       "norm_label": "equipmentitem"
-    },
-    {
-      "label": "FoundBreaker",
-      "file_type": "code",
-      "source_file": "src/lib/calculations/feeders.ts",
-      "source_location": "L42",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_lib_calculations_feeders_foundbreaker",
-      "community": 136,
-      "community_name": "feeders.ts",
-      "norm_label": "foundbreaker"
-    },
-    {
-      "label": "FallbackType",
-      "file_type": "code",
-      "source_file": "src/types/index.ts",
-      "source_location": "L248",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_types_index_fallbacktype",
-      "community": 136,
-      "community_name": "feeders.ts",
-      "norm_label": "fallbacktype"
-    },
-    {
-      "label": "GenericBreakerSpec",
-      "file_type": "code",
-      "source_file": "src/types/index.ts",
-      "source_location": "L250",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_types_index_genericbreakerspec",
-      "community": 136,
-      "community_name": "feeders.ts",
-      "norm_label": "genericbreakerspec"
     },
     {
       "label": "RoomData",
@@ -15307,6 +15307,19 @@
       "norm_label": "familykey"
     },
     {
+      "label": "BOMScheduleProps",
+      "file_type": "code",
+      "source_file": "src/components/report/BOMSchedule.tsx",
+      "source_location": "L10",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_components_report_bomschedule_bomscheduleprops",
+      "community": 168,
+      "community_name": "reports/page.tsx",
+      "norm_label": "bomscheduleprops"
+    },
+    {
       "label": "BreakerScheduleProps",
       "file_type": "code",
       "source_file": "src/components/report/BreakerSchedule.tsx",
@@ -17697,58 +17710,6 @@
       "community": 216,
       "community_name": "remotion-best-practices/remotion-maps/techniques/maptiler/assets/RiverReveal.tsx",
       "norm_label": "country"
-    },
-    {
-      "label": "NeutralAccum",
-      "file_type": "code",
-      "source_file": "src/lib/calculations/phaseBalance.ts",
-      "source_location": "L285",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_lib_calculations_phasebalance_neutralaccum",
-      "community": 218,
-      "community_name": "phaseBalance.ts",
-      "norm_label": "neutralaccum"
-    },
-    {
-      "label": "PhaseIdx",
-      "file_type": "code",
-      "source_file": "src/lib/calculations/phaseBalance.ts",
-      "source_location": "L51",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_lib_calculations_phasebalance_phaseidx",
-      "community": 218,
-      "community_name": "phaseBalance.ts",
-      "norm_label": "phaseidx"
-    },
-    {
-      "label": "PhaseLoad",
-      "file_type": "code",
-      "source_file": "src/lib/calculations/phaseBalance.ts",
-      "source_location": "L78",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_lib_calculations_phasebalance_phaseload",
-      "community": 218,
-      "community_name": "phaseBalance.ts",
-      "norm_label": "phaseload"
-    },
-    {
-      "label": "CalculationStandard",
-      "file_type": "code",
-      "source_file": "src/types/index.ts",
-      "source_location": "L225",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_types_index_calculationstandard",
-      "community": 218,
-      "community_name": "phaseBalance.ts",
-      "norm_label": "calculationstandard"
     },
     {
       "label": "BM25",
@@ -22143,19 +22104,6 @@
       "community": 35,
       "community_name": "Root.tsx",
       "norm_label": "tutorialheaderprops"
-    },
-    {
-      "label": "TestPersistence",
-      "file_type": "code",
-      "source_file": ".agents/skills/ui-ux-pro-max/scripts/tests/test_core.py",
-      "source_location": "L95",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "agents_skills_ui_ux_pro_max_scripts_tests_test_core_testpersistence",
-      "community": 36,
-      "community_name": "design_system.py",
-      "norm_label": "testpersistence"
     },
     {
       "label": "AdminNavItem",
@@ -31765,6 +31713,45 @@
       "norm_label": "prisma__projectclient"
     },
     {
+      "label": "NeutralAccum",
+      "file_type": "code",
+      "source_file": "src/lib/calculations/phaseBalance.ts",
+      "source_location": "L285",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_lib_calculations_phasebalance_neutralaccum",
+      "community": 99,
+      "community_name": "types/index.ts",
+      "norm_label": "neutralaccum"
+    },
+    {
+      "label": "PhaseIdx",
+      "file_type": "code",
+      "source_file": "src/lib/calculations/phaseBalance.ts",
+      "source_location": "L51",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_lib_calculations_phasebalance_phaseidx",
+      "community": 99,
+      "community_name": "types/index.ts",
+      "norm_label": "phaseidx"
+    },
+    {
+      "label": "PhaseLoad",
+      "file_type": "code",
+      "source_file": "src/lib/calculations/phaseBalance.ts",
+      "source_location": "L78",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_lib_calculations_phasebalance_phaseload",
+      "community": 99,
+      "community_name": "types/index.ts",
+      "norm_label": "phaseload"
+    },
+    {
       "label": "ApartmentRoom",
       "file_type": "code",
       "source_file": "src/types/index.ts",
@@ -31828,6 +31815,19 @@
       "community": 99,
       "community_name": "types/index.ts",
       "norm_label": "buildingload"
+    },
+    {
+      "label": "CalculationStandard",
+      "file_type": "code",
+      "source_file": "src/types/index.ts",
+      "source_location": "L225",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_types_index_calculationstandard",
+      "community": 99,
+      "community_name": "types/index.ts",
+      "norm_label": "calculationstandard"
     },
     {
       "label": "EarthingSystem",
@@ -32578,8 +32578,32 @@
       "_origin": "ast",
       "id": "agents_skills_ui_ux_pro_max_scripts_core_detect_domain",
       "community": 116,
-      "community_name": "detect_domain",
+      "community_name": "test_core.py",
       "norm_label": "detect_domain()"
+    },
+    {
+      "label": "format_markdown()",
+      "file_type": "code",
+      "source_file": ".agents/skills/ui-ux-pro-max/scripts/design_system.py",
+      "source_location": "L636",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "agents_skills_ui_ux_pro_max_scripts_design_system_format_markdown",
+      "community": 116,
+      "community_name": "test_core.py",
+      "norm_label": "format_markdown()"
+    },
+    {
+      "label": "generate_design_system()",
+      "file_type": "code",
+      "source_file": ".agents/skills/ui-ux-pro-max/scripts/design_system.py",
+      "source_location": "L776",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "agents_skills_ui_ux_pro_max_scripts_design_system_generate_design_system",
+      "community": 116,
+      "community_name": "test_core.py",
+      "norm_label": "generate_design_system()"
     },
     {
       "label": ".test_accessibility_keywords_route_to_ux()",
@@ -32590,7 +32614,7 @@
       "_origin": "ast",
       "id": "agents_skills_ui_ux_pro_max_scripts_tests_test_core_testdomaindetection_test_accessibility_keywords_route_to_ux",
       "community": 116,
-      "community_name": "detect_domain",
+      "community_name": "test_core.py",
       "norm_label": ".test_accessibility_keywords_route_to_ux()"
     },
     {
@@ -32602,7 +32626,7 @@
       "_origin": "ast",
       "id": "agents_skills_ui_ux_pro_max_scripts_tests_test_core_testdomaindetection_test_ambiguous_query_returns_runner_up",
       "community": 116,
-      "community_name": "detect_domain",
+      "community_name": "test_core.py",
       "norm_label": ".test_ambiguous_query_returns_runner_up()"
     },
     {
@@ -32614,7 +32638,7 @@
       "_origin": "ast",
       "id": "agents_skills_ui_ux_pro_max_scripts_tests_test_core_testdomaindetection_test_empty_query_falls_back_to_style",
       "community": 116,
-      "community_name": "detect_domain",
+      "community_name": "test_core.py",
       "norm_label": ".test_empty_query_falls_back_to_style()"
     },
     {
@@ -32626,8 +32650,32 @@
       "_origin": "ast",
       "id": "agents_skills_ui_ux_pro_max_scripts_tests_test_core_testdomaindetection_test_style_keywords_route_to_style",
       "community": 116,
-      "community_name": "detect_domain",
+      "community_name": "test_core.py",
       "norm_label": ".test_style_keywords_route_to_style()"
+    },
+    {
+      "label": ".test_persist_then_skip_then_force()",
+      "file_type": "code",
+      "source_file": ".agents/skills/ui-ux-pro-max/scripts/tests/test_core.py",
+      "source_location": "L96",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "agents_skills_ui_ux_pro_max_scripts_tests_test_core_testpersistence_test_persist_then_skip_then_force",
+      "community": 116,
+      "community_name": "test_core.py",
+      "norm_label": ".test_persist_then_skip_then_force()"
+    },
+    {
+      "label": ".test_persist_writes_only_under_output_dir()",
+      "file_type": "code",
+      "source_file": ".agents/skills/ui-ux-pro-max/scripts/tests/test_core.py",
+      "source_location": "L113",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "agents_skills_ui_ux_pro_max_scripts_tests_test_core_testpersistence_test_persist_writes_only_under_output_dir",
+      "community": 116,
+      "community_name": "test_core.py",
+      "norm_label": ".test_persist_writes_only_under_output_dir()"
     },
     {
       "label": "_select_palette_for_mode()",
@@ -34274,6 +34322,30 @@
       "norm_label": "oneitemphasefields()"
     },
     {
+      "label": "building()",
+      "file_type": "code",
+      "source_file": "src/lib/calculations/feeders.test.ts",
+      "source_location": "L38",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_lib_calculations_feeders_test_building",
+      "community": 136,
+      "community_name": "feeders.ts",
+      "norm_label": "building()"
+    },
+    {
+      "label": "item()",
+      "file_type": "code",
+      "source_file": "src/lib/calculations/feeders.test.ts",
+      "source_location": "L29",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_lib_calculations_feeders_test_item",
+      "community": 136,
+      "community_name": "feeders.ts",
+      "norm_label": "item()"
+    },
+    {
       "label": "calculateThreePhaseCurrent()",
       "file_type": "code",
       "source_file": "src/lib/calculations/loads.ts",
@@ -35520,6 +35592,54 @@
       "community": 168,
       "community_name": "reports/page.tsx",
       "norm_label": "round()"
+    },
+    {
+      "label": "building()",
+      "file_type": "code",
+      "source_file": "src/lib/reports/excel.test.ts",
+      "source_location": "L39",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_lib_reports_excel_test_building",
+      "community": 168,
+      "community_name": "reports/page.tsx",
+      "norm_label": "building()"
+    },
+    {
+      "label": "findBreaker()",
+      "file_type": "code",
+      "source_file": "src/lib/reports/excel.test.ts",
+      "source_location": "L7",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_lib_reports_excel_test_findbreaker",
+      "community": 168,
+      "community_name": "reports/page.tsx",
+      "norm_label": "findbreaker()"
+    },
+    {
+      "label": "item()",
+      "file_type": "code",
+      "source_file": "src/lib/reports/excel.test.ts",
+      "source_location": "L30",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_lib_reports_excel_test_item",
+      "community": 168,
+      "community_name": "reports/page.tsx",
+      "norm_label": "item()"
+    },
+    {
+      "label": "projectWith()",
+      "file_type": "code",
+      "source_file": "src/lib/reports/excel.test.ts",
+      "source_location": "L48",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_lib_reports_excel_test_projectwith",
+      "community": 168,
+      "community_name": "reports/page.tsx",
+      "norm_label": "projectwith()"
     },
     {
       "label": "generateSLD()",
@@ -37992,174 +38112,6 @@
       "community": 216,
       "community_name": "remotion-best-practices/remotion-maps/techniques/maptiler/assets/RiverReveal.tsx",
       "norm_label": "trigger()"
-    },
-    {
-      "label": "displacementAngle()",
-      "file_type": "code",
-      "source_file": "src/lib/calculations/feeders.ts",
-      "source_location": "L133",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_lib_calculations_feeders_displacementangle",
-      "community": 218,
-      "community_name": "phaseBalance.ts",
-      "norm_label": "displacementangle()"
-    },
-    {
-      "label": "isThreePhaseForBuildingLoad()",
-      "file_type": "code",
-      "source_file": "src/lib/calculations/feeders.ts",
-      "source_location": "L85",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_lib_calculations_feeders_isthreephaseforbuildingload",
-      "community": 218,
-      "community_name": "phaseBalance.ts",
-      "norm_label": "isthreephaseforbuildingload()"
-    },
-    {
-      "label": "pfAngleForBuildingLoad()",
-      "file_type": "code",
-      "source_file": "src/lib/calculations/feeders.ts",
-      "source_location": "L116",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_lib_calculations_feeders_pfangleforbuildingload",
-      "community": 218,
-      "community_name": "phaseBalance.ts",
-      "norm_label": "pfangleforbuildingload()"
-    },
-    {
-      "label": "pfAngleForItem()",
-      "file_type": "code",
-      "source_file": "src/lib/calculations/feeders.ts",
-      "source_location": "L108",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_lib_calculations_feeders_pfangleforitem",
-      "community": 218,
-      "community_name": "phaseBalance.ts",
-      "norm_label": "pfangleforitem()"
-    },
-    {
-      "label": "compute()",
-      "file_type": "code",
-      "source_file": "src/lib/calculations/phaseBalance.ts",
-      "source_location": "L212",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_lib_calculations_phasebalance_compute",
-      "community": 218,
-      "community_name": "phaseBalance.ts",
-      "norm_label": "compute()"
-    },
-    {
-      "label": "finalize()",
-      "file_type": "code",
-      "source_file": "src/lib/calculations/phaseBalance.ts",
-      "source_location": "L334",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_lib_calculations_phasebalance_finalize",
-      "community": 218,
-      "community_name": "phaseBalance.ts",
-      "norm_label": "finalize()"
-    },
-    {
-      "label": "fromBuildingLoad()",
-      "file_type": "code",
-      "source_file": "src/lib/calculations/phaseBalance.ts",
-      "source_location": "L182",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_lib_calculations_phasebalance_frombuildingload",
-      "community": 218,
-      "community_name": "phaseBalance.ts",
-      "norm_label": "frombuildingload()"
-    },
-    {
-      "label": "fromFloorItem()",
-      "file_type": "code",
-      "source_file": "src/lib/calculations/phaseBalance.ts",
-      "source_location": "L159",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_lib_calculations_phasebalance_fromflooritem",
-      "community": 218,
-      "community_name": "phaseBalance.ts",
-      "norm_label": "fromflooritem()"
-    },
-    {
-      "label": "leastLoadedPhase()",
-      "file_type": "code",
-      "source_file": "src/lib/calculations/phaseBalance.ts",
-      "source_location": "L318",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_lib_calculations_phasebalance_leastloadedphase",
-      "community": 218,
-      "community_name": "phaseBalance.ts",
-      "norm_label": "leastloadedphase()"
-    },
-    {
-      "label": "neutralFromPhasors()",
-      "file_type": "code",
-      "source_file": "src/lib/calculations/phaseBalance.ts",
-      "source_location": "L376",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_lib_calculations_phasebalance_neutralfromphasors",
-      "community": 218,
-      "community_name": "phaseBalance.ts",
-      "norm_label": "neutralfromphasors()"
-    },
-    {
-      "label": "normalize()",
-      "file_type": "code",
-      "source_file": "src/lib/calculations/phaseBalance.ts",
-      "source_location": "L146",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_lib_calculations_phasebalance_normalize",
-      "community": 218,
-      "community_name": "phaseBalance.ts",
-      "norm_label": "normalize()"
-    },
-    {
-      "label": "placeOnePhase()",
-      "file_type": "code",
-      "source_file": "src/lib/calculations/phaseBalance.ts",
-      "source_location": "L305",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_lib_calculations_phasebalance_placeonephase",
-      "community": 218,
-      "community_name": "phaseBalance.ts",
-      "norm_label": "placeonephase()"
-    },
-    {
-      "label": "placeThreePhase()",
-      "file_type": "code",
-      "source_file": "src/lib/calculations/phaseBalance.ts",
-      "source_location": "L287",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_lib_calculations_phasebalance_placethreephase",
-      "community": 218,
-      "community_name": "phaseBalance.ts",
-      "norm_label": "placethreephase()"
-    },
-    {
-      "label": "standardOf()",
-      "file_type": "code",
-      "source_file": "src/lib/calculations/phaseBalance.ts",
-      "source_location": "L400",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_lib_calculations_phasebalance_standardof",
-      "community": 218,
-      "community_name": "phaseBalance.ts",
-      "norm_label": "standardof()"
     },
     {
       "label": "format_context()",
@@ -42086,18 +42038,6 @@
       "norm_label": "format_ascii_box()"
     },
     {
-      "label": "format_markdown()",
-      "file_type": "code",
-      "source_file": ".agents/skills/ui-ux-pro-max/scripts/design_system.py",
-      "source_location": "L636",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "agents_skills_ui_ux_pro_max_scripts_design_system_format_markdown",
-      "community": 36,
-      "community_name": "design_system.py",
-      "norm_label": "format_markdown()"
-    },
-    {
       "label": "format_master_md()",
       "file_type": "code",
       "source_file": ".agents/skills/ui-ux-pro-max/scripts/design_system.py",
@@ -42120,18 +42060,6 @@
       "community": 36,
       "community_name": "design_system.py",
       "norm_label": "format_page_override_md()"
-    },
-    {
-      "label": "generate_design_system()",
-      "file_type": "code",
-      "source_file": ".agents/skills/ui-ux-pro-max/scripts/design_system.py",
-      "source_location": "L776",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "agents_skills_ui_ux_pro_max_scripts_design_system_generate_design_system",
-      "community": 36,
-      "community_name": "design_system.py",
-      "norm_label": "generate_design_system()"
     },
     {
       "label": "_generate_intelligent_overrides()",
@@ -42170,18 +42098,6 @@
       "norm_label": "persist_design_system()"
     },
     {
-      "label": "_resolve_dial()",
-      "file_type": "code",
-      "source_file": ".agents/skills/ui-ux-pro-max/scripts/design_system.py",
-      "source_location": "L69",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "agents_skills_ui_ux_pro_max_scripts_design_system_resolve_dial",
-      "community": 36,
-      "community_name": "design_system.py",
-      "norm_label": "_resolve_dial()"
-    },
-    {
       "label": "safe_slug()",
       "file_type": "code",
       "source_file": ".agents/skills/ui-ux-pro-max/scripts/design_system.py",
@@ -42204,30 +42120,6 @@
       "community": 36,
       "community_name": "design_system.py",
       "norm_label": "section_header()"
-    },
-    {
-      "label": ".test_persist_then_skip_then_force()",
-      "file_type": "code",
-      "source_file": ".agents/skills/ui-ux-pro-max/scripts/tests/test_core.py",
-      "source_location": "L96",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "agents_skills_ui_ux_pro_max_scripts_tests_test_core_testpersistence_test_persist_then_skip_then_force",
-      "community": 36,
-      "community_name": "design_system.py",
-      "norm_label": ".test_persist_then_skip_then_force()"
-    },
-    {
-      "label": ".test_persist_writes_only_under_output_dir()",
-      "file_type": "code",
-      "source_file": ".agents/skills/ui-ux-pro-max/scripts/tests/test_core.py",
-      "source_location": "L113",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "agents_skills_ui_ux_pro_max_scripts_tests_test_core_testpersistence_test_persist_writes_only_under_output_dir",
-      "community": 36,
-      "community_name": "design_system.py",
-      "norm_label": ".test_persist_writes_only_under_output_dir()"
     },
     {
       "label": "AdminLayout()",
@@ -43368,6 +43260,18 @@
       "community": 49,
       "community_name": "DesignSystemGenerator",
       "norm_label": "._select_best_match()"
+    },
+    {
+      "label": "_resolve_dial()",
+      "file_type": "code",
+      "source_file": ".agents/skills/ui-ux-pro-max/scripts/design_system.py",
+      "source_location": "L69",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "agents_skills_ui_ux_pro_max_scripts_design_system_resolve_dial",
+      "community": 49,
+      "community_name": "DesignSystemGenerator",
+      "norm_label": "_resolve_dial()"
     },
     {
       "label": ".test_known_category_matches_exactly()",
@@ -49706,6 +49610,54 @@
       "norm_label": "parsemm2()"
     },
     {
+      "label": "displacementAngle()",
+      "file_type": "code",
+      "source_file": "src/lib/calculations/feeders.ts",
+      "source_location": "L133",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_lib_calculations_feeders_displacementangle",
+      "community": 99,
+      "community_name": "types/index.ts",
+      "norm_label": "displacementangle()"
+    },
+    {
+      "label": "isThreePhaseForBuildingLoad()",
+      "file_type": "code",
+      "source_file": "src/lib/calculations/feeders.ts",
+      "source_location": "L85",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_lib_calculations_feeders_isthreephaseforbuildingload",
+      "community": 99,
+      "community_name": "types/index.ts",
+      "norm_label": "isthreephaseforbuildingload()"
+    },
+    {
+      "label": "pfAngleForBuildingLoad()",
+      "file_type": "code",
+      "source_file": "src/lib/calculations/feeders.ts",
+      "source_location": "L116",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_lib_calculations_feeders_pfangleforbuildingload",
+      "community": 99,
+      "community_name": "types/index.ts",
+      "norm_label": "pfangleforbuildingload()"
+    },
+    {
+      "label": "pfAngleForItem()",
+      "file_type": "code",
+      "source_file": "src/lib/calculations/feeders.ts",
+      "source_location": "L108",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_lib_calculations_feeders_pfangleforitem",
+      "community": 99,
+      "community_name": "types/index.ts",
+      "norm_label": "pfangleforitem()"
+    },
+    {
       "label": "pfForFloorItem()",
       "file_type": "code",
       "source_file": "src/lib/calculations/feeders.ts",
@@ -49716,30 +49668,6 @@
       "community": 99,
       "community_name": "types/index.ts",
       "norm_label": "pfforflooritem()"
-    },
-    {
-      "label": "building()",
-      "file_type": "code",
-      "source_file": "src/lib/calculations/feeders.test.ts",
-      "source_location": "L38",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_lib_calculations_feeders_test_building",
-      "community": 99,
-      "community_name": "types/index.ts",
-      "norm_label": "building()"
-    },
-    {
-      "label": "item()",
-      "file_type": "code",
-      "source_file": "src/lib/calculations/feeders.test.ts",
-      "source_location": "L29",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_lib_calculations_feeders_test_item",
-      "community": 99,
-      "community_name": "types/index.ts",
-      "norm_label": "item()"
     },
     {
       "label": "apartmentItem()",
@@ -49862,6 +49790,126 @@
       "norm_label": "createicubuilding()"
     },
     {
+      "label": "compute()",
+      "file_type": "code",
+      "source_file": "src/lib/calculations/phaseBalance.ts",
+      "source_location": "L212",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_lib_calculations_phasebalance_compute",
+      "community": 99,
+      "community_name": "types/index.ts",
+      "norm_label": "compute()"
+    },
+    {
+      "label": "finalize()",
+      "file_type": "code",
+      "source_file": "src/lib/calculations/phaseBalance.ts",
+      "source_location": "L334",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_lib_calculations_phasebalance_finalize",
+      "community": 99,
+      "community_name": "types/index.ts",
+      "norm_label": "finalize()"
+    },
+    {
+      "label": "fromBuildingLoad()",
+      "file_type": "code",
+      "source_file": "src/lib/calculations/phaseBalance.ts",
+      "source_location": "L182",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_lib_calculations_phasebalance_frombuildingload",
+      "community": 99,
+      "community_name": "types/index.ts",
+      "norm_label": "frombuildingload()"
+    },
+    {
+      "label": "fromFloorItem()",
+      "file_type": "code",
+      "source_file": "src/lib/calculations/phaseBalance.ts",
+      "source_location": "L159",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_lib_calculations_phasebalance_fromflooritem",
+      "community": 99,
+      "community_name": "types/index.ts",
+      "norm_label": "fromflooritem()"
+    },
+    {
+      "label": "leastLoadedPhase()",
+      "file_type": "code",
+      "source_file": "src/lib/calculations/phaseBalance.ts",
+      "source_location": "L318",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_lib_calculations_phasebalance_leastloadedphase",
+      "community": 99,
+      "community_name": "types/index.ts",
+      "norm_label": "leastloadedphase()"
+    },
+    {
+      "label": "neutralFromPhasors()",
+      "file_type": "code",
+      "source_file": "src/lib/calculations/phaseBalance.ts",
+      "source_location": "L376",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_lib_calculations_phasebalance_neutralfromphasors",
+      "community": 99,
+      "community_name": "types/index.ts",
+      "norm_label": "neutralfromphasors()"
+    },
+    {
+      "label": "normalize()",
+      "file_type": "code",
+      "source_file": "src/lib/calculations/phaseBalance.ts",
+      "source_location": "L146",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_lib_calculations_phasebalance_normalize",
+      "community": 99,
+      "community_name": "types/index.ts",
+      "norm_label": "normalize()"
+    },
+    {
+      "label": "placeOnePhase()",
+      "file_type": "code",
+      "source_file": "src/lib/calculations/phaseBalance.ts",
+      "source_location": "L305",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_lib_calculations_phasebalance_placeonephase",
+      "community": 99,
+      "community_name": "types/index.ts",
+      "norm_label": "placeonephase()"
+    },
+    {
+      "label": "placeThreePhase()",
+      "file_type": "code",
+      "source_file": "src/lib/calculations/phaseBalance.ts",
+      "source_location": "L287",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_lib_calculations_phasebalance_placethreephase",
+      "community": 99,
+      "community_name": "types/index.ts",
+      "norm_label": "placethreephase()"
+    },
+    {
+      "label": "standardOf()",
+      "file_type": "code",
+      "source_file": "src/lib/calculations/phaseBalance.ts",
+      "source_location": "L400",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_lib_calculations_phasebalance_standardof",
+      "community": 99,
+      "community_name": "types/index.ts",
+      "norm_label": "standardof()"
+    },
+    {
       "label": "buildingLoadFixture()",
       "file_type": "code",
       "source_file": "src/lib/calculations/phaseBalance.test.ts",
@@ -49968,54 +50016,6 @@
       "community": 99,
       "community_name": "types/index.ts",
       "norm_label": "floor()"
-    },
-    {
-      "label": "building()",
-      "file_type": "code",
-      "source_file": "src/lib/reports/excel.test.ts",
-      "source_location": "L39",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_lib_reports_excel_test_building",
-      "community": 99,
-      "community_name": "types/index.ts",
-      "norm_label": "building()"
-    },
-    {
-      "label": "findBreaker()",
-      "file_type": "code",
-      "source_file": "src/lib/reports/excel.test.ts",
-      "source_location": "L7",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_lib_reports_excel_test_findbreaker",
-      "community": 99,
-      "community_name": "types/index.ts",
-      "norm_label": "findbreaker()"
-    },
-    {
-      "label": "item()",
-      "file_type": "code",
-      "source_file": "src/lib/reports/excel.test.ts",
-      "source_location": "L30",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_lib_reports_excel_test_item",
-      "community": 99,
-      "community_name": "types/index.ts",
-      "norm_label": "item()"
-    },
-    {
-      "label": "projectWith()",
-      "file_type": "code",
-      "source_file": "src/lib/reports/excel.test.ts",
-      "source_location": "L48",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_lib_reports_excel_test_projectwith",
-      "community": 99,
-      "community_name": "types/index.ts",
-      "norm_label": "projectwith()"
     },
     {
       "label": "Project.ts",
@@ -51558,6 +51558,17 @@
       "norm_label": "website"
     },
     {
+      "label": "test_core.py",
+      "file_type": "code",
+      "source_file": ".agents/skills/ui-ux-pro-max/scripts/tests/test_core.py",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "agents_skills_ui_ux_pro_max_scripts_tests_test_core",
+      "community": 116,
+      "community_name": "test_core.py",
+      "norm_label": "test_core.py"
+    },
+    {
       "label": "Auto-detect the most relevant domain from query. Matches are weighted by\u2026",
       "file_type": "rationale",
       "source_file": ".agents/skills/ui-ux-pro-max/scripts/core.py",
@@ -51565,8 +51576,30 @@
       "_origin": "ast",
       "id": "agents_skills_ui_ux_pro_max_scripts_core_rationale_378",
       "community": 116,
-      "community_name": "detect_domain",
+      "community_name": "test_core.py",
       "norm_label": "auto-detect the most relevant domain from query. matches are weighted by..."
+    },
+    {
+      "label": "Format design system as markdown.",
+      "file_type": "rationale",
+      "source_file": ".agents/skills/ui-ux-pro-max/scripts/design_system.py",
+      "source_location": "L637",
+      "_origin": "ast",
+      "id": "agents_skills_ui_ux_pro_max_scripts_design_system_rationale_637",
+      "community": 116,
+      "community_name": "test_core.py",
+      "norm_label": "format design system as markdown."
+    },
+    {
+      "label": "Main entry point for design system generation. Args: query: Search query (e.g.,\u2026",
+      "file_type": "rationale",
+      "source_file": ".agents/skills/ui-ux-pro-max/scripts/design_system.py",
+      "source_location": "L780",
+      "_origin": "ast",
+      "id": "agents_skills_ui_ux_pro_max_scripts_design_system_rationale_780",
+      "community": 116,
+      "community_name": "test_core.py",
+      "norm_label": "main entry point for design system generation. args: query: search query (e.g.,..."
     },
     {
       "label": "Pick the highest-ranked palette matching the resolved mode. Only the dark case\u2026",
@@ -52735,6 +52768,50 @@
       "norm_label": "apartmentroom.ts"
     },
     {
+      "label": "remotion-best-practices/remotion-markup/images.md",
+      "file_type": "document",
+      "source_file": ".agents/skills/remotion-best-practices/remotion-markup/images.md",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "agents_skills_remotion_best_practices_remotion_markup_images",
+      "community": 130,
+      "community_name": "remotion-markup/REFERENCE.md",
+      "norm_label": "remotion-best-practices/remotion-markup/images.md"
+    },
+    {
+      "label": "Dynamic image paths",
+      "file_type": "document",
+      "source_file": ".agents/skills/remotion-best-practices/remotion-markup/images.md",
+      "source_location": "L19",
+      "_origin": "ast",
+      "id": "agents_skills_remotion_best_practices_remotion_markup_images_dynamic_image_paths",
+      "community": 130,
+      "community_name": "remotion-markup/REFERENCE.md",
+      "norm_label": "dynamic image paths"
+    },
+    {
+      "label": "Getting image dimensions",
+      "file_type": "document",
+      "source_file": ".agents/skills/remotion-best-practices/remotion-markup/images.md",
+      "source_location": "L47",
+      "_origin": "ast",
+      "id": "agents_skills_remotion_best_practices_remotion_markup_images_getting_image_dimensions",
+      "community": 130,
+      "community_name": "remotion-markup/REFERENCE.md",
+      "norm_label": "getting image dimensions"
+    },
+    {
+      "label": "Sizing and positioning",
+      "file_type": "document",
+      "source_file": ".agents/skills/remotion-best-practices/remotion-markup/images.md",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "agents_skills_remotion_best_practices_remotion_markup_images_sizing_and_positioning",
+      "community": 130,
+      "community_name": "remotion-markup/REFERENCE.md",
+      "norm_label": "sizing and positioning"
+    },
+    {
       "label": "remotion-best-practices/remotion-markup/measuring-dom-nodes.md",
       "file_type": "document",
       "source_file": ".agents/skills/remotion-best-practices/remotion-markup/measuring-dom-nodes.md",
@@ -53459,6 +53536,39 @@
       "community": 136,
       "community_name": "feeders.ts",
       "norm_label": "feeders.ts"
+    },
+    {
+      "label": "feeders.test.ts",
+      "file_type": "code",
+      "source_file": "src/lib/calculations/feeders.test.ts",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_lib_calculations_feeders_test",
+      "community": 136,
+      "community_name": "feeders.ts",
+      "norm_label": "feeders.test.ts"
+    },
+    {
+      "label": "baseProject",
+      "file_type": "code",
+      "source_file": "src/lib/calculations/feeders.test.ts",
+      "source_location": "L22",
+      "_origin": "ast",
+      "id": "src_lib_calculations_feeders_test_baseproject",
+      "community": 136,
+      "community_name": "feeders.ts",
+      "norm_label": "baseproject"
+    },
+    {
+      "label": "equipment",
+      "file_type": "code",
+      "source_file": "src/lib/calculations/feeders.test.ts",
+      "source_location": "L10",
+      "_origin": "ast",
+      "id": "src_lib_calculations_feeders_test_equipment",
+      "community": 136,
+      "community_name": "feeders.ts",
+      "norm_label": "equipment"
     },
     {
       "label": "trace-engine.test.ts",
@@ -56365,15 +56475,15 @@
       "norm_label": "modes"
     },
     {
-      "label": "padding-x",
+      "label": "padding-y",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L110",
+      "source_location": "L111",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_button_padding_x",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_button_padding_y",
       "community": 167,
       "community_name": "input",
-      "norm_label": "padding-x"
+      "norm_label": "padding-y"
     },
     {
       "label": "input",
@@ -56420,23 +56530,23 @@
       "norm_label": "focus-ring"
     },
     {
-      "label": "padding-x",
+      "label": "padding-y",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L119",
+      "source_location": "L120",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_input_padding_x",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_input_padding_y",
       "community": 167,
       "community_name": "input",
-      "norm_label": "padding-x"
+      "norm_label": "padding-y"
     },
     {
       "label": "$type",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L110",
+      "source_location": "L111",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_padding_x_type",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_padding_y_type",
       "community": 167,
       "community_name": "input",
       "norm_label": "$type"
@@ -56445,9 +56555,9 @@
       "label": "$value",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L110",
+      "source_location": "L111",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_padding_x_value",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_padding_y_value",
       "community": 167,
       "community_name": "input",
       "norm_label": "$value"
@@ -56605,6 +56715,28 @@
       "community": 168,
       "community_name": "reports/page.tsx",
       "norm_label": "excel.ts"
+    },
+    {
+      "label": "excel.test.ts",
+      "file_type": "code",
+      "source_file": "src/lib/reports/excel.test.ts",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_lib_reports_excel_test",
+      "community": 168,
+      "community_name": "reports/page.tsx",
+      "norm_label": "excel.test.ts"
+    },
+    {
+      "label": "baseProject",
+      "file_type": "code",
+      "source_file": "src/lib/reports/excel.test.ts",
+      "source_location": "L22",
+      "_origin": "ast",
+      "id": "src_lib_reports_excel_test_baseproject",
+      "community": 168,
+      "community_name": "reports/page.tsx",
+      "norm_label": "baseproject"
     },
     {
       "label": "reports/types.ts",
@@ -59651,37 +59783,59 @@
       "norm_label": "[static map](techniques/static-map/technique.md)"
     },
     {
-      "label": "phaseBalance.ts",
+      "label": "lg",
       "file_type": "code",
-      "source_file": "src/lib/calculations/phaseBalance.ts",
-      "source_location": "L1",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L56",
       "_origin": "ast",
-      "id": "src_lib_calculations_phasebalance",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_fontsize_lg",
       "community": 218,
-      "community_name": "phaseBalance.ts",
-      "norm_label": "phasebalance.ts"
+      "community_name": "lg",
+      "norm_label": "lg"
     },
     {
-      "label": "PHASE_OFFSET_RAD",
+      "label": "$type",
       "file_type": "code",
-      "source_file": "src/lib/calculations/phaseBalance.ts",
-      "source_location": "L54",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L56",
       "_origin": "ast",
-      "id": "src_lib_calculations_phasebalance_phase_offset_rad",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_lg_type",
       "community": 218,
-      "community_name": "phaseBalance.ts",
-      "norm_label": "phase_offset_rad"
+      "community_name": "lg",
+      "norm_label": "$type"
     },
     {
-      "label": "UNBALANCE_LIMIT_PCT",
+      "label": "$value",
       "file_type": "code",
-      "source_file": "src/lib/calculations/phaseBalance.ts",
-      "source_location": "L69",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L56",
       "_origin": "ast",
-      "id": "src_lib_calculations_phasebalance_unbalance_limit_pct",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_lg_value",
       "community": 218,
-      "community_name": "phaseBalance.ts",
-      "norm_label": "unbalance_limit_pct"
+      "community_name": "lg",
+      "norm_label": "$value"
+    },
+    {
+      "label": "lg",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L67",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_radius_lg",
+      "community": 218,
+      "community_name": "lg",
+      "norm_label": "lg"
+    },
+    {
+      "label": "lg",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L76",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_shadow_lg",
+      "community": 218,
+      "community_name": "lg",
+      "norm_label": "lg"
     },
     {
       "label": "skills/remotion-markup/remotion-maps/techniques/mapbox/references/render-stability.md",
@@ -67285,17 +67439,6 @@
       "norm_label": "$value"
     },
     {
-      "label": "lg",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L56",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_fontsize_lg",
-      "community": 31,
-      "community_name": "radius",
-      "norm_label": "lg"
-    },
-    {
       "label": "$type",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
@@ -67321,9 +67464,9 @@
       "label": "$type",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L56",
+      "source_location": "L63",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_lg_type",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_none_type",
       "community": 31,
       "community_name": "radius",
       "norm_label": "$type"
@@ -67332,9 +67475,9 @@
       "label": "$value",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L56",
+      "source_location": "L63",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_lg_value",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_none_value",
       "community": 31,
       "community_name": "radius",
       "norm_label": "$value"
@@ -67395,15 +67538,15 @@
       "norm_label": "full"
     },
     {
-      "label": "lg",
+      "label": "none",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L67",
+      "source_location": "L63",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_radius_lg",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_radius_none",
       "community": 31,
       "community_name": "radius",
-      "norm_label": "lg"
+      "norm_label": "none"
     },
     {
       "label": "default",
@@ -67417,15 +67560,15 @@
       "norm_label": "default"
     },
     {
-      "label": "lg",
+      "label": "none",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L76",
+      "source_location": "L72",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_shadow_lg",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_shadow_none",
       "community": 31,
       "community_name": "radius",
-      "norm_label": "lg"
+      "norm_label": "none"
     },
     {
       "label": "remotion-best-practices/remotion-markup/remotion-maps/techniques/cesium/scripts/prep-cesium-path.mjs",
@@ -71278,6 +71421,72 @@
       "norm_label": "landscape"
     },
     {
+      "label": "remotion-best-practices/remotion-maps/techniques/mapbox/references/render-stability.md",
+      "file_type": "document",
+      "source_file": ".agents/skills/remotion-best-practices/remotion-maps/techniques/mapbox/references/render-stability.md",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "agents_skills_remotion_best_practices_remotion_maps_techniques_mapbox_references_render_stability",
+      "community": 336,
+      "community_name": "remotion-best-practices/remotion-maps/techniques/mapbox/TECHNIQUE.md",
+      "norm_label": "remotion-best-practices/remotion-maps/techniques/mapbox/references/render-stability.md"
+    },
+    {
+      "label": "Moving Map Render Stability",
+      "file_type": "document",
+      "source_file": ".agents/skills/remotion-best-practices/remotion-maps/techniques/mapbox/references/render-stability.md",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "agents_skills_remotion_best_practices_remotion_maps_techniques_mapbox_references_render_stability_moving_map_render_stability",
+      "community": 336,
+      "community_name": "remotion-best-practices/remotion-maps/techniques/mapbox/TECHNIQUE.md",
+      "norm_label": "moving map render stability"
+    },
+    {
+      "label": "Plate sizing and sharpness",
+      "file_type": "document",
+      "source_file": ".agents/skills/remotion-best-practices/remotion-maps/techniques/mapbox/references/render-stability.md",
+      "source_location": "L50",
+      "_origin": "ast",
+      "id": "agents_skills_remotion_best_practices_remotion_maps_techniques_mapbox_references_render_stability_plate_sizing_and_sharpness",
+      "community": 336,
+      "community_name": "remotion-best-practices/remotion-maps/techniques/mapbox/TECHNIQUE.md",
+      "norm_label": "plate sizing and sharpness"
+    },
+    {
+      "label": "Required pattern: fixed map plate",
+      "file_type": "document",
+      "source_file": ".agents/skills/remotion-best-practices/remotion-maps/techniques/mapbox/references/render-stability.md",
+      "source_location": "L11",
+      "_origin": "ast",
+      "id": "agents_skills_remotion_best_practices_remotion_maps_techniques_mapbox_references_render_stability_required_pattern_fixed_map_plate",
+      "community": 336,
+      "community_name": "remotion-best-practices/remotion-maps/techniques/mapbox/TECHNIQUE.md",
+      "norm_label": "required pattern: fixed map plate"
+    },
+    {
+      "label": "Symptom and cause",
+      "file_type": "document",
+      "source_file": ".agents/skills/remotion-best-practices/remotion-maps/techniques/mapbox/references/render-stability.md",
+      "source_location": "L5",
+      "_origin": "ast",
+      "id": "agents_skills_remotion_best_practices_remotion_maps_techniques_mapbox_references_render_stability_symptom_and_cause",
+      "community": 336,
+      "community_name": "remotion-best-practices/remotion-maps/techniques/mapbox/TECHNIQUE.md",
+      "norm_label": "symptom and cause"
+    },
+    {
+      "label": "Verification",
+      "file_type": "document",
+      "source_file": ".agents/skills/remotion-best-practices/remotion-maps/techniques/mapbox/references/render-stability.md",
+      "source_location": "L59",
+      "_origin": "ast",
+      "id": "agents_skills_remotion_best_practices_remotion_maps_techniques_mapbox_references_render_stability_verification",
+      "community": 336,
+      "community_name": "remotion-best-practices/remotion-maps/techniques/mapbox/TECHNIQUE.md",
+      "norm_label": "verification"
+    },
+    {
       "label": "remotion-best-practices/remotion-maps/techniques/mapbox/TECHNIQUE.md",
       "file_type": "document",
       "source_file": ".agents/skills/remotion-best-practices/remotion-maps/techniques/mapbox/TECHNIQUE.md",
@@ -71386,6 +71595,72 @@
       "community": 336,
       "community_name": "remotion-best-practices/remotion-maps/techniques/mapbox/TECHNIQUE.md",
       "norm_label": "styles"
+    },
+    {
+      "label": "remotion-best-practices/remotion-maps/techniques/maplibre/references/render-stability.md",
+      "file_type": "document",
+      "source_file": ".agents/skills/remotion-best-practices/remotion-maps/techniques/maplibre/references/render-stability.md",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "agents_skills_remotion_best_practices_remotion_maps_techniques_maplibre_references_render_stability",
+      "community": 337,
+      "community_name": "remotion-best-practices/remotion-maps/techniques/maplibre/TECHNIQUE.md",
+      "norm_label": "remotion-best-practices/remotion-maps/techniques/maplibre/references/render-stability.md"
+    },
+    {
+      "label": "Moving Map Render Stability",
+      "file_type": "document",
+      "source_file": ".agents/skills/remotion-best-practices/remotion-maps/techniques/maplibre/references/render-stability.md",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "agents_skills_remotion_best_practices_remotion_maps_techniques_maplibre_references_render_stability_moving_map_render_stability",
+      "community": 337,
+      "community_name": "remotion-best-practices/remotion-maps/techniques/maplibre/TECHNIQUE.md",
+      "norm_label": "moving map render stability"
+    },
+    {
+      "label": "Plate sizing and sharpness",
+      "file_type": "document",
+      "source_file": ".agents/skills/remotion-best-practices/remotion-maps/techniques/maplibre/references/render-stability.md",
+      "source_location": "L50",
+      "_origin": "ast",
+      "id": "agents_skills_remotion_best_practices_remotion_maps_techniques_maplibre_references_render_stability_plate_sizing_and_sharpness",
+      "community": 337,
+      "community_name": "remotion-best-practices/remotion-maps/techniques/maplibre/TECHNIQUE.md",
+      "norm_label": "plate sizing and sharpness"
+    },
+    {
+      "label": "Required pattern: fixed map plate",
+      "file_type": "document",
+      "source_file": ".agents/skills/remotion-best-practices/remotion-maps/techniques/maplibre/references/render-stability.md",
+      "source_location": "L11",
+      "_origin": "ast",
+      "id": "agents_skills_remotion_best_practices_remotion_maps_techniques_maplibre_references_render_stability_required_pattern_fixed_map_plate",
+      "community": 337,
+      "community_name": "remotion-best-practices/remotion-maps/techniques/maplibre/TECHNIQUE.md",
+      "norm_label": "required pattern: fixed map plate"
+    },
+    {
+      "label": "Symptom and cause",
+      "file_type": "document",
+      "source_file": ".agents/skills/remotion-best-practices/remotion-maps/techniques/maplibre/references/render-stability.md",
+      "source_location": "L5",
+      "_origin": "ast",
+      "id": "agents_skills_remotion_best_practices_remotion_maps_techniques_maplibre_references_render_stability_symptom_and_cause",
+      "community": 337,
+      "community_name": "remotion-best-practices/remotion-maps/techniques/maplibre/TECHNIQUE.md",
+      "norm_label": "symptom and cause"
+    },
+    {
+      "label": "Verification",
+      "file_type": "document",
+      "source_file": ".agents/skills/remotion-best-practices/remotion-maps/techniques/maplibre/references/render-stability.md",
+      "source_location": "L59",
+      "_origin": "ast",
+      "id": "agents_skills_remotion_best_practices_remotion_maps_techniques_maplibre_references_render_stability_verification",
+      "community": 337,
+      "community_name": "remotion-best-practices/remotion-maps/techniques/maplibre/TECHNIQUE.md",
+      "norm_label": "verification"
     },
     {
       "label": "remotion-best-practices/remotion-maps/techniques/maplibre/TECHNIQUE.md",
@@ -74380,17 +74655,6 @@
       "norm_label": "design_system.py"
     },
     {
-      "label": "test_core.py",
-      "file_type": "code",
-      "source_file": ".agents/skills/ui-ux-pro-max/scripts/tests/test_core.py",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "agents_skills_ui_ux_pro_max_scripts_tests_test_core",
-      "community": 36,
-      "community_name": "design_system.py",
-      "norm_label": "test_core.py"
-    },
-    {
       "label": "Format a page-specific override file with intelligent AI-generated content.",
       "file_type": "rationale",
       "source_file": ".agents/skills/ui-ux-pro-max/scripts/design_system.py",
@@ -74466,39 +74730,6 @@
       "community": 36,
       "community_name": "design_system.py",
       "norm_label": "format design system as unicode box with ansi color swatches."
-    },
-    {
-      "label": "Format design system as markdown.",
-      "file_type": "rationale",
-      "source_file": ".agents/skills/ui-ux-pro-max/scripts/design_system.py",
-      "source_location": "L637",
-      "_origin": "ast",
-      "id": "agents_skills_ui_ux_pro_max_scripts_design_system_rationale_637",
-      "community": 36,
-      "community_name": "design_system.py",
-      "norm_label": "format design system as markdown."
-    },
-    {
-      "label": "Bucket a 1-10 dial value into its tier config. Returns None if value is None.",
-      "file_type": "rationale",
-      "source_file": ".agents/skills/ui-ux-pro-max/scripts/design_system.py",
-      "source_location": "L70",
-      "_origin": "ast",
-      "id": "agents_skills_ui_ux_pro_max_scripts_design_system_rationale_70",
-      "community": 36,
-      "community_name": "design_system.py",
-      "norm_label": "bucket a 1-10 dial value into its tier config. returns none if value is none."
-    },
-    {
-      "label": "Main entry point for design system generation. Args: query: Search query (e.g.,\u2026",
-      "file_type": "rationale",
-      "source_file": ".agents/skills/ui-ux-pro-max/scripts/design_system.py",
-      "source_location": "L780",
-      "_origin": "ast",
-      "id": "agents_skills_ui_ux_pro_max_scripts_design_system_rationale_780",
-      "community": 36,
-      "community_name": "design_system.py",
-      "norm_label": "main entry point for design system generation. args: query: search query (e.g.,..."
     },
     {
       "label": "Slugify a name into a single safe path segment. Only [a-z0-9_-] survives; every\u2026",
@@ -76118,81 +76349,48 @@
       "norm_label": "remotion video"
     },
     {
-      "label": "Build the flight",
-      "file_type": "document",
-      "source_file": ".agents/skills/remotion-best-practices/remotion-maps/techniques/cesium/TECHNIQUE.md",
-      "source_location": "L36",
+      "label": "padding-x",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L110",
       "_origin": "ast",
-      "id": "agents_skills_remotion_best_practices_remotion_maps_techniques_cesium_technique_build_the_flight",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_button_padding_x",
       "community": 378,
-      "community_name": "CesiumJS \u2014 3D flyovers in Remotion",
-      "norm_label": "build the flight"
+      "community_name": "padding-x",
+      "norm_label": "padding-x"
     },
     {
-      "label": "Camera behavior",
-      "file_type": "document",
-      "source_file": ".agents/skills/remotion-best-practices/remotion-maps/techniques/cesium/TECHNIQUE.md",
-      "source_location": "L58",
+      "label": "padding-x",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L119",
       "_origin": "ast",
-      "id": "agents_skills_remotion_best_practices_remotion_maps_techniques_cesium_technique_camera_behavior",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_input_padding_x",
       "community": 378,
-      "community_name": "CesiumJS \u2014 3D flyovers in Remotion",
-      "norm_label": "camera behavior"
+      "community_name": "padding-x",
+      "norm_label": "padding-x"
     },
     {
-      "label": "CesiumJS \u2014 3D flyovers in Remotion",
-      "file_type": "document",
-      "source_file": ".agents/skills/remotion-best-practices/remotion-maps/techniques/cesium/TECHNIQUE.md",
-      "source_location": "L1",
+      "label": "$type",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L110",
       "_origin": "ast",
-      "id": "agents_skills_remotion_best_practices_remotion_maps_techniques_cesium_technique_cesiumjs_3d_flyovers_in_remotion",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_padding_x_type",
       "community": 378,
-      "community_name": "CesiumJS \u2014 3D flyovers in Remotion",
-      "norm_label": "cesiumjs \u2014 3d flyovers in remotion"
+      "community_name": "padding-x",
+      "norm_label": "$type"
     },
     {
-      "label": "Credentials",
-      "file_type": "document",
-      "source_file": ".agents/skills/remotion-best-practices/remotion-maps/techniques/cesium/TECHNIQUE.md",
-      "source_location": "L15",
+      "label": "$value",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L110",
       "_origin": "ast",
-      "id": "agents_skills_remotion_best_practices_remotion_maps_techniques_cesium_technique_credentials",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_padding_x_value",
       "community": 378,
-      "community_name": "CesiumJS \u2014 3D flyovers in Remotion",
-      "norm_label": "credentials"
-    },
-    {
-      "label": "Files",
-      "file_type": "document",
-      "source_file": ".agents/skills/remotion-best-practices/remotion-maps/techniques/cesium/TECHNIQUE.md",
-      "source_location": "L81",
-      "_origin": "ast",
-      "id": "agents_skills_remotion_best_practices_remotion_maps_techniques_cesium_technique_files",
-      "community": 378,
-      "community_name": "CesiumJS \u2014 3D flyovers in Remotion",
-      "norm_label": "files"
-    },
-    {
-      "label": "Mechanics",
-      "file_type": "document",
-      "source_file": ".agents/skills/remotion-best-practices/remotion-maps/techniques/cesium/TECHNIQUE.md",
-      "source_location": "L68",
-      "_origin": "ast",
-      "id": "agents_skills_remotion_best_practices_remotion_maps_techniques_cesium_technique_mechanics",
-      "community": 378,
-      "community_name": "CesiumJS \u2014 3D flyovers in Remotion",
-      "norm_label": "mechanics"
-    },
-    {
-      "label": "Modes",
-      "file_type": "document",
-      "source_file": ".agents/skills/remotion-best-practices/remotion-maps/techniques/cesium/TECHNIQUE.md",
-      "source_location": "L5",
-      "_origin": "ast",
-      "id": "agents_skills_remotion_best_practices_remotion_maps_techniques_cesium_technique_modes",
-      "community": 378,
-      "community_name": "CesiumJS \u2014 3D flyovers in Remotion",
-      "norm_label": "modes"
+      "community_name": "padding-x",
+      "norm_label": "$value"
     },
     {
       "label": "$type",
@@ -76382,70 +76580,37 @@
       "norm_label": "check if the hardcoded value is in an allowed exception context."
     },
     {
-      "label": "[CesiumJS](techniques/cesium/TECHNIQUE.md)",
-      "file_type": "document",
-      "source_file": ".agents/skills/remotion-best-practices/remotion-maps/REFERENCE.md",
-      "source_location": "L33",
+      "label": "$type",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L50",
       "_origin": "ast",
-      "id": "agents_skills_remotion_best_practices_remotion_maps_reference_cesiumjs_techniques_cesium_technique_md",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_16_type",
       "community": 380,
-      "community_name": "Remotion Maps",
-      "norm_label": "[cesiumjs](techniques/cesium/technique.md)"
+      "community_name": "16",
+      "norm_label": "$type"
     },
     {
-      "label": "[Mapbox](techniques/mapbox/TECHNIQUE.md)",
-      "file_type": "document",
-      "source_file": ".agents/skills/remotion-best-practices/remotion-maps/REFERENCE.md",
-      "source_location": "L16",
+      "label": "$value",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L50",
       "_origin": "ast",
-      "id": "agents_skills_remotion_best_practices_remotion_maps_reference_mapbox_techniques_mapbox_technique_md",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_16_value",
       "community": 380,
-      "community_name": "Remotion Maps",
-      "norm_label": "[mapbox](techniques/mapbox/technique.md)"
+      "community_name": "16",
+      "norm_label": "$value"
     },
     {
-      "label": "[MapLibre](techniques/maplibre/TECHNIQUE.md)",
-      "file_type": "document",
-      "source_file": ".agents/skills/remotion-best-practices/remotion-maps/REFERENCE.md",
-      "source_location": "L23",
+      "label": "16",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L50",
       "_origin": "ast",
-      "id": "agents_skills_remotion_best_practices_remotion_maps_reference_maplibre_techniques_maplibre_technique_md",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_spacing_16",
       "community": 380,
-      "community_name": "Remotion Maps",
-      "norm_label": "[maplibre](techniques/maplibre/technique.md)"
-    },
-    {
-      "label": "[MapTiler](techniques/maptiler/TECHNIQUE.md)",
-      "file_type": "document",
-      "source_file": ".agents/skills/remotion-best-practices/remotion-maps/REFERENCE.md",
-      "source_location": "L28",
-      "_origin": "ast",
-      "id": "agents_skills_remotion_best_practices_remotion_maps_reference_maptiler_techniques_maptiler_technique_md",
-      "community": 380,
-      "community_name": "Remotion Maps",
-      "norm_label": "[maptiler](techniques/maptiler/technique.md)"
-    },
-    {
-      "label": "Remotion Maps",
-      "file_type": "document",
-      "source_file": ".agents/skills/remotion-best-practices/remotion-maps/REFERENCE.md",
-      "source_location": "L7",
-      "_origin": "ast",
-      "id": "agents_skills_remotion_best_practices_remotion_maps_reference_remotion_maps",
-      "community": 380,
-      "community_name": "Remotion Maps",
-      "norm_label": "remotion maps"
-    },
-    {
-      "label": "[Static map](techniques/static-map/TECHNIQUE.md)",
-      "file_type": "document",
-      "source_file": ".agents/skills/remotion-best-practices/remotion-maps/REFERENCE.md",
-      "source_location": "L12",
-      "_origin": "ast",
-      "id": "agents_skills_remotion_best_practices_remotion_maps_reference_static_map_techniques_static_map_technique_md",
-      "community": 380,
-      "community_name": "Remotion Maps",
-      "norm_label": "[static map](techniques/static-map/technique.md)"
+      "community_name": "16",
+      "norm_label": "16"
     },
     {
       "label": "remotion-best-practices/remotion-maps/techniques/maptiler/references/map-data-sources.md",
@@ -78890,70 +79055,37 @@
       "norm_label": "usage"
     },
     {
-      "label": "remotion-best-practices/remotion-maps/techniques/mapbox/references/render-stability.md",
-      "file_type": "document",
-      "source_file": ".agents/skills/remotion-best-practices/remotion-maps/techniques/mapbox/references/render-stability.md",
-      "source_location": "L1",
+      "label": "$type",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L46",
       "_origin": "ast",
-      "id": "agents_skills_remotion_best_practices_remotion_maps_techniques_mapbox_references_render_stability",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_6_type",
       "community": 414,
-      "community_name": "Moving Map Render Stability",
-      "norm_label": "remotion-best-practices/remotion-maps/techniques/mapbox/references/render-stability.md"
+      "community_name": "6",
+      "norm_label": "$type"
     },
     {
-      "label": "Moving Map Render Stability",
-      "file_type": "document",
-      "source_file": ".agents/skills/remotion-best-practices/remotion-maps/techniques/mapbox/references/render-stability.md",
-      "source_location": "L1",
+      "label": "$value",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L46",
       "_origin": "ast",
-      "id": "agents_skills_remotion_best_practices_remotion_maps_techniques_mapbox_references_render_stability_moving_map_render_stability",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_6_value",
       "community": 414,
-      "community_name": "Moving Map Render Stability",
-      "norm_label": "moving map render stability"
+      "community_name": "6",
+      "norm_label": "$value"
     },
     {
-      "label": "Plate sizing and sharpness",
-      "file_type": "document",
-      "source_file": ".agents/skills/remotion-best-practices/remotion-maps/techniques/mapbox/references/render-stability.md",
-      "source_location": "L50",
+      "label": "6",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L46",
       "_origin": "ast",
-      "id": "agents_skills_remotion_best_practices_remotion_maps_techniques_mapbox_references_render_stability_plate_sizing_and_sharpness",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_spacing_6",
       "community": 414,
-      "community_name": "Moving Map Render Stability",
-      "norm_label": "plate sizing and sharpness"
-    },
-    {
-      "label": "Required pattern: fixed map plate",
-      "file_type": "document",
-      "source_file": ".agents/skills/remotion-best-practices/remotion-maps/techniques/mapbox/references/render-stability.md",
-      "source_location": "L11",
-      "_origin": "ast",
-      "id": "agents_skills_remotion_best_practices_remotion_maps_techniques_mapbox_references_render_stability_required_pattern_fixed_map_plate",
-      "community": 414,
-      "community_name": "Moving Map Render Stability",
-      "norm_label": "required pattern: fixed map plate"
-    },
-    {
-      "label": "Symptom and cause",
-      "file_type": "document",
-      "source_file": ".agents/skills/remotion-best-practices/remotion-maps/techniques/mapbox/references/render-stability.md",
-      "source_location": "L5",
-      "_origin": "ast",
-      "id": "agents_skills_remotion_best_practices_remotion_maps_techniques_mapbox_references_render_stability_symptom_and_cause",
-      "community": 414,
-      "community_name": "Moving Map Render Stability",
-      "norm_label": "symptom and cause"
-    },
-    {
-      "label": "Verification",
-      "file_type": "document",
-      "source_file": ".agents/skills/remotion-best-practices/remotion-maps/techniques/mapbox/references/render-stability.md",
-      "source_location": "L59",
-      "_origin": "ast",
-      "id": "agents_skills_remotion_best_practices_remotion_maps_techniques_mapbox_references_render_stability_verification",
-      "community": 414,
-      "community_name": "Moving Map Render Stability",
-      "norm_label": "verification"
+      "community_name": "6",
+      "norm_label": "6"
     },
     {
       "label": "remotion-docs/SKILL.md",
@@ -80221,6 +80353,72 @@
       "norm_label": "remotion-best-practices/remotion-maps/reference.md"
     },
     {
+      "label": "[CesiumJS](techniques/cesium/TECHNIQUE.md)",
+      "file_type": "document",
+      "source_file": ".agents/skills/remotion-best-practices/remotion-maps/REFERENCE.md",
+      "source_location": "L33",
+      "_origin": "ast",
+      "id": "agents_skills_remotion_best_practices_remotion_maps_reference_cesiumjs_techniques_cesium_technique_md",
+      "community": 443,
+      "community_name": "remotion-best-practices/remotion-maps/REFERENCE.md",
+      "norm_label": "[cesiumjs](techniques/cesium/technique.md)"
+    },
+    {
+      "label": "[Mapbox](techniques/mapbox/TECHNIQUE.md)",
+      "file_type": "document",
+      "source_file": ".agents/skills/remotion-best-practices/remotion-maps/REFERENCE.md",
+      "source_location": "L16",
+      "_origin": "ast",
+      "id": "agents_skills_remotion_best_practices_remotion_maps_reference_mapbox_techniques_mapbox_technique_md",
+      "community": 443,
+      "community_name": "remotion-best-practices/remotion-maps/REFERENCE.md",
+      "norm_label": "[mapbox](techniques/mapbox/technique.md)"
+    },
+    {
+      "label": "[MapLibre](techniques/maplibre/TECHNIQUE.md)",
+      "file_type": "document",
+      "source_file": ".agents/skills/remotion-best-practices/remotion-maps/REFERENCE.md",
+      "source_location": "L23",
+      "_origin": "ast",
+      "id": "agents_skills_remotion_best_practices_remotion_maps_reference_maplibre_techniques_maplibre_technique_md",
+      "community": 443,
+      "community_name": "remotion-best-practices/remotion-maps/REFERENCE.md",
+      "norm_label": "[maplibre](techniques/maplibre/technique.md)"
+    },
+    {
+      "label": "[MapTiler](techniques/maptiler/TECHNIQUE.md)",
+      "file_type": "document",
+      "source_file": ".agents/skills/remotion-best-practices/remotion-maps/REFERENCE.md",
+      "source_location": "L28",
+      "_origin": "ast",
+      "id": "agents_skills_remotion_best_practices_remotion_maps_reference_maptiler_techniques_maptiler_technique_md",
+      "community": 443,
+      "community_name": "remotion-best-practices/remotion-maps/REFERENCE.md",
+      "norm_label": "[maptiler](techniques/maptiler/technique.md)"
+    },
+    {
+      "label": "Remotion Maps",
+      "file_type": "document",
+      "source_file": ".agents/skills/remotion-best-practices/remotion-maps/REFERENCE.md",
+      "source_location": "L7",
+      "_origin": "ast",
+      "id": "agents_skills_remotion_best_practices_remotion_maps_reference_remotion_maps",
+      "community": 443,
+      "community_name": "remotion-best-practices/remotion-maps/REFERENCE.md",
+      "norm_label": "remotion maps"
+    },
+    {
+      "label": "[Static map](techniques/static-map/TECHNIQUE.md)",
+      "file_type": "document",
+      "source_file": ".agents/skills/remotion-best-practices/remotion-maps/REFERENCE.md",
+      "source_location": "L12",
+      "_origin": "ast",
+      "id": "agents_skills_remotion_best_practices_remotion_maps_reference_static_map_techniques_static_map_technique_md",
+      "community": 443,
+      "community_name": "remotion-best-practices/remotion-maps/REFERENCE.md",
+      "norm_label": "[static map](techniques/static-map/technique.md)"
+    },
+    {
       "label": "remotion-best-practices/remotion-maps/techniques/cesium/TECHNIQUE.md",
       "file_type": "document",
       "source_file": ".agents/skills/remotion-best-practices/remotion-maps/techniques/cesium/TECHNIQUE.md",
@@ -80230,6 +80428,83 @@
       "community": 443,
       "community_name": "remotion-best-practices/remotion-maps/REFERENCE.md",
       "norm_label": "remotion-best-practices/remotion-maps/techniques/cesium/technique.md"
+    },
+    {
+      "label": "Build the flight",
+      "file_type": "document",
+      "source_file": ".agents/skills/remotion-best-practices/remotion-maps/techniques/cesium/TECHNIQUE.md",
+      "source_location": "L36",
+      "_origin": "ast",
+      "id": "agents_skills_remotion_best_practices_remotion_maps_techniques_cesium_technique_build_the_flight",
+      "community": 443,
+      "community_name": "remotion-best-practices/remotion-maps/REFERENCE.md",
+      "norm_label": "build the flight"
+    },
+    {
+      "label": "Camera behavior",
+      "file_type": "document",
+      "source_file": ".agents/skills/remotion-best-practices/remotion-maps/techniques/cesium/TECHNIQUE.md",
+      "source_location": "L58",
+      "_origin": "ast",
+      "id": "agents_skills_remotion_best_practices_remotion_maps_techniques_cesium_technique_camera_behavior",
+      "community": 443,
+      "community_name": "remotion-best-practices/remotion-maps/REFERENCE.md",
+      "norm_label": "camera behavior"
+    },
+    {
+      "label": "CesiumJS \u2014 3D flyovers in Remotion",
+      "file_type": "document",
+      "source_file": ".agents/skills/remotion-best-practices/remotion-maps/techniques/cesium/TECHNIQUE.md",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "agents_skills_remotion_best_practices_remotion_maps_techniques_cesium_technique_cesiumjs_3d_flyovers_in_remotion",
+      "community": 443,
+      "community_name": "remotion-best-practices/remotion-maps/REFERENCE.md",
+      "norm_label": "cesiumjs \u2014 3d flyovers in remotion"
+    },
+    {
+      "label": "Credentials",
+      "file_type": "document",
+      "source_file": ".agents/skills/remotion-best-practices/remotion-maps/techniques/cesium/TECHNIQUE.md",
+      "source_location": "L15",
+      "_origin": "ast",
+      "id": "agents_skills_remotion_best_practices_remotion_maps_techniques_cesium_technique_credentials",
+      "community": 443,
+      "community_name": "remotion-best-practices/remotion-maps/REFERENCE.md",
+      "norm_label": "credentials"
+    },
+    {
+      "label": "Files",
+      "file_type": "document",
+      "source_file": ".agents/skills/remotion-best-practices/remotion-maps/techniques/cesium/TECHNIQUE.md",
+      "source_location": "L81",
+      "_origin": "ast",
+      "id": "agents_skills_remotion_best_practices_remotion_maps_techniques_cesium_technique_files",
+      "community": 443,
+      "community_name": "remotion-best-practices/remotion-maps/REFERENCE.md",
+      "norm_label": "files"
+    },
+    {
+      "label": "Mechanics",
+      "file_type": "document",
+      "source_file": ".agents/skills/remotion-best-practices/remotion-maps/techniques/cesium/TECHNIQUE.md",
+      "source_location": "L68",
+      "_origin": "ast",
+      "id": "agents_skills_remotion_best_practices_remotion_maps_techniques_cesium_technique_mechanics",
+      "community": 443,
+      "community_name": "remotion-best-practices/remotion-maps/REFERENCE.md",
+      "norm_label": "mechanics"
+    },
+    {
+      "label": "Modes",
+      "file_type": "document",
+      "source_file": ".agents/skills/remotion-best-practices/remotion-maps/techniques/cesium/TECHNIQUE.md",
+      "source_location": "L5",
+      "_origin": "ast",
+      "id": "agents_skills_remotion_best_practices_remotion_maps_techniques_cesium_technique_modes",
+      "community": 443,
+      "community_name": "remotion-best-practices/remotion-maps/REFERENCE.md",
+      "norm_label": "modes"
     },
     {
       "label": "remotion-best-practices/remotion-maps/techniques/maptiler/TECHNIQUE.md",
@@ -80285,270 +80560,6 @@
       "community": 443,
       "community_name": "remotion-best-practices/remotion-maps/REFERENCE.md",
       "norm_label": "static map"
-    },
-    {
-      "label": "remotion-best-practices/remotion-maps/techniques/maplibre/references/render-stability.md",
-      "file_type": "document",
-      "source_file": ".agents/skills/remotion-best-practices/remotion-maps/techniques/maplibre/references/render-stability.md",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "agents_skills_remotion_best_practices_remotion_maps_techniques_maplibre_references_render_stability",
-      "community": 444,
-      "community_name": "Moving Map Render Stability",
-      "norm_label": "remotion-best-practices/remotion-maps/techniques/maplibre/references/render-stability.md"
-    },
-    {
-      "label": "Moving Map Render Stability",
-      "file_type": "document",
-      "source_file": ".agents/skills/remotion-best-practices/remotion-maps/techniques/maplibre/references/render-stability.md",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "agents_skills_remotion_best_practices_remotion_maps_techniques_maplibre_references_render_stability_moving_map_render_stability",
-      "community": 444,
-      "community_name": "Moving Map Render Stability",
-      "norm_label": "moving map render stability"
-    },
-    {
-      "label": "Plate sizing and sharpness",
-      "file_type": "document",
-      "source_file": ".agents/skills/remotion-best-practices/remotion-maps/techniques/maplibre/references/render-stability.md",
-      "source_location": "L50",
-      "_origin": "ast",
-      "id": "agents_skills_remotion_best_practices_remotion_maps_techniques_maplibre_references_render_stability_plate_sizing_and_sharpness",
-      "community": 444,
-      "community_name": "Moving Map Render Stability",
-      "norm_label": "plate sizing and sharpness"
-    },
-    {
-      "label": "Required pattern: fixed map plate",
-      "file_type": "document",
-      "source_file": ".agents/skills/remotion-best-practices/remotion-maps/techniques/maplibre/references/render-stability.md",
-      "source_location": "L11",
-      "_origin": "ast",
-      "id": "agents_skills_remotion_best_practices_remotion_maps_techniques_maplibre_references_render_stability_required_pattern_fixed_map_plate",
-      "community": 444,
-      "community_name": "Moving Map Render Stability",
-      "norm_label": "required pattern: fixed map plate"
-    },
-    {
-      "label": "Symptom and cause",
-      "file_type": "document",
-      "source_file": ".agents/skills/remotion-best-practices/remotion-maps/techniques/maplibre/references/render-stability.md",
-      "source_location": "L5",
-      "_origin": "ast",
-      "id": "agents_skills_remotion_best_practices_remotion_maps_techniques_maplibre_references_render_stability_symptom_and_cause",
-      "community": 444,
-      "community_name": "Moving Map Render Stability",
-      "norm_label": "symptom and cause"
-    },
-    {
-      "label": "Verification",
-      "file_type": "document",
-      "source_file": ".agents/skills/remotion-best-practices/remotion-maps/techniques/maplibre/references/render-stability.md",
-      "source_location": "L59",
-      "_origin": "ast",
-      "id": "agents_skills_remotion_best_practices_remotion_maps_techniques_maplibre_references_render_stability_verification",
-      "community": 444,
-      "community_name": "Moving Map Render Stability",
-      "norm_label": "verification"
-    },
-    {
-      "label": "padding-y",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L111",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_button_padding_y",
-      "community": 445,
-      "community_name": "padding-y",
-      "norm_label": "padding-y"
-    },
-    {
-      "label": "padding-y",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L120",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_input_padding_y",
-      "community": 445,
-      "community_name": "padding-y",
-      "norm_label": "padding-y"
-    },
-    {
-      "label": "$type",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L111",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_padding_y_type",
-      "community": 445,
-      "community_name": "padding-y",
-      "norm_label": "$type"
-    },
-    {
-      "label": "$value",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L111",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_padding_y_value",
-      "community": 445,
-      "community_name": "padding-y",
-      "norm_label": "$value"
-    },
-    {
-      "label": "$type",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L63",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_none_type",
-      "community": 446,
-      "community_name": "none",
-      "norm_label": "$type"
-    },
-    {
-      "label": "$value",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L63",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_none_value",
-      "community": 446,
-      "community_name": "none",
-      "norm_label": "$value"
-    },
-    {
-      "label": "none",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L63",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_radius_none",
-      "community": 446,
-      "community_name": "none",
-      "norm_label": "none"
-    },
-    {
-      "label": "none",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L72",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_shadow_none",
-      "community": 446,
-      "community_name": "none",
-      "norm_label": "none"
-    },
-    {
-      "label": "remotion-best-practices/remotion-markup/images.md",
-      "file_type": "document",
-      "source_file": ".agents/skills/remotion-best-practices/remotion-markup/images.md",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "agents_skills_remotion_best_practices_remotion_markup_images",
-      "community": 447,
-      "community_name": "remotion-best-practices/remotion-markup/images.md",
-      "norm_label": "remotion-best-practices/remotion-markup/images.md"
-    },
-    {
-      "label": "Dynamic image paths",
-      "file_type": "document",
-      "source_file": ".agents/skills/remotion-best-practices/remotion-markup/images.md",
-      "source_location": "L19",
-      "_origin": "ast",
-      "id": "agents_skills_remotion_best_practices_remotion_markup_images_dynamic_image_paths",
-      "community": 447,
-      "community_name": "remotion-best-practices/remotion-markup/images.md",
-      "norm_label": "dynamic image paths"
-    },
-    {
-      "label": "Getting image dimensions",
-      "file_type": "document",
-      "source_file": ".agents/skills/remotion-best-practices/remotion-markup/images.md",
-      "source_location": "L47",
-      "_origin": "ast",
-      "id": "agents_skills_remotion_best_practices_remotion_markup_images_getting_image_dimensions",
-      "community": 447,
-      "community_name": "remotion-best-practices/remotion-markup/images.md",
-      "norm_label": "getting image dimensions"
-    },
-    {
-      "label": "Sizing and positioning",
-      "file_type": "document",
-      "source_file": ".agents/skills/remotion-best-practices/remotion-markup/images.md",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "agents_skills_remotion_best_practices_remotion_markup_images_sizing_and_positioning",
-      "community": 447,
-      "community_name": "remotion-best-practices/remotion-markup/images.md",
-      "norm_label": "sizing and positioning"
-    },
-    {
-      "label": "$type",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L49",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_12_type",
-      "community": 448,
-      "community_name": "12",
-      "norm_label": "$type"
-    },
-    {
-      "label": "$value",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L49",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_12_value",
-      "community": 448,
-      "community_name": "12",
-      "norm_label": "$value"
-    },
-    {
-      "label": "12",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L49",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_spacing_12",
-      "community": 448,
-      "community_name": "12",
-      "norm_label": "12"
-    },
-    {
-      "label": "$type",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L42",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_2_type",
-      "community": 449,
-      "community_name": "2",
-      "norm_label": "$type"
-    },
-    {
-      "label": "$value",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L42",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_2_value",
-      "community": 449,
-      "community_name": "2",
-      "norm_label": "$value"
-    },
-    {
-      "label": "2",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L42",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_spacing_2",
-      "community": 449,
-      "community_name": "2",
-      "norm_label": "2"
     },
     {
       "label": "prismaNamespaceBrowser.ts",
@@ -81071,9 +81082,9 @@
       "label": "$type",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L50",
+      "source_location": "L49",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_16_type",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_12_type",
       "community": 47,
       "community_name": "spacing",
       "norm_label": "$type"
@@ -81082,9 +81093,9 @@
       "label": "$value",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L50",
+      "source_location": "L49",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_16_value",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_12_value",
       "community": 47,
       "community_name": "spacing",
       "norm_label": "$value"
@@ -81107,6 +81118,28 @@
       "source_location": "L41",
       "_origin": "ast",
       "id": "agents_skills_design_system_templates_design_tokens_starter_1_value",
+      "community": 47,
+      "community_name": "spacing",
+      "norm_label": "$value"
+    },
+    {
+      "label": "$type",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L42",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_2_type",
+      "community": 47,
+      "community_name": "spacing",
+      "norm_label": "$type"
+    },
+    {
+      "label": "$value",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L42",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_2_value",
       "community": 47,
       "community_name": "spacing",
       "norm_label": "$value"
@@ -81178,28 +81211,6 @@
       "norm_label": "$value"
     },
     {
-      "label": "$type",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L46",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_6_type",
-      "community": 47,
-      "community_name": "spacing",
-      "norm_label": "$type"
-    },
-    {
-      "label": "$value",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L46",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_6_value",
-      "community": 47,
-      "community_name": "spacing",
-      "norm_label": "$value"
-    },
-    {
       "label": "spacing",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
@@ -81233,15 +81244,26 @@
       "norm_label": "10"
     },
     {
-      "label": "16",
+      "label": "12",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L50",
+      "source_location": "L49",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_spacing_16",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_spacing_12",
       "community": 47,
       "community_name": "spacing",
-      "norm_label": "16"
+      "norm_label": "12"
+    },
+    {
+      "label": "2",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L42",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_spacing_2",
+      "community": 47,
+      "community_name": "spacing",
+      "norm_label": "2"
     },
     {
       "label": "3",
@@ -81275,17 +81297,6 @@
       "community": 47,
       "community_name": "spacing",
       "norm_label": "5"
-    },
-    {
-      "label": "6",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L46",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_spacing_6",
-      "community": 47,
-      "community_name": "spacing",
-      "norm_label": "6"
     },
     {
       "label": "tailwind_config_gen.py",
@@ -81495,6 +81506,17 @@
       "community": 49,
       "community_name": "DesignSystemGenerator",
       "norm_label": "generate complete design system recommendation. variance/motion/density are..."
+    },
+    {
+      "label": "Bucket a 1-10 dial value into its tier config. Returns None if value is None.",
+      "file_type": "rationale",
+      "source_file": ".agents/skills/ui-ux-pro-max/scripts/design_system.py",
+      "source_location": "L70",
+      "_origin": "ast",
+      "id": "agents_skills_ui_ux_pro_max_scripts_design_system_rationale_70",
+      "community": 49,
+      "community_name": "DesignSystemGenerator",
+      "norm_label": "bucket a 1-10 dial value into its tier config. returns none if value is none."
     },
     {
       "label": "LoadLibraryItem.ts",
@@ -85457,39 +85479,6 @@
       "norm_label": "project"
     },
     {
-      "label": "feeders.test.ts",
-      "file_type": "code",
-      "source_file": "src/lib/calculations/feeders.test.ts",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "src_lib_calculations_feeders_test",
-      "community": 99,
-      "community_name": "types/index.ts",
-      "norm_label": "feeders.test.ts"
-    },
-    {
-      "label": "baseProject",
-      "file_type": "code",
-      "source_file": "src/lib/calculations/feeders.test.ts",
-      "source_location": "L22",
-      "_origin": "ast",
-      "id": "src_lib_calculations_feeders_test_baseproject",
-      "community": 99,
-      "community_name": "types/index.ts",
-      "norm_label": "baseproject"
-    },
-    {
-      "label": "equipment",
-      "file_type": "code",
-      "source_file": "src/lib/calculations/feeders.test.ts",
-      "source_location": "L10",
-      "_origin": "ast",
-      "id": "src_lib_calculations_feeders_test_equipment",
-      "community": 99,
-      "community_name": "types/index.ts",
-      "norm_label": "equipment"
-    },
-    {
       "label": "integration-multibuilding.test.ts",
       "file_type": "code",
       "source_file": "src/lib/calculations/integration-multibuilding.test.ts",
@@ -85589,6 +85578,28 @@
       "norm_label": "project"
     },
     {
+      "label": "phaseBalance.ts",
+      "file_type": "code",
+      "source_file": "src/lib/calculations/phaseBalance.ts",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_lib_calculations_phasebalance",
+      "community": 99,
+      "community_name": "types/index.ts",
+      "norm_label": "phasebalance.ts"
+    },
+    {
+      "label": "PHASE_OFFSET_RAD",
+      "file_type": "code",
+      "source_file": "src/lib/calculations/phaseBalance.ts",
+      "source_location": "L54",
+      "_origin": "ast",
+      "id": "src_lib_calculations_phasebalance_phase_offset_rad",
+      "community": 99,
+      "community_name": "types/index.ts",
+      "norm_label": "phase_offset_rad"
+    },
+    {
       "label": "phaseBalance.test.ts",
       "file_type": "code",
       "source_file": "src/lib/calculations/phaseBalance.test.ts",
@@ -85598,6 +85609,17 @@
       "community": 99,
       "community_name": "types/index.ts",
       "norm_label": "phasebalance.test.ts"
+    },
+    {
+      "label": "UNBALANCE_LIMIT_PCT",
+      "file_type": "code",
+      "source_file": "src/lib/calculations/phaseBalance.ts",
+      "source_location": "L69",
+      "_origin": "ast",
+      "id": "src_lib_calculations_phasebalance_unbalance_limit_pct",
+      "community": 99,
+      "community_name": "types/index.ts",
+      "norm_label": "unbalance_limit_pct"
     },
     {
       "label": "riser.ts",
@@ -85631,28 +85653,6 @@
       "community": 99,
       "community_name": "types/index.ts",
       "norm_label": "proj"
-    },
-    {
-      "label": "excel.test.ts",
-      "file_type": "code",
-      "source_file": "src/lib/reports/excel.test.ts",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "src_lib_reports_excel_test",
-      "community": 99,
-      "community_name": "types/index.ts",
-      "norm_label": "excel.test.ts"
-    },
-    {
-      "label": "baseProject",
-      "file_type": "code",
-      "source_file": "src/lib/reports/excel.test.ts",
-      "source_location": "L22",
-      "_origin": "ast",
-      "id": "src_lib_reports_excel_test_baseproject",
-      "community": 99,
-      "community_name": "types/index.ts",
-      "norm_label": "baseproject"
     },
     {
       "label": "types/index.ts",
@@ -98180,7 +98180,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/components/report/VDSchedule.tsx",
-      "source_location": "L194",
+      "source_location": "L193",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_components_report_vdschedule_vdschedule",
@@ -98192,7 +98192,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/components/report/VDSchedule.tsx",
-      "source_location": "L278",
+      "source_location": "L277",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_components_report_vdschedule_vdschedule",
@@ -98204,7 +98204,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/components/report/VDSchedule.tsx",
-      "source_location": "L293",
+      "source_location": "L292",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_components_report_vdschedule_vdschedule",
@@ -98216,7 +98216,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/components/report/VDSchedule.tsx",
-      "source_location": "L301",
+      "source_location": "L300",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_components_report_vdschedule_vdschedule",
@@ -98228,7 +98228,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/components/report/VDSchedule.tsx",
-      "source_location": "L307",
+      "source_location": "L306",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_components_report_vdschedule_vdschedule",
@@ -114672,18 +114672,6 @@
       "_origin": "ast",
       "source": "src_components_report_bomschedule",
       "target": "src_lib_calculations_cables_getitemcablelength",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/components/report/BOMSchedule.tsx",
-      "source_location": "L4",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "src_components_report_bomschedule",
-      "target": "src_lib_calculations_cables_getrisercablelength",
       "confidence_score": 1.0
     },
     {

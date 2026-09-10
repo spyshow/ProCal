@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
-import { parseMm2, getItemCableLength, getBuildingLoadCableLength, formatCableSizeFor } from '@/lib/calculations/cables';
+import { parseMm2, getItemCableLength, getBuildingLoadCableLength, getRiserCableLength, formatCableSizeFor } from '@/lib/calculations/cables';
 import { computeFeeders, createFindBreaker } from '@/lib/calculations/feeders';
 import { useEquipmentCatalog } from '@/hooks/useEquipmentCatalog';
 import type { FloorItem, Project, FallbackType, GenericBreakerSpec } from '@/types';
@@ -120,23 +120,31 @@ export default function BOMSchedule({ project, buildingId, showHeader = true }: 
 
     // Aggregate Cables differentiating 2-core (1-phase) and 4-core (3-phase)
     const cableBOM: Record<string, CableBOMItem> = {};
-    for (const item of allItems) {
-      const sizeNum = parseMm2(item.cableSize) ?? 4;
-      const phase = item.type === 'APARTMENT'
-        ? (item.apartmentTemplate?.phases ?? 1)
-        : item.loadLibraryItem
-        ? item.loadLibraryItem.phase
-        : (item as any).phases ?? (item as any).phase ?? 3;
-      const cores = phase === 1 ? 2 : 4;
-      const key = `${cores}C-${sizeNum}`;
-      const sizeLabel = `${cores}C × ${formatCableSizeFor(sizeNum, project.calculationStandard)}`;
 
+    const addCable = (
+      cableSize: number,
+      isThreePhase: boolean,
+      length: number,
+      runs: number = 1
+    ) => {
+      if (!cableSize || cableSize <= 0) return;
+      const cores = isThreePhase ? 4 : 2;
+      const key = `${cores}C-${cableSize}`;
+      const sizeLabel = `${cores}C × ${formatCableSizeFor(cableSize, project.calculationStandard)}`;
       if (!cableBOM[key]) {
-        cableBOM[key] = { key, sizeNum, cores, phase, sizeLabel, length: 0, count: 0 };
+        cableBOM[key] = {
+          key,
+          sizeNum: cableSize,
+          cores,
+          phase: isThreePhase ? 3 : 1,
+          sizeLabel,
+          length: 0,
+          count: 0,
+        };
       }
-      cableBOM[key].length += getItemCableLength(item, item.floor);
-      cableBOM[key].count += 1;
-    }
+      cableBOM[key].length += length * (runs || 1);
+      cableBOM[key].count += (runs || 1);
+    };
 
     // Aggregate Breakers with real catalog & fallback model details
     const breakerMap = new Map<string, BreakerBOMItem>();
@@ -153,16 +161,10 @@ export default function BOMSchedule({ project, buildingId, showHeader = true }: 
         mainParallelRuns,
       } = computeFeeders(bldg, project, findBreaker);
 
-      // 1. Process Main Incoming Supply Feeder Cable (typically 20m from transformer to MDB)
+      // 1. Process Main Incoming Supply Feeder Cable
       if (mainCableSize > 0) {
-        const cores = 4;
-        const key = `${cores}C-${mainCableSize}`;
-        const sizeLabel = `${cores}C × ${formatCableSizeFor(mainCableSize, project.calculationStandard)}`;
-        if (!cableBOM[key]) {
-          cableBOM[key] = { key, sizeNum: mainCableSize, cores, phase: 3, sizeLabel, length: 0, count: 0 };
-        }
-        cableBOM[key].length += 20 * (mainParallelRuns || 1);
-        cableBOM[key].count += (mainParallelRuns || 1);
+        const incomerLen = bldg.incomerCableLength ?? 20;
+        addCable(mainCableSize, true, incomerLen, mainParallelRuns);
       }
 
       const processFeeder = (f: { breakerSize: number; isThreePhase: boolean; type: string; breakerModel: string; manufacturer: string | null; fallbackType?: FallbackType; genericSpec?: GenericBreakerSpec }) => {
@@ -244,13 +246,36 @@ export default function BOMSchedule({ project, buildingId, showHeader = true }: 
         const saved = breakerSettings.find((s) => s.breakerId === stableId);
         const effectiveModel = resolveBreakerDisplayName(saved?.model, f.breakerModel);
         processFeeder({ ...f, breakerModel: effectiveModel });
+
+        // Add to Cable BOM
+        let cableLen = 20;
+        if (f.type === 'SMDB') {
+          const matchFloor = f.floorDesignId
+            ? bldg.floorDesigns.find((fd) => fd.id === f.floorDesignId)
+            : undefined;
+          cableLen = getRiserCableLength(matchFloor, matchFloor?.floorNumber ?? 1);
+        } else if (f.buildingLoadId) {
+          const matchBl = (bldg.buildingLoads || []).find((bl) => bl.id === f.buildingLoadId);
+          cableLen = matchBl ? getBuildingLoadCableLength(matchBl) : 20;
+        } else if (f.itemId) {
+          const matchFd = bldg.floorDesigns.find((fd) => fd.items.some((it) => it.id === f.itemId));
+          const matchItem = matchFd?.items.find((it) => it.id === f.itemId);
+          cableLen = matchItem && matchFd ? getItemCableLength(matchItem, matchFd.floorNumber) : 20;
+        }
+        addCable(f.cableSize, f.isThreePhase, cableLen, f.parallelRuns);
       }
+
       for (const fl of smdbFloorNumbers) {
+        const matchFd = bldg.floorDesigns.find((fd) => fd.floorNumber === fl);
         for (const f of smdbFeeders(fl)) {
           const stableId = `${project.id}-${f.name}`;
           const saved = breakerSettings.find((s) => s.breakerId === stableId);
           const effectiveModel = resolveBreakerDisplayName(saved?.model, f.breakerModel);
           processFeeder({ ...f, breakerModel: effectiveModel });
+
+          const matchItem = matchFd?.items.find((it) => it.id === f.itemId || f.name.includes(it.name));
+          const cableLen = matchItem ? getItemCableLength(matchItem, fl) : (10 + (fl - 1) * 5);
+          addCable(f.cableSize, f.isThreePhase, cableLen, f.parallelRuns);
         }
       }
     }

@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { verifyProjectAccess } from "@/lib/project-auth";
 import { errorResponse } from "@/lib/api-errors";
-import { getApartmentDiversityFactor } from "@/lib/calculations/loads";
+import { getBuildingDiversityFactor } from "@/lib/calculations/loads";
 import { ENGINE_VERSION } from "@/lib/calculations/version";
 
 export async function POST(
@@ -42,9 +42,9 @@ export async function POST(
       include: { apartmentTemplate: { include: { rooms: true } } },
     });
 
-    // Apply IEC diversity factor based on total apartment count in building.
+    // Apply IEC diversity factor based on total count and building occupancy.
     const apartmentCount = items.length;
-    const diversityFactor = getApartmentDiversityFactor(apartmentCount);
+    const diversityFactor = getBuildingDiversityFactor(apartmentCount, building.name);
 
     const updates = [];
     for (const item of items) {

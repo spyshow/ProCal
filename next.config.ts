@@ -17,6 +17,7 @@ const cspHeader = `
 `.replace(/\s{2,}/g, " ").trim();
 
 const nextConfig: NextConfig = {
+  serverExternalPackages: ['@sparticuz/chromium', 'puppeteer-core'],
   images: {
     formats: ['image/avif', 'image/webp'],
   },

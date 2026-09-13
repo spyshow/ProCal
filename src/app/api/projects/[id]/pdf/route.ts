@@ -120,8 +120,9 @@ export async function GET(
     });
   } catch (error) {
     console.error("GET /api/projects/[id]/pdf Error:", error);
+    const message = error instanceof Error ? error.message : String(error);
     return NextResponse.json(
-      { error: "Failed to generate server PDF package" },
+      { error: "Failed to generate server PDF package", details: message },
       { status: 500 }
     );
   }

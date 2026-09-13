@@ -1,16 +1,16 @@
 # Graph Report - ProCal  (2026-09-13)
 
 ## Corpus Check
-- 715 files · ~983,815 words
+- 460 files · ~663,856 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 7422 nodes · 10626 edges · 443 communities (315 shown, 128 thin omitted)
-- Extraction: 100% EXTRACTED · 0% INFERRED · 0% AMBIGUOUS · INFERRED: 47 edges (avg confidence: 0.72)
+- 5843 nodes · 8858 edges · 316 communities (196 shown, 120 thin omitted)
+- Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 46 edges (avg confidence: 0.72)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `4d33574b`
+- Built from commit: `bad97581`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -43,20 +43,20 @@
 - app/page.tsx
 - ProCal End-to-End Verification — Hermes Verification / 3 Buildings
 - installationMethods.ts
-- db
+- db.ts
 - ProjectRevision.ts
 - requireAdmin
 - radius
 - TestTailwindConfigGenerator
 - 3. Section 1: Electrical Calculations & Standards Audit
 - verifyProjectAccess
-- Root.tsx
+- CalculationTracePopover.tsx
 - design_system.py
 - compilerOptions
 - html-token-validator.py
 - ProjectAuditLog.ts
-- intro-video/package.json
-- country-defaults.ts
+- cable-schedule/page.tsx
+- app-settings.ts
 - ProCal Dual-Tier Deployment Guide
 - BM25
 - search
@@ -113,8 +113,8 @@
 - Prisma__ProjectClient
 - logo/generate.py
 - generate-tokens.cjs
-- feeders.ts
-- seed.ts
+- types/index.ts
+- breakers/[id]/route.ts
 - duration
 - ._base_config
 - users/page.tsx
@@ -142,16 +142,16 @@
 - Prisma__FloorDesignClient
 - Prisma__UserClient
 - shadcn/ui Accessibility Patterns
-- remotion-markup/SKILL.md
+- import/route.ts
 - cables.ts
-- remotion-markup/REFERENCE.md
+- seed.ts
 - trace-engine.ts
 - ProjectMember.ts
-- selectivity.ts
+- breaker-schedule/page.tsx
 - leads/page.tsx
 - admin/page.tsx
 - LoadManager.tsx
-- RoomInput.tsx
+- country-defaults.ts
 - .test_add_components_no_components
 - Prisma__ApartmentRoomClient
 - Prisma__ContactRequestClient
@@ -178,9 +178,9 @@
 - ProCal Comprehensive Engineering Code, Electrical Standards & Usability Audit Report
 - States and Variants
 - Prisma__AppSettingClient
-- Using calculateMetadata
-- reports/page.tsx
-- skills/remotion-markup/remotion-maps/REFERENCE.md
+- floor-items/[id]/route.ts
+- feeders.ts
+- seed-test-project.ts
 - input
 - aggregates.ts
 - .__init__
@@ -196,7 +196,7 @@
 - Multi-Skill Orchestration Workflows
 - Color Accessibility & Contrast Rules
 - Design System
-- db.ts
+- profile/route.ts
 - motion-icons-react
 - ProjectRevisionDelegate
 - .test_init_dry_run
@@ -228,40 +228,39 @@
 - Acceptance Criteria
 - ProjectMemberDelegate
 - ProjectReviewItemDelegate
-- destructive
+- db-ssl.ts
 - zod
-- remotion-best-practices/remotion-maps/techniques/maptiler/assets/RiverReveal.tsx
+- audit-logs/route.ts
+- padding-x
 - lg
 - sm
 - deriveOnePhaseTable
 - @microsoft/clarity
 - postinstall.js
-- remotion-best-practices/remotion-markup/remotion-maps/techniques/maptiler/assets/RiverReveal.tsx
+- md
 - next
-- skills/remotion-maps/techniques/maptiler/assets/RiverReveal.tsx
-- CesiumJS — 3D flyovers in Remotion
-- remotion-best-practices/remotion-markup/remotion-maps/REFERENCE.md
+- 6
+- primary
+- bcryptjs
 - xl
 - Prisma__ProjectAuditLogClient
 - @radix-ui/react-tabs
-- padding-y
+- framer-motion
 - Prisma__ProjectInviteClient
 - Prisma__ProjectMemberClient
-- skills/remotion-markup/remotion-maps/techniques/maptiler/assets/RiverReveal.tsx
+- i18next
 - Prisma__ProjectReviewItemClient
-- skills/remotion-markup/remotion-maps/techniques/maptiler/scripts/prep-geo.mjs
-- react
-- remotion-best-practices/remotion-maps/techniques/maptiler/scripts/prep-geo.mjs
+- nodemailer
+- @radix-ui/react-dialog
+- @radix-ui/react-label
+- @radix-ui/react-popover
 - jose
 - @hookform/resolvers
-- remotion-best-practices/remotion-markup/remotion-maps/techniques/maptiler/scripts/prep-geo.mjs
+- @radix-ui/react-select
 - Prisma__ProjectRevisionClient
-- skills/remotion-maps/techniques/maptiler/scripts/prep-geo.mjs
+- react-hook-form
 - react-dom
-- Using audio in Remotion
 - .test_add_components_no_config
-- @radix-ui/react-slot
-- Using audio in Remotion
 - .test_get_installed_components_empty
 - postcss.config.mjs
 - Render Managed PostgreSQL Database
@@ -288,150 +287,27 @@
 - Token Architecture
 - Primitive Tokens
 - Core Visual Elements
-- Displaying captions in Remotion
 - Brand
 - Component Tokens
 - Brand Guidelines Template
 - .test_check_shadcn_config_exists
-- Displaying captions in Remotion
 - .test_init_default_project_root
-- remotion-best-practices/SKILL.md
 - I18nProvider.tsx
 - (app)/error.tsx
 - app/error.tsx
-- remotion-multimedia/SKILL.md
 - 8
-- remotion-create/REFERENCE.md
-- remotion-best-practices/remotion-maps/techniques/cesium/scripts/prep-cesium-path.mjs
-- remotion-best-practices/remotion-markup/remotion-maps/techniques/cesium/scripts/prep-cesium-path.mjs
 - ring
-- remotion-saas/REFERENCE.md
-- skills/remotion-maps/techniques/cesium/scripts/prep-cesium-path.mjs
-- skills/remotion-markup/transitions.md
-- skills/remotion-markup/remotion-maps/techniques/cesium/scripts/prep-cesium-path.mjs
-- skills/remotion-saas/rendering.md
 - floors/[id]/route.ts
-- remotion-best-practices/remotion-markup/transitions.md
-- remotion-best-practices/remotion-markup/remotion-maps/techniques/mapbox/TECHNIQUE.md
-- remotion-best-practices/remotion-markup/remotion-maps/techniques/maplibre/TECHNIQUE.md
-- skills/remotion-markup/remotion-maps/techniques/mapbox/TECHNIQUE.md
-- skills/remotion-markup/remotion-maps/techniques/maplibre/TECHNIQUE.md
-- compilerOptions
-- remotion-interactivity/REFERENCE.md
-- remotion-best-practices/remotion-maps/techniques/cesium/assets/CesiumFlythrough.tsx
-- remotion-best-practices/remotion-markup/remotion-maps/techniques/cesium/assets/CesiumFlythrough.tsx
-- skills/remotion-maps/techniques/cesium/assets/CesiumFlythrough.tsx
-- skills/remotion-markup/remotion-maps/techniques/cesium/assets/CesiumFlythrough.tsx
-- MapTiler maps in Remotion
-- MapTiler maps in Remotion
-- remotion-create/SKILL.md
-- remotion-interactivity/SKILL.md
-- MapTiler maps in Remotion
-- MapTiler maps in Remotion
-- 3D Flyover — architecture reference
-- remotion-best-practices/remotion-maps/techniques/mapbox/TECHNIQUE.md
-- remotion-best-practices/remotion-maps/techniques/maplibre/TECHNIQUE.md
-- Using videos in Remotion
-- Adaptive Silence Detection
-- 3D Flyover — architecture reference
-- 3D Flyover — architecture reference
-- skills/remotion-maps/techniques/mapbox/TECHNIQUE.md
-- skills/remotion-maps/techniques/maplibre/TECHNIQUE.md
-- Using videos in Remotion
-- Adaptive Silence Detection
-- 3D Flyover — architecture reference
-- Map Explainer — architecture reference
-- Audio Visualization in Remotion
-- Using Animated images in Remotion
-- Map Explainer — architecture reference
-- Map Explainer — architecture reference
-- Audio Visualization in Remotion
-- Using Animated images in Remotion
-- Map Explainer — architecture reference
-- Map Explainer — basemap & geo prep
-- Using `<HtmlInCanvas>` in Remotion
-- remotion-best-practices/remotion-markup/light-leaks.md
-- Map Explainer — basemap & geo prep
-- Map Explainer — basemap & geo prep
-- Using `<HtmlInCanvas>` in Remotion
-- skills/remotion-markup/light-leaks.md
-- Map Explainer — basemap & geo prep
-- utils.ts
-- skills/remotion-markup/compositions.md
-- Using Three.js and React Three Fiber in Remotion
-- Measuring text in Remotion
-- remotion-best-practices/remotion-markup/sequencing.md
-- remotion-best-practices/remotion-markup/timing.md
-- remotion-maps/SKILL.md
-- CesiumJS — 3D flyovers in Remotion
-- Using Three.js and React Three Fiber in Remotion
-- class-variance-authority
-- Measuring text in Remotion
-- skills/remotion-markup/sequencing.md
-- skills/remotion-markup/timing.md
-- remotion-render/SKILL.md
-- Remotion video
-- Remotion Maps
-- remotion-best-practices/remotion-maps/REFERENCE.md
-- Map element data sources
-- Moving Map Render Stability
-- Map element data sources
-- Moving Map Render Stability
-- Remotion Maps
-- Moving Map Render Stability
-- Moving Map Render Stability
-- Map element data sources
-- Moving Map Render Stability
-- Map element data sources
-- Moving Map Render Stability
-- Moving Map Render Stability
-- Flyover data sources
-- 3D Flyover — troubleshooting
-- remotion-best-practices/remotion-maps/techniques/maptiler/assets/MapTilerVectorElement.ts
-- Using fonts in Remotion
-- remotion-best-practices/remotion-markup/local-fonts.md
-- Using Lottie Animations in Remotion
-- Delaying, trimming
-- Flyover data sources
-- 3D Flyover — troubleshooting
-- remotion-best-practices/remotion-markup/remotion-maps/techniques/maptiler/assets/MapTilerVectorElement.ts
-- Flyover data sources
-- 3D Flyover — troubleshooting
-- skills/remotion-maps/techniques/maptiler/assets/MapTilerVectorElement.ts
-- Using fonts in Remotion
-- skills/remotion-markup/local-fonts.md
-- Using Lottie Animations in Remotion
-- Flyover data sources
-- 3D Flyover — troubleshooting
-- skills/remotion-markup/remotion-maps/techniques/maptiler/assets/MapTilerVectorElement.ts
-- Delaying, trimming
-- Moving Map Render Stability
-- remotion-docs/SKILL.md
-- skills/remotion-markup/effects.md
-- skills/remotion-markup/images.md
 - PostgreSQL 16 Service (procal-db)
 - 0
 - $type
-- none
-- skills/remotion-markup/measuring-dom-nodes.md
-- src/types.ts
-- remotion-studio/SKILL.md
-- remotion-upgrade/SKILL.md
-- Adding AI voiceover to a Remotion composition
-- html2canvas
-- @prisma/adapter-pg
-- @prisma/client
 - 16
-- @radix-ui/react-separator
 - schematex
-- 3
 - TODOS — ProCal
 - 6. Section 4: Prioritized Remediation Roadmap
 - project-auth.ts
 - 4. Section 2: Test Suite Execution, Coverage Gaps & False-Positive Assertions
 - Hermes E2E Audit Memory & Engineering Rules
-- clsx
-- remotion-best-practices/remotion-markup/effects.md
 - destructive-foreground
 - muted
 - primary-foreground
@@ -439,7 +315,6 @@
 - xlsx
 - pg
 - puppeteer-core
-- @radix-ui/react-dropdown-menu
 - @radix-ui/react-tooltip
 - react-i18next
 
@@ -468,26 +343,26 @@
   research/riser-diagram-purpose/findings/F1-research.md → docs/reference-calc-engine.md
 
 ## Import Cycles
-- 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/ProjectMember.ts -> src/generated/prisma/internal/prismaNamespace.ts`
-- 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/FloorItem.ts -> src/generated/prisma/internal/prismaNamespace.ts`
-- 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/BuildingLoad.ts -> src/generated/prisma/internal/prismaNamespace.ts`
-- 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/ProjectReviewItem.ts -> src/generated/prisma/internal/prismaNamespace.ts`
 - 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/Project.ts -> src/generated/prisma/internal/prismaNamespace.ts`
-- 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/ApartmentTemplate.ts -> src/generated/prisma/internal/prismaNamespace.ts`
-- 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/ApartmentRoom.ts -> src/generated/prisma/internal/prismaNamespace.ts`
-- 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/ProjectAuditLog.ts -> src/generated/prisma/internal/prismaNamespace.ts`
-- 3-file cycle: `src/generated/prisma/commonInputTypes.ts -> src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/commonInputTypes.ts`
-- 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/ProjectInvite.ts -> src/generated/prisma/internal/prismaNamespace.ts`
-- 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/BreakerSettings.ts -> src/generated/prisma/internal/prismaNamespace.ts`
-- 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/FloorDesign.ts -> src/generated/prisma/internal/prismaNamespace.ts`
-- 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/ContactRequest.ts -> src/generated/prisma/internal/prismaNamespace.ts`
-- 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/AppSetting.ts -> src/generated/prisma/internal/prismaNamespace.ts`
+- 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/ProjectRevision.ts -> src/generated/prisma/internal/prismaNamespace.ts`
+- 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/BuildingLoad.ts -> src/generated/prisma/internal/prismaNamespace.ts`
+- 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/User.ts -> src/generated/prisma/internal/prismaNamespace.ts`
+- 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/ProjectMember.ts -> src/generated/prisma/internal/prismaNamespace.ts`
 - 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/BreakerFamily.ts -> src/generated/prisma/internal/prismaNamespace.ts`
-- 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/Building.ts -> src/generated/prisma/internal/prismaNamespace.ts`
+- 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/ApartmentTemplate.ts -> src/generated/prisma/internal/prismaNamespace.ts`
+- 3-file cycle: `src/generated/prisma/commonInputTypes.ts -> src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/commonInputTypes.ts`
+- 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/FloorDesign.ts -> src/generated/prisma/internal/prismaNamespace.ts`
+- 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/FloorItem.ts -> src/generated/prisma/internal/prismaNamespace.ts`
 - 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/EquipmentCatalog.ts -> src/generated/prisma/internal/prismaNamespace.ts`
 - 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/LoadLibraryItem.ts -> src/generated/prisma/internal/prismaNamespace.ts`
-- 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/ProjectRevision.ts -> src/generated/prisma/internal/prismaNamespace.ts`
-- 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/User.ts -> src/generated/prisma/internal/prismaNamespace.ts`
+- 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/ProjectInvite.ts -> src/generated/prisma/internal/prismaNamespace.ts`
+- 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/ApartmentRoom.ts -> src/generated/prisma/internal/prismaNamespace.ts`
+- 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/AppSetting.ts -> src/generated/prisma/internal/prismaNamespace.ts`
+- 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/BreakerSettings.ts -> src/generated/prisma/internal/prismaNamespace.ts`
+- 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/Building.ts -> src/generated/prisma/internal/prismaNamespace.ts`
+- 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/ContactRequest.ts -> src/generated/prisma/internal/prismaNamespace.ts`
+- 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/ProjectAuditLog.ts -> src/generated/prisma/internal/prismaNamespace.ts`
+- 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/ProjectReviewItem.ts -> src/generated/prisma/internal/prismaNamespace.ts`
 
 ## Hyperedges (group relationships)
 - **Complete Brand Identity Generation Flow** — agents_skills_design_skill_unified_design, agents_skills_design_references_logo_design_logo_generation_workflow, agents_skills_design_references_cip_design_cip_workflow, agents_skills_design_references_slides_slides_reference [EXTRACTED 1.00]
@@ -506,7 +381,7 @@
 - **Phase Balancing & Neutral Accounting Pipeline** — docs_explanation_phase_balancing_total_angle_neutral, docs_explanation_phase_balancing_current_unbalance_proxy, docs_explanation_phase_balancing_greedy_assignment_on_read, docs_reference_calc_engine_calc_engine_reference, uploads_3phase_pdh_course_e336, uploads_en50160_en_50160_standard [INFERRED 0.95]
 - **ProCal Core Engineering Workflow Feature Slides** — public_slides_slide_load_calc, public_slides_slide_cable_sizing, public_slides_slide_sld_diagram, public_slides_slide_breaker_schedule, public_slides_slide_pdf_reports [INFERRED 0.95]
 
-## Communities (443 total, 128 thin omitted)
+## Communities (316 total, 120 thin omitted)
 
 ### Community 0 - "Project.ts"
 Cohesion: 0.01
@@ -566,7 +441,7 @@ Nodes (79): AggregateApartmentRoom, ApartmentRoomAggregateArgs, ApartmentRoomAvg
 
 ### Community 14 - "cn"
 Cohesion: 0.10
-Nodes (28): MarqueeText(), DialogDescription, DialogOverlay, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuRadioItem (+20 more)
+Nodes (28): BrandSlogan(), BrandSloganProps, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuRadioItem, DropdownMenuSeparator (+20 more)
 
 ### Community 15 - "BreakerSettings.ts"
 Cohesion: 0.03
@@ -577,8 +452,8 @@ Cohesion: 0.05
 Nodes (53): $type, $value, $type, $value, $type, $value, $type, $value (+45 more)
 
 ### Community 17 - "getSessionUser"
-Cohesion: 0.05
-Nodes (45): POST(), mocks, post(), GET(), PATCH(), PUT(), getMe(), mocks (+37 more)
+Cohesion: 0.06
+Nodes (39): AdminLayout(), POST(), mocks, post(), GET(), PATCH(), PUT(), getMe() (+31 more)
 
 ### Community 18 - "search"
 Cohesion: 0.07
@@ -609,8 +484,8 @@ Cohesion: 0.04
 Nodes (52): AggregateAppSetting, AppSettingAggregateArgs, AppSettingCountAggregateInputType, AppSettingCountAggregateOutputType, AppSettingCountArgs, AppSettingCountOrderByAggregateInput, AppSettingCreateArgs, AppSettingCreateInput (+44 more)
 
 ### Community 25 - "app/page.tsx"
-Cohesion: 0.12
-Nodes (22): ProjectSummary, cardContainerVariants, cardItemVariants, heroContainerVariants, heroItemVariants, HeroSlideshow(), SlideData, IsometricBuilding() (+14 more)
+Cohesion: 0.11
+Nodes (25): ProjectSummary, cardContainerVariants, cardItemVariants, heroContainerVariants, heroItemVariants, HeroSlideshow(), SlideData, IsometricBuilding() (+17 more)
 
 ### Community 26 - "ProCal End-to-End Verification — Hermes Verification / 3 Buildings"
 Cohesion: 0.20
@@ -620,9 +495,9 @@ Nodes (9): 1. Project data (audited final state), 2. Workflow coverage (all 8 st
 Cohesion: 0.05
 Nodes (42): aluminumRatio(), AMPACITY_A1_PVC_1PH, AMPACITY_A1_PVC_3PH, AMPACITY_A1_XLPE_1PH, AMPACITY_A1_XLPE_3PH, AMPACITY_A2_PVC_3PH, AMPACITY_A2_XLPE_3PH, AMPACITY_B1_PVC_1PH (+34 more)
 
-### Community 28 - "db"
-Cohesion: 0.12
-Nodes (22): POST(), mocks, postAccept(), DELETE(), DELETE(), PATCH(), GET(), POST() (+14 more)
+### Community 28 - "db.ts"
+Cohesion: 0.11
+Nodes (22): dynamic, POST(), mocks, postAccept(), DELETE(), PATCH(), GET(), POST() (+14 more)
 
 ### Community 29 - "ProjectRevision.ts"
 Cohesion: 0.02
@@ -630,7 +505,7 @@ Nodes (88): AggregateProjectRevision, GetProjectRevisionAggregateType, GetProjec
 
 ### Community 30 - "requireAdmin"
 Cohesion: 0.05
-Nodes (42): DELETE(), GET(), PUT(), RouteParams, GET(), POST(), Where, escapeCsv() (+34 more)
+Nodes (41): DELETE(), GET(), PUT(), RouteParams, GET(), POST(), Where, escapeCsv() (+33 more)
 
 ### Community 31 - "radius"
 Cohesion: 0.19
@@ -646,11 +521,11 @@ Nodes (43): 1. Description & Verbatim Code Snippet, 1. Description & Verbatim Co
 
 ### Community 34 - "verifyProjectAccess"
 Cohesion: 0.07
-Nodes (50): main(), DELETE(), PATCH(), POST(), POST(), mocks, postRecalculate(), DELETE() (+42 more)
+Nodes (54): main(), DELETE(), PATCH(), POST(), POST(), mocks, postRecalculate(), DELETE() (+46 more)
 
-### Community 35 - "Root.tsx"
-Cohesion: 0.08
-Nodes (34): AmbientBackground(), CursorClick(), MonitorFrame(), MonitorFrameProps, OutroCard(), PulseEnergy(), ReelContainer(), ReelContainerProps (+26 more)
+### Community 35 - "CalculationTracePopover.tsx"
+Cohesion: 0.29
+Nodes (12): CalculationTracePopover(), getTranslatedBadge(), getTranslatedMargin(), getTranslatedMetric(), getTranslatedNote(), getTranslatedParamName(), getTranslatedParamSource(), getTranslatedStatus() (+4 more)
 
 ### Community 36 - "design_system.py"
 Cohesion: 0.11
@@ -668,13 +543,13 @@ Nodes (24): get_context(), is_allowed_exception(), is_allowed_rgba(), is_inside_
 Cohesion: 0.02
 Nodes (89): AggregateProjectAuditLog, GetProjectAuditLogAggregateType, GetProjectAuditLogGroupByPayload, ProjectAuditLog$userArgs, ProjectAuditLogAggregateArgs, ProjectAuditLogCountAggregateInputType, ProjectAuditLogCountAggregateOutputType, ProjectAuditLogCountArgs (+81 more)
 
-### Community 40 - "intro-video/package.json"
-Cohesion: 0.04
-Nodes (45): dependencies, react, react-dom, remotion, @remotion/captions, @remotion/cli, @remotion/media, @remotion/tailwind-v4 (+37 more)
+### Community 40 - "cable-schedule/page.tsx"
+Cohesion: 0.42
+Nodes (6): CableEntry, systemVoltageBase(), CableKind, cablePatchUrl(), fieldEditBody(), upsizeBody()
 
-### Community 41 - "country-defaults.ts"
-Cohesion: 0.07
-Nodes (38): GET(), GET(), maxDuration, get(), mocks, GET(), POST(), ALLOWED_TYPES (+30 more)
+### Community 41 - "app-settings.ts"
+Cohesion: 0.08
+Nodes (31): GET(), GET(), maxDuration, get(), mocks, GET(), POST(), ALLOWED_TYPES (+23 more)
 
 ### Community 42 - "ProCal Dual-Tier Deployment Guide"
 Cohesion: 0.17
@@ -709,8 +584,8 @@ Cohesion: 0.13
 Nodes (12): DesignSystemGenerator, Generates design system recommendations from aggregated searches., Load reasoning rules from CSV., Execute searches across multiple domains., Find matching reasoning rule for a category., Apply reasoning rules to search results., Select best matching result based on priority keywords., Extract results list from search result dict. (+4 more)
 
 ### Community 51 - "revisions-diff.ts"
-Cohesion: 0.07
-Nodes (49): deleteExtras(), POST(), mocks, post(), revisionRecord, snapshot, toRevisionDto(), CATEGORY_BADGE (+41 more)
+Cohesion: 0.06
+Nodes (53): deleteExtras(), POST(), mocks, post(), revisionRecord, snapshot, toRevisionDto(), GET() (+45 more)
 
 ### Community 52 - "generate-slide.py"
 Cohesion: 0.15
@@ -722,7 +597,7 @@ Nodes (38): assert(), runE2ETests(), TestContext, POST(), mocks, post(), POST(),
 
 ### Community 54 - "color"
 Cohesion: 0.11
-Nodes (19): $type, $value, background, foreground, muted-foreground, primary, primary-hover, secondary (+11 more)
+Nodes (19): $type, $value, background, destructive, foreground, muted-foreground, primary-hover, secondary (+11 more)
 
 ### Community 55 - "test_design_system_mode.py"
 Cohesion: 0.16
@@ -818,7 +693,7 @@ Nodes (8): Tests for tailwind_config_gen.py, Reduce a generated TS/JS config to 
 
 ### Community 93 - "dependencies"
 Cohesion: 0.06
-Nodes (33): bcryptjs, framer-motion, html-to-image, i18next, lucide-react, nodemailer, dependencies, bcryptjs (+25 more)
+Nodes (33): class-variance-authority, clsx, html2canvas, html-to-image, lucide-react, dependencies, class-variance-authority, clsx (+25 more)
 
 ### Community 94 - "ProCal Electrical Load & MDB Designer"
 Cohesion: 0.20
@@ -826,7 +701,7 @@ Nodes (10): Next.js Breaking Changes Agent Rules, Next.js Version Breaking Chang
 
 ### Community 95 - "devDependencies"
 Cohesion: 0.05
-Nodes (37): eslint-config-next, jsdom, devDependencies, eslint, eslint-config-next, jsdom, prisma, tailwindcss (+29 more)
+Nodes (37): eslint, eslint-config-next, jsdom, devDependencies, eslint, eslint-config-next, jsdom, prisma (+29 more)
 
 ### Community 97 - "logo/generate.py"
 Cohesion: 0.29
@@ -836,13 +711,13 @@ Nodes (9): enhance_prompt(), generate_batch(), generate_logo(), load_env(), main
 Cohesion: 0.36
 Nodes (9): flattenTokens(), fs, generateCSS(), generateTailwind(), main(), parseArgs(), path, resolveReference() (+1 more)
 
-### Community 99 - "feeders.ts"
-Cohesion: 0.06
-Nodes (41): BreakerEntry, BreakerBOMItem, building(), equipment, fetchMock, item(), project, categoryForFloorItem() (+33 more)
+### Community 99 - "types/index.ts"
+Cohesion: 0.07
+Nodes (23): ReportHeaderProps, SectionHeaderProps, RevisionsPanel(), RevisionsPanelProps, apartmentItem(), buildMall(), buildTowerA(), buildTowerB() (+15 more)
 
-### Community 100 - "seed.ts"
-Cohesion: 0.12
-Nodes (25): RFC-4180, adapter, db, main(), pool, seedBootstrapAdmin(), seedEquipmentCatalog(), DELETE() (+17 more)
+### Community 100 - "breakers/[id]/route.ts"
+Cohesion: 0.21
+Nodes (14): DELETE(), GET(), parseBreaker(), PUT(), RouteParams, DELETE(), GET(), parseBreaker() (+6 more)
 
 ### Community 101 - "duration"
 Cohesion: 0.20
@@ -877,16 +752,16 @@ Cohesion: 0.20
 Nodes (8): ADMIN, catalogCount, contactCount, groupBy, projectCount, projectFindMany, userAggregate, userFindMany
 
 ### Community 109 - "phaseBalance.ts"
-Cohesion: 0.10
-Nodes (33): ReportsPage(), ComponentProperty, SLDPage(), CoverPage(), LoadSchedule(), LoadScheduleProps, displacementAngle(), isThreePhaseForBuildingLoad() (+25 more)
+Cohesion: 0.11
+Nodes (30): ReportsPage(), ComponentProperty, SLDPage(), CoverPage(), displacementAngle(), isThreePhaseForBuildingLoad(), pfAngleForBuildingLoad(), pfAngleForItem() (+22 more)
 
 ### Community 110 - "Banner Design - Multi-Format Creative Banner System"
 Cohesion: 0.14
 Nodes (13): Art Direction Styles (Top 10), Banner Design - Multi-Format Creative Banner System, Banner Size Quick Reference, Design Rules, Prerequisites, Security, Step 1: Gather Requirements (AskUserQuestion), Step 2: Research & Art Direction (+5 more)
 
 ### Community 111 - "client.ts"
-Cohesion: 0.08
-Nodes (24): adapter, db, pool, ApartmentRoom, ApartmentTemplate, AppSetting, BreakerFamily, BreakerSettings (+16 more)
+Cohesion: 0.10
+Nodes (20): ApartmentRoom, ApartmentTemplate, AppSetting, BreakerFamily, BreakerSettings, Building, BuildingLoad, ContactRequest (+12 more)
 
 ### Community 112 - "scripts"
 Cohesion: 0.15
@@ -920,41 +795,41 @@ Nodes (28): Alert, Anatomy, Anatomy, Anatomy, Anatomy, Anatomy, Badge, Button (+
 Cohesion: 0.40
 Nodes (5): WCAG Color Contrast & Focus Indicators, Focus Management & Keyboard Navigation, shadcn/ui Accessibility Patterns, Radix UI Primitives Foundation, Screen Reader Support & ARIA Patterns
 
-### Community 128 - "remotion-markup/SKILL.md"
-Cohesion: 0.04
-Nodes (40): Cropping, Color picker, 3D content, Advanced compositions, Advanced Images, Advanced sequencing, Assets, Audio visualization (+32 more)
+### Community 128 - "import/route.ts"
+Cohesion: 0.43
+Nodes (6): RFC-4180, COLUMNS, getColumnIndexes(), parseCsv(), parseNumber(), POST()
 
 ### Community 129 - "cables.ts"
-Cohesion: 0.08
-Nodes (49): main(), createTower(), main(), CableProtectionEvaluation, calculateCableAmpacity(), calculateVoltageDrop(), computeItemVoltageDrop(), evaluateCableProtection() (+41 more)
+Cohesion: 0.07
+Nodes (55): main(), createTower(), main(), FloorData, CableProtectionEvaluation, calculateCableAmpacity(), calculateVoltageDrop(), computeItemVoltageDrop() (+47 more)
 
-### Community 130 - "remotion-markup/REFERENCE.md"
-Cohesion: 0.04
-Nodes (45): FFmpeg in Remotion, Trimming videos, Dynamic image paths, Getting image dimensions, Sizing and positioning, Measuring DOM nodes in Remotion, Measuring element dimensions, Color picker (+37 more)
+### Community 130 - "seed.ts"
+Cohesion: 0.38
+Nodes (6): adapter, db, main(), pool, seedBootstrapAdmin(), seedEquipmentCatalog()
 
 ### Community 131 - "trace-engine.ts"
 Cohesion: 0.13
-Nodes (26): CalculationTracePopover(), CalculationTracePopoverProps, getTranslatedBadge(), getTranslatedMargin(), getTranslatedMetric(), getTranslatedNote(), getTranslatedParamName(), getTranslatedParamSource() (+18 more)
+Nodes (24): CalculationTracePopoverProps, TraceableCellProps, CodeStandard, calculateIscWithCable(), calculateShortCircuitCurrent(), calculateTransformerImpedance(), EarthingSystem, ShortCircuitResult (+16 more)
 
 ### Community 132 - "ProjectMember.ts"
 Cohesion: 0.02
 Nodes (89): AggregateProjectMember, GetProjectMemberAggregateType, GetProjectMemberGroupByPayload, ProjectMemberAggregateArgs, ProjectMemberCountAggregateInputType, ProjectMemberCountAggregateOutputType, ProjectMemberCountArgs, ProjectMemberCountOrderByAggregateInput (+81 more)
 
-### Community 133 - "selectivity.ts"
-Cohesion: 0.09
-Nodes (49): CoordinationPage(), ProjectFeederItem, SelectivityStatus, TccPlotModal(), TccPlotModalProps, ComputeFeedersResult, calculateSinglePhaseCurrent(), calculateThreePhaseCurrent() (+41 more)
+### Community 133 - "breaker-schedule/page.tsx"
+Cohesion: 0.08
+Nodes (52): BreakerEntry, BreakerFamilyOption, BreakerSchedulePage(), CalculatorContent(), CoordinationPage(), ProjectFeederItem, SelectivityStatus, AccessRestricted() (+44 more)
 
 ### Community 134 - "leads/page.tsx"
 Cohesion: 0.40
 Nodes (3): Lead, LeadUser, StatusFilter
 
 ### Community 136 - "LoadManager.tsx"
-Cohesion: 0.17
-Nodes (18): CATEGORIES, LoadItem, LoadManager(), LoadManagerProps, Template, TemplateManagerProps, DialogContent, DialogFooter() (+10 more)
+Cohesion: 0.13
+Nodes (22): CATEGORIES, LoadItem, LoadManager(), LoadManagerProps, Template, TemplateManagerProps, DialogContent, DialogDescription (+14 more)
 
-### Community 137 - "RoomInput.tsx"
-Cohesion: 0.29
-Nodes (10): RoomData, RoomInput(), RoomInputProps, generateId(), RoomList(), RoomListProps, Button, ButtonProps (+2 more)
+### Community 137 - "country-defaults.ts"
+Cohesion: 0.23
+Nodes (14): RoomData, RoomInput(), RoomInputProps, generateId(), RoomList(), RoomListProps, AcSizingRule, calculateAcWatts() (+6 more)
 
 ### Community 142 - "Canvas Design System"
 Cohesion: 0.50
@@ -1024,25 +899,25 @@ Nodes (11): 1.1 Background & Audit Objective, 1.2 Audit Methodology, 1.3 Global 
 Cohesion: 0.08
 Nodes (24): Accessibility, Accessibility Requirements, ARIA States, Color Contrast, Color Variants, Disabled States, Error Messages, Error States (+16 more)
 
-### Community 164 - "Using calculateMetadata"
-Cohesion: 0.07
-Nodes (25): Matching dimensions of a video, Return value, Setting a default outName, Setting duration based on a video, Setting duration based on multiple videos, Transforming props, Using calculateMetadata, Default Props and scaffold metadata (+17 more)
+### Community 164 - "floor-items/[id]/route.ts"
+Cohesion: 0.38
+Nodes (5): DELETE(), PATCH(), deleteFloorItem(), mocks, patchFloorItem()
 
-### Community 165 - "reports/page.tsx"
+### Community 165 - "feeders.ts"
 Cohesion: 0.09
-Nodes (64): BreakerSchedulePage(), CableEntry, CableSchedulePage(), PanelDesignerPage(), RiserPage(), TraceableCell(), BOMSchedule(), BOMScheduleProps (+56 more)
+Nodes (71): CableSchedulePage(), BREAKER_FAMILY_THEME, getBreakerCategory(), PanelDesignerPage(), wrapSvgLines(), RiserPage(), TraceableCell(), BOMSchedule() (+63 more)
 
-### Community 166 - "skills/remotion-markup/remotion-maps/REFERENCE.md"
-Cohesion: 0.29
-Nodes (3): Build, Overlays and Interactivity, Static map
+### Community 166 - "seed-test-project.ts"
+Cohesion: 0.33
+Nodes (4): adapter, db, pool, PrismaClient
 
 ### Community 167 - "input"
 Cohesion: 0.29
-Nodes (8): padding-x, input, $type, $value, focus-ring, padding-x, $type, $value
+Nodes (8): padding-y, input, $type, $value, focus-ring, padding-y, $type, $value
 
 ### Community 168 - "aggregates.ts"
-Cohesion: 0.10
-Nodes (34): awgLabel(), aggregateBOM(), aggregateBreakerRows(), aggregateCableRows(), aggregateFeederRows(), aggregateLoadRows(), aggregateShortCircuitRows(), aggregateVoltageDropRows() (+26 more)
+Cohesion: 0.08
+Nodes (35): awgLabel(), aggregateBOM(), aggregateBreakerRows(), aggregateCableRows(), aggregateFeederRows(), aggregateLoadRows(), aggregateShortCircuitRows(), aggregateVoltageDropRows() (+27 more)
 
 ### Community 171 - "SLD Panel Designer Implementation Plan"
 Cohesion: 0.67
@@ -1064,9 +939,9 @@ Nodes (9): AdminFeedbackPage(), CategoryFilter, Lead, LeadUser, ParsedFeedback, 
 Cohesion: 0.09
 Nodes (22): Best Practices, Chart.js Integration, Command, Component Spec Pattern, Contextual Decision Flow, Decision System CSVs, Design System, Integration (+14 more)
 
-### Community 182 - "db.ts"
-Cohesion: 0.10
-Nodes (16): handleUpdateProfile(), PATCH(), POST(), mocks, patchProfile(), POST(), POST(), dynamic (+8 more)
+### Community 182 - "profile/route.ts"
+Cohesion: 0.43
+Nodes (5): handleUpdateProfile(), PATCH(), POST(), mocks, patchProfile()
 
 ### Community 187 - "radius"
 Cohesion: 0.60
@@ -1074,7 +949,7 @@ Nodes (5): radius, radius, radius, $type, $value
 
 ### Community 206 - "useTranslation"
 Cohesion: 0.04
-Nodes (90): BillingPage(), BreakerFamilyOption, CalculatorContent(), DashboardPage(), BREAKER_FAMILY_THEME, getBreakerCategory(), wrapSvgLines(), Building (+82 more)
+Nodes (77): BillingPage(), DashboardPage(), Building, BuildingLoad, FloorDesign, Project, ProjectDetailPage(), Project (+69 more)
 
 ### Community 207 - "Brand Consistency Checklist"
 Cohesion: 0.11
@@ -1088,13 +963,17 @@ Nodes (17): Accent, Applying Semantic Tokens, Background & Foreground, Border & 
 Cohesion: 0.20
 Nodes (9): 2026-09-03T05:25:59Z, Acceptance Criteria, Deliverable Completeness, Electrical Calculations & Standards, R1. Electrical Calculations & Standards Audit, R2. UI & UX Runtime and Static Usability Evaluation, R3. Diagnostic Audit Report, Requirements (+1 more)
 
-### Community 214 - "destructive"
-Cohesion: 0.67
-Nodes (3): destructive, $type, $value
+### Community 214 - "db-ssl.ts"
+Cohesion: 0.53
+Nodes (4): getPool(), isRemoteDatabaseUrl(), resolveDatabaseSsl(), SslConfig
 
-### Community 216 - "remotion-best-practices/remotion-maps/techniques/maptiler/assets/RiverReveal.tsx"
-Cohesion: 0.10
-Nodes (22): CountryLabel(), clamp01(), Country, countryPolygons, DRAW, EMPTY, END, lerp() (+14 more)
+### Community 216 - "audit-logs/route.ts"
+Cohesion: 0.50
+Nodes (3): GET(), getLogs(), mocks
+
+### Community 217 - "padding-x"
+Cohesion: 0.67
+Nodes (4): padding-x, padding-x, $type, $value
 
 ### Community 218 - "lg"
 Cohesion: 0.60
@@ -1104,57 +983,21 @@ Nodes (5): lg, $type, $value, lg, lg
 Cohesion: 0.60
 Nodes (5): sm, sm, sm, $type, $value
 
-### Community 223 - "remotion-best-practices/remotion-markup/remotion-maps/techniques/maptiler/assets/RiverReveal.tsx"
-Cohesion: 0.10
-Nodes (22): CountryLabel(), clamp01(), Country, countryPolygons, DRAW, EMPTY, END, lerp() (+14 more)
+### Community 223 - "md"
+Cohesion: 0.67
+Nodes (4): $type, $value, md, md
 
-### Community 225 - "skills/remotion-maps/techniques/maptiler/assets/RiverReveal.tsx"
-Cohesion: 0.10
-Nodes (22): CountryLabel(), clamp01(), Country, countryPolygons, DRAW, EMPTY, END, lerp() (+14 more)
+### Community 225 - "6"
+Cohesion: 0.67
+Nodes (3): $type, $value, 6
 
-### Community 226 - "CesiumJS — 3D flyovers in Remotion"
-Cohesion: 0.29
-Nodes (7): Build the flight, Camera behavior, CesiumJS — 3D flyovers in Remotion, Credentials, Files, Mechanics, Modes
-
-### Community 227 - "remotion-best-practices/remotion-markup/remotion-maps/REFERENCE.md"
-Cohesion: 0.10
-Nodes (16): [CesiumJS](techniques/cesium/TECHNIQUE.md), [Mapbox](techniques/mapbox/TECHNIQUE.md), [MapLibre](techniques/maplibre/TECHNIQUE.md), [MapTiler](techniques/maptiler/TECHNIQUE.md), Remotion Maps, [Static map](techniques/static-map/TECHNIQUE.md), Build the flight, Camera behavior (+8 more)
+### Community 226 - "primary"
+Cohesion: 0.67
+Nodes (3): primary, $type, $value
 
 ### Community 228 - "xl"
 Cohesion: 0.67
 Nodes (4): xl, xl, $type, $value
-
-### Community 231 - "padding-y"
-Cohesion: 0.67
-Nodes (4): padding-y, padding-y, $type, $value
-
-### Community 234 - "skills/remotion-markup/remotion-maps/techniques/maptiler/assets/RiverReveal.tsx"
-Cohesion: 0.10
-Nodes (22): CountryLabel(), clamp01(), Country, countryPolygons, DRAW, EMPTY, END, lerp() (+14 more)
-
-### Community 236 - "skills/remotion-markup/remotion-maps/techniques/maptiler/scripts/prep-geo.mjs"
-Cohesion: 0.08
-Nodes (18): ANCHOR_BBOX, biggestPoly(), borders, COUNTRIES, countryMeta, __dir, flowKm, FRAME_BBOX (+10 more)
-
-### Community 238 - "remotion-best-practices/remotion-maps/techniques/maptiler/scripts/prep-geo.mjs"
-Cohesion: 0.08
-Nodes (18): ANCHOR_BBOX, biggestPoly(), borders, COUNTRIES, countryMeta, __dir, flowKm, FRAME_BBOX (+10 more)
-
-### Community 242 - "remotion-best-practices/remotion-markup/remotion-maps/techniques/maptiler/scripts/prep-geo.mjs"
-Cohesion: 0.08
-Nodes (18): ANCHOR_BBOX, biggestPoly(), borders, COUNTRIES, countryMeta, __dir, flowKm, FRAME_BBOX (+10 more)
-
-### Community 244 - "skills/remotion-maps/techniques/maptiler/scripts/prep-geo.mjs"
-Cohesion: 0.08
-Nodes (18): ANCHOR_BBOX, biggestPoly(), borders, COUNTRIES, countryMeta, __dir, flowKm, FRAME_BBOX (+10 more)
-
-### Community 246 - "Using audio in Remotion"
-Cohesion: 0.10
-Nodes (17): Delaying, Importing Audio, Looping, Muting, Pitch, Prerequisites, Speed, Trimming (+9 more)
-
-### Community 250 - "Using audio in Remotion"
-Cohesion: 0.08
-Nodes (21): Delaying, Importing Audio, Looping, Muting, Pitch, Prerequisites, Speed, Trimming (+13 more)
 
 ### Community 282 - "Design Principles"
 Cohesion: 0.12
@@ -1188,10 +1031,6 @@ Nodes (11): Border Radius, Color Scales, Gray Scale, Motion / Duration, Primary 
 Cohesion: 0.18
 Nodes (10): Color Palette, Colors, Core Visual Elements, Logo, Logo, Quick Checks, Typography, Typography (+2 more)
 
-### Community 291 - "Displaying captions in Remotion"
-Cohesion: 0.09
-Nodes (19): Creating pages, Display captions alongside video content, Displaying captions in Remotion, Fetching captions, Prerequisites, Rendering with Sequences, Separate component for captions, White-space preservation (+11 more)
-
 ### Community 292 - "Brand"
 Cohesion: 0.20
 Nodes (9): Brand, Brand Sync Workflow, Quick Start, References, Routing, Scripts, Subcommands, Templates (+1 more)
@@ -1204,437 +1043,21 @@ Nodes (9): Alert Tokens, Badge Tokens, Button Tokens, Card Tokens, Component Tok
 Cohesion: 0.40
 Nodes (4): Brand Guidelines Template, Document Structure, Extractable Fields, Usage
 
-### Community 297 - "Displaying captions in Remotion"
-Cohesion: 0.09
-Nodes (19): Creating pages, Display captions alongside video content, Displaying captions in Remotion, Fetching captions, Prerequisites, Rendering with Sequences, Separate component for captions, White-space preservation (+11 more)
-
-### Community 299 - "remotion-best-practices/SKILL.md"
-Cohesion: 0.09
-Nodes (18): Fetching a page as Markdown, Searching the docs, Workflow, Useful flags, Upgrade Remotion, Captions, Creating a SaaS, automation or application, Creating a video (+10 more)
-
 ### Community 300 - "I18nProvider.tsx"
 Cohesion: 0.15
 Nodes (13): inter, metadata, rubikArabic, ProjectProvider(), defaultNS, getInitialLanguage(), LANGUAGE_STORAGE_KEY, resources (+5 more)
-
-### Community 303 - "remotion-multimedia/SKILL.md"
-Cohesion: 0.09
-Nodes (18): Getting audio duration, Getting audio duration with Mediabunny, In Node.js and Bun, Usage, Using with staticFile in Remotion, Getting video dimensions, Getting video dimensions with Mediabunny, Usage (+10 more)
 
 ### Community 306 - "8"
 Cohesion: 0.67
 Nodes (3): $type, $value, 8
 
-### Community 307 - "remotion-create/REFERENCE.md"
-Cohesion: 0.11
-Nodes (13): Designing a video, Follow-up, Interactivity Best Practices, Is this a multi-scene video?, Open the preview, Render the video, Scaffold a project, TailwindCSS (+5 more)
-
-### Community 309 - "remotion-best-practices/remotion-maps/techniques/cesium/scripts/prep-cesium-path.mjs"
-Cohesion: 0.13
-Nodes (15): A, AB, B, clip, __dir, even, havKm(), hs (+7 more)
-
-### Community 310 - "remotion-best-practices/remotion-markup/remotion-maps/techniques/cesium/scripts/prep-cesium-path.mjs"
-Cohesion: 0.13
-Nodes (15): A, AB, B, clip, __dir, even, havKm(), hs (+7 more)
-
 ### Community 311 - "ring"
 Cohesion: 0.67
 Nodes (3): ring, $type, $value
 
-### Community 312 - "remotion-saas/REFERENCE.md"
-Cohesion: 0.12
-Nodes (14): Angular, Choosing a template or a framework, Rendering, Svelte, The `<Player>`, With Vue, Azure Container Apps, Cloudflare Containers (+6 more)
-
-### Community 313 - "skills/remotion-maps/techniques/cesium/scripts/prep-cesium-path.mjs"
-Cohesion: 0.13
-Nodes (15): A, AB, B, clip, __dir, even, havKm(), hs (+7 more)
-
-### Community 314 - "skills/remotion-markup/transitions.md"
-Cohesion: 0.11
-Nodes (15): Available transition types, Calculating total composition duration, Duration calculation, Getting the duration of a transition, Mixing transitions and overlays, Overlay example, Overlay props, Prerequisites (+7 more)
-
-### Community 315 - "skills/remotion-markup/remotion-maps/techniques/cesium/scripts/prep-cesium-path.mjs"
-Cohesion: 0.13
-Nodes (15): A, AB, B, clip, __dir, even, havKm(), hs (+7 more)
-
-### Community 316 - "skills/remotion-saas/rendering.md"
-Cohesion: 0.12
-Nodes (14): Azure Container Apps, Cloudflare Containers, Comparison of SSR methods, GitHub Actions, Plain Node.js APIs, Remotion Lambda, Steps to set up Lambda, Vercel (+6 more)
-
 ### Community 317 - "floors/[id]/route.ts"
 Cohesion: 0.32
 Nodes (6): PATCH(), PUT(), mocks, patchFloor(), putFloor(), validFloor
-
-### Community 318 - "remotion-best-practices/remotion-markup/transitions.md"
-Cohesion: 0.11
-Nodes (15): Available transition types, Calculating total composition duration, Duration calculation, Getting the duration of a transition, Mixing transitions and overlays, Overlay example, Overlay props, Prerequisites (+7 more)
-
-### Community 319 - "remotion-best-practices/remotion-markup/remotion-maps/techniques/mapbox/TECHNIQUE.md"
-Cohesion: 0.12
-Nodes (14): Moving Map Render Stability, Plate sizing and sharpness, Required pattern: fixed map plate, Symptom and cause, Verification, Animated flight route example, Basic map example, Camera guidance (+6 more)
-
-### Community 320 - "remotion-best-practices/remotion-markup/remotion-maps/techniques/maplibre/TECHNIQUE.md"
-Cohesion: 0.12
-Nodes (14): Moving Map Render Stability, Plate sizing and sharpness, Required pattern: fixed map plate, Symptom and cause, Verification, Animated flight route example, Basic map example, Camera guidance (+6 more)
-
-### Community 321 - "skills/remotion-markup/remotion-maps/techniques/mapbox/TECHNIQUE.md"
-Cohesion: 0.20
-Nodes (9): Animated flight route example, Basic map example, Camera guidance, Core rules, Lines, Markers and labels, Prerequisites, Rendering (+1 more)
-
-### Community 322 - "skills/remotion-markup/remotion-maps/techniques/maplibre/TECHNIQUE.md"
-Cohesion: 0.20
-Nodes (9): Animated flight route example, Basic map example, Camera guidance, Core rules, Lines, Markers and labels, Prerequisites, Rendering (+1 more)
-
-### Community 323 - "compilerOptions"
-Cohesion: 0.12
-Nodes (15): compilerOptions, esModuleInterop, forceConsistentCasingInFileNames, jsx, lib, module, moduleResolution, noEmit (+7 more)
-
-### Community 324 - "remotion-interactivity/REFERENCE.md"
-Cohesion: 0.13
-Nodes (12): Animate using `interpolate()`, Effects should be inline too, Give interactive elements a descriptive name, Keep all CSS styles inline, Keep composition metadata inline, Make an HTML element interactive using `Interactive`, Making your own component interactive, Prefer inline text (+4 more)
-
-### Community 325 - "remotion-best-practices/remotion-maps/techniques/cesium/assets/CesiumFlythrough.tsx"
-Cohesion: 0.24
-Nodes (11): bearing(), CesiumFlythrough(), CesiumFlythroughProps, clamp(), FlyoverMode, havKm(), lerp(), loadCesium() (+3 more)
-
-### Community 326 - "remotion-best-practices/remotion-markup/remotion-maps/techniques/cesium/assets/CesiumFlythrough.tsx"
-Cohesion: 0.24
-Nodes (11): bearing(), CesiumFlythrough(), CesiumFlythroughProps, clamp(), FlyoverMode, havKm(), lerp(), loadCesium() (+3 more)
-
-### Community 327 - "skills/remotion-maps/techniques/cesium/assets/CesiumFlythrough.tsx"
-Cohesion: 0.24
-Nodes (11): bearing(), CesiumFlythrough(), CesiumFlythroughProps, clamp(), FlyoverMode, havKm(), lerp(), loadCesium() (+3 more)
-
-### Community 328 - "skills/remotion-markup/remotion-maps/techniques/cesium/assets/CesiumFlythrough.tsx"
-Cohesion: 0.24
-Nodes (11): bearing(), CesiumFlythrough(), CesiumFlythroughProps, clamp(), FlyoverMode, havKm(), lerp(), loadCesium() (+3 more)
-
-### Community 329 - "MapTiler maps in Remotion"
-Cohesion: 0.18
-Nodes (11): Choose the source for each map element, Drawing rivers, Files, Hybrid, Keep it minmal, MapTiler maps in Remotion, MapTiler SDK (`@maptiler/sdk`), MapTiler vector (+3 more)
-
-### Community 330 - "MapTiler maps in Remotion"
-Cohesion: 0.18
-Nodes (11): Choose the source for each map element, Drawing rivers, Files, Hybrid, Keep it minmal, MapTiler maps in Remotion, MapTiler SDK (`@maptiler/sdk`), MapTiler vector (+3 more)
-
-### Community 331 - "remotion-create/SKILL.md"
-Cohesion: 0.18
-Nodes (8): Designing a video, Follow-up, Interactivity Best Practices, Is this a multi-scene video?, Open the preview, Render the video, Scaffold a project, TailwindCSS
-
-### Community 332 - "remotion-interactivity/SKILL.md"
-Cohesion: 0.18
-Nodes (10): Animate using `interpolate()`, Effects should be inline too, Give interactive elements a descriptive name, Keep all CSS styles inline, Keep composition metadata inline, Make an HTML element interactive using `Interactive`, Making your own component interactive, Prefer inline text (+2 more)
-
-### Community 333 - "MapTiler maps in Remotion"
-Cohesion: 0.18
-Nodes (11): Choose the source for each map element, Drawing rivers, Files, Hybrid, Keep it minmal, MapTiler maps in Remotion, MapTiler SDK (`@maptiler/sdk`), MapTiler vector (+3 more)
-
-### Community 334 - "MapTiler maps in Remotion"
-Cohesion: 0.18
-Nodes (11): Choose the source for each map element, Drawing rivers, Files, Hybrid, Keep it minmal, MapTiler maps in Remotion, MapTiler SDK (`@maptiler/sdk`), MapTiler vector (+3 more)
-
-### Community 335 - "3D Flyover — architecture reference"
-Cohesion: 0.20
-Nodes (9): 1. Provider initialization, 2. The camera path — structure & generation, 3. Camera animation per frame (position, heading, pitch, bank), 3D Flyover — architecture reference, 4. The feel — proven water-wars values, 5. The complete component, 6. Render, City (+1 more)
-
-### Community 336 - "remotion-best-practices/remotion-maps/techniques/mapbox/TECHNIQUE.md"
-Cohesion: 0.12
-Nodes (14): Moving Map Render Stability, Plate sizing and sharpness, Required pattern: fixed map plate, Symptom and cause, Verification, Animated flight route example, Basic map example, Camera guidance (+6 more)
-
-### Community 337 - "remotion-best-practices/remotion-maps/techniques/maplibre/TECHNIQUE.md"
-Cohesion: 0.12
-Nodes (14): Moving Map Render Stability, Plate sizing and sharpness, Required pattern: fixed map plate, Symptom and cause, Verification, Animated flight route example, Basic map example, Camera guidance (+6 more)
-
-### Community 338 - "Using videos in Remotion"
-Cohesion: 0.20
-Nodes (9): Delaying, Looping, Pitch, Prerequisites, Sizing and Position, Speed, Trimming, Using videos in Remotion (+1 more)
-
-### Community 339 - "Adaptive Silence Detection"
-Cohesion: 0.33
-Nodes (6): Adaptive Silence Detection, Identifying leading and trailing silence, Interpreting the output, Step 1: Measure loudness with `loudnorm`, Step 2: Detect silences using adaptive threshold, Using with Remotion's `<Video>` component
-
-### Community 340 - "3D Flyover — architecture reference"
-Cohesion: 0.20
-Nodes (9): 1. Provider initialization, 2. The camera path — structure & generation, 3. Camera animation per frame (position, heading, pitch, bank), 3D Flyover — architecture reference, 4. The feel — proven water-wars values, 5. The complete component, 6. Render, City (+1 more)
-
-### Community 341 - "3D Flyover — architecture reference"
-Cohesion: 0.20
-Nodes (9): 1. Provider initialization, 2. The camera path — structure & generation, 3. Camera animation per frame (position, heading, pitch, bank), 3D Flyover — architecture reference, 4. The feel — proven water-wars values, 5. The complete component, 6. Render, City (+1 more)
-
-### Community 342 - "skills/remotion-maps/techniques/mapbox/TECHNIQUE.md"
-Cohesion: 0.20
-Nodes (9): Animated flight route example, Basic map example, Camera guidance, Core rules, Lines, Markers and labels, Prerequisites, Rendering (+1 more)
-
-### Community 343 - "skills/remotion-maps/techniques/maplibre/TECHNIQUE.md"
-Cohesion: 0.20
-Nodes (9): Animated flight route example, Basic map example, Camera guidance, Core rules, Lines, Markers and labels, Prerequisites, Rendering (+1 more)
-
-### Community 344 - "Using videos in Remotion"
-Cohesion: 0.20
-Nodes (9): Delaying, Looping, Pitch, Prerequisites, Sizing and Position, Speed, Trimming, Using videos in Remotion (+1 more)
-
-### Community 345 - "Adaptive Silence Detection"
-Cohesion: 0.20
-Nodes (8): FFmpeg in Remotion, Trimming videos, Adaptive Silence Detection, Identifying leading and trailing silence, Interpreting the output, Step 1: Measure loudness with `loudnorm`, Step 2: Detect silences using adaptive threshold, Using with Remotion's `<Video>` component
-
-### Community 346 - "3D Flyover — architecture reference"
-Cohesion: 0.20
-Nodes (9): 1. Provider initialization, 2. The camera path — structure & generation, 3. Camera animation per frame (position, heading, pitch, bank), 3D Flyover — architecture reference, 4. The feel — proven water-wars values, 5. The complete component, 6. Render, City (+1 more)
-
-### Community 347 - "Map Explainer — architecture reference"
-Cohesion: 0.22
-Nodes (8): 1. The render harness (per frame), 2. Timing model — time-based; beat length derived from the sequences, 3. Provider-vector animation, 4. Custom line animation — reveal + electric draw-head, 5. Country animation — border draws → fill blooms → label rises, 6. Labels — HTML overlay, projected each frame, 7. Camera — fixed map plate for any movement, Map Explainer — architecture reference
-
-### Community 348 - "Audio Visualization in Remotion"
-Cohesion: 0.22
-Nodes (8): Audio Visualization in Remotion, Bass-Reactive Effects, Loading Audio Data, Postprocessing, Prerequisites, Spectrum Bar Visualization, Volume-Based Waveform, Waveform Visualization
-
-### Community 349 - "Using Animated images in Remotion"
-Cohesion: 0.22
-Nodes (8): Alternative, Basic usage, Getting GIF duration, Looping behavior, Playback speed, Sizing and fit, Styling, Using Animated images in Remotion
-
-### Community 350 - "Map Explainer — architecture reference"
-Cohesion: 0.22
-Nodes (8): 1. The render harness (per frame), 2. Timing model — time-based; beat length derived from the sequences, 3. Provider-vector animation, 4. Custom line animation — reveal + electric draw-head, 5. Country animation — border draws → fill blooms → label rises, 6. Labels — HTML overlay, projected each frame, 7. Camera — fixed map plate for any movement, Map Explainer — architecture reference
-
-### Community 351 - "Map Explainer — architecture reference"
-Cohesion: 0.22
-Nodes (8): 1. The render harness (per frame), 2. Timing model — time-based; beat length derived from the sequences, 3. Provider-vector animation, 4. Custom line animation — reveal + electric draw-head, 5. Country animation — border draws → fill blooms → label rises, 6. Labels — HTML overlay, projected each frame, 7. Camera — fixed map plate for any movement, Map Explainer — architecture reference
-
-### Community 352 - "Audio Visualization in Remotion"
-Cohesion: 0.22
-Nodes (8): Audio Visualization in Remotion, Bass-Reactive Effects, Loading Audio Data, Postprocessing, Prerequisites, Spectrum Bar Visualization, Volume-Based Waveform, Waveform Visualization
-
-### Community 353 - "Using Animated images in Remotion"
-Cohesion: 0.22
-Nodes (8): Alternative, Basic usage, Getting GIF duration, Looping behavior, Playback speed, Sizing and fit, Styling, Using Animated images in Remotion
-
-### Community 354 - "Map Explainer — architecture reference"
-Cohesion: 0.22
-Nodes (8): 1. The render harness (per frame), 2. Timing model — time-based; beat length derived from the sequences, 3. Provider-vector animation, 4. Custom line animation — reveal + electric draw-head, 5. Country animation — border draws → fill blooms → label rises, 6. Labels — HTML overlay, projected each frame, 7. Camera — fixed map plate for any movement, Map Explainer — architecture reference
-
-### Community 355 - "Map Explainer — basemap & geo prep"
-Cohesion: 0.25
-Nodes (7): `anchor` — label centre via pole of inaccessibility, Basemap styling — strip the clutter, `border` — complete source geometry, Map Explainer — basemap & geo prep, `../scripts/prep-geo.mjs` → outputs, `stop` — when a country lights up, Tuning the geo prep for a new scenario
-
-### Community 356 - "Using `<HtmlInCanvas>` in Remotion"
-Cohesion: 0.25
-Nodes (7): 2D effect with `onPaint`, Async `onPaint`, Basic usage, Enabling WebGL during renders, Nesting, Using `<HtmlInCanvas>` in Remotion, WebGL effects
-
-### Community 357 - "remotion-best-practices/remotion-markup/light-leaks.md"
-Cohesion: 0.25
-Nodes (7): Basic usage with TransitionSeries, Customizing the look, Light leak overlay component, Light Leaks, Options, Prerequisites, Standalone usage
-
-### Community 358 - "Map Explainer — basemap & geo prep"
-Cohesion: 0.25
-Nodes (7): `anchor` — label centre via pole of inaccessibility, Basemap styling — strip the clutter, `border` — complete source geometry, Map Explainer — basemap & geo prep, `../scripts/prep-geo.mjs` → outputs, `stop` — when a country lights up, Tuning the geo prep for a new scenario
-
-### Community 359 - "Map Explainer — basemap & geo prep"
-Cohesion: 0.25
-Nodes (7): `anchor` — label centre via pole of inaccessibility, Basemap styling — strip the clutter, `border` — complete source geometry, Map Explainer — basemap & geo prep, `../scripts/prep-geo.mjs` → outputs, `stop` — when a country lights up, Tuning the geo prep for a new scenario
-
-### Community 360 - "Using `<HtmlInCanvas>` in Remotion"
-Cohesion: 0.25
-Nodes (7): 2D effect with `onPaint`, Async `onPaint`, Basic usage, Enabling WebGL during renders, Nesting, Using `<HtmlInCanvas>` in Remotion, WebGL effects
-
-### Community 361 - "skills/remotion-markup/light-leaks.md"
-Cohesion: 0.25
-Nodes (7): Basic usage with TransitionSeries, Customizing the look, Light leak overlay component, Light Leaks, Options, Prerequisites, Standalone usage
-
-### Community 362 - "Map Explainer — basemap & geo prep"
-Cohesion: 0.25
-Nodes (7): `anchor` — label centre via pole of inaccessibility, Basemap styling — strip the clutter, `border` — complete source geometry, Map Explainer — basemap & geo prep, `../scripts/prep-geo.mjs` → outputs, `stop` — when a country lights up, Tuning the geo prep for a new scenario
-
-### Community 363 - "utils.ts"
-Cohesion: 0.16
-Nodes (8): AdminLayout(), AdminNavItem, AdminSidebar(), BrandSlogan(), BrandSloganProps, Label, labelVariants, Separator
-
-### Community 364 - "skills/remotion-markup/compositions.md"
-Cohesion: 0.33
-Nodes (5): Default Props and scaffold metadata, Dynamic duration, width, and height, Folders, Nesting compositions within another, Stills
-
-### Community 365 - "Using Three.js and React Three Fiber in Remotion"
-Cohesion: 0.29
-Nodes (6): Animate using `useCurrentFrame()`, No animations not driven by `useCurrentFrame()`, Prerequisites, Using `<Sequence>` inside `<ThreeCanvas>`, Using Three.js and React Three Fiber in Remotion, Using ThreeCanvas
-
-### Community 366 - "Measuring text in Remotion"
-Cohesion: 0.29
-Nodes (6): Best practices, Checking text overflow, Fitting text to a width, Measuring text dimensions, Measuring text in Remotion, Prerequisites
-
-### Community 367 - "remotion-best-practices/remotion-markup/sequencing.md"
-Cohesion: 0.29
-Nodes (6): Frame References Inside Sequences, Nested Sequences, Nesting compositions within another, Premounting, Series, Series with overlaps
-
-### Community 368 - "remotion-best-practices/remotion-markup/timing.md"
-Cohesion: 0.29
-Nodes (6): Animating scale, Bézier easing, Multiple keyframes, Posterization, Spring easing, Studio-editable animation patterns
-
-### Community 369 - "remotion-maps/SKILL.md"
-Cohesion: 0.29
-Nodes (3): Build, Overlays and Interactivity, Static map
-
-### Community 370 - "CesiumJS — 3D flyovers in Remotion"
-Cohesion: 0.29
-Nodes (7): Build the flight, Camera behavior, CesiumJS — 3D flyovers in Remotion, Credentials, Files, Mechanics, Modes
-
-### Community 371 - "Using Three.js and React Three Fiber in Remotion"
-Cohesion: 0.29
-Nodes (6): Animate using `useCurrentFrame()`, No animations not driven by `useCurrentFrame()`, Prerequisites, Using `<Sequence>` inside `<ThreeCanvas>`, Using Three.js and React Three Fiber in Remotion, Using ThreeCanvas
-
-### Community 373 - "Measuring text in Remotion"
-Cohesion: 0.29
-Nodes (6): Best practices, Checking text overflow, Fitting text to a width, Measuring text dimensions, Measuring text in Remotion, Prerequisites
-
-### Community 374 - "skills/remotion-markup/sequencing.md"
-Cohesion: 0.29
-Nodes (6): Frame References Inside Sequences, Nested Sequences, Nesting compositions within another, Premounting, Series, Series with overlaps
-
-### Community 375 - "skills/remotion-markup/timing.md"
-Cohesion: 0.29
-Nodes (6): Animating scale, Bézier easing, Multiple keyframes, Posterization, Spring easing, Studio-editable animation patterns
-
-### Community 376 - "remotion-render/SKILL.md"
-Cohesion: 0.29
-Nodes (5): General rendering strategy, Transparent videos, Rendering Transparent Videos, Transparent ProRes, Transparent WebM (VP9)
-
-### Community 377 - "Remotion video"
-Cohesion: 0.29
-Nodes (6): Commands, Docs, Help, Issues, License, Remotion video
-
-### Community 379 - "Remotion Maps"
-Cohesion: 0.33
-Nodes (6): [CesiumJS](techniques/cesium/TECHNIQUE.md), [Mapbox](techniques/mapbox/TECHNIQUE.md), [MapLibre](techniques/maplibre/TECHNIQUE.md), [MapTiler](techniques/maptiler/TECHNIQUE.md), Remotion Maps, [Static map](techniques/static-map/TECHNIQUE.md)
-
-### Community 380 - "remotion-best-practices/remotion-maps/REFERENCE.md"
-Cohesion: 0.10
-Nodes (16): [CesiumJS](techniques/cesium/TECHNIQUE.md), [Mapbox](techniques/mapbox/TECHNIQUE.md), [MapLibre](techniques/maplibre/TECHNIQUE.md), [MapTiler](techniques/maptiler/TECHNIQUE.md), Remotion Maps, [Static map](techniques/static-map/TECHNIQUE.md), Build the flight, Camera behavior (+8 more)
-
-### Community 381 - "Map element data sources"
-Cohesion: 0.33
-Nodes (5): Custom geodata mode, Decision rule, Hybrid mode, Map element data sources, MapTiler vector mode
-
-### Community 382 - "Moving Map Render Stability"
-Cohesion: 0.33
-Nodes (5): Moving Map Render Stability, Plate sizing and sharpness, Required pattern: fixed map plate, Symptom and cause, Verification
-
-### Community 383 - "Map element data sources"
-Cohesion: 0.33
-Nodes (5): Custom geodata mode, Decision rule, Hybrid mode, Map element data sources, MapTiler vector mode
-
-### Community 384 - "Moving Map Render Stability"
-Cohesion: 0.33
-Nodes (5): Moving Map Render Stability, Plate sizing and sharpness, Required pattern: fixed map plate, Symptom and cause, Verification
-
-### Community 385 - "Remotion Maps"
-Cohesion: 0.33
-Nodes (6): [CesiumJS](techniques/cesium/TECHNIQUE.md), [Mapbox](techniques/mapbox/TECHNIQUE.md), [MapLibre](techniques/maplibre/TECHNIQUE.md), [MapTiler](techniques/maptiler/TECHNIQUE.md), Remotion Maps, [Static map](techniques/static-map/TECHNIQUE.md)
-
-### Community 386 - "Moving Map Render Stability"
-Cohesion: 0.33
-Nodes (5): Moving Map Render Stability, Plate sizing and sharpness, Required pattern: fixed map plate, Symptom and cause, Verification
-
-### Community 387 - "Moving Map Render Stability"
-Cohesion: 0.33
-Nodes (5): Moving Map Render Stability, Plate sizing and sharpness, Required pattern: fixed map plate, Symptom and cause, Verification
-
-### Community 388 - "Map element data sources"
-Cohesion: 0.33
-Nodes (5): Custom geodata mode, Decision rule, Hybrid mode, Map element data sources, MapTiler vector mode
-
-### Community 389 - "Moving Map Render Stability"
-Cohesion: 0.33
-Nodes (5): Moving Map Render Stability, Plate sizing and sharpness, Required pattern: fixed map plate, Symptom and cause, Verification
-
-### Community 390 - "Map element data sources"
-Cohesion: 0.33
-Nodes (5): Custom geodata mode, Decision rule, Hybrid mode, Map element data sources, MapTiler vector mode
-
-### Community 391 - "Moving Map Render Stability"
-Cohesion: 0.33
-Nodes (5): Moving Map Render Stability, Plate sizing and sharpness, Required pattern: fixed map plate, Symptom and cause, Verification
-
-### Community 392 - "Moving Map Render Stability"
-Cohesion: 0.33
-Nodes (5): Moving Map Render Stability, Plate sizing and sharpness, Required pattern: fixed map plate, Symptom and cause, Verification
-
-### Community 393 - "Flyover data sources"
-Cohesion: 0.40
-Nodes (4): City, Flyover data sources, Landscape, Why not extruded buildings
-
-### Community 394 - "3D Flyover — troubleshooting"
-Cohesion: 0.40
-Nodes (4): 3D Flyover — troubleshooting, Gotchas checklist, Symptom → fix, The headless dead-end (why we render through Remotion)
-
-### Community 396 - "Using fonts in Remotion"
-Cohesion: 0.40
-Nodes (4): Google Fonts with @remotion/google-fonts, Prerequisites, Using fonts in Remotion, Using in components
-
-### Community 397 - "remotion-best-practices/remotion-markup/local-fonts.md"
-Cohesion: 0.40
-Nodes (4): Available options, Loading a local font, Loading multiple weights, Prerequisites
-
-### Community 398 - "Using Lottie Animations in Remotion"
-Cohesion: 0.40
-Nodes (4): Displaying a Lottie file, Prerequisites, Styling and animating, Using Lottie Animations in Remotion
-
-### Community 399 - "Delaying, trimming"
-Cohesion: 0.40
-Nodes (5): Delaying, trimming, durationInFrames, Fallback, from, `trimBefore`
-
-### Community 400 - "Flyover data sources"
-Cohesion: 0.40
-Nodes (4): City, Flyover data sources, Landscape, Why not extruded buildings
-
-### Community 401 - "3D Flyover — troubleshooting"
-Cohesion: 0.40
-Nodes (4): 3D Flyover — troubleshooting, Gotchas checklist, Symptom → fix, The headless dead-end (why we render through Remotion)
-
-### Community 403 - "Flyover data sources"
-Cohesion: 0.40
-Nodes (4): City, Flyover data sources, Landscape, Why not extruded buildings
-
-### Community 404 - "3D Flyover — troubleshooting"
-Cohesion: 0.40
-Nodes (4): 3D Flyover — troubleshooting, Gotchas checklist, Symptom → fix, The headless dead-end (why we render through Remotion)
-
-### Community 406 - "Using fonts in Remotion"
-Cohesion: 0.40
-Nodes (4): Google Fonts with @remotion/google-fonts, Prerequisites, Using fonts in Remotion, Using in components
-
-### Community 407 - "skills/remotion-markup/local-fonts.md"
-Cohesion: 0.40
-Nodes (4): Available options, Loading a local font, Loading multiple weights, Prerequisites
-
-### Community 408 - "Using Lottie Animations in Remotion"
-Cohesion: 0.40
-Nodes (4): Displaying a Lottie file, Prerequisites, Styling and animating, Using Lottie Animations in Remotion
-
-### Community 409 - "Flyover data sources"
-Cohesion: 0.40
-Nodes (4): City, Flyover data sources, Landscape, Why not extruded buildings
-
-### Community 410 - "3D Flyover — troubleshooting"
-Cohesion: 0.40
-Nodes (4): 3D Flyover — troubleshooting, Gotchas checklist, Symptom → fix, The headless dead-end (why we render through Remotion)
-
-### Community 412 - "Delaying, trimming"
-Cohesion: 0.40
-Nodes (5): Delaying, trimming, durationInFrames, Fallback, from, `trimBefore`
-
-### Community 413 - "Moving Map Render Stability"
-Cohesion: 0.33
-Nodes (5): Moving Map Render Stability, Plate sizing and sharpness, Required pattern: fixed map plate, Symptom and cause, Verification
-
-### Community 415 - "remotion-docs/SKILL.md"
-Cohesion: 0.50
-Nodes (3): Fetching a page as Markdown, Searching the docs, Workflow
-
-### Community 416 - "skills/remotion-markup/effects.md"
-Cohesion: 0.50
-Nodes (3): Available effects, Custom effects, Usage
-
-### Community 417 - "skills/remotion-markup/images.md"
-Cohesion: 0.50
-Nodes (3): Dynamic image paths, Getting image dimensions, Sizing and positioning
 
 ### Community 418 - "PostgreSQL 16 Service (procal-db)"
 Cohesion: 0.50
@@ -1648,21 +1071,9 @@ Nodes (3): $type, $value, 0
 Cohesion: 0.60
 Nodes (5): $type, $value, border, border, border
 
-### Community 422 - "none"
-Cohesion: 0.67
-Nodes (4): $type, $value, none, none
-
-### Community 427 - "Adding AI voiceover to a Remotion composition"
-Cohesion: 0.33
-Nodes (6): Adding AI voiceover to a Remotion composition, Delaying audio start, Dynamic composition duration with calculateMetadata, Generating audio with ElevenLabs, Prerequisites, Rendering audio in the component
-
 ### Community 431 - "16"
 Cohesion: 0.67
 Nodes (3): $type, $value, 16
-
-### Community 434 - "3"
-Cohesion: 0.67
-Nodes (3): $type, $value, 3
 
 ### Community 437 - "TODOS — ProCal"
 Cohesion: 0.33
@@ -1673,8 +1084,8 @@ Cohesion: 0.40
 Nodes (5): 6. Section 4: Prioritized Remediation Roadmap, Phase 1: Critical Life-Safety & Protection Hotfixes (Immediate / Day 1), Phase 2: Core Standards Compliance & Engineering Physics Alignment (Sprint 1), Phase 3: Test Suite Refactoring & Facade Elimination (Sprint 2), Phase 4: UI/UX Usability, Accessibility & Polish (Sprint 3)
 
 ### Community 439 - "project-auth.ts"
-Cohesion: 0.18
-Nodes (17): PATCH(), GET(), getMembers(), mocks, postInvite(), WorkflowStep, ProjectAuthSuccess, VerifyProjectAccessResult (+9 more)
+Cohesion: 0.16
+Nodes (19): DELETE(), PATCH(), GET(), getMembers(), mocks, postInvite(), GET(), WorkflowStep (+11 more)
 
 ### Community 440 - "4. Section 2: Test Suite Execution, Coverage Gaps & False-Positive Assertions"
 Cohesion: 0.50
@@ -1683,10 +1094,6 @@ Nodes (4): 4.1 Vitest Execution Summary, 4.3 Critical Test Coverage Gaps Matrix 
 ### Community 441 - "Hermes E2E Audit Memory & Engineering Rules"
 Cohesion: 0.40
 Nodes (4): Fix 1: Main Incomer Protection & Overload Trip Elimination, Fix 2: Uniform Apartment Demand Factor Across Towers & Global Recalculate, Hermes E2E Audit Memory & Engineering Rules, Note on Problem 3 (HVAC & Fire Pump Sizing)
-
-### Community 443 - "remotion-best-practices/remotion-markup/effects.md"
-Cohesion: 0.50
-Nodes (3): Available effects, Custom effects, Usage
 
 ### Community 445 - "destructive-foreground"
 Cohesion: 0.67
@@ -1705,23 +1112,23 @@ Cohesion: 0.67
 Nodes (3): secondary-foreground, $type, $value
 
 ## Knowledge Gaps
-- **4194 isolated node(s):** `fs`, `path`, `fs`, `path`, `fs` (+4189 more)
+- **3192 isolated node(s):** `fs`, `path`, `fs`, `path`, `fs` (+3187 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **128 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **120 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `PrismaClient` connect `PrismaClient` to `prismaNamespace.ts`, `class.ts`?**
-  _High betweenness centrality (0.007) - this node is a cross-community bridge._
+- **Why does `cn()` connect `cn` to `breaker-schedule/page.tsx`, `LoadManager.tsx`, `country-defaults.ts`, `useTranslation`, `MethodSelector.tsx`, `app/page.tsx`?**
+  _High betweenness centrality (0.011) - this node is a cross-community bridge._
+- **Why does `getSessionUser()` connect `getSessionUser` to `verifyProjectAccess`, `app-settings.ts`, `revisions-diff.ts`, `notify.ts`, `profile/route.ts`, `project-auth.ts`, `db.ts`, `requireAdmin`?**
+  _High betweenness centrality (0.010) - this node is a cross-community bridge._
 - **Why does `ApartmentTemplateDelegate` connect `ApartmentTemplateDelegate` to `ApartmentTemplate.ts`?**
-  _High betweenness centrality (0.006) - this node is a cross-community bridge._
-- **Why does `BreakerFamilyDelegate` connect `BreakerFamilyDelegate` to `BreakerFamily.ts`?**
-  _High betweenness centrality (0.006) - this node is a cross-community bridge._
+  _High betweenness centrality (0.008) - this node is a cross-community bridge._
 - **Are the 2 inferred relationships involving `TailwindConfigGenerator` (e.g. with `TestGeneratedConfigIsValidJs` and `TestTailwindConfigGenerator`) actually correct?**
   _`TailwindConfigGenerator` has 2 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `fs`, `path`, `fs` to the rest of the system?**
-  _4194 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _3192 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Project.ts` be split into smaller, more focused modules?**
   _Cohesion score 0.009009009009009009 - nodes in this community are weakly interconnected._
 - **Should `prismaNamespace.ts` be split into smaller, more focused modules?**

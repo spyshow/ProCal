@@ -254,7 +254,15 @@ export default function ReportsPage() {
       const url = `/api/projects/${project.id}/pdf${params.toString() ? `?${params.toString()}` : ''}`;
       const res = await fetch(url);
       if (!res.ok) {
-        throw new Error(`Failed to generate PDF (${res.status} ${res.statusText})`);
+        let errDetail = `${res.status} ${res.statusText}`;
+        try {
+          const body = await res.json();
+          if (body?.details) errDetail = body.details;
+          else if (body?.error) errDetail = body.error;
+        } catch {
+          // ignore
+        }
+        throw new Error(errDetail);
       }
       const blob = await res.blob();
       const blobUrl = window.URL.createObjectURL(blob);
@@ -266,9 +274,9 @@ export default function ReportsPage() {
       a.click();
       a.remove();
       window.URL.revokeObjectURL(blobUrl);
-    } catch (err) {
-      console.error('Server PDF export failed, falling back to browser print dialog:', err);
-      handlePrint();
+    } catch (err: any) {
+      console.error('Server PDF export failed:', err);
+      alert(`PDF Package download failed: ${err?.message || 'Server error'}. If needed, use the adjacent Print button.`);
     } finally {
       setDownloadingPdf(false);
     }

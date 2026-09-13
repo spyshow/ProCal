@@ -76,3 +76,8 @@ claude_memory.md
 
 # graphify cache
 graphify-out/cache/
+
+# Remotion
+intro-video/
+.agents/skills/remotion-*/
+*remotion*

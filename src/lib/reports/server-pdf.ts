@@ -1,6 +1,7 @@
 import puppeteer from 'puppeteer-core';
 import chromium from '@sparticuz/chromium';
 import fs from 'fs';
+import path from 'path';
 
 /**
  * Resolves the appropriate Chromium executable path across environments:
@@ -13,9 +14,11 @@ export async function getChromiumExecutablePath(): Promise<string> {
     const candidates = [
       'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
       'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe',
+      process.env.LOCALAPPDATA ? path.join(process.env.LOCALAPPDATA, 'Google\\Chrome\\Application\\chrome.exe') : '',
       'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe',
       'C:\\Program Files\\Microsoft\\Edge\\Application\\msedge.exe',
-    ];
+      process.env.LOCALAPPDATA ? path.join(process.env.LOCALAPPDATA, 'Microsoft\\Edge\\Application\\msedge.exe') : '',
+    ].filter(Boolean);
     for (const c of candidates) {
       if (fs.existsSync(c)) return c;
     }
@@ -30,6 +33,20 @@ export async function getChromiumExecutablePath(): Promise<string> {
   }
 
   // Linux (Vercel Serverless / AWS Lambda / Docker)
+  // Disable graphics mode (WebGL/SwiftShader) to save startup time and /tmp disk space
+  chromium.setGraphicsMode = false;
+
+  // Search for the extracted or local node_modules bin path if available
+  const potentialBinDirs = [
+    path.join(/*turbopackIgnore: true*/ process.cwd(), 'node_modules', '@sparticuz', 'chromium', 'bin'),
+    path.join(/*turbopackIgnore: true*/ process.cwd(), '.next', 'server', 'node_modules', '@sparticuz', 'chromium', 'bin'),
+  ];
+  for (const binDir of potentialBinDirs) {
+    if (fs.existsSync(binDir)) {
+      return await chromium.executablePath(binDir);
+    }
+  }
+
   return await chromium.executablePath();
 }
 
@@ -44,9 +61,14 @@ export async function generateServerPdf(html: string): Promise<Buffer> {
 
   const browser = await puppeteer.launch({
     executablePath,
-    headless: true,
+    headless: isServerlessLinux ? 'shell' : true,
     args: isServerlessLinux
-      ? chromium.args
+      ? [
+          ...chromium.args,
+          '--disable-gpu',
+          '--disable-dev-shm-usage',
+          '--font-render-hinting=none',
+        ]
       : [
           '--no-sandbox',
           '--disable-setuid-sandbox',

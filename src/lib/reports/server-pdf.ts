@@ -1,13 +1,17 @@
 import puppeteer from 'puppeteer-core';
 import chromium from '@sparticuz/chromium';
 import fs from 'fs';
+import os from 'os';
 import path from 'path';
 
 /**
  * Resolves the appropriate Chromium executable path across environments:
  * - Local Windows dev: checks Chrome / Edge standard locations
  * - Local macOS dev: checks Chrome / Edge applications
- * - Production Linux / Vercel Serverless: extracts lightweight binary via @sparticuz/chromium
+ * - Production Linux / Vercel Serverless:
+ *   1. Reuses existing /tmp/chromium if already inflated
+ *   2. Checks local bin if present
+ *   3. Downloads official Sparticuz brotli release pack into /tmp (bypasses 50MB Lambda zip limits)
  */
 export async function getChromiumExecutablePath(): Promise<string> {
   if (process.platform === 'win32') {
@@ -15,8 +19,8 @@ export async function getChromiumExecutablePath(): Promise<string> {
       'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
       'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe',
       process.env.LOCALAPPDATA ? path.join(process.env.LOCALAPPDATA, 'Google\\Chrome\\Application\\chrome.exe') : '',
-      'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe',
       'C:\\Program Files\\Microsoft\\Edge\\Application\\msedge.exe',
+      'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe',
       process.env.LOCALAPPDATA ? path.join(process.env.LOCALAPPDATA, 'Microsoft\\Edge\\Application\\msedge.exe') : '',
     ].filter(Boolean);
     for (const c of candidates) {
@@ -36,18 +40,35 @@ export async function getChromiumExecutablePath(): Promise<string> {
   // Disable graphics mode (WebGL/SwiftShader) to save startup time and /tmp disk space
   chromium.setGraphicsMode = false;
 
-  // Search for the extracted or local node_modules bin path if available
+  // 1. Fast path: check if the chromium binary is already inflated in /tmp
+  const tmpChromium = path.join(os.tmpdir(), 'chromium');
+  if (fs.existsSync(tmpChromium)) {
+    return tmpChromium;
+  }
+
+  // 2. Check if a local node_modules/@sparticuz/chromium/bin directory exists (e.g. Docker container)
   const potentialBinDirs = [
+    path.join('/var/task', 'node_modules', '@sparticuz', 'chromium', 'bin'),
     path.join(/*turbopackIgnore: true*/ process.cwd(), 'node_modules', '@sparticuz', 'chromium', 'bin'),
     path.join(/*turbopackIgnore: true*/ process.cwd(), '.next', 'server', 'node_modules', '@sparticuz', 'chromium', 'bin'),
   ];
   for (const binDir of potentialBinDirs) {
     if (fs.existsSync(binDir)) {
-      return await chromium.executablePath(binDir);
+      try {
+        const localPath = await chromium.executablePath(binDir);
+        if (localPath && fs.existsSync(localPath)) return localPath;
+      } catch (err) {
+        console.warn('Local chromium bin evaluation failed, falling back to pack URL:', err);
+      }
     }
   }
 
-  return await chromium.executablePath();
+  // 3. Fallback for serverless environments (Vercel / Lambda) where large binaries (>50MB) cannot be bundled:
+  // Dynamically download and inflate the official Sparticuz brotli release pack into /tmp.
+  const arch = process.arch === 'arm64' ? 'arm64' : 'x64';
+  const packUrl = process.env.CHROMIUM_PACK_URL || `https://github.com/Sparticuz/chromium/releases/download/v153.0.0/chromium-v153.0.0-pack.${arch}.tar`;
+
+  return await chromium.executablePath(packUrl);
 }
 
 /**
@@ -63,12 +84,7 @@ export async function generateServerPdf(html: string): Promise<Buffer> {
     executablePath,
     headless: isServerlessLinux ? 'shell' : true,
     args: isServerlessLinux
-      ? [
-          ...chromium.args,
-          '--disable-gpu',
-          '--disable-dev-shm-usage',
-          '--font-render-hinting=none',
-        ]
+      ? await puppeteer.defaultArgs({ args: chromium.args, headless: 'shell' })
       : [
           '--no-sandbox',
           '--disable-setuid-sandbox',
@@ -76,6 +92,11 @@ export async function generateServerPdf(html: string): Promise<Buffer> {
           '--disable-dev-shm-usage',
           '--font-render-hinting=none',
         ],
+    defaultViewport: {
+      width: 1400,
+      height: 900,
+      deviceScaleFactor: 2,
+    },
   });
 
   try {

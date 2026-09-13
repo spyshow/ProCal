@@ -2,10 +2,63 @@ import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { verifyProjectAccess } from "@/lib/project-auth";
 import { getCompanySettings } from "@/lib/app-settings";
-import { renderReportHtml } from "@/lib/reports/render-report-html";
+import { renderReportHtml, wrapReportMarkup } from "@/lib/reports/render-report-html";
 import { generateServerPdf } from "@/lib/reports/server-pdf";
 
 export const maxDuration = 60;
+
+export async function POST(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params;
+    const auth = await verifyProjectAccess(id);
+    if (auth instanceof NextResponse) return auth;
+
+    const project = await db.project.findUnique({
+      where: { id },
+      select: { name: true },
+    });
+
+    if (!project) {
+      return NextResponse.json({ error: "Project not found" }, { status: 404 });
+    }
+
+    const body = await request.json().catch(() => ({}));
+    const htmlContent = body.html;
+
+    if (!htmlContent || typeof htmlContent !== "string") {
+      return NextResponse.json(
+        { error: "Missing or invalid 'html' in request body" },
+        { status: 400 }
+      );
+    }
+
+    const fullHtml = wrapReportMarkup(htmlContent, `${project.name} - Executive Engineering Package`);
+    const pdfBuffer = await generateServerPdf(fullHtml);
+
+    const safeProjectName = project.name.replace(/[^a-zA-Z0-9_-]/g, "_");
+    const filename = `${safeProjectName}_Executive_Engineering_Package.pdf`;
+
+    return new Response(pdfBuffer as any, {
+      status: 200,
+      headers: {
+        "Content-Type": "application/pdf",
+        "Content-Disposition": `attachment; filename="${filename}"`,
+        "Content-Length": pdfBuffer.byteLength.toString(),
+        "Cache-Control": "no-cache, no-store, must-revalidate",
+      },
+    });
+  } catch (error) {
+    console.error("POST /api/projects/[id]/pdf Error:", error);
+    const message = error instanceof Error ? error.message : String(error);
+    return NextResponse.json(
+      { error: "Failed to generate server PDF package", details: message },
+      { status: 500 }
+    );
+  }
+}
 
 export async function GET(
   request: Request,

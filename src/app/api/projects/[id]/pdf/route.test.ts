@@ -47,6 +47,20 @@ async function get(id: string, searchParams = "") {
   );
 }
 
+async function post(id: string, body: any) {
+  const { POST } = await import("./route");
+  return POST(
+    new Request(`http://localhost/api/projects/${id}/pdf`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    }),
+    {
+      params: Promise.resolve({ id }),
+    }
+  );
+}
+
 beforeEach(() => {
   vi.resetModules();
   vi.clearAllMocks();
@@ -110,5 +124,49 @@ describe("GET /api/projects/[id]/pdf", () => {
 
     const buffer = await res.arrayBuffer();
     expect(buffer.byteLength).toBeGreaterThan(0);
+  });
+});
+
+describe("POST /api/projects/[id]/pdf", () => {
+  it("returns 401/error response when verifyProjectAccess rejects", async () => {
+    mocks.verifyProjectAccess.mockResolvedValue(
+      NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    );
+
+    const res = await post("p1", { html: "<p>Hello</p>" });
+    expect(res.status).toBe(401);
+  });
+
+  it("returns 404 when project is not found", async () => {
+    mocks.projectFindUnique.mockResolvedValue(null);
+
+    const res = await post("p1", { html: "<p>Hello</p>" });
+    expect(res.status).toBe(404);
+    const body = await res.json();
+    expect(body.error).toBe("Project not found");
+  });
+
+  it("returns 400 when html is missing or not a string", async () => {
+    mocks.projectFindUnique.mockResolvedValue({ id: "p1", name: "Residential Complex" });
+
+    const resMissing = await post("p1", {});
+    expect(resMissing.status).toBe(400);
+
+    const resInvalid = await post("p1", { html: 12345 });
+    expect(resInvalid.status).toBe(400);
+  });
+
+  it("generates and returns application/pdf with proper headers on valid POST", async () => {
+    mocks.projectFindUnique.mockResolvedValue({ id: "p1", name: "Residential Complex" });
+
+    const res = await post("p1", { html: "<div id='print-all-tabs'><h1>Report</h1></div>" });
+    expect(res.status).toBe(200);
+    expect(res.headers.get("Content-Type")).toBe("application/pdf");
+    expect(res.headers.get("Content-Disposition")).toContain("Residential_Complex_Executive_Engineering_Package.pdf");
+    expect(res.headers.get("Content-Length")).toBe(Buffer.from("%PDF-1.4 mock-pdf-content").byteLength.toString());
+
+    const buffer = await res.arrayBuffer();
+    expect(buffer.byteLength).toBeGreaterThan(0);
+    expect(mocks.generateServerPdf).toHaveBeenCalled();
   });
 });

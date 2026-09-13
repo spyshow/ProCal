@@ -123,12 +123,16 @@ export function renderReportHtml(options: RenderReportHtmlOptions): string {
     </div>
   );
 
+  return wrapReportMarkup(reportMarkup, `${project.name} - Engineering Package`);
+}
+
+export function wrapReportMarkup(markup: string, title = 'Engineering Package'): string {
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>${escapeXml(project.name)} - Engineering Package</title>
+  <title>${escapeXml(title)}</title>
   <style>
     /* Standalone compiled Tailwind stylesheet */
     ${REPORT_COMPILED_CSS}
@@ -144,6 +148,7 @@ export function renderReportHtml(options: RenderReportHtmlOptions): string {
     * {
       -webkit-print-color-adjust: exact !important;
       print-color-adjust: exact !important;
+      box-sizing: border-box !important;
     }
     html, body {
       margin: 0;
@@ -155,6 +160,10 @@ export function renderReportHtml(options: RenderReportHtmlOptions): string {
     }
     .font-mono, code, pre, kbd, samp {
       font-family: Consolas, "Courier New", Courier, monospace !important;
+    }
+    #print-all-tabs {
+      display: block !important;
+      width: 100% !important;
     }
     .print-page-container {
       page-break-before: always;
@@ -176,10 +185,29 @@ export function renderReportHtml(options: RenderReportHtmlOptions): string {
     tfoot {
       display: table-footer-group;
     }
+    button:not(td *):not(th *),
+    [role="button"]:not(td *):not(th *),
+    input[type="button"] {
+      display: none !important;
+    }
+    td [role="button"], th [role="button"], .group\\/cell, .traceable-cell {
+      display: inline-block !important;
+      position: static !important;
+      cursor: default !important;
+      user-select: text !important;
+      background: transparent !important;
+      box-shadow: none !important;
+    }
+    .group\\/cell::after, td [role="button"]::after, th [role="button"]::after, [class*="after:content-['fx']"]::after {
+      display: none !important;
+      content: none !important;
+    }
   </style>
 </head>
 <body>
-  ${reportMarkup}
+  <div class="report-root w-full bg-white text-slate-900">
+    ${markup}
+  </div>
 </body>
 </html>`;
 }

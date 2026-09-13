@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { renderReportHtml } from './render-report-html';
+import { renderReportHtml, wrapReportMarkup } from './render-report-html';
 import type { Project, Building, FloorItem } from '@/types';
 import type { EquipmentItem } from '@/lib/calculations/feeders';
 
@@ -169,5 +169,14 @@ describe('renderReportHtml', () => {
 
     expect(html).toContain('Residential Tower 1');
     expect(html).toContain('Apartment 101');
+  });
+
+  it('wraps arbitrary markup into an A4 landscape HTML document with TrueType fonts', () => {
+    const output = wrapReportMarkup('<div id="print-all-tabs"><h2>Test Schedule</h2></div>', 'Custom Title');
+    expect(output).toContain('<!DOCTYPE html>');
+    expect(output).toContain('<title>Custom Title</title>');
+    expect(output).toContain('size: A4 landscape');
+    expect(output).toContain('Test Schedule');
+    expect(output).toContain('#print-all-tabs');
   });
 });

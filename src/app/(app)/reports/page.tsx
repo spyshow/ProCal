@@ -246,13 +246,20 @@ export default function ReportsPage() {
     if (!project) return;
     setDownloadingPdf(true);
     try {
-      const params = new URLSearchParams();
-      if (selectedBuilding) params.set('buildingId', selectedBuilding);
-      if (preferredManufacturer && preferredManufacturer !== 'MIXED') {
-        params.set('manufacturer', preferredManufacturer);
+      const printElement = printRef.current;
+      const html = printElement ? printElement.innerHTML : '';
+      if (!html) {
+        throw new Error('Report contents are not ready yet. Please wait a moment and try again.');
       }
-      const url = `/api/projects/${project.id}/pdf${params.toString() ? `?${params.toString()}` : ''}`;
-      const res = await fetch(url);
+
+      const res = await fetch(`/api/projects/${project.id}/pdf`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ html }),
+      });
+
       if (!res.ok) {
         let errDetail = `${res.status} ${res.statusText}`;
         try {

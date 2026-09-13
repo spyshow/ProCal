@@ -79,7 +79,31 @@ export default function ReportsPage() {
   useEffect(() => {
     fetch("/api/settings")
       .then(r => r.json())
-      .then(data => { if (data.company) setCompany(data.company); })
+      .then(async (data) => {
+        if (!data.company) return;
+        const companyObj = { ...data.company };
+        if (companyObj.logoUrl && (companyObj.logoUrl.startsWith('/api/assets/') || companyObj.logoUrl.startsWith('/uploads/'))) {
+          try {
+            const res = await fetch(companyObj.logoUrl);
+            if (res.ok) {
+              const blob = await res.blob();
+              const reader = new FileReader();
+              reader.onloadend = () => {
+                if (typeof reader.result === 'string') {
+                  setCompany({ ...companyObj, logoUrl: reader.result });
+                } else {
+                  setCompany(companyObj);
+                }
+              };
+              reader.readAsDataURL(blob);
+              return;
+            }
+          } catch {
+            // fallback
+          }
+        }
+        setCompany(companyObj);
+      })
       .catch(() => {});
   }, []);
 
@@ -247,7 +271,36 @@ export default function ReportsPage() {
     setDownloadingPdf(true);
     try {
       const printElement = printRef.current;
-      const html = printElement ? printElement.innerHTML : '';
+      if (!printElement) {
+        throw new Error('Report contents are not ready yet. Please wait a moment and try again.');
+      }
+
+      // Clone the print DOM and convert any relative img sources to data URIs
+      const clone = printElement.cloneNode(true) as HTMLElement;
+      const images = Array.from(clone.querySelectorAll('img'));
+      for (const img of images) {
+        const src = img.getAttribute('src');
+        if (src && !src.startsWith('data:') && !src.startsWith('blob:')) {
+          try {
+            const res = await fetch(src);
+            if (res.ok) {
+              const blob = await res.blob();
+              const dataUri = await new Promise<string>((resolve) => {
+                const reader = new FileReader();
+                reader.onloadend = () => resolve(reader.result as string);
+                reader.readAsDataURL(blob);
+              });
+              if (dataUri) {
+                img.setAttribute('src', dataUri);
+              }
+            }
+          } catch {
+            // Keep original src; server will resolve via database
+          }
+        }
+      }
+
+      const html = clone.innerHTML;
       if (!html) {
         throw new Error('Report contents are not ready yet. Please wait a moment and try again.');
       }

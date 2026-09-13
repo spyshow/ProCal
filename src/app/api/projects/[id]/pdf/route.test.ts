@@ -8,6 +8,7 @@ const mocks = {
   equipmentCatalogFindMany: vi.fn(),
   breakerSettingsFindMany: vi.fn(),
   getCompanySettings: vi.fn(),
+  getLogoAsset: vi.fn(),
   generateServerPdf: vi.fn(),
   verifyProjectAccess: vi.fn(),
 };
@@ -31,10 +32,11 @@ vi.mock("@/lib/db", () => ({
 
 vi.mock("@/lib/app-settings", () => ({
   getCompanySettings: vi.fn(async () => mocks.getCompanySettings()),
+  getLogoAsset: vi.fn(async (key: string) => mocks.getLogoAsset(key)),
 }));
 
 vi.mock("@/lib/reports/server-pdf", () => ({
-  generateServerPdf: vi.fn(async () => mocks.generateServerPdf()),
+  generateServerPdf: vi.fn(async (html: string) => mocks.generateServerPdf(html)),
 }));
 
 async function get(id: string, searchParams = "") {
@@ -70,6 +72,7 @@ beforeEach(() => {
   mocks.revisionFindMany.mockResolvedValue([]);
   mocks.equipmentCatalogFindMany.mockResolvedValue([]);
   mocks.breakerSettingsFindMany.mockResolvedValue([]);
+  mocks.getLogoAsset.mockResolvedValue(null);
   mocks.generateServerPdf.mockResolvedValue(Buffer.from("%PDF-1.4 mock-pdf-content"));
 });
 
@@ -168,5 +171,28 @@ describe("POST /api/projects/[id]/pdf", () => {
     const buffer = await res.arrayBuffer();
     expect(buffer.byteLength).toBeGreaterThan(0);
     expect(mocks.generateServerPdf).toHaveBeenCalled();
+  });
+
+  it("inlines relative image assets from /api/assets/ into base64 data URIs before generating PDF", async () => {
+    mocks.projectFindUnique.mockResolvedValue({ id: "p1", name: "Residential Complex" });
+    mocks.getLogoAsset.mockImplementation(async (key: string) => {
+      if (key === "logo:test12345") {
+        return {
+          mime: "image/png",
+          data: "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
+          createdAt: "2026-09-13T00:00:00.000Z",
+        };
+      }
+      return null;
+    });
+
+    const res = await post("p1", {
+      html: "<div id='print-all-tabs'><img src='/api/assets/logo%3Atest12345' alt='Logo' /></div>",
+    });
+    expect(res.status).toBe(200);
+    expect(mocks.generateServerPdf).toHaveBeenCalled();
+    const passedHtml = mocks.generateServerPdf.mock.calls[0][0];
+    expect(passedHtml).toContain("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJ");
+    expect(passedHtml).not.toContain("/api/assets/logo%3Atest12345");
   });
 });

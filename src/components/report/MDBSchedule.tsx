@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { computeFeeders, createFindBreaker, type FindBreaker } from '@/lib/calculations/feeders';
+import { computeFeeders, createFindBreaker, type FindBreaker, type EquipmentItem } from '@/lib/calculations/feeders';
 import { phaseBalance } from '@/lib/calculations/phaseBalance';
 import { formatCableSizeFor, parseCableSize, calculateCableAmpacity } from '@/lib/calculations/cables';
 import { codeOf } from '@/lib/calculations/codes';
@@ -16,6 +16,8 @@ export interface MDBScheduleProps {
   project: Project;
   buildingId?: string;
   showHeader?: boolean;
+  equipment?: EquipmentItem[];
+  findBreaker?: FindBreaker;
 }
 
 interface MDBRow {
@@ -43,7 +45,13 @@ interface MDBRow {
  * Uses `computeFeeders` to list every outgoing MDB feeder, SMDB sub-panel feeder,
  * and downstream circuit breaker matching the rest of the application.
  */
-export default function MDBSchedule({ project, buildingId, showHeader = true }: MDBScheduleProps) {
+export default function MDBSchedule({
+  project,
+  buildingId,
+  showHeader = true,
+  equipment: preloadedEquipment,
+  findBreaker: preloadedFindBreaker,
+}: MDBScheduleProps) {
   const query = useMemo(() => {
     const params = new URLSearchParams();
     if (project.preferredManufacturer && project.preferredManufacturer !== 'MIXED') {
@@ -51,10 +59,12 @@ export default function MDBSchedule({ project, buildingId, showHeader = true }: 
     }
     return params.toString();
   }, [project.preferredManufacturer]);
-  const { equipment, catalogLoaded } = useEquipmentCatalog(query);
+  const { equipment: fetchedEquipment, catalogLoaded } = useEquipmentCatalog(query);
+  const equipment = preloadedEquipment || fetchedEquipment;
 
   const findBreaker: FindBreaker = useMemo(
     () =>
+      preloadedFindBreaker ||
       createFindBreaker(
         equipment,
         {
@@ -64,7 +74,7 @@ export default function MDBSchedule({ project, buildingId, showHeader = true }: 
         },
         project.preferredManufacturer
       ),
-    [equipment, project]
+    [preloadedFindBreaker, equipment, project]
   );
 
   // The full feeder schedule is derived purely from project inputs + the live

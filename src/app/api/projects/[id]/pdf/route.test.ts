@@ -1,0 +1,114 @@
+import { describe, it, expect, vi, beforeEach } from "vitest";
+import { NextResponse } from "next/server";
+
+const mocks = {
+  user: null as null | { id: string; username: string; name: string; role: string; credits: number; email: string | null },
+  projectFindUnique: vi.fn(),
+  revisionFindMany: vi.fn(),
+  equipmentCatalogFindMany: vi.fn(),
+  breakerSettingsFindMany: vi.fn(),
+  getCompanySettings: vi.fn(),
+  generateServerPdf: vi.fn(),
+  verifyProjectAccess: vi.fn(),
+};
+
+vi.mock("@/lib/auth", () => ({
+  getSessionUser: vi.fn(async () => mocks.user),
+}));
+
+vi.mock("@/lib/project-auth", () => ({
+  verifyProjectAccess: vi.fn(async (id: string) => mocks.verifyProjectAccess(id)),
+}));
+
+vi.mock("@/lib/db", () => ({
+  db: {
+    project: { findUnique: mocks.projectFindUnique },
+    projectRevision: { findMany: mocks.revisionFindMany },
+    equipmentCatalog: { findMany: mocks.equipmentCatalogFindMany },
+    breakerSettings: { findMany: mocks.breakerSettingsFindMany },
+  },
+}));
+
+vi.mock("@/lib/app-settings", () => ({
+  getCompanySettings: vi.fn(async () => mocks.getCompanySettings()),
+}));
+
+vi.mock("@/lib/reports/server-pdf", () => ({
+  generateServerPdf: vi.fn(async () => mocks.generateServerPdf()),
+}));
+
+async function get(id: string, searchParams = "") {
+  const { GET } = await import("./route");
+  return GET(
+    new Request(`http://localhost/api/projects/${id}/pdf${searchParams}`),
+    {
+      params: Promise.resolve({ id }),
+    }
+  );
+}
+
+beforeEach(() => {
+  vi.resetModules();
+  vi.clearAllMocks();
+  mocks.user = { id: "u1", username: "alice", name: "Alice", role: "USER", credits: 0, email: null };
+  mocks.verifyProjectAccess.mockResolvedValue({ user: mocks.user });
+  mocks.getCompanySettings.mockResolvedValue({ companyName: "Test Co", logoUrl: "" });
+  mocks.revisionFindMany.mockResolvedValue([]);
+  mocks.equipmentCatalogFindMany.mockResolvedValue([]);
+  mocks.breakerSettingsFindMany.mockResolvedValue([]);
+  mocks.generateServerPdf.mockResolvedValue(Buffer.from("%PDF-1.4 mock-pdf-content"));
+});
+
+describe("GET /api/projects/[id]/pdf", () => {
+  it("returns 401/error response when verifyProjectAccess rejects", async () => {
+    mocks.verifyProjectAccess.mockResolvedValue(
+      NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    );
+
+    const res = await get("p1");
+    expect(res.status).toBe(401);
+  });
+
+  it("returns 404 when project is not found", async () => {
+    mocks.projectFindUnique.mockResolvedValue(null);
+
+    const res = await get("p1");
+    expect(res.status).toBe(404);
+    const body = await res.json();
+    expect(body.error).toBe("Project not found");
+  });
+
+  it("generates and returns application/pdf with proper headers when project is valid", async () => {
+    mocks.projectFindUnique.mockResolvedValue({
+      id: "p1",
+      name: "Residential Complex",
+      client: "Client A",
+      consultant: "Consultant B",
+      contractor: "Contractor C",
+      location: "City",
+      engineer: "Eng A",
+      date: "2026-09-13",
+      country: "SA",
+      voltage: 400,
+      frequency: 60,
+      powerFactor: 0.85,
+      ambientTemp: 45,
+      groupingCount: 1,
+      maxVoltageDropLighting: 3,
+      maxVoltageDropPower: 5,
+      preferredManufacturer: "ABB",
+      buildings: [],
+      apartmentTemplates: [],
+      loadLibraryItems: [],
+    });
+
+    const res = await get("p1");
+    expect(res.status).toBe(200);
+    expect(res.headers.get("Content-Type")).toBe("application/pdf");
+    expect(res.headers.get("Content-Disposition")).toContain("Residential_Complex_Executive_Engineering_Package.pdf");
+    expect(res.headers.get("Content-Length")).toBe(Buffer.from("%PDF-1.4 mock-pdf-content").byteLength.toString());
+
+    const buffer = await res.arrayBuffer();
+    expect(buffer.byteLength).toBeGreaterThan(0);
+  });
+});

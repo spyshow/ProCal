@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useEffect } from 'react';
 import { parseMm2, getItemCableLength, getBuildingLoadCableLength, getRiserCableLength, formatCableSizeFor } from '@/lib/calculations/cables';
-import { computeFeeders, createFindBreaker } from '@/lib/calculations/feeders';
+import { computeFeeders, createFindBreaker, type FindBreaker, type EquipmentItem } from '@/lib/calculations/feeders';
 import { useEquipmentCatalog } from '@/hooks/useEquipmentCatalog';
 import type { FloorItem, Project, FallbackType, GenericBreakerSpec } from '@/types';
 import { FileText, ChevronDown, ChevronRight, ShieldCheck, AlertTriangle } from 'lucide-react';
@@ -11,6 +11,9 @@ export interface BOMScheduleProps {
   project: Project;
   buildingId?: string;
   showHeader?: boolean;
+  equipment?: EquipmentItem[];
+  breakerSettings?: any[];
+  findBreaker?: FindBreaker;
 }
 
 interface CableBOMItem {
@@ -41,16 +44,26 @@ interface BreakerBOMItem {
  * Aggregates cable and breaker quantities across every floor item and building load
  * in the project, with a dedicated Procurement Annex for technical purchasing specs.
  */
-export default function BOMSchedule({ project, buildingId, showHeader = true }: BOMScheduleProps) {
+export default function BOMSchedule({
+  project,
+  buildingId,
+  showHeader = true,
+  equipment: preloadedEquipment,
+  breakerSettings: preloadedBreakerSettings,
+  findBreaker: preloadedFindBreaker,
+}: BOMScheduleProps) {
   const [annexOpen, setAnnexOpen] = useState(true);
-  const [breakerSettings, setBreakerSettings] = useState<any[]>([]);
+  const [internalBreakerSettings, setInternalBreakerSettings] = useState<any[]>([]);
 
   useEffect(() => {
+    if (preloadedBreakerSettings) return;
     fetch(`/api/breaker-settings?t=${Date.now()}`, { cache: 'no-store' })
       .then((res) => (res.ok ? res.json() : []))
-      .then((data) => setBreakerSettings(data))
+      .then((data) => setInternalBreakerSettings(data))
       .catch(() => {});
-  }, []);
+  }, [preloadedBreakerSettings]);
+
+  const breakerSettings = preloadedBreakerSettings || internalBreakerSettings;
 
   const resolveBreakerDisplayName = (savedModel: string | undefined | null, feederModel: string | undefined | null): string => {
     const defaultModel = feederModel || 'Standard Circuit Breaker';
@@ -65,10 +78,13 @@ export default function BOMSchedule({ project, buildingId, showHeader = true }: 
 
   // Catalog arrives async; until it resolves, createFindBreaker([]) would label
   // every feeder GENERIC_SPEC. Gate the table so that flash never renders.
-  const { equipment, catalogLoaded } = useEquipmentCatalog('category=ACB,MCCB,MCB');
+  const { equipment: fetchedEquipment, catalogLoaded } = useEquipmentCatalog('category=ACB,MCCB,MCB');
+  const equipment = preloadedEquipment || fetchedEquipment;
+  const isLoaded = preloadedEquipment !== undefined || catalogLoaded;
 
   const findBreaker = useMemo(
     () =>
+      preloadedFindBreaker ||
       createFindBreaker(
         equipment,
         {
@@ -78,7 +94,7 @@ export default function BOMSchedule({ project, buildingId, showHeader = true }: 
         },
         project.preferredManufacturer
       ),
-    [equipment, project]
+    [preloadedFindBreaker, equipment, project]
   );
 
   // The whole BOM (all items + cable/breaker aggregation) is derived purely
@@ -292,7 +308,7 @@ export default function BOMSchedule({ project, buildingId, showHeader = true }: 
     return { allItems, cableRows, totalCableLength, breakerRows, totalBreakers, annexItems };
   }, [project, buildingId, findBreaker, breakerSettings]);
 
-  if (!catalogLoaded) {
+  if (!isLoaded) {
     return (
       <div className="space-y-6 font-sans text-slate-900">
         <div className="flex items-center justify-between text-xs text-slate-500 mb-1 font-mono">

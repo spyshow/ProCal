@@ -10,7 +10,7 @@ import {
   formatCableSizeFor,
   sizeCableAndBreaker,
 } from '@/lib/calculations/cables';
-import { isThreePhaseForItem, computeFeeders, createFindBreaker } from '@/lib/calculations/feeders';
+import { isThreePhaseForItem, computeFeeders, createFindBreaker, type FindBreaker, type EquipmentItem } from '@/lib/calculations/feeders';
 import { TraceableCell } from '@/components/common/TraceableCell';
 import {
   buildVoltageDropTrace,
@@ -23,6 +23,8 @@ export interface VDScheduleProps {
   project: Project;
   buildingId?: string;
   showHeader?: boolean;
+  equipment?: EquipmentItem[];
+  findBreaker?: FindBreaker;
 }
 
 interface VDRow {
@@ -43,7 +45,13 @@ interface VDRow {
  * Shows estimated voltage drop for every circuit and flags it against the
  * IEC 60364-5-52 limits used elsewhere in the app (3% lighting, 5% power).
  */
-export default function VDSchedule({ project, buildingId, showHeader = true }: VDScheduleProps) {
+export default function VDSchedule({
+  project,
+  buildingId,
+  showHeader = true,
+  equipment: preloadedEquipment,
+  findBreaker: preloadedFindBreaker,
+}: VDScheduleProps) {
   const query = useMemo(() => {
     const params = new URLSearchParams();
     if (project.preferredManufacturer && project.preferredManufacturer !== 'MIXED') {
@@ -51,10 +59,12 @@ export default function VDSchedule({ project, buildingId, showHeader = true }: V
     }
     return params.toString();
   }, [project.preferredManufacturer]);
-  const { equipment } = useEquipmentCatalog(query);
+  const { equipment: fetchedEquipment } = useEquipmentCatalog(query);
+  const equipment = preloadedEquipment || fetchedEquipment;
 
   const findBreaker = useMemo(
     () =>
+      preloadedFindBreaker ||
       createFindBreaker(
         equipment,
         {
@@ -64,7 +74,7 @@ export default function VDSchedule({ project, buildingId, showHeader = true }: V
         },
         project.preferredManufacturer
       ),
-    [equipment, project]
+    [preloadedFindBreaker, equipment, project]
   );
 
   const rows: VDRow[] = [];

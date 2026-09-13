@@ -17,6 +17,8 @@ export interface CableScheduleProps {
   project: Project;
   buildingId?: string;
   showHeader?: boolean;
+  equipment?: any[];
+  findBreaker?: any;
 }
 
 interface CableRow {
@@ -40,7 +42,13 @@ interface CableRow {
  * Lists each circuit with its phase configuration, design current, breaker,
  * selected cable size, installation method and insulation.
  */
-export default function CableSchedule({ project, buildingId, showHeader = true }: CableScheduleProps) {
+export default function CableSchedule({
+  project,
+  buildingId,
+  showHeader = true,
+  equipment: preloadedEquipment,
+  findBreaker: preloadedFindBreaker,
+}: CableScheduleProps) {
   const query = useMemo(() => {
     const params = new URLSearchParams();
     if (project.preferredManufacturer && project.preferredManufacturer !== 'MIXED') {
@@ -48,10 +56,12 @@ export default function CableSchedule({ project, buildingId, showHeader = true }
     }
     return params.toString();
   }, [project.preferredManufacturer]);
-  const { equipment } = useEquipmentCatalog(query);
+  const { equipment: fetchedEquipment } = useEquipmentCatalog(query);
+  const equipment = preloadedEquipment || fetchedEquipment;
 
   const findBreaker = useMemo(
     () =>
+      preloadedFindBreaker ||
       createFindBreaker(
         equipment,
         {
@@ -61,7 +71,7 @@ export default function CableSchedule({ project, buildingId, showHeader = true }
         },
         project.preferredManufacturer
       ),
-    [equipment, project]
+    [preloadedFindBreaker, equipment, project]
   );
 
   const rows: CableRow[] = [];

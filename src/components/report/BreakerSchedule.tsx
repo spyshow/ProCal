@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useState, useEffect } from 'react';
-import { computeFeeders, createFindBreaker, type FindBreaker } from '@/lib/calculations/feeders';
+import { computeFeeders, createFindBreaker, type FindBreaker, type EquipmentItem } from '@/lib/calculations/feeders';
 import { formatCableSizeFor } from '@/lib/calculations/cables';
 import { getTypicalImpedance } from '@/lib/calculations/shortCircuit';
 import { useEquipmentCatalog } from '@/hooks/useEquipmentCatalog';
@@ -18,6 +18,9 @@ export interface BreakerScheduleProps {
   buildingId?: string;
   manufacturer?: string;
   showHeader?: boolean;
+  equipment?: EquipmentItem[];
+  breakerSettings?: any[];
+  findBreaker?: FindBreaker;
 }
 
 interface BreakerRow {
@@ -60,15 +63,21 @@ export default function BreakerSchedule({
   buildingId,
   manufacturer,
   showHeader = true,
+  equipment: preloadedEquipment,
+  breakerSettings: preloadedBreakerSettings,
+  findBreaker: preloadedFindBreaker,
 }: BreakerScheduleProps) {
-  const [breakerSettings, setBreakerSettings] = useState<any[]>([]);
+  const [internalBreakerSettings, setInternalBreakerSettings] = useState<any[]>([]);
 
   useEffect(() => {
+    if (preloadedBreakerSettings) return;
     fetch(`/api/breaker-settings?t=${Date.now()}`, { cache: 'no-store' })
       .then((res) => (res.ok ? res.json() : []))
-      .then((data) => setBreakerSettings(data))
+      .then((data) => setInternalBreakerSettings(data))
       .catch(() => {});
-  }, []);
+  }, [preloadedBreakerSettings]);
+
+  const breakerSettings = preloadedBreakerSettings || internalBreakerSettings;
 
   const resolveBreakerDisplayName = (savedModel: string | undefined | null, feederModel: string | undefined | null): string => {
     const defaultModel = feederModel || 'Standard Circuit Breaker';
@@ -88,10 +97,12 @@ export default function BreakerSchedule({
     }
     return params.toString();
   }, [manufacturer]);
-  const { equipment, catalogLoaded } = useEquipmentCatalog(query);
+  const { equipment: fetchedEquipment, catalogLoaded } = useEquipmentCatalog(query);
+  const equipment = preloadedEquipment || fetchedEquipment;
 
   const findBreaker: FindBreaker = useMemo(
     () =>
+      preloadedFindBreaker ||
       createFindBreaker(
         equipment,
         {
@@ -101,7 +112,7 @@ export default function BreakerSchedule({
         },
         manufacturer || project.preferredManufacturer
       ),
-    [equipment, project, manufacturer]
+    [preloadedFindBreaker, equipment, project, manufacturer]
   );
 
   // The printed breaker list is derived purely from project inputs + the live

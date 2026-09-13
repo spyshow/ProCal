@@ -18,6 +18,7 @@ import {
   ShieldCheck,
   Activity,
   Layers,
+  Printer,
 } from 'lucide-react';
 import RevisionsPanel from '@/components/report/RevisionsPanel';
 import { phaseBalance } from '@/lib/calculations/phaseBalance';
@@ -53,6 +54,7 @@ export default function ReportsPage() {
   const [revisions, setRevisions] = useState<ProjectRevision[]>([]);
   const [showRevisions, setShowRevisions] = useState(false);
   const [exporting, setExporting] = useState(false);
+  const [downloadingPdf, setDownloadingPdf] = useState(false);
 
   useEffect(() => {
     if (selectedProject && selectedProject.id === selectedProjectId) {
@@ -240,6 +242,38 @@ export default function ReportsPage() {
     `,
   });
 
+  const handleDownloadPdf = async () => {
+    if (!project) return;
+    setDownloadingPdf(true);
+    try {
+      const params = new URLSearchParams();
+      if (selectedBuilding) params.set('buildingId', selectedBuilding);
+      if (preferredManufacturer && preferredManufacturer !== 'MIXED') {
+        params.set('manufacturer', preferredManufacturer);
+      }
+      const url = `/api/projects/${project.id}/pdf${params.toString() ? `?${params.toString()}` : ''}`;
+      const res = await fetch(url);
+      if (!res.ok) {
+        throw new Error(`Failed to generate PDF (${res.status} ${res.statusText})`);
+      }
+      const blob = await res.blob();
+      const blobUrl = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = blobUrl;
+      const safeName = project.name.replace(/[^a-zA-Z0-9_-]/g, '_');
+      a.download = `${safeName}_Executive_Engineering_Package.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(blobUrl);
+    } catch (err) {
+      console.error('Server PDF export failed, falling back to browser print dialog:', err);
+      handlePrint();
+    } finally {
+      setDownloadingPdf(false);
+    }
+  };
+
   const pageHeader = (
     <div className="flex items-center justify-between print:hidden">
       <div>
@@ -268,10 +302,19 @@ export default function ReportsPage() {
         <button
           onClick={handlePrint}
           disabled={!project}
-          className="flex items-center gap-2 px-3 py-2 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-sm font-semibold disabled:opacity-50"
+          title={t('reports.printTooltip', 'Print to physical paper / printer')}
+          className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-200 text-sm font-semibold disabled:opacity-50"
         >
-          <FileDown size={14} />
-          {t('reports.downloadPdf', 'Export Full PDF Package')}
+          <Printer size={14} />
+          {t('reports.print', 'Print')}
+        </button>
+        <button
+          onClick={handleDownloadPdf}
+          disabled={downloadingPdf || !project}
+          className="flex items-center gap-2 px-3 py-2 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-sm font-semibold disabled:opacity-50 shadow-sm"
+        >
+          {downloadingPdf ? <Loader2 size={14} className="animate-spin" /> : <FileDown size={14} />}
+          {downloadingPdf ? t('reports.generatingPdf', 'Generating PDF…') : t('reports.downloadPdf', 'Download PDF Package')}
         </button>
       </div>
     </div>

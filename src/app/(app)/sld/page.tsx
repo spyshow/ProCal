@@ -535,7 +535,7 @@ export default function SLDPage() {
   };
 
   const projectMetrics = useMemo(() => {
-    if (!project || !project.buildings) return { totalPower: 0, totalCurrent: 0, totalCircuits: 0, totalFloors: 0 };
+    if (!project || !project.buildings) return { totalPower: 0, totalPowerKw: 0, totalCurrent: 0, totalCircuits: 0, totalFloors: 0 };
     let totalPower = 0;
     let totalCurrent = 0;
     let totalCircuits = 0;
@@ -1500,7 +1500,7 @@ export default function SLDPage() {
                   <span className="text-[10px] font-bold uppercase text-amber-800 block">Total Max Demand</span>
                   <span className="text-base font-black text-amber-950">{projectMetrics.totalPower.toFixed(1)} kVA</span>
                   <span className="text-[10px] font-semibold text-amber-700 block mt-0.5">
-                    {projectMetrics.totalPowerKw.toFixed(1)} kW (PF {project.powerFactor || 0.85})
+                    {(projectMetrics.totalPowerKw ?? 0).toFixed(1)} kW (PF {project.powerFactor || 0.85})
                   </span>
                 </div>
                 <div className="border border-sky-200 rounded-xl p-2.5 text-center bg-sky-50/60">

@@ -8,7 +8,7 @@ import { phaseBalance } from '@/lib/calculations/phaseBalance';
 import { calculateShortCircuitCurrent, getTypicalImpedance } from '@/lib/calculations/shortCircuit';
 import { aggregateShortCircuitRows } from '@/lib/reports/aggregates';
 import { useEquipmentCatalog } from '@/hooks/useEquipmentCatalog';
-import { createFindBreaker } from '@/lib/calculations/feeders';
+import { createFindBreaker, type FindBreaker, type EquipmentItem } from '@/lib/calculations/feeders';
 import { ShieldCheck, Zap } from 'lucide-react';
 import { TraceableCell } from '@/components/common/TraceableCell';
 import { buildShortCircuitTrace } from '@/lib/calculations/trace-engine';
@@ -17,12 +17,16 @@ export interface ShortCircuitScheduleProps {
   project: Project;
   buildingId?: string;
   showHeader?: boolean;
+  equipment?: EquipmentItem[];
+  findBreaker?: FindBreaker;
 }
 
 export default function ShortCircuitSchedule({
   project,
   buildingId,
   showHeader = true,
+  equipment: preloadedEquipment,
+  findBreaker: preloadedFindBreaker,
 }: ShortCircuitScheduleProps) {
   const query = useMemo(() => {
     const params = new URLSearchParams();
@@ -31,10 +35,12 @@ export default function ShortCircuitSchedule({
     }
     return params.toString();
   }, [project.preferredManufacturer]);
-  const { equipment } = useEquipmentCatalog(query);
+  const { equipment: fetchedEquipment } = useEquipmentCatalog(query);
+  const equipment = preloadedEquipment || fetchedEquipment;
 
   const findBreaker = useMemo(
     () =>
+      preloadedFindBreaker ||
       createFindBreaker(
         equipment,
         {
@@ -44,7 +50,7 @@ export default function ShortCircuitSchedule({
         },
         project.preferredManufacturer
       ),
-    [equipment, project]
+    [preloadedFindBreaker, equipment, project]
   );
 
   const rows = useMemo(() => {

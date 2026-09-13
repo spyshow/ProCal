@@ -178,7 +178,8 @@ function buildProjectRows(project: Project): Record<string, string | number>[] {
       Floors: bldg.floors,
       "Apts/Floor": bldg.apartmentsPerFloor,
       "Total Apts": bldg.floors * bldg.apartmentsPerFloor,
-      "Demand (kVA)": round(balance.totalKw, 1),
+      "Demand (kVA)": round(balance.totalKw / pf, 1),
+      "Demand (kW)": round(balance.totalKw, 1),
       "Main Current (A)": round(balance.maxPhaseCurrent, 1),
     });
   }

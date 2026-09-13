@@ -185,6 +185,12 @@ export default function ReportsPage() {
           background-color: white !important;
           -webkit-print-color-adjust: exact !important;
           print-color-adjust: exact !important;
+          font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif !important;
+        }
+        .font-mono, [class*="font-mono"], code, pre, kbd, samp {
+          font-family: Consolas, Menlo, "Courier New", Courier, monospace !important;
+          font-feature-settings: normal !important;
+          font-variation-settings: normal !important;
         }
         #print-all-tabs {
           display: block !important;
@@ -211,6 +217,24 @@ export default function ReportsPage() {
         tr {
           page-break-inside: avoid !important;
           break-inside: avoid !important;
+        }
+        /* Buttons vs Table Content */
+        button:not(td *):not(th *),
+        [role="button"]:not(td *):not(th *),
+        input[type="button"] {
+          display: none !important;
+        }
+        td [role="button"], th [role="button"], .group\\/cell, .traceable-cell {
+          display: inline-block !important;
+          position: static !important;
+          cursor: default !important;
+          user-select: text !important;
+          background: transparent !important;
+          box-shadow: none !important;
+        }
+        .group\\/cell::after, td [role="button"]::after, th [role="button"]::after, [class*="after:content-['fx']"]::after {
+          display: none !important;
+          content: none !important;
         }
       }
     `,
@@ -355,6 +379,9 @@ export default function ReportsPage() {
           <div className="border border-amber-200 rounded-xl p-2.5 text-center bg-amber-50/60">
             <span className="text-[10px] font-bold uppercase text-amber-800 block">Total Max Demand</span>
             <span className="text-base font-black text-amber-950 font-mono">{demandKva.toFixed(1)} kVA</span>
+            <span className="text-[11px] font-semibold text-amber-700 font-mono block mt-0.5">
+              {totalDemandKw.toFixed(1)} kW <span className="text-amber-600/80 font-normal">(PF {reportPf})</span>
+            </span>
           </div>
           <div className="border border-sky-200 rounded-xl p-2.5 text-center bg-sky-50/60">
             <span className="text-[10px] font-bold uppercase text-sky-800 block">Calculated Current</span>
@@ -384,7 +411,7 @@ export default function ReportsPage() {
               <th className="p-2 border-r border-slate-800 text-center">Main Incomer Breaker</th>
               <th className="p-2 border-r border-slate-800 text-center">Main Feeder Cable</th>
               <th className="p-2 border-r border-slate-800 text-center">Sub-Panels (DB/SMDB)</th>
-              <th className="p-2 text-right">Max Demand (kW / Amps)</th>
+              <th className="p-2 text-right">Max Demand (kVA / kW / Amps)</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-200 text-slate-800">
@@ -412,15 +439,46 @@ export default function ReportsPage() {
                     {bldg.floorDesigns?.length || 0} Panels
                   </td>
                   <td className="p-2 text-right font-bold text-slate-900 font-mono">
-                    {bldgBalance.totalKw.toFixed(1)} kW{' '}
+                    {(bldgBalance.totalKw / reportPf).toFixed(1)} kVA{' '}
+                    <span className="text-slate-600 font-normal text-[11px]">
+                      ({bldgBalance.totalKw.toFixed(1)} kW)
+                    </span>{' '}
                     <span className="text-amber-700 font-normal text-[11px]">
-                      ({bldgBalance.maxPhaseCurrent.toFixed(1)}A)
+                      [{bldgBalance.maxPhaseCurrent.toFixed(1)}A]
                     </span>
                   </td>
                 </tr>
               );
             })}
           </tbody>
+          {project.buildings && project.buildings.length > 1 && (
+            <tfoot>
+              <tr className="bg-amber-100/70 border-t-2 border-amber-300 font-bold text-slate-900">
+                <td className="p-2 border-r border-amber-200 font-black">Total Project Infrastructure</td>
+                <td className="p-2 border-r border-amber-200 text-center font-mono">
+                  {project.buildings.reduce((sum, b) => sum + b.floors, 0)}
+                </td>
+                <td className="p-2 border-r border-amber-200 text-center font-mono text-xs text-amber-900">
+                  Main Distribution Board
+                </td>
+                <td className="p-2 border-r border-amber-200 text-center font-mono text-[11px] text-slate-700">
+                  Utility Feeder
+                </td>
+                <td className="p-2 border-r border-amber-200 text-center font-mono">
+                  {project.buildings.reduce((sum, b) => sum + (b.floorDesigns?.length || 0), 0)} Panels
+                </td>
+                <td className="p-2 text-right font-black font-mono text-amber-950">
+                  {demandKva.toFixed(1)} kVA{' '}
+                  <span className="text-slate-700 font-normal text-[11px]">
+                    ({totalDemandKw.toFixed(1)} kW)
+                  </span>{' '}
+                  <span className="text-amber-800 font-normal text-[11px]">
+                    [{totalCurrentA.toFixed(1)}A]
+                  </span>
+                </td>
+              </tr>
+            </tfoot>
+          )}
         </table>
       </div>
 

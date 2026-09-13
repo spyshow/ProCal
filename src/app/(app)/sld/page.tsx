@@ -556,7 +556,11 @@ export default function SLDPage() {
       }
     });
 
-    return { totalPower, totalCurrent, totalCircuits, totalFloors };
+    const pf = project.powerFactor || 0.85;
+    const totalPowerKw = totalPower;
+    const totalPowerKva = totalPowerKw / pf;
+
+    return { totalPower: totalPowerKva, totalPowerKw, totalCurrent, totalCircuits, totalFloors };
   }, [project]);
 
   const triggerLandscapePrint = () => {
@@ -1495,6 +1499,9 @@ export default function SLDPage() {
                 <div className="border border-amber-200 rounded-xl p-2.5 text-center bg-amber-50/60">
                   <span className="text-[10px] font-bold uppercase text-amber-800 block">Total Max Demand</span>
                   <span className="text-base font-black text-amber-950">{projectMetrics.totalPower.toFixed(1)} kVA</span>
+                  <span className="text-[10px] font-semibold text-amber-700 block mt-0.5">
+                    {projectMetrics.totalPowerKw.toFixed(1)} kW (PF {project.powerFactor || 0.85})
+                  </span>
                 </div>
                 <div className="border border-sky-200 rounded-xl p-2.5 text-center bg-sky-50/60">
                   <span className="text-[10px] font-bold uppercase text-sky-800 block">Calculated Current</span>
@@ -1506,7 +1513,7 @@ export default function SLDPage() {
                 </div>
                 <div className="border border-purple-200 rounded-xl p-2.5 text-center bg-purple-50/60">
                   <span className="text-[10px] font-bold uppercase text-purple-800 block">Utility Transformer</span>
-                  <span className="text-base font-black text-purple-950">1000 kVA (400V)</span>
+                  <span className="text-base font-black text-purple-950">1000 kVA ({project.voltage}V)</span>
                 </div>
               </div>
 
@@ -1521,19 +1528,21 @@ export default function SLDPage() {
                     <th className="p-2 border-r border-slate-800">Floors</th>
                     <th className="p-2 border-r border-slate-800">Distribution Panels (SDB/DB)</th>
                     <th className="p-2 border-r border-slate-800">Feeder Cable Specs</th>
-                    <th className="p-2">Max Demand (kVA)</th>
+                    <th className="p-2 text-right">Max Demand (kVA / kW / Amps)</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-200 text-slate-800">
                   {project.buildings?.map((bldg, idx) => {
+                    const bldgPf = project.powerFactor || 0.85;
                     const bldgCurrent = bldg.floorDesigns?.reduce(
                       (s, fd) => s + (fd.items?.reduce((is, i) => is + (i.calculatedCurrent || 0), 0) || 0),
                       0
                     ) || 0;
-                    const bldgPower = bldg.floorDesigns?.reduce(
+                    const bldgPowerKw = (bldg.floorDesigns?.reduce(
                       (s, fd) => s + (fd.items?.reduce((is, i) => is + (i.calculatedMaxDemand || 0), 0) || 0),
                       0
-                    ) || 0;
+                    ) || 0) + (bldg.buildingLoads ?? []).reduce((s, bl) => s + (bl.loadLibraryItem?.power ?? 0) * bl.quantity, 0);
+                    const bldgKva = bldgPowerKw / bldgPf;
 
                     return (
                       <tr key={bldg.id} className={idx % 2 === 0 ? 'bg-white' : 'bg-slate-50/80'}>
@@ -1543,8 +1552,14 @@ export default function SLDPage() {
                         <td className="p-2 border-r border-slate-200 font-mono text-[10px] text-slate-700">
                           Rising Main Busbar Trunking (800A)
                         </td>
-                        <td className="p-2 font-bold text-slate-900">
-                          {bldgPower.toFixed(1)} kVA <span className="text-amber-700 font-mono text-[11px]">({bldgCurrent.toFixed(1)}A)</span>
+                        <td className="p-2 font-bold text-slate-900 font-mono text-right">
+                          {bldgKva.toFixed(1)} kVA{' '}
+                          <span className="text-slate-600 font-normal text-[11px]">
+                            ({bldgPowerKw.toFixed(1)} kW)
+                          </span>{' '}
+                          <span className="text-amber-700 font-mono text-[11px]">
+                            [{bldgCurrent.toFixed(1)}A]
+                          </span>
                         </td>
                       </tr>
                     );

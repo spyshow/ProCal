@@ -120,6 +120,9 @@ export default function CoverPage({
             <div className="border border-amber-200 rounded-lg p-1.5 text-center bg-amber-50/60">
               <span className="text-[8.5px] font-bold uppercase text-amber-800 block">Total Max Demand</span>
               <span className="text-xs font-black text-amber-950 font-mono">{demandKva.toFixed(1)} kVA</span>
+              <span className="text-[8.5px] font-semibold text-amber-700 font-mono block mt-0.5">
+                {totalDemandKw.toFixed(1)} kW <span className="text-amber-600/80 font-normal">(PF {pf})</span>
+              </span>
             </div>
             <div className="border border-sky-200 rounded-lg p-1.5 text-center bg-sky-50/60">
               <span className="text-[8.5px] font-bold uppercase text-sky-800 block">Calculated Current</span>
@@ -149,7 +152,7 @@ export default function CoverPage({
                 <th className="p-1.5 border-r border-slate-800 text-center whitespace-nowrap">Main Incomer Breaker</th>
                 <th className="p-1.5 border-r border-slate-800 text-center whitespace-nowrap">Main Feeder Cable</th>
                 <th className="p-1.5 border-r border-slate-800 text-center whitespace-nowrap">Distribution Panels</th>
-                <th className="p-1.5 text-right whitespace-nowrap">Max Demand (kW / Amps)</th>
+                <th className="p-1.5 text-right whitespace-nowrap">Max Demand (kVA / kW / Amps)</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-200 text-slate-800">
@@ -190,13 +193,46 @@ export default function CoverPage({
                       {bldg.floorDesigns?.length || 0} Sub-Panels
                     </td>
                     <td className="p-1.5 text-right font-bold text-slate-900 font-mono whitespace-nowrap">
-                      {bldgBalance.totalKw.toFixed(1)} kW{' '}
-                      <span className="text-amber-700 text-[9px]">({bldgBalance.maxPhaseCurrent.toFixed(1)}A)</span>
+                      {(bldgBalance.totalKw / pf).toFixed(1)} kVA{' '}
+                      <span className="text-slate-600 font-normal text-[8.5px]">
+                        ({bldgBalance.totalKw.toFixed(1)} kW)
+                      </span>{' '}
+                      <span className="text-amber-700 text-[8.5px]">
+                        [{bldgBalance.maxPhaseCurrent.toFixed(1)}A]
+                      </span>
                     </td>
                   </tr>
                 );
               })}
             </tbody>
+            {project.buildings && project.buildings.length > 1 && (
+              <tfoot>
+                <tr className="bg-amber-100/70 border-t border-amber-300 font-bold text-slate-900 text-[9px]">
+                  <td className="p-1.5 border-r border-amber-200 font-black whitespace-nowrap">Total Project</td>
+                  <td className="p-1.5 border-r border-amber-200 text-center font-mono whitespace-nowrap">
+                    {project.buildings.reduce((sum, b) => sum + b.floors, 0)} Floors
+                  </td>
+                  <td className="p-1.5 border-r border-amber-200 text-center font-mono text-[8.5px] text-amber-900 whitespace-nowrap">
+                    MDB Main Incomer
+                  </td>
+                  <td className="p-1.5 border-r border-amber-200 text-center font-mono text-[8.5px] text-slate-700 whitespace-nowrap">
+                    Main Feeder
+                  </td>
+                  <td className="p-1.5 border-r border-amber-200 text-center font-mono text-[8.5px] text-slate-600 whitespace-nowrap">
+                    {project.buildings.reduce((sum, b) => sum + (b.floorDesigns?.length || 0), 0)} Sub-Panels
+                  </td>
+                  <td className="p-1.5 text-right font-black font-mono text-amber-950 whitespace-nowrap">
+                    {demandKva.toFixed(1)} kVA{' '}
+                    <span className="text-slate-700 font-normal text-[8.5px]">
+                      ({totalDemandKw.toFixed(1)} kW)
+                    </span>{' '}
+                    <span className="text-amber-800 font-normal text-[8.5px]">
+                      [{totalCurrentA.toFixed(1)}A]
+                    </span>
+                  </td>
+                </tr>
+              </tfoot>
+            )}
           </table>
         </div>
 

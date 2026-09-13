@@ -60,7 +60,7 @@ export function TraceableCell({
         tabIndex={0}
         role="button"
         title={displayTitle}
-        className={`group/cell relative cursor-pointer select-none rounded transition-all duration-150 outline-none focus-visible:ring-2 focus-visible:ring-orange-500/50 hover:bg-orange-500/10 hover:text-orange-300 after:content-['fx'] after:absolute after:-top-1 after:-right-1 after:text-[8px] after:font-mono after:font-bold after:px-0.5 after:rounded after:bg-slate-900/90 after:text-orange-400 after:border after:border-orange-500/40 after:opacity-0 hover:after:opacity-100 after:transition-opacity after:pointer-events-none ${
+        className={`traceable-cell group/cell relative cursor-pointer select-none rounded transition-all duration-150 outline-none focus-visible:ring-2 focus-visible:ring-orange-500/50 hover:bg-orange-500/10 hover:text-orange-300 print:cursor-default print:select-text print:static print:inline-block print:p-0 print:m-0 print:border-none print:shadow-none print:after:hidden after:content-['fx'] after:absolute after:-top-1 after:-right-1 after:text-[8px] after:font-mono after:font-bold after:px-0.5 after:rounded after:bg-slate-900/90 after:text-orange-400 after:border after:border-orange-500/40 after:opacity-0 hover:after:opacity-100 after:transition-opacity after:pointer-events-none ${
           isOpen ? "bg-orange-500/20 text-orange-200 ring-1 ring-orange-500/40" : ""
         } ${className}`}
       >

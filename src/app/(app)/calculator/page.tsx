@@ -262,19 +262,22 @@ function CalculatorContent() {
       .map((a) => [a.id, a.assignedPhase])
   );
 
-  // Summary totals
-  const totalConnectedLoad = bldg
+  // Summary totals (active power kW and apparent power kVA)
+  const calcPf = project?.powerFactor || 0.85;
+  const totalConnectedLoadKw = bldg
     ? sortedFloors.reduce(
-        (sum, fd) => sum + fd.items.reduce((s, i) => s + i.calculatedConnectedLoad, 0),
+        (sum, fd) => sum + fd.items.reduce((s, i) => s + (i.calculatedConnectedLoad || 0), 0),
         0
       ) + (bldg.buildingLoads ?? []).reduce((sum, bl) => sum + (bl.loadLibraryItem?.power ?? 0) * bl.quantity, 0)
     : 0;
-  const totalMaxDemand = bldg
+  const totalMaxDemandKw = bldg
     ? sortedFloors.reduce(
-        (sum, fd) => sum + fd.items.reduce((s, i) => s + i.calculatedMaxDemand, 0),
+        (sum, fd) => sum + fd.items.reduce((s, i) => s + (i.calculatedMaxDemand || 0), 0),
         0
       ) + (bldg.buildingLoads ?? []).reduce((sum, bl) => sum + (bl.loadLibraryItem?.power ?? 0) * bl.quantity, 0)
     : 0;
+  const totalConnectedKva = totalConnectedLoadKw / calcPf;
+  const totalMaxDemandKva = totalMaxDemandKw / calcPf;
   // Building mechanical loads (elevators, fire/booster pumps) carry no inter-load
   // diversity — worst case they run together — so no demandFactor here. This keeps
   // Max Demand consistent with the per-phase current (phaseBalance also omits it).
@@ -403,35 +406,40 @@ function CalculatorContent() {
         {[
           {
             label: t('common.connectedLoad', 'Connected Load'),
-            value: `${totalConnectedLoad.toFixed(1)} kVA`,
+            value: `${totalConnectedKva.toFixed(1)} kVA`,
+            sub: `${totalConnectedLoadKw.toFixed(1)} kW`,
             color: 'text-gray-200',
-            helper: 'Sum of all installed loads (kVA) before applying demand diversity. Used as the starting apparent load for the project.'
+            helper: 'Total installed apparent load (kVA) before demand diversity. Subtext shows active power (kW).'
           },
           {
             label: t('common.maxDemand', 'Max Demand'),
-            value: `${totalMaxDemand.toFixed(1)} kVA`,
+            value: `${totalMaxDemandKva.toFixed(1)} kVA`,
+            sub: `${totalMaxDemandKw.toFixed(1)} kW · PF ${calcPf}`,
             color: 'text-orange-400',
-            helper: 'Estimated realistic maximum apparent load after IEC demand factors are applied. Basis for transformer, cable and breaker sizing.'
+            helper: 'Maximum apparent load (kVA) after IEC demand factors are applied. Basis for transformer, generator, cable and breaker sizing.'
           },
           {
             label: t('calculator.totalCurrent3Ph', 'Total Current (3Φ)'),
             value: `${totalCurrent3Ph.toFixed(1)} A`,
+            sub: `${project.voltage}V 3-Phase`,
             color: 'text-blue-400',
             helper: 'Three-phase line current calculated from max demand, system voltage, and power factor. Used to size the main feeder.'
           },
           {
             label: t('calculator.floorsCount', 'Floors'),
             value: `${bldg.floorDesigns.length}`,
+            sub: `${sortedFloors.reduce((s, fd) => s + fd.items.length, 0)} circuits`,
             color: 'text-green-400',
             helper: 'Number of floor designs for the selected building. Each floor holds apartments and service loads.'
           },
-        ].map(({ label, value, color, helper }) => (
+        ].map(({ label, value, sub, color, helper }) => (
           <div key={label} className="rounded-lg border border-gray-800 bg-gray-900/40 p-3">
             <p className="text-[10px] text-gray-500 uppercase tracking-wider flex items-center gap-1">
               {label}
               <InfoTooltip label={label} helper={helper} />
             </p>
             <p className={`text-lg font-bold font-mono mt-0.5 ${color}`}>{value}</p>
+            {sub && <p className="text-[11px] text-gray-400 font-mono mt-0.5">{sub}</p>}
           </div>
         ))}
       </div>
@@ -489,11 +497,19 @@ function CalculatorContent() {
               {bldg.buildingLoads.length} {t('cableSchedule.circuits', 'items')}
             </span>
             <div className="flex-1" />
-            <span className="text-xs font-mono text-gray-500">
-              {bldg.buildingLoads
-                .reduce((s, bl) => s + (bl.loadLibraryItem?.power ?? 0) * bl.quantity, 0)
-                .toFixed(1)}{' '}
-              kW
+            <span className="text-xs font-mono text-gray-400">
+              {(
+                (bldg.buildingLoads.reduce((s, bl) => s + (bl.loadLibraryItem?.power ?? 0) * bl.quantity, 0)) /
+                calcPf
+              ).toFixed(1)}{' '}
+              kVA{' '}
+              <span className="text-[11px] text-gray-500 font-normal">
+                (
+                {bldg.buildingLoads
+                  .reduce((s, bl) => s + (bl.loadLibraryItem?.power ?? 0) * bl.quantity, 0)
+                  .toFixed(1)}{' '}
+                kW)
+              </span>
             </span>
           </div>
           {expandedBuildingLoads && (
@@ -505,7 +521,8 @@ function CalculatorContent() {
                     {bl.loadLibraryItem?.category ? ` — ${bl.loadLibraryItem.category}` : ''}
                   </span>
                   <span className="font-mono">
-                    {bl.quantity} × {(bl.loadLibraryItem?.power ?? 0).toFixed(1)} kW
+                    {bl.quantity} × {(((bl.loadLibraryItem?.power ?? 0) * bl.quantity) / calcPf).toFixed(1)} kVA{' '}
+                    <span className="text-gray-500 text-[11px]">({((bl.loadLibraryItem?.power ?? 0) * bl.quantity).toFixed(1)} kW)</span>
                   </span>
                 </div>
               ))}
@@ -521,8 +538,8 @@ function CalculatorContent() {
       <div data-tour="calc-floors" className="space-y-2">
         {sortedFloors.map((fd) => {
           const expanded = expandedFloor === fd.id;
-          const floorConnected = fd.items.reduce((s, i) => s + i.calculatedConnectedLoad, 0);
-          const floorDemand = fd.items.reduce((s, i) => s + i.calculatedMaxDemand, 0);
+          const floorConnected = fd.items.reduce((s, i) => s + (i.calculatedConnectedLoad || 0), 0);
+          const floorDemand = fd.items.reduce((s, i) => s + (i.calculatedMaxDemand || 0), 0);
           const floorBalance = phaseBalance(fd.items, project, buildingPhaseMap);
 
           return (
@@ -543,8 +560,12 @@ function CalculatorContent() {
                     {fd.items.length} {t('cableSchedule.circuits', 'items')}
                   </span>
                 </div>
-                <span className="text-xs font-mono text-gray-500">
-                  {floorConnected.toFixed(1)} kVA / {floorDemand.toFixed(1)} kVA {t('riser.demand', 'demand')}
+                <span className="text-xs font-mono text-gray-400">
+                  {(floorConnected / calcPf).toFixed(1)} kVA{' '}
+                  <span className="text-[10px] text-gray-500 font-normal">({floorConnected.toFixed(1)} kW)</span> /{' '}
+                  {(floorDemand / calcPf).toFixed(1)} kVA{' '}
+                  <span className="text-[10px] text-gray-500 font-normal">({floorDemand.toFixed(1)} kW)</span>{' '}
+                  {t('riser.demand', 'demand')}
                 </span>
                 <span className="text-[10px] font-mono text-gray-400 hidden sm:inline">
                   L1 {floorBalance.phaseCurrent[0].toFixed(0)}A · L2 {floorBalance.phaseCurrent[1].toFixed(0)}A · L3 {floorBalance.phaseCurrent[2].toFixed(0)}A

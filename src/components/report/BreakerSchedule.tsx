@@ -50,6 +50,8 @@ interface BreakerRow {
   isdSetting?: number;
   tsdSetting?: number;
   iiSetting?: number;
+  category?: 'ACB' | 'MCCB' | 'MCB';
+  breakingCapacityKa?: number | null;
 }
 
 /**
@@ -193,6 +195,8 @@ export default function BreakerSchedule({
         faultCurrentKa: transformerIscKa,
         selectivityStatus: 'FULL',
         cableDamageOk: !isUnderProtected,
+        category: 'ACB',
+        breakingCapacityKa: 65,
         irSetting: safeIncomerIr,
         isdSetting: incomerSaved?.isd ?? effectiveIncomerIn * 4,
         tsdSetting: incomerSaved?.tsd ?? 0.3,
@@ -223,6 +227,8 @@ export default function BreakerSchedule({
           cableSize: f.cableSize,
           cableIz: f.cableIz,
           breakerModel: effectiveModel,
+          category: f.category,
+          breakingCapacityKa: f.breakingCapacityKa,
           isThreePhase: f.type !== 'APARTMENT',
           parentFeederName: f.parentFeederName,
           faultCurrentKa: f.faultCurrentKa,
@@ -257,6 +263,8 @@ export default function BreakerSchedule({
             cableSize: f.cableSize,
             cableIz: f.cableIz,
             breakerModel: effectiveModel,
+            category: f.category,
+            breakingCapacityKa: f.breakingCapacityKa,
             isThreePhase: f.type !== 'APARTMENT',
             parentFeederName: f.parentFeederName,
             faultCurrentKa: f.faultCurrentKa,
@@ -388,12 +396,15 @@ export default function BreakerSchedule({
                   <td className="p-2 border-r border-slate-200 text-center font-mono font-bold text-slate-900">
                     <TraceableCell
                       getTrace={() => {
+                        const isMcb = b.category === 'MCB' || (!b.category && b.breakerSize <= 63 && !['SMDB', 'SERVICE_PANEL', 'PUMP_PANEL', 'ELEVATOR_PANEL'].includes(b.type));
+                        const defaultIcu = b.breakerSize >= 630 ? 65 : isMcb ? 10 : 36;
                         return buildBreakerSizingTrace({
                           circuitName: `${b.buildingName} - ${b.name}`,
                           designCurrentA: b.current,
                           selectedTripA: b.breakerSize,
-                          frameSizeA: b.breakerSize >= 630 ? b.breakerSize : b.breakerSize > 160 ? 250 : 160,
-                          breakingCapacityKa: b.breakerSize >= 630 ? 65 : 36,
+                          category: b.category ?? (isMcb ? 'MCB' : b.breakerSize >= 630 ? 'ACB' : 'MCCB'),
+                          frameSizeA: b.breakerSize >= 630 ? b.breakerSize : isMcb ? b.breakerSize : b.breakerSize > 160 ? 250 : 160,
+                          breakingCapacityKa: b.breakingCapacityKa ?? defaultIcu,
                           prospectiveFaultKa: b.faultCurrentKa,
                           cableAmpacityA: b.cableIz,
                           calculationStandard: project.calculationStandard,

@@ -327,4 +327,29 @@ describe("Calculation Trace Engine - NEMA / NEC Standard Support", () => {
     expect(trace.standardBadge).toBe("NEC / NEMA Standards Verified");
     expect(trace.resultValue).toBe("41.0 A");
   });
+
+  it("builds an IEC MCB Breaker Sizing trace with DIN-Rail frame and IEC 60898-1 citations", () => {
+    const trace = buildBreakerSizingTrace({
+      circuitName: "Apartment Subcircuit",
+      designCurrentA: 23.9,
+      selectedTripA: 32,
+      category: "MCB",
+      frameSizeA: 32,
+      breakingCapacityKa: 10,
+      prospectiveFaultKa: 1.39,
+      cableAmpacityA: 42,
+    });
+
+    expect(trace.standardCitation).toBe("IEC 60898-1 / IEC 60364-4-43");
+    expect(trace.resultValue).toBe("32 A (MCB / 10kA)");
+    expect(trace.compliance?.status).toBe("PASS");
+    expect(trace.compliance?.rule).toContain("Icn ≥ Isc");
+
+    const frameParam = trace.parameters.find((p) => p.symbol === "Frame");
+    expect(frameParam?.value).toBe("Modular DIN-Rail (MCB)");
+
+    const icnParam = trace.parameters.find((p) => p.symbol === "Icn");
+    expect(icnParam).toBeDefined();
+    expect(icnParam?.value).toBe(10);
+  });
 });

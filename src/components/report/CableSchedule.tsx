@@ -34,6 +34,9 @@ interface CableRow {
   insulation: string;
   material: string;
   isMainIncomer?: boolean;
+  category?: 'ACB' | 'MCCB' | 'MCB';
+  breakingCapacityKa?: number | null;
+  type?: string;
 }
 
 /**
@@ -97,6 +100,9 @@ export default function CableSchedule({
       insulation: 'XLPE',
       material: 'copper',
       isMainIncomer: true,
+      category: 'ACB',
+      breakingCapacityKa: 65,
+      type: 'INCOMER',
     });
 
     for (const fd of b.floorDesigns) {
@@ -116,6 +122,9 @@ export default function CableSchedule({
           method: fd.riserInstallMethod || 'C',
           insulation: (fd.riserCableInsulation as any) || 'XLPE',
           material: (fd.riserCableMaterial as any) || 'copper',
+          category: smdbFeeder?.category ?? 'MCCB',
+          breakingCapacityKa: smdbFeeder?.breakingCapacityKa ?? 36,
+          type: 'SMDB',
         });
       }
 
@@ -140,6 +149,9 @@ export default function CableSchedule({
           method: item.installMethod || 'C',
           insulation: item.cableInsulation || 'XLPE',
           material: item.cableMaterial || 'copper',
+          category: matchingFeeder?.category,
+          breakingCapacityKa: matchingFeeder?.breakingCapacityKa,
+          type: item.type,
         });
       }
     }
@@ -166,6 +178,9 @@ export default function CableSchedule({
         method: bl.installMethod || 'C',
         insulation: bl.cableInsulation || 'XLPE',
         material: bl.cableMaterial || 'copper',
+        category: matchingFeeder?.category,
+        breakingCapacityKa: matchingFeeder?.breakingCapacityKa,
+        type: 'BUILDING_LOAD',
       });
     }
   }
@@ -248,12 +263,15 @@ export default function CableSchedule({
                 <TraceableCell
                   getTrace={() => {
                     const breakerNumeric = parseInt(row.breaker.replace(/\D/g, ''), 10) || Math.ceil(row.current);
+                    const isMcb = row.category === 'MCB' || (!row.category && breakerNumeric <= 63 && !['SMDB', 'SERVICE_PANEL', 'PUMP_PANEL', 'ELEVATOR_PANEL'].includes(row.type || ''));
+                    const defaultIcu = breakerNumeric >= 630 ? 65 : isMcb ? 10 : 36;
                     return buildBreakerSizingTrace({
                       circuitName: `${row.buildingName} - ${row.circuit}`,
                       designCurrentA: row.current,
                       selectedTripA: breakerNumeric,
-                      frameSizeA: breakerNumeric >= 630 ? breakerNumeric : breakerNumeric > 160 ? 250 : 160,
-                      breakingCapacityKa: breakerNumeric >= 630 ? 65 : 36,
+                      category: row.category ?? (isMcb ? 'MCB' : breakerNumeric >= 630 ? 'ACB' : 'MCCB'),
+                      frameSizeA: breakerNumeric >= 630 ? breakerNumeric : isMcb ? breakerNumeric : breakerNumeric > 160 ? 250 : 160,
+                      breakingCapacityKa: row.breakingCapacityKa ?? defaultIcu,
                       calculationStandard: project.calculationStandard,
                     });
                   }}

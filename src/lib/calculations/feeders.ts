@@ -463,9 +463,31 @@ export function createFindBreaker(
  *   Apartment             → MCB
  *   Other end-load        → MCB
  */
-function categoryForFloorItem(item: FloorItem, currentOrBreakerSize?: number): "ACB" | "MCCB" | "MCB" {
+function categoryForFloorItem(
+  item: FloorItem,
+  currentOrBreakerSize?: number,
+  isInsideSubPanel?: boolean
+): "ACB" | "MCCB" | "MCB" {
   const size = currentOrBreakerSize ?? item.calculatedCurrent;
   if (size >= 630) return "ACB";
+
+  // Inside a subpanel (SMDB / SDB):
+  // All outgoing circuits <= 63A (apartments, lighting, power, service boards) default to domestic MCB.
+  // Only heavy equipment (> 63A or high-power 3-phase motor loads like pumps/elevators) uses an MCCB.
+  if (isInsideSubPanel) {
+    if (size > 63 || item.type === "PUMP_PANEL" || item.type === "ELEVATOR_PANEL") {
+      return "MCCB";
+    }
+    return "MCB";
+  }
+
+  // Directly fed from MDB (no subpanel):
+  // Apartments default to MCB if <= 63A.
+  if (item.type === "APARTMENT" && size <= 63) {
+    return "MCB";
+  }
+
+  // Directly fed service panels, pump panels, elevator panels, or loads > 63A route to MCCB
   if (
     size > 63 ||
     item.type === "SERVICE_PANEL" ||
@@ -474,6 +496,7 @@ function categoryForFloorItem(item: FloorItem, currentOrBreakerSize?: number): "
   ) {
     return "MCCB";
   }
+
   return "MCB";
 }
 
@@ -489,7 +512,8 @@ function feederFromItem(
   findBreaker: FindBreaker,
   project: Project,
   resolvedPhase: number | null = null,
-  floorDesignId?: string
+  floorDesignId?: string,
+  isInsideSubPanel?: boolean
 ): PanelFeeder {
   const isThreePhase = isThreePhaseForItem(item);
   const insulation = (item.cableInsulation as "PVC" | "XLPE") ?? "XLPE";
@@ -499,19 +523,19 @@ function feederFromItem(
   const installMethod = item.installMethod ?? undefined;
   // Project's code decides the breaker-rating catalog (NEC 240.6(A) vs IEC).
   const code = codeOf(project.calculationStandard);
-  // Branch protection must carry the dwelling's OWN installed load: the
-  // building-wide diversity factor belongs to the upstream aggregation
-  // (riser/MDB/incomer), not to a single apartment's final circuit. The stored
-  // calculatedCurrent is diversified, so apartments re-derive their branch
-  // design current from the undiversified connected load.
   const pf = Math.max(0.1, Math.min(1, pfForFloorItem(item, project) || 0.85));
   const connectedKw = item.calculatedConnectedLoad ?? 0;
+  // Branch protection sizes to the design load current (calculatedCurrent).
+  // When calculatedCurrent is not yet populated (e.g. before first recalculation),
+  // derive from connected load.
   const designCurrent =
-    item.type === "APARTMENT" && connectedKw > 0
-      ? isThreePhase
-        ? connectedKw / (Math.sqrt(3) * (project.voltage / 1000) * pf)
-        : connectedKw / ((project.voltage / Math.sqrt(3) / 1000) * pf)
-      : item.calculatedCurrent;
+    item.calculatedCurrent > 0
+      ? item.calculatedCurrent
+      : connectedKw > 0
+        ? isThreePhase
+          ? connectedKw / (Math.sqrt(3) * (project.voltage / 1000) * pf)
+          : connectedKw / ((project.voltage / Math.sqrt(3) / 1000) * pf)
+        : 0;
   const sizing = sizeCableAndBreaker(designCurrent, isThreePhase, {
     material,
     insulation,
@@ -522,7 +546,7 @@ function feederFromItem(
   });
   const manualBreaker = item.breakerSize ? parseInt(item.breakerSize.replace(/[^\d.]/g, ''), 10) : null;
   const targetBreaker = manualBreaker && !isNaN(manualBreaker) ? manualBreaker : sizing.breakerSize;
-  const category = categoryForFloorItem(item, targetBreaker);
+  const category = categoryForFloorItem(item, targetBreaker, isInsideSubPanel);
   const poles: 1 | 3 = isThreePhase ? 3 : 1;
   const match = findBreaker(targetBreaker, category, poles);
   // If the user specified an explicit breaker rating (e.g. 200A), honor that rating.
@@ -557,7 +581,7 @@ function feederFromItem(
     ...finalSizing.warnings,
     ...protEval.warnings,
     ...(manualBreaker && !isNaN(manualBreaker) && manualBreaker < designCurrent - 1e-9
-      ? [`Manual breaker ${manualBreaker} A is below the ${designCurrent.toFixed(1)} A design current — continuous overload risk (Ib > In).`]
+      ? [`Manual breaker ${manualBreaker} A is below the ${designCurrent.toFixed(1)} A load current — continuous overload risk (Ib > In).`]
       : []),
   ];
 
@@ -569,6 +593,7 @@ function feederFromItem(
   return {
     name: `F${floorNumber} – ${item.name}`,
     type: item.type,
+    category,
     current: item.calculatedCurrent,
     designCurrent,
     breakerSize: actualBreakerSize,
@@ -711,6 +736,7 @@ function feederFromBuildingLoad(
   return {
     name,
     type,
+    category,
     current,
     designCurrent: parseFloat(designCurrent.toFixed(1)),
     breakerSize: actualBreakerSize,
@@ -878,6 +904,7 @@ export function computeFeeders(
       mdbFeeders.push({
         name: `F${fd.floorNumber} – SMDB`,
         type: "SMDB",
+        category: riserCategory,
         current: floorCurrent,
         breakerSize: actualBreakerSize,
         baseBreakerSize: sizing.breakerSize,
@@ -923,7 +950,7 @@ export function computeFeeders(
       for (const item of fd.items) {
         const resolved = item.assignedPhase ?? phaseById.get(item.id) ?? null;
         mdbFeeders.push(
-          feederFromItem(item, fd.floorNumber, findBreaker, project, resolved, fd.id)
+          feederFromItem(item, fd.floorNumber, findBreaker, project, resolved, fd.id, false)
         );
       }
     }
@@ -1075,12 +1102,13 @@ export function computeFeeders(
   // catalog for a compliant device at the same rating; if none exists the
   // original device is kept and icuOk is set false so the UI can flag it.
   const categoryForFeeder = (f: PanelFeeder): "ACB" | "MCCB" | "MCB" =>
-    f.breakerSize >= 630
+    f.category ??
+    (f.breakerSize >= 630
       ? "ACB"
       : f.breakerSize > 63 ||
           ["SMDB", "SERVICE_PANEL", "PUMP_PANEL", "ELEVATOR_PANEL"].includes(f.type)
         ? "MCCB"
-        : "MCB";
+        : "MCB");
 
   const enforceFeederIcu = (f: PanelFeeder, faultKa: number): void => {
     f.faultCurrentKa = faultKa;
@@ -1178,7 +1206,7 @@ export function computeFeeders(
       // Instantaneous pickup aligned with the IEC 60898 C-curve upper band
       // (10×In) for both 1-phase and 3-phase branch MCBs.
       ii: dsInRating * 10,
-      category: f.type === 'SMDB' || f.type === 'SERVICE_PANEL' || f.type === 'PUMP_PANEL' || f.type === 'ELEVATOR_PANEL' ? 'MCCB' : 'MCB',
+      category: f.category ?? (f.type === 'SMDB' || f.type === 'SERVICE_PANEL' || f.type === 'PUMP_PANEL' || f.type === 'ELEVATOR_PANEL' ? 'MCCB' : 'MCB'),
       manufacturer: f.manufacturer ?? project.preferredManufacturer ?? 'ABB',
       model: f.breakerModel,
       isGeneric: f.fallbackType === 'GENERIC_SPEC',
@@ -1268,7 +1296,7 @@ export function computeFeeders(
     );
     return fd.items.map((item) => {
       const resolved = item.assignedPhase ?? phaseById.get(item.id) ?? null;
-      const feeder = feederFromItem(item, floorNumber, findBreaker, project, resolved, fd.id);
+      const feeder = feederFromItem(item, floorNumber, findBreaker, project, resolved, fd.id, true);
 
       feeder.parentFeederName = `F${floorNumber} – SMDB`;
 
@@ -1293,7 +1321,7 @@ export function computeFeeders(
         // Instantaneous pickup aligned with the IEC 60898 C-curve upper band
         // (10×In) for both 1-phase and 3-phase branch MCBs.
         ii: branchInRating * 10,
-        category: feeder.type === 'PUMP_PANEL' || feeder.type === 'SERVICE_PANEL' ? 'MCCB' : 'MCB',
+        category: feeder.category ?? (feeder.type === 'PUMP_PANEL' || feeder.type === 'ELEVATOR_PANEL' || feeder.breakerSize > 63 ? 'MCCB' : 'MCB'),
         manufacturer: feeder.manufacturer ?? project.preferredManufacturer ?? 'ABB',
         model: feeder.breakerModel,
         isGeneric: feeder.fallbackType === 'GENERIC_SPEC',

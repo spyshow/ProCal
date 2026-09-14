@@ -80,6 +80,8 @@ interface BreakerEntry {
   baseBreakerSize?: number;
   isBreakerUpsized?: boolean;
   upsizeReason?: string;
+  category?: 'ACB' | 'MCCB' | 'MCB';
+  breakingCapacityKa?: number | null;
 }
 
 export default function BreakerSchedulePage() {
@@ -318,6 +320,8 @@ export default function BreakerSchedulePage() {
         familyName: null,
         fallback: !!mainIncomerSettings.isGeneric,
         fallbackType: mainIncomerSettings.isGeneric ? 'GENERIC_SPEC' : 'SAME_FAMILY',
+        category: 'ACB',
+        breakingCapacityKa: 65,
         isThreePhase: true,
         parentFeederName: 'Utility / Transformer Supply',
         faultCurrentKa: transformerIscKa,
@@ -353,7 +357,7 @@ export default function BreakerSchedulePage() {
             isd: saved.isd ?? (f.breakerSize * 4),
             tsd: saved.tsd ?? 0.05,
             ii: saved.ii ?? (f.breakerSize * 10),
-            category: f.type === 'SMDB' || f.type === 'SERVICE_PANEL' || f.type === 'PUMP_PANEL' || f.type === 'ELEVATOR_PANEL' ? 'MCCB' : (f.breakerSize <= 63 ? 'MCB' : 'MCCB'),
+            category: f.category ?? (f.type === 'SMDB' || f.type === 'SERVICE_PANEL' || f.type === 'PUMP_PANEL' || f.type === 'ELEVATOR_PANEL' ? 'MCCB' : (f.breakerSize <= 63 ? 'MCB' : 'MCCB')),
             manufacturer: saved.manufacturer ?? f.manufacturer ?? project.preferredManufacturer ?? 'Schneider',
             model: effectiveModel,
             isGeneric: false,
@@ -457,6 +461,8 @@ export default function BreakerSchedulePage() {
           fallback: f.fallback,
           fallbackType: f.fallbackType,
           genericSpec: f.genericSpec,
+          category: f.category,
+          breakingCapacityKa: f.breakingCapacityKa,
           isThreePhase: f.isThreePhase,
           parentFeederName: f.parentFeederName,
           faultCurrentKa: f.faultCurrentKa,
@@ -511,7 +517,7 @@ export default function BreakerSchedulePage() {
             isd: saved?.isd ?? (f.breakerSize * 4),
             tsd: saved?.tsd ?? 0.05,
             ii: saved?.ii ?? (f.breakerSize * 10),
-            category: f.breakerSize <= 63 ? 'MCB' : (f.breakerSize >= 630 ? 'ACB' : 'MCCB'),
+            category: f.category ?? (f.breakerSize <= 63 ? 'MCB' : (f.breakerSize >= 630 ? 'ACB' : 'MCCB')),
             manufacturer: saved?.manufacturer ?? f.manufacturer ?? project.preferredManufacturer ?? 'Schneider',
             model: effectiveModel,
             isGeneric: false,
@@ -605,6 +611,8 @@ export default function BreakerSchedulePage() {
             fallback: f.fallback,
             fallbackType: f.fallbackType,
             genericSpec: f.genericSpec,
+            category: f.category,
+            breakingCapacityKa: f.breakingCapacityKa,
             isThreePhase: f.isThreePhase,
             parentFeederName: f.parentFeederName,
             faultCurrentKa: f.faultCurrentKa,
@@ -1088,18 +1096,21 @@ export default function BreakerSchedulePage() {
                     </td>
                     <td className="text-center font-mono text-blue-400 font-bold">
                       <TraceableCell
-                        getTrace={() =>
-                          buildBreakerSizingTrace({
+                        getTrace={() => {
+                          const isMcb = b.category === 'MCB' || (!b.category && b.breakerSize <= 63 && !['SMDB', 'SERVICE_PANEL', 'PUMP_PANEL', 'ELEVATOR_PANEL'].includes(b.type));
+                          const defaultIcu = b.breakerSize >= 630 ? 65 : isMcb ? 10 : 36;
+                          return buildBreakerSizingTrace({
                             circuitName: `${b.buildingName} - ${b.name}`,
                             designCurrentA: b.current,
                             selectedTripA: b.breakerSize,
-                            frameSizeA: b.breakerSize >= 630 ? b.breakerSize : b.breakerSize > 160 ? 250 : 160,
-                            breakingCapacityKa: b.breakerSize >= 630 ? 65 : 36,
+                            category: b.category ?? (isMcb ? 'MCB' : b.breakerSize >= 630 ? 'ACB' : 'MCCB'),
+                            frameSizeA: b.breakerSize >= 630 ? b.breakerSize : isMcb ? b.breakerSize : b.breakerSize > 160 ? 250 : 160,
+                            breakingCapacityKa: b.breakingCapacityKa ?? defaultIcu,
                             prospectiveFaultKa: b.faultCurrentKa || undefined,
                             cableAmpacityA: b.cableIz,
                             calculationStandard: project?.calculationStandard || selectedProject?.calculationStandard,
-                          })
-                        }
+                          });
+                        }}
                       >
                         {b.isBreakerUpsized ? (
                           <span

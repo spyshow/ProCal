@@ -37,6 +37,8 @@ interface MDBRow {
   upsizeReason?: string;
   isSubPanel?: boolean;
   isMainIncomer?: boolean;
+  category?: 'ACB' | 'MCCB' | 'MCB';
+  breakingCapacityKa?: number | null;
 }
 
 /**
@@ -122,6 +124,8 @@ export default function MDBSchedule({
         floor: 0,
         feeder: 'Main Incomer',
         type: mainIncomerSettings.category ?? (mainBreakerIn >= 630 ? 'ACB' : 'MCCB'),
+        category: 'ACB',
+        breakingCapacityKa: 65,
         demand: bldgBalance.totalKw,
         current: mainIncomerCurrent,
         breaker: `${mainBreakerIn}A`,
@@ -143,6 +147,8 @@ export default function MDBSchedule({
           floor,
           feeder: f.name,
           type: f.type,
+          category: f.category,
+          breakingCapacityKa: f.breakingCapacityKa,
           demand: f.demandKw ?? currentToKw(f.current, f.isThreePhase, f.powerFactor ?? project.powerFactor),
           current: f.current,
           breaker: `${f.breakerSize}A`,
@@ -164,6 +170,8 @@ export default function MDBSchedule({
             floor: floorNumber,
             feeder: f.name,
             type: f.type,
+            category: f.category,
+            breakingCapacityKa: f.breakingCapacityKa,
             demand: f.demandKw ?? currentToKw(f.current, f.isThreePhase, f.powerFactor ?? project.powerFactor),
             current: f.current,
             breaker: `${f.breakerSize}A`,
@@ -300,12 +308,15 @@ export default function MDBSchedule({
                 <TraceableCell
                   getTrace={() => {
                     const breakerNumeric = parseInt(row.breaker.replace(/\D/g, ''), 10) || Math.ceil(row.current);
+                    const isMcb = row.category === 'MCB' || (!row.category && breakerNumeric <= 63 && !['SMDB', 'SERVICE_PANEL', 'PUMP_PANEL', 'ELEVATOR_PANEL'].includes(row.type));
+                    const defaultIcu = breakerNumeric >= 630 ? 65 : isMcb ? 10 : 36;
                     return buildBreakerSizingTrace({
                       circuitName: `${row.building} - ${row.feeder}`,
                       designCurrentA: row.current,
                       selectedTripA: breakerNumeric,
-                      frameSizeA: breakerNumeric >= 630 ? breakerNumeric : breakerNumeric > 160 ? 250 : 160,
-                      breakingCapacityKa: breakerNumeric >= 630 ? 65 : 36,
+                      category: row.category ?? (isMcb ? 'MCB' : breakerNumeric >= 630 ? 'ACB' : 'MCCB'),
+                      frameSizeA: breakerNumeric >= 630 ? breakerNumeric : isMcb ? breakerNumeric : breakerNumeric > 160 ? 250 : 160,
+                      breakingCapacityKa: row.breakingCapacityKa ?? defaultIcu,
                       cableAmpacityA: row.cableIz,
                       calculationStandard: project.calculationStandard,
                       isFirePump: (row.feeder || '').toLowerCase().includes('fire') || (row.type || '').toLowerCase().includes('fire'),

@@ -496,6 +496,7 @@ export interface BreakerSizingTraceInputs {
   poles?: number;
   calculationStandard?: string | null;
   code?: CodeStandard;
+  category?: 'ACB' | 'MCCB' | 'MCB';
   isMotor?: boolean;
   isFirePump?: boolean;
   sizingReason?: string;
@@ -504,6 +505,7 @@ export interface BreakerSizingTraceInputs {
 export function buildBreakerSizingTrace(inputs: BreakerSizingTraceInputs): TraceDefinition {
   const code: CodeStandard = inputs.code ?? codeOf(inputs.calculationStandard);
   const isNec = code === "NEC";
+  const isMcb = inputs.category === "MCB" || (!inputs.category && inputs.frameSizeA <= 63 && inputs.selectedTripA <= 63);
   const ib = inputs.designCurrentA;
   const inRating = inputs.selectedTripA;
   const iz = inputs.cableAmpacityA;
@@ -548,10 +550,12 @@ export function buildBreakerSizingTrace(inputs: BreakerSizingTraceInputs): Trace
 
   if (isc > 0) {
     steps.push({
-      label: "Ultimate Breaking Capacity (Icu) Verification",
-      formula: "Icu ≥ Isc,fault",
-      substituted: `${icu} kA (Icu) ≥ ${isc.toFixed(1)} kA (Isc)`,
-      description: "Ensures breaker safely clears prospective short-circuit energy without destruction.",
+      label: isMcb ? "Rated Short-Circuit Capacity (Icn) Verification" : "Ultimate Breaking Capacity (Icu) Verification",
+      formula: isMcb ? "Icn ≥ Isc,fault" : "Icu ≥ Isc,fault",
+      substituted: `${icu} kA (${isMcb ? 'Icn' : 'Icu'}) ≥ ${isc.toFixed(1)} kA (Isc)`,
+      description: isMcb
+        ? "Ensures residential/commercial miniature circuit breaker clears prospective fault current safely (IEC 60898-1)."
+        : "Ensures breaker safely clears prospective short-circuit energy without destruction.",
     });
   }
 
@@ -566,13 +570,23 @@ export function buildBreakerSizingTrace(inputs: BreakerSizingTraceInputs): Trace
       unit: "A",
       source: isNec ? "NEC 240.6(A) Standard" : "Catalog Standard",
     },
-    { name: "Breaker Frame Size", symbol: "Frame", value: inputs.frameSizeA, unit: "AF", source: "Manufacturer Series" },
     {
-      name: "Breaking Capacity",
-      symbol: "Icu",
+      name: isMcb ? "Breaker Frame Type" : "Breaker Frame Size",
+      symbol: "Frame",
+      value: isMcb ? "Modular DIN-Rail (MCB)" : inputs.frameSizeA,
+      unit: isMcb ? "" : "AF",
+      source: isMcb ? "DIN Modular System" : "Manufacturer Series",
+    },
+    {
+      name: isMcb ? "Rated Short-Circuit Capacity" : "Breaking Capacity",
+      symbol: isMcb ? "Icn" : "Icu",
       value: icu,
       unit: "kA",
-      source: isNec ? "NEMA AB-1 / UL 489 / IEC 60947-2" : "IEC 60947-2 Test Duty",
+      source: isNec
+        ? "NEMA AB-1 / UL 489 / IEC 60947-2"
+        : isMcb
+          ? "IEC 60898-1 Domestic/Commercial Standard"
+          : "IEC 60947-2 Test Duty",
     },
     ...(inputs.sizingReason ? [{ name: "Sizing Reason", symbol: "Reason", value: inputs.sizingReason, source: "Engineering Coordination" }] : []),
   ];
@@ -580,16 +594,20 @@ export function buildBreakerSizingTrace(inputs: BreakerSizingTraceInputs): Trace
   return {
     title: inputs.circuitName ? `Breaker Sizing Trace: ${inputs.circuitName}` : "Breaker Selection & Protection Trace",
     metric: "Breaker Rating (In)",
-    resultValue: `${inRating} A (${inputs.frameSizeA}AF / ${icu}kA)`,
+    resultValue: isMcb ? `${inRating} A (MCB / ${icu}kA)` : `${inRating} A (${inputs.frameSizeA}AF / ${icu}kA)`,
     resultUnit: "A",
-    standardCitation: isNec ? "NEC 240.6(A) / NEMA AB-1 & UL 489 / IEC 60947-2" : "IEC 60947-2 / IEC 60898-1 & IEC 60364-4-43",
+    standardCitation: isNec
+      ? "NEC 240.6(A) / NEMA AB-1 & UL 489 / IEC 60947-2"
+      : isMcb
+        ? "IEC 60898-1 / IEC 60364-4-43"
+        : "IEC 60947-2 / IEC 60898-1 & IEC 60364-4-43",
     standardBadge: isNec ? "NEC / NEMA Standards Verified" : "IEC Standards Verified",
     code,
     steps,
     parameters,
     compliance: {
       status: isPass ? "PASS" : "FAIL",
-      rule: "Ib ≤ In ≤ Iz  &  Icu ≥ Isc",
+      rule: isMcb ? "Ib ≤ In ≤ Iz  &  Icn ≥ Isc" : "Ib ≤ In ≤ Iz  &  Icu ≥ Isc",
       actual: `${inRating} A / ${icu} kA`,
       limit: `Ib: ${ib.toFixed(1)}A | Isc: ${isc > 0 ? `${isc}kA` : "N/A"}`,
       margin: `+${(inRating - ib).toFixed(1)} A continuous margin`,

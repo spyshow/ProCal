@@ -584,6 +584,71 @@ describe('regression: three-phase classification', () => {
     expect(result.mainIncomerSettings.ir).toBeLessThanOrEqual(result.mainBreakerIn);
     expect(result.mainCableIz).toBeGreaterThanOrEqual(result.mainBreakerIn);
   });
+
+  it('sizes apartment circuit with 23.9A load to 32A MCB instead of 63A MCCB', () => {
+    const findBreaker = createFindBreaker(equipment, {}, 'ABB');
+    const apt = item({
+      name: 'Off-1505-TypeC',
+      type: 'APARTMENT',
+      calculatedCurrent: 23.9,
+      calculatedConnectedLoad: 9.374,
+      apartmentTemplate: { id: 't1', name: 'Type C', phases: 1, rooms: [], createdAt: '', updatedAt: '' },
+    });
+    const bldg = building({
+      floorDesigns: [{ id: 'f15', floorNumber: 15, hasFloorSubPanels: true, items: [apt] }],
+    });
+    const { smdbFeeders } = computeFeeders(bldg, baseProject, findBreaker);
+    const feeder = smdbFeeders(15)[0];
+
+    expect(feeder.category).toBe('MCB');
+    expect(feeder.breakerSize).toBe(32);
+    expect(feeder.breakerModel).toContain('S201-C32');
+  });
+
+  it('enforces MCCB for upstream MDB-to-SMDB riser and MCB for subpanel outgoing circuits <= 63A', () => {
+    const findBreaker = createFindBreaker(equipment, {}, 'ABB');
+    const apt = item({
+      name: 'Apt 1',
+      type: 'APARTMENT',
+      calculatedCurrent: 20,
+      apartmentTemplate: { id: 't1', name: 'Apt', phases: 1, rooms: [], createdAt: '', updatedAt: '' },
+    });
+    const lighting = item({
+      name: 'Floor Lighting',
+      type: 'SERVICE_PANEL',
+      calculatedCurrent: 15,
+      apartmentTemplate: null,
+      loadLibraryItem: { id: 'l1', name: 'Lights', category: 'Lighting', power: 3, voltage: 230, phase: 1, powerFactor: 0.9, demandFactor: 1, quantity: 1, runningCurrent: 15, startingCurrent: 15, notes: null },
+    });
+    const heavyPump = item({
+      name: 'Floor Pressure Pump',
+      type: 'PUMP_PANEL',
+      calculatedCurrent: 75,
+      apartmentTemplate: null,
+      loadLibraryItem: null,
+    });
+
+    const bldg = building({
+      floorDesigns: [{ id: 'f1', floorNumber: 1, hasFloorSubPanels: true, items: [apt, lighting, heavyPump] }],
+    });
+    const { mdbFeeders, smdbFeeders } = computeFeeders(bldg, baseProject, findBreaker);
+
+    // 1. Upstream feeder from MDB to SMDB is MCCB
+    const riserFeeder = mdbFeeders.find((f) => f.type === 'SMDB');
+    expect(riserFeeder).toBeDefined();
+    expect(riserFeeder?.category).toBe('MCCB');
+    expect(riserFeeder?.breakerSize).toBeGreaterThanOrEqual(100);
+
+    // 2. Inside SMDB:
+    const floorCircuits = smdbFeeders(1);
+    const aptCircuit = floorCircuits.find((f) => f.name.includes('Apt 1'));
+    const lightCircuit = floorCircuits.find((f) => f.name.includes('Floor Lighting'));
+    const pumpCircuit = floorCircuits.find((f) => f.name.includes('Floor Pressure Pump'));
+
+    expect(aptCircuit?.category).toBe('MCB');
+    expect(lightCircuit?.category).toBe('MCB');
+    expect(pumpCircuit?.category).toBe('MCCB');
+  });
 });
 
 

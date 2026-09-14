@@ -267,6 +267,7 @@ export interface PanelFeeder {
   /** Non-fatal engineering caveats from sizing (clamped frames, catalog
    *  fallbacks, manual breaker below load). Surfaced in UI/reports. */
   warnings?: string[];
+  category?: 'ACB' | 'MCCB' | 'MCB';
   breakerSize: number;
   cableSize: number;
   breakerModel: string;

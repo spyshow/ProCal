@@ -894,17 +894,20 @@ export default function PanelDesignerPage() {
                   <td className="text-center text-xs text-gray-400 font-mono">{f.isThreePhase ? '3P' : '1P'}{f.assignedPhase ? `-L${f.assignedPhase}` : ''}</td>
                   <td className="text-center font-mono text-blue-400">
                     <TraceableCell
-                      getTrace={() =>
-                        buildBreakerSizingTrace({
+                      getTrace={() => {
+                        const isMcb = f.category === 'MCB' || (!f.category && f.breakerSize <= 63 && !['SMDB', 'SERVICE_PANEL', 'PUMP_PANEL', 'ELEVATOR_PANEL'].includes(f.type));
+                        const defaultIcu = f.breakerSize >= 630 ? 65 : isMcb ? 10 : 36;
+                        return buildBreakerSizingTrace({
                           circuitName: f.name,
                           designCurrentA: f.current,
                           selectedTripA: f.breakerSize,
-                          frameSizeA: f.breakerSize >= 630 ? f.breakerSize : f.breakerSize > 160 ? 250 : 160,
-                          breakingCapacityKa: f.breakerSize >= 630 ? 65 : 36,
+                          category: f.category ?? (isMcb ? 'MCB' : f.breakerSize >= 630 ? 'ACB' : 'MCCB'),
+                          frameSizeA: f.breakerSize >= 630 ? f.breakerSize : isMcb ? f.breakerSize : f.breakerSize > 160 ? 250 : 160,
+                          breakingCapacityKa: f.breakingCapacityKa ?? defaultIcu,
                           cableAmpacityA: f.cableIz,
                           calculationStandard: project.calculationStandard || selectedProject?.calculationStandard,
-                        })
-                      }
+                        });
+                      }}
                     >
                       {f.breakerSize}
                     </TraceableCell>

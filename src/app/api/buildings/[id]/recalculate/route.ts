@@ -131,16 +131,16 @@ export async function POST(
       const connectedDesignCurrent = isThreePhase
         ? connectedKw / (Math.sqrt(3) * voltageKv * powerFactor)
         : connectedKw / ((voltageKv / Math.sqrt(3)) * powerFactor);
+      const itemDesignCurrent = calculatedCurrent > 0 ? calculatedCurrent : connectedDesignCurrent;
       const manualBreaker = item.breakerSize
         ? parseInt(item.breakerSize.replace(/[^\d.]/g, ''), 10)
         : null;
-      // An apartment branch circuit must carry its undiversified connected load.
-      // Breakers smaller than connected load design current (e.g. from diversified copy-items bug)
-      // or explicitly requested resets are cleared.
-      const isUndersizedForConnectedLoad =
-        manualBreaker != null && !isNaN(manualBreaker) && manualBreaker < connectedDesignCurrent - 0.1;
+      // Branch circuits size to the actual design current (calculatedCurrent).
+      // Breakers smaller than design current (continuous overload risk) or explicitly requested resets are cleared.
+      const isUndersizedForLoad =
+        manualBreaker != null && !isNaN(manualBreaker) && manualBreaker < itemDesignCurrent - 0.1;
 
-      if (body?.resetSizing || isUndersizedForConnectedLoad) {
+      if (body?.resetSizing || isUndersizedForLoad) {
         dataToUpdate.breakerSize = null;
         dataToUpdate.cableSize = null;
       }

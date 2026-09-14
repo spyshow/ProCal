@@ -136,7 +136,7 @@ export default function ProjectsPage() {
   };
 
   return (
-    <div className="p-6 space-y-6 max-w-6xl mx-auto">
+    <div className="p-3 sm:p-5 space-y-6 w-full max-w-[1680px] mx-auto min-h-[80vh]">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-white">{t('projects.title', 'Projects')}</h1>

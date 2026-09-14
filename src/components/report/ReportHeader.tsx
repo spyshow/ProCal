@@ -138,7 +138,7 @@ export default function ReportHeader({
             <img
               src={displayLogo}
               alt={`${displayCompany} logo`}
-              className="h-6 w-auto object-contain mb-0.5 bg-white/90 p-0.5 rounded"
+              className="h-6 max-w-[140px] w-auto object-contain mb-0.5 bg-white/90 p-0.5 rounded"
             />
           ) : (
             <div className="font-bold text-xs text-amber-400">{displayCompany}</div>

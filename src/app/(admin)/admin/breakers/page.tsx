@@ -439,7 +439,7 @@ export default function AdminBreakersPage() {
   };
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto px-4 py-8">
+    <div className="space-y-6 w-full max-w-[1680px] mx-auto px-3 sm:px-5 py-6 min-h-[80vh]">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>

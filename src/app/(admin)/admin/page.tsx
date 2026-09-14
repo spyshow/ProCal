@@ -103,7 +103,7 @@ export default function AdminDashboard() {
   const v = (n: number | undefined) => (loading ? null : (n ?? 0));
 
   return (
-    <div className="p-6 max-w-5xl mx-auto space-y-8">
+    <div className="p-3 sm:p-5 w-full max-w-[1680px] mx-auto space-y-8 min-h-[80vh]">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-xl font-bold text-white">Dashboard</h1>

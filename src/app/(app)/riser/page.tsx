@@ -231,7 +231,7 @@ export default function RiserPage() {
   }
 
   return (
-    <div className="p-6 space-y-4 max-w-7xl mx-auto">
+    <div className="p-3 sm:p-5 space-y-4 w-full max-w-[1680px] mx-auto min-h-[80vh]">
       {/* Workflow Stepper: Step 6 */}
       <WorkflowStepper currentStep={6} />
 
@@ -300,15 +300,27 @@ export default function RiserPage() {
 
       {/* SVG Riser */}
       <div className="rounded-xl border border-gray-800 bg-gray-900/60 p-4 overflow-auto" style={{ maxHeight: '80vh' }}>
-        <div style={{ transform: `scale(${zoom})`, transformOrigin: 'top left' }}>
-          <svg
-            ref={svgRef}
-            viewBox={`0 0 ${svgWidth} ${svgHeight}`}
-            width={svgWidth}
-            height={svgHeight}
-            xmlns="http://www.w3.org/2000/svg"
-            className="bg-gray-950"
+        <div className="w-fit min-w-full flex justify-center py-1">
+          <div
+            style={{
+              width: Math.round(svgWidth * zoom),
+              height: Math.round(svgHeight * zoom),
+            }}
           >
+            <div
+              style={{
+                transform: `scale(${zoom})`,
+                transformOrigin: 'top left',
+              }}
+            >
+              <svg
+                ref={svgRef}
+                viewBox={`0 0 ${svgWidth} ${svgHeight}`}
+                width={svgWidth}
+                height={svgHeight}
+                xmlns="http://www.w3.org/2000/svg"
+                className="bg-gray-950 rounded-lg shadow-xl"
+              >
             {/* Background grid */}
             <defs>
               <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
@@ -559,6 +571,8 @@ export default function RiserPage() {
               <text x="710" y="3" fill="#6b7280" fontSize="8">| IEC 60364: Sub-main {'<'}1%, Final {'<'}3%, Total {'<'}4%</text>
             </g>
           </svg>
+            </div>
+          </div>
         </div>
       </div>
 

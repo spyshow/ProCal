@@ -118,7 +118,7 @@ export default function AdminUsersPage() {
   }
 
   return (
-    <div className="p-6 max-w-5xl mx-auto space-y-6">
+    <div className="p-3 sm:p-5 w-full max-w-[1680px] mx-auto space-y-6 min-h-[80vh]">
       <div className="flex items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-white flex items-center gap-2">

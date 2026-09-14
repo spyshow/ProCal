@@ -343,7 +343,7 @@ export default function PanelDesignerPage() {
 
   if (!catalogLoaded) {
     return (
-      <div className="p-6 space-y-6 max-w-7xl mx-auto">
+      <div className="p-3 sm:p-5 space-y-4 w-full max-w-[1680px] mx-auto min-h-[80vh]">
         <WorkflowStepper currentStep={5} />
         <div className="rounded-xl border border-gray-800 bg-gray-900/40 p-8 text-center">
           <Activity size={18} className="animate-spin text-orange-500 mx-auto mb-2" />
@@ -358,7 +358,7 @@ export default function PanelDesignerPage() {
   }
 
   return (
-    <div className="p-6 space-y-6 max-w-7xl mx-auto">
+    <div className="p-3 sm:p-5 space-y-4 w-full max-w-[1680px] mx-auto min-h-[80vh]">
       {/* Workflow Stepper: Step 5 */}
       <WorkflowStepper currentStep={5} />
 

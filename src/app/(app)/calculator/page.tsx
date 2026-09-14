@@ -289,7 +289,7 @@ function CalculatorContent() {
   }
 
   return (
-    <div className="p-6 space-y-5 max-w-7xl mx-auto">
+    <div className="p-3 sm:p-5 space-y-4 w-full max-w-[1680px] mx-auto min-h-[80vh]">
       {/* Workflow Stepper: Step 1 */}
       <WorkflowStepper currentStep={1} />
 

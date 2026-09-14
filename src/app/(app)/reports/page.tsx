@@ -392,7 +392,7 @@ export default function ReportsPage() {
   // for the project payload, so first paint isn't gated behind the fetch.
   if (!project) {
     return (
-      <div className="p-6 space-y-5 max-w-7xl mx-auto print:p-0 print:w-full print:max-w-none print:m-0">
+      <div className="p-3 sm:p-5 space-y-4 w-full max-w-[1680px] mx-auto min-h-[80vh] print:p-0 print:w-full print:max-w-none print:m-0">
         <div className="print:hidden">
           <WorkflowStepper currentStep={8} />
         </div>
@@ -661,7 +661,7 @@ export default function ReportsPage() {
   }
 
   return (
-    <div className="p-6 space-y-5 max-w-7xl mx-auto print:p-0 print:w-full print:max-w-none print:m-0">
+    <div className="p-3 sm:p-5 space-y-4 w-full max-w-[1680px] mx-auto min-h-[80vh] print:p-0 print:w-full print:max-w-none print:m-0">
       {/* Workflow Stepper: Step 8 */}
       <div className="print:hidden">
         <WorkflowStepper currentStep={8} />

@@ -1207,7 +1207,9 @@
       "breakingCapacityCheck": "التحقق من سعة القطع القصوى (Icu)",
       "avgPhaseCurrent": "متوسط تيار الأطوار (I_avg)",
       "maxPhaseDev": "أقصى انحراف بين الأطوار (ΔI_max)",
-      "currentUnbalancePct": "نسبة عدم التوازن في التيار"
+      "currentUnbalancePct": "نسبة عدم التوازن في التيار",
+      "voltageDropUpsizingGateIec": "بوابة تكبير المقطع لهبوط الجهد (IEC 60364-5-52 §525)",
+      "voltageDropUpsizingGateNec": "بوابة تكبير المقطع لهبوط الجهد (NEC 210.19(A))"
     },
     "stepDescriptions": {
       "effectiveCableZ": "المقاومة والممانعة الفعلية للتيار المتردد عند درجة حرارة التشغيل.",
@@ -1249,7 +1251,10 @@
       "breakingCapacity": "سعة القطع",
       "phaseL1Current": "تيار الطور L1",
       "phaseL2Current": "تيار الطور L2",
-      "phaseL3Current": "تيار الطور L3"
+      "phaseL3Current": "تيار الطور L3",
+      "sizingGoverningFactor": "المعيار الحاكم لاختيار المقطع",
+      "baseThermalRequirement": "المتطلب الحراري الأساسي",
+      "calculatedVoltageDrop": "هبوط الجهد المحسوب (ΔU)"
     },
     "sources": {
       "equipmentSchedule": "جدول المعدات والأحمال",
@@ -1293,7 +1298,9 @@
       "underLoadCurrent": "أقل من تيار الحمل",
       "deficit": "عجز بمقدار:",
       "continuousMargin": "هامش تيار مستمر",
-      "requiresRebalancing": "يتطلب إعادة موازنة الأطوار"
+      "requiresRebalancing": "يتطلب إعادة موازنة الأطوار",
+      "upsizedFrom": "تمت زيادة المقطع من",
+      "forVoltageDrop": "بسبب هبوط الجهد"
     },
     "notes": {
       "allowableLimitPerStandard": "الحد الأقصى المسموح به وفق المعيار:",

@@ -11,7 +11,8 @@ import { clampPowerFactor } from "./validate";
 import { sourceXrRatio, splitSourceImpedance } from "./shortCircuit";
 import { currentUnbalancePct } from "./phaseBalance";
 import { codeOf, CodeStandard } from "./codes";
-import { formatCableSizeFor } from "./cables";
+import { formatCableSizeFor, calculateVoltageDrop, getCableAmpacityColumn } from "./cables";
+import { getAmpacity } from "./installationMethods";
 
 export interface TraceParameter {
   name: string;
@@ -193,6 +194,12 @@ export interface CableAmpacityTraceInputs {
   designCurrentA?: number; // Ib
   calculationStandard?: string | null;
   code?: CodeStandard;
+  isThreePhase?: boolean;
+  lengthM?: number;
+  voltageDropPercent?: number;
+  maxDropPercentLimit?: number;
+  powerFactor?: number;
+  systemVoltageV?: number;
 }
 
 export function buildCableAmpacityTrace(inputs: CableAmpacityTraceInputs): TraceDefinition {
@@ -203,9 +210,94 @@ export function buildCableAmpacityTrace(inputs: CableAmpacityTraceInputs): Trace
   const ib = inputs.designCurrentA ?? 0;
   const inBreaker = inputs.breakerSizeA ?? 0;
   const iz = inputs.totalDeratedAmpacity;
+  const material = inputs.material || "copper";
+  const insulation = inputs.insulation || "XLPE";
+  const is3Ph = inputs.isThreePhase ?? false;
+  const targetCurrent = inBreaker > 0 ? inBreaker : ib;
+  const methodId = (inputs.installMethod || "C").replace(/^Method\s+/i, "");
+  const calcStandard = inputs.calculationStandard === "NEMA" || isNec ? "NEMA" : "IEC";
+
+  const getNominal = (size: number): number => {
+    const tableVal = getAmpacity(size, methodId, insulation, is3Ph, material, calcStandard);
+    if (tableVal > 0) return tableVal;
+    const spec = CABLE_CATALOG.find((c) => c.size === size);
+    return spec ? getCableAmpacityColumn(spec, material, insulation, is3Ph) : 0;
+  };
+
+  // Find minimum thermal cross-section that satisfies Iz >= targetCurrent
+  const minConductorSize = material === "aluminum" ? 16 : 1.5;
+  const candidates = CABLE_CATALOG.filter((c) => c.size >= minConductorSize);
+  let minThermalSpec = candidates[0];
+  let minThermalDerated = runs * getNominal(candidates[0].size) * totalDerating;
+
+  for (const c of candidates) {
+    const nom = getNominal(c.size);
+    const testIz = runs * nom * totalDerating;
+    if (targetCurrent > 0 && testIz >= targetCurrent - 1e-9) {
+      minThermalSpec = c;
+      minThermalDerated = testIz;
+      break;
+    }
+  }
+
+  const cableDisplay = formatCableSizeFor(
+    runs > 1 ? `${runs} × ${inputs.cableSizeMm2}` : inputs.cableSizeMm2,
+    inputs.calculationStandard ?? (isNec ? "NEMA" : "IEC")
+  );
+  const minThermalDisplay = formatCableSizeFor(
+    runs > 1 ? `${runs} × ${minThermalSpec.size}` : minThermalSpec.size,
+    inputs.calculationStandard ?? (isNec ? "NEMA" : "IEC")
+  );
+
+  const cosPhi = clampPowerFactor(inputs.powerFactor ?? 0.85);
+  const sysVolt = inputs.systemVoltageV ?? (is3Ph ? 400 : 230);
+  const maxLimit = inputs.maxDropPercentLimit ?? (isNec ? 3.0 : 5.0);
+
+  let isUpsizedForVoltageDrop = false;
+  let thermalVdPercent: number | undefined = undefined;
+  let actualVdPercent: number | undefined = inputs.voltageDropPercent;
+
+  if (inputs.lengthM && inputs.lengthM > 0) {
+    const vdCurrent = ib > 0 ? ib : inBreaker;
+    if (vdCurrent > 0) {
+      const thermalVd = calculateVoltageDrop(
+        vdCurrent,
+        inputs.lengthM,
+        minThermalSpec.size,
+        cosPhi,
+        is3Ph,
+        sysVolt,
+        runs,
+        material,
+        insulation
+      );
+      thermalVdPercent = thermalVd.dropPercent;
+
+      if (actualVdPercent === undefined) {
+        const actualVd = calculateVoltageDrop(
+          vdCurrent,
+          inputs.lengthM,
+          inputs.cableSizeMm2,
+          cosPhi,
+          is3Ph,
+          sysVolt,
+          runs,
+          material,
+          insulation
+        );
+        actualVdPercent = actualVd.dropPercent;
+      }
+
+      if (inputs.cableSizeMm2 > minThermalSpec.size && thermalVdPercent > maxLimit) {
+        isUpsizedForVoltageDrop = true;
+      }
+    }
+  }
 
   let complianceStatus: "PASS" | "WARN" | "FAIL" = "PASS";
-  let complianceRule = "Iz ≥ In ≥ Ib";
+  let complianceRule = isUpsizedForVoltageDrop
+    ? (isNec ? `Iz ≥ In ≥ Ib & ΔU ≤ ${maxLimit.toFixed(1)}% (NEC 210.19(A))` : `Iz ≥ In ≥ Ib & ΔU ≤ ${maxLimit.toFixed(1)}% (IEC 60364-5-52 §525)`)
+    : "Iz ≥ In ≥ Ib";
   let marginText = "";
 
   if (inBreaker > 0 && iz < inBreaker) {
@@ -215,7 +307,12 @@ export function buildCableAmpacityTrace(inputs: CableAmpacityTraceInputs): Trace
     complianceStatus = "FAIL";
     marginText = `Deficit: ${(ib - iz).toFixed(1)} A under load current`;
   } else if (inBreaker > 0) {
-    marginText = `+${(iz - inBreaker).toFixed(1)} A safety margin above In (${inBreaker}A)`;
+    const baseMargin = `+${(iz - inBreaker).toFixed(1)} A safety margin above In (${inBreaker}A)`;
+    if (isUpsizedForVoltageDrop) {
+      marginText = `${baseMargin} [Upsized from ${minThermalDisplay} for Voltage Drop (ΔU = ${actualVdPercent?.toFixed(2)}% ≤ ${maxLimit.toFixed(1)}% over ${inputs.lengthM}m)]`;
+    } else {
+      marginText = baseMargin;
+    }
   }
 
   const steps: TraceStep[] = [
@@ -242,10 +339,16 @@ export function buildCableAmpacityTrace(inputs: CableAmpacityTraceInputs): Trace
     });
   }
 
-  const cableDisplay = formatCableSizeFor(
-    runs > 1 ? `${runs} × ${inputs.cableSizeMm2}` : inputs.cableSizeMm2,
-    inputs.calculationStandard ?? (isNec ? "NEMA" : "IEC")
-  );
+  if (isUpsizedForVoltageDrop && inputs.lengthM) {
+    steps.push({
+      label: isNec
+        ? "Voltage Drop Upsizing Gate (NEC 210.19(A))"
+        : "Voltage Drop Upsizing Gate (IEC 60364-5-52 §525)",
+      formula: "S_selected = min { S ∈ Catalog | Iz(S) ≥ In AND ΔU(S, L) ≤ ΔU_max }",
+      substituted: `Base thermal size ${minThermalDisplay} (${minThermalDerated.toFixed(1)} A) yields ΔU = ${thermalVdPercent?.toFixed(2)}% > ${maxLimit.toFixed(1)}% limit over ${inputs.lengthM}m → Upsized to ${cableDisplay} (ΔU = ${actualVdPercent?.toFixed(2)}% ≤ ${maxLimit.toFixed(1)}%).`,
+      description: `Conductor cross-section was increased above the minimum thermal ampacity requirement (${minThermalDisplay}) solely to keep voltage drop within the allowable ${maxLimit.toFixed(1)}% limit over the ${inputs.lengthM}m circuit length.`,
+    });
+  }
 
   const parameters: TraceParameter[] = [
     {
@@ -255,6 +358,48 @@ export function buildCableAmpacityTrace(inputs: CableAmpacityTraceInputs): Trace
       unit: isNec ? undefined : "mm²",
       source: isNec ? "NEC / Catalog Sizing" : "Catalog Sizing",
     },
+    {
+      name: "Sizing Governing Factor",
+      symbol: "Criterion",
+      value: isUpsizedForVoltageDrop
+        ? `Voltage Drop (ΔU ≤ ${maxLimit.toFixed(1)}%)`
+        : "Thermal Ampacity (Iz ≥ In)",
+      source: isUpsizedForVoltageDrop
+        ? (isNec ? "NEC 210.19(A) Constraint" : "IEC 60364-5-52 §525 Constraint")
+        : (isNec ? "NEC 240.4 & 310.16" : "IEC 60364-4-43 §433.1"),
+    },
+    ...(isUpsizedForVoltageDrop
+      ? [
+          {
+            name: "Base Thermal Requirement",
+            symbol: "S_thermal",
+            value: `${minThermalDisplay} (Iz = ${minThermalDerated.toFixed(1)} A)`,
+            source: `Thermal Capacity ≥ ${targetCurrent} A`,
+          },
+        ]
+      : []),
+    ...(inputs.lengthM
+      ? [
+          {
+            name: "Circuit Route Length",
+            symbol: "L",
+            value: inputs.lengthM,
+            unit: "m",
+            source: "Cable Schedule",
+          },
+        ]
+      : []),
+    ...(actualVdPercent !== undefined
+      ? [
+          {
+            name: "Calculated Voltage Drop (ΔU)",
+            symbol: "ΔU",
+            value: `${actualVdPercent.toFixed(2)}%`,
+            unit: "%",
+            source: "calculateVoltageDrop",
+          },
+        ]
+      : []),
     ...(inBreaker > 0
       ? [
           {
@@ -277,15 +422,27 @@ export function buildCableAmpacityTrace(inputs: CableAmpacityTraceInputs): Trace
     },
     { name: "Ambient Temperature Factor", symbol: "Ca", value: inputs.tempFactor.toFixed(2), source: `Temp: ${inputs.ambientTempC ?? 45}°C (Table B.52.14)` },
     { name: "Grouping Factor", symbol: "Cg", value: inputs.groupFactor.toFixed(2), source: `Grouping: ${inputs.groupingCount ?? 1} circuits (Table B.52.17)` },
-    { name: "Insulation & Material", symbol: "Type", value: `${inputs.material === "aluminum" ? "Al" : "Cu"} / ${inputs.insulation || "XLPE"}`, source: "Specification" },
+    { name: "Insulation & Material", symbol: "Type", value: `${material === "aluminum" ? "Al" : "Cu"} / ${insulation}`, source: "Specification" },
   ];
+
+  const notes: string[] = [];
+  if (isUpsizedForVoltageDrop && inputs.lengthM) {
+    notes.push(
+      `Circuit conductor upsized from base thermal size ${minThermalDisplay} to ${cableDisplay} to satisfy the ${maxLimit.toFixed(1)}% voltage drop limit (${isNec ? "NEC 210.19(A)" : "IEC 60364-5-52 §525"}) over ${inputs.lengthM}m circuit run.`
+    );
+  }
+  notes.push(
+    runs > 1 ? `Parallel run impedance divided across ${runs} circuits.` : "Single circuit configuration."
+  );
 
   return {
     title: inputs.circuitName ? `Cable Ampacity Trace: ${inputs.circuitName}` : "Cable Ampacity & Derating Trace",
     metric: "Derated Ampacity (Iz)",
     resultValue: `${iz.toFixed(1)} A`,
     resultUnit: "A",
-    standardCitation: isNec ? "NEC (NEMA) / IEC 60364-5-52 §523 & Tables B.52.1–B.52.17" : "IEC 60364-5-52 §523 & Tables B.52.1–B.52.17",
+    standardCitation: isUpsizedForVoltageDrop
+      ? (isNec ? "NEC 210.19(A) & NEC 310.16 / IEC 60364-5-52 §525" : "IEC 60364-5-52 §523 (Ampacity) & §525 (Voltage Drop)")
+      : (isNec ? "NEC (NEMA) / IEC 60364-5-52 §523 & Tables B.52.1–B.52.17" : "IEC 60364-5-52 §523 & Tables B.52.1–B.52.17"),
     standardBadge: isNec ? "NEC / NEMA Standards Verified" : "IEC Standards Verified",
     code,
     steps,
@@ -293,10 +450,15 @@ export function buildCableAmpacityTrace(inputs: CableAmpacityTraceInputs): Trace
     compliance: {
       status: complianceStatus,
       rule: complianceRule,
-      actual: `${iz.toFixed(1)} A`,
-      limit: inBreaker > 0 ? `${inBreaker} A (Breaker In)` : `${ib.toFixed(1)} A (Load Ib)`,
+      actual: actualVdPercent !== undefined && isUpsizedForVoltageDrop
+        ? `${iz.toFixed(1)} A (ΔU = ${actualVdPercent.toFixed(2)}%)`
+        : `${iz.toFixed(1)} A`,
+      limit: inBreaker > 0
+        ? `${inBreaker} A (Breaker In)${isUpsizedForVoltageDrop ? ` & max ${maxLimit.toFixed(1)}%` : ""}`
+        : `${ib.toFixed(1)} A (Load Ib)${isUpsizedForVoltageDrop ? ` & max ${maxLimit.toFixed(1)}%` : ""}`,
       margin: marginText,
     },
+    notes,
   };
 }
 

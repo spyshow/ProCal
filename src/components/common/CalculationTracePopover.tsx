@@ -121,6 +121,8 @@ function getTranslatedStepLabel(label: string | undefined, t: (key: string, fall
     "Derated Cable Ampacity (Iz)": "trace.steps.deratedAmpacity",
     "Coordination Check (IEC 60364-4-43)": "trace.steps.coordinationCheckIec",
     "Coordination Check (NEC 240.4 & IEC 60364-4-43)": "trace.steps.coordinationCheckNec",
+    "Voltage Drop Upsizing Gate (IEC 60364-5-52 §525)": "trace.steps.voltageDropUpsizingGateIec",
+    "Voltage Drop Upsizing Gate (NEC 210.19(A))": "trace.steps.voltageDropUpsizingGateNec",
     "Transformer Internal Impedance (Zt)": "trace.steps.transformerImpedance",
     "Symmetrical Initial Short-Circuit Current (Ik\")": "trace.steps.symmetricalIsc",
     "Peak Short-Circuit Current (Ip)": "trace.steps.peakIsc",
@@ -183,6 +185,10 @@ function getTranslatedParamName(name: string, t: (key: string, fallback?: string
     "Phase L1 Current": "trace.params.phaseL1Current",
     "Phase L2 Current": "trace.params.phaseL2Current",
     "Phase L3 Current": "trace.params.phaseL3Current",
+    "Sizing Governing Factor": "trace.params.sizingGoverningFactor",
+    "Base Thermal Requirement": "trace.params.baseThermalRequirement",
+    "Circuit Route Length": "trace.params.circuitLength",
+    "Calculated Voltage Drop (ΔU)": "trace.params.calculatedVoltageDrop",
   };
   const key = paramMap[name];
   return key ? t(key, name) : name;
@@ -248,6 +254,12 @@ function getTranslatedMargin(margin: string | undefined, t: (key: string, fallba
   }
   if (result.includes("safety margin above In")) {
     result = result.replace("safety margin above In", t("trace.complianceMargins.safetyMarginAboveIn", "safety margin above In"));
+  }
+  if (result.includes("Upsized from")) {
+    result = result.replace("Upsized from", t("trace.complianceMargins.upsizedFrom", "Upsized from"));
+  }
+  if (result.includes("for Voltage Drop")) {
+    result = result.replace("for Voltage Drop", t("trace.complianceMargins.forVoltageDrop", "for Voltage Drop"));
   }
   if (result.includes("under breaker rating")) {
     result = result.replace("under breaker rating", t("trace.complianceMargins.underBreakerRating", "under breaker rating")).replace("Deficit:", t("trace.complianceMargins.deficit", "Deficit:"));

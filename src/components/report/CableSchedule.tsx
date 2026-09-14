@@ -37,6 +37,8 @@ interface CableRow {
   category?: 'ACB' | 'MCCB' | 'MCB';
   breakingCapacityKa?: number | null;
   type?: string;
+  length?: number;
+  voltageDrop?: number | null;
 }
 
 /**
@@ -125,6 +127,7 @@ export default function CableSchedule({
           category: smdbFeeder?.category ?? 'MCCB',
           breakingCapacityKa: smdbFeeder?.breakingCapacityKa ?? 36,
           type: 'SMDB',
+          length: fd.riserCableLength || undefined,
         });
       }
 
@@ -152,6 +155,8 @@ export default function CableSchedule({
           category: matchingFeeder?.category,
           breakingCapacityKa: matchingFeeder?.breakingCapacityKa,
           type: item.type,
+          length: item.cableLength || undefined,
+          voltageDrop: item.voltageDrop,
         });
       }
     }
@@ -181,6 +186,8 @@ export default function CableSchedule({
         category: matchingFeeder?.category,
         breakingCapacityKa: matchingFeeder?.breakingCapacityKa,
         type: 'BUILDING_LOAD',
+        length: (bl as any).cableLength || undefined,
+        voltageDrop: (bl as any).voltageDrop,
       });
     }
   }
@@ -297,6 +304,7 @@ export default function CableSchedule({
                       parallelRuns: runs,
                       code: codeOf(project.calculationStandard),
                     });
+                    const sysVolt = is3Ph ? (project.voltage || 400) : Math.round((project.voltage || 400) / Math.sqrt(3));
                     return buildCableAmpacityTrace({
                       circuitName: `${row.buildingName} - ${row.circuit}`,
                       cableSizeMm2: cableSize,
@@ -314,6 +322,12 @@ export default function CableSchedule({
                       breakerSizeA: parseInt(row.breaker.replace(/\D/g, ''), 10) || undefined,
                       designCurrentA: row.current,
                       calculationStandard: project.calculationStandard,
+                      isThreePhase: is3Ph,
+                      lengthM: row.length,
+                      voltageDropPercent: row.voltageDrop ?? undefined,
+                      maxDropPercentLimit: project.maxVoltageDropPower || 5.0,
+                      powerFactor: project.powerFactor || 0.85,
+                      systemVoltageV: sysVolt,
                     });
                   }}
                 >

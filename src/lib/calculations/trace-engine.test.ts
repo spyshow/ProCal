@@ -352,4 +352,77 @@ describe("Calculation Trace Engine - NEMA / NEC Standard Support", () => {
     expect(icnParam).toBeDefined();
     expect(icnParam?.value).toBe(10);
   });
+
+  it("explicitly identifies voltage drop as governing factor when cable is upsized beyond thermal requirement (F14-C scenario)", () => {
+    const trace = buildCableAmpacityTrace({
+      circuitName: "Building 1 - F14-C",
+      cableSizeMm2: 16,
+      parallelRuns: 1,
+      material: "copper",
+      insulation: "XLPE",
+      installMethod: "Method C",
+      ambientTempC: 30,
+      groupingCount: 1,
+      tempFactor: 1.0,
+      groupFactor: 1.0,
+      nominalAmpacityPerRun: 107,
+      deratedAmpacityPerRun: 107,
+      totalDeratedAmpacity: 107,
+      breakerSizeA: 50,
+      designCurrentA: 46.5,
+      isThreePhase: false,
+      lengthM: 75,
+      systemVoltageV: 230,
+      powerFactor: 0.85,
+      maxDropPercentLimit: 5.0,
+      voltageDropPercent: 3.68,
+    });
+
+    expect(trace.standardCitation).toContain("§525 (Voltage Drop)");
+    expect(trace.parameters.some((p) => p.name === "Sizing Governing Factor" && String(p.value).includes("Voltage Drop"))).toBe(true);
+    expect(trace.parameters.some((p) => p.name === "Base Thermal Requirement" && String(p.value).includes("6 mm²"))).toBe(true);
+    expect(trace.parameters.some((p) => p.name === "Circuit Route Length" && p.value === 75)).toBe(true);
+    expect(trace.parameters.some((p) => p.name === "Calculated Voltage Drop (ΔU)" && String(p.value).includes("3.68%"))).toBe(true);
+
+    const gateStep = trace.steps.find((s) => s.label?.includes("Voltage Drop Upsizing Gate"));
+    expect(gateStep).toBeDefined();
+    expect(gateStep?.formula).toContain("min { S ∈ Catalog");
+    expect(gateStep?.substituted).toContain("Base thermal size 6 mm²");
+    expect(gateStep?.substituted).toContain("9.71% > 5.0%");
+    expect(gateStep?.substituted).toContain("Upsized to 16 mm²");
+
+    expect(trace.compliance?.rule).toContain("ΔU ≤ 5.0%");
+    expect(trace.compliance?.actual).toContain("107.0 A (ΔU = 3.68%)");
+    expect(trace.compliance?.margin).toContain("Upsized from 6 mm² for Voltage Drop");
+    expect(trace.notes?.some((n) => n.includes("upsized from base thermal size 6 mm² to 16 mm²"))).toBe(true);
+  });
+
+  it("retains thermal ampacity as governing factor when cable is not upsized for voltage drop", () => {
+    const trace = buildCableAmpacityTrace({
+      circuitName: "Short Run Subcircuit",
+      cableSizeMm2: 6,
+      parallelRuns: 1,
+      material: "copper",
+      insulation: "XLPE",
+      installMethod: "Method C",
+      ambientTempC: 30,
+      groupingCount: 1,
+      tempFactor: 1.0,
+      groupFactor: 1.0,
+      nominalAmpacityPerRun: 58,
+      deratedAmpacityPerRun: 58,
+      totalDeratedAmpacity: 58,
+      breakerSizeA: 50,
+      designCurrentA: 46.5,
+      isThreePhase: false,
+      lengthM: 10,
+      systemVoltageV: 230,
+      maxDropPercentLimit: 5.0,
+    });
+
+    expect(trace.standardCitation).not.toContain("§525 (Voltage Drop)");
+    expect(trace.parameters.some((p) => p.name === "Sizing Governing Factor" && String(p.value).includes("Thermal Ampacity"))).toBe(true);
+    expect(trace.steps.some((s) => s.label?.includes("Voltage Drop Upsizing Gate"))).toBe(false);
+    expect(trace.compliance?.margin).not.toContain("Upsized");
+  });
 });

@@ -1,16 +1,16 @@
 # Graph Report - ProCal  (2026-09-14)
 
 ## Corpus Check
-- 460 files · ~666,045 words
+- 460 files · ~667,256 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 5847 nodes · 8873 edges · 313 communities (193 shown, 120 thin omitted)
+- 5847 nodes · 8881 edges · 314 communities (194 shown, 120 thin omitted)
 - Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 46 edges (avg confidence: 0.72)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `e31c148f`
+- Built from commit: `09d9be00`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -32,7 +32,7 @@
 - cn
 - BreakerSettings.ts
 - gray
-- getSessionUser
+- db.ts
 - search
 - Asset Organization Guide
 - Corporate Identity Program Workflow
@@ -43,7 +43,7 @@
 - app/page.tsx
 - ProCal End-to-End Verification — Hermes Verification / 3 Buildings
 - installationMethods.ts
-- db
+- logProjectActivity
 - ProjectRevision.ts
 - requireAdmin
 - radius
@@ -55,7 +55,7 @@
 - compilerOptions
 - html-token-validator.py
 - ProjectAuditLog.ts
-- Project
+- reports/page.tsx
 - pdf/route.ts
 - ProCal Dual-Tier Deployment Guide
 - BM25
@@ -68,7 +68,7 @@
 - PrismaClient
 - revisions-diff.ts
 - generate-slide.py
-- notify.ts
+- auth.ts
 - color
 - test_design_system_mode.py
 - fetch-background.py
@@ -113,7 +113,7 @@
 - Prisma__ProjectClient
 - logo/generate.py
 - generate-tokens.cjs
-- feeders.ts
+- types/index.ts
 - seed.ts
 - duration
 - ._base_config
@@ -142,9 +142,9 @@
 - Prisma__FloorDesignClient
 - Prisma__UserClient
 - shadcn/ui Accessibility Patterns
-- useTranslation
+- LanguageSelector.tsx
 - cables.ts
-- QAReviewDrawer.tsx
+- FeedbackFloatingButton.tsx
 - trace-engine.ts
 - ProjectMember.ts
 - selectivity.ts
@@ -152,7 +152,7 @@
 - admin/page.tsx
 - LoadManager.tsx
 - country-defaults.ts
-- integration-multibuilding.test.ts
+- phaseBalance.ts
 - Prisma__ApartmentRoomClient
 - Prisma__ContactRequestClient
 - Prisma__EquipmentCatalogClient
@@ -179,7 +179,7 @@
 - States and Variants
 - Prisma__AppSettingClient
 - profile/route.ts
-- computeFeeders
+- feeders.ts
 - padding-y
 - input
 - aggregates.ts
@@ -220,7 +220,7 @@
 - .test_default_content_paths_vue
 - ProjectAuditLogDelegate
 - check-gstack.sh
-- reports/page.tsx
+- useTranslation
 - Brand Consistency Checklist
 - eslint.config.mjs
 - Color Semantics
@@ -228,7 +228,7 @@
 - Acceptance Criteria
 - ProjectMemberDelegate
 - ProjectReviewItemDelegate
-- db.ts
+- notify.ts
 - zod
 - destructive
 - 16
@@ -264,9 +264,9 @@
 - primary-foreground
 - secondary-foreground
 - .test_check_shadcn_config_exists
-- class-variance-authority
+- page.test.tsx
 - .test_get_installed_components_empty
-- .test_add_components_no_components
+- .test_add_components_already_installed
 - puppeteer-core
 - postcss.config.mjs
 - Render Managed PostgreSQL Database
@@ -291,6 +291,7 @@
 - Tailwind Integration
 - update.md
 - Token Architecture
+- bcryptjs
 - Primitive Tokens
 - Core Visual Elements
 - Brand
@@ -340,26 +341,26 @@
   research/riser-diagram-purpose/findings/F1-research.md → docs/reference-calc-engine.md
 
 ## Import Cycles
-- 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/ApartmentRoom.ts -> src/generated/prisma/internal/prismaNamespace.ts`
-- 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/ProjectMember.ts -> src/generated/prisma/internal/prismaNamespace.ts`
-- 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/ProjectRevision.ts -> src/generated/prisma/internal/prismaNamespace.ts`
-- 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/BreakerSettings.ts -> src/generated/prisma/internal/prismaNamespace.ts`
-- 3-file cycle: `src/generated/prisma/commonInputTypes.ts -> src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/commonInputTypes.ts`
-- 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/BreakerFamily.ts -> src/generated/prisma/internal/prismaNamespace.ts`
-- 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/LoadLibraryItem.ts -> src/generated/prisma/internal/prismaNamespace.ts`
-- 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/ApartmentTemplate.ts -> src/generated/prisma/internal/prismaNamespace.ts`
-- 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/AppSetting.ts -> src/generated/prisma/internal/prismaNamespace.ts`
-- 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/Building.ts -> src/generated/prisma/internal/prismaNamespace.ts`
-- 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/BuildingLoad.ts -> src/generated/prisma/internal/prismaNamespace.ts`
 - 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/ContactRequest.ts -> src/generated/prisma/internal/prismaNamespace.ts`
-- 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/EquipmentCatalog.ts -> src/generated/prisma/internal/prismaNamespace.ts`
+- 3-file cycle: `src/generated/prisma/commonInputTypes.ts -> src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/commonInputTypes.ts`
+- 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/ApartmentRoom.ts -> src/generated/prisma/internal/prismaNamespace.ts`
 - 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/FloorDesign.ts -> src/generated/prisma/internal/prismaNamespace.ts`
-- 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/FloorItem.ts -> src/generated/prisma/internal/prismaNamespace.ts`
+- 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/LoadLibraryItem.ts -> src/generated/prisma/internal/prismaNamespace.ts`
+- 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/AppSetting.ts -> src/generated/prisma/internal/prismaNamespace.ts`
+- 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/User.ts -> src/generated/prisma/internal/prismaNamespace.ts`
+- 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/ProjectRevision.ts -> src/generated/prisma/internal/prismaNamespace.ts`
+- 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/ProjectReviewItem.ts -> src/generated/prisma/internal/prismaNamespace.ts`
 - 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/Project.ts -> src/generated/prisma/internal/prismaNamespace.ts`
 - 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/ProjectAuditLog.ts -> src/generated/prisma/internal/prismaNamespace.ts`
+- 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/FloorItem.ts -> src/generated/prisma/internal/prismaNamespace.ts`
+- 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/BuildingLoad.ts -> src/generated/prisma/internal/prismaNamespace.ts`
+- 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/ProjectMember.ts -> src/generated/prisma/internal/prismaNamespace.ts`
+- 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/BreakerFamily.ts -> src/generated/prisma/internal/prismaNamespace.ts`
+- 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/ApartmentTemplate.ts -> src/generated/prisma/internal/prismaNamespace.ts`
+- 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/BreakerSettings.ts -> src/generated/prisma/internal/prismaNamespace.ts`
+- 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/Building.ts -> src/generated/prisma/internal/prismaNamespace.ts`
+- 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/EquipmentCatalog.ts -> src/generated/prisma/internal/prismaNamespace.ts`
 - 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/ProjectInvite.ts -> src/generated/prisma/internal/prismaNamespace.ts`
-- 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/ProjectReviewItem.ts -> src/generated/prisma/internal/prismaNamespace.ts`
-- 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/User.ts -> src/generated/prisma/internal/prismaNamespace.ts`
 
 ## Hyperedges (group relationships)
 - **Complete Brand Identity Generation Flow** — agents_skills_design_skill_unified_design, agents_skills_design_references_logo_design_logo_generation_workflow, agents_skills_design_references_cip_design_cip_workflow, agents_skills_design_references_slides_slides_reference [EXTRACTED 1.00]
@@ -378,7 +379,7 @@
 - **Phase Balancing & Neutral Accounting Pipeline** — docs_explanation_phase_balancing_total_angle_neutral, docs_explanation_phase_balancing_current_unbalance_proxy, docs_explanation_phase_balancing_greedy_assignment_on_read, docs_reference_calc_engine_calc_engine_reference, uploads_3phase_pdh_course_e336, uploads_en50160_en_50160_standard [INFERRED 0.95]
 - **ProCal Core Engineering Workflow Feature Slides** — public_slides_slide_load_calc, public_slides_slide_cable_sizing, public_slides_slide_sld_diagram, public_slides_slide_breaker_schedule, public_slides_slide_pdf_reports [INFERRED 0.95]
 
-## Communities (313 total, 120 thin omitted)
+## Communities (314 total, 120 thin omitted)
 
 ### Community 0 - "Project.ts"
 Cohesion: 0.01
@@ -437,8 +438,8 @@ Cohesion: 0.03
 Nodes (79): AggregateApartmentRoom, ApartmentRoomAggregateArgs, ApartmentRoomAvgAggregateInputType, ApartmentRoomAvgAggregateOutputType, ApartmentRoomAvgOrderByAggregateInput, ApartmentRoomCountAggregateInputType, ApartmentRoomCountAggregateOutputType, ApartmentRoomCountArgs (+71 more)
 
 ### Community 14 - "cn"
-Cohesion: 0.10
-Nodes (28): BrandSlogan(), BrandSloganProps, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuRadioItem, DropdownMenuSeparator (+20 more)
+Cohesion: 0.09
+Nodes (32): BrandSlogan(), BrandSloganProps, DialogDescription, DialogOverlay, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel (+24 more)
 
 ### Community 15 - "BreakerSettings.ts"
 Cohesion: 0.03
@@ -448,9 +449,9 @@ Nodes (59): AggregateBreakerSettings, BreakerSettingsAggregateArgs, BreakerSetti
 Cohesion: 0.05
 Nodes (53): $type, $value, $type, $value, $type, $value, $type, $value (+45 more)
 
-### Community 17 - "getSessionUser"
-Cohesion: 0.05
-Nodes (44): POST(), mocks, post(), GET(), PATCH(), PUT(), getMe(), mocks (+36 more)
+### Community 17 - "db.ts"
+Cohesion: 0.07
+Nodes (35): POST(), mocks, post(), GET(), PATCH(), PUT(), getMe(), mocks (+27 more)
 
 ### Community 18 - "search"
 Cohesion: 0.07
@@ -481,8 +482,8 @@ Cohesion: 0.04
 Nodes (52): AggregateAppSetting, AppSettingAggregateArgs, AppSettingCountAggregateInputType, AppSettingCountAggregateOutputType, AppSettingCountArgs, AppSettingCountOrderByAggregateInput, AppSettingCreateArgs, AppSettingCreateInput (+44 more)
 
 ### Community 25 - "app/page.tsx"
-Cohesion: 0.12
-Nodes (24): DashboardPage(), ProjectSummary, cardContainerVariants, cardItemVariants, heroContainerVariants, heroItemVariants, HeroSlideshow(), SlideData (+16 more)
+Cohesion: 0.13
+Nodes (19): ProjectSummary, cardContainerVariants, cardItemVariants, heroContainerVariants, heroItemVariants, HeroSlideshow(), SlideData, IsometricBuilding() (+11 more)
 
 ### Community 26 - "ProCal End-to-End Verification — Hermes Verification / 3 Buildings"
 Cohesion: 0.20
@@ -492,9 +493,9 @@ Nodes (9): 1. Project data (audited final state), 2. Workflow coverage (all 8 st
 Cohesion: 0.05
 Nodes (42): aluminumRatio(), AMPACITY_A1_PVC_1PH, AMPACITY_A1_PVC_3PH, AMPACITY_A1_XLPE_1PH, AMPACITY_A1_XLPE_3PH, AMPACITY_A2_PVC_3PH, AMPACITY_A2_XLPE_3PH, AMPACITY_B1_PVC_1PH (+34 more)
 
-### Community 28 - "db"
-Cohesion: 0.13
-Nodes (21): POST(), mocks, postAccept(), DELETE(), PATCH(), GET(), POST(), getReviewItems() (+13 more)
+### Community 28 - "logProjectActivity"
+Cohesion: 0.12
+Nodes (20): POST(), mocks, postAccept(), DELETE(), PATCH(), GET(), POST(), getReviewItems() (+12 more)
 
 ### Community 29 - "ProjectRevision.ts"
 Cohesion: 0.02
@@ -502,7 +503,7 @@ Nodes (88): AggregateProjectRevision, GetProjectRevisionAggregateType, GetProjec
 
 ### Community 30 - "requireAdmin"
 Cohesion: 0.05
-Nodes (42): DELETE(), GET(), PUT(), RouteParams, GET(), POST(), Where, escapeCsv() (+34 more)
+Nodes (43): DELETE(), GET(), PUT(), RouteParams, GET(), POST(), Where, escapeCsv() (+35 more)
 
 ### Community 31 - "radius"
 Cohesion: 0.19
@@ -518,15 +519,15 @@ Nodes (43): 1. Description & Verbatim Code Snippet, 1. Description & Verbatim Co
 
 ### Community 34 - "loads.ts"
 Cohesion: 0.10
-Nodes (37): main(), POST(), POST(), mocks, postRecalculate(), POST(), mocks, postCopy() (+29 more)
+Nodes (39): main(), POST(), POST(), mocks, postRecalculate(), POST(), mocks, postCopy() (+31 more)
 
 ### Community 35 - "Sidebar.tsx"
-Cohesion: 0.06
-Nodes (35): BillingPage(), AppLayout(), Project, ProjectsPage(), fetchMock, mockUser, push, refreshUser (+27 more)
+Cohesion: 0.09
+Nodes (26): BillingPage(), AppLayout(), AppLayoutContainer(), LayoutInner(), OnboardingTour(), RAW_BREAKER_SCHEDULE_TOUR_STEPS, RAW_CABLE_SCHEDULE_TOUR_STEPS, RAW_CALCULATOR_TOUR_STEPS (+18 more)
 
 ### Community 36 - "design_system.py"
-Cohesion: 0.10
-Nodes (27): ansi_ljust(), _detect_page_type(), format_ascii_box(), format_markdown(), format_master_md(), format_page_override_md(), generate_design_system(), _generate_intelligent_overrides() (+19 more)
+Cohesion: 0.11
+Nodes (25): ansi_ljust(), _detect_page_type(), format_ascii_box(), format_markdown(), format_master_md(), format_page_override_md(), generate_design_system(), _generate_intelligent_overrides() (+17 more)
 
 ### Community 37 - "compilerOptions"
 Cohesion: 0.07
@@ -540,9 +541,9 @@ Nodes (24): get_context(), is_allowed_exception(), is_allowed_rgba(), is_inside_
 Cohesion: 0.02
 Nodes (89): AggregateProjectAuditLog, GetProjectAuditLogAggregateType, GetProjectAuditLogGroupByPayload, ProjectAuditLog$userArgs, ProjectAuditLogAggregateArgs, ProjectAuditLogCountAggregateInputType, ProjectAuditLogCountAggregateOutputType, ProjectAuditLogCountArgs (+81 more)
 
-### Community 40 - "Project"
+### Community 40 - "reports/page.tsx"
 Cohesion: 0.10
-Nodes (20): BOMScheduleProps, BreakerScheduleProps, CableScheduleProps, MDBScheduleProps, building(), equipment, fetchMock, item() (+12 more)
+Nodes (33): BOMScheduleProps, BreakerRow, BreakerSchedule(), BreakerScheduleProps, CableScheduleProps, CoverPage(), CoverPageProps, LoadSchedule() (+25 more)
 
 ### Community 41 - "pdf/route.ts"
 Cohesion: 0.08
@@ -577,20 +578,20 @@ Cohesion: 0.10
 Nodes (12): main(), Add custom font families. Args: fonts: Dict of font_type: [font_names] e.g.,…, Add custom spacing values. Args: spacing: Dict of name: value e.g., {'18':…, Add custom breakpoints. Args: breakpoints: Dict of name: width e.g., {'3xl':…, Add plugin requirements. Args: plugins: List of plugin names e.g.,…, Get plugin recommendations based on configuration. Returns: List of recommended…, Generate Tailwind CSS configuration files., Validate configuration. Returns: Tuple of (valid, message) (+4 more)
 
 ### Community 49 - "DesignSystemGenerator"
-Cohesion: 0.14
-Nodes (10): DesignSystemGenerator, Generates design system recommendations from aggregated searches., Load reasoning rules from CSV., Execute searches across multiple domains., Find matching reasoning rule for a category., Apply reasoning rules to search results., Select best matching result based on priority keywords., Extract results list from search result dict. (+2 more)
+Cohesion: 0.13
+Nodes (12): DesignSystemGenerator, Generates design system recommendations from aggregated searches., Load reasoning rules from CSV., Execute searches across multiple domains., Find matching reasoning rule for a category., Apply reasoning rules to search results., Select best matching result based on priority keywords., Extract results list from search result dict. (+4 more)
 
 ### Community 51 - "revisions-diff.ts"
-Cohesion: 0.07
-Nodes (45): deleteExtras(), POST(), mocks, post(), revisionRecord, snapshot, toRevisionDto(), CATEGORY_BADGE (+37 more)
+Cohesion: 0.06
+Nodes (53): deleteExtras(), POST(), mocks, post(), revisionRecord, snapshot, toRevisionDto(), GET() (+45 more)
 
 ### Community 52 - "generate-slide.py"
 Cohesion: 0.15
 Nodes (19): _e(), generate_chart_slide(), generate_cta_slide(), generate_deck(), generate_metrics_slide(), generate_problem_slide(), generate_solution_slide(), generate_testimonial_slide() (+11 more)
 
-### Community 53 - "notify.ts"
-Cohesion: 0.07
-Nodes (37): assert(), runE2ETests(), TestContext, POST(), mocks, post(), POST(), POST() (+29 more)
+### Community 53 - "auth.ts"
+Cohesion: 0.09
+Nodes (31): assert(), runE2ETests(), TestContext, POST(), mocks, post(), POST(), POST() (+23 more)
 
 ### Community 54 - "color"
 Cohesion: 0.11
@@ -658,7 +659,7 @@ Nodes (12): $type, $value, bg, bg, padding, shadow, card, bg (+4 more)
 
 ### Community 85 - "ShadcnInstaller"
 Cohesion: 0.20
-Nodes (7): main(), Handle shadcn/ui component installation., ShadcnInstaller, Tests for shadcn_add.py, Test adding components that are already installed., Test listing installed components when they exist., Test getting installed components without config.
+Nodes (7): main(), Handle shadcn/ui component installation., ShadcnInstaller, Tests for shadcn_add.py, Test listing installed components when they exist., Test getting installed components without config., Test adding components with empty list.
 
 ### Community 86 - ".check_shadcn_config"
 Cohesion: 0.21
@@ -690,7 +691,7 @@ Nodes (8): Tests for tailwind_config_gen.py, Reduce a generated TS/JS config to 
 
 ### Community 93 - "dependencies"
 Cohesion: 0.06
-Nodes (33): bcryptjs, clsx, html2canvas, html-to-image, lucide-react, dependencies, bcryptjs, clsx (+25 more)
+Nodes (33): class-variance-authority, clsx, html2canvas, html-to-image, lucide-react, dependencies, class-variance-authority, clsx (+25 more)
 
 ### Community 94 - "ProCal Electrical Load & MDB Designer"
 Cohesion: 0.20
@@ -708,13 +709,13 @@ Nodes (9): enhance_prompt(), generate_batch(), generate_logo(), load_env(), main
 Cohesion: 0.36
 Nodes (9): flattenTokens(), fs, generateCSS(), generateTailwind(), main(), parseArgs(), path, resolveReference() (+1 more)
 
-### Community 99 - "feeders.ts"
-Cohesion: 0.05
-Nodes (57): BreakerEntry, BreakerBOMItem, calculateVoltageDrop(), parseMm2(), categoryForFloorItem(), DefaultFamilies, displacementAngle(), feederFromBuildingLoad() (+49 more)
+### Community 99 - "types/index.ts"
+Cohesion: 0.04
+Nodes (47): FloorData, building(), equipment, fetchMock, item(), project, calculateVoltageDrop(), parseMm2() (+39 more)
 
 ### Community 100 - "seed.ts"
-Cohesion: 0.12
-Nodes (25): RFC-4180, adapter, db, main(), pool, seedBootstrapAdmin(), seedEquipmentCatalog(), DELETE() (+17 more)
+Cohesion: 0.13
+Nodes (24): RFC-4180, adapter, db, main(), pool, seedBootstrapAdmin(), seedEquipmentCatalog(), DELETE() (+16 more)
 
 ### Community 101 - "duration"
 Cohesion: 0.20
@@ -792,45 +793,45 @@ Nodes (28): Alert, Anatomy, Anatomy, Anatomy, Anatomy, Anatomy, Badge, Button (+
 Cohesion: 0.40
 Nodes (5): WCAG Color Contrast & Focus Indicators, Focus Management & Keyboard Navigation, shadcn/ui Accessibility Patterns, Radix UI Primitives Foundation, Screen Reader Support & ARIA Patterns
 
-### Community 128 - "useTranslation"
-Cohesion: 0.08
-Nodes (30): AdminLayout(), Building, BuildingLoad, FloorDesign, Project, ProjectDetailPage(), ForgotPasswordPage(), InviteAcceptContent() (+22 more)
+### Community 128 - "LanguageSelector.tsx"
+Cohesion: 0.16
+Nodes (9): AdminLayout(), ForgotPasswordPage(), LoginPage(), ResetPasswordContent(), SignupPage(), AdminNavItem, AdminSidebar(), LanguageSelector() (+1 more)
 
 ### Community 129 - "cables.ts"
-Cohesion: 0.10
-Nodes (38): main(), createTower(), main(), CableProtectionEvaluation, calculateCableAmpacity(), evaluateCableProtection(), formatCableSize(), getCableAmpacityColumn() (+30 more)
+Cohesion: 0.11
+Nodes (37): main(), createTower(), main(), CableProtectionEvaluation, calculateCableAmpacity(), evaluateCableProtection(), formatCableSize(), getCableAmpacityColumn() (+29 more)
 
-### Community 130 - "QAReviewDrawer.tsx"
-Cohesion: 0.31
-Nodes (11): FeedbackCategory, FeedbackFloatingButton(), QAReviewDrawer(), QAReviewDrawerProps, capturePageDom(), captureScreen(), captureScreenViaDisplayMedia(), dataUrlToFile() (+3 more)
+### Community 130 - "FeedbackFloatingButton.tsx"
+Cohesion: 0.36
+Nodes (9): FeedbackCategory, FeedbackFloatingButton(), capturePageDom(), captureScreen(), captureScreenViaDisplayMedia(), dataUrlToFile(), extractImageFromClipboard(), mockHtml2Canvas (+1 more)
 
 ### Community 131 - "trace-engine.ts"
-Cohesion: 0.14
-Nodes (23): CalculationTracePopoverProps, TraceableCellProps, CodeStandard, calculateIscWithCable(), calculateShortCircuitCurrent(), calculateTransformerImpedance(), EarthingSystem, ShortCircuitResult (+15 more)
+Cohesion: 0.13
+Nodes (24): CalculationTracePopoverProps, TraceableCellProps, CodeStandard, calculateIscWithCable(), calculateShortCircuitCurrent(), calculateTransformerImpedance(), EarthingSystem, ShortCircuitResult (+16 more)
 
 ### Community 132 - "ProjectMember.ts"
 Cohesion: 0.02
 Nodes (89): AggregateProjectMember, GetProjectMemberAggregateType, GetProjectMemberGroupByPayload, ProjectMemberAggregateArgs, ProjectMemberCountAggregateInputType, ProjectMemberCountAggregateOutputType, ProjectMemberCountArgs, ProjectMemberCountOrderByAggregateInput (+81 more)
 
 ### Community 133 - "selectivity.ts"
-Cohesion: 0.14
-Nodes (31): CoordinationPage(), ProjectFeederItem, SelectivityStatus, TccPlotModal(), TccPlotModalProps, ComputeFeedersResult, BreakerCurveSettings, calculateCableWithstandTime() (+23 more)
+Cohesion: 0.15
+Nodes (25): TccPlotModal(), TccPlotModalProps, ComputeFeedersResult, BreakerCurveSettings, calculateCableWithstandTime(), CatalogItemInfo, checkCableProtection(), CoordinationResult (+17 more)
 
 ### Community 134 - "leads/page.tsx"
 Cohesion: 0.40
 Nodes (3): Lead, LeadUser, StatusFilter
 
 ### Community 136 - "LoadManager.tsx"
-Cohesion: 0.14
-Nodes (21): CATEGORIES, LoadItem, LoadManagerProps, Template, TemplateManagerProps, DialogContent, DialogDescription, DialogFooter() (+13 more)
+Cohesion: 0.15
+Nodes (21): CATEGORIES, LoadItem, LoadManager(), LoadManagerProps, Template, TemplateManagerProps, Badge(), BadgeProps (+13 more)
 
 ### Community 137 - "country-defaults.ts"
-Cohesion: 0.19
-Nodes (15): SettingsTab, RoomData, RoomInput(), RoomInputProps, generateId(), RoomList(), RoomListProps, AcSizingRule (+7 more)
+Cohesion: 0.16
+Nodes (18): SettingsTab, RoomData, RoomInput(), RoomInputProps, generateId(), RoomList(), RoomListProps, Button (+10 more)
 
-### Community 138 - "integration-multibuilding.test.ts"
-Cohesion: 0.23
-Nodes (10): apartmentItem(), buildMall(), buildTowerA(), buildTowerB(), equipment, findBreaker, lib, libraryLoad() (+2 more)
+### Community 138 - "phaseBalance.ts"
+Cohesion: 0.11
+Nodes (29): ReportsPage(), ComponentProperty, SLDPage(), displacementAngle(), isThreePhaseForBuildingLoad(), pfAngleForBuildingLoad(), pfAngleForItem(), sizeTransformer() (+21 more)
 
 ### Community 142 - "Canvas Design System"
 Cohesion: 0.50
@@ -904,9 +905,9 @@ Nodes (24): Accessibility, Accessibility Requirements, ARIA States, Color Contra
 Cohesion: 0.43
 Nodes (5): handleUpdateProfile(), PATCH(), POST(), mocks, patchProfile()
 
-### Community 165 - "computeFeeders"
-Cohesion: 0.15
-Nodes (44): BreakerSchedulePage(), CableSchedulePage(), BREAKER_FAMILY_THEME, getBreakerCategory(), PanelDesignerPage(), wrapSvgLines(), RiserPage(), TraceableCell() (+36 more)
+### Community 165 - "feeders.ts"
+Cohesion: 0.16
+Nodes (43): BreakerEntry, CableEntry, CableSchedulePage(), PanelDesignerPage(), RiserPage(), BOMSchedule(), BreakerBOMItem, CableBOMItem (+35 more)
 
 ### Community 166 - "padding-y"
 Cohesion: 0.67
@@ -917,8 +918,8 @@ Cohesion: 0.29
 Nodes (8): padding-x, input, $type, $value, focus-ring, padding-x, $type, $value
 
 ### Community 168 - "aggregates.ts"
-Cohesion: 0.09
-Nodes (36): LoadSchedule(), LoadScheduleProps, awgLabel(), aggregateBOM(), aggregateBreakerRows(), aggregateCableRows(), aggregateFeederRows(), aggregateLoadRows() (+28 more)
+Cohesion: 0.10
+Nodes (34): awgLabel(), aggregateBOM(), aggregateBreakerRows(), aggregateCableRows(), aggregateFeederRows(), aggregateLoadRows(), aggregateShortCircuitRows(), aggregateVoltageDropRows() (+26 more)
 
 ### Community 171 - "SLD Panel Designer Implementation Plan"
 Cohesion: 0.67
@@ -948,9 +949,9 @@ Nodes (5): $type, $value, border, border, border
 Cohesion: 0.60
 Nodes (5): radius, radius, radius, $type, $value
 
-### Community 206 - "reports/page.tsx"
-Cohesion: 0.09
-Nodes (42): BreakerFamilyOption, CableEntry, CalculatorContent(), ReportsPage(), FloorData, ComponentProperty, SLDPage(), AccessRestricted() (+34 more)
+### Community 206 - "useTranslation"
+Cohesion: 0.07
+Nodes (57): BreakerFamilyOption, BreakerSchedulePage(), CalculatorContent(), CoordinationPage(), ProjectFeederItem, SelectivityStatus, DashboardPage(), BREAKER_FAMILY_THEME (+49 more)
 
 ### Community 207 - "Brand Consistency Checklist"
 Cohesion: 0.11
@@ -964,9 +965,9 @@ Nodes (17): Accent, Applying Semantic Tokens, Background & Foreground, Border & 
 Cohesion: 0.20
 Nodes (9): 2026-09-03T05:25:59Z, Acceptance Criteria, Deliverable Completeness, Electrical Calculations & Standards, R1. Electrical Calculations & Standards Audit, R2. UI & UX Runtime and Static Usability Evaluation, R3. Diagnostic Audit Report, Requirements (+1 more)
 
-### Community 214 - "db.ts"
-Cohesion: 0.27
-Nodes (6): dynamic, getPool(), globalForPrisma, isRemoteDatabaseUrl(), resolveDatabaseSsl(), SslConfig
+### Community 214 - "notify.ts"
+Cohesion: 0.18
+Nodes (13): POST(), create, mocks, post(), DELETE(), POST(), getFromAddress(), getTransporter() (+5 more)
 
 ### Community 216 - "destructive"
 Cohesion: 0.67
@@ -1011,6 +1012,10 @@ Nodes (3): primary-foreground, $type, $value
 ### Community 248 - "secondary-foreground"
 Cohesion: 0.67
 Nodes (3): secondary-foreground, $type, $value
+
+### Community 250 - "page.test.tsx"
+Cohesion: 0.25
+Nodes (5): fetchMock, mockUser, push, refreshUser, renderPage()
 
 ### Community 282 - "Design Principles"
 Cohesion: 0.12
@@ -1070,7 +1075,7 @@ Nodes (3): ring, $type, $value
 
 ### Community 317 - "verifyProjectAccess"
 Cohesion: 0.07
-Nodes (32): DELETE(), PATCH(), DELETE(), GET(), PATCH(), PUT(), mocks, patchBuilding() (+24 more)
+Nodes (30): DELETE(), PATCH(), DELETE(), GET(), PATCH(), PUT(), mocks, patchBuilding() (+22 more)
 
 ### Community 418 - "PostgreSQL 16 Service (procal-db)"
 Cohesion: 0.50
@@ -1085,8 +1090,8 @@ Cohesion: 0.40
 Nodes (5): 6. Section 4: Prioritized Remediation Roadmap, Phase 1: Critical Life-Safety & Protection Hotfixes (Immediate / Day 1), Phase 2: Core Standards Compliance & Engineering Physics Alignment (Sprint 1), Phase 3: Test Suite Refactoring & Facade Elimination (Sprint 2), Phase 4: UI/UX Usability, Accessibility & Polish (Sprint 3)
 
 ### Community 439 - "project-auth.ts"
-Cohesion: 0.14
-Nodes (22): DELETE(), PATCH(), GET(), getMembers(), mocks, postInvite(), GET(), ProjectTeamTab() (+14 more)
+Cohesion: 0.16
+Nodes (20): DELETE(), PATCH(), GET(), POST(), getMembers(), mocks, postInvite(), GET() (+12 more)
 
 ### Community 440 - "4. Section 2: Test Suite Execution, Coverage Gaps & False-Positive Assertions"
 Cohesion: 0.50
@@ -1104,9 +1109,9 @@ Nodes (4): Fix 1: Main Incomer Protection & Overload Trip Elimination, Fix 2: Un
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `cn()` connect `cn` to `useTranslation`, `Sidebar.tsx`, `LoadManager.tsx`, `country-defaults.ts`, `reports/page.tsx`, `MethodSelector.tsx`, `app/page.tsx`?**
+- **Why does `cn()` connect `cn` to `LanguageSelector.tsx`, `Sidebar.tsx`, `LoadManager.tsx`, `country-defaults.ts`, `useTranslation`, `MethodSelector.tsx`, `app/page.tsx`?**
   _High betweenness centrality (0.011) - this node is a cross-community bridge._
-- **Why does `getSessionUser()` connect `getSessionUser` to `useTranslation`, `loads.ts`, `Sidebar.tsx`, `profile/route.ts`, `pdf/route.ts`, `revisions-diff.ts`, `notify.ts`, `project-auth.ts`, `db`, `verifyProjectAccess`, `requireAdmin`?**
+- **Why does `getSessionUser()` connect `db.ts` to `LanguageSelector.tsx`, `loads.ts`, `Sidebar.tsx`, `profile/route.ts`, `pdf/route.ts`, `revisions-diff.ts`, `auth.ts`, `notify.ts`, `project-auth.ts`, `logProjectActivity`, `verifyProjectAccess`, `requireAdmin`?**
   _High betweenness centrality (0.010) - this node is a cross-community bridge._
 - **Why does `ApartmentTemplateDelegate` connect `ApartmentTemplateDelegate` to `ApartmentTemplate.ts`?**
   _High betweenness centrality (0.008) - this node is a cross-community bridge._

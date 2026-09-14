@@ -1392,6 +1392,7 @@ export default function CableSchedulePage() {
                               parallelRuns: c.parallelRuns || 1,
                               code: codeOf(selectedProject?.calculationStandard || project?.calculationStandard),
                             });
+                            const sysVolt = c.isThreePhase ? (project?.voltage || 400) : Math.round((project?.voltage || 400) / Math.sqrt(3));
                             return buildCableAmpacityTrace({
                               circuitName: `${c.building} - ${c.name}`,
                               cableSizeMm2: c.cableSize,
@@ -1409,6 +1410,12 @@ export default function CableSchedulePage() {
                               breakerSizeA: c.breakerSize,
                               designCurrentA: c.current,
                               calculationStandard: selectedProject?.calculationStandard || project?.calculationStandard,
+                              isThreePhase: c.isThreePhase,
+                              lengthM: c.length,
+                              voltageDropPercent: c.newVD ?? undefined,
+                              maxDropPercentLimit: project?.maxVoltageDropPower || 5.0,
+                              powerFactor: project?.powerFactor || 0.85,
+                              systemVoltageV: sysVolt,
                             });
                           }}
                         >
@@ -1490,6 +1497,7 @@ export default function CableSchedulePage() {
                               parallelRuns: c.parallelRuns || 1,
                               code: codeOf(selectedProject?.calculationStandard || project?.calculationStandard),
                             });
+                            const sysVolt = c.isThreePhase ? (project?.voltage || 400) : Math.round((project?.voltage || 400) / Math.sqrt(3));
                             return buildCableAmpacityTrace({
                               circuitName: `${c.building} - ${c.name}`,
                               cableSizeMm2: c.cableSize,
@@ -1507,6 +1515,12 @@ export default function CableSchedulePage() {
                               breakerSizeA: c.breakerSize,
                               designCurrentA: c.current,
                               calculationStandard: selectedProject?.calculationStandard || project?.calculationStandard,
+                              isThreePhase: c.isThreePhase,
+                              lengthM: c.length,
+                              voltageDropPercent: c.newVD ?? undefined,
+                              maxDropPercentLimit: project?.maxVoltageDropPower || 5.0,
+                              powerFactor: project?.powerFactor || 0.85,
+                              systemVoltageV: sysVolt,
                             });
                           }}
                         >

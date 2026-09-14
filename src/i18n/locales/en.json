@@ -1206,7 +1206,9 @@
       "breakingCapacityCheck": "Ultimate Breaking Capacity (Icu) Verification",
       "avgPhaseCurrent": "Average Phase Current (I_avg)",
       "maxPhaseDev": "Maximum Phase Deviation (ΔI_max)",
-      "currentUnbalancePct": "Current Unbalance Percentage"
+      "currentUnbalancePct": "Current Unbalance Percentage",
+      "voltageDropUpsizingGateIec": "Voltage Drop Upsizing Gate (IEC 60364-5-52 §525)",
+      "voltageDropUpsizingGateNec": "Voltage Drop Upsizing Gate (NEC 210.19(A))"
     },
     "stepDescriptions": {
       "effectiveCableZ": "Effective cable AC resistance and reactance at operating temperature.",
@@ -1248,7 +1250,10 @@
       "breakingCapacity": "Breaking Capacity",
       "phaseL1Current": "Phase L1 Current",
       "phaseL2Current": "Phase L2 Current",
-      "phaseL3Current": "Phase L3 Current"
+      "phaseL3Current": "Phase L3 Current",
+      "sizingGoverningFactor": "Sizing Governing Factor",
+      "baseThermalRequirement": "Base Thermal Requirement",
+      "calculatedVoltageDrop": "Calculated Voltage Drop (ΔU)"
     },
     "sources": {
       "equipmentSchedule": "Equipment Schedule",
@@ -1292,7 +1297,9 @@
       "underLoadCurrent": "under load current",
       "deficit": "Deficit:",
       "continuousMargin": "continuous margin",
-      "requiresRebalancing": "Requires Phase Rebalancing"
+      "requiresRebalancing": "Requires Phase Rebalancing",
+      "upsizedFrom": "Upsized from",
+      "forVoltageDrop": "for Voltage Drop"
     },
     "notes": {
       "allowableLimitPerStandard": "Allowable limit per standard:",

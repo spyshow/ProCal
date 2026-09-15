@@ -9132,17 +9132,17 @@
       "norm_label": "languageselectorprops"
     },
     {
-      "label": "BOMScheduleProps",
+      "label": "CableEntry",
       "file_type": "code",
-      "source_file": "src/components/report/BOMSchedule.tsx",
-      "source_location": "L10",
+      "source_file": "src/app/(app)/cable-schedule/page.tsx",
+      "source_location": "L40",
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
-      "id": "src_components_report_bomschedule_bomscheduleprops",
+      "id": "src_app_app_cable_schedule_page_cableentry",
       "community": 129,
       "community_name": "reports/page.tsx",
-      "norm_label": "bomscheduleprops"
+      "norm_label": "cableentry"
     },
     {
       "label": "CableBOMItem",
@@ -9171,19 +9171,6 @@
       "norm_label": "breakerrow"
     },
     {
-      "label": "BreakerScheduleProps",
-      "file_type": "code",
-      "source_file": "src/components/report/BreakerSchedule.tsx",
-      "source_location": "L16",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_components_report_breakerschedule_breakerscheduleprops",
-      "community": 129,
-      "community_name": "reports/page.tsx",
-      "norm_label": "breakerscheduleprops"
-    },
-    {
       "label": "CableRow",
       "file_type": "code",
       "source_file": "src/components/report/CableSchedule.tsx",
@@ -9195,45 +9182,6 @@
       "community": 129,
       "community_name": "reports/page.tsx",
       "norm_label": "cablerow"
-    },
-    {
-      "label": "CableScheduleProps",
-      "file_type": "code",
-      "source_file": "src/components/report/CableSchedule.tsx",
-      "source_location": "L16",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_components_report_cableschedule_cablescheduleprops",
-      "community": 129,
-      "community_name": "reports/page.tsx",
-      "norm_label": "cablescheduleprops"
-    },
-    {
-      "label": "CoverPageProps",
-      "file_type": "code",
-      "source_file": "src/components/report/CoverPage.tsx",
-      "source_location": "L10",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_components_report_coverpage_coverpageprops",
-      "community": 129,
-      "community_name": "reports/page.tsx",
-      "norm_label": "coverpageprops"
-    },
-    {
-      "label": "LoadScheduleProps",
-      "file_type": "code",
-      "source_file": "src/components/report/LoadSchedule.tsx",
-      "source_location": "L8",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_components_report_loadschedule_loadscheduleprops",
-      "community": 129,
-      "community_name": "reports/page.tsx",
-      "norm_label": "loadscheduleprops"
     },
     {
       "label": "MDBRow",
@@ -9249,71 +9197,6 @@
       "norm_label": "mdbrow"
     },
     {
-      "label": "MDBScheduleProps",
-      "file_type": "code",
-      "source_file": "src/components/report/MDBSchedule.tsx",
-      "source_location": "L15",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_components_report_mdbschedule_mdbscheduleprops",
-      "community": 129,
-      "community_name": "reports/page.tsx",
-      "norm_label": "mdbscheduleprops"
-    },
-    {
-      "label": "ReportHeaderProps",
-      "file_type": "code",
-      "source_file": "src/components/report/ReportHeader.tsx",
-      "source_location": "L10",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_components_report_reportheader_reportheaderprops",
-      "community": 129,
-      "community_name": "reports/page.tsx",
-      "norm_label": "reportheaderprops"
-    },
-    {
-      "label": "SectionHeaderProps",
-      "file_type": "code",
-      "source_file": "src/components/report/ReportHeader.tsx",
-      "source_location": "L18",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_components_report_reportheader_sectionheaderprops",
-      "community": 129,
-      "community_name": "reports/page.tsx",
-      "norm_label": "sectionheaderprops"
-    },
-    {
-      "label": "RevisionsPanelProps",
-      "file_type": "code",
-      "source_file": "src/components/report/RevisionsPanel.tsx",
-      "source_location": "L8",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_components_report_revisionspanel_revisionspanelprops",
-      "community": 129,
-      "community_name": "reports/page.tsx",
-      "norm_label": "revisionspanelprops"
-    },
-    {
-      "label": "ShortCircuitScheduleProps",
-      "file_type": "code",
-      "source_file": "src/components/report/ShortCircuitSchedule.tsx",
-      "source_location": "L16",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_components_report_shortcircuitschedule_shortcircuitscheduleprops",
-      "community": 129,
-      "community_name": "reports/page.tsx",
-      "norm_label": "shortcircuitscheduleprops"
-    },
-    {
       "label": "VDRow",
       "file_type": "code",
       "source_file": "src/components/report/VDSchedule.tsx",
@@ -9327,82 +9210,17 @@
       "norm_label": "vdrow"
     },
     {
-      "label": "VDScheduleProps",
+      "label": "CableKind",
       "file_type": "code",
-      "source_file": "src/components/report/VDSchedule.tsx",
-      "source_location": "L22",
+      "source_file": "src/lib/sld/cablePersist.ts",
+      "source_location": "L8",
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
-      "id": "src_components_report_vdschedule_vdscheduleprops",
+      "id": "src_lib_sld_cablepersist_cablekind",
       "community": 129,
       "community_name": "reports/page.tsx",
-      "norm_label": "vdscheduleprops"
-    },
-    {
-      "label": "EquipmentItem",
-      "file_type": "code",
-      "source_file": "src/lib/calculations/feeders.ts",
-      "source_location": "L21",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_lib_calculations_feeders_equipmentitem",
-      "community": 129,
-      "community_name": "reports/page.tsx",
-      "norm_label": "equipmentitem"
-    },
-    {
-      "label": "FindBreaker",
-      "file_type": "code",
-      "source_file": "src/lib/calculations/feeders.ts",
-      "source_location": "L192",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_lib_calculations_feeders_findbreaker",
-      "community": 129,
-      "community_name": "reports/page.tsx",
-      "norm_label": "findbreaker"
-    },
-    {
-      "label": "RenderReportHtmlOptions",
-      "file_type": "code",
-      "source_file": "src/lib/reports/render-report-html.tsx",
-      "source_location": "L18",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_lib_reports_render_report_html_renderreporthtmloptions",
-      "community": 129,
-      "community_name": "reports/page.tsx",
-      "norm_label": "renderreporthtmloptions"
-    },
-    {
-      "label": "Project",
-      "file_type": "code",
-      "source_file": "src/types/index.ts",
-      "source_location": "L164",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_types_index_project",
-      "community": 129,
-      "community_name": "reports/page.tsx",
-      "norm_label": "project"
-    },
-    {
-      "label": "ProjectRevision",
-      "file_type": "code",
-      "source_file": "src/types/index.ts",
-      "source_location": "L204",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_types_index_projectrevision",
-      "community": 129,
-      "community_name": "reports/page.tsx",
-      "norm_label": "projectrevision"
+      "norm_label": "cablekind"
     },
     {
       "label": "AggregateApartmentRoom",
@@ -15034,19 +14852,6 @@
       "norm_label": "prisma__appsettingclient"
     },
     {
-      "label": "FloorData",
-      "file_type": "code",
-      "source_file": "src/app/(app)/riser/page.tsx",
-      "source_location": "L31",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_app_app_riser_page_floordata",
-      "community": 165,
-      "community_name": "feeders.ts",
-      "norm_label": "floordata"
-    },
-    {
       "label": "CableProtectionEvaluation",
       "file_type": "code",
       "source_file": "src/lib/calculations/cables.ts",
@@ -15056,7 +14861,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_cables_cableprotectionevaluation",
       "community": 165,
-      "community_name": "feeders.ts",
+      "community_name": "cables.ts",
       "norm_label": "cableprotectionevaluation"
     },
     {
@@ -15069,7 +14874,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_cables_sizingresult",
       "community": 165,
-      "community_name": "feeders.ts",
+      "community_name": "cables.ts",
       "norm_label": "sizingresult"
     },
     {
@@ -15082,7 +14887,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_cables_voltagedropconstraint",
       "community": 165,
-      "community_name": "feeders.ts",
+      "community_name": "cables.ts",
       "norm_label": "voltagedropconstraint"
     },
     {
@@ -15095,7 +14900,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_cablesdata_cablespec",
       "community": 165,
-      "community_name": "feeders.ts",
+      "community_name": "cables.ts",
       "norm_label": "cablespec"
     },
     {
@@ -15108,21 +14913,8 @@
       "_origin": "ast",
       "id": "src_lib_calculations_cablesdata_cablespecbase",
       "community": 165,
-      "community_name": "feeders.ts",
+      "community_name": "cables.ts",
       "norm_label": "cablespecbase"
-    },
-    {
-      "label": "RiserFloorVd",
-      "file_type": "code",
-      "source_file": "src/lib/calculations/riser.ts",
-      "source_location": "L29",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_lib_calculations_riser_riserfloorvd",
-      "community": 165,
-      "community_name": "feeders.ts",
-      "norm_label": "riserfloorvd"
     },
     {
       "label": "CableEditorResult",
@@ -15134,7 +14926,7 @@
       "_origin": "ast",
       "id": "src_lib_sld_cable_editor_cableeditorresult",
       "community": 165,
-      "community_name": "feeders.ts",
+      "community_name": "cables.ts",
       "norm_label": "cableeditorresult"
     },
     {
@@ -15147,7 +14939,7 @@
       "_origin": "ast",
       "id": "src_types_index_floordesign",
       "community": 165,
-      "community_name": "feeders.ts",
+      "community_name": "cables.ts",
       "norm_label": "floordesign"
     },
     {
@@ -16867,45 +16659,6 @@
       "norm_label": "projectauditlogdelegate"
     },
     {
-      "label": "BreakerFamilyOption",
-      "file_type": "code",
-      "source_file": "src/app/(app)/breaker-schedule/page.tsx",
-      "source_location": "L38",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_app_app_breaker_schedule_page_breakerfamilyoption",
-      "community": 206,
-      "community_name": "useTranslation",
-      "norm_label": "breakerfamilyoption"
-    },
-    {
-      "label": "ProjectFeederItem",
-      "file_type": "code",
-      "source_file": "src/app/(app)/coordination/page.tsx",
-      "source_location": "L42",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_app_app_coordination_page_projectfeederitem",
-      "community": 206,
-      "community_name": "useTranslation",
-      "norm_label": "projectfeederitem"
-    },
-    {
-      "label": "SelectivityStatus",
-      "file_type": "code",
-      "source_file": "src/app/(app)/coordination/page.tsx",
-      "source_location": "L40",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_app_app_coordination_page_selectivitystatus",
-      "community": 206,
-      "community_name": "useTranslation",
-      "norm_label": "selectivitystatus"
-    },
-    {
       "label": "Building",
       "file_type": "code",
       "source_file": "src/app/(app)/projects/[id]/page.tsx",
@@ -16971,6 +16724,19 @@
       "norm_label": "project"
     },
     {
+      "label": "FloorData",
+      "file_type": "code",
+      "source_file": "src/app/(app)/riser/page.tsx",
+      "source_location": "L31",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_app_app_riser_page_floordata",
+      "community": 206,
+      "community_name": "useTranslation",
+      "norm_label": "floordata"
+    },
+    {
       "label": "SettingsTab",
       "file_type": "code",
       "source_file": "src/app/(app)/settings/page.tsx",
@@ -16984,19 +16750,6 @@
       "norm_label": "settingstab"
     },
     {
-      "label": "AccessRestrictedProps",
-      "file_type": "code",
-      "source_file": "src/components/AccessRestricted.tsx",
-      "source_location": "L8",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_components_accessrestricted_accessrestrictedprops",
-      "community": 206,
-      "community_name": "useTranslation",
-      "norm_label": "accessrestrictedprops"
-    },
-    {
       "label": "BreakerSizingGuideModalProps",
       "file_type": "code",
       "source_file": "src/components/breaker/BreakerSizingGuideModal.tsx",
@@ -17008,19 +16761,6 @@
       "community": 206,
       "community_name": "useTranslation",
       "norm_label": "breakersizingguidemodalprops"
-    },
-    {
-      "label": "TccPlotModalProps",
-      "file_type": "code",
-      "source_file": "src/components/coordination/TccPlotModal.tsx",
-      "source_location": "L13",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_components_coordination_tccplotmodal_tccplotmodalprops",
-      "community": 206,
-      "community_name": "useTranslation",
-      "norm_label": "tccplotmodalprops"
     },
     {
       "label": "FeedbackCategory",
@@ -17231,173 +16971,17 @@
       "norm_label": "usercontextvalue"
     },
     {
-      "label": "ComputeFeedersResult",
+      "label": "RiserFloorVd",
       "file_type": "code",
-      "source_file": "src/lib/calculations/feeders.ts",
-      "source_location": "L772",
+      "source_file": "src/lib/calculations/riser.ts",
+      "source_location": "L29",
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
-      "id": "src_lib_calculations_feeders_computefeedersresult",
+      "id": "src_lib_calculations_riser_riserfloorvd",
       "community": 206,
       "community_name": "useTranslation",
-      "norm_label": "computefeedersresult"
-    },
-    {
-      "label": "DefaultFamilies",
-      "file_type": "code",
-      "source_file": "src/lib/calculations/feeders.ts",
-      "source_location": "L180",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_lib_calculations_feeders_defaultfamilies",
-      "community": 206,
-      "community_name": "useTranslation",
-      "norm_label": "defaultfamilies"
-    },
-    {
-      "label": "BreakerCurveSettings",
-      "file_type": "code",
-      "source_file": "src/lib/calculations/selectivity.ts",
-      "source_location": "L10",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_lib_calculations_selectivity_breakercurvesettings",
-      "community": 206,
-      "community_name": "useTranslation",
-      "norm_label": "breakercurvesettings"
-    },
-    {
-      "label": "CatalogItemInfo",
-      "file_type": "code",
-      "source_file": "src/lib/calculations/selectivity.ts",
-      "source_location": "L709",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_lib_calculations_selectivity_catalogiteminfo",
-      "community": 206,
-      "community_name": "useTranslation",
-      "norm_label": "catalogiteminfo"
-    },
-    {
-      "label": "CoordinationResult",
-      "file_type": "code",
-      "source_file": "src/lib/calculations/selectivity.ts",
-      "source_location": "L35",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_lib_calculations_selectivity_coordinationresult",
-      "community": 206,
-      "community_name": "useTranslation",
-      "norm_label": "coordinationresult"
-    },
-    {
-      "label": "CurvePoint",
-      "file_type": "code",
-      "source_file": "src/lib/calculations/selectivity.ts",
-      "source_location": "L4",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_lib_calculations_selectivity_curvepoint",
-      "community": 206,
-      "community_name": "useTranslation",
-      "norm_label": "curvepoint"
-    },
-    {
-      "label": "ResolvedCatalogBreaker",
-      "file_type": "code",
-      "source_file": "src/lib/calculations/selectivity.ts",
-      "source_location": "L1013",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_lib_calculations_selectivity_resolvedcatalogbreaker",
-      "community": 206,
-      "community_name": "useTranslation",
-      "norm_label": "resolvedcatalogbreaker"
-    },
-    {
-      "label": "SelectivityStatus",
-      "file_type": "code",
-      "source_file": "src/lib/calculations/selectivity.ts",
-      "source_location": "L33",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_lib_calculations_selectivity_selectivitystatus",
-      "community": 206,
-      "community_name": "useTranslation",
-      "norm_label": "selectivitystatus"
-    },
-    {
-      "label": "SuggestAlternativeOptions",
-      "file_type": "code",
-      "source_file": "src/lib/calculations/selectivity.ts",
-      "source_location": "L719",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_lib_calculations_selectivity_suggestalternativeoptions",
-      "community": 206,
-      "community_name": "useTranslation",
-      "norm_label": "suggestalternativeoptions"
-    },
-    {
-      "label": "TestedSelectivityRule",
-      "file_type": "code",
-      "source_file": "src/lib/calculations/selectivity.ts",
-      "source_location": "L406",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_lib_calculations_selectivity_testedselectivityrule",
-      "community": 206,
-      "community_name": "useTranslation",
-      "norm_label": "testedselectivityrule"
-    },
-    {
-      "label": "VerifyCoordinationOptions",
-      "file_type": "code",
-      "source_file": "src/lib/calculations/selectivity.ts",
-      "source_location": "L476",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_lib_calculations_selectivity_verifycoordinationoptions",
-      "community": 206,
-      "community_name": "useTranslation",
-      "norm_label": "verifycoordinationoptions"
-    },
-    {
-      "label": "BreakerAlternativeSuggestion",
-      "file_type": "code",
-      "source_file": "src/types/index.ts",
-      "source_location": "L323",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_types_index_breakeralternativesuggestion",
-      "community": 206,
-      "community_name": "useTranslation",
-      "norm_label": "breakeralternativesuggestion"
-    },
-    {
-      "label": "PanelFeeder",
-      "file_type": "code",
-      "source_file": "src/types/index.ts",
-      "source_location": "L260",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_types_index_panelfeeder",
-      "community": 206,
-      "community_name": "useTranslation",
-      "norm_label": "panelfeeder"
+      "norm_label": "riserfloorvd"
     },
     {
       "label": "ProjectAuditLog",
@@ -21937,30 +21521,303 @@
       "norm_label": "cableeditorinput"
     },
     {
-      "label": "CableEntry",
+      "label": "BreakerEntry",
       "file_type": "code",
-      "source_file": "src/app/(app)/cable-schedule/page.tsx",
+      "source_file": "src/app/(app)/breaker-schedule/page.tsx",
+      "source_location": "L45",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_app_app_breaker_schedule_page_breakerentry",
+      "community": 35,
+      "community_name": "feeders.ts",
+      "norm_label": "breakerentry"
+    },
+    {
+      "label": "BreakerFamilyOption",
+      "file_type": "code",
+      "source_file": "src/app/(app)/breaker-schedule/page.tsx",
+      "source_location": "L38",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_app_app_breaker_schedule_page_breakerfamilyoption",
+      "community": 35,
+      "community_name": "feeders.ts",
+      "norm_label": "breakerfamilyoption"
+    },
+    {
+      "label": "ProjectFeederItem",
+      "file_type": "code",
+      "source_file": "src/app/(app)/coordination/page.tsx",
+      "source_location": "L42",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_app_app_coordination_page_projectfeederitem",
+      "community": 35,
+      "community_name": "feeders.ts",
+      "norm_label": "projectfeederitem"
+    },
+    {
+      "label": "SelectivityStatus",
+      "file_type": "code",
+      "source_file": "src/app/(app)/coordination/page.tsx",
       "source_location": "L40",
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
-      "id": "src_app_app_cable_schedule_page_cableentry",
+      "id": "src_app_app_coordination_page_selectivitystatus",
       "community": 35,
-      "community_name": "cable-schedule/page.tsx",
-      "norm_label": "cableentry"
+      "community_name": "feeders.ts",
+      "norm_label": "selectivitystatus"
     },
     {
-      "label": "CableKind",
+      "label": "AccessRestrictedProps",
       "file_type": "code",
-      "source_file": "src/lib/sld/cablePersist.ts",
+      "source_file": "src/components/AccessRestricted.tsx",
       "source_location": "L8",
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
-      "id": "src_lib_sld_cablepersist_cablekind",
+      "id": "src_components_accessrestricted_accessrestrictedprops",
       "community": 35,
-      "community_name": "cable-schedule/page.tsx",
-      "norm_label": "cablekind"
+      "community_name": "feeders.ts",
+      "norm_label": "accessrestrictedprops"
+    },
+    {
+      "label": "TccPlotModalProps",
+      "file_type": "code",
+      "source_file": "src/components/coordination/TccPlotModal.tsx",
+      "source_location": "L13",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_components_coordination_tccplotmodal_tccplotmodalprops",
+      "community": 35,
+      "community_name": "feeders.ts",
+      "norm_label": "tccplotmodalprops"
+    },
+    {
+      "label": "BreakerBOMItem",
+      "file_type": "code",
+      "source_file": "src/components/report/BOMSchedule.tsx",
+      "source_location": "L29",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_components_report_bomschedule_breakerbomitem",
+      "community": 35,
+      "community_name": "feeders.ts",
+      "norm_label": "breakerbomitem"
+    },
+    {
+      "label": "ComputeFeedersResult",
+      "file_type": "code",
+      "source_file": "src/lib/calculations/feeders.ts",
+      "source_location": "L772",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_lib_calculations_feeders_computefeedersresult",
+      "community": 35,
+      "community_name": "feeders.ts",
+      "norm_label": "computefeedersresult"
+    },
+    {
+      "label": "DefaultFamilies",
+      "file_type": "code",
+      "source_file": "src/lib/calculations/feeders.ts",
+      "source_location": "L180",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_lib_calculations_feeders_defaultfamilies",
+      "community": 35,
+      "community_name": "feeders.ts",
+      "norm_label": "defaultfamilies"
+    },
+    {
+      "label": "FoundBreaker",
+      "file_type": "code",
+      "source_file": "src/lib/calculations/feeders.ts",
+      "source_location": "L42",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_lib_calculations_feeders_foundbreaker",
+      "community": 35,
+      "community_name": "feeders.ts",
+      "norm_label": "foundbreaker"
+    },
+    {
+      "label": "BreakerCurveSettings",
+      "file_type": "code",
+      "source_file": "src/lib/calculations/selectivity.ts",
+      "source_location": "L10",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_lib_calculations_selectivity_breakercurvesettings",
+      "community": 35,
+      "community_name": "feeders.ts",
+      "norm_label": "breakercurvesettings"
+    },
+    {
+      "label": "CatalogItemInfo",
+      "file_type": "code",
+      "source_file": "src/lib/calculations/selectivity.ts",
+      "source_location": "L709",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_lib_calculations_selectivity_catalogiteminfo",
+      "community": 35,
+      "community_name": "feeders.ts",
+      "norm_label": "catalogiteminfo"
+    },
+    {
+      "label": "CoordinationResult",
+      "file_type": "code",
+      "source_file": "src/lib/calculations/selectivity.ts",
+      "source_location": "L35",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_lib_calculations_selectivity_coordinationresult",
+      "community": 35,
+      "community_name": "feeders.ts",
+      "norm_label": "coordinationresult"
+    },
+    {
+      "label": "CurvePoint",
+      "file_type": "code",
+      "source_file": "src/lib/calculations/selectivity.ts",
+      "source_location": "L4",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_lib_calculations_selectivity_curvepoint",
+      "community": 35,
+      "community_name": "feeders.ts",
+      "norm_label": "curvepoint"
+    },
+    {
+      "label": "ResolvedCatalogBreaker",
+      "file_type": "code",
+      "source_file": "src/lib/calculations/selectivity.ts",
+      "source_location": "L1013",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_lib_calculations_selectivity_resolvedcatalogbreaker",
+      "community": 35,
+      "community_name": "feeders.ts",
+      "norm_label": "resolvedcatalogbreaker"
+    },
+    {
+      "label": "SelectivityStatus",
+      "file_type": "code",
+      "source_file": "src/lib/calculations/selectivity.ts",
+      "source_location": "L33",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_lib_calculations_selectivity_selectivitystatus",
+      "community": 35,
+      "community_name": "feeders.ts",
+      "norm_label": "selectivitystatus"
+    },
+    {
+      "label": "SuggestAlternativeOptions",
+      "file_type": "code",
+      "source_file": "src/lib/calculations/selectivity.ts",
+      "source_location": "L719",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_lib_calculations_selectivity_suggestalternativeoptions",
+      "community": 35,
+      "community_name": "feeders.ts",
+      "norm_label": "suggestalternativeoptions"
+    },
+    {
+      "label": "TestedSelectivityRule",
+      "file_type": "code",
+      "source_file": "src/lib/calculations/selectivity.ts",
+      "source_location": "L406",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_lib_calculations_selectivity_testedselectivityrule",
+      "community": 35,
+      "community_name": "feeders.ts",
+      "norm_label": "testedselectivityrule"
+    },
+    {
+      "label": "VerifyCoordinationOptions",
+      "file_type": "code",
+      "source_file": "src/lib/calculations/selectivity.ts",
+      "source_location": "L476",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_lib_calculations_selectivity_verifycoordinationoptions",
+      "community": 35,
+      "community_name": "feeders.ts",
+      "norm_label": "verifycoordinationoptions"
+    },
+    {
+      "label": "BreakerAlternativeSuggestion",
+      "file_type": "code",
+      "source_file": "src/types/index.ts",
+      "source_location": "L323",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_types_index_breakeralternativesuggestion",
+      "community": 35,
+      "community_name": "feeders.ts",
+      "norm_label": "breakeralternativesuggestion"
+    },
+    {
+      "label": "FallbackType",
+      "file_type": "code",
+      "source_file": "src/types/index.ts",
+      "source_location": "L248",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_types_index_fallbacktype",
+      "community": 35,
+      "community_name": "feeders.ts",
+      "norm_label": "fallbacktype"
+    },
+    {
+      "label": "GenericBreakerSpec",
+      "file_type": "code",
+      "source_file": "src/types/index.ts",
+      "source_location": "L250",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_types_index_genericbreakerspec",
+      "community": 35,
+      "community_name": "feeders.ts",
+      "norm_label": "genericbreakerspec"
+    },
+    {
+      "label": "PanelFeeder",
+      "file_type": "code",
+      "source_file": "src/types/index.ts",
+      "source_location": "L260",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_types_index_panelfeeder",
+      "community": 35,
+      "community_name": "feeders.ts",
+      "norm_label": "panelfeeder"
     },
     {
       "label": "TestPersistence",
@@ -31440,43 +31297,186 @@
       "norm_label": "prisma__projectclient"
     },
     {
-      "label": "BreakerEntry",
-      "file_type": "code",
-      "source_file": "src/app/(app)/breaker-schedule/page.tsx",
-      "source_location": "L45",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_app_app_breaker_schedule_page_breakerentry",
-      "community": 99,
-      "community_name": "types/index.ts",
-      "norm_label": "breakerentry"
-    },
-    {
-      "label": "BreakerBOMItem",
+      "label": "BOMScheduleProps",
       "file_type": "code",
       "source_file": "src/components/report/BOMSchedule.tsx",
-      "source_location": "L29",
+      "source_location": "L10",
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
-      "id": "src_components_report_bomschedule_breakerbomitem",
+      "id": "src_components_report_bomschedule_bomscheduleprops",
       "community": 99,
       "community_name": "types/index.ts",
-      "norm_label": "breakerbomitem"
+      "norm_label": "bomscheduleprops"
     },
     {
-      "label": "FoundBreaker",
+      "label": "BreakerScheduleProps",
       "file_type": "code",
-      "source_file": "src/lib/calculations/feeders.ts",
-      "source_location": "L42",
+      "source_file": "src/components/report/BreakerSchedule.tsx",
+      "source_location": "L16",
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
-      "id": "src_lib_calculations_feeders_foundbreaker",
+      "id": "src_components_report_breakerschedule_breakerscheduleprops",
       "community": 99,
       "community_name": "types/index.ts",
-      "norm_label": "foundbreaker"
+      "norm_label": "breakerscheduleprops"
+    },
+    {
+      "label": "CableScheduleProps",
+      "file_type": "code",
+      "source_file": "src/components/report/CableSchedule.tsx",
+      "source_location": "L16",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_components_report_cableschedule_cablescheduleprops",
+      "community": 99,
+      "community_name": "types/index.ts",
+      "norm_label": "cablescheduleprops"
+    },
+    {
+      "label": "CoverPageProps",
+      "file_type": "code",
+      "source_file": "src/components/report/CoverPage.tsx",
+      "source_location": "L10",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_components_report_coverpage_coverpageprops",
+      "community": 99,
+      "community_name": "types/index.ts",
+      "norm_label": "coverpageprops"
+    },
+    {
+      "label": "LoadScheduleProps",
+      "file_type": "code",
+      "source_file": "src/components/report/LoadSchedule.tsx",
+      "source_location": "L8",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_components_report_loadschedule_loadscheduleprops",
+      "community": 99,
+      "community_name": "types/index.ts",
+      "norm_label": "loadscheduleprops"
+    },
+    {
+      "label": "MDBScheduleProps",
+      "file_type": "code",
+      "source_file": "src/components/report/MDBSchedule.tsx",
+      "source_location": "L15",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_components_report_mdbschedule_mdbscheduleprops",
+      "community": 99,
+      "community_name": "types/index.ts",
+      "norm_label": "mdbscheduleprops"
+    },
+    {
+      "label": "ReportHeaderProps",
+      "file_type": "code",
+      "source_file": "src/components/report/ReportHeader.tsx",
+      "source_location": "L10",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_components_report_reportheader_reportheaderprops",
+      "community": 99,
+      "community_name": "types/index.ts",
+      "norm_label": "reportheaderprops"
+    },
+    {
+      "label": "SectionHeaderProps",
+      "file_type": "code",
+      "source_file": "src/components/report/ReportHeader.tsx",
+      "source_location": "L18",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_components_report_reportheader_sectionheaderprops",
+      "community": 99,
+      "community_name": "types/index.ts",
+      "norm_label": "sectionheaderprops"
+    },
+    {
+      "label": "RevisionsPanelProps",
+      "file_type": "code",
+      "source_file": "src/components/report/RevisionsPanel.tsx",
+      "source_location": "L8",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_components_report_revisionspanel_revisionspanelprops",
+      "community": 99,
+      "community_name": "types/index.ts",
+      "norm_label": "revisionspanelprops"
+    },
+    {
+      "label": "ShortCircuitScheduleProps",
+      "file_type": "code",
+      "source_file": "src/components/report/ShortCircuitSchedule.tsx",
+      "source_location": "L16",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_components_report_shortcircuitschedule_shortcircuitscheduleprops",
+      "community": 99,
+      "community_name": "types/index.ts",
+      "norm_label": "shortcircuitscheduleprops"
+    },
+    {
+      "label": "VDScheduleProps",
+      "file_type": "code",
+      "source_file": "src/components/report/VDSchedule.tsx",
+      "source_location": "L22",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_components_report_vdschedule_vdscheduleprops",
+      "community": 99,
+      "community_name": "types/index.ts",
+      "norm_label": "vdscheduleprops"
+    },
+    {
+      "label": "EquipmentItem",
+      "file_type": "code",
+      "source_file": "src/lib/calculations/feeders.ts",
+      "source_location": "L21",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_lib_calculations_feeders_equipmentitem",
+      "community": 99,
+      "community_name": "types/index.ts",
+      "norm_label": "equipmentitem"
+    },
+    {
+      "label": "FindBreaker",
+      "file_type": "code",
+      "source_file": "src/lib/calculations/feeders.ts",
+      "source_location": "L192",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_lib_calculations_feeders_findbreaker",
+      "community": 99,
+      "community_name": "types/index.ts",
+      "norm_label": "findbreaker"
+    },
+    {
+      "label": "RenderReportHtmlOptions",
+      "file_type": "code",
+      "source_file": "src/lib/reports/render-report-html.tsx",
+      "source_location": "L18",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_lib_reports_render_report_html_renderreporthtmloptions",
+      "community": 99,
+      "community_name": "types/index.ts",
+      "norm_label": "renderreporthtmloptions"
     },
     {
       "label": "ApartmentRoom",
@@ -31557,19 +31557,6 @@
       "norm_label": "earthingsystem"
     },
     {
-      "label": "FallbackType",
-      "file_type": "code",
-      "source_file": "src/types/index.ts",
-      "source_location": "L248",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_types_index_fallbacktype",
-      "community": 99,
-      "community_name": "types/index.ts",
-      "norm_label": "fallbacktype"
-    },
-    {
       "label": "FloorItem",
       "file_type": "code",
       "source_file": "src/types/index.ts",
@@ -31583,19 +31570,6 @@
       "norm_label": "flooritem"
     },
     {
-      "label": "GenericBreakerSpec",
-      "file_type": "code",
-      "source_file": "src/types/index.ts",
-      "source_location": "L250",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_types_index_genericbreakerspec",
-      "community": 99,
-      "community_name": "types/index.ts",
-      "norm_label": "genericbreakerspec"
-    },
-    {
       "label": "LoadLibraryItem",
       "file_type": "code",
       "source_file": "src/types/index.ts",
@@ -31607,6 +31581,32 @@
       "community": 99,
       "community_name": "types/index.ts",
       "norm_label": "loadlibraryitem"
+    },
+    {
+      "label": "Project",
+      "file_type": "code",
+      "source_file": "src/types/index.ts",
+      "source_location": "L164",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_types_index_project",
+      "community": 99,
+      "community_name": "types/index.ts",
+      "norm_label": "project"
+    },
+    {
+      "label": "ProjectRevision",
+      "file_type": "code",
+      "source_file": "src/types/index.ts",
+      "source_location": "L204",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_types_index_projectrevision",
+      "community": 99,
+      "community_name": "types/index.ts",
+      "norm_label": "projectrevision"
     },
     {
       "label": "ReportTab",
@@ -33038,6 +33038,18 @@
       "norm_label": "languageselector()"
     },
     {
+      "label": "CableLengthInput()",
+      "file_type": "code",
+      "source_file": "src/app/(app)/cable-schedule/page.tsx",
+      "source_location": "L74",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_app_app_cable_schedule_page_cablelengthinput",
+      "community": 129,
+      "community_name": "reports/page.tsx",
+      "norm_label": "cablelengthinput()"
+    },
+    {
       "label": "CableSchedulePage()",
       "file_type": "code",
       "source_file": "src/app/(app)/cable-schedule/page.tsx",
@@ -33050,18 +33062,6 @@
       "norm_label": "cableschedulepage()"
     },
     {
-      "label": "getBreakerCategory()",
-      "file_type": "code",
-      "source_file": "src/app/(app)/panel/page.tsx",
-      "source_location": "L59",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_app_app_panel_page_getbreakercategory",
-      "community": 129,
-      "community_name": "reports/page.tsx",
-      "norm_label": "getbreakercategory()"
-    },
-    {
       "label": "PanelDesignerPage()",
       "file_type": "code",
       "source_file": "src/app/(app)/panel/page.tsx",
@@ -33072,18 +33072,6 @@
       "community": 129,
       "community_name": "reports/page.tsx",
       "norm_label": "paneldesignerpage()"
-    },
-    {
-      "label": "wrapSvgLines()",
-      "file_type": "code",
-      "source_file": "src/app/(app)/panel/page.tsx",
-      "source_location": "L36",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_app_app_panel_page_wrapsvglines",
-      "community": 129,
-      "community_name": "reports/page.tsx",
-      "norm_label": "wrapsvglines()"
     },
     {
       "label": "RiserPage()",
@@ -33170,30 +33158,6 @@
       "norm_label": "mdbschedule()"
     },
     {
-      "label": "LogoMark()",
-      "file_type": "code",
-      "source_file": "src/components/report/ReportHeader.tsx",
-      "source_location": "L29",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_components_report_reportheader_logomark",
-      "community": 129,
-      "community_name": "reports/page.tsx",
-      "norm_label": "logomark()"
-    },
-    {
-      "label": "MetaItem()",
-      "file_type": "code",
-      "source_file": "src/components/report/ReportHeader.tsx",
-      "source_location": "L51",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_components_report_reportheader_metaitem",
-      "community": 129,
-      "community_name": "reports/page.tsx",
-      "norm_label": "metaitem()"
-    },
-    {
       "label": "ReportHeader()",
       "file_type": "code",
       "source_file": "src/components/report/ReportHeader.tsx",
@@ -33204,42 +33168,6 @@
       "community": 129,
       "community_name": "reports/page.tsx",
       "norm_label": "reportheader()"
-    },
-    {
-      "label": "SectionHeader()",
-      "file_type": "code",
-      "source_file": "src/components/report/ReportHeader.tsx",
-      "source_location": "L76",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_components_report_reportheader_sectionheader",
-      "community": 129,
-      "community_name": "reports/page.tsx",
-      "norm_label": "sectionheader()"
-    },
-    {
-      "label": "RevisionsPanel()",
-      "file_type": "code",
-      "source_file": "src/components/report/RevisionsPanel.tsx",
-      "source_location": "L16",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_components_report_revisionspanel_revisionspanel",
-      "community": 129,
-      "community_name": "reports/page.tsx",
-      "norm_label": "revisionspanel()"
-    },
-    {
-      "label": "ShortCircuitSchedule()",
-      "file_type": "code",
-      "source_file": "src/components/report/ShortCircuitSchedule.tsx",
-      "source_location": "L24",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_components_report_shortcircuitschedule_shortcircuitschedule",
-      "community": 129,
-      "community_name": "reports/page.tsx",
-      "norm_label": "shortcircuitschedule()"
     },
     {
       "label": "VDSchedule()",
@@ -33326,6 +33254,18 @@
       "norm_label": "getrisercablelength()"
     },
     {
+      "label": "systemVoltageBase()",
+      "file_type": "code",
+      "source_file": "src/lib/calculations/cables.ts",
+      "source_location": "L462",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_lib_calculations_cables_systemvoltagebase",
+      "community": 129,
+      "community_name": "reports/page.tsx",
+      "norm_label": "systemvoltagebase()"
+    },
+    {
       "label": "codeOf()",
       "file_type": "code",
       "source_file": "src/lib/calculations/codes.ts",
@@ -33386,18 +33326,6 @@
       "norm_label": "calculatethreephasecurrent()"
     },
     {
-      "label": "getTypicalImpedance()",
-      "file_type": "code",
-      "source_file": "src/lib/calculations/shortCircuit.ts",
-      "source_location": "L329",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_lib_calculations_shortcircuit_gettypicalimpedance",
-      "community": 129,
-      "community_name": "reports/page.tsx",
-      "norm_label": "gettypicalimpedance()"
-    },
-    {
       "label": "buildBreakerSizingTrace()",
       "file_type": "code",
       "source_file": "src/lib/calculations/trace-engine.ts",
@@ -33446,18 +33374,6 @@
       "norm_label": "buildphasebalancetrace()"
     },
     {
-      "label": "buildShortCircuitTrace()",
-      "file_type": "code",
-      "source_file": "src/lib/calculations/trace-engine.ts",
-      "source_location": "L577",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_lib_calculations_trace_engine_buildshortcircuittrace",
-      "community": 129,
-      "community_name": "reports/page.tsx",
-      "norm_label": "buildshortcircuittrace()"
-    },
-    {
       "label": "buildVoltageDropTrace()",
       "file_type": "code",
       "source_file": "src/lib/calculations/trace-engine.ts",
@@ -33468,6 +33384,42 @@
       "community": 129,
       "community_name": "reports/page.tsx",
       "norm_label": "buildvoltagedroptrace()"
+    },
+    {
+      "label": "cablePatchUrl()",
+      "file_type": "code",
+      "source_file": "src/lib/sld/cablePersist.ts",
+      "source_location": "L11",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_lib_sld_cablepersist_cablepatchurl",
+      "community": 129,
+      "community_name": "reports/page.tsx",
+      "norm_label": "cablepatchurl()"
+    },
+    {
+      "label": "fieldEditBody()",
+      "file_type": "code",
+      "source_file": "src/lib/sld/cablePersist.ts",
+      "source_location": "L27",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_lib_sld_cablepersist_fieldeditbody",
+      "community": 129,
+      "community_name": "reports/page.tsx",
+      "norm_label": "fieldeditbody()"
+    },
+    {
+      "label": "upsizeBody()",
+      "file_type": "code",
+      "source_file": "src/lib/sld/cablePersist.ts",
+      "source_location": "L19",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_lib_sld_cablepersist_upsizebody",
+      "community": 129,
+      "community_name": "reports/page.tsx",
+      "norm_label": "upsizebody()"
     },
     {
       "label": "DELETE()",
@@ -33737,7 +33689,7 @@
       "label": "areValuesEqual()",
       "file_type": "code",
       "source_file": "src/lib/audit-diff.ts",
-      "source_location": "L262",
+      "source_location": "L263",
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_audit_diff_arevaluesequal",
@@ -33749,7 +33701,7 @@
       "label": "computeBuildingDiff()",
       "file_type": "code",
       "source_file": "src/lib/audit-diff.ts",
-      "source_location": "L405",
+      "source_location": "L406",
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_audit_diff_computebuildingdiff",
@@ -33761,7 +33713,7 @@
       "label": "computeCableCircuitDiff()",
       "file_type": "code",
       "source_file": "src/lib/audit-diff.ts",
-      "source_location": "L596",
+      "source_location": "L597",
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_audit_diff_computecablecircuitdiff",
@@ -33773,7 +33725,7 @@
       "label": "computeFloorDiff()",
       "file_type": "code",
       "source_file": "src/lib/audit-diff.ts",
-      "source_location": "L502",
+      "source_location": "L503",
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_audit_diff_computefloordiff",
@@ -33785,7 +33737,7 @@
       "label": "computeProjectDiff()",
       "file_type": "code",
       "source_file": "src/lib/audit-diff.ts",
-      "source_location": "L290",
+      "source_location": "L291",
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_audit_diff_computeprojectdiff",
@@ -33797,7 +33749,7 @@
       "label": "enrichLegacyAuditLog()",
       "file_type": "code",
       "source_file": "src/lib/audit-diff.ts",
-      "source_location": "L724",
+      "source_location": "L725",
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_audit_diff_enrichlegacyauditlog",
@@ -33809,7 +33761,7 @@
       "label": "formatFieldValue()",
       "file_type": "code",
       "source_file": "src/lib/audit-diff.ts",
-      "source_location": "L201",
+      "source_location": "L202",
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_audit_diff_formatfieldvalue",
@@ -33821,7 +33773,7 @@
       "label": "formatInstallationMethod()",
       "file_type": "code",
       "source_file": "src/lib/audit-diff.ts",
-      "source_location": "L175",
+      "source_location": "L176",
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_audit_diff_formatinstallationmethod",
@@ -34690,7 +34642,7 @@
       "_origin": "ast",
       "id": "scripts_seed_mall_project_main",
       "community": 165,
-      "community_name": "feeders.ts",
+      "community_name": "cables.ts",
       "norm_label": "main()"
     },
     {
@@ -34702,7 +34654,7 @@
       "_origin": "ast",
       "id": "scripts_seed_mall_project_main_createtower",
       "community": 165,
-      "community_name": "feeders.ts",
+      "community_name": "cables.ts",
       "norm_label": "createtower()"
     },
     {
@@ -34714,7 +34666,7 @@
       "_origin": "ast",
       "id": "scripts_verify_mall_project_main",
       "community": 165,
-      "community_name": "feeders.ts",
+      "community_name": "cables.ts",
       "norm_label": "main()"
     },
     {
@@ -34726,7 +34678,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_cables_calculatecableampacity",
       "community": 165,
-      "community_name": "feeders.ts",
+      "community_name": "cables.ts",
       "norm_label": "calculatecableampacity()"
     },
     {
@@ -34738,7 +34690,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_cables_calculatevoltagedrop",
       "community": 165,
-      "community_name": "feeders.ts",
+      "community_name": "cables.ts",
       "norm_label": "calculatevoltagedrop()"
     },
     {
@@ -34750,7 +34702,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_cables_computeitemvoltagedrop",
       "community": 165,
-      "community_name": "feeders.ts",
+      "community_name": "cables.ts",
       "norm_label": "computeitemvoltagedrop()"
     },
     {
@@ -34762,7 +34714,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_cables_evaluatecableprotection",
       "community": 165,
-      "community_name": "feeders.ts",
+      "community_name": "cables.ts",
       "norm_label": "evaluatecableprotection()"
     },
     {
@@ -34774,7 +34726,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_cables_formatcablesize",
       "community": 165,
-      "community_name": "feeders.ts",
+      "community_name": "cables.ts",
       "norm_label": "formatcablesize()"
     },
     {
@@ -34786,7 +34738,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_cables_getcableampacitycolumn",
       "community": 165,
-      "community_name": "feeders.ts",
+      "community_name": "cables.ts",
       "norm_label": "getcableampacitycolumn()"
     },
     {
@@ -34798,7 +34750,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_cables_parsecablesize",
       "community": 165,
-      "community_name": "feeders.ts",
+      "community_name": "cables.ts",
       "norm_label": "parsecablesize()"
     },
     {
@@ -34810,7 +34762,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_cables_parsemm2",
       "community": 165,
-      "community_name": "feeders.ts",
+      "community_name": "cables.ts",
       "norm_label": "parsemm2()"
     },
     {
@@ -34822,7 +34774,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_cables_sizecableandbreaker",
       "community": 165,
-      "community_name": "feeders.ts",
+      "community_name": "cables.ts",
       "norm_label": "sizecableandbreaker()"
     },
     {
@@ -34834,7 +34786,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_cables_sizeequipmentgroundingconductor",
       "community": 165,
-      "community_name": "feeders.ts",
+      "community_name": "cables.ts",
       "norm_label": "sizeequipmentgroundingconductor()"
     },
     {
@@ -34846,7 +34798,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_cables_validateconductormaterialandsize",
       "community": 165,
-      "community_name": "feeders.ts",
+      "community_name": "cables.ts",
       "norm_label": "validateconductormaterialandsize()"
     },
     {
@@ -34858,7 +34810,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_cablesdata_groupingderatingfactor",
       "community": 165,
-      "community_name": "feeders.ts",
+      "community_name": "cables.ts",
       "norm_label": "groupingderatingfactor()"
     },
     {
@@ -34870,7 +34822,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_cablesdata_temperaturederatingfactor",
       "community": 165,
-      "community_name": "feeders.ts",
+      "community_name": "cables.ts",
       "norm_label": "temperaturederatingfactor()"
     },
     {
@@ -34882,7 +34834,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_codes_nextbreakerrating",
       "community": 165,
-      "community_name": "feeders.ts",
+      "community_name": "cables.ts",
       "norm_label": "nextbreakerrating()"
     },
     {
@@ -34894,7 +34846,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_feeders_categoryforflooritem",
       "community": 165,
-      "community_name": "feeders.ts",
+      "community_name": "cables.ts",
       "norm_label": "categoryforflooritem()"
     },
     {
@@ -34906,7 +34858,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_feeders_feederfrombuildingload",
       "community": 165,
-      "community_name": "feeders.ts",
+      "community_name": "cables.ts",
       "norm_label": "feederfrombuildingload()"
     },
     {
@@ -34918,20 +34870,8 @@
       "_origin": "ast",
       "id": "src_lib_calculations_feeders_feederfromitem",
       "community": 165,
-      "community_name": "feeders.ts",
+      "community_name": "cables.ts",
       "norm_label": "feederfromitem()"
-    },
-    {
-      "label": "formatBreakerModel()",
-      "file_type": "code",
-      "source_file": "src/lib/calculations/feeders.ts",
-      "source_location": "L208",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_lib_calculations_feeders_formatbreakermodel",
-      "community": 165,
-      "community_name": "feeders.ts",
-      "norm_label": "formatbreakermodel()"
     },
     {
       "label": "oneItemPhaseFields()",
@@ -34942,7 +34882,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_feeders_oneitemphasefields",
       "community": 165,
-      "community_name": "feeders.ts",
+      "community_name": "cables.ts",
       "norm_label": "oneitemphasefields()"
     },
     {
@@ -34954,7 +34894,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_feeders_pfforflooritem",
       "community": 165,
-      "community_name": "feeders.ts",
+      "community_name": "cables.ts",
       "norm_label": "pfforflooritem()"
     },
     {
@@ -34966,7 +34906,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_installationmethods_getampacity",
       "community": 165,
-      "community_name": "feeders.ts",
+      "community_name": "cables.ts",
       "norm_label": "getampacity()"
     },
     {
@@ -34978,7 +34918,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_installationmethods_isgroundmethod",
       "community": 165,
-      "community_name": "feeders.ts",
+      "community_name": "cables.ts",
       "norm_label": "isgroundmethod()"
     },
     {
@@ -34990,7 +34930,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_integration_test_creategoldenbuilding",
       "community": 165,
-      "community_name": "feeders.ts",
+      "community_name": "cables.ts",
       "norm_label": "creategoldenbuilding()"
     },
     {
@@ -35002,7 +34942,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_integration_test_createicubuilding",
       "community": 165,
-      "community_name": "feeders.ts",
+      "community_name": "cables.ts",
       "norm_label": "createicubuilding()"
     },
     {
@@ -35014,7 +34954,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_riser_computefloorriservd",
       "community": 165,
-      "community_name": "feeders.ts",
+      "community_name": "cables.ts",
       "norm_label": "computefloorriservd()"
     },
     {
@@ -35026,7 +34966,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_riser_itembranchvd",
       "community": 165,
-      "community_name": "feeders.ts",
+      "community_name": "cables.ts",
       "norm_label": "itembranchvd()"
     },
     {
@@ -35038,7 +34978,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_riser_test_apt",
       "community": 165,
-      "community_name": "feeders.ts",
+      "community_name": "cables.ts",
       "norm_label": "apt()"
     },
     {
@@ -35050,7 +34990,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_riser_test_floor",
       "community": 165,
-      "community_name": "feeders.ts",
+      "community_name": "cables.ts",
       "norm_label": "floor()"
     },
     {
@@ -35062,7 +35002,7 @@
       "_origin": "ast",
       "id": "src_lib_sld_cable_editor_findbreakersize",
       "community": 165,
-      "community_name": "feeders.ts",
+      "community_name": "cables.ts",
       "norm_label": "findbreakersize()"
     },
     {
@@ -35074,7 +35014,7 @@
       "_origin": "ast",
       "id": "src_lib_sld_cable_editor_recalculatecable",
       "community": 165,
-      "community_name": "feeders.ts",
+      "community_name": "cables.ts",
       "norm_label": "recalculatecable()"
     },
     {
@@ -36794,18 +36734,6 @@
       "norm_label": "billingpage()"
     },
     {
-      "label": "BreakerSchedulePage()",
-      "file_type": "code",
-      "source_file": "src/app/(app)/breaker-schedule/page.tsx",
-      "source_location": "L87",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_app_app_breaker_schedule_page_breakerschedulepage",
-      "community": 206,
-      "community_name": "useTranslation",
-      "norm_label": "breakerschedulepage()"
-    },
-    {
       "label": "CalculatorContent()",
       "file_type": "code",
       "source_file": "src/app/(app)/calculator/page.tsx",
@@ -36830,18 +36758,6 @@
       "norm_label": "calculatorpage()"
     },
     {
-      "label": "CoordinationPage()",
-      "file_type": "code",
-      "source_file": "src/app/(app)/coordination/page.tsx",
-      "source_location": "L48",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_app_app_coordination_page_coordinationpage",
-      "community": 206,
-      "community_name": "useTranslation",
-      "norm_label": "coordinationpage()"
-    },
-    {
       "label": "DashboardPage()",
       "file_type": "code",
       "source_file": "src/app/(app)/dashboard/page.tsx",
@@ -36852,6 +36768,30 @@
       "community": 206,
       "community_name": "useTranslation",
       "norm_label": "dashboardpage()"
+    },
+    {
+      "label": "getBreakerCategory()",
+      "file_type": "code",
+      "source_file": "src/app/(app)/panel/page.tsx",
+      "source_location": "L59",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_app_app_panel_page_getbreakercategory",
+      "community": 206,
+      "community_name": "useTranslation",
+      "norm_label": "getbreakercategory()"
+    },
+    {
+      "label": "wrapSvgLines()",
+      "file_type": "code",
+      "source_file": "src/app/(app)/panel/page.tsx",
+      "source_location": "L36",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_app_app_panel_page_wrapsvglines",
+      "community": 206,
+      "community_name": "useTranslation",
+      "norm_label": "wrapsvglines()"
     },
     {
       "label": "LoadLibrary()",
@@ -36950,18 +36890,6 @@
       "norm_label": "home()"
     },
     {
-      "label": "AccessRestricted()",
-      "file_type": "code",
-      "source_file": "src/components/AccessRestricted.tsx",
-      "source_location": "L12",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_components_accessrestricted_accessrestricted",
-      "community": 206,
-      "community_name": "useTranslation",
-      "norm_label": "accessrestricted()"
-    },
-    {
       "label": "BreakerSizingGuideModal()",
       "file_type": "code",
       "source_file": "src/components/breaker/BreakerSizingGuideModal.tsx",
@@ -36972,18 +36900,6 @@
       "community": 206,
       "community_name": "useTranslation",
       "norm_label": "breakersizingguidemodal()"
-    },
-    {
-      "label": "TccPlotModal()",
-      "file_type": "code",
-      "source_file": "src/components/coordination/TccPlotModal.tsx",
-      "source_location": "L46",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_components_coordination_tccplotmodal_tccplotmodal",
-      "community": 206,
-      "community_name": "useTranslation",
-      "norm_label": "tccplotmodal()"
     },
     {
       "label": "FeedbackFloatingButton()",
@@ -37188,150 +37104,6 @@
       "community": 206,
       "community_name": "useTranslation",
       "norm_label": "usetranslation()"
-    },
-    {
-      "label": "calculateCableWithstandTime()",
-      "file_type": "code",
-      "source_file": "src/lib/calculations/selectivity.ts",
-      "source_location": "L265",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_lib_calculations_selectivity_calculatecablewithstandtime",
-      "community": 206,
-      "community_name": "useTranslation",
-      "norm_label": "calculatecablewithstandtime()"
-    },
-    {
-      "label": "checkCableProtection()",
-      "file_type": "code",
-      "source_file": "src/lib/calculations/selectivity.ts",
-      "source_location": "L326",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_lib_calculations_selectivity_checkcableprotection",
-      "community": 206,
-      "community_name": "useTranslation",
-      "norm_label": "checkcableprotection()"
-    },
-    {
-      "label": "generateCableDamageCurve()",
-      "file_type": "code",
-      "source_file": "src/lib/calculations/selectivity.ts",
-      "source_location": "L294",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_lib_calculations_selectivity_generatecabledamagecurve",
-      "community": 206,
-      "community_name": "useTranslation",
-      "norm_label": "generatecabledamagecurve()"
-    },
-    {
-      "label": "generateCurvePoints()",
-      "file_type": "code",
-      "source_file": "src/lib/calculations/selectivity.ts",
-      "source_location": "L213",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_lib_calculations_selectivity_generatecurvepoints",
-      "community": 206,
-      "community_name": "useTranslation",
-      "norm_label": "generatecurvepoints()"
-    },
-    {
-      "label": "generateMcbCurve()",
-      "file_type": "code",
-      "source_file": "src/lib/calculations/selectivity.ts",
-      "source_location": "L59",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_lib_calculations_selectivity_generatemcbcurve",
-      "community": 206,
-      "community_name": "useTranslation",
-      "norm_label": "generatemcbcurve()"
-    },
-    {
-      "label": "getTripTimeForCurrent()",
-      "file_type": "code",
-      "source_file": "src/lib/calculations/selectivity.ts",
-      "source_location": "L100",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_lib_calculations_selectivity_gettriptimeforcurrent",
-      "community": 206,
-      "community_name": "useTranslation",
-      "norm_label": "gettriptimeforcurrent()"
-    },
-    {
-      "label": "interpolateTripTime()",
-      "file_type": "code",
-      "source_file": "src/lib/calculations/selectivity.ts",
-      "source_location": "L169",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_lib_calculations_selectivity_interpolatetriptime",
-      "community": 206,
-      "community_name": "useTranslation",
-      "norm_label": "interpolatetriptime()"
-    },
-    {
-      "label": "lookupTestedSelectivity()",
-      "file_type": "code",
-      "source_file": "src/lib/calculations/selectivity.ts",
-      "source_location": "L443",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_lib_calculations_selectivity_lookuptestedselectivity",
-      "community": 206,
-      "community_name": "useTranslation",
-      "norm_label": "lookuptestedselectivity()"
-    },
-    {
-      "label": "resolveCatalogBreakerOrAlternative()",
-      "file_type": "code",
-      "source_file": "src/lib/calculations/selectivity.ts",
-      "source_location": "L1031",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_lib_calculations_selectivity_resolvecatalogbreakeroralternative",
-      "community": 206,
-      "community_name": "useTranslation",
-      "norm_label": "resolvecatalogbreakeroralternative()"
-    },
-    {
-      "label": "suggestAlternativeBreaker()",
-      "file_type": "code",
-      "source_file": "src/lib/calculations/selectivity.ts",
-      "source_location": "L738",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_lib_calculations_selectivity_suggestalternativebreaker",
-      "community": 206,
-      "community_name": "useTranslation",
-      "norm_label": "suggestalternativebreaker()"
-    },
-    {
-      "label": "verifyCoordination()",
-      "file_type": "code",
-      "source_file": "src/lib/calculations/selectivity.ts",
-      "source_location": "L493",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_lib_calculations_selectivity_verifycoordination",
-      "community": 206,
-      "community_name": "useTranslation",
-      "norm_label": "verifycoordination()"
-    },
-    {
-      "label": "verifyShortCircuitThermalWithstand()",
-      "file_type": "code",
-      "source_file": "src/lib/calculations/selectivity.ts",
-      "source_location": "L384",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_lib_calculations_selectivity_verifyshortcircuitthermalwithstand",
-      "community": 206,
-      "community_name": "useTranslation",
-      "norm_label": "verifyshortcircuitthermalwithstand()"
     },
     {
       "label": "capturePageDom()",
@@ -38630,16 +38402,16 @@
       "norm_label": ".then()"
     },
     {
-      "label": ".test_add_components_already_installed()",
+      "label": ".test_init_default_project_root()",
       "file_type": "code",
       "source_file": ".agents/skills/ui-styling/scripts/tests/test_shadcn_add.py",
-      "source_location": "L111",
+      "source_location": "L44",
       "_callable": true,
       "_origin": "ast",
-      "id": "agents_skills_ui_styling_scripts_tests_test_shadcn_add_testshadcninstaller_test_add_components_already_installed",
+      "id": "agents_skills_ui_styling_scripts_tests_test_shadcn_add_testshadcninstaller_test_init_default_project_root",
       "community": 241,
-      "community_name": ".test_add_components_already_installed",
-      "norm_label": ".test_add_components_already_installed()"
+      "community_name": ".test_init_default_project_root",
+      "norm_label": ".test_init_default_project_root()"
     },
     {
       "label": ".catch()",
@@ -39962,6 +39734,18 @@
       "norm_label": ".test_write_config()"
     },
     {
+      "label": "ShortCircuitSchedule()",
+      "file_type": "code",
+      "source_file": "src/components/report/ShortCircuitSchedule.tsx",
+      "source_location": "L24",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_components_report_shortcircuitschedule_shortcircuitschedule",
+      "community": 34,
+      "community_name": "trace-engine.ts",
+      "norm_label": "shortcircuitschedule()"
+    },
+    {
       "label": "calculateIscWithCable()",
       "file_type": "code",
       "source_file": "src/lib/calculations/shortCircuit.ts",
@@ -39998,6 +39782,18 @@
       "norm_label": "calculatetransformerimpedance()"
     },
     {
+      "label": "getTypicalImpedance()",
+      "file_type": "code",
+      "source_file": "src/lib/calculations/shortCircuit.ts",
+      "source_location": "L329",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_lib_calculations_shortcircuit_gettypicalimpedance",
+      "community": 34,
+      "community_name": "trace-engine.ts",
+      "norm_label": "gettypicalimpedance()"
+    },
+    {
       "label": "sourceXrRatio()",
       "file_type": "code",
       "source_file": "src/lib/calculations/shortCircuit.ts",
@@ -40022,64 +39818,220 @@
       "norm_label": "splitsourceimpedance()"
     },
     {
-      "label": "CableLengthInput()",
+      "label": "buildShortCircuitTrace()",
       "file_type": "code",
-      "source_file": "src/app/(app)/cable-schedule/page.tsx",
-      "source_location": "L74",
+      "source_file": "src/lib/calculations/trace-engine.ts",
+      "source_location": "L577",
       "_callable": true,
       "_origin": "ast",
-      "id": "src_app_app_cable_schedule_page_cablelengthinput",
-      "community": 35,
-      "community_name": "cable-schedule/page.tsx",
-      "norm_label": "cablelengthinput()"
+      "id": "src_lib_calculations_trace_engine_buildshortcircuittrace",
+      "community": 34,
+      "community_name": "trace-engine.ts",
+      "norm_label": "buildshortcircuittrace()"
     },
     {
-      "label": "systemVoltageBase()",
+      "label": "BreakerSchedulePage()",
       "file_type": "code",
-      "source_file": "src/lib/calculations/cables.ts",
-      "source_location": "L462",
+      "source_file": "src/app/(app)/breaker-schedule/page.tsx",
+      "source_location": "L87",
       "_callable": true,
       "_origin": "ast",
-      "id": "src_lib_calculations_cables_systemvoltagebase",
+      "id": "src_app_app_breaker_schedule_page_breakerschedulepage",
       "community": 35,
-      "community_name": "cable-schedule/page.tsx",
-      "norm_label": "systemvoltagebase()"
+      "community_name": "feeders.ts",
+      "norm_label": "breakerschedulepage()"
     },
     {
-      "label": "cablePatchUrl()",
+      "label": "CoordinationPage()",
       "file_type": "code",
-      "source_file": "src/lib/sld/cablePersist.ts",
-      "source_location": "L11",
+      "source_file": "src/app/(app)/coordination/page.tsx",
+      "source_location": "L49",
       "_callable": true,
       "_origin": "ast",
-      "id": "src_lib_sld_cablepersist_cablepatchurl",
+      "id": "src_app_app_coordination_page_coordinationpage",
       "community": 35,
-      "community_name": "cable-schedule/page.tsx",
-      "norm_label": "cablepatchurl()"
+      "community_name": "feeders.ts",
+      "norm_label": "coordinationpage()"
     },
     {
-      "label": "fieldEditBody()",
+      "label": "AccessRestricted()",
       "file_type": "code",
-      "source_file": "src/lib/sld/cablePersist.ts",
-      "source_location": "L27",
+      "source_file": "src/components/AccessRestricted.tsx",
+      "source_location": "L12",
       "_callable": true,
       "_origin": "ast",
-      "id": "src_lib_sld_cablepersist_fieldeditbody",
+      "id": "src_components_accessrestricted_accessrestricted",
       "community": 35,
-      "community_name": "cable-schedule/page.tsx",
-      "norm_label": "fieldeditbody()"
+      "community_name": "feeders.ts",
+      "norm_label": "accessrestricted()"
     },
     {
-      "label": "upsizeBody()",
+      "label": "TccPlotModal()",
       "file_type": "code",
-      "source_file": "src/lib/sld/cablePersist.ts",
-      "source_location": "L19",
+      "source_file": "src/components/coordination/TccPlotModal.tsx",
+      "source_location": "L46",
       "_callable": true,
       "_origin": "ast",
-      "id": "src_lib_sld_cablepersist_upsizebody",
+      "id": "src_components_coordination_tccplotmodal_tccplotmodal",
       "community": 35,
-      "community_name": "cable-schedule/page.tsx",
-      "norm_label": "upsizebody()"
+      "community_name": "feeders.ts",
+      "norm_label": "tccplotmodal()"
+    },
+    {
+      "label": "formatBreakerModel()",
+      "file_type": "code",
+      "source_file": "src/lib/calculations/feeders.ts",
+      "source_location": "L208",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_lib_calculations_feeders_formatbreakermodel",
+      "community": 35,
+      "community_name": "feeders.ts",
+      "norm_label": "formatbreakermodel()"
+    },
+    {
+      "label": "calculateCableWithstandTime()",
+      "file_type": "code",
+      "source_file": "src/lib/calculations/selectivity.ts",
+      "source_location": "L265",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_lib_calculations_selectivity_calculatecablewithstandtime",
+      "community": 35,
+      "community_name": "feeders.ts",
+      "norm_label": "calculatecablewithstandtime()"
+    },
+    {
+      "label": "checkCableProtection()",
+      "file_type": "code",
+      "source_file": "src/lib/calculations/selectivity.ts",
+      "source_location": "L326",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_lib_calculations_selectivity_checkcableprotection",
+      "community": 35,
+      "community_name": "feeders.ts",
+      "norm_label": "checkcableprotection()"
+    },
+    {
+      "label": "generateCableDamageCurve()",
+      "file_type": "code",
+      "source_file": "src/lib/calculations/selectivity.ts",
+      "source_location": "L294",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_lib_calculations_selectivity_generatecabledamagecurve",
+      "community": 35,
+      "community_name": "feeders.ts",
+      "norm_label": "generatecabledamagecurve()"
+    },
+    {
+      "label": "generateCurvePoints()",
+      "file_type": "code",
+      "source_file": "src/lib/calculations/selectivity.ts",
+      "source_location": "L213",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_lib_calculations_selectivity_generatecurvepoints",
+      "community": 35,
+      "community_name": "feeders.ts",
+      "norm_label": "generatecurvepoints()"
+    },
+    {
+      "label": "generateMcbCurve()",
+      "file_type": "code",
+      "source_file": "src/lib/calculations/selectivity.ts",
+      "source_location": "L59",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_lib_calculations_selectivity_generatemcbcurve",
+      "community": 35,
+      "community_name": "feeders.ts",
+      "norm_label": "generatemcbcurve()"
+    },
+    {
+      "label": "getTripTimeForCurrent()",
+      "file_type": "code",
+      "source_file": "src/lib/calculations/selectivity.ts",
+      "source_location": "L100",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_lib_calculations_selectivity_gettriptimeforcurrent",
+      "community": 35,
+      "community_name": "feeders.ts",
+      "norm_label": "gettriptimeforcurrent()"
+    },
+    {
+      "label": "interpolateTripTime()",
+      "file_type": "code",
+      "source_file": "src/lib/calculations/selectivity.ts",
+      "source_location": "L169",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_lib_calculations_selectivity_interpolatetriptime",
+      "community": 35,
+      "community_name": "feeders.ts",
+      "norm_label": "interpolatetriptime()"
+    },
+    {
+      "label": "lookupTestedSelectivity()",
+      "file_type": "code",
+      "source_file": "src/lib/calculations/selectivity.ts",
+      "source_location": "L443",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_lib_calculations_selectivity_lookuptestedselectivity",
+      "community": 35,
+      "community_name": "feeders.ts",
+      "norm_label": "lookuptestedselectivity()"
+    },
+    {
+      "label": "resolveCatalogBreakerOrAlternative()",
+      "file_type": "code",
+      "source_file": "src/lib/calculations/selectivity.ts",
+      "source_location": "L1031",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_lib_calculations_selectivity_resolvecatalogbreakeroralternative",
+      "community": 35,
+      "community_name": "feeders.ts",
+      "norm_label": "resolvecatalogbreakeroralternative()"
+    },
+    {
+      "label": "suggestAlternativeBreaker()",
+      "file_type": "code",
+      "source_file": "src/lib/calculations/selectivity.ts",
+      "source_location": "L738",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_lib_calculations_selectivity_suggestalternativebreaker",
+      "community": 35,
+      "community_name": "feeders.ts",
+      "norm_label": "suggestalternativebreaker()"
+    },
+    {
+      "label": "verifyCoordination()",
+      "file_type": "code",
+      "source_file": "src/lib/calculations/selectivity.ts",
+      "source_location": "L493",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_lib_calculations_selectivity_verifycoordination",
+      "community": 35,
+      "community_name": "feeders.ts",
+      "norm_label": "verifycoordination()"
+    },
+    {
+      "label": "verifyShortCircuitThermalWithstand()",
+      "file_type": "code",
+      "source_file": "src/lib/calculations/selectivity.ts",
+      "source_location": "L384",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_lib_calculations_selectivity_verifyshortcircuitthermalwithstand",
+      "community": 35,
+      "community_name": "feeders.ts",
+      "norm_label": "verifyshortcircuitthermalwithstand()"
     },
     {
       "label": "ansi_ljust()",
@@ -45974,6 +45926,18 @@
       "norm_label": ".test_add_components_dry_run()"
     },
     {
+      "label": ".test_check_shadcn_config_not_exists()",
+      "file_type": "code",
+      "source_file": ".agents/skills/ui-styling/scripts/tests/test_shadcn_add.py",
+      "source_location": "L65",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "agents_skills_ui_styling_scripts_tests_test_shadcn_add_testshadcninstaller_test_check_shadcn_config_not_exists",
+      "community": 75,
+      "community_name": "TestShadcnInstaller",
+      "norm_label": ".test_check_shadcn_config_not_exists()"
+    },
+    {
       "label": ".test_init_custom_project_root()",
       "file_type": "code",
       "source_file": ".agents/skills/ui-styling/scripts/tests/test_shadcn_add.py",
@@ -46008,18 +45972,6 @@
       "community": 75,
       "community_name": "TestShadcnInstaller",
       "norm_label": ".test_list_installed_no_config()"
-    },
-    {
-      "label": ".test_list_installed_with_components()",
-      "file_type": "code",
-      "source_file": ".agents/skills/ui-styling/scripts/tests/test_shadcn_add.py",
-      "source_location": "L255",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "agents_skills_ui_styling_scripts_tests_test_shadcn_add_testshadcninstaller_test_list_installed_with_components",
-      "community": 75,
-      "community_name": "TestShadcnInstaller",
-      "norm_label": ".test_list_installed_with_components()"
     },
     {
       "label": "_palette_is_dark()",
@@ -46502,16 +46454,16 @@
       "norm_label": "main()"
     },
     {
-      "label": ".test_check_shadcn_config_not_exists()",
+      "label": ".test_add_components_already_installed()",
       "file_type": "code",
       "source_file": ".agents/skills/ui-styling/scripts/tests/test_shadcn_add.py",
-      "source_location": "L65",
+      "source_location": "L111",
       "_callable": true,
       "_origin": "ast",
-      "id": "agents_skills_ui_styling_scripts_tests_test_shadcn_add_testshadcninstaller_test_check_shadcn_config_not_exists",
+      "id": "agents_skills_ui_styling_scripts_tests_test_shadcn_add_testshadcninstaller_test_add_components_already_installed",
       "community": 85,
       "community_name": "ShadcnInstaller",
-      "norm_label": ".test_check_shadcn_config_not_exists()"
+      "norm_label": ".test_add_components_already_installed()"
     },
     {
       "label": ".test_get_installed_components_no_config()",
@@ -46526,16 +46478,16 @@
       "norm_label": ".test_get_installed_components_no_config()"
     },
     {
-      "label": ".test_init_default_project_root()",
+      "label": ".test_list_installed_with_components()",
       "file_type": "code",
       "source_file": ".agents/skills/ui-styling/scripts/tests/test_shadcn_add.py",
-      "source_location": "L44",
+      "source_location": "L255",
       "_callable": true,
       "_origin": "ast",
-      "id": "agents_skills_ui_styling_scripts_tests_test_shadcn_add_testshadcninstaller_test_init_default_project_root",
+      "id": "agents_skills_ui_styling_scripts_tests_test_shadcn_add_testshadcninstaller_test_list_installed_with_components",
       "community": 85,
       "community_name": "ShadcnInstaller",
-      "norm_label": ".test_init_default_project_root()"
+      "norm_label": ".test_list_installed_with_components()"
     },
     {
       "label": ".add_all_components()",
@@ -47880,6 +47832,54 @@
       "community": 99,
       "community_name": "types/index.ts",
       "norm_label": "item()"
+    },
+    {
+      "label": "LogoMark()",
+      "file_type": "code",
+      "source_file": "src/components/report/ReportHeader.tsx",
+      "source_location": "L29",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_components_report_reportheader_logomark",
+      "community": 99,
+      "community_name": "types/index.ts",
+      "norm_label": "logomark()"
+    },
+    {
+      "label": "MetaItem()",
+      "file_type": "code",
+      "source_file": "src/components/report/ReportHeader.tsx",
+      "source_location": "L51",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_components_report_reportheader_metaitem",
+      "community": 99,
+      "community_name": "types/index.ts",
+      "norm_label": "metaitem()"
+    },
+    {
+      "label": "SectionHeader()",
+      "file_type": "code",
+      "source_file": "src/components/report/ReportHeader.tsx",
+      "source_location": "L76",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_components_report_reportheader_sectionheader",
+      "community": 99,
+      "community_name": "types/index.ts",
+      "norm_label": "sectionheader()"
+    },
+    {
+      "label": "RevisionsPanel()",
+      "file_type": "code",
+      "source_file": "src/components/report/RevisionsPanel.tsx",
+      "source_location": "L16",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_components_report_revisionspanel_revisionspanel",
+      "community": 99,
+      "community_name": "types/index.ts",
+      "norm_label": "revisionspanel()"
     },
     {
       "label": "building()",
@@ -49992,26 +49992,15 @@
       "norm_label": "languageselector.tsx"
     },
     {
-      "label": "panel/page.tsx",
+      "label": "cable-schedule/page.tsx",
       "file_type": "code",
-      "source_file": "src/app/(app)/panel/page.tsx",
+      "source_file": "src/app/(app)/cable-schedule/page.tsx",
       "source_location": "L1",
       "_origin": "ast",
-      "id": "src_app_app_panel_page",
+      "id": "src_app_app_cable_schedule_page",
       "community": 129,
       "community_name": "reports/page.tsx",
-      "norm_label": "panel/page.tsx"
-    },
-    {
-      "label": "BREAKER_FAMILY_THEME",
-      "file_type": "code",
-      "source_file": "src/app/(app)/panel/page.tsx",
-      "source_location": "L116",
-      "_origin": "ast",
-      "id": "src_app_app_panel_page_breaker_family_theme",
-      "community": 129,
-      "community_name": "reports/page.tsx",
-      "norm_label": "breaker_family_theme"
+      "norm_label": "cable-schedule/page.tsx"
     },
     {
       "label": "reports/page.tsx",
@@ -50069,17 +50058,6 @@
       "norm_label": "cableschedule.tsx"
     },
     {
-      "label": "LoadSchedule.tsx",
-      "file_type": "code",
-      "source_file": "src/components/report/LoadSchedule.tsx",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "src_components_report_loadschedule",
-      "community": 129,
-      "community_name": "reports/page.tsx",
-      "norm_label": "loadschedule.tsx"
-    },
-    {
       "label": "MDBSchedule.tsx",
       "file_type": "code",
       "source_file": "src/components/report/MDBSchedule.tsx",
@@ -50089,39 +50067,6 @@
       "community": 129,
       "community_name": "reports/page.tsx",
       "norm_label": "mdbschedule.tsx"
-    },
-    {
-      "label": "ReportHeader.tsx",
-      "file_type": "code",
-      "source_file": "src/components/report/ReportHeader.tsx",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "src_components_report_reportheader",
-      "community": 129,
-      "community_name": "reports/page.tsx",
-      "norm_label": "reportheader.tsx"
-    },
-    {
-      "label": "RevisionsPanel.tsx",
-      "file_type": "code",
-      "source_file": "src/components/report/RevisionsPanel.tsx",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "src_components_report_revisionspanel",
-      "community": 129,
-      "community_name": "reports/page.tsx",
-      "norm_label": "revisionspanel.tsx"
-    },
-    {
-      "label": "ShortCircuitSchedule.tsx",
-      "file_type": "code",
-      "source_file": "src/components/report/ShortCircuitSchedule.tsx",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "src_components_report_shortcircuitschedule",
-      "community": 129,
-      "community_name": "reports/page.tsx",
-      "norm_label": "shortcircuitschedule.tsx"
     },
     {
       "label": "VDSchedule.tsx",
@@ -50232,6 +50177,28 @@
       "community": 129,
       "community_name": "reports/page.tsx",
       "norm_label": "report_compiled_css"
+    },
+    {
+      "label": "cablePersist.ts",
+      "file_type": "code",
+      "source_file": "src/lib/sld/cablePersist.ts",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_lib_sld_cablepersist",
+      "community": 129,
+      "community_name": "reports/page.tsx",
+      "norm_label": "cablepersist.ts"
+    },
+    {
+      "label": "cablePersist.test.ts",
+      "file_type": "code",
+      "source_file": "src/lib/sld/cablePersist.test.ts",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_lib_sld_cablepersist_test",
+      "community": 129,
+      "community_name": "reports/page.tsx",
+      "norm_label": "cablepersist.test.ts"
     },
     {
       "label": "ApartmentRoom.ts",
@@ -50479,7 +50446,7 @@
       "label": "ALL_FIELD_LABELS",
       "file_type": "code",
       "source_file": "src/lib/audit-diff.ts",
-      "source_location": "L26",
+      "source_location": "L27",
       "_origin": "ast",
       "id": "src_lib_audit_diff_all_field_labels",
       "community": 131,
@@ -50490,7 +50457,7 @@
       "label": "BREAKER_FAMILY_FIELDS",
       "file_type": "code",
       "source_file": "src/lib/audit-diff.ts",
-      "source_location": "L102",
+      "source_location": "L103",
       "_origin": "ast",
       "id": "src_lib_audit_diff_breaker_family_fields",
       "community": 131,
@@ -50501,7 +50468,7 @@
       "label": "CABLE_CIRCUIT_FIELDS",
       "file_type": "code",
       "source_file": "src/lib/audit-diff.ts",
-      "source_location": "L588",
+      "source_location": "L589",
       "_origin": "ast",
       "id": "src_lib_audit_diff_cable_circuit_fields",
       "community": 131,
@@ -50512,7 +50479,7 @@
       "label": "INCOMER_BREAKER_FIELDS",
       "file_type": "code",
       "source_file": "src/lib/audit-diff.ts",
-      "source_location": "L398",
+      "source_location": "L399",
       "_origin": "ast",
       "id": "src_lib_audit_diff_incomer_breaker_fields",
       "community": 131,
@@ -50523,7 +50490,7 @@
       "label": "INCOMER_CABLE_FIELDS",
       "file_type": "code",
       "source_file": "src/lib/audit-diff.ts",
-      "source_location": "L393",
+      "source_location": "L394",
       "_origin": "ast",
       "id": "src_lib_audit_diff_incomer_cable_fields",
       "community": 131,
@@ -50534,7 +50501,7 @@
       "label": "RISER_CABLE_FIELDS",
       "file_type": "code",
       "source_file": "src/lib/audit-diff.ts",
-      "source_location": "L494",
+      "source_location": "L495",
       "_origin": "ast",
       "id": "src_lib_audit_diff_riser_cable_fields",
       "community": 131,
@@ -50567,7 +50534,7 @@
       "label": "WELL_KNOWN_METHOD_NAMES",
       "file_type": "code",
       "source_file": "src/lib/audit-diff.ts",
-      "source_location": "L104",
+      "source_location": "L105",
       "_origin": "ast",
       "id": "src_lib_audit_diff_well_known_method_names",
       "community": 131,
@@ -53244,7 +53211,7 @@
       "_origin": "ast",
       "id": "scripts_verify_mall_project",
       "community": 165,
-      "community_name": "feeders.ts",
+      "community_name": "cables.ts",
       "norm_label": "verify-mall-project.ts"
     },
     {
@@ -53255,7 +53222,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_cables",
       "community": 165,
-      "community_name": "feeders.ts",
+      "community_name": "cables.ts",
       "norm_label": "cables.ts"
     },
     {
@@ -53266,7 +53233,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_cables_standard_breakers",
       "community": 165,
-      "community_name": "feeders.ts",
+      "community_name": "cables.ts",
       "norm_label": "standard_breakers"
     },
     {
@@ -53277,7 +53244,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_cables_test",
       "community": 165,
-      "community_name": "feeders.ts",
+      "community_name": "cables.ts",
       "norm_label": "cables.test.ts"
     },
     {
@@ -53288,7 +53255,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_cablesdata",
       "community": 165,
-      "community_name": "feeders.ts",
+      "community_name": "cables.ts",
       "norm_label": "cablesdata.ts"
     },
     {
@@ -53299,7 +53266,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_cablesdata_cable_catalog",
       "community": 165,
-      "community_name": "feeders.ts",
+      "community_name": "cables.ts",
       "norm_label": "cable_catalog"
     },
     {
@@ -53310,7 +53277,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_cablesdata_group_derating",
       "community": 165,
-      "community_name": "feeders.ts",
+      "community_name": "cables.ts",
       "norm_label": "group_derating"
     },
     {
@@ -53321,7 +53288,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_cablesdata_nec_group_derating",
       "community": 165,
-      "community_name": "feeders.ts",
+      "community_name": "cables.ts",
       "norm_label": "nec_group_derating"
     },
     {
@@ -53332,7 +53299,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_cablesdata_nec_temp_derating",
       "community": 165,
-      "community_name": "feeders.ts",
+      "community_name": "cables.ts",
       "norm_label": "nec_temp_derating"
     },
     {
@@ -53343,7 +53310,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_cablesdata_temp_derating",
       "community": 165,
-      "community_name": "feeders.ts",
+      "community_name": "cables.ts",
       "norm_label": "temp_derating"
     },
     {
@@ -53354,7 +53321,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_codes",
       "community": 165,
-      "community_name": "feeders.ts",
+      "community_name": "cables.ts",
       "norm_label": "codes.ts"
     },
     {
@@ -53365,7 +53332,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_codes_breaker_ratings",
       "community": 165,
-      "community_name": "feeders.ts",
+      "community_name": "cables.ts",
       "norm_label": "breaker_ratings"
     },
     {
@@ -53376,7 +53343,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_codes_code_label",
       "community": 165,
-      "community_name": "feeders.ts",
+      "community_name": "cables.ts",
       "norm_label": "code_label"
     },
     {
@@ -53387,7 +53354,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_codes_iec_breaker_ratings",
       "community": 165,
-      "community_name": "feeders.ts",
+      "community_name": "cables.ts",
       "norm_label": "iec_breaker_ratings"
     },
     {
@@ -53398,7 +53365,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_codes_mm2_to_awg",
       "community": 165,
-      "community_name": "feeders.ts",
+      "community_name": "cables.ts",
       "norm_label": "mm2_to_awg"
     },
     {
@@ -53409,7 +53376,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_codes_nec_breaker_ratings",
       "community": 165,
-      "community_name": "feeders.ts",
+      "community_name": "cables.ts",
       "norm_label": "nec_breaker_ratings"
     },
     {
@@ -53420,7 +53387,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_codes_test",
       "community": 165,
-      "community_name": "feeders.ts",
+      "community_name": "cables.ts",
       "norm_label": "codes.test.ts"
     },
     {
@@ -53431,19 +53398,8 @@
       "_origin": "ast",
       "id": "src_lib_calculations_codes_vd_recommended",
       "community": 165,
-      "community_name": "feeders.ts",
+      "community_name": "cables.ts",
       "norm_label": "vd_recommended"
-    },
-    {
-      "label": "feeders.ts",
-      "file_type": "code",
-      "source_file": "src/lib/calculations/feeders.ts",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "src_lib_calculations_feeders",
-      "community": 165,
-      "community_name": "feeders.ts",
-      "norm_label": "feeders.ts"
     },
     {
       "label": "golden-values.test.ts",
@@ -53453,7 +53409,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_golden_values_test",
       "community": 165,
-      "community_name": "feeders.ts",
+      "community_name": "cables.ts",
       "norm_label": "golden-values.test.ts"
     },
     {
@@ -53464,7 +53420,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_integration_test",
       "community": 165,
-      "community_name": "feeders.ts",
+      "community_name": "cables.ts",
       "norm_label": "integration.test.ts"
     },
     {
@@ -53475,7 +53431,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_integration_test_equipment",
       "community": 165,
-      "community_name": "feeders.ts",
+      "community_name": "cables.ts",
       "norm_label": "equipment"
     },
     {
@@ -53486,7 +53442,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_integration_test_findbreaker",
       "community": 165,
-      "community_name": "feeders.ts",
+      "community_name": "cables.ts",
       "norm_label": "findbreaker"
     },
     {
@@ -53497,7 +53453,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_integration_test_project",
       "community": 165,
-      "community_name": "feeders.ts",
+      "community_name": "cables.ts",
       "norm_label": "project"
     },
     {
@@ -53508,7 +53464,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_riser",
       "community": 165,
-      "community_name": "feeders.ts",
+      "community_name": "cables.ts",
       "norm_label": "riser.ts"
     },
     {
@@ -53519,7 +53475,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_riser_test",
       "community": 165,
-      "community_name": "feeders.ts",
+      "community_name": "cables.ts",
       "norm_label": "riser.test.ts"
     },
     {
@@ -53530,7 +53486,7 @@
       "_origin": "ast",
       "id": "src_lib_calculations_riser_test_proj",
       "community": 165,
-      "community_name": "feeders.ts",
+      "community_name": "cables.ts",
       "norm_label": "proj"
     },
     {
@@ -53541,7 +53497,7 @@
       "_origin": "ast",
       "id": "src_lib_sld_cable_editor",
       "community": 165,
-      "community_name": "feeders.ts",
+      "community_name": "cables.ts",
       "norm_label": "cable-editor.ts"
     },
     {
@@ -53552,19 +53508,19 @@
       "_origin": "ast",
       "id": "src_lib_sld_cable_editor_test",
       "community": 165,
-      "community_name": "feeders.ts",
+      "community_name": "cables.ts",
       "norm_label": "cable-editor.test.ts"
     },
     {
-      "label": "padding-x",
+      "label": "padding-y",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L110",
+      "source_location": "L111",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_button_padding_x",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_button_padding_y",
       "community": 166,
       "community_name": "input",
-      "norm_label": "padding-x"
+      "norm_label": "padding-y"
     },
     {
       "label": "input",
@@ -53611,58 +53567,14 @@
       "norm_label": "focus-ring"
     },
     {
-      "label": "padding-x",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L119",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_input_padding_x",
-      "community": 166,
-      "community_name": "input",
-      "norm_label": "padding-x"
-    },
-    {
-      "label": "$type",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L110",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_padding_x_type",
-      "community": 166,
-      "community_name": "input",
-      "norm_label": "$type"
-    },
-    {
-      "label": "$value",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L110",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_padding_x_value",
-      "community": 166,
-      "community_name": "input",
-      "norm_label": "$value"
-    },
-    {
-      "label": "padding-y",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L111",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_button_padding_y",
-      "community": 167,
-      "community_name": "padding-y",
-      "norm_label": "padding-y"
-    },
-    {
       "label": "padding-y",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
       "source_location": "L120",
       "_origin": "ast",
       "id": "agents_skills_design_system_templates_design_tokens_starter_input_padding_y",
-      "community": 167,
-      "community_name": "padding-y",
+      "community": 166,
+      "community_name": "input",
       "norm_label": "padding-y"
     },
     {
@@ -53672,8 +53584,8 @@
       "source_location": "L111",
       "_origin": "ast",
       "id": "agents_skills_design_system_templates_design_tokens_starter_padding_y_type",
-      "community": 167,
-      "community_name": "padding-y",
+      "community": 166,
+      "community_name": "input",
       "norm_label": "$type"
     },
     {
@@ -53683,8 +53595,52 @@
       "source_location": "L111",
       "_origin": "ast",
       "id": "agents_skills_design_system_templates_design_tokens_starter_padding_y_value",
+      "community": 166,
+      "community_name": "input",
+      "norm_label": "$value"
+    },
+    {
+      "label": "padding-x",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L110",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_button_padding_x",
       "community": 167,
-      "community_name": "padding-y",
+      "community_name": "padding-x",
+      "norm_label": "padding-x"
+    },
+    {
+      "label": "padding-x",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L119",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_input_padding_x",
+      "community": 167,
+      "community_name": "padding-x",
+      "norm_label": "padding-x"
+    },
+    {
+      "label": "$type",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L110",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_padding_x_type",
+      "community": 167,
+      "community_name": "padding-x",
+      "norm_label": "$type"
+    },
+    {
+      "label": "$value",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L110",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_padding_x_value",
+      "community": 167,
+      "community_name": "padding-x",
       "norm_label": "$value"
     },
     {
@@ -55544,17 +55500,6 @@
       "norm_label": "billing/page.tsx"
     },
     {
-      "label": "breaker-schedule/page.tsx",
-      "file_type": "code",
-      "source_file": "src/app/(app)/breaker-schedule/page.tsx",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "src_app_app_breaker_schedule_page",
-      "community": 206,
-      "community_name": "useTranslation",
-      "norm_label": "breaker-schedule/page.tsx"
-    },
-    {
       "label": "calculator/page.tsx",
       "file_type": "code",
       "source_file": "src/app/(app)/calculator/page.tsx",
@@ -55566,15 +55511,26 @@
       "norm_label": "calculator/page.tsx"
     },
     {
-      "label": "coordination/page.tsx",
+      "label": "panel/page.tsx",
       "file_type": "code",
-      "source_file": "src/app/(app)/coordination/page.tsx",
+      "source_file": "src/app/(app)/panel/page.tsx",
       "source_location": "L1",
       "_origin": "ast",
-      "id": "src_app_app_coordination_page",
+      "id": "src_app_app_panel_page",
       "community": 206,
       "community_name": "useTranslation",
-      "norm_label": "coordination/page.tsx"
+      "norm_label": "panel/page.tsx"
+    },
+    {
+      "label": "BREAKER_FAMILY_THEME",
+      "file_type": "code",
+      "source_file": "src/app/(app)/panel/page.tsx",
+      "source_location": "L116",
+      "_origin": "ast",
+      "id": "src_app_app_panel_page_breaker_family_theme",
+      "community": 206,
+      "community_name": "useTranslation",
+      "norm_label": "breaker_family_theme"
     },
     {
       "label": "[id]/page.tsx",
@@ -55632,17 +55588,6 @@
       "norm_label": "accept/page.tsx"
     },
     {
-      "label": "AccessRestricted.tsx",
-      "file_type": "code",
-      "source_file": "src/components/AccessRestricted.tsx",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "src_components_accessrestricted",
-      "community": 206,
-      "community_name": "useTranslation",
-      "norm_label": "accessrestricted.tsx"
-    },
-    {
       "label": "BreakerSizingGuideModal.tsx",
       "file_type": "code",
       "source_file": "src/components/breaker/BreakerSizingGuideModal.tsx",
@@ -55652,17 +55597,6 @@
       "community": 206,
       "community_name": "useTranslation",
       "norm_label": "breakersizingguidemodal.tsx"
-    },
-    {
-      "label": "TccPlotModal.tsx",
-      "file_type": "code",
-      "source_file": "src/components/coordination/TccPlotModal.tsx",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "src_components_coordination_tccplotmodal",
-      "community": 206,
-      "community_name": "useTranslation",
-      "norm_label": "tccplotmodal.tsx"
     },
     {
       "label": "FeedbackFloatingButton.tsx",
@@ -55861,50 +55795,6 @@
       "community": 206,
       "community_name": "useTranslation",
       "norm_label": "i18n/index.ts"
-    },
-    {
-      "label": "selectivity.ts",
-      "file_type": "code",
-      "source_file": "src/lib/calculations/selectivity.ts",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "src_lib_calculations_selectivity",
-      "community": 206,
-      "community_name": "useTranslation",
-      "norm_label": "selectivity.ts"
-    },
-    {
-      "label": "STANDARD_BREAKER_SIZES",
-      "file_type": "code",
-      "source_file": "src/lib/calculations/selectivity.ts",
-      "source_location": "L730",
-      "_origin": "ast",
-      "id": "src_lib_calculations_selectivity_standard_breaker_sizes",
-      "community": 206,
-      "community_name": "useTranslation",
-      "norm_label": "standard_breaker_sizes"
-    },
-    {
-      "label": "selectivity.test.ts",
-      "file_type": "code",
-      "source_file": "src/lib/calculations/selectivity.test.ts",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "src_lib_calculations_selectivity_test",
-      "community": 206,
-      "community_name": "useTranslation",
-      "norm_label": "selectivity.test.ts"
-    },
-    {
-      "label": "TESTED_SELECTIVITY_TABLES",
-      "file_type": "code",
-      "source_file": "src/lib/calculations/selectivity.ts",
-      "source_location": "L414",
-      "_origin": "ast",
-      "id": "src_lib_calculations_selectivity_tested_selectivity_tables",
-      "community": 206,
-      "community_name": "useTranslation",
-      "norm_label": "tested_selectivity_tables"
     },
     {
       "label": "screenshot.ts",
@@ -56600,37 +56490,37 @@
       "norm_label": "zod"
     },
     {
-      "label": "destructive",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L95",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_color_destructive",
-      "community": 216,
-      "community_name": "destructive",
-      "norm_label": "destructive"
-    },
-    {
       "label": "$type",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L95",
+      "source_location": "L42",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_destructive_type",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_2_type",
       "community": 216,
-      "community_name": "destructive",
+      "community_name": "2",
       "norm_label": "$type"
     },
     {
       "label": "$value",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L95",
+      "source_location": "L42",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_destructive_value",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_2_value",
       "community": 216,
-      "community_name": "destructive",
+      "community_name": "2",
       "norm_label": "$value"
+    },
+    {
+      "label": "2",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L42",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_spacing_2",
+      "community": 216,
+      "community_name": "2",
+      "norm_label": "2"
     },
     {
       "label": "$type",
@@ -57095,37 +56985,37 @@
       "norm_label": "test adding components without shadcn config."
     },
     {
+      "label": "primary",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L88",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_color_primary",
+      "community": 226,
+      "community_name": "primary",
+      "norm_label": "primary"
+    },
+    {
       "label": "$type",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L40",
+      "source_location": "L88",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_0_type",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_primary_type",
       "community": 226,
-      "community_name": "0",
+      "community_name": "primary",
       "norm_label": "$type"
     },
     {
       "label": "$value",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L40",
+      "source_location": "L88",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_0_value",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_primary_value",
       "community": 226,
-      "community_name": "0",
+      "community_name": "primary",
       "norm_label": "$value"
-    },
-    {
-      "label": "0",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L40",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_spacing_0",
-      "community": 226,
-      "community_name": "0",
-      "norm_label": "0"
     },
     {
       "label": "destructive-foreground",
@@ -57414,15 +57304,15 @@
       "norm_label": "jose"
     },
     {
-      "label": "Test adding components that are already installed.",
+      "label": "Test initialization with default project root.",
       "file_type": "rationale",
       "source_file": ".agents/skills/ui-styling/scripts/tests/test_shadcn_add.py",
-      "source_location": "L112",
+      "source_location": "L45",
       "_origin": "ast",
-      "id": "agents_skills_ui_styling_scripts_tests_test_shadcn_add_rationale_112",
+      "id": "agents_skills_ui_styling_scripts_tests_test_shadcn_add_rationale_45",
       "community": 241,
-      "community_name": ".test_add_components_already_installed",
-      "norm_label": "test adding components that are already installed."
+      "community_name": ".test_init_default_project_root",
+      "norm_label": "test initialization with default project root."
     },
     {
       "label": "@radix-ui/react-select",
@@ -58074,26 +57964,26 @@
       "norm_label": "db-ssl.test.ts"
     },
     {
-      "label": "puppeteer-core",
+      "label": "class-variance-authority",
       "file_type": "code",
       "source_file": "package.json",
-      "source_location": "L45",
+      "source_location": "L33",
       "_origin": "ast",
-      "id": "package_dependencies_puppeteer_core",
+      "id": "package_dependencies_class_variance_authority",
       "community": 253,
-      "community_name": "puppeteer-core",
-      "norm_label": "puppeteer-core"
+      "community_name": "class-variance-authority",
+      "norm_label": "class-variance-authority"
     },
     {
-      "label": "puppeteer-core",
+      "label": "class-variance-authority",
       "file_type": "concept",
       "source_file": "package.json",
-      "source_location": "L45",
+      "source_location": "L33",
       "_origin": "ast",
-      "id": "puppeteer_core",
+      "id": "class_variance_authority",
       "community": 253,
-      "community_name": "puppeteer-core",
-      "norm_label": "puppeteer-core"
+      "community_name": "class-variance-authority",
+      "norm_label": "class-variance-authority"
     },
     {
       "label": "postcss.config.mjs",
@@ -61836,6 +61726,17 @@
       "norm_label": "5. resolution & verification status"
     },
     {
+      "label": "ShortCircuitSchedule.tsx",
+      "file_type": "code",
+      "source_file": "src/components/report/ShortCircuitSchedule.tsx",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_components_report_shortcircuitschedule",
+      "community": 34,
+      "community_name": "trace-engine.ts",
+      "norm_label": "shortcircuitschedule.tsx"
+    },
+    {
       "label": "shortCircuit.ts",
       "file_type": "code",
       "source_file": "src/lib/calculations/shortCircuit.ts",
@@ -61880,37 +61781,103 @@
       "norm_label": "trace-engine.ts"
     },
     {
-      "label": "cable-schedule/page.tsx",
+      "label": "breaker-schedule/page.tsx",
       "file_type": "code",
-      "source_file": "src/app/(app)/cable-schedule/page.tsx",
+      "source_file": "src/app/(app)/breaker-schedule/page.tsx",
       "source_location": "L1",
       "_origin": "ast",
-      "id": "src_app_app_cable_schedule_page",
+      "id": "src_app_app_breaker_schedule_page",
       "community": 35,
-      "community_name": "cable-schedule/page.tsx",
-      "norm_label": "cable-schedule/page.tsx"
+      "community_name": "feeders.ts",
+      "norm_label": "breaker-schedule/page.tsx"
     },
     {
-      "label": "cablePersist.ts",
+      "label": "coordination/page.tsx",
       "file_type": "code",
-      "source_file": "src/lib/sld/cablePersist.ts",
+      "source_file": "src/app/(app)/coordination/page.tsx",
       "source_location": "L1",
       "_origin": "ast",
-      "id": "src_lib_sld_cablepersist",
+      "id": "src_app_app_coordination_page",
       "community": 35,
-      "community_name": "cable-schedule/page.tsx",
-      "norm_label": "cablepersist.ts"
+      "community_name": "feeders.ts",
+      "norm_label": "coordination/page.tsx"
     },
     {
-      "label": "cablePersist.test.ts",
+      "label": "AccessRestricted.tsx",
       "file_type": "code",
-      "source_file": "src/lib/sld/cablePersist.test.ts",
+      "source_file": "src/components/AccessRestricted.tsx",
       "source_location": "L1",
       "_origin": "ast",
-      "id": "src_lib_sld_cablepersist_test",
+      "id": "src_components_accessrestricted",
       "community": 35,
-      "community_name": "cable-schedule/page.tsx",
-      "norm_label": "cablepersist.test.ts"
+      "community_name": "feeders.ts",
+      "norm_label": "accessrestricted.tsx"
+    },
+    {
+      "label": "TccPlotModal.tsx",
+      "file_type": "code",
+      "source_file": "src/components/coordination/TccPlotModal.tsx",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_components_coordination_tccplotmodal",
+      "community": 35,
+      "community_name": "feeders.ts",
+      "norm_label": "tccplotmodal.tsx"
+    },
+    {
+      "label": "feeders.ts",
+      "file_type": "code",
+      "source_file": "src/lib/calculations/feeders.ts",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_lib_calculations_feeders",
+      "community": 35,
+      "community_name": "feeders.ts",
+      "norm_label": "feeders.ts"
+    },
+    {
+      "label": "selectivity.ts",
+      "file_type": "code",
+      "source_file": "src/lib/calculations/selectivity.ts",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_lib_calculations_selectivity",
+      "community": 35,
+      "community_name": "feeders.ts",
+      "norm_label": "selectivity.ts"
+    },
+    {
+      "label": "STANDARD_BREAKER_SIZES",
+      "file_type": "code",
+      "source_file": "src/lib/calculations/selectivity.ts",
+      "source_location": "L730",
+      "_origin": "ast",
+      "id": "src_lib_calculations_selectivity_standard_breaker_sizes",
+      "community": 35,
+      "community_name": "feeders.ts",
+      "norm_label": "standard_breaker_sizes"
+    },
+    {
+      "label": "selectivity.test.ts",
+      "file_type": "code",
+      "source_file": "src/lib/calculations/selectivity.test.ts",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_lib_calculations_selectivity_test",
+      "community": 35,
+      "community_name": "feeders.ts",
+      "norm_label": "selectivity.test.ts"
+    },
+    {
+      "label": "TESTED_SELECTIVITY_TABLES",
+      "file_type": "code",
+      "source_file": "src/lib/calculations/selectivity.ts",
+      "source_location": "L414",
+      "_origin": "ast",
+      "id": "src_lib_calculations_selectivity_tested_selectivity_tables",
+      "community": 35,
+      "community_name": "feeders.ts",
+      "norm_label": "tested_selectivity_tables"
     },
     {
       "label": "design_system.py",
@@ -64259,6 +64226,28 @@
       "label": "$type",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L40",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_0_type",
+      "community": 47,
+      "community_name": "spacing",
+      "norm_label": "$type"
+    },
+    {
+      "label": "$value",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L40",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_0_value",
+      "community": 47,
+      "community_name": "spacing",
+      "norm_label": "$value"
+    },
+    {
+      "label": "$type",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
       "source_location": "L48",
       "_origin": "ast",
       "id": "agents_skills_design_system_templates_design_tokens_starter_10_type",
@@ -64317,28 +64306,6 @@
       "source_location": "L41",
       "_origin": "ast",
       "id": "agents_skills_design_system_templates_design_tokens_starter_1_value",
-      "community": 47,
-      "community_name": "spacing",
-      "norm_label": "$value"
-    },
-    {
-      "label": "$type",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L42",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_2_type",
-      "community": 47,
-      "community_name": "spacing",
-      "norm_label": "$type"
-    },
-    {
-      "label": "$value",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L42",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_2_value",
       "community": 47,
       "community_name": "spacing",
       "norm_label": "$value"
@@ -64421,6 +64388,17 @@
       "norm_label": "spacing"
     },
     {
+      "label": "0",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L40",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_spacing_0",
+      "community": 47,
+      "community_name": "spacing",
+      "norm_label": "0"
+    },
+    {
       "label": "1",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
@@ -64452,17 +64430,6 @@
       "community": 47,
       "community_name": "spacing",
       "norm_label": "16"
-    },
-    {
-      "label": "2",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L42",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_spacing_2",
-      "community": 47,
-      "community_name": "spacing",
-      "norm_label": "2"
     },
     {
       "label": "3",
@@ -65334,6 +65301,17 @@
       "norm_label": "background"
     },
     {
+      "label": "destructive",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L95",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_color_destructive",
+      "community": 54,
+      "community_name": "color",
+      "norm_label": "destructive"
+    },
+    {
       "label": "foreground",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
@@ -65356,17 +65334,6 @@
       "norm_label": "muted-foreground"
     },
     {
-      "label": "primary",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L88",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_color_primary",
-      "community": 54,
-      "community_name": "color",
-      "norm_label": "primary"
-    },
-    {
       "label": "primary-hover",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
@@ -65387,6 +65354,28 @@
       "community": 54,
       "community_name": "color",
       "norm_label": "secondary"
+    },
+    {
+      "label": "$type",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L95",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_destructive_type",
+      "community": 54,
+      "community_name": "color",
+      "norm_label": "$type"
+    },
+    {
+      "label": "$value",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L95",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_destructive_value",
+      "community": 54,
+      "community_name": "color",
+      "norm_label": "$value"
     },
     {
       "label": "$type",
@@ -65450,28 +65439,6 @@
       "source_location": "L89",
       "_origin": "ast",
       "id": "agents_skills_design_system_templates_design_tokens_starter_primary_hover_value",
-      "community": 54,
-      "community_name": "color",
-      "norm_label": "$value"
-    },
-    {
-      "label": "$type",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L88",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_primary_type",
-      "community": 54,
-      "community_name": "color",
-      "norm_label": "$type"
-    },
-    {
-      "label": "$value",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L88",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_primary_value",
       "community": 54,
       "community_name": "color",
       "norm_label": "$value"
@@ -66280,17 +66247,6 @@
       "norm_label": "test listing installed components when none exist."
     },
     {
-      "label": "Test listing installed components when they exist.",
-      "file_type": "rationale",
-      "source_file": ".agents/skills/ui-styling/scripts/tests/test_shadcn_add.py",
-      "source_location": "L256",
-      "_origin": "ast",
-      "id": "agents_skills_ui_styling_scripts_tests_test_shadcn_add_rationale_256",
-      "community": 75,
-      "community_name": "TestShadcnInstaller",
-      "norm_label": "test listing installed components when they exist."
-    },
-    {
       "label": "Test initialization with custom project root.",
       "file_type": "rationale",
       "source_file": ".agents/skills/ui-styling/scripts/tests/test_shadcn_add.py",
@@ -66300,6 +66256,17 @@
       "community": 75,
       "community_name": "TestShadcnInstaller",
       "norm_label": "test initialization with custom project root."
+    },
+    {
+      "label": "Test checking for non-existent shadcn config.",
+      "file_type": "rationale",
+      "source_file": ".agents/skills/ui-styling/scripts/tests/test_shadcn_add.py",
+      "source_location": "L66",
+      "_origin": "ast",
+      "id": "agents_skills_ui_styling_scripts_tests_test_shadcn_add_rationale_66",
+      "community": 75,
+      "community_name": "TestShadcnInstaller",
+      "norm_label": "test checking for non-existent shadcn config."
     },
     {
       "label": "browser.ts",
@@ -66907,26 +66874,26 @@
       "norm_label": "tests for shadcn_add.py"
     },
     {
-      "label": "Test initialization with default project root.",
+      "label": "Test adding components that are already installed.",
       "file_type": "rationale",
       "source_file": ".agents/skills/ui-styling/scripts/tests/test_shadcn_add.py",
-      "source_location": "L45",
+      "source_location": "L112",
       "_origin": "ast",
-      "id": "agents_skills_ui_styling_scripts_tests_test_shadcn_add_rationale_45",
+      "id": "agents_skills_ui_styling_scripts_tests_test_shadcn_add_rationale_112",
       "community": 85,
       "community_name": "ShadcnInstaller",
-      "norm_label": "test initialization with default project root."
+      "norm_label": "test adding components that are already installed."
     },
     {
-      "label": "Test checking for non-existent shadcn config.",
+      "label": "Test listing installed components when they exist.",
       "file_type": "rationale",
       "source_file": ".agents/skills/ui-styling/scripts/tests/test_shadcn_add.py",
-      "source_location": "L66",
+      "source_location": "L256",
       "_origin": "ast",
-      "id": "agents_skills_ui_styling_scripts_tests_test_shadcn_add_rationale_66",
+      "id": "agents_skills_ui_styling_scripts_tests_test_shadcn_add_rationale_256",
       "community": 85,
       "community_name": "ShadcnInstaller",
-      "norm_label": "test checking for non-existent shadcn config."
+      "norm_label": "test listing installed components when they exist."
     },
     {
       "label": "Test getting installed components without config.",
@@ -67831,17 +67798,6 @@
       "norm_label": "dependencies"
     },
     {
-      "label": "class-variance-authority",
-      "file_type": "code",
-      "source_file": "package.json",
-      "source_location": "L33",
-      "_origin": "ast",
-      "id": "package_dependencies_class_variance_authority",
-      "community": 93,
-      "community_name": "dependencies",
-      "norm_label": "class-variance-authority"
-    },
-    {
       "label": "clsx",
       "file_type": "code",
       "source_file": "package.json",
@@ -67906,6 +67862,17 @@
       "community": 93,
       "community_name": "dependencies",
       "norm_label": "@prisma/client"
+    },
+    {
+      "label": "puppeteer-core",
+      "file_type": "code",
+      "source_file": "package.json",
+      "source_location": "L45",
+      "_origin": "ast",
+      "id": "package_dependencies_puppeteer_core",
+      "community": 93,
+      "community_name": "dependencies",
+      "norm_label": "puppeteer-core"
     },
     {
       "label": "@radix-ui/react-dropdown-menu",
@@ -68007,17 +67974,6 @@
       "norm_label": "@tanstack/react-table"
     },
     {
-      "label": "class-variance-authority",
-      "file_type": "concept",
-      "source_file": "package.json",
-      "source_location": "L33",
-      "_origin": "ast",
-      "id": "class_variance_authority",
-      "community": 93,
-      "community_name": "dependencies",
-      "norm_label": "class-variance-authority"
-    },
-    {
       "label": "clsx",
       "file_type": "concept",
       "source_file": "package.json",
@@ -68082,6 +68038,17 @@
       "community": 93,
       "community_name": "dependencies",
       "norm_label": "@prisma/client"
+    },
+    {
+      "label": "puppeteer-core",
+      "file_type": "concept",
+      "source_file": "package.json",
+      "source_location": "L45",
+      "_origin": "ast",
+      "id": "puppeteer_core",
+      "community": 93,
+      "community_name": "dependencies",
+      "norm_label": "puppeteer-core"
     },
     {
       "label": "@radix-ui/react-dropdown-menu",
@@ -68678,6 +68645,17 @@
       "norm_label": "path"
     },
     {
+      "label": "LoadSchedule.tsx",
+      "file_type": "code",
+      "source_file": "src/components/report/LoadSchedule.tsx",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_components_report_loadschedule",
+      "community": 99,
+      "community_name": "types/index.ts",
+      "norm_label": "loadschedule.tsx"
+    },
+    {
       "label": "MDBSchedule.test.tsx",
       "file_type": "code",
       "source_file": "src/components/report/MDBSchedule.test.tsx",
@@ -68720,6 +68698,28 @@
       "community": 99,
       "community_name": "types/index.ts",
       "norm_label": "project"
+    },
+    {
+      "label": "ReportHeader.tsx",
+      "file_type": "code",
+      "source_file": "src/components/report/ReportHeader.tsx",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_components_report_reportheader",
+      "community": 99,
+      "community_name": "types/index.ts",
+      "norm_label": "reportheader.tsx"
+    },
+    {
+      "label": "RevisionsPanel.tsx",
+      "file_type": "code",
+      "source_file": "src/components/report/RevisionsPanel.tsx",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_components_report_revisionspanel",
+      "community": 99,
+      "community_name": "types/index.ts",
+      "norm_label": "revisionspanel.tsx"
     },
     {
       "label": "feeders.test.ts",
@@ -76541,7 +76541,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/app/api/breaker-settings/route.ts",
-      "source_location": "L151",
+      "source_location": "L152",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_app_api_breaker_settings_route_post",
@@ -76577,7 +76577,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/app/api/building-loads/[id]/route.ts",
-      "source_location": "L141",
+      "source_location": "L144",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_app_api_building_loads_id_route_delete",
@@ -79037,7 +79037,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/app/(app)/coordination/page.tsx",
-      "source_location": "L151",
+      "source_location": "L153",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_app_app_coordination_page_coordinationpage",
@@ -79049,7 +79049,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/app/(app)/coordination/page.tsx",
-      "source_location": "L198",
+      "source_location": "L219",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_app_app_coordination_page_coordinationpage",
@@ -79061,7 +79061,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/app/(app)/coordination/page.tsx",
-      "source_location": "L222",
+      "source_location": "L243",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_app_app_coordination_page_coordinationpage",
@@ -79073,7 +79073,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/app/(app)/coordination/page.tsx",
-      "source_location": "L242",
+      "source_location": "L263",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_app_app_coordination_page_coordinationpage",
@@ -79085,7 +79085,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/app/(app)/coordination/page.tsx",
-      "source_location": "L49",
+      "source_location": "L50",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_app_app_coordination_page_coordinationpage",
@@ -79097,7 +79097,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/app/(app)/coordination/page.tsx",
-      "source_location": "L50",
+      "source_location": "L51",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_app_app_coordination_page_coordinationpage",
@@ -79109,7 +79109,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/app/(app)/coordination/page.tsx",
-      "source_location": "L604",
+      "source_location": "L639",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_app_app_coordination_page_coordinationpage",
@@ -79121,7 +79121,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/app/(app)/coordination/page.tsx",
-      "source_location": "L623",
+      "source_location": "L658",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_app_app_coordination_page_coordinationpage",
@@ -79133,7 +79133,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/app/(app)/coordination/page.tsx",
-      "source_location": "L745",
+      "source_location": "L780",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_app_app_coordination_page_coordinationpage",
@@ -82216,7 +82216,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/lib/audit-diff.ts",
-      "source_location": "L421",
+      "source_location": "L422",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_lib_audit_diff_computebuildingdiff",
@@ -82228,7 +82228,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/lib/audit-diff.ts",
-      "source_location": "L435",
+      "source_location": "L436",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_lib_audit_diff_computebuildingdiff",
@@ -82240,7 +82240,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/lib/audit-diff.ts",
-      "source_location": "L612",
+      "source_location": "L613",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_lib_audit_diff_computecablecircuitdiff",
@@ -82252,7 +82252,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/lib/audit-diff.ts",
-      "source_location": "L626",
+      "source_location": "L627",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_lib_audit_diff_computecablecircuitdiff",
@@ -82264,7 +82264,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/lib/audit-diff.ts",
-      "source_location": "L517",
+      "source_location": "L518",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_lib_audit_diff_computefloordiff",
@@ -82276,7 +82276,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/lib/audit-diff.ts",
-      "source_location": "L531",
+      "source_location": "L532",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_lib_audit_diff_computefloordiff",
@@ -82288,7 +82288,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/lib/audit-diff.ts",
-      "source_location": "L304",
+      "source_location": "L305",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_lib_audit_diff_computeprojectdiff",
@@ -82300,7 +82300,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/lib/audit-diff.ts",
-      "source_location": "L341",
+      "source_location": "L342",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_lib_audit_diff_computeprojectdiff",
@@ -82312,7 +82312,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/lib/audit-diff.ts",
-      "source_location": "L815",
+      "source_location": "L816",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_lib_audit_diff_enrichlegacyauditlog",
@@ -82324,7 +82324,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/lib/audit-diff.ts",
-      "source_location": "L865",
+      "source_location": "L866",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_lib_audit_diff_enrichlegacyauditlog",
@@ -82336,7 +82336,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/lib/audit-diff.ts",
-      "source_location": "L238",
+      "source_location": "L239",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_lib_audit_diff_formatfieldvalue",
@@ -129403,7 +129403,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/app/(app)/coordination/page.tsx",
-      "source_location": "L48",
+      "source_location": "L49",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_app_app_coordination_page",
@@ -156298,7 +156298,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/lib/audit-diff.ts",
-      "source_location": "L102",
+      "source_location": "L103",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_lib_audit_diff",
@@ -156309,7 +156309,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/lib/audit-diff.ts",
-      "source_location": "L104",
+      "source_location": "L105",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_lib_audit_diff",
@@ -156331,7 +156331,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/lib/audit-diff.ts",
-      "source_location": "L175",
+      "source_location": "L176",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_lib_audit_diff",
@@ -156342,7 +156342,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/lib/audit-diff.ts",
-      "source_location": "L201",
+      "source_location": "L202",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_lib_audit_diff",
@@ -156353,18 +156353,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/lib/audit-diff.ts",
-      "source_location": "L26",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "src_lib_audit_diff",
-      "target": "src_lib_audit_diff_all_field_labels",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/lib/audit-diff.ts",
-      "source_location": "L262",
+      "source_location": "L263",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_lib_audit_diff",
@@ -156375,7 +156364,18 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/lib/audit-diff.ts",
-      "source_location": "L290",
+      "source_location": "L27",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_lib_audit_diff",
+      "target": "src_lib_audit_diff_all_field_labels",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/audit-diff.ts",
+      "source_location": "L291",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_lib_audit_diff",
@@ -156386,7 +156386,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/lib/audit-diff.ts",
-      "source_location": "L393",
+      "source_location": "L394",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_lib_audit_diff",
@@ -156397,7 +156397,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/lib/audit-diff.ts",
-      "source_location": "L398",
+      "source_location": "L399",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_lib_audit_diff",
@@ -156408,7 +156408,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/lib/audit-diff.ts",
-      "source_location": "L405",
+      "source_location": "L406",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_lib_audit_diff",
@@ -156419,7 +156419,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/lib/audit-diff.ts",
-      "source_location": "L494",
+      "source_location": "L495",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_lib_audit_diff",
@@ -156430,7 +156430,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/lib/audit-diff.ts",
-      "source_location": "L502",
+      "source_location": "L503",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_lib_audit_diff",
@@ -156441,7 +156441,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/lib/audit-diff.ts",
-      "source_location": "L588",
+      "source_location": "L589",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_lib_audit_diff",
@@ -156452,7 +156452,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/lib/audit-diff.ts",
-      "source_location": "L596",
+      "source_location": "L597",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_lib_audit_diff",
@@ -156474,7 +156474,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/lib/audit-diff.ts",
-      "source_location": "L724",
+      "source_location": "L725",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_lib_audit_diff",
@@ -174570,5 +174570,5 @@
       "source_file": "public/slides/slide_load_calc.webp"
     }
   ],
-  "built_at_commit": "48e4c665df53cced414383cf370db279575a203e"
+  "built_at_commit": "c607b21b00d2ff06e8e9f72fe522db0cb796f77d"
 }

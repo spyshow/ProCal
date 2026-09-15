@@ -40,6 +40,7 @@ import type { Project, PanelFeeder } from '@/types';
 type SelectivityStatus = 'FULL' | 'PARTIAL' | 'NONE';
 
 interface ProjectFeederItem extends PanelFeeder {
+  id: string;
   buildingId: string;
   buildingName: string;
   floor: number;
@@ -54,6 +55,7 @@ export default function CoordinationPage() {
   const [mode, setMode] = useState<'project' | 'playground'>('project');
   const [selectedBuildingId, setSelectedBuildingId] = useState<string>('');
   const [selectedFeederName, setSelectedFeederName] = useState<string>('');
+  const [selectedFeederKey, setSelectedFeederKey] = useState<string>('');
   const [applyingId, setApplyingId] = useState<string | null>(null);
 
   const [cableSize, setCableSize] = useState<number>(50);
@@ -177,6 +179,25 @@ export default function CoordinationPage() {
   const allProjectFeeders = useMemo(() => {
     if (!project || project.buildings.length === 0) return [];
     const list: ProjectFeederItem[] = [];
+    const usedKeys = new Set<string>();
+
+    const getUniqueFeederId = (bldgId: string, f: PanelFeeder, suffix = '') => {
+      const base = f.itemId
+        ? `${bldgId}-item-${f.itemId}`
+        : f.buildingLoadId
+        ? `${bldgId}-bload-${f.buildingLoadId}`
+        : f.type === 'SMDB'
+        ? `${bldgId}-smdb-${f.floorDesignId || f.name}`
+        : `${bldgId}-${f.name}${suffix ? `-${suffix}` : ''}`;
+      let key = base;
+      let counter = 1;
+      while (usedKeys.has(key)) {
+        counter++;
+        key = `${base}__${counter}`;
+      }
+      usedKeys.add(key);
+      return key;
+    };
 
     const normalizeBreakerId = (id: string) => id.replace(/[–—]/g, '-').trim();
 
@@ -295,6 +316,7 @@ export default function CoordinationPage() {
 
         list.push({
           ...f,
+          id: getUniqueFeederId(bldg.id, f),
           breakerModel: effectiveModel,
           selectivityStatus: effectiveStatus,
           selectivityLimitKa: effectiveLimitKa,
@@ -417,6 +439,7 @@ export default function CoordinationPage() {
 
           list.push({
             ...f,
+            id: getUniqueFeederId(bldg.id, f, `f${floorNumber}`),
             breakerModel: effectiveModel,
             selectivityStatus: effectiveStatus,
             selectivityLimitKa: effectiveLimitKa,
@@ -435,21 +458,33 @@ export default function CoordinationPage() {
 
   // Default selection when feeders load
   useEffect(() => {
-    if (allProjectFeeders.length > 0 && !selectedFeederName) {
-      // Find a feeder with non-full selectivity if possible to help user right away
-      const interestingFeeder =
-        allProjectFeeders.find((f) => f.selectivityStatus === 'NONE') ||
-        allProjectFeeders.find((f) => f.selectivityStatus === 'PARTIAL') ||
-        allProjectFeeders[0];
+    if (allProjectFeeders.length > 0) {
+      const currentFeeder = allProjectFeeders.find(
+        (f) => f.id === selectedFeederKey || (f.name === selectedFeederName && (!selectedBuildingId || f.buildingId === selectedBuildingId))
+      );
+      if (!currentFeeder) {
+        // Find a feeder with non-full selectivity if possible to help user right away
+        const interestingFeeder =
+          allProjectFeeders.find((f) => f.selectivityStatus === 'NONE') ||
+          allProjectFeeders.find((f) => f.selectivityStatus === 'PARTIAL') ||
+          allProjectFeeders[0];
 
-      if (interestingFeeder) {
-        setSelectedBuildingId(interestingFeeder.buildingId);
-        setSelectedFeederName(interestingFeeder.name);
+        if (interestingFeeder) {
+          setSelectedFeederKey(interestingFeeder.id);
+          setSelectedBuildingId(interestingFeeder.buildingId);
+          setSelectedFeederName(interestingFeeder.name);
+        }
+      } else if (!selectedFeederKey) {
+        setSelectedFeederKey(currentFeeder.id);
       }
     }
-  }, [allProjectFeeders, selectedFeederName]);
+  }, [allProjectFeeders, selectedFeederKey, selectedFeederName, selectedBuildingId]);
 
   const selectedFeeder = useMemo(() => {
+    if (selectedFeederKey) {
+      const byKey = allProjectFeeders.find((f) => f.id === selectedFeederKey);
+      if (byKey) return byKey;
+    }
     if (!selectedFeederName) return null;
     return (
       allProjectFeeders.find(
@@ -458,7 +493,7 @@ export default function CoordinationPage() {
       allProjectFeeders.find((f) => f.name === selectedFeederName) ||
       null
     );
-  }, [allProjectFeeders, selectedFeederName, selectedBuildingId]);
+  }, [allProjectFeeders, selectedFeederKey, selectedFeederName, selectedBuildingId]);
 
   // When selected feeder changes, sync the upstream and downstream breaker settings
   useEffect(() => {
@@ -1090,23 +1125,21 @@ export default function CoordinationPage() {
                 <label htmlFor="coordination-feeder" className="text-xs font-semibold text-gray-400">Select Feeder to Analyze:</label>
                 <select
                   id="coordination-feeder"
-                  value={selectedBuildingId && selectedFeederName ? `${selectedBuildingId}:::${selectedFeederName}` : selectedFeederName}
+                  value={selectedFeeder?.id || selectedFeederKey || (allProjectFeeders[0]?.id ?? '')}
                   onChange={(e) => {
-                    const parts = e.target.value.split(':::');
-                    if (parts.length >= 2) {
-                      const bId = parts[0];
-                      const fName = parts.slice(1).join(':::');
-                      setSelectedBuildingId(bId);
-                      setSelectedFeederName(fName);
-                    } else {
-                      setSelectedFeederName(e.target.value);
+                    const chosen = allProjectFeeders.find((f) => f.id === e.target.value);
+                    if (chosen) {
+                      setSelectedFeederKey(chosen.id);
+                      setSelectedBuildingId(chosen.buildingId);
+                      setSelectedFeederName(chosen.name);
                     }
                   }}
                   className="dense-input rounded-lg text-xs bg-gray-950 border border-gray-700 text-white font-medium min-w-[280px]"
                 >
                   {allProjectFeeders.map((f) => (
-                    <option key={`${f.buildingId}-${f.name}`} value={`${f.buildingId}:::${f.name}`}>
-                      {f.name} ({f.breakerSize}A) &mdash; {f.selectivityStatus || 'UNKNOWN'}
+                    <option key={f.id} value={f.id}>
+                      {project && project.buildings.length > 1 ? `[${f.buildingName}] ` : ''}
+                      {f.name} ({f.breakerSize}A{f.current ? `, ${f.current.toFixed(1)}A load` : ''}) &mdash; {f.selectivityStatus || 'UNKNOWN'}
                     </option>
                   ))}
                 </select>

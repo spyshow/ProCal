@@ -18,6 +18,9 @@ import {
   RefreshCw,
   Clock,
   Layers,
+  ChevronDown,
+  ChevronUp,
+  ArrowRight,
 } from "lucide-react";
 import { useProject } from "@/context/ProjectContext";
 import { useTranslation } from "@/i18n";
@@ -25,6 +28,44 @@ import type { ProjectAuditLog } from "@/types";
 
 interface ActivityLogTabProps {
   projectId?: string;
+}
+
+interface ParsedDetails {
+  changes?: Array<{
+    field: string;
+    label: string;
+    oldDisplay?: string;
+    newDisplay?: string;
+    oldValue?: any;
+    newValue?: any;
+  }>;
+  raw?: Record<string, any>;
+  hasDetails: boolean;
+}
+
+function parseLogDetails(detailsStr: string | null | undefined): ParsedDetails {
+  if (!detailsStr) return { hasDetails: false };
+  try {
+    const parsed = JSON.parse(detailsStr);
+    if (!parsed || typeof parsed !== "object") return { hasDetails: false };
+    if (parsed.changes && Array.isArray(parsed.changes) && parsed.changes.length > 0) {
+      return {
+        changes: parsed.changes,
+        raw: parsed.raw || parsed,
+        hasDetails: true,
+      };
+    }
+    const keys = Object.keys(parsed);
+    if (keys.length > 0) {
+      return {
+        raw: parsed,
+        hasDetails: true,
+      };
+    }
+    return { hasDetails: false };
+  } catch {
+    return { hasDetails: false };
+  }
 }
 
 export function ActivityLogTab({ projectId: propProjectId }: ActivityLogTabProps = {}) {
@@ -36,6 +77,7 @@ export function ActivityLogTab({ projectId: propProjectId }: ActivityLogTabProps
   const [totalCount, setTotalCount] = useState(0);
   const [activeUsers, setActiveUsers] = useState<{ userId: string; userName: string }[]>([]);
   const [loading, setLoading] = useState(true);
+  const [expandedLogIds, setExpandedLogIds] = useState<Set<string>>(new Set());
 
   // Filter States
   const [search, setSearch] = useState("");
@@ -102,6 +144,23 @@ export function ActivityLogTab({ projectId: propProjectId }: ActivityLogTabProps
     window.open(`/api/projects/${selectedProjectId}/audit-logs?${params.toString()}`, "_blank");
   };
 
+  const toggleLogExpanded = (id: string) => {
+    setExpandedLogIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const toggleExpandAll = () => {
+    if (expandedLogIds.size > 0) {
+      setExpandedLogIds(new Set());
+    } else {
+      setExpandedLogIds(new Set(logs.map((l) => l.id)));
+    }
+  };
+
   const getEntityIcon = (entityType: string) => {
     switch (entityType) {
       case "CABLE":
@@ -116,6 +175,10 @@ export function ActivityLogTab({ projectId: propProjectId }: ActivityLogTabProps
         return <GitBranch size={14} className="text-indigo-400" />;
       case "TEAM":
         return <Users size={14} className="text-emerald-400" />;
+      case "LOAD":
+        return <Zap size={14} className="text-amber-400" />;
+      case "BUILDING_LOAD":
+        return <Layers size={14} className="text-teal-400" />;
       case "QA_NOTE":
         return <Shield size={14} className="text-rose-400" />;
       default:
@@ -159,19 +222,28 @@ export function ActivityLogTab({ projectId: propProjectId }: ActivityLogTabProps
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder={t('activity.searchPlaceholder', 'Search activity log by keyword, circuit tag, or description...')}
-              className="dense-input w-full pl-9 pr-3 rounded-xl text-xs"
+              placeholder={t('activity.searchPlaceholder', 'Search activities by user, item name, or description...')}
+              className="dense-input w-full pl-9 pr-3 py-1.5 text-xs bg-slate-950/80 border-slate-800 placeholder:text-slate-600 rounded-lg"
             />
           </form>
 
-          <button
-            onClick={handleExportCsv}
-            className="flex items-center justify-center gap-2 px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold border border-slate-700 transition-colors shrink-0"
-            title={t('activity.exportCsv', 'Export to CSV')}
-          >
-            <Download size={13} />
-            {t('activity.exportCsv', 'Export CSV')}
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => loadLogs(true)}
+              disabled={loading}
+              className="px-3 py-1.5 rounded-lg border border-slate-800 hover:bg-slate-800 text-slate-300 text-xs flex items-center gap-1.5 transition-colors cursor-pointer"
+            >
+              <RefreshCw size={13} className={loading ? "animate-spin text-orange-400" : ""} />
+              <span>{t('activity.refresh', 'Refresh')}</span>
+            </button>
+            <button
+              onClick={handleExportCsv}
+              className="px-3 py-1.5 rounded-lg bg-orange-600 hover:bg-orange-500 text-white font-medium text-xs flex items-center gap-1.5 transition-colors cursor-pointer shadow-sm"
+            >
+              <Download size={13} />
+              <span>{t('activity.exportCsv', 'Export CSV')}</span>
+            </button>
+          </div>
         </div>
 
         {/* Filter Dropdowns */}
@@ -201,8 +273,12 @@ export function ActivityLogTab({ projectId: propProjectId }: ActivityLogTabProps
           >
             <option value="">{t('activity.allCategories', 'All Categories')}</option>
             <option value="PROJECT">{t('nav.settings', 'Project Settings')}</option>
+            <option value="LOAD">{t('activity.load', 'Loads & Panels')}</option>
+            <option value="BUILDING_LOAD">{t('activity.buildingLoad', 'Building Central Loads')}</option>
             <option value="CABLE">{t('nav.cableSchedule', 'Cable Schedule')}</option>
             <option value="BREAKER">{t('nav.breakerSchedule', 'Breakers & Protection')}</option>
+            <option value="BUILDING">{t('activity.building', 'Buildings & Towers')}</option>
+            <option value="FLOOR">{t('activity.floor', 'Floors')}</option>
             <option value="PANEL">{t('nav.panelDesigner', 'Panel Layout')}</option>
             <option value="SLD">{t('nav.sldDesigner', 'Single Line Diagram')}</option>
             <option value="TEAM">{t('settings.team', 'Team & Permissions')}</option>
@@ -244,9 +320,20 @@ export function ActivityLogTab({ projectId: propProjectId }: ActivityLogTabProps
           <span className="font-semibold uppercase tracking-wider text-[11px]">
             {t('activity.title', 'Activity History')} ({totalCount} {t('activity.totalEvents', 'recorded events')})
           </span>
-          <button onClick={() => loadLogs(true)} className="hover:text-white p-1" title={t('common.refresh', 'Refresh')}>
-            <RefreshCw size={12} className={loading ? "animate-spin" : ""} />
-          </button>
+          <div className="flex items-center gap-2">
+            {logs.length > 0 && (
+              <button
+                type="button"
+                onClick={toggleExpandAll}
+                className="text-[11px] font-medium text-slate-400 hover:text-slate-200 px-2 py-0.5 rounded bg-slate-800/80 hover:bg-slate-800 border border-slate-700/60 transition-colors"
+              >
+                {expandedLogIds.size > 0 ? t('activity.collapseAll', 'Collapse all') : t('activity.expandAll', 'Expand all')}
+              </button>
+            )}
+            <button onClick={() => loadLogs(true)} className="hover:text-white p-1" title={t('common.refresh', 'Refresh')}>
+              <RefreshCw size={12} className={loading ? "animate-spin" : ""} />
+            </button>
+          </div>
         </div>
 
         <div className="divide-y divide-slate-800/60">
@@ -255,50 +342,140 @@ export function ActivityLogTab({ projectId: propProjectId }: ActivityLogTabProps
               {loading ? t('common.loading', 'Loading activity log...') : t('activity.noLogsFound', 'No activity events match your filter criteria.')}
             </div>
           ) : (
-            logs.map((log) => (
-              <div
-                key={log.id}
-                className="p-3.5 flex items-start gap-3 hover:bg-slate-900/60 transition-colors text-xs"
-              >
-                <div className="w-7 h-7 rounded-lg bg-slate-800 border border-slate-700 flex items-center justify-center shrink-0 mt-0.5">
-                  {getEntityIcon(log.entityType)}
-                </div>
+            logs.map((log) => {
+              const detailsInfo = parseLogDetails(log.details);
+              const isExpanded = expandedLogIds.has(log.id);
 
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className="font-semibold text-slate-200">{log.userName}</span>
-                    <span className="text-[10px] text-slate-500 font-mono">({log.userRole})</span>
-                    <span
-                      className={`text-[9px] font-bold uppercase px-1.5 py-0.2 rounded border ${getActionBadgeClass(
-                        log.action
-                      )}`}
-                    >
-                      {log.action === "CREATE"
-                        ? t('activity.create', 'CREATE')
-                        : log.action === "UPDATE"
-                        ? t('activity.update', 'UPDATE')
-                        : log.action === "DELETE"
-                        ? t('activity.delete', 'DELETE')
-                        : log.action === "INVITE"
-                        ? t('activity.invite', 'INVITE')
-                        : log.action === "REVISION"
-                        ? t('activity.revision', 'REVISION')
-                        : log.action}
-                    </span>
-                    <span className="text-[10px] font-medium text-slate-400 uppercase bg-slate-800/80 px-1.5 py-0.2 rounded">
-                      {log.entityType}
-                    </span>
+              return (
+                <div
+                  key={log.id}
+                  className="p-3.5 flex items-start gap-3 hover:bg-slate-900/60 transition-colors text-xs"
+                >
+                  <div className="w-7 h-7 rounded-lg bg-slate-800 border border-slate-700 flex items-center justify-center shrink-0 mt-0.5">
+                    {getEntityIcon(log.entityType)}
                   </div>
 
-                  <p className="text-slate-300 mt-1 leading-relaxed">{log.description}</p>
-                </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="font-semibold text-slate-200">{log.userName}</span>
+                      <span className="text-[10px] text-slate-500 font-mono">({log.userRole})</span>
+                      <span
+                        className={`text-[9px] font-bold uppercase px-1.5 py-0.2 rounded border ${getActionBadgeClass(
+                          log.action
+                        )}`}
+                      >
+                        {log.action === "CREATE"
+                          ? t('activity.create', 'CREATE')
+                          : log.action === "UPDATE"
+                          ? t('activity.update', 'UPDATE')
+                          : log.action === "DELETE"
+                          ? t('activity.delete', 'DELETE')
+                          : log.action === "INVITE"
+                          ? t('activity.invite', 'INVITE')
+                          : log.action === "REVISION"
+                          ? t('activity.revision', 'REVISION')
+                          : log.action}
+                      </span>
+                      <span className="text-[10px] font-medium text-slate-400 uppercase bg-slate-800/80 px-1.5 py-0.2 rounded">
+                        {log.entityType}
+                      </span>
+                    </div>
 
-                <div className="text-[10px] text-slate-500 shrink-0 flex items-center gap-1">
-                  <Clock size={11} />
-                  <span>{new Date(log.createdAt).toLocaleString()}</span>
+                    <p className="text-slate-200 mt-1 leading-relaxed font-normal">{log.description}</p>
+
+                    {/* Change Badges and Expandable Details */}
+                    {detailsInfo.hasDetails && (
+                      <div className="mt-2 space-y-2">
+                        {detailsInfo.changes && detailsInfo.changes.length > 0 ? (
+                          <div className="flex flex-wrap items-center gap-1.5">
+                            {detailsInfo.changes.map((c, i) => (
+                              <span
+                                key={i}
+                                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-slate-800/90 border border-slate-700/80 text-[11px]"
+                              >
+                                <span className="text-slate-400 font-medium">{c.label}:</span>
+                                {c.oldDisplay && c.oldDisplay !== "None" && c.oldDisplay !== "Previously Set" && (
+                                  <>
+                                    <span className="text-rose-400/80 line-through text-[10px] font-mono">{c.oldDisplay}</span>
+                                    <ArrowRight size={10} className="text-slate-500 shrink-0" />
+                                  </>
+                                )}
+                                <span className="text-emerald-300 font-semibold font-mono">{c.newDisplay || String(c.newValue ?? "")}</span>
+                              </span>
+                            ))}
+
+                            <button
+                              type="button"
+                              onClick={() => toggleLogExpanded(log.id)}
+                              className="inline-flex items-center gap-1 text-[11px] text-slate-400 hover:text-slate-200 px-1.5 py-0.5 rounded hover:bg-slate-800 transition-colors ml-1 font-medium"
+                            >
+                              {isExpanded ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
+                              <span>{isExpanded ? t('activity.hideDetails', 'Hide details') : t('activity.viewDetails', 'Details')}</span>
+                            </button>
+                          </div>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => toggleLogExpanded(log.id)}
+                            className="inline-flex items-center gap-1 text-[11px] text-slate-400 hover:text-slate-200 px-1.5 py-0.5 rounded hover:bg-slate-800 transition-colors font-medium"
+                          >
+                            {isExpanded ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
+                            <span>{isExpanded ? t('activity.hideDetails', 'Hide details') : t('activity.viewDetails', 'Details')}</span>
+                          </button>
+                        )}
+
+                        {/* Expanded Table */}
+                        {isExpanded && (
+                          <div className="p-3 rounded-xl bg-slate-950/80 border border-slate-800 text-[11px] space-y-2">
+                            {detailsInfo.changes && detailsInfo.changes.length > 0 ? (
+                              <>
+                                <div className="font-semibold text-slate-400 uppercase tracking-wider text-[10px] flex items-center justify-between">
+                                  <span>{t('activity.changedParameters', 'Changed Parameters')}</span>
+                                  <span className="text-[10px] text-slate-500 lowercase font-normal">({detailsInfo.changes.length} fields)</span>
+                                </div>
+                                <div className="overflow-x-auto">
+                                  <table className="w-full text-left">
+                                    <thead>
+                                      <tr className="border-b border-slate-800 text-slate-500 text-[10px] uppercase">
+                                        <th className="pb-1.5 font-medium">{t('activity.parameter', 'Parameter')}</th>
+                                        <th className="pb-1.5 font-medium">{t('activity.previousValue', 'Previous Value')}</th>
+                                        <th className="pb-1.5 font-medium">{t('activity.newValue', 'New Value')}</th>
+                                      </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-slate-800/50 font-mono">
+                                      {detailsInfo.changes.map((c, i) => (
+                                        <tr key={i} className="hover:bg-slate-900/40">
+                                          <td className="py-1.5 pr-3 text-slate-300 font-sans font-medium">{c.label}</td>
+                                          <td className="py-1.5 pr-3 text-rose-400/90 line-through">
+                                            {c.oldDisplay || "—"}
+                                          </td>
+                                          <td className="py-1.5 text-emerald-400 font-semibold">
+                                            {c.newDisplay || "—"}
+                                          </td>
+                                        </tr>
+                                      ))}
+                                    </tbody>
+                                  </table>
+                                </div>
+                              </>
+                            ) : (
+                              <pre className="text-slate-300 font-mono text-[11px] overflow-x-auto max-h-48 whitespace-pre-wrap">
+                                {JSON.stringify(detailsInfo.raw, null, 2)}
+                              </pre>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="text-[10px] text-slate-500 shrink-0 flex items-center gap-1">
+                    <Clock size={11} />
+                    <span>{new Date(log.createdAt).toLocaleString()}</span>
+                  </div>
                 </div>
-              </div>
-            ))
+              );
+            })
           )}
         </div>
 

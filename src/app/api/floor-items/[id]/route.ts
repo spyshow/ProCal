@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { verifyProjectAccess } from "@/lib/project-auth";
+import { logProjectActivity } from "@/lib/audit-logger";
+import { computeCableCircuitDiff } from "@/lib/audit-diff";
 import { getApartmentDiversityFactor } from "@/lib/calculations/loads";
 import { parseCableSize } from "@/lib/calculations/cables";
 
@@ -14,7 +16,17 @@ export async function PATCH(
 
     const item = await db.floorItem.findUnique({
       where: { id },
-      include: { floorDesign: { include: { building: { include: { project: true } } } } },
+      include: {
+        floorDesign: {
+          include: {
+            building: { include: { project: true } },
+            items: {
+              select: { id: true },
+              orderBy: { id: "asc" },
+            },
+          },
+        },
+      },
     });
 
     if (!item) {
@@ -52,6 +64,57 @@ export async function PATCH(
       where: { id },
       data: updateData,
     });
+
+    const buildingName = item.floorDesign.building?.name || "Building";
+    const floorNumber = item.floorDesign.floorNumber;
+    const floorLabel = (item.floorDesign as any).name || (floorNumber != null ? `Floor ${floorNumber}` : "Floor");
+
+    let cableTag = (typeof body.cableName === "string" && body.cableName.trim()) ? body.cableName.trim() : "";
+    if (!cableTag && item.floorDesign.items) {
+      const itemIdx = item.floorDesign.items.findIndex((it) => it.id === item.id);
+      if (itemIdx >= 0) {
+        const letter = String.fromCharCode(97 + itemIdx);
+        const cableTagBase = floorNumber != null ? `Wf${floorNumber}` : "Wf";
+        cableTag = `${cableTagBase}${letter}`;
+      }
+    }
+
+    const locationContext = cableTag
+      ? `Cable ${cableTag} · ${floorLabel}`
+      : floorLabel;
+
+    const diff = computeCableCircuitDiff(
+      item.name,
+      locationContext,
+      item,
+      updateData,
+      cableTag,
+      buildingName,
+      floorLabel
+    );
+
+    if (diff.changes.length > 0) {
+      const userName = auth.user?.name || auth.user?.username || "Engineer";
+      const userRole = auth.member?.role || auth.user?.role || "ENGINEER";
+
+      await logProjectActivity({
+        projectId: item.floorDesign.building.projectId,
+        userId: auth.user?.id || null,
+        userName,
+        userRole,
+        action: "UPDATE",
+        entityType: diff.category,
+        entityId: id,
+        description: diff.description,
+        details: {
+          ...diff.details,
+          cableName: cableTag || null,
+          floorNumber,
+          floorName: floorLabel,
+          buildingName: item.floorDesign.building.name,
+        },
+      });
+    }
 
     return NextResponse.json(updated);
   } catch (error) {
@@ -125,6 +188,33 @@ export async function DELETE(
         where: { id },
       });
     }
+
+    const userName = auth.user?.name || auth.user?.username || "Engineer";
+    const userRole = auth.member?.role || auth.user?.role || "ENGINEER";
+    const itemTypeLabel = item.type === "APARTMENT"
+      ? "apartment"
+      : item.type.toLowerCase().replace(/_/g, " ");
+
+    const floorLabel = (item.floorDesign as any).name || (item.floorDesign.floorNumber != null ? `Floor ${item.floorDesign.floorNumber}` : "Floor");
+
+    await logProjectActivity({
+      projectId: item.floorDesign.building.projectId,
+      userId: auth.user?.id || null,
+      userName,
+      userRole,
+      action: "DELETE",
+      entityType: "LOAD",
+      entityId: id,
+      description: `Deleted ${itemTypeLabel} "${item.name}" from floor "${floorLabel}" in "${item.floorDesign.building.name}"`,
+      details: {
+        itemId: id,
+        name: item.name,
+        type: item.type,
+        floorName: floorLabel,
+        buildingName: item.floorDesign.building.name,
+        connectedLoadKw: item.calculatedConnectedLoad,
+      },
+    });
 
     return NextResponse.json({ success: true });
   } catch (error) {

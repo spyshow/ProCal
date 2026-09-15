@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { verifyProjectAccess } from "@/lib/project-auth";
+import { logProjectActivity } from "@/lib/audit-logger";
+import { computeBuildingDiff } from "@/lib/audit-diff";
 import { errorResponse } from "@/lib/api-errors";
 
 export async function GET(
@@ -105,6 +107,21 @@ export async function PUT(
       });
     }
 
+    const cableTag = (typeof data.cableName === "string" && data.cableName.trim()) ? data.cableName.trim() : "W_MDB";
+    const diff = computeBuildingDiff(updatedBuilding.name || building.name, building, data, cableTag);
+
+    await logProjectActivity({
+      projectId: building.projectId,
+      userId: auth.user.id,
+      userName: auth.user.name || auth.user.username,
+      userRole: auth.member.role,
+      action: "UPDATE",
+      entityType: diff.category,
+      entityId: building.id,
+      description: diff.description,
+      details: diff.details,
+    });
+
     return NextResponse.json(updatedBuilding);
   } catch (error) {
     return errorResponse(error, "PUT Building Error");
@@ -157,6 +174,21 @@ export async function PATCH(
     const updatedBuilding = await db.building.update({
       where: { id },
       data: updateData,
+    });
+
+    const cableTag = (typeof data.cableName === "string" && data.cableName.trim()) ? data.cableName.trim() : "W_MDB";
+    const diff = computeBuildingDiff(updatedBuilding.name || building.name, building, updateData, cableTag);
+
+    await logProjectActivity({
+      projectId: building.projectId,
+      userId: auth.user.id,
+      userName: auth.user.name || auth.user.username,
+      userRole: auth.member.role,
+      action: "UPDATE",
+      entityType: diff.category,
+      entityId: building.id,
+      description: diff.description,
+      details: diff.details,
     });
 
     return NextResponse.json(updatedBuilding);

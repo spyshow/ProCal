@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { verifyProjectAccess } from "@/lib/project-auth";
+import { logProjectActivity } from "@/lib/audit-logger";
+import { computeFloorDiff } from "@/lib/audit-diff";
 
 export async function PUT(
   request: Request,
@@ -30,6 +32,26 @@ export async function PUT(
         hasFloorSubPanels: data.hasFloorSubPanels ?? floor.hasFloorSubPanels,
       },
     });
+
+    const floorLabel = `Floor ${floor.floorNumber}`;
+    const riserCableTag = `Wsdb${floor.floorNumber}`;
+    const diff = computeFloorDiff(floorLabel, floor.building.name, floor, data, riserCableTag);
+    if (diff.changes.length > 0) {
+      const userName = auth.user?.name || auth.user?.username || "Engineer";
+      const userRole = auth.member?.role || auth.user?.role || "ENGINEER";
+
+      await logProjectActivity({
+        projectId: floor.building.projectId,
+        userId: auth.user?.id || null,
+        userName,
+        userRole,
+        action: "UPDATE",
+        entityType: diff.category,
+        entityId: floor.id,
+        description: diff.description,
+        details: diff.details,
+      });
+    }
 
     return NextResponse.json(updated);
   } catch (error) {
@@ -74,6 +96,28 @@ export async function PATCH(
         riserGroupingCount: data.riserGroupingCount ?? floor.riserGroupingCount,
       },
     });
+
+    const floorLabel = `Floor ${floor.floorNumber}`;
+    const riserCableTag = (typeof data.cableName === 'string' && data.cableName.trim())
+      ? data.cableName.trim()
+      : `Wsdb${floor.floorNumber}`;
+    const diff = computeFloorDiff(floorLabel, floor.building.name, floor, data, riserCableTag);
+    if (diff.changes.length > 0) {
+      const userName = auth.user?.name || auth.user?.username || "Engineer";
+      const userRole = auth.member?.role || auth.user?.role || "ENGINEER";
+
+      await logProjectActivity({
+        projectId: floor.building.projectId,
+        userId: auth.user?.id || null,
+        userName,
+        userRole,
+        action: "UPDATE",
+        entityType: diff.category,
+        entityId: floor.id,
+        description: diff.description,
+        details: diff.details,
+      });
+    }
 
     return NextResponse.json(updated);
   } catch (error) {

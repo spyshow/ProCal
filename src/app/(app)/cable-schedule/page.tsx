@@ -71,6 +71,60 @@ interface CableEntry {
   kind: 'floor' | 'building' | 'sdb' | 'incomer';
 }
 
+function CableLengthInput({
+  value,
+  onCommit,
+  ariaLabel,
+}: {
+  value: number;
+  onCommit: (newVal: number) => void;
+  ariaLabel?: string;
+}) {
+  const [localVal, setLocalVal] = useState<string>(() => String(value));
+
+  useEffect(() => {
+    setLocalVal(String(value));
+  }, [value]);
+
+  const handleCommit = () => {
+    const parsed = parseFloat(localVal);
+    if (Number.isNaN(parsed)) {
+      setLocalVal(String(value));
+      return;
+    }
+    const clamped = Math.max(1, Math.min(1000, Math.round(parsed * 10) / 10));
+    setLocalVal(String(clamped));
+    if (clamped !== value) {
+      onCommit(clamped);
+    }
+  };
+
+  return (
+    <div className="inline-flex items-center justify-center gap-1 bg-slate-800/80 border border-slate-700/80 rounded-md px-2 py-0.5 focus-within:border-cyan-500/60 focus-within:ring-1 focus-within:ring-cyan-500/30 transition-all">
+      <input
+        type="number"
+        aria-label={ariaLabel}
+        value={localVal}
+        onChange={(e) => setLocalVal(e.target.value)}
+        onBlur={handleCommit}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') {
+            (e.target as HTMLInputElement).blur();
+          } else if (e.key === 'Escape') {
+            setLocalVal(String(value));
+            (e.target as HTMLInputElement).blur();
+          }
+        }}
+        className="w-12 bg-transparent text-center text-xs font-mono font-medium text-slate-100 focus:outline-none"
+        min="1"
+        max="1000"
+        step="1"
+      />
+      <span className="text-[10px] text-slate-400 font-medium select-none">m</span>
+    </div>
+  );
+}
+
 export default function CableSchedulePage() {
   const { selectedProjectId, selectedProject, loading: contextLoading, refreshProject, mutateProject, canView, canEdit } = useProject();
   const { t } = useTranslation();
@@ -541,126 +595,74 @@ export default function CableSchedulePage() {
   }, [project, selectedBuilding, defaultAmbientTemp, defaultGroupingCount, defaultInsulation, defaultMaterial, defaultMethod, defaultMaxCableSize]);
 
   const updateCableField = (id: string, field: string, value: any) => {
+    const c = cables.find((item) => item.id === id);
+    if (!c) return;
+
+    // Guard against redundant triggers (e.g. unchanged value)
+    const currentValue = c[field as keyof CableEntry];
+    if (currentValue === value) return;
+    if (field === 'length' && Number(currentValue) === Number(value)) return;
+
     const savedLimits = localStorage.getItem('procal-vd-limits');
     const limits = savedLimits ? JSON.parse(savedLimits) : { lighting: 3, power: 5 };
 
-    setCables(prev => prev.map(c => {
-      if (c.id !== id) return c;
-      const newLength = field === 'length' ? value : c.length;
-      const newMethod = field === 'method' ? value : c.method;
-      const newInsulation = field === 'insulation' ? value : c.insulation;
-      const newMaterial = field === 'material' ? value : c.material;
-      const newAmbientTemp = field === 'ambientTemp' ? value : c.ambientTemp;
-      const newGroupingCount = field === 'groupingCount' ? value : c.groupingCount;
-      const targetRuns = field === 'runs' ? parseInt(value, 10) || 1 : undefined;
+    const newLength = field === 'length' ? value : c.length;
+    const newMethod = field === 'method' ? value : c.method;
+    const newInsulation = field === 'insulation' ? value : c.insulation;
+    const newMaterial = field === 'material' ? value : c.material;
+    const newAmbientTemp = field === 'ambientTemp' ? value : c.ambientTemp;
+    const newGroupingCount = field === 'groupingCount' ? value : c.groupingCount;
+    const targetRuns = field === 'runs' ? parseInt(value, 10) || 1 : undefined;
 
-      const result = recalculateCable({
-        current: c.current,
-        isThreePhase: c.isThreePhase,
-        lengthMeters: newLength,
-        existingCableSize: c.cableSize,
-        existingRuns: targetRuns ?? c.parallelRuns,
-        assignedBreakerSize: c.breakerSize,
-        powerFactor: project?.powerFactor || 0.85,
-        systemVoltage: systemVoltageBase(project?.voltage || 400, c.isThreePhase),
-        maxVoltageDropPercent: limits.power,
-        method: newMethod,
-        insulation: newInsulation,
-        material: newMaterial,
-        ambientTemp: newAmbientTemp,
-        groupingCount: newGroupingCount,
-        maxCableSize: defaultMaxCableSize,
-        code: codeOf(project?.calculationStandard),
-        targetRuns,
-      });
+    const result = recalculateCable({
+      current: c.current,
+      isThreePhase: c.isThreePhase,
+      lengthMeters: newLength,
+      existingCableSize: c.cableSize,
+      existingRuns: targetRuns ?? c.parallelRuns,
+      assignedBreakerSize: c.breakerSize,
+      powerFactor: project?.powerFactor || 0.85,
+      systemVoltage: systemVoltageBase(project?.voltage || 400, c.isThreePhase),
+      maxVoltageDropPercent: limits.power,
+      method: newMethod,
+      insulation: newInsulation,
+      material: newMaterial,
+      ambientTemp: newAmbientTemp,
+      groupingCount: newGroupingCount,
+      maxCableSize: defaultMaxCableSize,
+      code: codeOf(project?.calculationStandard),
+      targetRuns,
+    });
 
-      // Persist to database
-      if (field === 'runs') {
-        const url = cablePatchUrl(c.kind, id);
-        const targetSizeToSave = result.formattedCableSize;
-        fetch(url, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(upsizeBody(targetSizeToSave, c.kind)),
-          keepalive: true,
-        }).catch(err => console.error('Failed to save runs:', err));
-      } else {
-        fetch(cablePatchUrl(c.kind, id), {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(fieldEditBody(c.kind, field as any, value)),
-          keepalive: true,
-        }).catch(err => console.error('Failed to save:', err));
-      }
-
-      // Optimistically update global ProjectContext
-      mutateProject((prev) => {
-        if (!prev) return prev;
-        const next = structuredClone(prev);
-        if (c.kind === 'incomer') {
-          const bldgId = id.replace(/^incomer-/, '');
-          const b = next.buildings?.find((b: any) => b.id === bldgId);
-          if (b) {
-            if (field === 'runs') b.incomerCableSize = result.formattedCableSize;
-            if (field === 'length') b.incomerCableLength = newLength;
-            if (field === 'method') b.incomerInstallMethod = newMethod;
-            if (field === 'insulation') b.incomerCableInsulation = newInsulation;
-            if (field === 'material') b.incomerCableMaterial = newMaterial;
-            if (field === 'ambientTemp') b.incomerAmbientTemp = newAmbientTemp;
-            if (field === 'groupingCount') b.incomerGroupingCount = newGroupingCount;
-          }
-        } else if (c.kind === 'sdb') {
-          const floorId = id.replace(/^sdb-/, '');
-          for (const b of next.buildings || []) {
-            const f = b.floorDesigns?.find((f: any) => f.id === floorId);
-            if (f) {
-              if (field === 'runs') f.riserCableSize = result.formattedCableSize;
-              if (field === 'length') f.riserCableLength = newLength;
-              if (field === 'method') f.riserInstallMethod = newMethod;
-              if (field === 'insulation') f.riserCableInsulation = newInsulation;
-              if (field === 'material') f.riserCableMaterial = newMaterial;
-              if (field === 'ambientTemp') f.riserAmbientTemp = newAmbientTemp;
-              if (field === 'groupingCount') f.riserGroupingCount = newGroupingCount;
-            }
-          }
-        } else if (c.kind === 'building') {
-          for (const b of next.buildings || []) {
-            const bl = (b.buildingLoads || []).find((bl: any) => bl.id === id);
-            if (bl) {
-              if (field === 'runs') bl.cableSize = result.formattedCableSize;
-              if (field === 'length') bl.cableLength = newLength;
-              if (field === 'method') bl.installMethod = newMethod;
-              if (field === 'insulation') bl.cableInsulation = newInsulation;
-              if (field === 'material') bl.cableMaterial = newMaterial;
-              if (field === 'ambientTemp') bl.ambientTemp = newAmbientTemp;
-              if (field === 'groupingCount') bl.groupingCount = newGroupingCount;
-            }
-          }
-        } else if (c.kind === 'floor') {
-          for (const b of next.buildings || []) {
-            for (const f of b.floorDesigns || []) {
-              const item = (f.items || []).find((i: any) => i.id === id);
-              if (item) {
-                if (field === 'runs') item.cableSize = result.formattedCableSize;
-                if (field === 'length') item.cableLength = newLength;
-                if (field === 'method') item.installMethod = newMethod;
-                if (field === 'insulation') item.cableInsulation = newInsulation;
-                if (field === 'material') item.cableMaterial = newMaterial;
-                if (field === 'ambientTemp') item.ambientTemp = newAmbientTemp;
-                if (field === 'groupingCount') item.groupingCount = newGroupingCount;
-              }
-            }
-          }
+    // 1. Pure UI update for cables table
+    setCables((prev) =>
+      prev.map((item) => {
+        if (item.id !== id) return item;
+        if (field === 'runs') {
+          return {
+            ...item,
+            cableSize: result.cableSize,
+            parallelRuns: result.parallelRuns,
+            formattedSize: result.formattedCableSize,
+            length: newLength,
+            method: newMethod,
+            insulation: newInsulation,
+            material: newMaterial,
+            ambientTemp: newAmbientTemp,
+            groupingCount: newGroupingCount,
+            newCableSize: result.cableSize,
+            newParallelRuns: result.parallelRuns,
+            newFormattedSize: result.formattedCableSize,
+            newVD: result.voltageDropPercent,
+            changed: false,
+            ampacity: result.ampacity,
+            singleAmpacity: result.singleAmpacity,
+            isOverloaded: result.isOverloaded,
+            breakerSize: result.breakerSize,
+          };
         }
-        return next;
-      });
-
-      if (field === 'runs') {
         return {
-          ...c,
-          cableSize: result.cableSize,
-          parallelRuns: result.parallelRuns,
-          formattedSize: result.formattedCableSize,
+          ...item,
           length: newLength,
           method: newMethod,
           insulation: newInsulation,
@@ -671,33 +673,101 @@ export default function CableSchedulePage() {
           newParallelRuns: result.parallelRuns,
           newFormattedSize: result.formattedCableSize,
           newVD: result.voltageDropPercent,
-          changed: false,
+          changed: result.changed,
           ampacity: result.ampacity,
           singleAmpacity: result.singleAmpacity,
           isOverloaded: result.isOverloaded,
           breakerSize: result.breakerSize,
         };
-      }
+      })
+    );
 
-      return {
-        ...c,
-        length: newLength,
-        method: newMethod,
-        insulation: newInsulation,
-        material: newMaterial,
-        ambientTemp: newAmbientTemp,
-        groupingCount: newGroupingCount,
-        newCableSize: result.cableSize,
-        newParallelRuns: result.parallelRuns,
-        newFormattedSize: result.formattedCableSize,
-        newVD: result.voltageDropPercent,
-        changed: result.changed,
-        ampacity: result.ampacity,
-        singleAmpacity: result.singleAmpacity,
-        isOverloaded: result.isOverloaded,
-        breakerSize: result.breakerSize,
-      };
-    }));
+    // 2. Persist to database OUTSIDE setCables — exactly once
+    if (field === 'runs') {
+      const url = cablePatchUrl(c.kind, id);
+      const targetSizeToSave = result.formattedCableSize;
+      fetch(url, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...upsizeBody(targetSizeToSave, c.kind),
+          cableName: c.cableName,
+        }),
+        keepalive: true,
+      }).catch((err) => console.error('Failed to save runs:', err));
+    } else {
+      fetch(cablePatchUrl(c.kind, id), {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...fieldEditBody(c.kind, field as any, value),
+          cableName: c.cableName,
+        }),
+        keepalive: true,
+      }).catch((err) => console.error('Failed to save:', err));
+    }
+
+    // 3. Optimistically update global ProjectContext OUTSIDE setCables
+    mutateProject((prev) => {
+      if (!prev) return prev;
+      const next = structuredClone(prev);
+      if (c.kind === 'incomer') {
+        const bldgId = id.replace(/^incomer-/, '');
+        const b = next.buildings?.find((b: any) => b.id === bldgId);
+        if (b) {
+          if (field === 'runs') b.incomerCableSize = result.formattedCableSize;
+          if (field === 'length') b.incomerCableLength = newLength;
+          if (field === 'method') b.incomerInstallMethod = newMethod;
+          if (field === 'insulation') b.incomerCableInsulation = newInsulation;
+          if (field === 'material') b.incomerCableMaterial = newMaterial;
+          if (field === 'ambientTemp') b.incomerAmbientTemp = newAmbientTemp;
+          if (field === 'groupingCount') b.incomerGroupingCount = newGroupingCount;
+        }
+      } else if (c.kind === 'sdb') {
+        const floorId = id.replace(/^sdb-/, '');
+        for (const b of next.buildings || []) {
+          const f = b.floorDesigns?.find((f: any) => f.id === floorId);
+          if (f) {
+            if (field === 'runs') f.riserCableSize = result.formattedCableSize;
+            if (field === 'length') f.riserCableLength = newLength;
+            if (field === 'method') f.riserInstallMethod = newMethod;
+            if (field === 'insulation') f.riserCableInsulation = newInsulation;
+            if (field === 'material') f.riserCableMaterial = newMaterial;
+            if (field === 'ambientTemp') f.riserAmbientTemp = newAmbientTemp;
+            if (field === 'groupingCount') f.riserGroupingCount = newGroupingCount;
+          }
+        }
+      } else if (c.kind === 'building') {
+        for (const b of next.buildings || []) {
+          const bl = (b.buildingLoads || []).find((bl: any) => bl.id === id);
+          if (bl) {
+            if (field === 'runs') bl.cableSize = result.formattedCableSize;
+            if (field === 'length') bl.cableLength = newLength;
+            if (field === 'method') bl.installMethod = newMethod;
+            if (field === 'insulation') bl.cableInsulation = newInsulation;
+            if (field === 'material') bl.cableMaterial = newMaterial;
+            if (field === 'ambientTemp') bl.ambientTemp = newAmbientTemp;
+            if (field === 'groupingCount') bl.groupingCount = newGroupingCount;
+          }
+        }
+      } else if (c.kind === 'floor') {
+        for (const b of next.buildings || []) {
+          for (const f of b.floorDesigns || []) {
+            const item = (f.items || []).find((i: any) => i.id === id);
+            if (item) {
+              if (field === 'runs') item.cableSize = result.formattedCableSize;
+              if (field === 'length') item.cableLength = newLength;
+              if (field === 'method') item.installMethod = newMethod;
+              if (field === 'insulation') item.cableInsulation = newInsulation;
+              if (field === 'material') item.cableMaterial = newMaterial;
+              if (field === 'ambientTemp') item.ambientTemp = newAmbientTemp;
+              if (field === 'groupingCount') item.groupingCount = newGroupingCount;
+            }
+          }
+        }
+      }
+      return next;
+    });
   };
 
   const recalculateAll = () => {
@@ -752,7 +822,10 @@ export default function CableSchedulePage() {
         const res = await fetch(url, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(body),
+          body: JSON.stringify({
+            ...body,
+            cableName: c.cableName,
+          }),
           keepalive: true,
         });
         if (!res.ok) {
@@ -1541,19 +1614,11 @@ export default function CableSchedulePage() {
 
                       {/* Length */}
                       <td className="text-center">
-                        <div className="inline-flex items-center justify-center gap-1 bg-slate-800/80 border border-slate-700/80 rounded-md px-2 py-0.5">
-                          <input
-                            type="number"
-                            aria-label={t('cableSchedule.cableLength', 'Cable length (meters)')}
-                            value={c.length}
-                            onChange={(e) => updateCableField(c.id, 'length', Math.max(1, Math.min(1000, parseFloat(e.target.value) || (10 + (c.floor - 1) * 5))))}
-                            className="w-12 bg-transparent text-center text-xs font-mono font-medium text-slate-100 focus:outline-none"
-                            min="1"
-                            max="1000"
-                            step="1"
-                          />
-                          <span className="text-[10px] text-slate-400 font-medium select-none">m</span>
-                        </div>
+                        <CableLengthInput
+                          value={c.length}
+                          onCommit={(newLen) => updateCableField(c.id, 'length', newLen)}
+                          ariaLabel={t('cableSchedule.cableLength', 'Cable length (meters)')}
+                        />
                       </td>
 
                       {/* New Cable Proposal */}

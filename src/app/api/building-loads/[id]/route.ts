@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { verifyProjectAccess } from "@/lib/project-auth";
+import { logProjectActivity } from "@/lib/audit-logger";
+import { computeCableCircuitDiff } from "@/lib/audit-diff";
 import { parseCableSize } from "@/lib/calculations/cables";
 
 // Update a building load (quantity and/or cable fields).
@@ -14,7 +16,10 @@ export async function PATCH(
 
     const load = await db.buildingLoad.findUnique({
       where: { id },
-      include: { building: { include: { project: true } } },
+      include: {
+        building: { include: { project: true } },
+        loadLibraryItem: true,
+      },
     });
     if (!load) {
       return NextResponse.json({ error: "Building load not found" }, { status: 404 });
@@ -54,6 +59,49 @@ export async function PATCH(
       include: { loadLibraryItem: true },
     });
 
+    const buildingName = load.building?.name || "Building";
+    let cableTag = (typeof body.cableName === "string" && body.cableName.trim()) ? body.cableName.trim() : "";
+    if (!cableTag) {
+      const allLoads = await db.buildingLoad.findMany({
+        where: { buildingId: load.buildingId },
+        orderBy: { createdAt: "asc" },
+        select: { id: true },
+      });
+      const idx = allLoads.findIndex((l) => l.id === load.id);
+      if (idx >= 0) {
+        const letter = String.fromCharCode(97 + idx);
+        cableTag = `Wbl${letter}`;
+      }
+    }
+
+    const locationContext = cableTag
+      ? `Cable ${cableTag} · ${buildingName}`
+      : buildingName;
+    const targetName = load.loadLibraryItem?.name || "Central Load";
+
+    const diff = computeCableCircuitDiff(targetName, locationContext, load, updateData, cableTag, buildingName, null);
+
+    if (diff.changes.length > 0) {
+      const userName = auth.user?.name || auth.user?.username || "Engineer";
+      const userRole = auth.member?.role || auth.user?.role || "ENGINEER";
+
+      await logProjectActivity({
+        projectId: load.building.projectId,
+        userId: auth.user?.id || null,
+        userName,
+        userRole,
+        action: "UPDATE",
+        entityType: diff.category,
+        entityId: id,
+        description: diff.description,
+        details: {
+          ...diff.details,
+          cableName: cableTag || null,
+          buildingName,
+        },
+      });
+    }
+
     return NextResponse.json(updated);
   } catch (error) {
     console.error("PATCH Building Load Error:", error);
@@ -70,7 +118,10 @@ export async function DELETE(
 
     const load = await db.buildingLoad.findUnique({
       where: { id },
-      include: { building: { include: { project: true } } },
+      include: {
+        building: { include: { project: true } },
+        loadLibraryItem: true,
+      },
     });
     if (!load) {
       return NextResponse.json({ error: "Building load not found" }, { status: 404 });
@@ -83,6 +134,28 @@ export async function DELETE(
     if (auth instanceof NextResponse) return auth;
 
     await db.buildingLoad.delete({ where: { id } });
+
+    const userName = auth.user?.name || auth.user?.username || "Engineer";
+    const userRole = auth.member?.role || auth.user?.role || "ENGINEER";
+
+    const loadName = load.loadLibraryItem?.name || "Building Load";
+    const buildingName = load.building?.name || "Building";
+
+    await logProjectActivity({
+      projectId: load.building.projectId,
+      userId: auth.user?.id || null,
+      userName,
+      userRole,
+      action: "DELETE",
+      entityType: "BUILDING_LOAD",
+      entityId: id,
+      description: `Deleted building load "${loadName}" from "${buildingName}"`,
+      details: {
+        name: loadName,
+        buildingName,
+        quantity: load.quantity,
+      },
+    });
 
     return NextResponse.json({ success: true });
   } catch (error) {

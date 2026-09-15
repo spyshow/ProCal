@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getSessionUser } from "@/lib/auth";
 import { verifyProjectAccess } from "@/lib/project-auth";
+import { logProjectActivity } from "@/lib/audit-logger";
 
 export async function GET() {
   try {
@@ -106,8 +107,9 @@ export async function POST(request: Request) {
       requiredAction: "EDIT",
       pageKey: "breakerSchedule",
     });
+    let coordinationAuth: any = null;
     if (breakerAuth instanceof NextResponse) {
-      const coordinationAuth = await verifyProjectAccess(projectId, {
+      coordinationAuth = await verifyProjectAccess(projectId, {
         requiredAction: "EDIT",
         pageKey: "coordination",
       });
@@ -143,6 +145,29 @@ export async function POST(request: Request) {
         ii: ii ? parseFloat(ii) : null,
         ig: ig ? parseFloat(ig) : null,
         tg: tg ? parseFloat(tg) : null,
+      },
+    });
+
+    const effectiveAuth = (breakerAuth instanceof NextResponse ? coordinationAuth : breakerAuth) as any;
+    await logProjectActivity({
+      projectId,
+      userId: user.id,
+      userName: user.name || user.username,
+      userRole: effectiveAuth?.member?.role || "ENGINEER",
+      action: "UPDATE",
+      entityType: "BREAKER",
+      entityId: breakerId,
+      description: `Configured trip settings for breaker ${breakerId} (${manufacturer} ${model} ${frameSize}, Ir=${settings.ir}A)`,
+      details: {
+        breakerId,
+        model,
+        manufacturer,
+        frameSize,
+        ir: settings.ir,
+        tr: settings.tr,
+        isd: settings.isd,
+        tsd: settings.tsd,
+        ii: settings.ii,
       },
     });
 

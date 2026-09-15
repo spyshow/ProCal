@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { errorResponse } from "@/lib/api-errors";
 import { db } from "@/lib/db";
 import { verifyProjectAccess } from "@/lib/project-auth";
+import { logProjectActivity } from "@/lib/audit-logger";
 import { assertOneOf, assertPositive, clampPowerFactor } from "@/lib/calculations/validate";
 
 export async function PUT(
@@ -72,6 +73,38 @@ export async function PUT(
       },
     });
 
+    const changes: Array<{ field: string; label: string; oldValue?: any; newValue?: any }> = [];
+    if (name !== loadItem.name) changes.push({ field: "name", label: "Name", oldValue: loadItem.name, newValue: name });
+    if (category !== loadItem.category) changes.push({ field: "category", label: "Category", oldValue: loadItem.category, newValue: category });
+    if (power !== loadItem.power) changes.push({ field: "power", label: "Power", oldValue: `${loadItem.power} kW`, newValue: `${power} kW` });
+    if (voltage !== loadItem.voltage) changes.push({ field: "voltage", label: "Voltage", oldValue: `${loadItem.voltage} V`, newValue: `${voltage} V` });
+    if (phase !== loadItem.phase) changes.push({ field: "phase", label: "Phase", oldValue: `${loadItem.phase}Φ`, newValue: `${phase}Φ` });
+    if (safePowerFactor !== loadItem.powerFactor) changes.push({ field: "powerFactor", label: "Power Factor", oldValue: loadItem.powerFactor, newValue: safePowerFactor });
+    if (safeDemandFactor !== loadItem.demandFactor) changes.push({ field: "demandFactor", label: "Demand Factor", oldValue: loadItem.demandFactor, newValue: safeDemandFactor });
+    if (quantity !== loadItem.quantity) changes.push({ field: "quantity", label: "Quantity", oldValue: loadItem.quantity, newValue: quantity });
+
+    const descParts = changes.map(c => `${c.label} (${c.oldValue} → ${c.newValue})`).join(", ");
+    const description = changes.length === 1
+      ? `Updated load "${loadItem.name}": ${descParts}`
+      : changes.length > 1
+      ? `Updated load "${loadItem.name}" (${changes.length} fields: ${descParts})`
+      : `Updated load "${loadItem.name}"`;
+
+    const userName = auth.user?.name || auth.user?.username || "Engineer";
+    const userRole = auth.member?.role || auth.user?.role || "ENGINEER";
+
+    await logProjectActivity({
+      projectId: loadItem.projectId,
+      userId: auth.user?.id || null,
+      userName,
+      userRole,
+      action: "UPDATE",
+      entityType: "LOAD",
+      entityId: id,
+      description,
+      details: { changes, raw: data },
+    });
+
     return NextResponse.json(updatedLoadItem);
   } catch (error) {
     return errorResponse(error, "PUT Load Error");
@@ -102,6 +135,27 @@ export async function DELETE(
 
     await db.loadLibraryItem.delete({
       where: { id },
+    });
+
+    const userName = auth.user?.name || auth.user?.username || "Engineer";
+    const userRole = auth.member?.role || auth.user?.role || "ENGINEER";
+
+    await logProjectActivity({
+      projectId: loadItem.projectId,
+      userId: auth.user?.id || null,
+      userName,
+      userRole,
+      action: "DELETE",
+      entityType: "LOAD",
+      entityId: id,
+      description: `Deleted load "${loadItem.name}" (${loadItem.power} kW, ${loadItem.phase}Φ, ${loadItem.category})`,
+      details: {
+        name: loadItem.name,
+        category: loadItem.category,
+        power: loadItem.power,
+        phase: loadItem.phase,
+        voltage: loadItem.voltage,
+      },
     });
 
     return NextResponse.json({ success: true });

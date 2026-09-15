@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { errorResponse } from "@/lib/api-errors";
 import { db } from "@/lib/db";
 import { verifyProjectAccess } from "@/lib/project-auth";
+import { logProjectActivity } from "@/lib/audit-logger";
 import {
   assertOneOf,
   assertPositive,
@@ -72,6 +73,41 @@ export async function POST(request: Request) {
         startingCurrent: startingCurrent ? parseFloat(startingCurrent) : null,
         notes: notes || "",
         projectId,
+      },
+    });
+
+    const userName = auth.user?.name || auth.user?.username || "Engineer";
+    const userRole = auth.member?.role || auth.user?.role || "ENGINEER";
+
+    await logProjectActivity({
+      projectId,
+      userId: auth.user?.id || null,
+      userName,
+      userRole,
+      action: "CREATE",
+      entityType: "LOAD",
+      entityId: loadItem.id,
+      description: `Added load "${loadItem.name}" (${loadItem.power} kW, ${loadItem.phase}Φ, ${loadItem.category})`,
+      details: {
+        loadId: loadItem.id,
+        name: loadItem.name,
+        category: loadItem.category,
+        power: loadItem.power,
+        voltage: loadItem.voltage,
+        phase: loadItem.phase,
+        powerFactor: loadItem.powerFactor,
+        demandFactor: loadItem.demandFactor,
+        quantity: loadItem.quantity,
+        runningCurrent: loadItem.runningCurrent,
+        changes: [
+          { field: "name", label: "Load Name", newValue: loadItem.name },
+          { field: "category", label: "Category", newValue: loadItem.category },
+          { field: "power", label: "Power", newValue: `${loadItem.power} kW` },
+          { field: "phase", label: "Phase", newValue: `${loadItem.phase}Φ` },
+          { field: "voltage", label: "Voltage", newValue: `${loadItem.voltage} V` },
+          { field: "runningCurrent", label: "Running Current", newValue: `${loadItem.runningCurrent} A` },
+          { field: "quantity", label: "Quantity", newValue: loadItem.quantity },
+        ],
       },
     });
 

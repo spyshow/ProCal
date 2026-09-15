@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { verifyProjectAccess } from "@/lib/project-auth";
+import { logProjectActivity } from "@/lib/audit-logger";
 import { getApartmentDiversityFactor } from "@/lib/calculations/loads";
 import { errorResponse } from "@/lib/api-errors";
 
@@ -180,6 +181,37 @@ export async function POST(
         await db.$transaction(syncUpdates);
       }
     }
+
+    const userName = auth.user?.name || auth.user?.username || "Engineer";
+    const userRole = auth.member?.role || auth.user?.role || "ENGINEER";
+
+    const sourceFloorLabel = `Floor ${sourceFloor.floorNumber}`;
+
+    await logProjectActivity({
+      projectId: sourceFloor.building.projectId,
+      userId: auth.user?.id || null,
+      userName,
+      userRole,
+      action: "CREATE",
+      entityType: "LOAD",
+      entityId: sourceFloorId,
+      description: `Copied ${sourceFloor.items.length} items from floor "${sourceFloorLabel}" to ${validTargetFloorIds.length} floors in "${sourceFloor.building.name}" (${itemsToCreate.length} total items)`,
+      details: {
+        sourceFloorId,
+        sourceFloorNumber: sourceFloor.floorNumber,
+        sourceFloorName: sourceFloorLabel,
+        buildingName: sourceFloor.building.name,
+        itemsPerFloor: sourceFloor.items.length,
+        targetFloorsCount: validTargetFloorIds.length,
+        totalItemsCreated: itemsToCreate.length,
+        changes: [
+          { field: "sourceFloor", label: "Source Floor", newValue: sourceFloorLabel },
+          { field: "itemsPerFloor", label: "Items Copied", newValue: sourceFloor.items.length },
+          { field: "targetFloors", label: "Target Floors Count", newValue: validTargetFloorIds.length },
+          { field: "totalItems", label: "Total Created", newValue: itemsToCreate.length },
+        ],
+      },
+    });
 
     return NextResponse.json({
       success: true,

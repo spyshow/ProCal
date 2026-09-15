@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { errorResponse } from "@/lib/api-errors";
 import { db } from "@/lib/db";
-import { getSessionUser } from "@/lib/auth";
+import { verifyProjectAccess } from "@/lib/project-auth";
+import { logProjectActivity } from "@/lib/audit-logger";
 import { sizeCableAndBreaker } from "@/lib/calculations/cables";
 
 // Attach a load-library item to a building (a "Building Load").
@@ -10,11 +11,6 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const user = await getSessionUser();
-    if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
     const { id: buildingId } = await params;
     const { loadLibraryItemId, quantity, cableMaterial } = await request.json();
 
@@ -26,9 +22,15 @@ export async function POST(
       where: { id: buildingId },
       include: { project: true },
     });
-    if (!building || building.project.userId !== user.id) {
+    if (!building) {
       return NextResponse.json({ error: "Building not found" }, { status: 404 });
     }
+
+    const auth = await verifyProjectAccess(building.projectId, {
+      requiredAction: "EDIT",
+      pageKey: "calculator",
+    });
+    if (auth instanceof NextResponse) return auth;
 
     // Ownership: the library item must belong to the same project as the building.
     const libraryItem = await db.loadLibraryItem.findUnique({
@@ -69,6 +71,37 @@ export async function POST(
         cableMaterial: material,
       },
       include: { loadLibraryItem: true },
+    });
+
+    const userName = auth.user?.name || auth.user?.username || "Engineer";
+    const userRole = auth.member?.role || auth.user?.role || "ENGINEER";
+
+    await logProjectActivity({
+      projectId: building.projectId,
+      userId: auth.user?.id || null,
+      userName,
+      userRole,
+      action: "CREATE",
+      entityType: "BUILDING_LOAD",
+      entityId: created.id,
+      description: `Added building load "${libraryItem.name}" (Qty: ${qty}, ${totalPower} kW) to "${building.name}"`,
+      details: {
+        buildingId,
+        buildingName: building.name,
+        loadLibraryItemId,
+        name: libraryItem.name,
+        quantity: qty,
+        totalPowerKw: totalPower,
+        cableSize,
+        cableMaterial: material,
+        changes: [
+          { field: "load", label: "Load", newValue: libraryItem.name },
+          { field: "building", label: "Building", newValue: building.name },
+          { field: "quantity", label: "Quantity", newValue: qty },
+          { field: "power", label: "Total Power", newValue: `${totalPower} kW` },
+          { field: "cableSize", label: "Cable Size", newValue: cableSize },
+        ],
+      },
     });
 
     return NextResponse.json(created);

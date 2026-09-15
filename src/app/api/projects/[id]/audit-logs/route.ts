@@ -1,6 +1,42 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { verifyProjectAccess } from "@/lib/project-auth";
+import { enrichLegacyAuditLog } from "@/lib/audit-diff";
+
+async function enrichAuditLogs(rawLogs: any[]) {
+  const familyIds = new Set<string>();
+  const breakerKeys = ["defaultAcbFamilyId", "defaultMccbFamilyId", "defaultMcbFamilyId"];
+
+  for (const log of rawLogs) {
+    if (log.details) {
+      try {
+        const parsed = JSON.parse(log.details);
+        for (const k of breakerKeys) {
+          if (parsed && parsed[k]) familyIds.add(String(parsed[k]));
+        }
+      } catch {
+        // ignore JSON parse error
+      }
+    }
+  }
+
+  const familyMap = new Map<string, string>();
+  if (familyIds.size > 0 && db.breakerFamily?.findMany) {
+    try {
+      const families = await db.breakerFamily.findMany({
+        where: { id: { in: Array.from(familyIds) } },
+        select: { id: true, name: true, manufacturer: true },
+      });
+      for (const fam of families) {
+        familyMap.set(fam.id, `${fam.manufacturer} ${fam.name}`);
+      }
+    } catch (e) {
+      console.error("Failed to query breaker families for log enrichment:", e);
+    }
+  }
+
+  return rawLogs.map((log) => enrichLegacyAuditLog(log, familyMap));
+}
 
 export async function GET(
   request: Request,
@@ -31,6 +67,7 @@ export async function GET(
         { description: { contains: search.trim() } },
         { userName: { contains: search.trim() } },
         { entityType: { contains: search.trim() } },
+        { details: { contains: search.trim() } },
       ];
     }
 
@@ -41,11 +78,13 @@ export async function GET(
         take: 1000,
       });
 
+      const enrichedCsvLogs = await enrichAuditLogs(allLogs);
+
       const csvRows = [
         "Timestamp,User,Role,Action,Category,Description",
-        ...allLogs.map((l) =>
+        ...enrichedCsvLogs.map((l) =>
           [
-            `"${l.createdAt.toISOString()}"`,
+            `"${l.createdAt.toISOString ? l.createdAt.toISOString() : new Date(l.createdAt).toISOString()}"`,
             `"${(l.userName || "System").replace(/"/g, '""')}"`,
             `"${(l.userRole || "").replace(/"/g, '""')}"`,
             `"${l.action}"`,
@@ -64,7 +103,7 @@ export async function GET(
       });
     }
 
-    const [logs, totalCount, activeUserLogs] = await Promise.all([
+    const [rawLogs, totalCount, activeUserLogs] = await Promise.all([
       db.projectAuditLog.findMany({
         where,
         orderBy: { createdAt: "desc" },
@@ -83,6 +122,8 @@ export async function GET(
       .filter((u) => u.userId)
       .map((u) => ({ userId: u.userId as string, userName: u.userName }));
 
+    const logs = await enrichAuditLogs(rawLogs);
+
     return NextResponse.json({
       logs,
       totalCount,
@@ -95,3 +136,4 @@ export async function GET(
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
+

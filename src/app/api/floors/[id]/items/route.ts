@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { errorResponse } from "@/lib/api-errors";
 import { db } from "@/lib/db";
 import { verifyProjectAccess } from "@/lib/project-auth";
+import { logProjectActivity } from "@/lib/audit-logger";
 import { getApartmentDiversityFactor } from "@/lib/calculations/loads";
 import { assertNonNegative } from "@/lib/calculations/validate";
 
@@ -177,6 +178,48 @@ export async function POST(
         await db.$transaction(syncUpdates);
       }
     }
+
+    const userName = auth.user?.name || auth.user?.username || "Engineer";
+    const userRole = auth.member?.role || auth.user?.role || "ENGINEER";
+    const itemTypeLabel = item.type === "APARTMENT"
+      ? "apartment"
+      : item.type.toLowerCase().replace(/_/g, " ");
+
+    const floorLabel = (floorDesign as any).name || (floorDesign.floorNumber != null ? `Floor ${floorDesign.floorNumber}` : "Floor");
+
+    await logProjectActivity({
+      projectId: project.id,
+      userId: auth.user?.id || null,
+      userName,
+      userRole,
+      action: "CREATE",
+      entityType: "LOAD",
+      entityId: item.id,
+      description: `Added ${itemTypeLabel} "${item.name}" to floor "${floorLabel}" in "${floorDesign.building.name}" (${item.calculatedConnectedLoad} kW, ${item.calculatedCurrent} A)`,
+      details: {
+        itemId: item.id,
+        name: item.name,
+        type: item.type,
+        floorId: floorDesignId,
+        floorNumber: floorDesign.floorNumber,
+        floorName: floorLabel,
+        buildingId: floorDesign.buildingId,
+        buildingName: floorDesign.building.name,
+        connectedLoadKw: item.calculatedConnectedLoad,
+        maxDemandKw: item.calculatedMaxDemand,
+        currentA: item.calculatedCurrent,
+        cableMaterial: item.cableMaterial,
+        changes: [
+          { field: "name", label: "Name", newValue: item.name },
+          { field: "type", label: "Type", newValue: item.type },
+          { field: "floor", label: "Floor", newValue: floorLabel },
+          { field: "building", label: "Building", newValue: floorDesign.building.name },
+          { field: "connectedLoad", label: "Connected Load", newValue: `${item.calculatedConnectedLoad} kW` },
+          { field: "maxDemand", label: "Max Demand", newValue: `${item.calculatedMaxDemand} kW` },
+          { field: "current", label: "Design Current", newValue: `${item.calculatedCurrent} A` },
+        ],
+      },
+    });
 
     return NextResponse.json(item);
   } catch (error) {

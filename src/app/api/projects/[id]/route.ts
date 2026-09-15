@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { verifyProjectAccess } from "@/lib/project-auth";
 import { logProjectActivity } from "@/lib/audit-logger";
+import { computeProjectDiff } from "@/lib/audit-diff";
 import { errorResponse } from "@/lib/api-errors";
 import {
   assertPositive,
@@ -150,16 +151,18 @@ export async function PUT(
       },
     });
 
+    const diff = await computeProjectDiff(existingProject, updatedProject, data);
+
     await logProjectActivity({
       projectId: id,
       userId: auth.user.id,
       userName: auth.user.name || auth.user.username,
       userRole: auth.member.role,
       action: "UPDATE",
-      entityType: "PROJECT",
+      entityType: diff.category,
       entityId: id,
-      description: `Updated project parameters${data.preferredManufacturer ? ` (Manufacturer: ${data.preferredManufacturer})` : ""}`,
-      details: data,
+      description: diff.description,
+      details: diff.details,
     });
 
     return NextResponse.json(updatedProject);

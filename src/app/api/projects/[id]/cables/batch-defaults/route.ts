@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { verifyProjectAccess } from "@/lib/project-auth";
+import { logProjectActivity } from "@/lib/audit-logger";
 import { errorResponse } from "@/lib/api-errors";
 import { assertInRange, assertNonNegative, CalculationError } from "@/lib/calculations/validate";
 
@@ -93,6 +94,33 @@ export async function POST(
     ];
 
     const results = await db.$transaction(updates);
+    const totalUpdated = results[0].count + results[1].count + results[2].count;
+
+    const detailsList: string[] = [];
+    if (installMethod) detailsList.push(`Method: ${installMethod}`);
+    if (cableInsulation) detailsList.push(`Insulation: ${cableInsulation}`);
+    if (cableMaterial) detailsList.push(`Material: ${cableMaterial}`);
+    if (temp !== undefined) detailsList.push(`Temp: ${temp}°C`);
+    if (grouping !== undefined) detailsList.push(`Grouping: ${grouping}`);
+
+    await logProjectActivity({
+      projectId,
+      userId: auth.user.id,
+      userName: auth.user.name || auth.user.username,
+      userRole: auth.member.role,
+      action: "UPDATE",
+      entityType: "CABLE",
+      entityId: projectId,
+      description: `Applied batch cable defaults (${detailsList.join(", ")}) across ${totalUpdated} circuits`,
+      details: {
+        installMethod,
+        cableInsulation,
+        cableMaterial,
+        ambientTemp: temp,
+        groupingCount: grouping,
+        updatedCircuits: totalUpdated,
+      },
+    });
 
     return NextResponse.json({
       success: true,

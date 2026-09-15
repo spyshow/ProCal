@@ -14,6 +14,7 @@ export type AuditEntityType =
   | "PROJECT"
   | "CABLE"
   | "BREAKER"
+  | "LOAD"
   | "BUILDING_LOAD"
   | "BUILDING"
   | "FLOOR"
@@ -40,6 +41,7 @@ export interface LogAuditParams {
  */
 export async function logProjectActivity(params: LogAuditParams): Promise<void> {
   try {
+    if (!db.projectAuditLog?.create) return;
     await db.projectAuditLog.create({
       data: {
         projectId: params.projectId,

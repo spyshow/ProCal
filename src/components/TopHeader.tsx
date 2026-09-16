@@ -126,7 +126,7 @@ export function TopHeader() {
             type="button"
             onClick={handleToggleProject}
             className={cn(
-              "flex items-center gap-2 px-2.5 py-1.5 rounded-lg border text-xs font-medium transition-all duration-150 outline-none focus:ring-1 focus:ring-orange-500 max-w-[280px] sm:max-w-[340px]",
+              "flex items-center gap-2 px-2.5 py-1.5 rounded-lg border text-xs font-medium transition-all duration-150 outline-none focus:ring-1 focus:ring-orange-500 max-w-[320px] sm:max-w-[420px]",
               "bg-[var(--card-bg-subtle,rgba(17,24,39,0.7))] hover:bg-[var(--card-bg,#0b0f19)]",
               projectOpen
                 ? "border-orange-500/50 shadow-[0_0_12px_rgba(234,88,12,0.15)] ring-1 ring-orange-500/30"
@@ -144,25 +144,6 @@ export function TopHeader() {
                 {selectedProject ? selectedProject.name : t('nav.selectProject', 'Select Project')}
               </span>
             </div>
-
-            {selectedProject && (
-              <span
-                className={cn(
-                  "text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.2 rounded border shrink-0 hidden sm:inline-block",
-                  currentMemberRole === "PROJECT_MANAGER"
-                    ? "bg-orange-500/10 text-orange-500 dark:text-orange-400 border-orange-500/30"
-                    : currentMemberRole === "QA"
-                    ? "bg-blue-500/10 text-blue-500 dark:text-blue-400 border-blue-500/30"
-                    : "bg-[var(--card-bg-subtle,rgba(17,24,39,0.8))] text-[var(--table-header-color,#9ca3af)] border-[var(--border-color,#1f2937)]"
-                )}
-              >
-                {currentMemberRole === "PROJECT_MANAGER"
-                  ? t('team.roles.pm', 'PM')
-                  : currentMemberRole === "QA"
-                  ? t('team.roles.qa', 'QA')
-                  : t('team.roles.engineer', 'Eng')}
-              </span>
-            )}
 
             <ChevronDown
               size={13}
@@ -330,6 +311,25 @@ export function TopHeader() {
               {currentUser?.name?.split(' ')[0] ?? "User"}
             </span>
 
+            {selectedProject && (
+              <span
+                className={cn(
+                  "text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded border shrink-0 hidden md:inline-block",
+                  currentMemberRole === "PROJECT_MANAGER"
+                    ? "bg-orange-500/10 text-orange-500 dark:text-orange-400 border-orange-500/30"
+                    : currentMemberRole === "QA"
+                    ? "bg-blue-500/10 text-blue-500 dark:text-blue-400 border-blue-500/30"
+                    : "bg-[var(--card-bg-subtle,rgba(17,24,39,0.8))] text-[var(--table-header-color,#9ca3af)] border-[var(--border-color,#1f2937)]"
+                )}
+              >
+                {currentMemberRole === "PROJECT_MANAGER"
+                  ? t('team.roles.pm', 'PM')
+                  : currentMemberRole === "QA"
+                  ? t('team.roles.qa', 'QA')
+                  : t('team.roles.engineer', 'Eng')}
+              </span>
+            )}
+
             <ChevronDown
               size={12}
               className={cn(
@@ -348,13 +348,33 @@ export function TopHeader() {
               )}
             >
               {/* User identity summary */}
-              <div className="px-3 py-2.5 border-b border-[var(--border-color,#1f2937)] bg-[var(--card-bg-subtle,rgba(17,24,39,0.5))]">
-                <p className="text-xs font-semibold text-[var(--foreground-color,#f8fafc)] truncate">
-                  {currentUser?.name ?? "Engineer"}
-                </p>
-                <p className="text-[10px] text-[var(--table-header-color,#9ca3af)] truncate">
-                  {currentUser?.role === "ADMIN" ? "Administrator" : "ProCal Member"}
-                </p>
+              <div className="px-3 py-2.5 border-b border-[var(--border-color,#1f2937)] bg-[var(--card-bg-subtle,rgba(17,24,39,0.5))] flex items-center justify-between gap-2">
+                <div className="min-w-0">
+                  <p className="text-xs font-semibold text-[var(--foreground-color,#f8fafc)] truncate">
+                    {currentUser?.name ?? "Engineer"}
+                  </p>
+                  <p className="text-[10px] text-[var(--table-header-color,#9ca3af)] truncate">
+                    {currentUser?.role === "ADMIN" ? "Administrator" : "ProCal Member"}
+                  </p>
+                </div>
+                {selectedProject && (
+                  <span
+                    className={cn(
+                      "text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded border shrink-0",
+                      currentMemberRole === "PROJECT_MANAGER"
+                        ? "bg-orange-500/15 text-orange-500 dark:text-orange-400 border-orange-500/30"
+                        : currentMemberRole === "QA"
+                        ? "bg-blue-500/15 text-blue-500 dark:text-blue-400 border-blue-500/30"
+                        : "bg-[var(--card-bg-subtle,rgba(17,24,39,0.8))] text-[var(--table-header-color,#9ca3af)] border-[var(--border-color,#1f2937)]"
+                    )}
+                  >
+                    {currentMemberRole === "PROJECT_MANAGER"
+                      ? "PM"
+                      : currentMemberRole === "QA"
+                      ? "QA"
+                      : "Eng"}
+                  </span>
+                )}
               </div>
 
               {/* Navigation Items */}

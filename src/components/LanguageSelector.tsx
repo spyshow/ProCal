@@ -47,12 +47,22 @@ export function FlagItaly({ className }: { className?: string }) {
 
 export function FlagSyria({ className }: { className?: string }) {
   return (
-    <svg viewBox="0 0 6 4" className={cn("rounded-[2px] shadow-xs shrink-0 overflow-hidden", className)}>
-      <rect width="6" height="1.333" y="0" fill="#CE1126" />
-      <rect width="6" height="1.334" y="1.333" fill="#FFFFFF" />
-      <rect width="6" height="1.333" y="2.667" fill="#000000" />
-      <polygon points="2,1.55 2.12,1.9 2.48,1.9 2.19,2.12 2.3,2.46 2,2.25 1.7,2.46 1.81,2.12 1.52,1.9 1.88,1.9" fill="#007A3D" />
-      <polygon points="4,1.55 4.12,1.9 4.48,1.9 4.19,2.12 4.3,2.46 4,2.25 3.7,2.46 3.81,2.12 3.52,1.9 3.88,1.9" fill="#007A3D" />
+    <svg viewBox="0 0 90 60" className={cn("rounded-[2px] shadow-xs shrink-0 overflow-hidden", className)}>
+      <rect width="90" height="20" y="0" fill="#007A3D" />
+      <rect width="90" height="20" y="20" fill="#FFFFFF" />
+      <rect width="90" height="20" y="40" fill="#000000" />
+      <polygon
+        points="26,24.5 27.23,28.3 31.23,28.3 28.00,30.65 29.23,34.45 26,32.1 22.77,34.45 24.00,30.65 20.77,28.3 24.77,28.3"
+        fill="#CE1126"
+      />
+      <polygon
+        points="45,24.5 46.23,28.3 50.23,28.3 47.00,30.65 48.23,34.45 45,32.1 41.77,34.45 43.00,30.65 39.77,28.3 43.77,28.3"
+        fill="#CE1126"
+      />
+      <polygon
+        points="64,24.5 65.23,28.3 69.23,28.3 66.00,30.65 67.23,34.45 64,32.1 60.77,34.45 62.00,30.65 58.77,28.3 62.77,28.3"
+        fill="#CE1126"
+      />
     </svg>
   );
 }

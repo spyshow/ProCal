@@ -140,19 +140,19 @@ export default function RevisionsPanel({ projectId, open, onClose, onChanged }: 
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs animate-in fade-in duration-150"
       onClick={onClose}
     >
       <div
-        className="w-full max-w-lg rounded-xl border border-gray-700 bg-gray-900 shadow-2xl"
+        className="w-full max-w-lg rounded-xl border border-[var(--border-color)] bg-[var(--card-bg)] shadow-2xl overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between border-b border-gray-800 px-5 py-4">
-          <h2 className="flex items-center gap-2 text-base font-bold text-white">
+        <div className="flex items-center justify-between border-b border-[var(--border-color)] px-5 py-4 bg-[var(--card-bg-subtle)]">
+          <h2 className="flex items-center gap-2 text-base font-bold text-[var(--foreground-color)]">
             <History size={16} className="text-orange-500" />
             Project Revisions
           </h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-white" aria-label="Close">
+          <button onClick={onClose} className="p-1 rounded-lg text-[var(--text-secondary)] hover:text-[var(--foreground-color)] hover:bg-[var(--card-bg)] transition-colors cursor-pointer" aria-label="Close">
             <X size={18} />
           </button>
         </div>
@@ -160,7 +160,7 @@ export default function RevisionsPanel({ projectId, open, onClose, onChanged }: 
         <div className="p-5 space-y-4">
           {/* Issue a new revision */}
           <div className="space-y-2">
-            <label className="text-xs font-semibold text-gray-300 uppercase tracking-wide">
+            <label className="text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wide">
               Issue current design as revision
             </label>
             <textarea
@@ -168,31 +168,31 @@ export default function RevisionsPanel({ projectId, open, onClose, onChanged }: 
               onChange={(e) => setDescription(e.target.value)}
               placeholder="e.g. Issued for Construction — updated cable schedule"
               rows={2}
-              className="w-full rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-orange-500"
+              className="w-full rounded-lg border border-[var(--border-color)] bg-[var(--card-bg-subtle)] px-3 py-2 text-sm text-[var(--foreground-color)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-orange-500 shadow-xs"
             />
             <button
               onClick={handleIssue}
               disabled={saving || !description.trim()}
-              className="flex items-center gap-2 rounded-lg bg-orange-600 px-4 py-2 text-sm font-semibold text-white hover:bg-orange-500 disabled:opacity-40"
+              className="flex items-center gap-2 rounded-lg bg-orange-600 px-4 py-2 text-sm font-semibold text-white hover:bg-orange-500 disabled:opacity-40 shadow-xs cursor-pointer"
             >
               {saving ? <Loader2 size={14} className="animate-spin" /> : <Plus size={14} />}
               {saving ? 'Issuing…' : 'Issue Revision'}
             </button>
-            {error && <p className="text-xs text-red-400">{error}</p>}
+            {error && <p className="text-xs text-red-500 dark:text-red-400">{error}</p>}
           </div>
 
           {/* Revision list */}
-          <div className="border-t border-gray-800 pt-3">
+          <div className="border-t border-[var(--border-color)] pt-3">
             {loading ? (
-              <p className="py-4 text-center text-sm text-gray-500">Loading revisions…</p>
+              <p className="py-4 text-center text-sm text-[var(--text-muted)]">Loading revisions…</p>
             ) : sorted.length === 0 ? (
-              <p className="py-4 text-center text-sm text-gray-500">
+              <p className="py-4 text-center text-sm text-[var(--text-muted)]">
                 No revisions issued yet. Issue one to snapshot the current design on the report cover.
               </p>
             ) : (
               <table className="w-full text-sm text-center">
                 <thead>
-                  <tr className="border-b border-gray-800 text-center text-xs uppercase text-gray-400">
+                  <tr className="border-b border-[var(--border-color)] text-center text-xs uppercase text-[var(--text-secondary)]">
                     <th className="py-1.5 px-2 text-center">Rev</th>
                     <th className="py-1.5 px-2 text-center">Date</th>
                     <th className="py-1.5 px-2 text-center">Description</th>
@@ -202,13 +202,13 @@ export default function RevisionsPanel({ projectId, open, onClose, onChanged }: 
                 </thead>
                 <tbody>
                   {sorted.map((r) => (
-                    <tr key={r.id} className="border-b border-gray-800/60">
-                      <td className="py-2 px-2 font-mono font-bold text-orange-400 text-center">{r.rev}</td>
-                      <td className="py-2 px-2 text-gray-300 text-center">
+                    <tr key={r.id} className="border-b border-[var(--border-color)]/60 hover:bg-[var(--card-bg-subtle)]/50 transition-colors">
+                      <td className="py-2 px-2 font-mono font-bold text-orange-500 dark:text-orange-400 text-center">{r.rev}</td>
+                      <td className="py-2 px-2 text-[var(--text-secondary)] text-center">
                         {new Date(r.createdAt).toLocaleDateString()}
                       </td>
-                      <td className="py-2 px-2 text-gray-300 text-center">{r.description}</td>
-                      <td className="py-2 px-2 text-gray-400 text-center">{r.createdByUsername}</td>
+                      <td className="py-2 px-2 text-[var(--foreground-color)] text-center">{r.description}</td>
+                      <td className="py-2 px-2 text-[var(--text-muted)] text-center">{r.createdByUsername}</td>
                       <td className="py-2 text-center">
                         <div className="flex items-center justify-center gap-1.5">
                           <button
@@ -216,7 +216,7 @@ export default function RevisionsPanel({ projectId, open, onClose, onChanged }: 
                             disabled={restoringId === r.id || saving}
                             title={`Preview what changed vs ${r.rev}`}
                             aria-label={`Diff ${r.rev}`}
-                            className="flex items-center gap-1.5 rounded-md border border-gray-700 px-2 py-1 text-xs font-semibold text-gray-300 hover:border-sky-500 hover:text-sky-400 disabled:opacity-40"
+                            className="flex items-center gap-1.5 rounded-md border border-[var(--border-color)] bg-[var(--card-bg-subtle)] px-2 py-1 text-xs font-semibold text-[var(--foreground-color)] hover:border-sky-500 hover:text-sky-500 disabled:opacity-40 transition-colors cursor-pointer shadow-xs"
                           >
                             <FileDiff size={12} />
                             Diff
@@ -226,7 +226,7 @@ export default function RevisionsPanel({ projectId, open, onClose, onChanged }: 
                             disabled={restoringId === r.id || saving}
                             title={`Restore the project to ${r.rev}`}
                             aria-label={`Restore ${r.rev}`}
-                            className="flex items-center gap-1.5 rounded-md border border-gray-700 px-2 py-1 text-xs font-semibold text-gray-300 hover:border-orange-500 hover:text-orange-400 disabled:opacity-40"
+                            className="flex items-center gap-1.5 rounded-md border border-[var(--border-color)] bg-[var(--card-bg-subtle)] px-2 py-1 text-xs font-semibold text-[var(--foreground-color)] hover:border-orange-500 hover:text-orange-500 disabled:opacity-40 transition-colors cursor-pointer shadow-xs"
                           >
                             {restoringId === r.id ? (
                               <Loader2 size={12} className="animate-spin" />
@@ -240,7 +240,7 @@ export default function RevisionsPanel({ projectId, open, onClose, onChanged }: 
                             disabled={deletingId === r.id || saving}
                             title={`Delete revision ${r.rev}`}
                             aria-label={`Delete ${r.rev}`}
-                            className="flex items-center gap-1.5 rounded-md border border-gray-700 px-2 py-1 text-xs font-semibold text-gray-400 hover:border-red-500 hover:text-red-400 disabled:opacity-40"
+                            className="flex items-center gap-1.5 rounded-md border border-[var(--border-color)] bg-[var(--card-bg-subtle)] px-2 py-1 text-xs font-semibold text-[var(--text-muted)] hover:border-red-500 hover:text-red-500 disabled:opacity-40 transition-colors cursor-pointer shadow-xs"
                           >
                             {deletingId === r.id ? (
                               <Loader2 size={12} className="animate-spin" />

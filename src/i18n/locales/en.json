@@ -1350,6 +1350,33 @@
     "pasteHint": "Tip: You can also paste an image from clipboard (Ctrl + V)",
     "submit": "Send to Admin",
     "submitting": "Sending..."
+  },
+  "theme": {
+    "title": "Appearance & Theme",
+    "subtitle": "Customize your visual workspace across dark, CAD blueprint light, and warm drafting aesthetics",
+    "systemPreference": "Match Operating System Preference",
+    "systemPreferenceDesc": "Automatically switch between dark and blueprint light based on your OS settings",
+    "darkTitle": "Midnight CAD",
+    "darkTag": "Default Dark",
+    "darkDesc": "Signature ProCal midnight palette with ABB industrial orange. Low glare for CAD drafting and night engineering.",
+    "blueprintTitle": "Technical CAD Blueprint",
+    "blueprintTag": "Precision Light",
+    "blueprintDesc": "Crisp off-white drafting canvas with sharp slate gridlines and deep ink typography for bright ambient spaces.",
+    "warmTitle": "Drafting Warm",
+    "warmTag": "Drafting Parchment",
+    "warmDesc": "Rich architectural drafting parchment with warm ivory panels and sepia borders to reduce glare during long calculation sessions.",
+    "activeBadge": "Active Theme",
+    "select": "Select Theme",
+    "previewTitle": "Live Engineering Preview",
+    "previewDesc": "Real-time preview of engineering table elements, conductor schedules, and badges in the selected theme.",
+    "feederId": "FEEDER-MDB-01",
+    "conductor": "4C x 240 mm² Cu/XLPE",
+    "voltageDrop": "0.42% (Pass)",
+    "active": "Active",
+    "dark": "Midnight CAD",
+    "blueprint": "CAD Blueprint",
+    "warm": "Drafting Warm",
+    "system": "System Auto"
   }
 }
 

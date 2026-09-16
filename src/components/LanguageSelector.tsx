@@ -1,9 +1,75 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useTranslation, SupportedLanguage } from '@/i18n';
-import { Globe, ChevronDown } from 'lucide-react';
+import { ChevronDown, Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
+
+export function FlagUK({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 60 30" className={cn("rounded-[2px] shadow-xs shrink-0 overflow-hidden", className)}>
+      <clipPath id="uk-clip-ls">
+        <path d="M0,0 v30 h60 v-30 z"/>
+      </clipPath>
+      <clipPath id="uk-diag-ls">
+        <path d="M30,15 h30 v15 z v15 h-30 z h-30 v-15 z v-15 h30 z"/>
+      </clipPath>
+      <g clipPath="url(#uk-clip-ls)">
+        <path d="M0,0 v30 h60 v-30 z" fill="#012169"/>
+        <path d="M0,0 L60,30 M60,0 L0,30" stroke="#fff" strokeWidth="6"/>
+        <path d="M0,0 L60,30 M60,0 L0,30" clipPath="url(#uk-diag-ls)" stroke="#C8102E" strokeWidth="4"/>
+        <path d="M30,0 v30 M0,15 h60" stroke="#fff" strokeWidth="10"/>
+        <path d="M30,0 v30 M0,15 h60" stroke="#C8102E" strokeWidth="6"/>
+      </g>
+    </svg>
+  );
+}
+
+export function FlagGermany({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 5 3" className={cn("rounded-[2px] shadow-xs shrink-0 overflow-hidden", className)}>
+      <rect width="5" height="1" y="0" fill="#000000" />
+      <rect width="5" height="1" y="1" fill="#DD0000" />
+      <rect width="5" height="1" y="2" fill="#FFCE00" />
+    </svg>
+  );
+}
+
+export function FlagItaly({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 3 2" className={cn("rounded-[2px] shadow-xs shrink-0 overflow-hidden", className)}>
+      <rect width="1" height="2" x="0" fill="#009246" />
+      <rect width="1" height="2" x="1" fill="#FFFFFF" />
+      <rect width="1" height="2" x="2" fill="#CE2B37" />
+    </svg>
+  );
+}
+
+export function FlagSyria({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 6 4" className={cn("rounded-[2px] shadow-xs shrink-0 overflow-hidden", className)}>
+      <rect width="6" height="1.333" y="0" fill="#CE1126" />
+      <rect width="6" height="1.334" y="1.333" fill="#FFFFFF" />
+      <rect width="6" height="1.333" y="2.667" fill="#000000" />
+      <polygon points="2,1.55 2.12,1.9 2.48,1.9 2.19,2.12 2.3,2.46 2,2.25 1.7,2.46 1.81,2.12 1.52,1.9 1.88,1.9" fill="#007A3D" />
+      <polygon points="4,1.55 4.12,1.9 4.48,1.9 4.19,2.12 4.3,2.46 4,2.25 3.7,2.46 3.81,2.12 3.52,1.9 3.88,1.9" fill="#007A3D" />
+    </svg>
+  );
+}
+
+interface LanguageOption {
+  code: SupportedLanguage;
+  label: string;
+  short: string;
+  FlagIcon: React.ComponentType<{ className?: string }>;
+}
+
+const LANGUAGES: LanguageOption[] = [
+  { code: 'en', label: 'English', short: 'EN', FlagIcon: FlagUK },
+  { code: 'de', label: 'Deutsch', short: 'DE', FlagIcon: FlagGermany },
+  { code: 'it', label: 'Italiano', short: 'IT', FlagIcon: FlagItaly },
+  { code: 'ar', label: 'العربية', short: 'عربي', FlagIcon: FlagSyria },
+];
 
 interface LanguageSelectorProps {
   variant?: 'compact' | 'footer' | 'dropdown' | 'select';
@@ -17,95 +83,224 @@ export function LanguageSelector({
   isCollapsed = false,
 }: LanguageSelectorProps) {
   const { language, setLanguage, isRtl, t } = useTranslation();
+  const [isOpen, setIsOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
 
-  const languages = [
-    { code: 'en' as SupportedLanguage, label: 'English', short: 'EN', flag: '🇬🇧' },
-    { code: 'de' as SupportedLanguage, label: 'Deutsch', short: 'DE', flag: '🇩🇪' },
-    { code: 'it' as SupportedLanguage, label: 'Italiano', short: 'IT', flag: '🇮🇹' },
-    { code: 'ar' as SupportedLanguage, label: 'العربية', short: 'عربي', flag: '🇸🇾' },
-  ];
+  const current = LANGUAGES.find((l) => l.code === language) || LANGUAGES[0];
+  const CurrentFlag = current.FlagIcon;
 
-  const current = languages.find((l) => l.code === language) || languages[0];
+  // Close dropdown on click outside
+  useEffect(() => {
+    const handlePointerDown = (e: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setIsOpen(false);
+      }
+    };
 
-  const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setLanguage(e.target.value as SupportedLanguage);
+    document.addEventListener('mousedown', handlePointerDown);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('mousedown', handlePointerDown);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, []);
+
+  const handleSelect = (code: SupportedLanguage) => {
+    setLanguage(code);
+    setIsOpen(false);
   };
 
   // Compact mode in collapsed sidebar
   if (isCollapsed) {
     return (
-      <div className={cn('relative flex justify-center', className)}>
-        <select
-          value={language}
-          onChange={handleChange}
+      <div ref={containerRef} className={cn('relative flex justify-center', className)}>
+        <button
+          type="button"
+          onClick={() => setIsOpen((prev) => !prev)}
           title={isRtl ? 'تغيير اللغة' : 'Change Language'}
           aria-label={isRtl ? 'تغيير اللغة' : 'Change Language'}
-          className="w-9 h-9 opacity-0 absolute inset-0 cursor-pointer z-10"
+          aria-haspopup="listbox"
+          aria-expanded={isOpen}
+          className="flex items-center justify-center w-9 h-9 rounded-lg bg-[var(--card-bg-subtle,rgba(17,24,39,0.8))] hover:bg-[var(--card-bg,#0b0f19)] border border-[var(--border-color,#1f2937)] hover:border-orange-500/40 transition-colors cursor-pointer"
         >
-          {languages.map((l) => (
-            <option key={l.code} value={l.code} className="bg-slate-900 text-white">
-              {l.flag} {l.label}
-            </option>
-          ))}
-        </select>
-        <div className="flex items-center justify-center w-9 h-9 rounded-lg text-slate-400 hover:text-orange-400 bg-slate-900/60 border border-slate-800 hover:border-orange-500/40 pointer-events-none transition-colors">
-          <span className="text-xs font-bold text-orange-400 uppercase">{current.short}</span>
-        </div>
+          <CurrentFlag className="w-4.5 h-3 border border-black/10 dark:border-white/10" />
+        </button>
+
+        {isOpen && (
+          <div
+            role="listbox"
+            className={cn(
+              "absolute top-0 z-50 min-w-[170px] py-1 bg-[var(--card-bg,#0b0f19)] border border-[var(--border-color,#1f2937)] rounded-xl shadow-2xl backdrop-blur-md animate-in fade-in-50 zoom-in-95 duration-100",
+              isRtl ? "right-full mr-2" : "left-full ml-2"
+            )}
+          >
+            {LANGUAGES.map((l) => {
+              const isSelected = l.code === language;
+              const FlagComp = l.FlagIcon;
+              return (
+                <button
+                  key={l.code}
+                  type="button"
+                  role="option"
+                  aria-selected={isSelected}
+                  onClick={() => handleSelect(l.code)}
+                  className={cn(
+                    "w-full flex items-center justify-between gap-2.5 px-3 py-2 text-xs font-medium transition-colors cursor-pointer",
+                    isRtl ? "text-right" : "text-left",
+                    isSelected
+                      ? "bg-orange-500/15 text-orange-600 dark:text-orange-400 font-bold"
+                      : "text-[var(--foreground-color,#f8fafc)] hover:bg-[var(--card-bg-subtle,rgba(17,24,39,0.8))]"
+                  )}
+                >
+                  <div className="flex items-center gap-2.5">
+                    <FlagComp className="w-4 h-3 border border-black/15 dark:border-white/15" />
+                    <span>{l.label}</span>
+                    <span className="text-[10px] text-[var(--table-header-color,#9ca3af)] uppercase font-mono">({l.short})</span>
+                  </div>
+                  {isSelected && <Check size={13} className="text-orange-500 shrink-0" />}
+                </button>
+              );
+            })}
+          </div>
+        )}
       </div>
     );
   }
 
-  // Sidebar expanded mode (full width select)
+  // Sidebar expanded compact variant or full-width button
   if (variant === 'compact') {
     return (
-      <div className={cn('relative w-full', className)}>
-        <Globe size={14} className={cn("absolute top-1/2 -translate-y-1/2 text-orange-400 pointer-events-none z-10 flex-shrink-0", isRtl ? "right-2.5" : "left-2.5")} />
-        <select
-          value={language}
-          onChange={handleChange}
+      <div ref={containerRef} className={cn('relative w-full', className)}>
+        <button
+          type="button"
+          onClick={() => setIsOpen((prev) => !prev)}
           aria-label={t('common.switchLanguage', 'Switch Language')}
+          aria-haspopup="listbox"
+          aria-expanded={isOpen}
           className={cn(
-            "w-full appearance-none bg-slate-900/90 hover:bg-slate-900 text-slate-200 hover:text-white border border-slate-800/80 hover:border-orange-500/30 focus:border-orange-500 rounded-lg py-2 text-xs font-medium cursor-pointer shadow-sm outline-none transition-all",
-            isRtl ? "pr-8 pl-7 text-right" : "pl-8 pr-7 text-left"
+            "w-full flex items-center justify-between bg-[var(--card-bg-subtle,rgba(17,24,39,0.8))] hover:bg-[var(--card-bg,#0b0f19)] text-[var(--foreground-color,#f8fafc)] border border-[var(--border-color,#1f2937)] hover:border-orange-500/40 rounded-lg py-2 px-3 text-xs font-medium cursor-pointer shadow-sm outline-none transition-all",
+            isOpen && "border-orange-500 ring-1 ring-orange-500/30"
           )}
         >
-          {languages.map((l) => (
-            <option key={l.code} value={l.code} className="bg-slate-900 text-white py-1">
-              {l.flag} {l.label} ({l.short})
-            </option>
-          ))}
-        </select>
-        <ChevronDown
-          size={12}
-          className={cn("absolute top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none z-10", isRtl ? "left-2.5" : "right-2.5")}
-        />
+          <div className="flex items-center gap-2 min-w-0">
+            <CurrentFlag className="w-4 h-3 border border-black/15 dark:border-white/15" />
+            <span className="truncate">{current.label}</span>
+            <span className="text-[10px] text-[var(--table-header-color,#9ca3af)] uppercase font-mono">({current.short})</span>
+          </div>
+          <ChevronDown
+            size={12}
+            className={cn("text-[var(--table-header-color,#9ca3af)] transition-transform duration-150 shrink-0", isOpen && "rotate-180")}
+          />
+        </button>
+
+        {isOpen && (
+          <div
+            role="listbox"
+            className="absolute bottom-full mb-1.5 left-0 right-0 z-50 py-1 bg-[var(--card-bg,#0b0f19)] border border-[var(--border-color,#1f2937)] rounded-xl shadow-2xl backdrop-blur-md animate-in fade-in-50 zoom-in-95 duration-100"
+          >
+            {LANGUAGES.map((l) => {
+              const isSelected = l.code === language;
+              const FlagComp = l.FlagIcon;
+              return (
+                <button
+                  key={l.code}
+                  type="button"
+                  role="option"
+                  aria-selected={isSelected}
+                  onClick={() => handleSelect(l.code)}
+                  className={cn(
+                    "w-full flex items-center justify-between gap-2.5 px-3 py-2 text-xs font-medium transition-colors cursor-pointer",
+                    isRtl ? "text-right" : "text-left",
+                    isSelected
+                      ? "bg-orange-500/15 text-orange-600 dark:text-orange-400 font-bold"
+                      : "text-[var(--foreground-color,#f8fafc)] hover:bg-[var(--card-bg-subtle,rgba(17,24,39,0.8))]"
+                  )}
+                >
+                  <div className="flex items-center gap-2.5">
+                    <FlagComp className="w-4 h-3 border border-black/15 dark:border-white/15" />
+                    <span>{l.label}</span>
+                    <span className="text-[10px] text-[var(--table-header-color,#9ca3af)] uppercase font-mono">({l.short})</span>
+                  </div>
+                  {isSelected && <Check size={13} className="text-orange-500 shrink-0" />}
+                </button>
+              );
+            })}
+          </div>
+        )}
       </div>
     );
   }
 
-  // Standard Header / Footer Select Field
+  // Standard Header (variant === 'select' or 'dropdown' or 'footer')
+  const isFooter = variant === 'footer';
+
   return (
-    <div className={cn('relative inline-flex items-center', className)}>
-      <Globe size={14} className={cn("absolute text-orange-400 pointer-events-none z-10 flex-shrink-0", isRtl ? "right-2.5" : "left-2.5")} />
-      <select
-        value={language}
-        onChange={handleChange}
+    <div ref={containerRef} className={cn('relative inline-flex items-center', className)}>
+      <button
+        type="button"
+        onClick={() => setIsOpen((prev) => !prev)}
         aria-label={t('common.switchLanguage', 'Switch Language')}
+        aria-haspopup="listbox"
+        aria-expanded={isOpen}
         className={cn(
-          "appearance-none bg-slate-900/90 hover:bg-slate-900 text-slate-200 hover:text-white border border-slate-800 hover:border-orange-500/40 focus:border-orange-500 focus:ring-1 focus:ring-orange-500/30 rounded-lg py-1.5 text-xs font-medium cursor-pointer shadow-sm outline-none transition-all",
-          isRtl ? "pr-8 pl-7 text-right" : "pl-8 pr-7 text-left"
+          "flex items-center gap-2 bg-[var(--card-bg-subtle,rgba(17,24,39,0.8))] hover:bg-[var(--card-bg,#0b0f19)] text-[var(--foreground-color,#f8fafc)] border border-[var(--border-color,#1f2937)] hover:border-orange-500/40 rounded-lg py-1.5 px-2.5 text-xs font-medium cursor-pointer shadow-sm outline-none transition-all",
+          isOpen && "border-orange-500 ring-1 ring-orange-500/30"
         )}
       >
-        {languages.map((l) => (
-          <option key={l.code} value={l.code} className="bg-slate-900 text-white py-1">
-            {l.flag} {l.label} ({l.short})
-          </option>
-        ))}
-      </select>
-      <ChevronDown
-        size={12}
-        className={cn("absolute text-slate-400 pointer-events-none z-10", isRtl ? "left-2" : "right-2")}
-      />
+        <CurrentFlag className="w-4 h-3 border border-black/15 dark:border-white/15" />
+        <span className="hidden sm:inline font-medium">{current.label}</span>
+        <span className="sm:hidden font-medium uppercase font-mono">{current.short}</span>
+        <ChevronDown
+          size={12}
+          className={cn("text-[var(--table-header-color,#9ca3af)] transition-transform duration-150 shrink-0", isOpen && "rotate-180")}
+        />
+      </button>
+
+      {isOpen && (
+        <div
+          role="listbox"
+          className={cn(
+            "absolute z-50 min-w-[185px] py-1 bg-[var(--card-bg,#0b0f19)] border border-[var(--border-color,#1f2937)] rounded-xl shadow-2xl backdrop-blur-md animate-in fade-in-50 zoom-in-95 duration-100",
+            isFooter ? "bottom-full mb-1.5" : "top-full mt-1.5",
+            isRtl ? "left-0" : "right-0"
+          )}
+        >
+          {LANGUAGES.map((l) => {
+            const isSelected = l.code === language;
+            const FlagComp = l.FlagIcon;
+            return (
+              <button
+                key={l.code}
+                type="button"
+                role="option"
+                aria-selected={isSelected}
+                onClick={() => handleSelect(l.code)}
+                className={cn(
+                  "w-full flex items-center justify-between gap-2.5 px-3 py-2 text-xs font-medium transition-colors cursor-pointer",
+                  isRtl ? "text-right" : "text-left",
+                  isSelected
+                    ? "bg-orange-500/15 text-orange-600 dark:text-orange-400 font-bold"
+                    : "text-[var(--foreground-color,#f8fafc)] hover:bg-[var(--card-bg-subtle,rgba(17,24,39,0.8))]"
+                )}
+              >
+                <div className="flex items-center gap-2.5">
+                  <FlagComp className="w-4 h-3 border border-black/15 dark:border-white/15" />
+                  <span>{l.label}</span>
+                  <span className="text-[10px] text-[var(--table-header-color,#9ca3af)] uppercase font-mono">({l.short})</span>
+                </div>
+                {isSelected && <Check size={13} className="text-orange-500 shrink-0" />}
+              </button>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }
+
+export default LanguageSelector;

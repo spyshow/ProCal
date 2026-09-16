@@ -152,24 +152,24 @@ export default function TccPlotModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-in fade-in duration-150">
-      <div className="bg-gray-900 border border-gray-800 rounded-2xl max-w-4xl w-full shadow-2xl overflow-hidden flex flex-col max-h-[92vh]">
+      <div className="bg-[var(--card-bg,#111827)] border border-[var(--border-color,#1f2937)] rounded-2xl max-w-4xl w-full shadow-2xl overflow-hidden flex flex-col max-h-[92vh]">
         {/* Modal Header */}
-        <div className="px-6 py-4 border-b border-gray-800 flex items-center justify-between bg-gray-950/60">
+        <div className="px-6 py-4 border-b border-[var(--border-color,#1f2937)] flex items-center justify-between bg-[var(--card-bg-subtle,#030712)]">
           <div>
             <div className="flex items-center gap-2">
               <ShieldCheck className="text-orange-500" size={20} />
-              <h2 className="text-base font-bold text-white">
+              <h2 className="text-base font-bold text-[var(--foreground-color,#f8fafc)]">
                 Time-Current Characteristic (TCC) & Coordination Analysis
               </h2>
             </div>
-            <p className="text-xs text-gray-400 mt-0.5">
-              Feeder: <span className="text-gray-200 font-semibold">{feederName}</span> &bull; Upstream Parent:{' '}
-              <span className="text-gray-200 font-semibold">{upstreamFeederName || 'Main Incomer'}</span>
+            <p className="text-xs text-[var(--table-header-color,#9ca3af)] mt-0.5">
+              Feeder: <span className="text-[var(--foreground-color,#f8fafc)] font-semibold">{feederName}</span> &bull; Upstream Parent:{' '}
+              <span className="text-[var(--foreground-color,#f8fafc)] font-semibold">{upstreamFeederName || 'Main Incomer'}</span>
             </p>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-gray-400 hover:text-white hover:bg-gray-800 transition-colors"
+            className="p-1.5 rounded-lg text-[var(--table-header-color,#9ca3af)] hover:text-[var(--foreground-color,#f8fafc)] hover:bg-[var(--card-bg-subtle,#1f2937)] transition-colors cursor-pointer"
           >
             <X size={18} />
           </button>
@@ -179,25 +179,25 @@ export default function TccPlotModal({
         <div className="p-6 overflow-y-auto space-y-4">
           {/* Status Badges */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <div className="p-3 rounded-xl border border-gray-800 bg-gray-950/40">
-              <span className="text-[10px] uppercase font-bold tracking-wider text-gray-500 block mb-1">
+            <div className="p-3.5 rounded-xl border border-[var(--border-color,#1f2937)] bg-[var(--card-bg-subtle,#0b0f19)] shadow-xs">
+              <span className="text-[10px] uppercase font-bold tracking-wider text-[var(--table-header-color,#9ca3af)] block mb-1.5">
                 Coordination Status
               </span>
               <div className="flex items-center gap-2">
                 {selectivityStatus === 'FULL' ? (
-                  <CheckCircle2 size={16} className="text-green-400" />
+                  <CheckCircle2 size={16} className="text-emerald-700 dark:text-emerald-400 shrink-0" />
                 ) : selectivityStatus === 'PARTIAL' ? (
-                  <AlertTriangle size={16} className="text-yellow-400" />
+                  <AlertTriangle size={16} className="text-amber-800 dark:text-amber-400 shrink-0" />
                 ) : (
-                  <XCircle size={16} className="text-red-400" />
+                  <XCircle size={16} className="text-rose-700 dark:text-rose-400 shrink-0" />
                 )}
                 <span
-                  className={`text-xs font-bold ${
+                  className={`text-xs font-bold px-2.5 py-0.5 rounded-full border shadow-xs inline-flex items-center gap-1 ${
                     selectivityStatus === 'FULL'
-                      ? 'text-green-400'
+                      ? 'text-emerald-800 dark:text-emerald-300 bg-emerald-500/15 dark:bg-emerald-500/20 border-emerald-600/50 dark:border-emerald-500/40'
                       : selectivityStatus === 'PARTIAL'
-                      ? 'text-yellow-400'
-                      : 'text-red-400'
+                      ? 'text-amber-900 dark:text-amber-300 bg-amber-500/15 dark:bg-amber-500/20 border-amber-600/50 dark:border-amber-500/40'
+                      : 'text-rose-800 dark:text-rose-300 bg-rose-500/15 dark:bg-rose-500/20 border-rose-600/50 dark:border-rose-500/40'
                   }`}
                 >
                   {selectivityStatus === 'FULL'
@@ -209,26 +209,38 @@ export default function TccPlotModal({
               </div>
             </div>
 
-            <div className="p-3 rounded-xl border border-gray-800 bg-gray-950/40">
-              <span className="text-[10px] uppercase font-bold tracking-wider text-gray-500 block mb-1">
+            <div className="p-3.5 rounded-xl border border-[var(--border-color,#1f2937)] bg-[var(--card-bg-subtle,#0b0f19)] shadow-xs">
+              <span className="text-[10px] uppercase font-bold tracking-wider text-[var(--table-header-color,#9ca3af)] block mb-1.5">
                 Prospective Fault (Isc)
               </span>
-              <span className="text-xs font-mono font-bold text-orange-400">
+              <span className="text-sm font-mono font-bold text-orange-600 dark:text-orange-400">
                 {(faultCurrentAmps / 1000).toFixed(2)} kA
               </span>
             </div>
 
-            <div className="p-3 rounded-xl border border-gray-800 bg-gray-950/40">
-              <span className="text-[10px] uppercase font-bold tracking-wider text-gray-500 block mb-1">
+            <div className="p-3.5 rounded-xl border border-[var(--border-color,#1f2937)] bg-[var(--card-bg-subtle,#0b0f19)] shadow-xs">
+              <span className="text-[10px] uppercase font-bold tracking-wider text-[var(--table-header-color,#9ca3af)] block mb-1.5">
                 Cable Thermal Withstand
               </span>
               <div className="flex items-center gap-1.5">
                 <span
-                  className={`text-xs font-semibold ${
-                    cableDamageOk ? 'text-green-400' : 'text-red-400'
+                  className={`text-xs font-bold px-2.5 py-0.5 rounded-full border shadow-xs inline-flex items-center gap-1.5 ${
+                    cableDamageOk
+                      ? 'text-emerald-800 dark:text-emerald-300 bg-emerald-500/15 dark:bg-emerald-500/20 border-emerald-600/50 dark:border-emerald-500/40'
+                      : 'text-rose-800 dark:text-rose-300 bg-rose-500/15 dark:bg-rose-500/20 border-rose-600/50 dark:border-rose-500/40'
                   }`}
                 >
-                  {cableDamageOk ? '✓ Protected (Safe)' : '✗ Unprotected (Damage Risk)'}
+                  {cableDamageOk ? (
+                    <>
+                      <CheckCircle2 size={13} className="text-emerald-700 dark:text-emerald-400" />
+                      <span>Protected (Safe)</span>
+                    </>
+                  ) : (
+                    <>
+                      <XCircle size={13} className="text-rose-700 dark:text-rose-400" />
+                      <span>Unprotected (Damage Risk)</span>
+                    </>
+                  )}
                 </span>
               </div>
             </div>
@@ -236,15 +248,15 @@ export default function TccPlotModal({
 
           {/* Alternative Breaker Suggestions Section (Shown when PARTIAL or NONE) */}
           {selectivityStatus !== 'FULL' && alternativeSuggestions.length > 0 && (
-            <div className="rounded-xl border border-orange-500/30 bg-orange-950/15 p-4 space-y-3">
+            <div className="rounded-xl border border-orange-500/30 bg-orange-500/10 dark:bg-orange-950/15 p-4 space-y-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <Sparkles size={16} className="text-orange-400" />
-                  <h3 className="text-sm font-bold text-orange-300">
+                  <Sparkles size={16} className="text-orange-600 dark:text-orange-400" />
+                  <h3 className="text-sm font-bold text-orange-800 dark:text-orange-300">
                     Recommended Solutions for Full Selectivity
                   </h3>
                 </div>
-                <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded bg-orange-500/20 text-orange-300 border border-orange-500/30">
+                <span className="text-[10px] uppercase font-bold px-2.5 py-0.5 rounded-md bg-orange-500/15 text-orange-800 dark:text-orange-300 border border-orange-500/30 shadow-xs">
                   {alternativeSuggestions.length} Available Option{alternativeSuggestions.length > 1 ? 's' : ''}
                 </span>
               </div>
@@ -253,47 +265,47 @@ export default function TccPlotModal({
                 {alternativeSuggestions.map((sug) => (
                   <div
                     key={sug.id}
-                    className="p-3 rounded-lg border border-gray-800 bg-gray-900/90 flex flex-col sm:flex-row sm:items-start justify-between gap-3 hover:border-orange-500/40 transition-all"
+                    className="p-3.5 rounded-lg border border-[var(--border-color,#1f2937)] bg-[var(--card-bg,#111827)] flex flex-col sm:flex-row sm:items-start justify-between gap-3 hover:border-orange-500/40 shadow-xs transition-all"
                   >
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
-                        <span className="px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider bg-orange-500/10 text-orange-400 border border-orange-500/20">
+                        <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-orange-500/15 text-orange-800 dark:text-orange-400 border border-orange-500/30">
                           {sug.badge}
                         </span>
-                        <strong className="text-xs font-semibold text-gray-200">{sug.title}</strong>
+                        <strong className="text-xs font-semibold text-[var(--foreground-color,#f8fafc)]">{sug.title}</strong>
                       </div>
-                      <p className="text-xs text-gray-400 leading-relaxed">{sug.description}</p>
+                      <p className="text-xs text-[var(--table-header-color,#9ca3af)] leading-relaxed">{sug.description}</p>
                       {sug.suggestedModel && (
-                        <div className="flex items-center gap-2 text-xs font-mono text-blue-400 pt-0.5 flex-wrap">
-                          <Zap size={12} className="text-blue-400 shrink-0" />
+                        <div className="flex items-center gap-2 text-xs font-mono text-blue-600 dark:text-blue-400 pt-0.5 flex-wrap">
+                          <Zap size={12} className="text-blue-600 dark:text-blue-400 shrink-0" />
                           <span>Suggested Model: <strong>{sug.suggestedModel}</strong></span>
                           {sug.fallbackType === 'OTHER_FAMILY' && (
-                            <span className="text-[10px] font-sans font-semibold px-1.5 py-0.5 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                            <span className="text-[10px] font-sans font-semibold px-1.5 py-0.5 rounded bg-blue-500/15 text-blue-700 dark:text-blue-400 border border-blue-500/30">
                               Catalog Fallback
                             </span>
                           )}
                           {sug.fallbackType === 'OTHER_BRAND' && (
-                            <span className="text-[10px] font-sans font-semibold px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20">
+                            <span className="text-[10px] font-sans font-semibold px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-900 dark:text-amber-300 border border-amber-600/40 dark:border-amber-500/30">
                               Cross-Brand
                             </span>
                           )}
                           {sug.fallbackType === 'GENERIC_SPEC' && (
-                            <span className="text-[10px] font-sans font-semibold px-1.5 py-0.5 rounded bg-purple-500/10 text-purple-300 border border-purple-500/20" title={sug.genericSpec?.procurementNotes}>
+                            <span className="text-[10px] font-sans font-semibold px-1.5 py-0.5 rounded bg-purple-500/15 text-purple-800 dark:text-purple-300 border border-purple-500/30" title={sug.genericSpec?.procurementNotes}>
                               Generic Spec
                             </span>
                           )}
                         </div>
                       )}
                       {sug.genericSpec?.procurementNotes && (
-                        <div className="text-[11px] text-gray-400 bg-gray-950/60 p-2 rounded border border-gray-800 font-sans mt-1">
-                          <strong className="text-gray-300">Procurement Spec: </strong>
+                        <div className="text-[11px] text-[var(--table-header-color,#9ca3af)] bg-[var(--card-bg-subtle,rgba(0,0,0,0.2))] p-2 rounded border border-[var(--border-color,#1f2937)] font-sans mt-1">
+                          <strong className="text-[var(--foreground-color,#f8fafc)]">Procurement Spec: </strong>
                           {sug.genericSpec.procurementNotes}
                         </div>
                       )}
                     </div>
                     <div className="shrink-0 flex flex-col sm:flex-row items-end sm:items-center gap-2 self-end sm:self-center">
-                      <span className="text-[10px] font-bold text-green-400 px-2 py-1 rounded bg-green-500/10 border border-green-500/20 flex items-center gap-1">
-                        <CheckCircle2 size={11} /> FULL Selectivity
+                      <span className="text-[11px] font-bold text-emerald-800 dark:text-emerald-300 px-2.5 py-1 rounded-full bg-emerald-500/15 dark:bg-emerald-500/20 border border-emerald-600/50 dark:border-emerald-500/40 flex items-center gap-1 shadow-xs">
+                        <CheckCircle2 size={12} className="text-emerald-700 dark:text-emerald-300" /> FULL Selectivity
                       </span>
                       {onApplySuggestion && (
                         <button
@@ -301,7 +313,7 @@ export default function TccPlotModal({
                           onClick={async () => {
                             await onApplySuggestion(sug);
                           }}
-                          className="px-3 py-1.5 rounded-lg bg-orange-500 hover:bg-orange-600 active:scale-95 disabled:opacity-50 text-white font-bold text-xs shadow-md transition-all flex items-center gap-1.5 shrink-0"
+                          className="px-3.5 py-1.5 rounded-lg bg-orange-600 hover:bg-orange-500 active:scale-95 disabled:opacity-50 text-white font-bold text-xs shadow-xs shadow-orange-600/25 text-white-force transition-all flex items-center gap-1.5 shrink-0 cursor-pointer"
                           title="Apply this recommendation and save to project database"
                         >
                           <Zap size={12} className={applyingId === sug.id ? "animate-spin" : ""} />
@@ -316,7 +328,7 @@ export default function TccPlotModal({
           )}
 
           {/* SVG Plot */}
-          <div className="rounded-xl border border-gray-800 bg-gray-950/70 p-3 overflow-x-auto flex justify-center">
+          <div className="rounded-xl border border-[var(--border-color)] bg-[var(--card-bg-subtle)] p-3 overflow-x-auto flex justify-center shadow-inner">
             <svg width={svgWidth} height={svgHeight} className="select-none font-mono text-[9px]">
               {/* Plot Background */}
               <rect
@@ -324,9 +336,10 @@ export default function TccPlotModal({
                 y={plotTop}
                 width={plotWidth}
                 height={plotHeight}
-                fill="#0a0e17"
-                stroke="#1f2937"
-                strokeWidth="1"
+                fill="var(--card-bg)"
+                stroke="var(--border-color)"
+                strokeWidth="1.5"
+                rx="4"
               />
 
               {/* Grid Lines - Current (X) */}
@@ -339,10 +352,11 @@ export default function TccPlotModal({
                       y1={plotTop}
                       x2={x}
                       y2={plotTop + plotHeight}
-                      stroke="#1e293b"
+                      stroke="var(--border-color)"
+                      strokeOpacity="0.6"
                       strokeDasharray="2,2"
                     />
-                    <text x={x} y={plotTop + plotHeight + 16} fill="#64748b" textAnchor="middle">
+                    <text x={x} y={plotTop + plotHeight + 16} fill="currentColor" className="text-[var(--text-secondary)]" textAnchor="middle">
                       {iVal >= 1000 ? `${iVal / 1000}k` : iVal}
                     </text>
                   </g>
@@ -359,10 +373,11 @@ export default function TccPlotModal({
                       y1={y}
                       x2={plotLeft + plotWidth}
                       y2={y}
-                      stroke="#1e293b"
+                      stroke="var(--border-color)"
+                      strokeOpacity="0.6"
                       strokeDasharray="2,2"
                     />
-                    <text x={plotLeft - 8} y={y + 3} fill="#64748b" textAnchor="end">
+                    <text x={plotLeft - 8} y={y + 3} fill="currentColor" className="text-[var(--text-secondary)]" textAnchor="end">
                       {tVal >= 60 ? `${tVal / 60}m` : `${tVal}s`}
                     </text>
                   </g>
@@ -373,9 +388,9 @@ export default function TccPlotModal({
               <text
                 x={plotLeft + plotWidth / 2}
                 y={plotTop + plotHeight + 35}
-                fill="#94a3b8"
+                fill="currentColor"
                 textAnchor="middle"
-                className="font-sans text-[10px] font-semibold tracking-wider"
+                className="font-sans text-[10px] font-bold tracking-wider text-[var(--foreground-color)]"
               >
                 Current (A) &mdash; Log Scale
               </text>
@@ -427,33 +442,33 @@ export default function TccPlotModal({
           </div>
 
           {/* Legend */}
-          <div className="flex flex-wrap items-center justify-between gap-3 text-xs bg-gray-950/40 border border-gray-800 p-3 rounded-xl">
+          <div className="flex flex-wrap items-center justify-between gap-3 text-xs bg-[var(--card-bg-subtle,#0b0f19)] border border-[var(--border-color,#1f2937)] p-3.5 rounded-xl shadow-xs">
             <div className="flex items-center gap-2">
-              <span className="w-3 h-0.5 bg-[#38bdf8] inline-block"></span>
-              <span className="text-gray-300 font-medium">Upstream ({upstreamBreakerModel || `${upstreamBreakerSize}A`})</span>
+              <span className="w-3.5 h-1 rounded-full bg-[#38bdf8] inline-block"></span>
+              <span className="text-[var(--foreground-color,#e5e7eb)] font-medium">Upstream ({upstreamBreakerModel || `${upstreamBreakerSize}A`})</span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="w-3 h-0.5 bg-[#f97316] inline-block"></span>
-              <span className="text-gray-300 font-medium">Downstream ({downstreamBreakerModel || `${downstreamBreakerSize}A`})</span>
+              <span className="w-3.5 h-1 rounded-full bg-[#f97316] inline-block"></span>
+              <span className="text-[var(--foreground-color,#e5e7eb)] font-medium">Downstream ({downstreamBreakerModel || `${downstreamBreakerSize}A`})</span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="w-3 h-0.5 bg-[#ef4444] inline-block border-b border-dashed border-red-500"></span>
-              <span className="text-gray-400">Cable Damage ({downstreamCableSize} mm² XLPE)</span>
+              <span className="w-3.5 h-1 rounded-full bg-[#ef4444] inline-block border-b border-dashed border-red-500"></span>
+              <span className="text-[var(--table-header-color,#9ca3af)]">Cable Damage ({downstreamCableSize} mm² XLPE)</span>
             </div>
           </div>
 
           {selectivityReason && (
-            <p className="text-xs text-gray-400 italic">
+            <p className="text-xs text-[var(--table-header-color,#9ca3af)] italic">
               {selectivityReason}
             </p>
           )}
         </div>
 
         {/* Modal Footer */}
-        <div className="px-6 py-3 border-t border-gray-800 bg-gray-950/60 flex justify-end">
+        <div className="px-6 py-3.5 border-t border-[var(--border-color,#1f2937)] bg-[var(--card-bg-subtle,#030712)] flex justify-end">
           <button
             onClick={onClose}
-            className="px-4 py-2 rounded-lg bg-gray-800 hover:bg-gray-700 text-xs font-semibold text-gray-200 transition-colors"
+            className="px-4 py-2 rounded-lg bg-[var(--card-bg,#1f2937)] hover:bg-[var(--card-bg-subtle)] text-xs font-semibold text-[var(--foreground-color,#f8fafc)] border border-[var(--border-color,#374151)] transition-all cursor-pointer shadow-xs"
           >
             Close
           </button>

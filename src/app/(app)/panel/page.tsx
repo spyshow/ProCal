@@ -113,27 +113,27 @@ function getBreakerCategory(f: PanelFeeder): 'ACB' | 'MCCB' | 'MCB' {
   return 'MCB';
 }
 
-const BREAKER_FAMILY_THEME: Record<'ACB' | 'MCCB' | 'MCB', { stroke: string; text: string; badgeBg: string; badgeBorder: string; badgeText: string }> = {
+const BREAKER_FAMILY_THEME: Record<'ACB' | 'MCCB' | 'MCB', { stroke: string; textClass: string; badgeBg: string; badgeBorder: string; badgeTextClass: string }> = {
   ACB: {
-    stroke: '#f97316',
-    text: '#fdba74',
-    badgeBg: 'rgba(249, 115, 22, 0.15)',
-    badgeBorder: '#f97316',
-    badgeText: '#f97316',
+    stroke: '#ea580c',
+    textClass: 'text-orange-700 dark:text-orange-300',
+    badgeBg: 'rgba(234, 88, 12, 0.15)',
+    badgeBorder: '#ea580c',
+    badgeTextClass: 'text-orange-700 dark:text-orange-300',
   },
   MCCB: {
-    stroke: '#38bdf8',
-    text: '#7dd3fc',
-    badgeBg: 'rgba(56, 189, 248, 0.15)',
+    stroke: '#0284c7',
+    textClass: 'text-sky-700 dark:text-sky-300',
+    badgeBg: 'rgba(2, 132, 199, 0.15)',
     badgeBorder: '#0284c7',
-    badgeText: '#38bdf8',
+    badgeTextClass: 'text-sky-700 dark:text-sky-300',
   },
   MCB: {
-    stroke: '#94a3b8',
-    text: '#e2e8f0',
-    badgeBg: 'rgba(148, 163, 184, 0.15)',
+    stroke: '#64748b',
+    textClass: 'text-slate-700 dark:text-slate-300',
+    badgeBg: 'rgba(100, 116, 139, 0.15)',
     badgeBorder: '#64748b',
-    badgeText: '#cbd5e1',
+    badgeTextClass: 'text-slate-700 dark:text-slate-300',
   },
 };
 
@@ -345,9 +345,9 @@ export default function PanelDesignerPage() {
     return (
       <div className="p-3 sm:p-5 space-y-4 w-full max-w-[1680px] mx-auto min-h-[80vh]">
         <WorkflowStepper currentStep={5} />
-        <div className="rounded-xl border border-gray-800 bg-gray-900/40 p-8 text-center">
-          <Activity size={18} className="animate-spin text-orange-500 mx-auto mb-2" />
-          <p className="text-gray-400 text-sm">{t('breakerSchedule.loadingCatalog', 'Loading breaker catalog…')}</p>
+        <div className="rounded-xl border border-[var(--border-color)] bg-[var(--card-bg)] p-8 text-center shadow-xs">
+          <Activity size={18} className="animate-spin text-orange-600 dark:text-orange-400 mx-auto mb-2" />
+          <p className="text-[var(--table-header-color)] text-sm">{t('breakerSchedule.loadingCatalog', 'Loading breaker catalog…')}</p>
         </div>
       </div>
     );
@@ -370,27 +370,31 @@ export default function PanelDesignerPage() {
 
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white flex items-center gap-2">
-            <Cpu size={22} className="text-orange-500" />
+          <h1 className="text-2xl font-bold text-[var(--foreground-color)] flex items-center gap-2">
+            <Cpu size={22} className="text-orange-600 dark:text-orange-400" />
             {panelType === 'MDB' ? t('panel.title', 'MDB Panel Designer') : `SMDB — ${t('panel.title', 'Panel Designer')}`}
           </h1>
-          <p className="text-sm text-gray-400 mt-1">
+          <p className="text-sm text-[var(--table-header-color)] mt-1">
             {project.name} — {bldg.name} · {preferredManufacturer} series
           </p>
         </div>
         <div className="flex gap-2">
           <button
             onClick={() => setPanelType('MDB')}
-            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-              panelType === 'MDB' ? 'bg-orange-600 text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+            className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+              panelType === 'MDB'
+                ? 'bg-orange-600 text-white text-white-force shadow-xs shadow-orange-600/20'
+                : 'bg-[var(--card-bg-subtle)] text-[var(--foreground-color)] hover:text-orange-600 dark:hover:text-orange-400 hover:bg-[var(--card-bg)] border border-[var(--border-color)]'
             }`}
           >
             MDB
           </button>
           <button
             onClick={() => setPanelType('SMDB')}
-            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-              panelType === 'SMDB' ? 'bg-orange-600 text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+            className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+              panelType === 'SMDB'
+                ? 'bg-orange-600 text-white text-white-force shadow-xs shadow-orange-600/20'
+                : 'bg-[var(--card-bg-subtle)] text-[var(--foreground-color)] hover:text-orange-600 dark:hover:text-orange-400 hover:bg-[var(--card-bg)] border border-[var(--border-color)]'
             }`}
           >
             SMDB
@@ -405,8 +409,10 @@ export default function PanelDesignerPage() {
             <button
               key={b.id}
               onClick={() => setSelectedBuilding(b.id)}
-              className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-                selectedBuilding === b.id ? 'bg-orange-600 text-white' : 'bg-gray-800 text-gray-400'
+              className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                selectedBuilding === b.id
+                  ? 'bg-orange-600 text-white text-white-force shadow-xs shadow-orange-600/20'
+                  : 'bg-[var(--card-bg-subtle)] text-[var(--foreground-color)] hover:text-orange-600 dark:hover:text-orange-400 hover:bg-[var(--card-bg)] border border-[var(--border-color)]'
               }`}
             >
               {b.name}
@@ -422,8 +428,10 @@ export default function PanelDesignerPage() {
             <button
               key={floorNumber}
               onClick={() => setSelectedFloor(floorNumber)}
-              className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-                activeSmdbFloor === floorNumber ? 'bg-orange-600 text-white' : 'bg-gray-800 text-gray-400'
+              className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                activeSmdbFloor === floorNumber
+                  ? 'bg-orange-600 text-white text-white-force shadow-xs shadow-orange-600/20'
+                  : 'bg-[var(--card-bg-subtle)] text-[var(--foreground-color)] hover:text-orange-600 dark:hover:text-orange-400 hover:bg-[var(--card-bg)] border border-[var(--border-color)]'
               }`}
             >
               {t('calculator.floor', 'Floor')} {floorNumber}
@@ -433,84 +441,84 @@ export default function PanelDesignerPage() {
       )}
 
       {/* Main Incomer */}
-      <div className="rounded-xl border border-gray-800 bg-gray-900/60 p-5">
-        <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4 flex items-center gap-2">
-          <Zap size={14} className="text-orange-500" />
+      <div className="rounded-xl border border-[var(--border-color)] bg-[var(--card-bg)] p-5 shadow-xs">
+        <h2 className="text-sm font-semibold text-[var(--foreground-color)] uppercase tracking-wider mb-4 flex items-center gap-2">
+          <Zap size={14} className="text-orange-600 dark:text-orange-400" />
           {t('panel.incomer', 'Main Incomer')} &mdash; {panelType}
         </h2>
         <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
-          <div className="rounded-lg border border-gray-800 bg-gray-800/30 p-3">
-            <p className="text-[10px] text-gray-500 uppercase">{t('common.maxDemand', 'Total Demand')}</p>
-            <p className="text-lg font-bold text-orange-400 font-mono">{totalDemandKva.toFixed(1)} kVA</p>
+          <div className="rounded-xl border border-[var(--border-color)] border-l-4 border-l-orange-500 bg-[var(--card-bg-subtle)] p-3 shadow-2xs">
+            <p className="text-[10px] text-[var(--table-header-color)] uppercase font-semibold">{t('common.maxDemand', 'Total Demand')}</p>
+            <p className="text-lg font-bold text-orange-700 dark:text-orange-400 font-mono">{totalDemandKva.toFixed(1)} kVA</p>
           </div>
-          <div className="rounded-lg border border-gray-800 bg-gray-800/30 p-3">
-            <p className="text-[10px] text-gray-500 uppercase">{t('common.current', 'Main Current')}</p>
-            <p className="text-lg font-bold text-blue-400 font-mono">{mainBreakerCurrent.toFixed(0)} A</p>
+          <div className="rounded-xl border border-[var(--border-color)] border-l-4 border-l-sky-500 bg-[var(--card-bg-subtle)] p-3 shadow-2xs">
+            <p className="text-[10px] text-[var(--table-header-color)] uppercase font-semibold">{t('common.current', 'Main Current')}</p>
+            <p className="text-lg font-bold text-sky-700 dark:text-sky-400 font-mono">{mainBreakerCurrent.toFixed(0)} A</p>
           </div>
-          <div className="rounded-lg border border-gray-800 bg-gray-800/30 p-3">
-            <p className="text-[10px] text-gray-500 uppercase">{t('common.breaker', 'Main Breaker')}</p>
-            <p className="text-lg font-bold text-white font-mono">{mainBreakerIn}A</p>
-            <p className="text-[10px] text-gray-500">{mainBreakerModel}</p>
+          <div className="rounded-xl border border-[var(--border-color)] border-l-4 border-l-slate-400 dark:border-l-slate-500 bg-[var(--card-bg-subtle)] p-3 shadow-2xs">
+            <p className="text-[10px] text-[var(--table-header-color)] uppercase font-semibold">{t('common.breaker', 'Main Breaker')}</p>
+            <p className="text-lg font-bold text-[var(--foreground-color)] font-mono">{mainBreakerIn}A</p>
+            <p className="text-[10px] text-[var(--table-header-color)] truncate">{mainBreakerModel}</p>
           </div>
-          <div className="rounded-lg border border-gray-800 bg-gray-800/30 p-3">
-            <p className="text-[10px] text-gray-500 uppercase">{t('common.cable', 'Main Cable')}</p>
-            <p className={`text-lg font-bold font-mono ${mainCableUnderProtected ? 'text-red-400' : 'text-green-400'}`}>
+          <div className="rounded-xl border border-[var(--border-color)] border-l-4 border-l-emerald-500 bg-[var(--card-bg-subtle)] p-3 shadow-2xs">
+            <p className="text-[10px] text-[var(--table-header-color)] uppercase font-semibold">{t('common.cable', 'Main Cable')}</p>
+            <p className={`text-lg font-bold font-mono ${mainCableUnderProtected ? 'text-rose-700 dark:text-rose-400' : 'text-emerald-700 dark:text-emerald-400'}`}>
               {cablesPerPhase > 1 ? `${cablesPerPhase} × ` : ''}{formatCableSizeFor(mainCable.size, selectedProject?.calculationStandard)}
             </p>
-            <p className="text-[10px] text-gray-500">{cablesPerPhase}×{formatCableSizeFor(mainCable.size, selectedProject?.calculationStandard)}</p>
-            <p className="text-[10px] text-gray-500">N: {neutralCables}×{formatCableSizeFor(neutralSize, selectedProject?.calculationStandard)}</p>
+            <p className="text-[10px] text-[var(--table-header-color)]">{cablesPerPhase}×{formatCableSizeFor(mainCable.size, selectedProject?.calculationStandard)}</p>
+            <p className="text-[10px] text-[var(--table-header-color)]">N: {neutralCables}×{formatCableSizeFor(neutralSize, selectedProject?.calculationStandard)}</p>
             {mainCableUnderProtected && (
-              <p className="text-[10px] text-red-400 font-semibold">
+              <p className="text-[10px] text-rose-700 dark:text-rose-400 font-semibold">
                 {t('panel.cableUnderProtected', 'Iz {{iz}}A < In {{in}}A — increase cable or runs', { iz: mainCableIz, in: mainBreakerIn })}
               </p>
             )}
           </div>
-          <div className="rounded-lg border border-gray-800 bg-gray-800/30 p-3">
-            <p className="text-[10px] text-gray-500 uppercase">{t('dashboard.transformerSize', 'Transformer')}</p>
-            <p className="text-lg font-bold text-yellow-400 font-mono">{transformerSize} kVA</p>
+          <div className="rounded-xl border border-[var(--border-color)] border-l-4 border-l-amber-500 bg-[var(--card-bg-subtle)] p-3 shadow-2xs">
+            <p className="text-[10px] text-[var(--table-header-color)] uppercase font-semibold">{t('dashboard.transformerSize', 'Transformer')}</p>
+            <p className="text-lg font-bold text-amber-800 dark:text-amber-300 font-mono">{transformerSize} kVA</p>
           </div>
-          <div className="rounded-lg border border-gray-800 bg-gray-800/30 p-3">
-            <p className="text-[10px] text-gray-500 uppercase">{t('panel.busbarRating', 'Busbar')}</p>
-            <p className="text-lg font-bold text-white font-mono">
+          <div className="rounded-xl border border-[var(--border-color)] border-l-4 border-l-slate-400 dark:border-l-slate-500 bg-[var(--card-bg-subtle)] p-3 shadow-2xs">
+            <p className="text-[10px] text-[var(--table-header-color)] uppercase font-semibold">{t('panel.busbarRating', 'Busbar')}</p>
+            <p className="text-lg font-bold text-[var(--foreground-color)] font-mono">
               {busbarRating}A
             </p>
-            <p className="text-[10px] text-gray-500">{t('panel.phasePE', '3-Phase + N + PE')}</p>
+            <p className="text-[10px] text-[var(--table-header-color)]">{t('panel.phasePE', '3-Phase + N + PE')}</p>
           </div>
         </div>
       </div>
 
       {/* Short Circuit & Earthing Analysis */}
-      <div className="rounded-xl border border-gray-800 bg-gray-900/60 p-5 space-y-4">
+      <div className="rounded-xl border border-[var(--border-color)] bg-[var(--card-bg)] p-5 space-y-4 shadow-xs">
         <div className="flex items-center justify-between">
-          <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider flex items-center gap-2">
-            <Shield size={14} className="text-orange-500" />
+          <h2 className="text-sm font-semibold text-[var(--foreground-color)] uppercase tracking-wider flex items-center gap-2">
+            <Shield size={14} className="text-orange-600 dark:text-orange-400" />
             {t('panel.shortCircuitAnalysis', 'Short-Circuit & Earthing Analysis')}
           </h2>
           <div className="flex items-center gap-2">
-            <span className="text-xs text-gray-400">{t('panel.earthingSystem', 'Earthing System')}:</span>
-            <span className="px-2 py-0.5 rounded text-xs font-mono font-bold bg-orange-500/20 text-orange-400 border border-orange-500/30">
+            <span className="text-xs text-[var(--table-header-color)]">{t('panel.earthingSystem', 'Earthing System')}:</span>
+            <span className="px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-orange-500/15 text-orange-700 dark:text-orange-300 border border-orange-500/30">
               {earthingSystem}
             </span>
           </div>
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-          <div className="rounded-lg border border-gray-800 bg-gray-800/30 p-3">
-            <p className="text-[10px] text-gray-500 uppercase">{t('panel.threePhaseIsc', '3-Phase Isc (Icu Req)')}</p>
-            <p className="text-lg font-bold text-red-400 font-mono">{shortCircuit.threePhaseIsc.toFixed(2)} kA</p>
-            <p className="text-[10px] text-gray-500">{t('panel.symmetricRms', 'Symmetric RMS')}</p>
+          <div className="rounded-xl border border-[var(--border-color)] border-l-4 border-l-rose-500 bg-[var(--card-bg-subtle)] p-3 shadow-2xs">
+            <p className="text-[10px] text-[var(--table-header-color)] uppercase font-semibold">{t('panel.threePhaseIsc', '3-Phase Isc (Icu Req)')}</p>
+            <p className="text-lg font-bold text-rose-700 dark:text-rose-400 font-mono">{shortCircuit.threePhaseIsc.toFixed(2)} kA</p>
+            <p className="text-[10px] text-[var(--table-header-color)]">{t('panel.symmetricRms', 'Symmetric RMS')}</p>
           </div>
-          <div className="rounded-lg border border-gray-800 bg-gray-800/30 p-3">
-            <p className="text-[10px] text-gray-500 uppercase">{t('panel.lineToLineIsc', 'Line-to-Line Isc')}</p>
-            <p className="text-lg font-bold text-yellow-400 font-mono">{shortCircuit.twoPhaseIsc.toFixed(2)} kA</p>
-            <p className="text-[10px] text-gray-500">{t('panel.phaseToPhase', 'Phase-to-Phase (2Φ)')}</p>
+          <div className="rounded-xl border border-[var(--border-color)] border-l-4 border-l-amber-500 bg-[var(--card-bg-subtle)] p-3 shadow-2xs">
+            <p className="text-[10px] text-[var(--table-header-color)] uppercase font-semibold">{t('panel.lineToLineIsc', 'Line-to-Line Isc')}</p>
+            <p className="text-lg font-bold text-amber-800 dark:text-amber-300 font-mono">{shortCircuit.twoPhaseIsc.toFixed(2)} kA</p>
+            <p className="text-[10px] text-[var(--table-header-color)]">{t('panel.phaseToPhase', 'Phase-to-Phase (2Φ)')}</p>
           </div>
-          <div className="rounded-lg border border-gray-800 bg-gray-800/30 p-3">
-            <p className="text-[10px] text-gray-500 uppercase">{t('panel.phaseToEarth', 'Phase-to-Earth / Neutral')}</p>
-            <p className="text-lg font-bold text-blue-400 font-mono">
+          <div className="rounded-xl border border-[var(--border-color)] border-l-4 border-l-sky-500 bg-[var(--card-bg-subtle)] p-3 shadow-2xs">
+            <p className="text-[10px] text-[var(--table-header-color)] uppercase font-semibold">{t('panel.phaseToEarth', 'Phase-to-Earth / Neutral')}</p>
+            <p className="text-lg font-bold text-sky-700 dark:text-sky-400 font-mono">
               {shortCircuit.itFirstFault ? '0.00 kA' : `${shortCircuit.phaseToNeutralIsc.toFixed(2)} kA`}
             </p>
-            <p className="text-[10px] text-gray-500">
+            <p className="text-[10px] text-[var(--table-header-color)]">
               {shortCircuit.itFirstFault
                 ? t('panel.floatingFault', '1st Fault (Floating)')
                 : earthingSystem.toUpperCase() === 'TT'
@@ -518,39 +526,39 @@ export default function PanelDesignerPage() {
                 : t('panel.solidGround', 'Solid Ground')}
             </p>
           </div>
-          <div className="rounded-lg border border-gray-800 bg-gray-800/30 p-3">
-            <p className="text-[10px] text-gray-500 uppercase">{t('panel.peakCurrent', 'Peak Current (Ip)')}</p>
-            <p className="text-lg font-bold text-purple-400 font-mono">{shortCircuit.peakCurrent.toFixed(2)} kA</p>
-            <p className="text-[10px] text-gray-500">{t('panel.mechanicalStress', 'Mechanical Stress')}</p>
+          <div className="rounded-xl border border-[var(--border-color)] border-l-4 border-l-purple-500 bg-[var(--card-bg-subtle)] p-3 shadow-2xs">
+            <p className="text-[10px] text-[var(--table-header-color)] uppercase font-semibold">{t('panel.peakCurrent', 'Peak Current (Ip)')}</p>
+            <p className="text-lg font-bold text-purple-700 dark:text-purple-300 font-mono">{shortCircuit.peakCurrent.toFixed(2)} kA</p>
+            <p className="text-[10px] text-[var(--table-header-color)]">{t('panel.mechanicalStress', 'Mechanical Stress')}</p>
           </div>
-          <div className="rounded-lg border border-gray-800 bg-gray-800/30 p-3">
-            <p className="text-[10px] text-gray-500 uppercase">{t('panel.transformerImpedance', 'Transformer Impedance')}</p>
-            <p className="text-lg font-bold text-gray-300 font-mono">{(shortCircuit.transformerZ * 1000).toFixed(2)} mΩ</p>
-            <p className="text-[10px] text-gray-500">{t('panel.faultMva', 'Fault MVA')}: {shortCircuit.faultMVA.toFixed(1)}</p>
+          <div className="rounded-xl border border-[var(--border-color)] border-l-4 border-l-slate-400 dark:border-l-slate-500 bg-[var(--card-bg-subtle)] p-3 shadow-2xs">
+            <p className="text-[10px] text-[var(--table-header-color)] uppercase font-semibold">{t('panel.transformerImpedance', 'Transformer Impedance')}</p>
+            <p className="text-lg font-bold text-[var(--foreground-color)] font-mono">{(shortCircuit.transformerZ * 1000).toFixed(2)} mΩ</p>
+            <p className="text-[10px] text-[var(--table-header-color)]">{t('panel.faultMva', 'Fault MVA')}: {shortCircuit.faultMVA.toFixed(1)}</p>
           </div>
         </div>
 
         {/* Earthing Explanation Banner */}
-        <div className="rounded-lg p-3 text-xs leading-relaxed border bg-gray-950/60 border-gray-800">
+        <div className="rounded-xl p-3.5 text-xs leading-relaxed border bg-[var(--card-bg-subtle)] border-[var(--border-color)] shadow-2xs">
           {shortCircuit.itFirstFault ? (
-            <p className="text-amber-300 flex items-start gap-2">
-              <AlertTriangle size={15} className="shrink-0 mt-0.5 text-amber-400" />
+            <p className="text-amber-900 dark:text-amber-200 flex items-start gap-2">
+              <AlertTriangle size={15} className="shrink-0 mt-0.5 text-amber-600 dark:text-amber-400" />
               <span>
-                <strong>IT Earthing System Notice:</strong> Single phase-to-earth fault current is negligible (0 kA) because the transformer neutral is isolated from ground. An Insulation Monitoring Device (IMD) is required to detect first faults. A double line-to-earth fault behaves as a phase-to-phase short circuit ({shortCircuit.twoPhaseIsc.toFixed(2)} kA).
+                <strong className="text-amber-800 dark:text-amber-300">IT Earthing System Notice:</strong> Single phase-to-earth fault current is negligible (0 kA) because the transformer neutral is isolated from ground. An Insulation Monitoring Device (IMD) is required to detect first faults. A double line-to-earth fault behaves as a phase-to-phase short circuit ({shortCircuit.twoPhaseIsc.toFixed(2)} kA).
               </span>
             </p>
           ) : earthingSystem.toUpperCase() === 'TT' ? (
-            <p className="text-blue-300 flex items-start gap-2">
-              <Shield size={15} className="shrink-0 mt-0.5 text-blue-400" />
+            <p className="text-sky-900 dark:text-sky-200 flex items-start gap-2">
+              <Shield size={15} className="shrink-0 mt-0.5 text-sky-600 dark:text-sky-400" />
               <span>
-                <strong>TT Earthing System Notice:</strong> Earth-fault loop impedance (Z_earth = {shortCircuit.earthFaultImpedanceOhms ?? 0.5} Ω) restricts phase-to-earth fault current to {shortCircuit.phaseToNeutralIsc.toFixed(2)} kA (significantly lower than 3-phase fault level). Residual Current Devices (RCDs) are mandatory to ensure protection under high fault loop impedance.
+                <strong className="text-sky-800 dark:text-sky-300">TT Earthing System Notice:</strong> Earth-fault loop impedance (Z_earth = {shortCircuit.earthFaultImpedanceOhms ?? 0.5} Ω) restricts phase-to-earth fault current to {shortCircuit.phaseToNeutralIsc.toFixed(2)} kA (significantly lower than 3-phase fault level). Residual Current Devices (RCDs) are mandatory to ensure protection under high fault loop impedance.
               </span>
             </p>
           ) : (
-            <p className="text-gray-400 flex items-start gap-2">
-              <Shield size={15} className="shrink-0 mt-0.5 text-green-400" />
+            <p className="text-[var(--foreground-color)] flex items-start gap-2">
+              <Shield size={15} className="shrink-0 mt-0.5 text-emerald-600 dark:text-emerald-400" />
               <span>
-                <strong>{earthingSystem} Earthing System:</strong> Solidly grounded transformer neutral provides a low-impedance path (I_sc, P-N = {shortCircuit.phaseToNeutralIsc.toFixed(2)} kA ≈ 3-Phase Isc), guaranteeing rapid instantaneous magnetic tripping of circuit breakers.
+                <strong className="text-emerald-800 dark:text-emerald-300">{earthingSystem} Earthing System:</strong> Solidly grounded transformer neutral provides a low-impedance path (I_sc, P-N = {shortCircuit.phaseToNeutralIsc.toFixed(2)} kA ≈ 3-Phase Isc), guaranteeing rapid instantaneous magnetic tripping of circuit breakers.
               </span>
             </p>
           )}
@@ -558,38 +566,38 @@ export default function PanelDesignerPage() {
       </div>
 
       {/* Panel Visual Layout */}
-      <div className="rounded-xl border border-gray-800 bg-gray-900/60 p-5 space-y-4">
+      <div className="rounded-xl border border-[var(--border-color)] bg-[var(--card-bg)] p-5 space-y-4 shadow-sm">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-          <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider flex items-center gap-2">
-            <Cpu size={14} className="text-orange-500" />
+          <h2 className="text-sm font-semibold text-[var(--foreground-color)] uppercase tracking-wider flex items-center gap-2">
+            <Cpu size={14} className="text-orange-600 dark:text-orange-400" />
             {t('panel.outgoingFeeders', 'Panel Layout')} &mdash; {activeFeeders.length} {t('cableSchedule.circuits', 'Feeders')}
           </h2>
 
           {/* Breaker Family Legend */}
-          <div className="flex flex-wrap items-center gap-3 text-xs bg-gray-950/70 border border-gray-800/80 rounded-lg px-3 py-1.5">
-            <span className="text-gray-400 font-medium text-[11px]">{t('breakers.title', 'Breakers')}:</span>
-            <span className="flex items-center gap-1 font-mono text-[10.5px] text-orange-400">
-              <span className="w-2 h-2 rounded-sm border border-orange-500 bg-orange-500/20 inline-block" />
+          <div className="flex flex-wrap items-center gap-3 text-xs bg-[var(--card-bg-subtle)] border border-[var(--border-color)] rounded-lg px-3 py-1.5 shadow-sm">
+            <span className="text-[var(--text-secondary)] font-medium text-[11px]">{t('breakers.title', 'Breakers')}:</span>
+            <span className="flex items-center gap-1 font-mono text-[10.5px] text-orange-700 dark:text-orange-300 font-semibold">
+              <span className="w-2.5 h-2.5 rounded-sm border border-orange-500 bg-orange-500/20 inline-block" />
               {t('panel.acbIncomer', 'ACB (Incomer)')}
             </span>
-            <span className="flex items-center gap-1 font-mono text-[10.5px] text-sky-400">
-              <span className="w-2 h-2 rounded-sm border border-sky-400 bg-sky-500/20 inline-block" />
+            <span className="flex items-center gap-1 font-mono text-[10.5px] text-sky-700 dark:text-sky-300 font-semibold">
+              <span className="w-2.5 h-2.5 rounded-sm border border-sky-500 bg-sky-500/20 inline-block" />
               {t('panel.mccbFeeders', 'MCCB (Feeders)')}
             </span>
-            <span className="flex items-center gap-1 font-mono text-[10.5px] text-slate-300">
-              <span className="w-2 h-2 rounded-sm border border-slate-400 bg-slate-500/20 inline-block" />
+            <span className="flex items-center gap-1 font-mono text-[10.5px] text-slate-700 dark:text-slate-300 font-semibold">
+              <span className="w-2.5 h-2.5 rounded-sm border border-slate-500 bg-slate-500/20 inline-block" />
               {t('panel.mcbSubcircuits', 'MCB (Sub-circuits)')}
             </span>
-            <span className="text-gray-600">|</span>
-            <span className="flex items-center gap-1 text-[10.5px] text-gray-400">
-              <span className="w-2 h-2 rounded-sm border border-slate-600 bg-slate-700 inline-block" />
+            <span className="text-[var(--border-color)]">|</span>
+            <span className="flex items-center gap-1 text-[10.5px] text-[var(--text-secondary)] font-medium">
+              <span className="w-2.5 h-2.5 rounded-sm border border-[var(--border-color)] bg-[var(--card-bg)] inline-block" />
               {t('panel.instruments', 'Instruments')}
             </span>
           </div>
         </div>
 
         {/* SVG Panel Outline */}
-        <div className="bg-gray-950 rounded-lg border border-gray-800 p-4 overflow-x-auto">
+        <div className="bg-[var(--card-bg-subtle)] rounded-lg border border-[var(--border-color)] p-4 overflow-x-auto shadow-inner">
           <svg
             viewBox={`0 0 800 ${Math.max(600, activeFeeders.length * 44 + 220)}`}
             className="w-full"
@@ -601,20 +609,20 @@ export default function PanelDesignerPage() {
               y="20"
               width="720"
               height={activeFeeders.length * 44 + 175}
-              fill="none"
-              stroke="#374151"
+              fill="var(--card-bg)"
+              stroke="var(--border-color)"
               strokeWidth="2"
-              rx="4"
+              rx="6"
             />
 
             {/* Panel Title */}
-            <text x="400" y="50" textAnchor="middle" fill="#9ca3af" fontSize="14" fontWeight="600">
+            <text x="400" y="50" textAnchor="middle" fill="currentColor" className="text-[var(--foreground-color)] font-semibold" fontSize="14" fontWeight="600">
               {panelType} — {bldg.name}{panelType === 'SMDB' && activeSmdbFloor ? ` — ${t('calculator.floor', 'Floor')} ${activeSmdbFloor}` : ''} — {preferredManufacturer}
             </text>
 
             {/* Busbar */}
-            <rect x="60" y="65" width="680" height="12" fill="#f97316" opacity="0.3" rx="2" />
-            <text x="400" y="75" textAnchor="middle" fill="#f97316" fontSize="10" fontWeight="600">
+            <rect x="60" y="65" width="680" height="12" fill="#ea580c" opacity="0.35" rx="2" />
+            <text x="400" y="74" textAnchor="middle" fill="#ea580c" fontSize="10" fontWeight="700">
               {t('panel.mainBusbar', 'MAIN BUSBAR')} — {busbarRating}A — {t('panel.phasePE', '3Φ + N + PE')}
             </text>
 
@@ -623,20 +631,20 @@ export default function PanelDesignerPage() {
               const lines = wrapSvgLines(`${mainBreakerIn}A ${mainBreakerModel}`, 24, 2);
               return (
                 <g>
-                  <rect x="60" y="90" width="155" height="48" fill="#1f2937" stroke="#f97316" strokeWidth="1.5" rx="3" />
-                  <text x="137.5" y="105" textAnchor="middle" fill="#f97316" fontSize="9.5" fontWeight="600">
+                  <rect x="60" y="90" width="155" height="48" fill="var(--card-bg)" stroke="#ea580c" strokeWidth="1.8" rx="4" />
+                  <text x="137.5" y="105" textAnchor="middle" fill="#ea580c" fontSize="9.5" fontWeight="700">
                     {t('panel.incomerBadge', 'INCOMER (ACB)')}
                   </text>
                   {lines.length === 1 ? (
-                    <text x="137.5" y="122" textAnchor="middle" fill="#fdba74" fontSize="8" fontWeight="500">
+                    <text x="137.5" y="122" textAnchor="middle" fill="currentColor" className="text-orange-700 dark:text-orange-300 font-semibold" fontSize="8" fontWeight="600">
                       {lines[0]}
                     </text>
                   ) : (
                     <>
-                      <text x="137.5" y="118" textAnchor="middle" fill="#fdba74" fontSize="7.5" fontWeight="500">
+                      <text x="137.5" y="118" textAnchor="middle" fill="currentColor" className="text-orange-700 dark:text-orange-300 font-semibold" fontSize="7.5" fontWeight="600">
                         {lines[0]}
                       </text>
-                      <text x="137.5" y="128" textAnchor="middle" fill="#fed7aa" fontSize="7">
+                      <text x="137.5" y="128" textAnchor="middle" fill="currentColor" className="text-orange-700 dark:text-orange-300 font-medium" fontSize="7" fontWeight="500">
                         {lines[1]}
                       </text>
                     </>
@@ -651,18 +659,18 @@ export default function PanelDesignerPage() {
               const lines = wrapSvgLines(spdText, 13, 2);
               return (
                 <g>
-                  <rect x="245" y="90" width="85" height="48" fill="#111827" stroke="#475569" strokeWidth="1" rx="3" />
-                  <text x="287.5" y="105" textAnchor="middle" fill="#e2e8f0" fontSize="9" fontWeight="600">SPD</text>
+                  <rect x="245" y="90" width="85" height="48" fill="var(--card-bg)" stroke="var(--border-color)" strokeWidth="1" rx="4" />
+                  <text x="287.5" y="105" textAnchor="middle" fill="currentColor" className="text-[var(--foreground-color)] font-semibold" fontSize="9" fontWeight="600">SPD</text>
                   {lines.length === 1 ? (
-                    <text x="287.5" y="123" textAnchor="middle" fill="#64748b" fontSize="7.5">
+                    <text x="287.5" y="123" textAnchor="middle" fill="currentColor" className="text-[var(--text-secondary)] font-medium" fontSize="7.5">
                       {lines[0]}
                     </text>
                   ) : (
                     <>
-                      <text x="287.5" y="118" textAnchor="middle" fill="#64748b" fontSize="7">
+                      <text x="287.5" y="118" textAnchor="middle" fill="currentColor" className="text-[var(--text-secondary)] font-medium" fontSize="7">
                         {lines[0]}
                       </text>
-                      <text x="287.5" y="128" textAnchor="middle" fill="#64748b" fontSize="6.5">
+                      <text x="287.5" y="128" textAnchor="middle" fill="currentColor" className="text-[var(--text-secondary)] font-medium" fontSize="6.5">
                         {lines[1]}
                       </text>
                     </>
@@ -677,11 +685,11 @@ export default function PanelDesignerPage() {
               const titleLines = wrapSvgLines(meterTitle, 14, 2);
               return (
                 <g>
-                  <rect x="340" y="90" width="100" height="48" fill="#111827" stroke="#475569" strokeWidth="1" rx="3" />
-                  <text x="390" y="105" textAnchor="middle" fill="#e2e8f0" fontSize="8.5" fontWeight="600">
+                  <rect x="340" y="90" width="100" height="48" fill="var(--card-bg)" stroke="var(--border-color)" strokeWidth="1" rx="4" />
+                  <text x="390" y="105" textAnchor="middle" fill="currentColor" className="text-[var(--foreground-color)] font-semibold" fontSize="8.5" fontWeight="600">
                     {titleLines[0] || 'POWER METER'}
                   </text>
-                  <text x="390" y="123" textAnchor="middle" fill="#64748b" fontSize="7.5">
+                  <text x="390" y="123" textAnchor="middle" fill="currentColor" className="text-[var(--text-secondary)] font-medium" fontSize="7.5">
                     kWh / kVA / PF
                   </text>
                 </g>
@@ -689,19 +697,19 @@ export default function PanelDesignerPage() {
             })()}
 
             {/* CTs (Neutral Auxiliary Device) */}
-            <rect x="450" y="90" width="65" height="48" fill="#111827" stroke="#475569" strokeWidth="1" rx="3" />
-            <text x="482.5" y="106" textAnchor="middle" fill="#e2e8f0" fontSize="9" fontWeight="600">CTs</text>
-            <text x="482.5" y="123" textAnchor="middle" fill="#64748b" fontSize="7.5">{t('panel.ratioTbd', 'Ratio TBD')}</text>
+            <rect x="450" y="90" width="65" height="48" fill="var(--card-bg)" stroke="var(--border-color)" strokeWidth="1" rx="4" />
+            <text x="482.5" y="106" textAnchor="middle" fill="currentColor" className="text-[var(--foreground-color)] font-semibold" fontSize="9" fontWeight="600">CTs</text>
+            <text x="482.5" y="123" textAnchor="middle" fill="currentColor" className="text-[var(--text-secondary)] font-medium" fontSize="7.5">{t('panel.ratioTbd', 'Ratio TBD')}</text>
 
             {/* Phase Lamps (Neutral Auxiliary Device) */}
-            <rect x="525" y="90" width="75" height="48" fill="#111827" stroke="#475569" strokeWidth="1" rx="3" />
-            <text x="562.5" y="106" textAnchor="middle" fill="#e2e8f0" fontSize="9" fontWeight="600">L1 L2 L3</text>
-            <text x="562.5" y="123" textAnchor="middle" fill="#64748b" fontSize="7.5">{t('panel.indicators', 'Indicators')}</text>
+            <rect x="525" y="90" width="75" height="48" fill="var(--card-bg)" stroke="var(--border-color)" strokeWidth="1" rx="4" />
+            <text x="562.5" y="106" textAnchor="middle" fill="currentColor" className="text-[var(--foreground-color)] font-semibold" fontSize="9" fontWeight="600">L1 L2 L3</text>
+            <text x="562.5" y="123" textAnchor="middle" fill="currentColor" className="text-[var(--text-secondary)] font-medium" fontSize="7.5">{t('panel.indicators', 'Indicators')}</text>
 
             {/* Spare (Neutral Auxiliary Device) */}
-            <rect x="610" y="90" width="130" height="48" fill="#111827" stroke="#334155" strokeWidth="1" rx="3" strokeDasharray="4" />
-            <text x="675" y="106" textAnchor="middle" fill="#64748b" fontSize="9">{t('panel.spareWays', 'SPARE WAYS')}</text>
-            <text x="675" y="123" textAnchor="middle" fill="#475569" fontSize="7.5">{t('panel.expansion', 'Expansion')}</text>
+            <rect x="610" y="90" width="130" height="48" fill="var(--card-bg)" stroke="var(--border-color)" strokeWidth="1" rx="4" strokeDasharray="4" />
+            <text x="675" y="106" textAnchor="middle" fill="currentColor" className="text-[var(--text-secondary)] font-semibold" fontSize="9">{t('panel.spareWays', 'SPARE WAYS')}</text>
+            <text x="675" y="123" textAnchor="middle" fill="currentColor" className="text-[var(--text-secondary)] opacity-80" fontSize="7.5">{t('panel.expansion', 'Expansion')}</text>
 
             {/* Feeders */}
             {activeFeeders.map((feeder, i) => {
@@ -714,55 +722,55 @@ export default function PanelDesignerPage() {
               return (
                 <g key={feeder.name + i}>
                   {/* Feeder connection line from busbar */}
-                  <line x1="230" y1={78} x2="230" y2={y + 18} stroke="#374151" strokeWidth="1" />
-                  <line x1="230" y1={y + 18} x2="60" y2={y + 18} stroke="#374151" strokeWidth="1" />
+                  <line x1="230" y1={78} x2="230" y2={y + 18} stroke="var(--border-color)" strokeWidth="1" />
+                  <line x1="230" y1={y + 18} x2="60" y2={y + 18} stroke="var(--border-color)" strokeWidth="1" />
 
                   {/* Feeder breaker box (Color-coded by Breaker Technology: ACB / MCCB / MCB) */}
-                  <rect x="60" y={y} width="160" height="36" fill="#1f2937" stroke={theme.stroke} strokeWidth="1" rx="3" />
+                  <rect x="60" y={y} width="160" height="36" fill="var(--card-bg)" stroke={theme.stroke} strokeWidth="1.2" rx="4" />
                   
                   {/* Breaker Model (Wrapped) */}
                   {lines.length === 1 ? (
-                    <text x="140" y={y + 15} textAnchor="middle" fill={theme.text} fontSize="7.5" fontWeight="600">
+                    <text x="140" y={y + 15} textAnchor="middle" fill="currentColor" className={`${theme.textClass} font-semibold`} fontSize="7.5" fontWeight="600">
                       {lines[0]}
                     </text>
                   ) : (
                     <>
-                      <text x="140" y={y + 13} textAnchor="middle" fill={theme.text} fontSize="7.5" fontWeight="600">
+                      <text x="140" y={y + 13} textAnchor="middle" fill="currentColor" className={`${theme.textClass} font-semibold`} fontSize="7.5" fontWeight="600">
                         {lines[0]}
                       </text>
-                      <text x="140" y={y + 22} textAnchor="middle" fill={theme.text} fontSize="7" fontWeight="500">
+                      <text x="140" y={y + 22} textAnchor="middle" fill="currentColor" className={`${theme.textClass} font-medium`} fontSize="7" fontWeight="500">
                         {lines[1]}
                       </text>
                     </>
                   )}
 
                   {/* Feeder Name */}
-                  <text x="140" y={lines.length === 1 ? y + 27 : y + 31} textAnchor="middle" fill="#9ca3af" fontSize="6.5">
+                  <text x="140" y={lines.length === 1 ? y + 27 : y + 31} textAnchor="middle" fill="currentColor" className="text-[var(--text-secondary)]" fontSize="6.5">
                     {feeder.name}
                   </text>
 
                   {/* Cable line & size */}
-                  <line x1="220" y1={y + 18} x2="440" y2={y + 18} stroke="#475569" strokeWidth="1" opacity="0.6" />
-                  <text x="330" y={y + 13} textAnchor="middle" fill="#9ca3af" fontSize="7.5">
+                  <line x1="220" y1={y + 18} x2="440" y2={y + 18} stroke="var(--border-color)" strokeWidth="1" opacity="0.6" />
+                  <text x="330" y={y + 13} textAnchor="middle" fill="currentColor" className="text-[var(--text-secondary)] font-medium" fontSize="7.5">
                     {formatCableSizeFor(feeder.cableSize, selectedProject?.calculationStandard)}
                   </text>
 
                   {/* Current */}
-                  <text x="460" y={y + 22} fill="#d1d5db" fontSize="8.5" fontFamily="monospace">
+                  <text x="460" y={y + 22} fill="currentColor" className="text-orange-700 dark:text-orange-400 font-mono font-semibold" fontSize="8.5">
                     {feeder.current.toFixed(1)}A
                   </text>
 
                   {/* Poles / Phase */}
-                  <text x="535" y={y + 22} fill="#9ca3af" fontSize="7.5" fontFamily="monospace">
+                  <text x="535" y={y + 22} fill="currentColor" className="text-[var(--text-secondary)] font-mono" fontSize="7.5">
                     {feeder.isThreePhase ? '3P' : '1P'}{feeder.assignedPhase ? `-L${feeder.assignedPhase}` : ''}
                   </text>
 
                   {/* Breaker Category Badge & Feeder Service */}
-                  <rect x="595" y={y + 9} width="34" height="18" fill={theme.badgeBg} stroke={theme.badgeBorder} strokeWidth="0.8" rx="2" />
-                  <text x="612" y={y + 21} textAnchor="middle" fill={theme.badgeText} fontSize="7" fontWeight="700">
+                  <rect x="595" y={y + 9} width="34" height="18" fill={theme.badgeBg} stroke={theme.badgeBorder} strokeWidth="0.8" rx="3" />
+                  <text x="612" y={y + 21} textAnchor="middle" fill="currentColor" className={`${theme.badgeTextClass} font-bold`} fontSize="7" fontWeight="700">
                     {cat}
                   </text>
-                  <text x="638" y={y + 22} fill="#94a3b8" fontSize="7.5">
+                  <text x="638" y={y + 22} fill="currentColor" className="text-[var(--text-secondary)]" fontSize="7.5">
                     {t(`loadTypes.${feeder.type}`, feeder.type.replace('_', ' '))}
                   </text>
                 </g>
@@ -774,7 +782,8 @@ export default function PanelDesignerPage() {
               x="400"
               y={activeFeeders.length * 44 + 190}
               textAnchor="middle"
-              fill="#4b5563"
+              fill="currentColor"
+              className="text-[var(--text-secondary)] font-medium"
               fontSize="10"
             >
               {panelType} — {activeFeeders.length} {t('cableSchedule.circuits', 'feeders')} — {t('common.total', 'Total')} {totalDemandKva.toFixed(1)} kVA — {t('dashboard.transformerSize', 'Transformer')} {transformerSize} kVA
@@ -784,9 +793,9 @@ export default function PanelDesignerPage() {
       </div>
 
       {/* Feeder Schedule Table */}
-      <div className="rounded-xl border border-gray-800 bg-gray-900/60 p-5">
-        <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4 flex items-center gap-2">
-          <Activity size={14} className="text-orange-500" />
+      <div className="rounded-xl border border-[var(--border-color)] bg-[var(--card-bg)] p-5 shadow-sm">
+        <h2 className="text-sm font-semibold text-[var(--foreground-color)] uppercase tracking-wider mb-4 flex items-center gap-2">
+          <Activity size={14} className="text-orange-600 dark:text-orange-400" />
           {t('panel.feederSchedule', 'Feeder Schedule')}
         </h2>
         <div className="overflow-x-auto">
@@ -807,21 +816,21 @@ export default function PanelDesignerPage() {
                 <th className="text-center">{t('common.cable', 'Cable (mm²)')}</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="divide-y divide-[var(--border-color)]">
               {activeFeeders.map((f, i) => (
-                <tr key={i} className="hover:bg-gray-800/30">
-                  <td className="text-center font-mono text-gray-500">{i + 1}</td>
-                  <td className="text-center text-gray-200">
+                <tr key={i} className="hover:bg-[var(--card-bg-subtle)] transition-colors">
+                  <td className="text-center font-mono text-[var(--text-secondary)]">{i + 1}</td>
+                  <td className="text-center font-medium text-[var(--foreground-color)]">
                     {f.name}
                     {f.internalImbalanceNotModeled && (
-                      <span className="ms-2 inline-flex items-center text-[10px] text-yellow-500" title="3-phase apartment treated as balanced; per-room imbalance not modeled">
+                      <span className="ms-2 inline-flex items-center text-[10px] text-amber-600 dark:text-amber-400 font-semibold" title="3-phase apartment treated as balanced; per-room imbalance not modeled">
                         <AlertTriangle size={10} className="me-0.5" />
                         {t('panel.intImbalance', 'int. imbalance')}
                       </span>
                     )}
                   </td>
-                  <td className="text-center text-xs text-gray-400">{t(`loadTypes.${f.type}`, f.type.replace('_', ' '))}</td>
-                  <td className="text-center font-mono text-orange-400">
+                  <td className="text-center text-xs text-[var(--text-secondary)]">{t(`loadTypes.${f.type}`, f.type.replace('_', ' '))}</td>
+                  <td className="text-center font-mono text-orange-700 dark:text-orange-400 font-semibold">
                     <TraceableCell
                       getTrace={() =>
                         buildDesignCurrentTrace({
@@ -838,7 +847,7 @@ export default function PanelDesignerPage() {
                       {(f.phaseCurrent?.[0] ?? f.current).toFixed(1)}
                     </TraceableCell>
                   </td>
-                  <td className="text-center font-mono text-orange-400">
+                  <td className="text-center font-mono text-orange-700 dark:text-orange-400 font-semibold">
                     <TraceableCell
                       getTrace={() =>
                         buildDesignCurrentTrace({
@@ -855,7 +864,7 @@ export default function PanelDesignerPage() {
                       {(f.phaseCurrent?.[1] ?? f.current).toFixed(1)}
                     </TraceableCell>
                   </td>
-                  <td className="text-center font-mono text-orange-400">
+                  <td className="text-center font-mono text-orange-700 dark:text-orange-400 font-semibold">
                     <TraceableCell
                       getTrace={() =>
                         buildDesignCurrentTrace({
@@ -872,8 +881,8 @@ export default function PanelDesignerPage() {
                       {(f.phaseCurrent?.[2] ?? f.current).toFixed(1)}
                     </TraceableCell>
                   </td>
-                  <td className="text-center font-mono text-yellow-400">{(f.neutralCurrent ?? 0).toFixed(1)}</td>
-                  <td className="text-center font-mono text-gray-400">
+                  <td className="text-center font-mono text-amber-700 dark:text-amber-400 font-semibold">{(f.neutralCurrent ?? 0).toFixed(1)}</td>
+                  <td className="text-center font-mono text-[var(--foreground-color)]">
                     <TraceableCell
                       getTrace={() =>
                         buildPhaseBalanceTrace({
@@ -888,11 +897,11 @@ export default function PanelDesignerPage() {
                       }
                     >
                       {(f.unbalancePct ?? 0).toFixed(1)}%
-                      {f.imbalanced && <span className="ms-1 text-red-500" title={`Current unbalance exceeds ${f.unbalancePct?.toFixed(1)}% / ${project.calculationStandard ?? 'IEC'} 10% limit`}>!</span>}
+                      {f.imbalanced && <span className="ms-1 text-red-600 dark:text-red-400 font-bold" title={`Current unbalance exceeds ${f.unbalancePct?.toFixed(1)}% / ${project.calculationStandard ?? 'IEC'} 10% limit`}>!</span>}
                     </TraceableCell>
                   </td>
-                  <td className="text-center text-xs text-gray-400 font-mono">{f.isThreePhase ? '3P' : '1P'}{f.assignedPhase ? `-L${f.assignedPhase}` : ''}</td>
-                  <td className="text-center font-mono text-blue-400">
+                  <td className="text-center text-xs text-[var(--text-secondary)] font-mono">{f.isThreePhase ? '3P' : '1P'}{f.assignedPhase ? `-L${f.assignedPhase}` : ''}</td>
+                  <td className="text-center font-mono text-sky-700 dark:text-sky-400 font-semibold">
                     <TraceableCell
                       getTrace={() => {
                         const isMcb = f.category === 'MCB' || (!f.category && f.breakerSize <= 63 && !['SMDB', 'SERVICE_PANEL', 'PUMP_PANEL', 'ELEVATOR_PANEL'].includes(f.type));
@@ -912,8 +921,8 @@ export default function PanelDesignerPage() {
                       {f.breakerSize}
                     </TraceableCell>
                   </td>
-                  <td className="text-center text-xs text-gray-400 font-mono">{f.breakerModel}</td>
-                  <td className="text-center font-mono text-green-400">
+                  <td className="text-center text-xs text-[var(--foreground-color)] font-mono">{f.breakerModel}</td>
+                  <td className="text-center font-mono text-emerald-700 dark:text-emerald-400 font-semibold">
                     <TraceableCell
                       getTrace={() => {
                         const is3Ph = f.isThreePhase ?? true;
@@ -952,24 +961,24 @@ export default function PanelDesignerPage() {
                 </tr>
               ))}
               {/* Total row */}
-              <tr className="border-t border-gray-700 font-bold">
+              <tr className="border-t-2 border-[var(--border-color)] font-bold bg-[var(--card-bg-subtle)]">
                 <td></td>
-                <td className="text-white">{t('common.total', 'TOTAL')}</td>
+                <td className="text-center text-[var(--foreground-color)] font-bold">{t('common.total', 'TOTAL')}</td>
                 <td></td>
-                <td className="text-end font-mono text-orange-400">
+                <td className="text-center font-mono text-orange-700 dark:text-orange-400 font-bold">
                   {activeFeeders.reduce((s, f) => s + (f.phaseCurrent?.[0] ?? f.current), 0).toFixed(1)}
                 </td>
-                <td className="text-end font-mono text-orange-400">
+                <td className="text-center font-mono text-orange-700 dark:text-orange-400 font-bold">
                   {activeFeeders.reduce((s, f) => s + (f.phaseCurrent?.[1] ?? f.current), 0).toFixed(1)}
                 </td>
-                <td className="text-end font-mono text-orange-400">
+                <td className="text-center font-mono text-orange-700 dark:text-orange-400 font-bold">
                   {activeFeeders.reduce((s, f) => s + (f.phaseCurrent?.[2] ?? f.current), 0).toFixed(1)}
                 </td>
-                <td className="text-end font-mono text-yellow-400">
+                <td className="text-center font-mono text-amber-700 dark:text-amber-400 font-bold">
                   {/* Vector sum of neutrals is not additive; leave blank */}
                   —
                 </td>
-                <td className="text-end font-mono text-gray-400">
+                <td className="text-center font-mono text-[var(--foreground-color)] font-bold">
                   {(() => {
                     const l1 = activeFeeders.reduce((s, f) => s + (f.phaseCurrent?.[0] ?? f.current), 0);
                     const l2 = activeFeeders.reduce((s, f) => s + (f.phaseCurrent?.[1] ?? f.current), 0);
@@ -979,9 +988,9 @@ export default function PanelDesignerPage() {
                   })()}%
                 </td>
                 <td></td>
-                <td className="text-end font-mono text-white">{mainBreakerIn}</td>
-                <td className="text-center text-xs font-mono text-white">{mainBreakerModel}</td>
-                <td className="text-center font-mono text-green-400">{mainCableSize}</td>
+                <td className="text-center font-mono text-sky-700 dark:text-sky-400 font-bold">{mainBreakerIn}</td>
+                <td className="text-center text-xs font-mono text-[var(--foreground-color)] font-bold">{mainBreakerModel}</td>
+                <td className="text-center font-mono text-emerald-700 dark:text-emerald-400 font-bold">{mainCableSize}</td>
               </tr>
             </tbody>
           </table>

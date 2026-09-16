@@ -707,23 +707,23 @@ export default function CoordinationPage() {
 
   const STATUS_CONFIG: Record<SelectivityStatus, { color: string; bg: string; border: string; icon: typeof CheckCircle; label: string }> = {
     FULL: {
-      color: 'text-green-400',
-      bg: 'bg-green-500/10',
-      border: 'border-green-500/20',
+      color: 'text-emerald-800 dark:text-emerald-300',
+      bg: 'bg-emerald-500/15 dark:bg-emerald-500/20',
+      border: 'border-emerald-600/50 dark:border-emerald-500/40 shadow-xs',
       icon: CheckCircle2,
       label: t('breakers.fullSelectivity', 'Full Selectivity'),
     },
     PARTIAL: {
-      color: 'text-yellow-400',
-      bg: 'bg-yellow-500/10',
-      border: 'border-yellow-500/20',
+      color: 'text-amber-900 dark:text-amber-300',
+      bg: 'bg-amber-500/15 dark:bg-amber-500/20',
+      border: 'border-amber-600/50 dark:border-amber-500/40 shadow-xs',
       icon: AlertTriangle,
       label: t('breakers.partialSelectivity', 'Partial Selectivity'),
     },
     NONE: {
-      color: 'text-red-400',
-      bg: 'bg-red-500/10',
-      border: 'border-red-500/20',
+      color: 'text-rose-800 dark:text-rose-300',
+      bg: 'bg-rose-500/15 dark:bg-rose-500/20',
+      border: 'border-rose-600/50 dark:border-rose-500/40 shadow-xs',
       icon: XCircle,
       label: t('breakers.noSelectivity', 'No Selectivity'),
     },
@@ -1067,24 +1067,24 @@ export default function CoordinationPage() {
         <div>
           <div className="flex items-center gap-2">
             <Shield size={24} className="text-orange-500" />
-            <h1 className="text-2xl font-bold text-white">
+            <h1 className="text-2xl font-bold text-[var(--foreground-color)]">
               {t('coordination.title', 'Protection Coordination Studio')}
             </h1>
           </div>
-          <p className="text-sm text-gray-400 mt-1">
+          <p className="text-sm text-[var(--text-muted)] mt-1">
             {t('coordination.subtitle', 'Time-Current Characteristic (TCC) analysis & selectivity verification')}
           </p>
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
           {/* Mode Switcher */}
-          <div className="flex items-center bg-gray-950 p-1 rounded-xl border border-gray-800 text-xs">
+          <div className="flex items-center bg-[var(--card-bg-subtle)] p-1 rounded-xl border border-[var(--border-color)] text-xs">
             <button
               onClick={() => setMode('project')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-medium transition-all ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-medium transition-all cursor-pointer ${
                 mode === 'project'
-                  ? 'bg-orange-500 text-slate-950 shadow-sm'
-                  : 'text-gray-400 hover:text-gray-200'
+                  ? 'bg-orange-600 text-white text-white-force shadow-xs'
+                  : 'text-[var(--text-muted)] hover:text-[var(--foreground-color)]'
               }`}
             >
               <Layers size={13} />
@@ -1092,10 +1092,10 @@ export default function CoordinationPage() {
             </button>
             <button
               onClick={() => setMode('playground')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-medium transition-all ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-medium transition-all cursor-pointer ${
                 mode === 'playground'
-                  ? 'bg-orange-500 text-slate-950 shadow-sm'
-                  : 'text-gray-400 hover:text-gray-200'
+                  ? 'bg-orange-600 text-white text-white-force shadow-xs'
+                  : 'text-[var(--text-muted)] hover:text-[var(--foreground-color)]'
               }`}
             >
               <Sliders size={13} />
@@ -1109,7 +1109,7 @@ export default function CoordinationPage() {
             <span className={`text-xs font-bold ${statusConfig.color}`}>
               {statusConfig.label} {result.limitCurrent ? `(${(result.limitCurrent / 1000).toFixed(1)} kA)` : ''}
             </span>
-            <span className="text-[10px] text-gray-500 italic ml-auto hidden sm:inline">
+            <span className="text-[10px] text-[var(--text-muted)] italic ml-auto hidden sm:inline">
               Indicative — verify against manufacturer time-current curves before final coordination sign-off
             </span>
           </div>
@@ -1118,11 +1118,11 @@ export default function CoordinationPage() {
 
       {/* Project Feeder Selection Bar */}
       {mode === 'project' && (
-        <div className="rounded-xl border border-gray-800 bg-gray-900/60 p-4 space-y-3">
+        <div className="rounded-xl border border-[var(--border-color)] bg-[var(--card-bg)] p-4 space-y-3 shadow-xs">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
               <div className="flex items-center gap-2">
-                <label htmlFor="coordination-feeder" className="text-xs font-semibold text-gray-400">Select Feeder to Analyze:</label>
+                <label htmlFor="coordination-feeder" className="text-xs font-semibold text-[var(--foreground-color)]">Select Feeder to Analyze:</label>
                 <select
                   id="coordination-feeder"
                   value={selectedFeeder?.id || selectedFeederKey || (allProjectFeeders[0]?.id ?? '')}
@@ -1134,7 +1134,7 @@ export default function CoordinationPage() {
                       setSelectedFeederName(chosen.name);
                     }
                   }}
-                  className="dense-input rounded-lg text-xs bg-gray-950 border border-gray-700 text-white font-medium min-w-[280px]"
+                  className="dense-input rounded-lg text-xs bg-[var(--input-bg)] border border-[var(--border-color)] text-[var(--foreground-color)] font-medium min-w-[280px]"
                 >
                   {allProjectFeeders.map((f) => (
                     <option key={f.id} value={f.id}>
@@ -1146,24 +1146,24 @@ export default function CoordinationPage() {
               </div>
             </div>
 
-            <div className="text-xs text-gray-400 flex items-center gap-2">
-              <span>Upstream Parent: <strong className="text-blue-400">{upstreamFeederLabel}</strong></span>
-              <ArrowRight size={12} className="text-gray-400" />
-              <span>Downstream: <strong className="text-orange-400">{downstreamFeederLabel}</strong></span>
+            <div className="text-xs text-[var(--text-muted)] flex items-center gap-2">
+              <span>Upstream Parent: <strong className="text-sky-600 dark:text-sky-400">{upstreamFeederLabel}</strong></span>
+              <ArrowRight size={12} className="text-[var(--text-muted)]" />
+              <span>Downstream: <strong className="text-orange-500 dark:text-orange-400">{downstreamFeederLabel}</strong></span>
             </div>
           </div>
 
           {/* Feeder Hierarchy Banner */}
-          <div className="bg-gray-950/70 rounded-lg p-2.5 border border-gray-800 text-xs flex flex-wrap items-center justify-between gap-3">
+          <div className="bg-[var(--card-bg-subtle)] rounded-lg p-2.5 border border-[var(--border-color)] text-xs flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-2">
-              <span className="text-gray-400">Selected Breaker:</span>
-              <span className="text-gray-200 font-semibold">{downstream.model || `${downstream.inRating}A`}</span>
+              <span className="text-[var(--text-muted)]">Selected Breaker:</span>
+              <span className="text-[var(--foreground-color)] font-semibold">{downstream.model || `${downstream.inRating}A`}</span>
             </div>
-            <div className="flex items-center gap-4 text-gray-400 font-mono">
-              <span>Load: <strong className="text-gray-200">{downstream.ir.toFixed(1)}A</strong></span>
-              <span>Frame: <strong className="text-blue-400">{downstream.inRating}A</strong></span>
-              <span>Cable: <strong className="text-green-400">{cableSize} mm²</strong></span>
-              <span>Fault Isc: <strong className="text-orange-400">{(faultCurrent / 1000).toFixed(2)} kA</strong></span>
+            <div className="flex items-center gap-4 text-[var(--text-muted)] font-mono">
+              <span>Load: <strong className="text-[var(--foreground-color)]">{downstream.ir.toFixed(1)}A</strong></span>
+              <span>Frame: <strong className="text-sky-600 dark:text-sky-400">{downstream.inRating}A</strong></span>
+              <span>Cable: <strong className="text-emerald-600 dark:text-emerald-400">{cableSize} mm²</strong></span>
+              <span>Fault Isc: <strong className="text-orange-500 dark:text-orange-400">{(faultCurrent / 1000).toFixed(2)} kA</strong></span>
             </div>
           </div>
         </div>
@@ -1174,28 +1174,28 @@ export default function CoordinationPage() {
         {/* Left Panel: Trip Unit Dials & Fault Parameters */}
         <div className="space-y-4">
           {/* Upstream Breaker Card */}
-          <div className="rounded-xl border border-blue-500/20 bg-gray-900/60 p-4 space-y-3">
+          <div className="rounded-xl border border-sky-500/30 bg-[var(--card-bg)] p-4 space-y-3 shadow-xs">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-blue-500" />
-                <h2 className="text-sm font-bold text-blue-400">
+                <div className="w-3 h-3 rounded-full bg-sky-500" />
+                <h2 className="text-sm font-bold text-sky-600 dark:text-sky-400">
                   Upstream ({upstreamFeederLabel})
                 </h2>
               </div>
-              <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-blue-500/10 text-blue-300 border border-blue-500/20">
+              <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-sky-500/10 text-sky-600 dark:text-sky-300 border border-sky-500/30">
                 In = {upstream.inRating}A ({upstream.category || 'MCCB'})
               </span>
             </div>
 
-            <p className="text-[11px] text-gray-400 truncate" title={upstream.model}>
+            <p className="text-[11px] text-[var(--text-muted)] truncate" title={upstream.model}>
               {upstream.model || 'Standard Electronic Trip Unit'}
             </p>
 
             <div className="grid grid-cols-2 gap-2 text-xs">
               <div>
-                <label htmlFor="upstream-ir" className="text-gray-400 flex justify-between">
+                <label htmlFor="upstream-ir" className="text-[var(--text-muted)] flex justify-between">
                   <span>Ir (A)</span>
-                  <span className="text-gray-400 font-mono">{(upstream.ir / upstream.inRating).toFixed(2)}x</span>
+                  <span className="text-[var(--text-muted)] font-mono">{(upstream.ir / upstream.inRating).toFixed(2)}x</span>
                 </label>
                 <input
                   id="upstream-ir"
@@ -1206,7 +1206,7 @@ export default function CoordinationPage() {
                 />
               </div>
               <div>
-                <label htmlFor="upstream-tr" className="text-gray-400">tr (s)</label>
+                <label htmlFor="upstream-tr" className="text-[var(--text-muted)]">tr (s)</label>
                 <input
                   id="upstream-tr"
                   type="number"
@@ -1217,9 +1217,9 @@ export default function CoordinationPage() {
                 />
               </div>
               <div>
-                <label htmlFor="upstream-isd" className="text-gray-400 flex justify-between">
+                <label htmlFor="upstream-isd" className="text-[var(--text-muted)] flex justify-between">
                   <span>Isd (A)</span>
-                  <span className="text-gray-400 font-mono">{upstream.isd ? `${(upstream.isd / upstream.ir).toFixed(1)}x` : '—'}</span>
+                  <span className="text-[var(--text-muted)] font-mono">{upstream.isd ? `${(upstream.isd / upstream.ir).toFixed(1)}x` : '—'}</span>
                 </label>
                 <input
                   id="upstream-isd"
@@ -1230,7 +1230,7 @@ export default function CoordinationPage() {
                 />
               </div>
               <div>
-                <label htmlFor="upstream-tsd" className="text-gray-400">tsd (s)</label>
+                <label htmlFor="upstream-tsd" className="text-[var(--text-muted)]">tsd (s)</label>
                 <input
                   id="upstream-tsd"
                   type="number"
@@ -1241,7 +1241,7 @@ export default function CoordinationPage() {
                 />
               </div>
               <div>
-                <label htmlFor="upstream-ii" className="text-gray-400">Ii (A)</label>
+                <label htmlFor="upstream-ii" className="text-[var(--text-muted)]">Ii (A)</label>
                 <input
                   id="upstream-ii"
                   type="number"
@@ -1251,7 +1251,7 @@ export default function CoordinationPage() {
                 />
               </div>
               <div>
-                <label htmlFor="upstream-i2t" className="text-gray-400">I²t Curve</label>
+                <label htmlFor="upstream-i2t" className="text-[var(--text-muted)]">I²t Curve</label>
                 <select
                   id="upstream-i2t"
                   value={upstream.i2t ? 'on' : 'off'}
@@ -1266,28 +1266,28 @@ export default function CoordinationPage() {
           </div>
 
           {/* Downstream Breaker Card */}
-          <div className="rounded-xl border border-orange-500/20 bg-gray-900/60 p-4 space-y-3">
+          <div className="rounded-xl border border-orange-500/30 bg-[var(--card-bg)] p-4 space-y-3 shadow-xs">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 rounded-full bg-orange-500" />
-                <h2 className="text-sm font-bold text-orange-400">
+                <h2 className="text-sm font-bold text-orange-500 dark:text-orange-400">
                   Downstream ({downstreamFeederLabel})
                 </h2>
               </div>
-              <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-orange-500/10 text-orange-300 border border-orange-500/20">
+              <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-orange-500/10 text-orange-600 dark:text-orange-300 border border-orange-500/30">
                 In = {downstream.inRating}A ({downstream.category || 'MCCB'})
               </span>
             </div>
 
-            <p className="text-[11px] text-gray-400 truncate" title={downstream.model}>
+            <p className="text-[11px] text-[var(--text-muted)] truncate" title={downstream.model}>
               {downstream.model || 'Standard Trip Unit'}
             </p>
 
             <div className="grid grid-cols-2 gap-2 text-xs">
               <div>
-                <label htmlFor="downstream-ir" className="text-gray-400 flex justify-between">
+                <label htmlFor="downstream-ir" className="text-[var(--text-muted)] flex justify-between">
                   <span>Ir (A)</span>
-                  <span className="text-gray-400 font-mono">{(downstream.ir / downstream.inRating).toFixed(2)}x</span>
+                  <span className="text-[var(--text-muted)] font-mono">{(downstream.ir / downstream.inRating).toFixed(2)}x</span>
                 </label>
                 <input
                   id="downstream-ir"
@@ -1298,7 +1298,7 @@ export default function CoordinationPage() {
                 />
               </div>
               <div>
-                <label htmlFor="downstream-tr" className="text-gray-400">tr (s)</label>
+                <label htmlFor="downstream-tr" className="text-[var(--text-muted)]">tr (s)</label>
                 <input
                   id="downstream-tr"
                   type="number"
@@ -1309,9 +1309,9 @@ export default function CoordinationPage() {
                 />
               </div>
               <div>
-                <label htmlFor="downstream-isd" className="text-gray-400 flex justify-between">
+                <label htmlFor="downstream-isd" className="text-[var(--text-muted)] flex justify-between">
                   <span>Isd (A)</span>
-                  <span className="text-gray-400 font-mono">{downstream.isd ? `${(downstream.isd / downstream.ir).toFixed(1)}x` : '—'}</span>
+                  <span className="text-[var(--text-muted)] font-mono">{downstream.isd ? `${(downstream.isd / downstream.ir).toFixed(1)}x` : '—'}</span>
                 </label>
                 <input
                   id="downstream-isd"
@@ -1322,7 +1322,7 @@ export default function CoordinationPage() {
                 />
               </div>
               <div>
-                <label htmlFor="downstream-tsd" className="text-gray-400">tsd (s)</label>
+                <label htmlFor="downstream-tsd" className="text-[var(--text-muted)]">tsd (s)</label>
                 <input
                   id="downstream-tsd"
                   type="number"
@@ -1333,7 +1333,7 @@ export default function CoordinationPage() {
                 />
               </div>
               <div>
-                <label htmlFor="downstream-ii" className="text-gray-400">Ii (A)</label>
+                <label htmlFor="downstream-ii" className="text-[var(--text-muted)]">Ii (A)</label>
                 <input
                   id="downstream-ii"
                   type="number"
@@ -1343,7 +1343,7 @@ export default function CoordinationPage() {
                 />
               </div>
               <div>
-                <label htmlFor="downstream-i2t" className="text-gray-400">I²t Curve</label>
+                <label htmlFor="downstream-i2t" className="text-[var(--text-muted)]">I²t Curve</label>
                 <select
                   id="downstream-i2t"
                   value={downstream.i2t ? 'on' : 'off'}
@@ -1358,20 +1358,23 @@ export default function CoordinationPage() {
           </div>
 
           {/* Fault & Cable Card */}
-          <div className="rounded-xl border border-gray-800 bg-gray-900/60 p-4 space-y-3">
-            <h2 className="text-sm font-semibold text-gray-300 flex items-center justify-between">
+          <div className="rounded-xl border border-[var(--border-color)] bg-[var(--card-bg)] p-4 space-y-3 shadow-xs">
+            <h2 className="text-sm font-semibold text-[var(--foreground-color)] flex items-center justify-between">
               <span>Cable & Fault Parameters</span>
               <span
-                className={`text-[10px] font-bold px-2 py-0.5 rounded ${
-                  result.cableDamageOk ? 'bg-green-500/10 text-green-400 border border-green-500/20' : 'bg-red-500/10 text-red-400 border border-red-500/20'
+                className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border shadow-xs ${
+                  result.cableDamageOk
+                    ? 'bg-emerald-500/15 dark:bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 border-emerald-600/50 dark:border-emerald-500/40'
+                    : 'bg-rose-500/15 dark:bg-rose-500/20 text-rose-800 dark:text-rose-300 border-rose-600/50 dark:border-rose-500/40'
                 }`}
               >
                 {result.cableDamageOk ? '✓ Cable Protected' : '✗ Thermal Damage Risk'}
-              </span>                  </h2>
+              </span>
+            </h2>
 
             <div className="grid grid-cols-3 gap-2 text-xs">
               <div>
-                <label htmlFor="cable-size" className="text-gray-400">Cable Size (mm²)</label>
+                <label htmlFor="cable-size" className="text-[var(--text-muted)]">Cable Size (mm²)</label>
                 <input
                   id="cable-size"
                   type="number"
@@ -1381,7 +1384,7 @@ export default function CoordinationPage() {
                 />
               </div>
               <div>
-                <label htmlFor="cable-runs" className="text-gray-400">Runs</label>
+                <label htmlFor="cable-runs" className="text-[var(--text-muted)]">Runs</label>
                 <input
                   id="cable-runs"
                   type="number"
@@ -1392,7 +1395,7 @@ export default function CoordinationPage() {
                 />
               </div>
               <div>
-                <label htmlFor="fault-isc" className="text-gray-400">Fault Isc (A)</label>
+                <label htmlFor="fault-isc" className="text-[var(--text-muted)]">Fault Isc (A)</label>
                 <input
                   id="fault-isc"
                   type="number"
@@ -1404,7 +1407,7 @@ export default function CoordinationPage() {
             </div>
 
             {result.overlapDetails && (
-              <p className="text-xs text-gray-400 leading-relaxed italic bg-gray-950/50 p-2.5 rounded-lg border border-gray-800">
+              <p className="text-xs text-[var(--text-muted)] leading-relaxed italic bg-[var(--card-bg-subtle)] p-2.5 rounded-lg border border-[var(--border-color)]">
                 {result.overlapDetails}
               </p>
             )}
@@ -1415,17 +1418,17 @@ export default function CoordinationPage() {
         <div className="lg:col-span-2 space-y-4">
           {/* Recommendations Banner (Shown when non-selective) */}
           {result.status !== 'FULL' && (
-            <div className="rounded-xl border border-orange-500/30 bg-orange-950/20 p-4 space-y-3">
+            <div className="rounded-xl border border-orange-500/30 bg-orange-500/10 p-4 space-y-3 shadow-xs">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Sparkles size={18} className="text-orange-400" />
-                  <h2 className="text-sm font-bold text-orange-300">
+                  <h2 className="text-sm font-bold text-[var(--foreground-color)]">
                     Alternative Breaker & Coordination Solutions
-            </h2>
-          </div>
+                  </h2>
+                </div>
                 <button
                   onClick={applyAutoTune}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold shadow-md transition-all"
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-white-force text-xs font-bold shadow-xs transition-all cursor-pointer"
                 >
                   <Zap size={13} />
                   Auto-Tune for Full Selectivity
@@ -1434,32 +1437,32 @@ export default function CoordinationPage() {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                 {alternativeSuggestions.slice(0, 2).map((sug) => (
-                  <div key={sug.id} className="p-3 rounded-lg bg-gray-900/90 border border-gray-800 flex flex-col justify-between gap-2 hover:border-orange-500/30 transition-all">
+                  <div key={sug.id} className="p-3 rounded-lg bg-[var(--card-bg)] border border-[var(--border-color)] flex flex-col justify-between gap-2 hover:border-orange-500/40 transition-all shadow-xs">
                     <div className="space-y-1">
                       <div className="flex items-center justify-between">
-                        <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-orange-500/10 text-orange-400 border border-orange-500/20">
+                        <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-orange-500/10 text-orange-500 dark:text-orange-400 border border-orange-500/20">
                           {sug.badge}
                         </span>
-                        <span className="text-[10px] font-bold text-green-400">✓ FULL</span>
+                        <span className="text-[10px] font-bold text-emerald-800 dark:text-emerald-300 bg-emerald-500/15 dark:bg-emerald-500/20 px-2 py-0.5 rounded-full border border-emerald-600/50 dark:border-emerald-500/40 shadow-xs">✓ FULL</span>
                       </div>
-                      <p className="text-xs font-semibold text-gray-200">{sug.title}</p>
-                      <p className="text-[11px] text-gray-400 leading-snug">{sug.description}</p>
+                      <p className="text-xs font-semibold text-[var(--foreground-color)]">{sug.title}</p>
+                      <p className="text-[11px] text-[var(--text-muted)] leading-snug">{sug.description}</p>
                       {sug.suggestedModel && (
-                        <div className="flex items-center gap-1.5 text-[11px] font-mono text-blue-400 pt-0.5 flex-wrap">
-                          <Zap size={11} className="text-blue-400 shrink-0" />
+                        <div className="flex items-center gap-1.5 text-[11px] font-mono text-sky-600 dark:text-sky-400 pt-0.5 flex-wrap">
+                          <Zap size={11} className="text-sky-500 shrink-0" />
                           <span>{sug.suggestedModel}</span>
                           {sug.fallbackType === 'OTHER_FAMILY' && (
-                            <span className="text-[9px] font-sans font-semibold px-1 py-0.2 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                            <span className="text-[9px] font-sans font-semibold px-1 py-0.2 rounded bg-sky-500/10 text-sky-600 dark:text-sky-400 border border-sky-500/20">
                               Other Family
                             </span>
                           )}
                           {sug.fallbackType === 'OTHER_BRAND' && (
-                            <span className="text-[9px] font-sans font-semibold px-1 py-0.2 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20">
+                            <span className="text-[9px] font-sans font-semibold px-1 py-0.2 rounded bg-amber-500/15 text-amber-900 dark:text-amber-300 border border-amber-600/40 dark:border-amber-500/30">
                               Alt Brand
                             </span>
                           )}
                           {sug.fallbackType === 'GENERIC_SPEC' && (
-                            <span className="text-[9px] font-sans font-semibold px-1 py-0.2 rounded bg-purple-500/10 text-purple-300 border border-purple-500/20">
+                            <span className="text-[9px] font-sans font-semibold px-1 py-0.2 rounded bg-purple-500/10 text-purple-600 dark:text-purple-300 border border-purple-500/20">
                               Generic Spec
                             </span>
                           )}
@@ -1469,7 +1472,7 @@ export default function CoordinationPage() {
                     <button
                       disabled={Boolean(applyingId)}
                       onClick={() => handleApplySuggestion(sug)}
-                      className="w-full px-2.5 py-1.5 rounded-lg bg-orange-500 hover:bg-orange-600 active:scale-95 disabled:opacity-50 text-white font-bold text-xs shadow-md transition-all flex items-center justify-center gap-1.5"
+                      className="w-full px-2.5 py-1.5 rounded-lg bg-orange-600 hover:bg-orange-500 active:scale-95 disabled:opacity-50 text-white text-white-force font-bold text-xs shadow-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer"
                     >
                       <Zap size={12} className={applyingId === sug.id ? "animate-spin" : ""} />
                       <span>{applyingId === sug.id ? "Saving to Project..." : sug.actionText || "Apply & Save to Project"}</span>
@@ -1481,17 +1484,17 @@ export default function CoordinationPage() {
           )}
 
           {/* TCC SVG Chart */}
-          <div className="rounded-xl border border-gray-800 bg-gray-900/60 p-4 space-y-3">
+          <div className="rounded-xl border border-[var(--border-color)] bg-[var(--card-bg)] p-4 space-y-3 shadow-xs">
             <div className="flex items-center justify-between">
-              <h2 className="text-sm font-semibold text-gray-300 uppercase tracking-wider">
+              <h2 className="text-sm font-semibold text-[var(--foreground-color)] uppercase tracking-wider">
                 {t('coordination.tccTitle', 'Time-Current Characteristic (TCC) — Log-Log Scale')}
               </h2>
-              <div className="text-xs text-gray-400 font-mono">
+              <div className="text-xs text-[var(--text-muted)] font-mono">
                 IEC 60947-2 &bull; IEC 60898 &bull; IEC 60364-5-54
               </div>
             </div>
 
-            <div className="bg-gray-950 rounded-xl border border-gray-800 p-2 overflow-x-auto flex justify-center">
+            <div className="bg-[var(--card-bg-subtle)] rounded-xl border border-[var(--border-color)] p-2 overflow-x-auto flex justify-center">
               <svg viewBox={`0 0 ${svgWidth} ${svgHeight}`} width="100%" className="select-none font-mono text-[9px]">
                 {/* Plot background */}
                 <rect
@@ -1499,8 +1502,8 @@ export default function CoordinationPage() {
                   y={plotTop}
                   width={plotWidth}
                   height={plotHeight}
-                  fill="#0a0e17"
-                  stroke="#1f2937"
+                  fill="var(--card-bg)"
+                  stroke="var(--border-color)"
                   strokeWidth="1"
                 />
 
@@ -1514,10 +1517,10 @@ export default function CoordinationPage() {
                         y1={plotTop}
                         x2={x}
                         y2={plotTop + plotHeight}
-                        stroke="#1e293b"
+                        stroke="var(--border-color)"
                         strokeDasharray="2,2"
                       />
-                      <text x={x} y={plotTop + plotHeight + 16} fill="#64748b" textAnchor="middle">
+                      <text x={x} y={plotTop + plotHeight + 16} fill="currentColor" className="text-[var(--text-muted)]" textAnchor="middle">
                         {iVal >= 1000 ? `${iVal / 1000}k` : iVal}
                       </text>
                     </g>
@@ -1534,10 +1537,10 @@ export default function CoordinationPage() {
                         y1={y}
                         x2={plotLeft + plotWidth}
                         y2={y}
-                        stroke="#1e293b"
+                        stroke="var(--border-color)"
                         strokeDasharray="2,2"
                       />
-                      <text x={plotLeft - 8} y={y + 3} fill="#64748b" textAnchor="end">
+                      <text x={plotLeft - 8} y={y + 3} fill="currentColor" className="text-[var(--text-muted)]" textAnchor="end">
                         {formatTccTimeTick(tVal)}
                       </text>
                     </g>
@@ -1548,9 +1551,9 @@ export default function CoordinationPage() {
                 <text
                   x={plotLeft + plotWidth / 2}
                   y={plotTop + plotHeight + 35}
-                  fill="#94a3b8"
+                  fill="currentColor"
                   textAnchor="middle"
-                  className="font-sans text-[10px] font-semibold tracking-wider"
+                  className="text-[var(--foreground-color)] font-sans text-[10px] font-semibold tracking-wider"
                 >
                   {t('coordination.currentAmperes', 'Current (Amperes) — Logarithmic Scale')}
                 </text>
@@ -1602,18 +1605,18 @@ export default function CoordinationPage() {
             </div>
 
             {/* Legend & Stats */}
-            <div className="flex flex-wrap items-center justify-between gap-3 text-xs bg-gray-950/40 border border-gray-800 p-3 rounded-xl">
+            <div className="flex flex-wrap items-center justify-between gap-3 text-xs bg-[var(--card-bg-subtle)] border border-[var(--border-color)] p-3 rounded-xl">
               <div className="flex items-center gap-2">
                 <span className="w-3 h-0.5 bg-[#38bdf8] inline-block"></span>
-                <span className="text-gray-300 font-medium">Upstream ({upstream.model || `${upstream.inRating}A`})</span>
+                <span className="text-[var(--foreground-color)] font-medium">Upstream ({upstream.model || `${upstream.inRating}A`})</span>
               </div>
               <div className="flex items-center gap-2">
                 <span className="w-3 h-0.5 bg-[#f97316] inline-block"></span>
-                <span className="text-gray-300 font-medium">Downstream ({downstream.model || `${downstream.inRating}A`})</span>
+                <span className="text-[var(--foreground-color)] font-medium">Downstream ({downstream.model || `${downstream.inRating}A`})</span>
               </div>
               <div className="flex items-center gap-2">
                 <span className="w-3 h-0.5 bg-[#ef4444] inline-block border-b border-dashed border-red-500"></span>
-                <span className="text-gray-400">Cable Damage ({cableSize} mm² {cableInsulation})</span>
+                <span className="text-[var(--text-muted)]">Cable Damage ({cableSize} mm² {cableInsulation})</span>
               </div>
             </div>
           </div>

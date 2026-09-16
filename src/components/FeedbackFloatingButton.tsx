@@ -310,7 +310,7 @@ export function FeedbackFloatingButton() {
               <button
                 type="button"
                 onClick={handleClose}
-                className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors focus:outline-none focus:ring-1 focus:ring-slate-500"
+                className="p-1.5 rounded-lg text-slate-400 hover:text-orange-600 dark:hover:text-orange-400 hover:bg-orange-500/10 dark:hover:bg-orange-500/20 border border-transparent hover:border-orange-500/30 transition-all focus:outline-none focus:ring-1 focus:ring-orange-500 cursor-pointer"
                 aria-label={t('feedback.close', 'Close')}
               >
                 <X size={18} />
@@ -660,9 +660,11 @@ export function FeedbackFloatingButton() {
         >
           <div className="relative max-w-5xl max-h-[90vh] flex flex-col items-center">
             <button
+              type="button"
               onClick={() => setZoomImageUrl(null)}
-              className="absolute -top-10 right-0 p-1.5 text-white/80 hover:text-white bg-slate-800/80 hover:bg-slate-700 rounded-full transition-colors"
+              className="absolute -top-10 right-0 p-1.5 text-white/90 hover:text-orange-400 bg-black/60 hover:bg-black/80 border border-white/20 hover:border-orange-500/50 rounded-full transition-all cursor-pointer"
               title={t('common.close', 'Close')}
+              aria-label={t('common.close', 'Close')}
             >
               <X size={18} />
             </button>

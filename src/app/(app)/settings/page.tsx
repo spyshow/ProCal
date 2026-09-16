@@ -18,13 +18,15 @@ import {
   Lock,
   CheckCircle2,
   AlertCircle,
+  Palette,
 } from 'lucide-react';
 import { COUNTRY_DEFAULTS, ROOM_TYPES, CountryConfig, AcSizingRule } from '@/lib/country-defaults';
 import { useTranslation, SupportedLanguage } from '@/i18n';
 import { useUser } from '@/context/UserContext';
 import { useProject } from '@/context/ProjectContext';
+import { AppearanceTab } from '@/components/settings/AppearanceTab';
 
-type SettingsTab = 'engineering' | 'company' | 'language' | 'account';
+type SettingsTab = 'engineering' | 'company' | 'appearance' | 'language' | 'account';
 
 export default function SettingsPage() {
   const router = useRouter();
@@ -88,6 +90,8 @@ export default function SettingsPage() {
         router.replace(selectedProjectId ? `/projects/${selectedProjectId}?tab=${targetTab}` : '/projects');
       } else if (tabParam === 'language') {
         setActiveTab('language');
+      } else if (tabParam === 'appearance' || tabParam === 'theme') {
+        setActiveTab('appearance');
       } else if (tabParam === 'engineering') {
         setActiveTab('engineering');
       }
@@ -402,10 +406,11 @@ export default function SettingsPage() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 border-b border-gray-800 overflow-x-auto custom-scrollbar">
+      <div className="flex gap-1 border-b border-[var(--border-color,#1f2937)] overflow-x-auto custom-scrollbar">
         {([
           { key: 'engineering' as const, label: t('settings.engineering', 'Engineering Defaults'), icon: Settings },
           { key: 'company' as const, label: t('settings.company', 'Company & Branding'), icon: Building2 },
+          { key: 'appearance' as const, label: t('theme.title', 'Appearance & Theme'), icon: Palette },
           { key: 'language' as const, label: t('common.language', 'Language & RTL'), icon: Globe },
           { key: 'account' as const, label: t('settings.account', 'Account & Security'), icon: Shield },
         ]).map(({ key, label, icon: Icon }) => (
@@ -415,7 +420,7 @@ export default function SettingsPage() {
             className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
               activeTab === key
                 ? 'border-orange-500 text-orange-400'
-                : 'border-transparent text-gray-500 hover:text-gray-300'
+                : 'border-transparent text-[var(--table-header-color,#9ca3af)] hover:text-[var(--foreground-color,#f8fafc)]'
             }`}
           >
             <Icon size={14} />
@@ -714,6 +719,11 @@ export default function SettingsPage() {
             )}
           </div>
         </div>
+      )}
+
+      {/* Appearance & Theme Settings Tab */}
+      {activeTab === 'appearance' && (
+        <AppearanceTab />
       )}
 
       {/* Language & RTL Settings Tab */}

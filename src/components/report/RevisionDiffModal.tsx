@@ -19,20 +19,20 @@ const KIND_META: Record<RevisionDiffChange['kind'], { label: string; icon: typeo
   added: {
     label: 'Added',
     icon: PlusCircle,
-    chip: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/40',
-    row: 'text-emerald-300',
+    chip: 'bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border-emerald-600/50 dark:border-emerald-500/40',
+    row: 'text-emerald-800 dark:text-emerald-300',
   },
   removed: {
     label: 'Removed',
     icon: MinusCircle,
-    chip: 'bg-red-500/15 text-red-400 border-red-500/40',
-    row: 'text-red-300',
+    chip: 'bg-red-500/15 text-red-800 dark:text-red-300 border-red-600/50 dark:border-red-500/40',
+    row: 'text-red-800 dark:text-red-300',
   },
   changed: {
     label: 'Changed',
     icon: PencilLine,
-    chip: 'bg-amber-500/15 text-amber-400 border-amber-500/40',
-    row: 'text-amber-300',
+    chip: 'bg-amber-500/15 text-amber-900 dark:text-amber-300 border-amber-600/50 dark:border-amber-500/40',
+    row: 'text-amber-800 dark:text-amber-300',
   },
 };
 
@@ -112,19 +112,19 @@ export default function RevisionDiffModal({
 
   return (
     <div
-      className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 p-4"
+      className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 p-4 backdrop-blur-xs animate-in fade-in duration-150"
       onClick={onClose}
     >
       <div
-        className="flex max-h-[85vh] w-full max-w-3xl flex-col rounded-xl border border-gray-700 bg-gray-900 shadow-2xl"
+        className="flex max-h-[85vh] w-full max-w-3xl flex-col rounded-xl border border-[var(--border-color)] bg-[var(--card-bg)] shadow-2xl overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between border-b border-gray-800 px-5 py-4">
-          <h2 className="flex items-center gap-2 text-base font-bold text-white">
+        <div className="flex items-center justify-between border-b border-[var(--border-color)] px-5 py-4 bg-[var(--card-bg-subtle)]">
+          <h2 className="flex items-center gap-2 text-base font-bold text-[var(--foreground-color)]">
             <FileDiff size={16} className="text-orange-500" />
             Revision Diff — {targetRevision.rev}
           </h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-white" aria-label="Close">
+          <button onClick={onClose} className="p-1 rounded-lg text-[var(--text-secondary)] hover:text-[var(--foreground-color)] hover:bg-[var(--card-bg)] transition-colors cursor-pointer" aria-label="Close">
             <X size={18} />
           </button>
         </div>
@@ -132,11 +132,11 @@ export default function RevisionDiffModal({
         <div className="flex flex-col gap-4 overflow-y-auto p-5">
           {/* Base selector */}
           <div className="flex flex-wrap items-center gap-3 text-sm">
-            <span className="text-gray-400">Compared against</span>
+            <span className="text-[var(--text-secondary)] font-medium">Compared against</span>
             <select
               value={baseRevId}
               onChange={(e) => setBaseRevId(e.target.value)}
-              className="rounded-lg border border-gray-700 bg-gray-800 px-3 py-1.5 text-sm text-white focus:outline-none focus:border-orange-500"
+              className="rounded-lg border border-[var(--border-color)] bg-[var(--card-bg-subtle)] px-3 py-1.5 text-sm text-[var(--foreground-color)] focus:outline-none focus:border-orange-500 shadow-xs"
             >
               <option value="live">Current live state</option>
               {revisions
@@ -147,24 +147,24 @@ export default function RevisionDiffModal({
                   </option>
                 ))}
             </select>
-            <span className="text-gray-500">
+            <span className="text-[var(--text-secondary)] font-mono text-xs">
               {baseLabel} <ArrowRight size={12} className="mx-1 inline" /> {targetRevision.rev}
             </span>
           </div>
 
           {/* Context line */}
-          <p className="text-xs text-gray-400">
+          <p className="text-xs text-[var(--text-secondary)]">
             {baseRevId === 'live'
               ? `Restoring ${targetRevision.rev} would apply the changes below.`
               : `Changes from ${baseLabel} to ${targetRevision.rev} (${targetRevision.description}).`}
           </p>
 
           {loadingLive && baseRevId === 'live' ? (
-            <p className="flex items-center gap-2 py-6 text-sm text-gray-500">
+            <p className="flex items-center gap-2 py-6 text-sm text-[var(--text-secondary)]">
               <Loader2 size={14} className="animate-spin" /> Loading live project state…
             </p>
           ) : summary && summary.added + summary.removed + summary.changed === 0 ? (
-            <div className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-4 py-6 text-center text-sm text-emerald-300">
+            <div className="rounded-lg border border-emerald-500/40 bg-emerald-500/15 px-4 py-6 text-center text-sm font-semibold text-emerald-800 dark:text-emerald-300 shadow-xs">
               No differences — {baseRevId === 'live' ? 'the live project already matches this revision.' : 'these two snapshots are identical.'}
             </div>
           ) : summary ? (
@@ -181,7 +181,7 @@ export default function RevisionDiffModal({
                 return (
                   <span
                     key={kind}
-                    className={`flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-semibold ${meta.chip}`}
+                    className={`flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-semibold shadow-xs ${meta.chip}`}
                   >
                     <Icon size={12} />
                     {meta.label}: {count}
@@ -203,28 +203,28 @@ export default function RevisionDiffModal({
                       <Icon size={13} />
                       {meta.label} — {items.length}
                     </h3>
-                    <ul className="divide-y divide-gray-800/70 rounded-lg border border-gray-800 bg-gray-950/60">
+                    <ul className="divide-y divide-[var(--border-color)] rounded-lg border border-[var(--border-color)] bg-[var(--card-bg-subtle)] shadow-xs">
                       {items.map((c, i) => (
                         <li key={i} className="px-3 py-2.5">
                           <div className="flex flex-wrap items-center gap-2">
-                            <span className="rounded border border-gray-700 bg-gray-800 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-gray-400">
+                            <span className="rounded border border-[var(--border-color)] bg-[var(--card-bg)] px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[var(--text-secondary)]">
                               {CATEGORY_BADGE[c.category] ?? c.category}
                             </span>
-                            <span className="text-sm font-semibold text-white">{c.label}</span>
+                            <span className="text-sm font-semibold text-[var(--foreground-color)]">{c.label}</span>
                           </div>
                           {c.kind === 'changed' ? (
                             <div className="mt-1 flex flex-wrap items-center gap-2 pl-1 text-xs">
-                              <span className="text-gray-400">{c.field}</span>
-                              <span className="rounded bg-gray-800 px-1.5 py-0.5 font-mono text-gray-300 line-through decoration-red-400/70">
+                              <span className="text-[var(--text-secondary)]">{c.field}</span>
+                              <span className="rounded bg-[var(--card-bg)] px-1.5 py-0.5 font-mono text-red-700 dark:text-red-300 line-through decoration-red-500/70 border border-[var(--border-color)]">
                                 {c.from}
                               </span>
-                              <ArrowRight size={12} className="text-gray-500" />
-                              <span className="rounded bg-emerald-500/10 px-1.5 py-0.5 font-mono text-emerald-300">
+                              <ArrowRight size={12} className="text-[var(--text-secondary)]" />
+                              <span className="rounded bg-emerald-500/15 px-1.5 py-0.5 font-mono text-emerald-800 dark:text-emerald-300 border border-emerald-500/30">
                                 {c.to}
                               </span>
                             </div>
                           ) : (
-                            <p className="mt-1 pl-1 text-xs text-gray-400">{c.detail}</p>
+                            <p className="mt-1 pl-1 text-xs text-[var(--text-secondary)]">{c.detail}</p>
                           )}
                         </li>
                       ))}

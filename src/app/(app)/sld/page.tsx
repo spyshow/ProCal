@@ -739,18 +739,18 @@ export default function SLDPage() {
 
   if (loading)
     return (
-      <div className="flex items-center justify-center min-h-screen bg-slate-950 text-slate-300">
+      <div className="flex items-center justify-center min-h-screen bg-[var(--background-color)] text-[var(--foreground-color)]">
         <Sparkles className="w-6 h-6 animate-spin text-orange-500 mr-2" />
-        <p className="text-sm">Loading SLD Workstation Environment…</p>
+        <p className="text-sm font-medium">Loading SLD Workstation Environment…</p>
       </div>
     );
 
   if (!project)
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-slate-950 text-slate-300 p-6 text-center">
-        <GitBranch className="w-12 h-12 text-slate-600 mb-3" />
-        <h2 className="text-xl font-bold text-white mb-2">No Active Project Selected</h2>
-        <p className="text-sm text-slate-400 max-w-md mb-6">
+      <div className="flex flex-col items-center justify-center min-h-screen bg-[var(--background-color)] text-[var(--foreground-color)] p-6 text-center">
+        <GitBranch className="w-12 h-12 text-[var(--text-secondary)] mb-3" />
+        <h2 className="text-xl font-bold text-[var(--foreground-color)] mb-2">No Active Project Selected</h2>
+        <p className="text-sm text-[var(--text-secondary)] max-w-md mb-6">
           Please select or create a project first from the dashboard to launch the Single Line Diagram workstation.
         </p>
       </div>
@@ -763,7 +763,7 @@ export default function SLDPage() {
   const activeStatus = selectedComponent ? getStatus(selectedComponent.id) : 'Closed';
 
   return (
-    <div className="sld-workstation-root flex flex-col h-screen bg-slate-950 text-slate-100 overflow-hidden font-sans select-none print:h-auto print:bg-white print:text-black print:overflow-visible">
+    <div className="sld-workstation-root flex flex-col h-screen bg-[var(--background-color)] text-[var(--foreground-color)] overflow-hidden font-sans select-none print:h-auto print:bg-white print:text-black print:overflow-visible">
       {/* Read-Only Mode Banner */}
       <ReadOnlyBanner pageKey="sldDesigner" />
 
@@ -771,20 +771,20 @@ export default function SLDPage() {
       <QAReviewDrawer pageKey="sldDesigner" pageTitle="Single Line Diagram (SLD)" />
 
       {/* Top Workstation Window Bar & Header */}
-      <header data-tour="sld-header" className="h-14 border-b border-white/10 bg-slate-950/90 backdrop-blur-xl px-4 flex items-center justify-between z-30 shrink-0 print:hidden">
+      <header data-tour="sld-header" className="h-14 border-b border-[var(--border-color)] bg-[var(--card-bg)] backdrop-blur-xl px-4 flex items-center justify-between z-30 shrink-0 print:hidden shadow-xs">
         {/* Left: App Title & Breadcrumbs */}
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-orange-600/20 border border-orange-500/40 flex items-center justify-center shadow-[0_0_12px_rgba(234,88,12,0.3)]">
-            <GitBranch className="w-4 h-4 text-orange-400" />
+          <div className="w-8 h-8 rounded-lg bg-orange-600/20 border border-orange-500/40 flex items-center justify-center shadow-[0_0_12px_rgba(234,88,12,0.25)]">
+            <GitBranch className="w-4 h-4 text-orange-600 dark:text-orange-400" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-sm font-bold text-white tracking-tight">{t('sld.title', 'Single Line Diagram')}</span>
-              <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-orange-500/20 text-orange-400 border border-orange-500/30">
+              <span className="text-sm font-bold text-[var(--foreground-color)] tracking-tight">{t('sld.title', 'Single Line Diagram')}</span>
+              <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-orange-500/15 text-orange-700 dark:text-orange-300 border border-orange-500/30 font-semibold">
                 V4.2 Dynamic
               </span>
-              <span className="text-slate-600">|</span>
-              <span className="text-xs text-slate-300 font-medium truncate max-w-[200px]">
+              <span className="text-[var(--border-color)]">|</span>
+              <span className="text-xs text-[var(--text-secondary)] font-medium truncate max-w-[200px]">
                 {project.name}
               </span>
             </div>
@@ -792,37 +792,37 @@ export default function SLDPage() {
         </div>
 
         {/* Center: Mode Toggles */}
-        <div className="hidden md:flex items-center gap-1 p-1 rounded-xl bg-slate-900 border border-slate-800 text-xs">
+        <div className="hidden md:flex items-center gap-1 p-1 rounded-xl bg-[var(--card-bg-subtle)] border border-[var(--border-color)] text-xs shadow-inner">
           <button
             onClick={() => setActiveMode('analyze')}
-            className={`px-3 py-1.2 rounded-lg font-medium transition-all ${
+            className={`px-3 py-1.5 rounded-lg font-semibold transition-all cursor-pointer ${
               activeMode === 'analyze'
-                ? 'bg-slate-800 text-slate-100 border border-slate-700 shadow-sm'
-                : 'text-slate-400 hover:text-slate-200'
+                ? 'bg-[var(--card-bg)] text-[var(--foreground-color)] border border-[var(--border-color)] shadow-xs'
+                : 'text-[var(--text-secondary)] hover:text-[var(--foreground-color)]'
             }`}
           >
             {t('sld.modeAnalyze', 'Analyze')}
           </button>
           <button
             onClick={() => setActiveMode('simulate')}
-            className={`px-3 py-1.2 rounded-lg font-medium transition-all flex items-center gap-1.5 ${
+            className={`px-3 py-1.5 rounded-lg font-semibold transition-all flex items-center gap-1.5 cursor-pointer ${
               activeMode === 'simulate'
-                ? 'bg-orange-500/20 text-orange-300 border border-orange-500/40 shadow-[0_0_12px_rgba(234,88,12,0.2)]'
-                : 'text-slate-400 hover:text-slate-200'
+                ? 'bg-orange-600 text-white shadow-xs shadow-orange-600/25 text-white-force'
+                : 'text-[var(--text-secondary)] hover:text-[var(--foreground-color)]'
             }`}
           >
-            <Play className="w-3 h-3 text-orange-400 fill-orange-400" />
+            <Play className="w-3 h-3 fill-current" />
             {t('sld.modeSimulate', 'Simulate Engine')}
           </button>
           <button
             onClick={() => setActiveMode('library')}
-            className={`px-3 py-1.2 rounded-lg font-medium transition-all flex items-center gap-1.5 ${
+            className={`px-3 py-1.5 rounded-lg font-semibold transition-all flex items-center gap-1.5 cursor-pointer ${
               activeMode === 'library'
-                ? 'bg-slate-800 text-slate-100 border border-slate-700 shadow-sm'
-                : 'text-slate-400 hover:text-slate-200'
+                ? 'bg-[var(--card-bg)] text-[var(--foreground-color)] border border-[var(--border-color)] shadow-xs'
+                : 'text-[var(--text-secondary)] hover:text-[var(--foreground-color)]'
             }`}
           >
-            <BookOpen className="w-3 h-3 text-slate-400" />
+            <BookOpen className="w-3 h-3 text-[var(--text-secondary)]" />
             {t('sld.modeLibrary', 'Library')}
           </button>
         </div>
@@ -834,65 +834,65 @@ export default function SLDPage() {
             onClick={() => {
               window.dispatchEvent(new CustomEvent('trigger-procal-sld-tour'));
             }}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-orange-600/20 border border-orange-500/30 text-orange-300 hover:bg-orange-600/30 text-xs font-semibold shadow-sm transition-all"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[var(--card-bg-subtle)] border border-[var(--border-color)] hover:border-orange-500/50 text-[var(--foreground-color)] hover:text-orange-600 dark:hover:text-orange-400 text-xs font-semibold shadow-xs transition-all cursor-pointer"
             title="Interactive SLD Workstation Tour"
           >
-            <HelpCircle className="w-3.5 h-3.5 text-orange-400" />
+            <HelpCircle className="w-3.5 h-3.5 text-orange-600 dark:text-orange-400" />
             {t('cableSchedule.pageTour', 'Page Tour')}
           </button>
 
           {/* Zoom Toolbar */}
-          <div className="flex items-center gap-1 bg-slate-900 border border-slate-800 rounded-lg p-1">
+          <div className="flex items-center gap-1 bg-[var(--card-bg-subtle)] border border-[var(--border-color)] rounded-lg p-1 shadow-xs">
             <button
               onClick={() => setZoom((z) => Math.max(50, z - 10))}
-              className="p-1 rounded text-slate-400 hover:text-white hover:bg-slate-800"
+              className="p-1 rounded text-[var(--text-secondary)] hover:text-[var(--foreground-color)] hover:bg-[var(--card-bg)] transition-colors cursor-pointer"
               title="Zoom Out"
             >
               <ZoomOut size={14} />
             </button>
-            <span className="text-[11px] font-mono text-slate-400 w-10 text-center" dir="ltr">{zoom}%</span>
+            <span className="text-[11px] font-mono text-[var(--foreground-color)] font-semibold w-10 text-center" dir="ltr">{zoom}%</span>
             <button
               onClick={() => setZoom((z) => Math.min(200, z + 10))}
-              className="p-1 rounded text-slate-400 hover:text-white hover:bg-slate-800"
+              className="p-1 rounded text-[var(--text-secondary)] hover:text-[var(--foreground-color)] hover:bg-[var(--card-bg)] transition-colors cursor-pointer"
               title="Zoom In"
             >
               <ZoomIn size={14} />
             </button>
             <button
               onClick={() => setZoom(100)}
-              className="p-1 rounded text-slate-400 hover:text-white hover:bg-slate-800"
+              className="p-1 rounded text-[var(--text-secondary)] hover:text-[var(--foreground-color)] hover:bg-[var(--card-bg)] transition-colors cursor-pointer"
               title="Reset Zoom"
             >
               <RotateCcw size={14} />
             </button>
           </div>
 
-          <div className="w-px h-5 bg-slate-800" />
+          <div className="w-px h-5 bg-[var(--border-color)]" />
 
           <button
             onClick={exportPNG}
-            className="p-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-300 hover:text-white hover:border-slate-700 text-xs flex items-center gap-1.5"
+            className="p-1.5 rounded-lg bg-[var(--card-bg-subtle)] border border-[var(--border-color)] hover:border-orange-500/50 text-[var(--foreground-color)] text-xs flex items-center gap-1.5 font-semibold shadow-xs transition-all cursor-pointer"
             title="Export PNG Diagram"
           >
-            <FileImage size={14} className="text-emerald-400" />
+            <FileImage size={14} className="text-emerald-600 dark:text-emerald-400" />
             <span className="hidden sm:inline">{t('sld.exportPng', 'Export PNG')}</span>
           </button>
 
           <button
             onClick={exportPDF}
-            className="p-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-300 hover:text-white hover:border-slate-700 text-xs flex items-center gap-1.5"
+            className="p-1.5 rounded-lg bg-[var(--card-bg-subtle)] border border-[var(--border-color)] hover:border-orange-500/50 text-[var(--foreground-color)] text-xs flex items-center gap-1.5 font-semibold shadow-xs transition-all cursor-pointer"
             title="Export Current Page to PDF/Print"
           >
-            <Download size={14} className="text-sky-400" />
+            <Download size={14} className="text-sky-600 dark:text-sky-400" />
             <span className="hidden sm:inline">{t('sld.printPage', 'Print Page')}</span>
           </button>
 
           <button
             onClick={exportPrintAll}
-            className="p-1.5 rounded-lg bg-orange-600/20 border border-orange-500/40 text-orange-300 hover:bg-orange-600/30 text-xs flex items-center gap-1.5 font-medium shadow-[0_0_12px_rgba(234,88,12,0.2)]"
+            className="p-1.5 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-white-force text-xs flex items-center gap-1.5 font-semibold shadow-sm shadow-orange-600/25 transition-all cursor-pointer"
             title="Print Complete Project Package (Executive Summary + All Single Line Diagrams)"
           >
-            <Printer size={14} className="text-orange-400" />
+            <Printer size={14} className="text-white" />
             <span className="hidden sm:inline">{t('sld.printAll', 'Print All (Full Package)')}</span>
           </button>
         </div>
@@ -905,24 +905,24 @@ export default function SLDPage() {
           data-tour="sld-tree"
           className={`${
             isSidebarCollapsed ? 'w-12' : 'w-72'
-          } border-r border-slate-800/80 bg-slate-950 flex flex-col shrink-0 transition-all duration-200 print:hidden relative`}
+          } border-r border-[var(--border-color)] bg-[var(--card-bg-subtle)] flex flex-col shrink-0 transition-all duration-200 print:hidden relative`}
         >
           {isSidebarCollapsed ? (
             /* Collapsed Icon Bar */
             <div className="flex flex-col items-center py-3 gap-4">
               <button
                 onClick={() => setIsSidebarCollapsed(false)}
-                className="p-2 rounded-lg bg-slate-900 border border-slate-800 text-orange-400 hover:text-white hover:border-slate-700 transition-colors shadow-sm"
+                className="p-2 rounded-lg bg-[var(--card-bg)] border border-[var(--border-color)] text-orange-400 hover:text-[var(--foreground-color)] hover:border-orange-500/50 transition-colors shadow-xs cursor-pointer"
                 title="Expand Project Explorer Menu"
               >
                 <PanelLeftOpen size={16} />
               </button>
 
-              <div className="w-6 h-px bg-slate-800 my-1" />
+              <div className="w-6 h-px bg-[var(--border-color)] my-1" />
 
               <button
                 onClick={() => setIsSidebarCollapsed(false)}
-                className="p-2 rounded-lg text-slate-400 hover:text-orange-400 hover:bg-slate-900 transition-colors"
+                className="p-2 rounded-lg text-[var(--text-muted)] hover:text-orange-400 hover:bg-[var(--card-bg)] transition-colors cursor-pointer"
                 title="Project Explorer Tree"
               >
                 <FolderTree size={16} />
@@ -930,7 +930,7 @@ export default function SLDPage() {
 
               <button
                 onClick={() => setIsSidebarCollapsed(false)}
-                className="p-2 rounded-lg text-slate-400 hover:text-orange-400 hover:bg-slate-900 transition-colors"
+                className="p-2 rounded-lg text-[var(--text-muted)] hover:text-orange-400 hover:bg-[var(--card-bg)] transition-colors cursor-pointer"
                 title="Search Circuits"
               >
                 <Search size={16} />
@@ -939,16 +939,16 @@ export default function SLDPage() {
           ) : (
             /* Full Expanded Explorer Sidebar */
             <>
-              <div className="p-3 border-b border-slate-800/80 flex items-center justify-between">
-                <div className="flex items-center gap-2 text-xs font-semibold text-slate-300">
+              <div className="p-3 border-b border-[var(--border-color)] flex items-center justify-between">
+                <div className="flex items-center gap-2 text-xs font-semibold text-[var(--foreground-color)]">
                   <FolderTree size={14} className="text-orange-400" />
                   <span>{t('sld.explorerTree', 'Project Explorer Tree')}</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-[10px] font-mono text-slate-500">{dynamicTree.length} {t('sld.nodes', 'Nodes')}</span>
+                  <span className="text-[10px] font-mono text-[var(--text-muted)]">{dynamicTree.length} {t('sld.nodes', 'Nodes')}</span>
                   <button
                     onClick={() => setIsSidebarCollapsed(true)}
-                    className="p-1 rounded text-slate-400 hover:text-white hover:bg-slate-900 transition-colors"
+                    className="p-1 rounded text-[var(--text-muted)] hover:text-[var(--foreground-color)] hover:bg-[var(--card-bg)] transition-colors cursor-pointer"
                     title="Collapse Explorer Menu"
                   >
                     <PanelLeftClose size={14} />
@@ -957,16 +957,16 @@ export default function SLDPage() {
               </div>
 
               {/* Search Bar */}
-              <div className="p-2.5 border-b border-slate-800/60">
+              <div className="p-2.5 border-b border-[var(--border-color)]">
                 <div className="relative">
-                  <Search className="w-3.5 h-3.5 absolute start-2.5 top-2.5 text-slate-500" />
+                  <Search className="w-3.5 h-3.5 absolute start-2.5 top-2.5 text-[var(--text-muted)]" />
                   <input
                     type="text"
                     aria-label={t('sld.searchPlaceholder', 'Search circuits or panels…')}
                     placeholder={t('sld.searchPlaceholder', 'Search circuits or panels…')}
                     value={explorerSearch}
                     onChange={(e) => setExplorerSearch(e.target.value)}
-                    className="w-full bg-slate-900 border border-slate-800 rounded-lg ps-8 pe-3 py-1 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-orange-500/50"
+                    className="w-full bg-[var(--input-bg)] border border-[var(--border-color)] rounded-lg ps-8 pe-3 py-1 text-xs text-[var(--foreground-color)] placeholder-[var(--text-muted)] focus:outline-none focus:border-orange-500/50"
                   />
                 </div>
               </div>
@@ -989,18 +989,18 @@ export default function SLDPage() {
                             toggleNode(item.id);
                             handleSelectNode(item.data, item.floorNumber);
                           }}
-                          className={`w-full flex items-center justify-between py-1.5 px-2 rounded-lg text-left transition-colors ${
+                          className={`w-full flex items-center justify-between py-1.5 px-2 rounded-lg text-left transition-colors cursor-pointer ${
                             isSelected
-                              ? 'bg-orange-500/15 text-orange-300 border border-orange-500/30 font-medium'
-                              : 'hover:bg-slate-900 text-slate-300'
+                              ? 'bg-orange-500/15 text-orange-400 border border-orange-500/40 font-medium'
+                              : 'hover:bg-[var(--card-bg)] text-[var(--foreground-color)]'
                           }`}
                         >
                           <div className="flex items-center gap-1.5 truncate pr-1">
                             {item.children && item.children.length > 0 ? (
                               isExpanded ? (
-                                <ChevronDown className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+                                <ChevronDown className="w-3.5 h-3.5 text-[var(--text-muted)] shrink-0" />
                               ) : (
-                                <ChevronRight className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+                                <ChevronRight className="w-3.5 h-3.5 text-[var(--text-muted)] shrink-0" />
                               )
                             ) : (
                               <div className="w-3.5 h-3.5 shrink-0" />
@@ -1012,7 +1012,7 @@ export default function SLDPage() {
                             <span className="truncate">{item.name}</span>
                           </div>
                           {item.badge && (
-                            <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-slate-800 text-slate-400 shrink-0">
+                            <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-[var(--card-bg)] border border-[var(--border-color)] text-[var(--text-muted)] shrink-0">
                               {item.badge}
                             </span>
                           )}
@@ -1020,7 +1020,7 @@ export default function SLDPage() {
 
                         {/* Render Children Recursively */}
                         {item.children && isExpanded && (
-                          <div className="pl-4 space-y-0.5 mt-0.5 border-l border-slate-800/80 ml-2.5">
+                          <div className="pl-4 space-y-0.5 mt-0.5 border-l border-[var(--border-color)] ml-2.5">
                             {item.children.map((child: any) => {
                               const isChildSelected = selectedComponent?.id === child.data.id;
                               const childStatus = getStatus(child.data.id);
@@ -1028,10 +1028,10 @@ export default function SLDPage() {
                                 <div key={child.id}>
                                   <button
                                     onClick={() => handleSelectNode(child.data, child.floorNumber)}
-                                    className={`w-full flex items-center justify-between py-1 px-2 rounded text-left transition-colors text-xs ${
+                                    className={`w-full flex items-center justify-between py-1 px-2 rounded text-left transition-colors text-xs cursor-pointer ${
                                       isChildSelected
-                                        ? 'bg-orange-500/15 text-orange-300 border border-orange-500/30 font-medium'
-                                        : 'hover:bg-slate-900/80 text-slate-400 hover:text-slate-200'
+                                        ? 'bg-orange-500/15 text-orange-400 border border-orange-500/40 font-medium'
+                                        : 'hover:bg-[var(--card-bg)] text-[var(--text-muted)] hover:text-[var(--foreground-color)]'
                                     }`}
                                   >
                                     <span className="flex items-center gap-1.5 truncate">
@@ -1047,17 +1047,17 @@ export default function SLDPage() {
 
                                   {/* Nested Sub-Items */}
                                   {child.children && (
-                                    <div className="pl-3 space-y-0.5 mt-0.5 border-l border-slate-800/50 ml-2">
+                                    <div className="pl-3 space-y-0.5 mt-0.5 border-l border-[var(--border-color)]/70 ml-2">
                                       {child.children.map((sub: any) => {
                                         const isSubSelected = selectedComponent?.id === sub.data.id;
                                         return (
                                           <button
                                             key={sub.id}
                                             onClick={() => handleSelectNode(sub.data, sub.floorNumber)}
-                                            className={`w-full flex items-center justify-between py-0.5 px-1.5 rounded text-[11px] text-left transition-colors ${
+                                            className={`w-full flex items-center justify-between py-0.5 px-1.5 rounded text-[11px] text-left transition-colors cursor-pointer ${
                                               isSubSelected
-                                                ? 'bg-orange-500/20 text-orange-300 font-medium'
-                                                : 'hover:bg-slate-900/60 text-slate-400 hover:text-slate-300'
+                                                ? 'bg-orange-500/20 text-orange-400 font-medium'
+                                                : 'hover:bg-[var(--card-bg)] text-[var(--text-muted)] hover:text-[var(--foreground-color)]'
                                             }`}
                                           >
                                             <span className="truncate flex items-center gap-1">
@@ -1085,17 +1085,17 @@ export default function SLDPage() {
         {/* CENTER PANEL: Canvas Workstation Viewport */}
         <main
           data-tour="sld-canvas"
-          className={`sld-main-viewport flex-1 flex flex-col bg-slate-950 overflow-hidden relative ${
+          className={`sld-main-viewport flex-1 flex flex-col bg-[var(--background-color)] overflow-hidden relative ${
             isPrintingAll ? 'print:hidden' : 'print:bg-white print:overflow-visible print:w-full print:block'
           }`}
         >
           {/* Document View Header */}
-          <div className="h-9 border-b border-slate-800/80 bg-slate-900/80 flex items-center px-4 justify-between shrink-0 print:hidden font-sans">
-            <div className="flex items-center gap-2 text-xs font-semibold text-slate-200">
+          <div className="h-9 border-b border-[var(--border-color)] bg-[var(--card-bg-subtle)] flex items-center px-4 justify-between shrink-0 print:hidden font-sans">
+            <div className="flex items-center gap-2 text-xs font-semibold text-[var(--foreground-color)]">
               {isSidebarCollapsed && (
                 <button
                   onClick={() => setIsSidebarCollapsed(false)}
-                  className="p-1 rounded bg-slate-800 text-orange-400 hover:text-white hover:bg-slate-700 transition-colors mr-1"
+                  className="p-1 rounded bg-[var(--card-bg)] border border-[var(--border-color)] text-orange-400 hover:text-[var(--foreground-color)] transition-colors mr-1 cursor-pointer"
                   title="Expand Project Explorer Menu"
                 >
                   <PanelLeftOpen size={14} />
@@ -1110,17 +1110,17 @@ export default function SLDPage() {
                 <button
                   onClick={() => selectPageFloor(Math.max(0, activePage - 1))}
                   disabled={activePage === 0}
-                  className="px-2.5 py-1 rounded bg-slate-800 text-slate-300 hover:text-white disabled:opacity-30 transition-colors"
+                  className="px-2.5 py-1 rounded bg-[var(--card-bg)] border border-[var(--border-color)] text-[var(--foreground-color)] hover:border-orange-500/50 disabled:opacity-30 transition-colors cursor-pointer"
                 >
                   ← Prev
                 </button>
-                <span className="text-slate-400 font-mono text-[11px]">
+                <span className="text-[var(--text-muted)] font-mono text-[11px]">
                   {activePage + 1} / {pages.length}
                 </span>
                 <button
                   onClick={() => selectPageFloor(Math.min(pages.length - 1, activePage + 1))}
                   disabled={activePage === pages.length - 1}
-                  className="px-2.5 py-1 rounded bg-slate-800 text-slate-300 hover:text-white disabled:opacity-30 transition-colors"
+                  className="px-2.5 py-1 rounded bg-[var(--card-bg)] border border-[var(--border-color)] text-[var(--foreground-color)] hover:border-orange-500/50 disabled:opacity-30 transition-colors cursor-pointer"
                 >
                   Next →
                 </button>
@@ -1128,8 +1128,8 @@ export default function SLDPage() {
             )}
           </div>
 
-          {/* Canvas Area with Dark Grid Background */}
-          <div className="sld-canvas-container-outer flex-1 overflow-auto p-6 bg-[radial-gradient(#1e293b_1px,transparent_1px)] [background-size:16px_16px] relative flex items-center justify-center print:bg-white print:p-0 print:m-0 print:block print:w-full">
+          {/* Canvas Area with Theme Grid Background */}
+          <div className="sld-canvas-container-outer flex-1 overflow-auto p-6 bg-[radial-gradient(var(--border-color)_1px,transparent_1px)] [background-size:16px_16px] relative flex items-center justify-center print:bg-white print:p-0 print:m-0 print:block print:w-full">
             {/* Professional Engineering Print Header (Visible ONLY when printing) */}
             <div className="hidden print:flex flex-col border-b-2 border-black pb-2 mb-4 font-sans text-black w-full max-w-full box-border">
               <div className="flex items-start justify-between gap-4">
@@ -1156,20 +1156,20 @@ export default function SLDPage() {
             {/* SVG Canvas Container */}
             <div
               ref={svgContainerRef}
-              className="sld-canvas-wrapper relative bg-slate-900/70 backdrop-blur-md rounded-2xl border border-white/10 p-6 sm:p-8 shadow-[0_0_50px_rgba(0,0,0,0.6)] min-w-[750px] transition-all duration-300 print:bg-white print:border-none print:shadow-none print:p-0 print:m-0 print:min-w-0 print:w-full"
+              className="sld-canvas-wrapper relative bg-[var(--card-bg)] backdrop-blur-md rounded-2xl border border-[var(--border-color)] p-6 sm:p-8 shadow-lg min-w-[750px] transition-all duration-300 print:bg-white print:border-none print:shadow-none print:p-0 print:m-0 print:min-w-0 print:w-full"
             >
               {pages[activePage] && <SchematexDiagram dsl={pages[activePage].dsl} />}
             </div>
 
             {/* Floating Live Simulation Banner */}
-            <div className="absolute top-4 left-4 z-10 flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-900/90 backdrop-blur-md border border-white/10 text-xs text-slate-300 shadow-lg print:hidden">
+            <div className="absolute top-4 left-4 z-10 flex items-center gap-2 px-3 py-1.5 rounded-full bg-[var(--card-bg)]/90 backdrop-blur-md border border-[var(--border-color)] text-xs text-[var(--foreground-color)] shadow-lg print:hidden">
               <span
                 className={`w-2 h-2 rounded-full ${
                   activeStatus === 'Closed' ? 'bg-emerald-400 animate-ping' : 'bg-rose-400'
                 }`}
               />
               <span>Simulation Status: {activeStatus}</span>
-              <span className="text-slate-600">|</span>
+              <span className="text-[var(--border-color)]">|</span>
               <span className="text-orange-400 font-mono">
                 {pages[activePage]?.floors}
               </span>
@@ -1178,14 +1178,14 @@ export default function SLDPage() {
 
           {/* DSL Code View Collapsible Drawer */}
           {showDsl && (
-            <div className="border-t border-slate-800 bg-slate-950 p-4 max-h-48 overflow-auto font-mono text-[11px] text-slate-300 print:hidden">
+            <div className="border-t border-[var(--border-color)] bg-[var(--card-bg-subtle)] p-4 max-h-48 overflow-auto font-mono text-[11px] text-[var(--foreground-color)] print:hidden">
               <div className="flex items-center justify-between mb-2">
                 <span className="font-bold text-orange-400">Generated Schematex DSL</span>
-                <button onClick={() => setShowDsl(false)} className="text-slate-400 hover:text-white">
+                <button onClick={() => setShowDsl(false)} className="text-[var(--text-muted)] hover:text-[var(--foreground-color)] cursor-pointer">
                   <X className="w-4 h-4" />
                 </button>
               </div>
-              <pre className="text-slate-400">
+              <pre className="text-[var(--text-muted)]">
                 {pages[activePage]?.dsl || ''}
               </pre>
             </div>
@@ -1193,9 +1193,9 @@ export default function SLDPage() {
         </main>
 
         {/* RIGHT PANEL: Dynamic Inspector (Switches between Analyze, Simulate, Library) */}
-        <aside className="w-80 border-l border-slate-800/80 bg-slate-950 flex flex-col shrink-0 print:hidden">
-          <div className="p-3 border-b border-slate-800/80 flex items-center justify-between">
-            <div className="flex items-center gap-2 text-xs font-semibold text-slate-300">
+        <aside className="w-80 border-l border-[var(--border-color)] bg-[var(--card-bg-subtle)] flex flex-col shrink-0 print:hidden">
+          <div className="p-3 border-b border-[var(--border-color)] flex items-center justify-between">
+            <div className="flex items-center gap-2 text-xs font-semibold text-[var(--foreground-color)]">
               {activeMode === 'analyze' && <Activity size={14} className="text-orange-400" />}
               {activeMode === 'simulate' && <Sliders size={14} className="text-orange-400" />}
               {activeMode === 'library' && <BookOpen size={14} className="text-orange-400" />}
@@ -1207,7 +1207,7 @@ export default function SLDPage() {
             </div>
             <button
               onClick={() => setShowDsl(!showDsl)}
-              className="p-1 rounded text-slate-400 hover:text-white hover:bg-slate-900"
+              className="p-1 rounded text-[var(--text-muted)] hover:text-[var(--foreground-color)] hover:bg-[var(--card-bg)] cursor-pointer"
               title="View DSL Code"
             >
               <FileCode size={14} />
@@ -1221,40 +1221,40 @@ export default function SLDPage() {
                 <span className="text-[10px] font-mono uppercase tracking-wider text-orange-400 block font-semibold">
                   {t('sld.diagReport', 'IEC 60364 Diagnostic Report')}
                 </span>
-                <h4 className="text-sm font-extrabold text-white">{t('sld.systemPass', 'System Compliance: PASS')}</h4>
-                <p className="text-xs text-slate-300">
+                <h4 className="text-sm font-extrabold text-[var(--foreground-color)]">{t('sld.systemPass', 'System Compliance: PASS')}</h4>
+                <p className="text-xs text-[var(--text-muted)]">
                   Calculated voltage drop and short circuit values are within allowable limits.
                 </p>
               </div>
 
               <div className="space-y-2">
-                <span className="text-[10px] font-mono uppercase tracking-wider text-slate-400 block">
+                <span className="text-[10px] font-mono uppercase tracking-wider text-[var(--text-muted)] block">
                   Key System Metrics
                 </span>
 
-                <div className="p-2.5 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-between">
-                  <span className="text-slate-300">{t('sld.maxLightingVd', 'Max Lighting VD')}</span>
-                  <span className="font-mono font-bold text-emerald-400">1.8% (Limit ≤ 3%)</span>
+                <div className="p-2.5 rounded-lg bg-[var(--card-bg)] border border-[var(--border-color)] flex items-center justify-between">
+                  <span className="text-[var(--foreground-color)]">{t('sld.maxLightingVd', 'Max Lighting VD')}</span>
+                  <span className="font-mono font-bold text-emerald-500 dark:text-emerald-400">1.8% (Limit ≤ 3%)</span>
                 </div>
 
-                <div className="p-2.5 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-between">
-                  <span className="text-slate-300">{t('sld.maxPowerVd', 'Max Power VD')}</span>
-                  <span className="font-mono font-bold text-emerald-400">3.2% (Limit ≤ 5%)</span>
+                <div className="p-2.5 rounded-lg bg-[var(--card-bg)] border border-[var(--border-color)] flex items-center justify-between">
+                  <span className="text-[var(--foreground-color)]">{t('sld.maxPowerVd', 'Max Power VD')}</span>
+                  <span className="font-mono font-bold text-emerald-500 dark:text-emerald-400">3.2% (Limit ≤ 5%)</span>
                 </div>
 
-                <div className="p-2.5 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-between">
-                  <span className="text-slate-300">{t('sld.shortCircuitRating', 'Short Circuit Rating')}</span>
-                  <span className="font-mono font-bold text-amber-400">15.4 kA</span>
+                <div className="p-2.5 rounded-lg bg-[var(--card-bg)] border border-[var(--border-color)] flex items-center justify-between">
+                  <span className="text-[var(--foreground-color)]">{t('sld.shortCircuitRating', 'Short Circuit Rating')}</span>
+                  <span className="font-mono font-bold text-amber-500 dark:text-amber-400">15.4 kA</span>
                 </div>
 
-                <div className="p-2.5 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-between">
-                  <span className="text-slate-300">{t('sld.systemDiversity', 'System Diversity')}</span>
-                  <span className="font-mono font-bold text-sky-400">0.75</span>
+                <div className="p-2.5 rounded-lg bg-[var(--card-bg)] border border-[var(--border-color)] flex items-center justify-between">
+                  <span className="text-[var(--foreground-color)]">{t('sld.systemDiversity', 'System Diversity')}</span>
+                  <span className="font-mono font-bold text-sky-500 dark:text-sky-400">0.75</span>
                 </div>
 
-                <div className="p-2.5 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-between">
-                  <span className="text-slate-300">{t('sld.phaseBalanceScore', 'Phase Balance Score')}</span>
-                  <span className="font-mono font-bold text-emerald-400">98.4%</span>
+                <div className="p-2.5 rounded-lg bg-[var(--card-bg)] border border-[var(--border-color)] flex items-center justify-between">
+                  <span className="text-[var(--foreground-color)]">{t('sld.phaseBalanceScore', 'Phase Balance Score')}</span>
+                  <span className="font-mono font-bold text-emerald-500 dark:text-emerald-400">98.4%</span>
                 </div>
               </div>
             </div>
@@ -1264,49 +1264,49 @@ export default function SLDPage() {
           {activeMode === 'simulate' && selectedComponent && (
             <div className="p-4 space-y-4 flex-1 overflow-y-auto no-scrollbar text-xs">
               {/* Header Badge & Name */}
-              <div className="p-3 rounded-xl bg-slate-900 border border-slate-800 space-y-1">
+              <div className="p-3 rounded-xl bg-[var(--card-bg)] border border-[var(--border-color)] space-y-1">
                 <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-mono uppercase tracking-wider text-slate-500">
+                  <span className="text-[10px] font-mono uppercase tracking-wider text-[var(--text-muted)]">
                     {selectedComponent.id}
                   </span>
                   <span
                     className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold border ${
                       activeStatus === 'Closed'
-                        ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30'
-                        : 'bg-rose-500/10 text-rose-400 border-rose-500/30'
+                        ? 'bg-emerald-500/10 text-emerald-500 dark:text-emerald-400 border-emerald-500/30'
+                        : 'bg-rose-500/10 text-rose-500 dark:text-rose-400 border-rose-500/30'
                     }`}
                   >
                     <span
                       className={`w-1.5 h-1.5 rounded-full ${
-                        activeStatus === 'Closed' ? 'bg-emerald-400' : 'bg-rose-400'
+                        activeStatus === 'Closed' ? 'bg-emerald-500 dark:bg-emerald-400' : 'bg-rose-500 dark:bg-rose-400'
                       }`}
                     />
                     {activeStatus === 'Closed' ? t('sld.activeClosed', 'Active (Closed)') : activeStatus === 'Open' ? t('sld.open', 'Open') : t('sld.tripped', 'Tripped')}
                   </span>
                 </div>
-                <h4 className="text-sm font-extrabold text-white">{selectedComponent.name}</h4>
-                <p className="text-xs text-slate-400">{selectedComponent.type}</p>
+                <h4 className="text-sm font-extrabold text-[var(--foreground-color)]">{selectedComponent.name}</h4>
+                <p className="text-xs text-[var(--text-muted)]">{selectedComponent.type}</p>
               </div>
 
               {/* Properties Inputs & Status Simulation Selector */}
               <div className="space-y-3 pt-1">
                 <div>
-                  <label htmlFor="sld-prop-rating" className="block text-slate-400 text-[11px] mb-1">{t('sld.protectionRating', 'Protection Rating')}</label>
+                  <label htmlFor="sld-prop-rating" className="block text-[var(--text-muted)] text-[11px] mb-1">{t('sld.protectionRating', 'Protection Rating')}</label>
                   <input
                     id="sld-prop-rating"
                     aria-label={t('sld.protectionRating', 'Protection Rating')}
                     type="text"
                     value={selectedComponent.rating}
                     readOnly
-                    className="w-full bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none"
+                    className="w-full bg-[var(--input-bg)] border border-[var(--border-color)] rounded-lg px-2.5 py-1.5 text-xs text-[var(--foreground-color)] focus:outline-none"
                   />
                 </div>
 
                 {/* Cable Conductor Schedule */}
                 <div>
-                  <label htmlFor="sld-prop-cable" className="block text-slate-400 text-[11px] mb-1 flex items-center justify-between">
+                  <label htmlFor="sld-prop-cable" className="block text-[var(--text-muted)] text-[11px] mb-1 flex items-center justify-between">
                     <span>{t('sld.cableConductorSchedule', 'Cable Conductor Schedule')}</span>
-                    <span className="text-[10px] text-amber-400/80 font-mono">IEC 60228</span>
+                    <span className="text-[10px] text-amber-500 dark:text-amber-400 font-mono">IEC 60228</span>
                   </label>
                   <input
                     id="sld-prop-cable"
@@ -1314,13 +1314,13 @@ export default function SLDPage() {
                     type="text"
                     value={selectedComponent.cableSize || '3x2.5mm² Cu/PVC'}
                     readOnly
-                    className="w-full bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-amber-300 font-mono font-medium focus:outline-none shadow-inner"
+                    className="w-full bg-[var(--input-bg)] border border-[var(--border-color)] rounded-lg px-2.5 py-1.5 text-xs text-amber-500 dark:text-amber-300 font-mono font-medium focus:outline-none shadow-inner"
                   />
                 </div>
 
                 {/* Status Simulation Switch */}
                 <div>
-                  <label htmlFor="sld-prop-sim-switch" className="block text-slate-400 text-[11px] mb-1">{t('sld.simulationSwitch', 'Simulation Switch')}</label>
+                  <label htmlFor="sld-prop-sim-switch" className="block text-[var(--text-muted)] text-[11px] mb-1">{t('sld.simulationSwitch', 'Simulation Switch')}</label>
                   <select
                     id="sld-prop-sim-switch"
                     aria-label={t('sld.simulationSwitch', 'Simulation Switch')}
@@ -1328,7 +1328,7 @@ export default function SLDPage() {
                     onChange={(e) =>
                       updateStatus(selectedComponent.id, e.target.value as 'Closed' | 'Open' | 'Tripped')
                     }
-                    className="w-full bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-orange-500/50 cursor-pointer"
+                    className="w-full bg-[var(--input-bg)] border border-[var(--border-color)] rounded-lg px-2.5 py-1.5 text-xs text-[var(--foreground-color)] focus:outline-none focus:border-orange-500/50 cursor-pointer"
                   >
                     <option value="Closed">{t('sld.closedNormal', 'Closed (Normal Power Flow)')}</option>
                     <option value="Open">{t('sld.openManual', 'Open (Manual Disconnect)')}</option>
@@ -1338,20 +1338,20 @@ export default function SLDPage() {
               </div>
 
               {/* Live Measurements Card */}
-              <div className="p-3 rounded-xl bg-slate-900/60 border border-slate-800/80 space-y-2">
-                <span className="text-[10px] font-mono uppercase tracking-wider text-slate-400">
+              <div className="p-3 rounded-xl bg-[var(--card-bg)] border border-[var(--border-color)] space-y-2">
+                <span className="text-[10px] font-mono uppercase tracking-wider text-[var(--text-muted)]">
                   {t('sld.liveCalculations', 'LIVE PROJECT CALCULATIONS')}
                 </span>
                 <div className="grid grid-cols-2 gap-2 text-xs">
-                  <div className="bg-slate-950 p-2 rounded-lg border border-slate-800">
-                    <span className="text-[10px] text-slate-500 block">{t('sld.currentLoad', 'Current Load')}</span>
+                  <div className="bg-[var(--card-bg-subtle)] p-2 rounded-lg border border-[var(--border-color)]">
+                    <span className="text-[10px] text-[var(--text-muted)] block">{t('sld.currentLoad', 'Current Load')}</span>
                     <span className="font-mono font-bold text-orange-400">
                       {selectedComponent.current}
                     </span>
                   </div>
-                  <div className="bg-slate-950 p-2 rounded-lg border border-slate-800">
-                    <span className="text-[10px] text-slate-500 block">{t('common.maxDemand', 'Max Demand')}</span>
-                    <span className="font-mono font-bold text-amber-400">
+                  <div className="bg-[var(--card-bg-subtle)] p-2 rounded-lg border border-[var(--border-color)]">
+                    <span className="text-[10px] text-[var(--text-muted)] block">{t('common.maxDemand', 'Max Demand')}</span>
+                    <span className="font-mono font-bold text-amber-500 dark:text-amber-400">
                       {selectedComponent.power}
                     </span>
                   </div>
@@ -1362,22 +1362,22 @@ export default function SLDPage() {
               <div className="space-y-3 pt-2">
                 {/* Upstream Supply Path */}
                 <div className="space-y-1.5">
-                  <span className="text-[10px] font-mono uppercase tracking-wider text-sky-400 flex items-center gap-1 font-semibold">
-                    <ArrowUpRight className="w-3.5 h-3.5 text-sky-400" />
+                  <span className="text-[10px] font-mono uppercase tracking-wider text-sky-500 dark:text-sky-400 flex items-center gap-1 font-semibold">
+                    <ArrowUpRight className="w-3.5 h-3.5 text-sky-500 dark:text-sky-400" />
                     <span>{t('sld.upstreamSupplySource', 'UPSTREAM SUPPLY SOURCE')}</span>
                   </span>
                   {selectedComponent.upstream && selectedComponent.upstream.length > 0 ? (
                     selectedComponent.upstream.map((conn, idx) => (
                       <div
                         key={idx}
-                        className="p-2 rounded-lg bg-sky-950/30 border border-sky-800/40 flex items-center justify-between text-[11px] text-sky-200"
+                        className="p-2 rounded-lg bg-sky-500/10 border border-sky-500/30 flex items-center justify-between text-[11px] text-sky-600 dark:text-sky-200"
                       >
                         <span className="truncate max-w-[210px]">{conn}</span>
-                        <ArrowUpRight className="w-3 h-3 text-sky-400 shrink-0" />
+                        <ArrowUpRight className="w-3 h-3 text-sky-500 dark:text-sky-400 shrink-0" />
                       </div>
                     ))
                   ) : (
-                    <div className="p-2 rounded-lg bg-slate-900 border border-slate-800 text-[11px] text-slate-500 italic">
+                    <div className="p-2 rounded-lg bg-[var(--card-bg)] border border-[var(--border-color)] text-[11px] text-[var(--text-muted)] italic">
                       {t('sld.directGridSupply', 'Direct High-Voltage Grid Supply')}
                     </div>
                   )}
@@ -1385,8 +1385,8 @@ export default function SLDPage() {
 
                 {/* Downstream Distribution Path */}
                 <div className="space-y-1.5">
-                  <span className="text-[10px] font-mono uppercase tracking-wider text-emerald-400 flex items-center gap-1 font-semibold">
-                    <ArrowDownRight className="w-3.5 h-3.5 text-emerald-400" />
+                  <span className="text-[10px] font-mono uppercase tracking-wider text-emerald-500 dark:text-emerald-400 flex items-center gap-1 font-semibold">
+                    <ArrowDownRight className="w-3.5 h-3.5 text-emerald-500 dark:text-emerald-400" />
                     <span>{t('sld.downstreamDistribution', 'DOWNSTREAM DISTRIBUTION')} ({selectedComponent.downstream?.length || selectedComponent.connections.length || 0})</span>
                   </span>
                   {(selectedComponent.downstream && selectedComponent.downstream.length > 0) || selectedComponent.connections.length > 0 ? (
@@ -1394,15 +1394,15 @@ export default function SLDPage() {
                       {(selectedComponent.downstream || selectedComponent.connections).map((conn, idx) => (
                         <div
                           key={idx}
-                          className="p-2 rounded-lg bg-slate-900 border border-slate-800/80 flex items-center justify-between text-[11px] text-slate-300 hover:border-slate-700 transition-colors"
+                          className="p-2 rounded-lg bg-[var(--card-bg)] border border-[var(--border-color)] flex items-center justify-between text-[11px] text-[var(--foreground-color)] hover:border-orange-500/40 transition-colors"
                         >
                           <span className="truncate max-w-[210px]">{conn}</span>
-                          <ChevronRight className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+                          <ChevronRight className="w-3.5 h-3.5 text-[var(--text-muted)] shrink-0" />
                         </div>
                       ))}
                     </div>
                   ) : (
-                    <div className="p-2 rounded-lg bg-slate-900 border border-slate-800 text-[11px] text-slate-500 italic">
+                    <div className="p-2 rounded-lg bg-[var(--card-bg)] border border-[var(--border-color)] text-[11px] text-[var(--text-muted)] italic">
                       {t('sld.finalOutlets', 'Final Load Outlets / Equipment')}
                     </div>
                   )}
@@ -1414,7 +1414,7 @@ export default function SLDPage() {
           {/* MODE 3: LIBRARY DRAWER */}
           {activeMode === 'library' && (
             <div className="p-4 space-y-3 flex-1 overflow-y-auto no-scrollbar text-xs">
-              <span className="text-[10px] font-mono uppercase tracking-wider text-slate-400 block">
+              <span className="text-[10px] font-mono uppercase tracking-wider text-[var(--text-muted)] block">
                 IEC / IEEE Symbol Catalog
               </span>
 
@@ -1428,15 +1428,15 @@ export default function SLDPage() {
               ].map((item, idx) => (
                 <div
                   key={idx}
-                  className="p-2.5 rounded-xl bg-slate-900 border border-slate-800 space-y-1 cursor-pointer hover:border-slate-700 transition-colors"
+                  className="p-2.5 rounded-xl bg-[var(--card-bg)] border border-[var(--border-color)] space-y-1 cursor-pointer hover:border-orange-500/40 transition-colors"
                 >
                   <div className="flex items-center justify-between">
-                    <span className="font-bold text-white text-xs">{item.name}</span>
-                    <span className="px-1.5 py-0.2 rounded bg-orange-500/20 text-orange-400 font-mono text-[10px]">
+                    <span className="font-bold text-[var(--foreground-color)] text-xs">{item.name}</span>
+                    <span className="px-1.5 py-0.2 rounded bg-orange-500/10 text-orange-500 dark:text-orange-400 font-mono text-[10px]">
                       {item.symbol}
                     </span>
                   </div>
-                  <p className="text-[11px] text-slate-400">{item.spec}</p>
+                  <p className="text-[11px] text-[var(--text-muted)]">{item.spec}</p>
                 </div>
               ))}
             </div>

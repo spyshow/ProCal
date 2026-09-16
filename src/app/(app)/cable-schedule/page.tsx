@@ -22,6 +22,7 @@ import { codeOf } from '@/lib/calculations/codes';
 import { isThreePhaseForItem, computeFeeders, createFindBreaker } from '@/lib/calculations/feeders';
 import { phaseBalance } from '@/lib/calculations/phaseBalance';
 import MethodSelector from '@/components/MethodSelector';
+import InfoTooltip from '@/components/InfoTooltip';
 import { useTranslation } from '@/i18n';
 import { PageSkeleton } from '@/components/ui/skeleton';
 import { Cable, RefreshCw, AlertTriangle, Check, Settings, SlidersHorizontal, Save, HelpCircle, Layers } from 'lucide-react';
@@ -100,7 +101,7 @@ function CableLengthInput({
   };
 
   return (
-    <div className="inline-flex items-center justify-center gap-1 bg-slate-800/80 border border-slate-700/80 rounded-md px-2 py-0.5 focus-within:border-cyan-500/60 focus-within:ring-1 focus-within:ring-cyan-500/30 transition-all">
+    <div className="inline-flex items-center justify-center gap-1 bg-[var(--input-bg)] border border-[var(--border-color,#1f2937)] hover:border-orange-500/40 rounded-md px-2 py-0.5 focus-within:border-orange-500/60 focus-within:ring-1 focus-within:ring-orange-500/30 transition-all shadow-2xs">
       <input
         type="number"
         aria-label={ariaLabel}
@@ -115,12 +116,12 @@ function CableLengthInput({
             (e.target as HTMLInputElement).blur();
           }
         }}
-        className="w-12 bg-transparent text-center text-xs font-mono font-medium text-slate-100 focus:outline-none"
+        className="w-12 bg-transparent text-center text-xs font-mono font-medium text-[var(--foreground-color,#f8fafc)] focus:outline-none"
         min="1"
         max="1000"
         step="1"
       />
-      <span className="text-[10px] text-slate-400 font-medium select-none">m</span>
+      <span className="text-[10px] text-[var(--table-header-color,#64748b)] font-medium select-none">m</span>
     </div>
   );
 }
@@ -1087,14 +1088,14 @@ export default function CableSchedulePage() {
 
       {/* Unsaved Changes Banner */}
       {cablesNeedingUpsize.length > 0 && (
-        <div className="rounded-xl border border-yellow-500/30 bg-yellow-500/10 p-3.5 flex items-center justify-between">
+        <div className="rounded-xl border border-amber-500/40 bg-amber-500/10 p-3.5 flex items-center justify-between shadow-xs">
           <div className="flex items-center gap-3">
-            <AlertTriangle size={18} className="text-yellow-400 shrink-0" />
+            <AlertTriangle size={18} className="text-amber-600 dark:text-amber-400 shrink-0" />
             <div>
-              <p className="text-sm font-semibold text-yellow-300">
+              <p className="text-sm font-semibold text-amber-900 dark:text-amber-200">
                 {cablesNeedingUpsize.length} {t('cableSchedule.warningNeedUpsize', 'cables need upsize')}
               </p>
-              <p className="text-xs text-yellow-400/70">
+              <p className="text-xs text-amber-800/80 dark:text-amber-300/80">
                 {t('cableSchedule.clickApply', 'Click "Apply" to save the new cable sizes to the database')}
               </p>
             </div>
@@ -1102,7 +1103,7 @@ export default function CableSchedulePage() {
           <button
             onClick={applyChanges}
             disabled={saving}
-            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-yellow-500 hover:bg-yellow-400 text-gray-900 text-xs font-bold disabled:opacity-50 transition-all"
+            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-500 text-white text-white-force text-xs font-bold disabled:opacity-50 transition-all shadow-xs shadow-amber-600/25 cursor-pointer"
           >
             <Save size={13} />
             {saving ? t('common.saving', 'Saving…') : t('cableSchedule.apply', 'Apply')}
@@ -1114,12 +1115,12 @@ export default function CableSchedulePage() {
       <div data-tour="cable-header" className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-3">
-            <h1 className="text-2xl font-bold text-gray-100 flex items-center gap-2">
-              <Cable className="text-orange-400" />
+            <h1 className="text-2xl font-bold text-[var(--foreground-color,#f8fafc)] flex items-center gap-2">
+              <Cable className="text-orange-600 dark:text-orange-400" />
               {t('cableSchedule.title', 'Cable Schedule')}
             </h1>
           </div>
-          <p className="text-sm text-gray-400 mt-1">
+          <p className="text-sm text-[var(--table-header-color,#64748b)] mt-1">
             {project ? `${project.name} — ` : ''}{t('cableSchedule.subtitle', 'Cable lengths & voltage drop calculator')}
           </p>
         </div>
@@ -1127,38 +1128,42 @@ export default function CableSchedulePage() {
         <div className="flex items-center gap-2 flex-wrap">
           <button
             onClick={() => setShowPhaseDetails(!showPhaseDetails)}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-medium transition-all ${
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-semibold transition-all cursor-pointer shadow-xs ${
               showPhaseDetails
-                ? 'bg-orange-500/10 border-orange-500/40 text-orange-400 font-semibold'
-                : 'bg-gray-800/80 border-gray-700 text-gray-300 hover:bg-gray-700'
+                ? 'bg-orange-500/15 border-orange-500/40 text-orange-700 dark:text-orange-300'
+                : 'bg-[var(--card-bg-subtle)] border-[var(--border-color,#1f2937)] text-[var(--foreground-color,#f8fafc)] hover:border-orange-500/40'
             }`}
             title="Toggle per-phase current columns (L1, L2, L3, Neutral)"
           >
-            <Layers size={14} />
+            <Layers size={14} className="text-orange-500" />
             {showPhaseDetails ? t('cableSchedule.compactCurrents', 'Compact Currents') : t('cableSchedule.phaseDetails', 'Phase Details')}
           </button>
           <button
             onClick={() => window.dispatchEvent(new CustomEvent('trigger-procal-cable-schedule-tour'))}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-orange-500/30 bg-orange-500/10 hover:bg-orange-500/20 text-orange-400 text-xs font-semibold transition-all"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[var(--border-color,#1f2937)] bg-[var(--card-bg-subtle)] hover:bg-[var(--card-bg,#0b0f19)] hover:border-orange-500/50 text-[var(--foreground-color,#f8fafc)] text-xs font-semibold transition-all shadow-xs cursor-pointer"
             title="Start page interactive guide"
           >
-            <HelpCircle size={14} />
+            <HelpCircle size={14} className="text-orange-500" />
             {t('tour.pageTour', 'Page Tour')}
           </button>
           <button
             data-tour="cable-derating"
             onClick={() => setShowSettings(!showSettings)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-gray-700 bg-gray-800/80 hover:bg-gray-700 text-gray-300 text-xs font-medium transition-all"
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-semibold transition-all shadow-xs cursor-pointer ${
+              showSettings
+                ? 'bg-orange-500/15 border-orange-500/40 text-orange-700 dark:text-orange-300'
+                : 'border-[var(--border-color,#1f2937)] bg-[var(--card-bg-subtle)] hover:bg-[var(--card-bg,#0b0f19)] hover:border-orange-500/50 text-[var(--foreground-color,#f8fafc)]'
+            }`}
           >
-            <SlidersHorizontal size={14} />
+            <SlidersHorizontal size={14} className="text-orange-500" />
             {t('cableSchedule.defaultSettings', 'Default Settings')}
           </button>
           <button
             data-tour="cable-recalc"
             onClick={recalculateAll}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold shadow-sm transition-all"
+            className="group flex items-center gap-1.5 px-4 py-1.5 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-xs font-semibold shadow-sm shadow-orange-600/20 text-white-force transition-all cursor-pointer"
           >
-            <RefreshCw size={14} />
+            <RefreshCw size={14} className="group-hover:animate-[spin_1s_linear_infinite]" />
             {t('cableSchedule.recalculateAll', 'Recalculate All')}
           </button>
         </div>
@@ -1168,9 +1173,9 @@ export default function CableSchedulePage() {
         <>
       {/* Default Settings Drawer */}
       {showSettings && (
-        <div className="rounded-xl border border-gray-800 bg-gray-900/90 p-4 grid grid-cols-2 sm:grid-cols-6 gap-3 items-end">
+        <div className="rounded-xl border border-[var(--border-color,#1f2937)] bg-[var(--card-bg,#0b0f19)] p-4 grid grid-cols-2 sm:grid-cols-6 gap-3 items-end shadow-xs">
           <div>
-            <label className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block mb-1">
+            <label className="text-[10px] font-semibold text-[var(--table-header-color,#64748b)] uppercase tracking-wider block mb-1">
               {t('cableSchedule.maxSizeMm2', 'Max Size (mm²)')}
             </label>
             <select
@@ -1180,7 +1185,7 @@ export default function CableSchedulePage() {
                 setDefaultMaxCableSize(val);
                 if (typeof window !== 'undefined') localStorage.setItem('procal-default-max-cable-size', String(val));
               }}
-              className="dense-input w-full rounded text-xs py-1"
+              className="dense-input w-full rounded text-xs py-1.5 cursor-pointer"
             >
               {[120, 150, 185, 240, 300, 400, 500].map((size) => (
                 <option key={size} value={size}>{size} mm²</option>
@@ -1189,7 +1194,7 @@ export default function CableSchedulePage() {
           </div>
 
           <div>
-            <label className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block mb-1">
+            <label className="text-[10px] font-semibold text-[var(--table-header-color,#64748b)] uppercase tracking-wider block mb-1">
               {t('cableSchedule.defaultMethod', 'Default Method')}
             </label>
             <MethodSelector
@@ -1204,7 +1209,7 @@ export default function CableSchedulePage() {
           </div>
 
           <div>
-            <label className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block mb-1">
+            <label className="text-[10px] font-semibold text-[var(--table-header-color,#64748b)] uppercase tracking-wider block mb-1">
               {t('cableSchedule.defaultInsulation', 'Default Insulation')}
             </label>
             <select
@@ -1214,7 +1219,7 @@ export default function CableSchedulePage() {
                 setDefaultInsulation(val);
                 if (typeof window !== 'undefined') localStorage.setItem('procal-default-insulation', val);
               }}
-              className="dense-input w-full rounded text-xs py-1"
+              className="dense-input w-full rounded text-xs py-1.5 cursor-pointer"
             >
               <option value="XLPE">XLPE (90°C)</option>
               <option value="PVC">PVC (70°C)</option>
@@ -1222,7 +1227,7 @@ export default function CableSchedulePage() {
           </div>
 
           <div>
-            <label className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block mb-1">
+            <label className="text-[10px] font-semibold text-[var(--table-header-color,#64748b)] uppercase tracking-wider block mb-1">
               {t('cableSchedule.defaultMaterial', 'Default Material')}
             </label>
             <select
@@ -1232,7 +1237,7 @@ export default function CableSchedulePage() {
                 setDefaultMaterial(val);
                 if (typeof window !== 'undefined') localStorage.setItem('procal-default-material', val);
               }}
-              className="dense-input w-full rounded text-xs py-1"
+              className="dense-input w-full rounded text-xs py-1.5 cursor-pointer"
             >
               <option value="copper">{t('cableSchedule.copper', 'Copper')}</option>
               <option value="aluminum">{t('cableSchedule.aluminum', 'Aluminum')}</option>
@@ -1240,7 +1245,7 @@ export default function CableSchedulePage() {
           </div>
 
           <div>
-            <label className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block mb-1">
+            <label className="text-[10px] font-semibold text-[var(--table-header-color,#64748b)] uppercase tracking-wider block mb-1">
               {t('cableSchedule.ambientTemp', 'Ambient Temp (°C)')}
             </label>
             <select
@@ -1250,7 +1255,7 @@ export default function CableSchedulePage() {
                 setDefaultAmbientTemp(val);
                 if (typeof window !== 'undefined') localStorage.setItem('procal-default-ambient-temp', String(val));
               }}
-              className="dense-input w-full rounded text-xs py-1"
+              className="dense-input w-full rounded text-xs py-1.5 cursor-pointer"
             >
               {[10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60].map((temp) => (
                 <option key={temp} value={temp}>{temp}°C</option>
@@ -1259,7 +1264,7 @@ export default function CableSchedulePage() {
           </div>
 
           <div>
-            <label className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block mb-1">
+            <label className="text-[10px] font-semibold text-[var(--table-header-color,#64748b)] uppercase tracking-wider block mb-1">
               {t('cableSchedule.groupingCount', 'Grouping (cables)')}
             </label>
             <select
@@ -1269,7 +1274,7 @@ export default function CableSchedulePage() {
                 setDefaultGroupingCount(val);
                 if (typeof window !== 'undefined') localStorage.setItem('procal-default-grouping-count', String(val));
               }}
-              className="dense-input w-full rounded text-xs py-1"
+              className="dense-input w-full rounded text-xs py-1.5 cursor-pointer"
             >
               {[1, 2, 3, 4, 5, 6, 7, 8, 9, 12, 16, 20].map((num) => (
                 <option key={num} value={num}>
@@ -1282,7 +1287,7 @@ export default function CableSchedulePage() {
           <button
             onClick={applyDefaultsToAll}
             disabled={applyingDefaults}
-            className="w-full py-1.5 px-3 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-xs font-semibold transition-all disabled:opacity-50 flex items-center justify-center gap-1.5"
+            className="w-full py-2 px-3 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-white-force text-xs font-semibold transition-all disabled:opacity-50 flex items-center justify-center gap-1.5 shadow-xs shadow-orange-600/25 cursor-pointer"
           >
             {applyingDefaults ? (
               <>
@@ -1298,14 +1303,27 @@ export default function CableSchedulePage() {
 
       {/* Building Selector */}
       {project.buildings.length > 1 && (
-        <div className="flex gap-2 flex-wrap">
-          <button onClick={() => setSelectedBuilding(null)}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${selectedBuilding === null ? 'bg-orange-500 text-slate-950 font-bold shadow-sm' : 'bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white'}`}>
+        <div data-tour="cable-buildings" className="flex gap-2 flex-wrap items-center">
+          <button
+            onClick={() => setSelectedBuilding(null)}
+            className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+              selectedBuilding === null
+                ? 'bg-orange-600 text-white shadow-sm shadow-orange-600/20 text-white-force'
+                : 'bg-[var(--card-bg-subtle,rgba(17,24,39,0.5))] text-[var(--foreground-color,#9ca3af)] hover:text-orange-600 dark:hover:text-orange-400 hover:bg-[var(--card-bg,#0b0f19)] border border-[var(--border-color,#1f2937)]'
+            }`}
+          >
             {t('cableSchedule.allBuildings', 'All Buildings')}
           </button>
           {project.buildings.map((b) => (
-            <button key={b.id} onClick={() => setSelectedBuilding(b.id)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${selectedBuilding === b.id ? 'bg-orange-500 text-slate-950 font-bold shadow-sm' : 'bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white'}`}>
+            <button
+              key={b.id}
+              onClick={() => setSelectedBuilding(b.id)}
+              className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                selectedBuilding === b.id
+                  ? 'bg-orange-600 text-white shadow-sm shadow-orange-600/20 text-white-force'
+                  : 'bg-[var(--card-bg-subtle,rgba(17,24,39,0.5))] text-[var(--foreground-color,#9ca3af)] hover:text-orange-600 dark:hover:text-orange-400 hover:bg-[var(--card-bg,#0b0f19)] border border-[var(--border-color,#1f2937)]'
+              }`}
+            >
               {b.name}
             </button>
           ))}
@@ -1313,29 +1331,56 @@ export default function CableSchedulePage() {
       )}
 
       {/* Summary Stats */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div className="bg-gray-900/60 border border-gray-800 rounded-xl p-3.5">
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 mb-1">{t('cableSchedule.totalCables', 'TOTAL CABLES')}</p>
-          <p className="text-xl font-bold text-white">{cables.length}</p>
-        </div>
-        <div className="bg-gray-900/60 border border-gray-800 rounded-xl p-3.5">
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 mb-1">{t('cableSchedule.totalLength', 'TOTAL LENGTH')}</p>
-          <p className="text-xl font-bold text-white">{cables.reduce((sum, c) => sum + c.length, 0).toFixed(0)}m</p>
-        </div>
-        <div className="bg-gray-900/60 border border-gray-800 rounded-xl p-3.5">
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 mb-1">{t('cableSchedule.needUpsize', 'NEED UPSIZE')}</p>
-          <p className="text-xl font-bold text-yellow-400">{cables.filter(c => c.changed || (c.breakerSize && c.ampacity < c.breakerSize)).length}</p>
-        </div>
-        <div className="bg-gray-900/60 border border-gray-800 rounded-xl p-3.5">
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 mb-1">{t('cableSchedule.compliant', 'COMPLIANT')}</p>
-          <p className="text-xl font-bold text-green-400">
-            {cables.filter(c => c.newVD !== null && !c.changed && !(c.breakerSize && c.ampacity < c.breakerSize)).length}/{cables.filter(c => c.newVD !== null).length || '—'}
-          </p>
-        </div>
+      <div data-tour="cable-summary" className="grid grid-cols-2 md:grid-cols-4 gap-3.5">
+        {[
+          {
+            label: t('cableSchedule.totalCables', 'Total Cables'),
+            value: `${cables.length}`,
+            sub: `${project.buildings.length} building${project.buildings.length > 1 ? 's' : ''}`,
+            color: 'text-[var(--foreground-color,#f8fafc)]',
+            accent: 'border-l-4 border-l-slate-400 dark:border-l-slate-500',
+            helper: 'Total distribution and branch feeder cables across all buildings, floors, and services.'
+          },
+          {
+            label: t('cableSchedule.totalLength', 'Total Length'),
+            value: `${cables.reduce((sum, c) => sum + c.length, 0).toFixed(0)} m`,
+            sub: `${(cables.reduce((sum, c) => sum + c.length, 0) / 1000).toFixed(2)} km routed`,
+            color: 'text-sky-600 dark:text-sky-400',
+            accent: 'border-l-4 border-l-sky-500',
+            helper: 'Sum of all physical cable route lengths. Basis for bill of quantities and voltage drop analysis.'
+          },
+          {
+            label: t('cableSchedule.needUpsize', 'Need Upsize'),
+            value: `${cables.filter(c => c.changed || (c.breakerSize && c.ampacity < c.breakerSize)).length}`,
+            sub: cables.filter(c => c.changed || (c.breakerSize && c.ampacity < c.breakerSize)).length > 0 ? t('cableSchedule.requiresAttention', 'Requires attention') : t('cableSchedule.allSizesOptimal', 'All sizes optimal'),
+            color: cables.filter(c => c.changed || (c.breakerSize && c.ampacity < c.breakerSize)).length > 0 ? 'text-amber-800 dark:text-amber-300' : 'text-slate-600 dark:text-slate-400',
+            accent: 'border-l-4 border-l-amber-500',
+            helper: 'Circuits requiring larger conductor section to satisfy thermal ampacity or voltage drop limit.'
+          },
+          {
+            label: t('cableSchedule.compliant', 'Compliant'),
+            value: `${cables.filter(c => c.newVD !== null && !c.changed && !(c.breakerSize && c.ampacity < c.breakerSize)).length}/${cables.filter(c => c.newVD !== null).length || '—'}`,
+            sub: `${Math.round((cables.filter(c => c.newVD !== null && !c.changed && !(c.breakerSize && c.ampacity < c.breakerSize)).length / (cables.filter(c => c.newVD !== null).length || 1)) * 100)}% verified`,
+            color: 'text-emerald-800 dark:text-emerald-400',
+            accent: 'border-l-4 border-l-emerald-500',
+            helper: 'Cables that fully comply with IEC 60364-5-52 / NEC 310 ampacity and voltage drop criteria.'
+          },
+        ].map(({ label, value, sub, color, accent, helper }) => (
+          <div key={label} className={`rounded-xl border border-[var(--border-color,#1f2937)] bg-[var(--card-bg,#0b0f19)] p-4 shadow-xs hover:shadow-md transition-all ${accent}`}>
+            <div className="flex items-center justify-between">
+              <p className="text-[11px] font-semibold text-[var(--table-header-color,#64748b)] uppercase tracking-wider flex items-center gap-1.5">
+                {label}
+                {helper && <InfoTooltip label={label} helper={helper} />}
+              </p>
+            </div>
+            <p className={`text-xl font-bold font-mono tracking-tight mt-1.5 ${color}`}>{value}</p>
+            {sub && <p className="text-xs text-[var(--table-header-color,#64748b)] font-mono mt-0.5 font-medium">{sub}</p>}
+          </div>
+        ))}
       </div>
 
       {/* Cable Schedule Table - Grouped by Floor */}
-      <div data-tour="cable-table" className="space-y-6">
+      <div data-tour="cable-table" className="space-y-4">
         {floorKeys.map(key => {
           const groupCables = cablesByFloor[key];
           const displayKey = key.includes('Main Incomer')
@@ -1344,12 +1389,12 @@ export default function CableSchedulePage() {
             ? key.replace('Building Loads', t('cableSchedule.buildingLoads', 'Building Loads'))
             : key;
           return (
-          <div key={key} className="rounded-2xl border border-slate-800/90 bg-slate-900/60 backdrop-blur-md shadow-2xl overflow-hidden">
-            <div className="flex items-center justify-between px-5 py-3.5 bg-gradient-to-r from-slate-900/90 via-slate-900/60 to-slate-950/90 border-b border-slate-800/80">
-              <div className="flex items-center gap-2.5">
-                <div className="w-2.5 h-2.5 rounded-full bg-orange-500 shadow-sm shadow-orange-500/50" />
-                <span className="text-sm font-bold text-slate-100 tracking-wide">{displayKey}</span>
-                <span className="px-2 py-0.5 rounded-full text-[11px] font-medium bg-slate-800/80 text-slate-400 border border-slate-700/50">
+          <div key={key} className="rounded-xl border border-[var(--border-color,#1f2937)] hover:border-orange-500/40 bg-[var(--card-bg,#0b0f19)] shadow-xs overflow-hidden transition-all">
+            <div className="flex items-center justify-between px-4 py-3 bg-[var(--card-bg-subtle,#111827)] border-b border-[var(--border-color,#1f2937)]">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div className="w-2 h-2 rounded-full bg-orange-500 shadow-sm shadow-orange-500/50 shrink-0" />
+                <span className="text-sm font-bold text-[var(--foreground-color,#f8fafc)] tracking-tight truncate">{displayKey}</span>
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-orange-500/10 dark:bg-orange-500/15 text-orange-700 dark:text-orange-300 border border-orange-500/30 shrink-0">
                   {groupCables.length} {t('cableSchedule.circuits', 'circuits')}
                 </span>
               </div>
@@ -1383,19 +1428,19 @@ export default function CableSchedulePage() {
                     <th className="text-center">{t('cableSchedule.status', 'STATUS')}</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-800/60">
+                <tbody className="divide-y divide-[var(--border-color,#1f2937)]">
                   {groupCables.map((c) => (
-                    <tr key={c.id} className="hover:bg-slate-800/40 transition-colors">
+                    <tr key={c.id} className="hover:bg-[var(--card-bg-subtle)] transition-colors">
                       {/* Circuit Name & Tag combined */}
                       <td className="text-center">
                         <div className="flex flex-col items-center justify-center">
-                          <span className="font-semibold text-slate-100 text-xs">{c.name}</span>
+                          <span className="font-semibold text-[var(--foreground-color,#f8fafc)] text-xs">{c.name}</span>
                           <div className="flex items-center justify-center gap-1.5 mt-0.5">
-                            <span className="font-mono text-[10px] text-slate-400 bg-slate-800/70 border border-slate-700/50 px-1.5 py-0.2 rounded">
+                            <span className="font-mono text-[10px] text-[var(--table-header-color,#64748b)] bg-[var(--card-bg-subtle)] border border-[var(--border-color,#1f2937)] px-1.5 py-0.5 rounded">
                               {c.cableName}
                             </span>
                             {!selectedBuilding && (
-                              <span className="text-[10px] text-slate-500 font-medium">{c.building}</span>
+                              <span className="text-[10px] text-[var(--table-header-color,#64748b)] font-medium">{c.building}</span>
                             )}
                           </div>
                         </div>
@@ -1403,10 +1448,10 @@ export default function CableSchedulePage() {
 
                       {showPhaseDetails && (
                         <>
-                          <td className="text-center font-mono text-orange-400">{c.phaseCurrent[0].toFixed(1)}</td>
-                          <td className="text-center font-mono text-orange-400">{c.phaseCurrent[1].toFixed(1)}</td>
-                          <td className="text-center font-mono text-orange-400">{c.phaseCurrent[2].toFixed(1)}</td>
-                          <td className="text-center font-mono text-yellow-400">{c.neutralCurrent.toFixed(1)}</td>
+                          <td className="text-center font-mono text-orange-700 dark:text-orange-400 font-semibold">{c.phaseCurrent[0].toFixed(1)}</td>
+                          <td className="text-center font-mono text-orange-700 dark:text-orange-400 font-semibold">{c.phaseCurrent[1].toFixed(1)}</td>
+                          <td className="text-center font-mono text-orange-700 dark:text-orange-400 font-semibold">{c.phaseCurrent[2].toFixed(1)}</td>
+                          <td className="text-center font-mono text-amber-800 dark:text-amber-400 font-semibold">{c.neutralCurrent.toFixed(1)}</td>
                         </>
                       )}
 
@@ -1429,11 +1474,11 @@ export default function CableSchedulePage() {
                         >
                           <div className="flex items-center justify-center gap-1.5">
                             <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${
-                              c.isThreePhase ? 'bg-sky-500/15 text-sky-300 border border-sky-500/30' : 'bg-amber-500/15 text-amber-300 border border-amber-500/30'
+                              c.isThreePhase ? 'bg-sky-500/15 text-sky-700 dark:text-sky-300 border border-sky-500/30' : 'bg-amber-500/15 text-amber-800 dark:text-amber-300 border border-amber-500/30'
                             }`} title={c.isThreePhase ? '3-Phase' : '1-Phase'}>
                               {c.isThreePhase ? '3Ø' : '1Ø'}
                             </span>
-                            <span className="font-bold text-slate-100 text-xs">{c.current.toFixed(1)}A</span>
+                            <span className="font-bold text-[var(--foreground-color,#f8fafc)] text-xs">{c.current.toFixed(1)}A</span>
                           </div>
                         </TraceableCell>
                       </td>
@@ -1443,7 +1488,7 @@ export default function CableSchedulePage() {
                         <select
                           value={c.parallelRuns || 1}
                           onChange={(e) => updateCableField(c.id, 'runs', parseInt(e.target.value, 10) || 1)}
-                          className="bg-slate-800/90 hover:bg-slate-800 border border-slate-700 hover:border-slate-600 rounded-md px-2 py-1 text-xs text-white font-mono font-bold transition-colors cursor-pointer focus:outline-none focus:ring-1 focus:ring-orange-500"
+                          className="bg-[var(--input-bg)] hover:bg-[var(--card-bg-subtle)] border border-[var(--border-color,#1f2937)] hover:border-orange-500/40 rounded-md px-2 py-1 text-xs text-[var(--foreground-color,#f8fafc)] font-mono font-bold transition-colors cursor-pointer focus:outline-none focus:ring-1 focus:ring-orange-500 shadow-2xs"
                           title="Runs per phase"
                         >
                           {[1, 2, 3, 4, 5, 6].map((num) => (
@@ -1453,7 +1498,7 @@ export default function CableSchedulePage() {
                       </td>
 
                       {/* Size */}
-                      <td className="text-center font-mono font-bold text-emerald-400 whitespace-nowrap text-xs">
+                      <td className="text-center font-mono font-bold text-emerald-700 dark:text-emerald-400 whitespace-nowrap text-xs">
                         <TraceableCell
                           getTrace={() => {
                             const amp = calculateCableAmpacity(c.cableSize, c.isThreePhase, {
@@ -1511,7 +1556,7 @@ export default function CableSchedulePage() {
                         <select
                           value={c.insulation}
                           onChange={(e) => updateCableField(c.id, 'insulation', e.target.value)}
-                          className="bg-slate-800/90 border border-slate-700 hover:border-slate-600 rounded-md px-1.5 py-1 text-[11px] text-slate-200 font-medium cursor-pointer focus:outline-none focus:ring-1 focus:ring-orange-500"
+                          className="bg-[var(--input-bg)] hover:bg-[var(--card-bg-subtle)] border border-[var(--border-color,#1f2937)] hover:border-orange-500/40 rounded-md px-1.5 py-1 text-[11px] text-[var(--foreground-color,#f8fafc)] font-medium cursor-pointer focus:outline-none focus:ring-1 focus:ring-orange-500 shadow-2xs"
                         >
                           <option value="XLPE">XLPE</option>
                           <option value="PVC">PVC</option>
@@ -1523,7 +1568,7 @@ export default function CableSchedulePage() {
                         <select
                           value={c.material}
                           onChange={(e) => updateCableField(c.id, 'material', e.target.value)}
-                          className="bg-slate-800/90 border border-slate-700 hover:border-slate-600 rounded-md px-1.5 py-1 text-[11px] text-slate-200 font-medium cursor-pointer focus:outline-none focus:ring-1 focus:ring-orange-500"
+                          className="bg-[var(--input-bg)] hover:bg-[var(--card-bg-subtle)] border border-[var(--border-color,#1f2937)] hover:border-orange-500/40 rounded-md px-1.5 py-1 text-[11px] text-[var(--foreground-color,#f8fafc)] font-medium cursor-pointer focus:outline-none focus:ring-1 focus:ring-orange-500 shadow-2xs"
                           title="Copper or aluminum conductor"
                         >
                           <option value="copper">Cu</option>
@@ -1536,7 +1581,7 @@ export default function CableSchedulePage() {
                         <select
                           value={c.ambientTemp}
                           onChange={(e) => updateCableField(c.id, 'ambientTemp', parseFloat(e.target.value) || 30)}
-                          className="bg-slate-800/90 border border-slate-700 hover:border-slate-600 rounded-md px-1.5 py-1 text-[11px] text-slate-200 font-medium cursor-pointer focus:outline-none focus:ring-1 focus:ring-orange-500"
+                          className="bg-[var(--input-bg)] hover:bg-[var(--card-bg-subtle)] border border-[var(--border-color,#1f2937)] hover:border-orange-500/40 rounded-md px-1.5 py-1 text-[11px] text-[var(--foreground-color,#f8fafc)] font-medium cursor-pointer focus:outline-none focus:ring-1 focus:ring-orange-500 shadow-2xs"
                         >
                           {[10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60].map((temp) => (
                             <option key={temp} value={temp}>{temp}°</option>
@@ -1549,7 +1594,7 @@ export default function CableSchedulePage() {
                         <select
                           value={c.groupingCount}
                           onChange={(e) => updateCableField(c.id, 'groupingCount', parseInt(e.target.value) || 1)}
-                          className="bg-slate-800/90 border border-slate-700 hover:border-slate-600 rounded-md px-1.5 py-1 text-[11px] text-slate-200 font-medium cursor-pointer focus:outline-none focus:ring-1 focus:ring-orange-500"
+                          className="bg-[var(--input-bg)] hover:bg-[var(--card-bg-subtle)] border border-[var(--border-color,#1f2937)] hover:border-orange-500/40 rounded-md px-1.5 py-1 text-[11px] text-[var(--foreground-color,#f8fafc)] font-medium cursor-pointer focus:outline-none focus:ring-1 focus:ring-orange-500 shadow-2xs"
                         >
                           {[1, 2, 3, 4, 5, 6, 7, 8, 9, 12, 16, 20].map((num) => (
                             <option key={num} value={num}>{num}x</option>
@@ -1598,13 +1643,13 @@ export default function CableSchedulePage() {
                           }}
                         >
                           <div className="flex flex-col items-center justify-center">
-                            <span className={`font-bold text-xs ${c.isOverloaded || c.ampacity < c.current ? 'text-rose-400' : (c.breakerSize && c.ampacity < c.breakerSize) ? 'text-amber-400' : 'text-sky-400'}`}
+                            <span className={`font-bold text-xs ${c.isOverloaded || c.ampacity < c.current ? 'text-rose-700 dark:text-rose-400' : (c.breakerSize && c.ampacity < c.breakerSize) ? 'text-amber-800 dark:text-amber-300' : 'text-sky-700 dark:text-sky-400'}`}
                               title={c.isOverloaded || c.ampacity < c.current ? `Overloaded! Installed Ampacity (${c.ampacity}A) < Current (${c.current.toFixed(1)}A)` : (c.breakerSize && c.ampacity < c.breakerSize) ? `Under-protected! Ampacity (${c.ampacity}A) < Breaker (${c.breakerSize}A)` : `Continuous derated ampacity across ${c.parallelRuns || 1} run(s)`}
                             >
                               {c.ampacity}A
                             </span>
                             {c.parallelRuns > 1 && (
-                              <span className="text-[10px] text-slate-400 font-normal">
+                              <span className="text-[10px] text-[var(--table-header-color,#64748b)] font-normal">
                                 ({c.parallelRuns}×{c.singleAmpacity}A)
                               </span>
                             )}
@@ -1622,7 +1667,7 @@ export default function CableSchedulePage() {
                       </td>
 
                       {/* New Cable Proposal */}
-                      <td className={`text-center font-mono font-bold whitespace-nowrap text-xs ${c.changed || (c.breakerSize && c.ampacity < c.breakerSize) ? 'text-amber-400' : 'text-slate-600'}`}>
+                      <td className={`text-center font-mono font-bold whitespace-nowrap text-xs ${c.changed || (c.breakerSize && c.ampacity < c.breakerSize) ? 'text-amber-800 dark:text-amber-300' : 'text-[var(--table-header-color,#64748b)]'}`}>
                         {c.changed || (c.breakerSize && c.ampacity < c.breakerSize) ? formatCableSizeFor(c.newFormattedSize || c.newCableSize, selectedProject?.calculationStandard) : '—'}
                       </td>
 
@@ -1653,16 +1698,16 @@ export default function CableSchedulePage() {
                           >
                             <span className={`inline-block px-1.5 py-0.5 rounded font-semibold ${
                               c.newVD > 5
-                                ? 'bg-rose-500/20 text-rose-400 border border-rose-500/30'
+                                ? 'bg-rose-500/15 text-rose-800 dark:text-rose-400 border border-rose-500/30'
                                 : c.newVD > 3
-                                ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
-                                : 'text-slate-300'
+                                ? 'bg-amber-500/15 text-amber-900 dark:text-amber-300 border border-amber-500/30'
+                                : 'text-[var(--foreground-color,#f8fafc)]'
                             }`}>
                               {c.newVD.toFixed(2)}%
                             </span>
                           </TraceableCell>
                         ) : (
-                          <span className="text-slate-600">—</span>
+                          <span className="text-[var(--table-header-color,#64748b)]">—</span>
                         )}
                       </td>
 
@@ -1691,23 +1736,23 @@ export default function CableSchedulePage() {
                           }}
                         >
                           {c.isOverloaded || c.ampacity < c.current ? (
-                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-rose-500/15 border border-rose-500/30 text-rose-400 font-bold text-[11px] shadow-sm" title={`Ampacity ${c.ampacity}A < Current ${c.current.toFixed(1)}A`}>
+                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-rose-500/15 border border-rose-600/40 text-rose-800 dark:text-rose-300 font-bold text-[11px] shadow-2xs" title={`Ampacity ${c.ampacity}A < Current ${c.current.toFixed(1)}A`}>
                               <AlertTriangle size={12} /> {t('cableSchedule.overload', 'OVERLOAD')}
                             </span>
                           ) : (c.breakerSize && c.ampacity < c.breakerSize) ? (
-                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-300 font-semibold text-[11px] shadow-sm" title={`Under-protected: Ampacity ${c.ampacity}A < Breaker ${c.breakerSize}A (IEC 60364-4-43 §433.1)`}>
+                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-500/15 border border-amber-600/40 text-amber-900 dark:text-amber-300 font-bold text-[11px] shadow-2xs" title={`Under-protected: Ampacity ${c.ampacity}A < Breaker ${c.breakerSize}A (IEC 60364-4-43 §433.1)`}>
                               <AlertTriangle size={12} /> {t('cableSchedule.upsize', 'UP')}
                             </span>
                           ) : c.changed ? (
-                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-300 font-semibold text-[11px] shadow-sm">
+                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-500/15 border border-amber-600/40 text-amber-900 dark:text-amber-300 font-bold text-[11px] shadow-2xs">
                               <AlertTriangle size={12} /> {t('cableSchedule.upsize', 'UP')}
                             </span>
                           ) : c.newVD !== null ? (
-                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 font-medium text-[11px]">
+                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-600/50 text-emerald-800 dark:text-emerald-300 font-bold text-[11px] shadow-2xs">
                               <Check size={12} /> {t('cableSchedule.ok', 'OK')}
                             </span>
                           ) : (
-                            <span className="text-slate-600">—</span>
+                            <span className="text-[var(--table-header-color,#64748b)]">—</span>
                           )}
                         </TraceableCell>
                       </td>
@@ -1722,7 +1767,7 @@ export default function CableSchedulePage() {
       </div>
 
       {/* Legend */}
-      <div className="text-[10px] text-gray-600 space-y-1">
+      <div className="text-[11px] text-[var(--table-header-color,#64748b)] space-y-1 pt-2">
         <p>• {t('cableSchedule.legend1', 'VD ≤ 3%: Ideal for Lighting & General circuits')}</p>
         <p>• {t('cableSchedule.legend2', 'VD ≤ 5%: Compliant with standard (IEC 60364-5-52 / BS 7671)')}</p>
         <p>• {t('cableSchedule.legend3', 'VD > 5%: Non-compliant — cable needs upsize')}</p>
@@ -1731,30 +1776,30 @@ export default function CableSchedulePage() {
       {/* Unsaved Changes Dialog */}
       {showNavDialog && (
         <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/60 backdrop-blur-sm">
-          <div className="bg-gray-900 border border-gray-700 rounded-xl shadow-2xl p-6 w-96 space-y-4">
+          <div className="bg-[var(--card-bg,#0b0f19)] border border-[var(--border-color,#1f2937)] rounded-xl shadow-2xl p-6 w-96 space-y-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-yellow-500/20 flex items-center justify-center flex-shrink-0">
-                <AlertTriangle size={20} className="text-yellow-400" />
+              <div className="w-10 h-10 rounded-full bg-amber-500/20 flex items-center justify-center flex-shrink-0">
+                <AlertTriangle size={20} className="text-amber-600 dark:text-amber-400" />
               </div>
               <div>
-                <h3 className="text-lg font-bold text-white">{t('cableSchedule.unsavedChanges', 'Unsaved Changes')}</h3>
-                <p className="text-sm text-gray-400">{t('cableSchedule.unsavedUpsizesDesc', "You have cable upsizes that haven't been applied.")}</p>
+                <h3 className="text-lg font-bold text-[var(--foreground-color,#f8fafc)]">{t('cableSchedule.unsavedChanges', 'Unsaved Changes')}</h3>
+                <p className="text-sm text-[var(--table-header-color,#64748b)]">{t('cableSchedule.unsavedUpsizesDesc', "You have cable upsizes that haven't been applied.")}</p>
               </div>
             </div>
-            <p className="text-sm text-gray-300">
+            <p className="text-sm text-[var(--foreground-color,#f8fafc)]">
               {t('cableSchedule.saveBeforeLeavingPrompt', 'Do you want to save the new cable sizes before leaving?')}
             </p>
             <div className="flex gap-2 justify-end">
               <button
                 onClick={handleDiscard}
-                className="px-4 py-2 rounded-lg bg-gray-700 hover:bg-gray-600 text-white text-sm font-medium"
+                className="px-4 py-2 rounded-lg bg-[var(--card-bg-subtle)] border border-[var(--border-color)] hover:bg-[var(--card-bg)] text-[var(--foreground-color)] text-sm font-medium cursor-pointer"
               >
                 {t('common.discard', 'Discard')}
               </button>
               <button
                 onClick={handleSaveAndNavigate}
                 disabled={saving}
-                className="px-4 py-2 rounded-lg bg-yellow-500 hover:bg-yellow-400 text-gray-900 text-sm font-semibold disabled:opacity-50"
+                className="px-4 py-2 rounded-lg bg-amber-600 hover:bg-amber-500 text-white text-white-force text-sm font-semibold disabled:opacity-50 cursor-pointer shadow-xs shadow-amber-600/25"
               >
                 {saving ? t('common.saving', 'Saving…') : t('cableSchedule.saveAndLeave', 'Save & Leave')}
               </button>

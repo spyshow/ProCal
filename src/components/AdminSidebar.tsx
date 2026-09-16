@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTranslation } from "@/i18n";
 import { LanguageSelector } from "@/components/LanguageSelector";
+import { ThemeSelector } from "@/components/ThemeSelector";
 import {
   LayoutDashboard,
   Users,
@@ -40,21 +41,21 @@ export default function AdminSidebar() {
     <aside
       style={{ width: "240px" }}
       className={cn(
-        "fixed top-0 h-screen flex flex-col bg-slate-950/95 backdrop-blur-xl z-40 select-none shadow-2xl transition-all duration-200",
-        isRtl ? "right-0 border-l border-slate-800/80" : "left-0 border-r border-slate-800/80"
+        "fixed top-0 h-screen flex flex-col bg-[var(--sidebar-bg,rgba(3,7,18,0.95))] backdrop-blur-xl z-40 select-none shadow-2xl transition-all duration-200",
+        isRtl ? "right-0 border-l border-[var(--sidebar-border,rgba(31,41,55,0.8))]" : "left-0 border-r border-[var(--sidebar-border,rgba(31,41,55,0.8))]"
       )}
     >
       {/* Brand Header */}
-      <div className="flex items-center gap-2.5 px-4 py-5 border-b border-slate-800/80">
-        <div className="w-8 h-8 rounded-lg bg-orange-600/20 border border-orange-500/40 flex items-center justify-center text-orange-400 shadow-[0_0_12px_rgba(234,88,12,0.3)]">
+      <div className="flex items-center gap-2.5 px-4 py-5 border-b border-[var(--sidebar-border,rgba(31,41,55,0.8))]">
+        <div className="w-8 h-8 rounded-lg bg-[var(--brand-mark-bg,rgba(234,88,12,0.2))] border border-[var(--brand-mark-border,rgba(234,88,12,0.4))] flex items-center justify-center text-orange-500 dark:text-orange-400 shadow-[0_0_12px_rgba(234,88,12,0.3)]">
           <Shield size={18} />
         </div>
-        <span className="text-xl font-bold tracking-tight text-white">{t('nav.adminDashboard', 'Admin Portal')}</span>
+        <span className="text-xl font-bold tracking-tight text-[var(--foreground-color,#ffffff)]">{t('nav.adminDashboard', 'Admin Portal')}</span>
       </div>
 
       {/* Navigation */}
       <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-0.5 custom-scrollbar" aria-label="Admin navigation">
-        <p className="px-1 pb-2 text-[10px] font-semibold uppercase tracking-widest text-slate-400">
+        <p className="px-1 pb-2 text-[10px] font-semibold uppercase tracking-widest text-[var(--table-header-color,#9ca3af)]">
           {t('common.actions', 'Management')}
         </p>
         {navItems.map(({ label, href, icon: Icon }) => {
@@ -69,37 +70,38 @@ export default function AdminSidebar() {
                 "flex items-center gap-3 px-3.5 py-2 rounded-lg text-sm font-medium transition-all duration-200 outline-none",
                 isActive
                   ? isRtl
-                    ? "bg-gradient-to-l from-orange-600/25 to-amber-600/10 text-orange-300 border-r-2 border-orange-500 shadow-[0_0_15px_rgba(234,88,12,0.15)] font-semibold"
-                    : "bg-gradient-to-r from-orange-600/25 to-amber-600/10 text-orange-300 border-l-2 border-orange-500 shadow-[0_0_15px_rgba(234,88,12,0.15)] font-semibold"
+                    ? "bg-gradient-to-l from-orange-600/25 to-amber-600/10 text-slate-900 dark:text-white border-r-2 border-orange-500 shadow-[0_0_15px_rgba(234,88,12,0.15)] font-bold"
+                    : "bg-gradient-to-r from-orange-600/25 to-amber-600/10 text-slate-900 dark:text-white border-l-2 border-orange-500 shadow-[0_0_15px_rgba(234,88,12,0.15)] font-bold"
                   : isRtl
-                  ? "text-slate-400 hover:text-slate-100 hover:bg-slate-900/80 border-r-2 border-transparent"
-                  : "text-slate-400 hover:text-slate-100 hover:bg-slate-900/80 border-l-2 border-transparent"
+                  ? "text-[var(--table-header-color,#9ca3af)] hover:text-[var(--foreground-color,#f8fafc)] hover:bg-[var(--card-bg-subtle,rgba(17,24,39,0.8))] border-r-2 border-transparent"
+                  : "text-[var(--table-header-color,#9ca3af)] hover:text-[var(--foreground-color,#f8fafc)] hover:bg-[var(--card-bg-subtle,rgba(17,24,39,0.8))] border-l-2 border-transparent"
               )}
             >
               <Icon
                 size={17}
                 className={cn(
                   "flex-shrink-0 transition-colors duration-200",
-                  isActive ? "text-orange-400" : "text-slate-400"
+                  isActive ? "text-orange-500 dark:text-orange-400" : "text-[var(--table-header-color,#9ca3af)]"
                 )}
               />
-              <span className="truncate">{label}</span>
+              <span className={cn("truncate", isActive && "text-slate-900 dark:text-white font-bold")}>{label}</span>
             </Link>
           );
         })}
       </nav>
 
-      {/* Language Selector and return to main app */}
-      <div className="border-t border-slate-800/80 p-3 space-y-2">
+      {/* Language, Theme Selector and return to main app */}
+      <div className="border-t border-[var(--sidebar-border,rgba(31,41,55,0.8))] p-3 space-y-2">
         <LanguageSelector variant="compact" />
+        <ThemeSelector variant="compact" />
         <Link
           href="/dashboard"
-          className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-slate-400 hover:text-white hover:bg-slate-900/80 transition-colors duration-150"
+          className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-[var(--table-header-color,#9ca3af)] hover:text-[var(--foreground-color,#f8fafc)] hover:bg-[var(--card-bg-subtle,rgba(17,24,39,0.8))] transition-colors duration-150"
         >
           {isRtl ? (
-            <ArrowRight size={16} className="flex-shrink-0 text-orange-400" />
+            <ArrowRight size={16} className="flex-shrink-0 text-orange-500 dark:text-orange-400" />
           ) : (
-            <ArrowLeft size={16} className="flex-shrink-0 text-orange-400" />
+            <ArrowLeft size={16} className="flex-shrink-0 text-orange-500 dark:text-orange-400" />
           )}
           <span>{t('common.back', 'Back to Main App')}</span>
         </Link>

@@ -910,21 +910,21 @@ export default function BreakerSchedulePage() {
 
       <div data-tour="breaker-header" className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-white flex items-center gap-2">
+          <h1 className="text-2xl font-bold text-[var(--foreground-color,#f8fafc)] tracking-tight flex items-center gap-2">
             <CircuitBoard size={22} className="text-orange-500" />
             {t('breakerSchedule.title', 'Breaker Schedule')}
           </h1>
-          <p className="text-sm text-gray-400 mt-1">{project ? `${project.name} — ` : ''}{t('breakerSchedule.subtitle', 'Protection hierarchy, trip curves, and selectivity')}</p>
+          <p className="text-sm text-[var(--table-header-color,#9ca3af)] mt-1">{project ? `${project.name} — ` : ''}{t('breakerSchedule.subtitle', 'Protection hierarchy, trip curves, and selectivity')}</p>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
           {/* Engineering Sizing & Selectivity Guide */}
           <button
             data-tour="breaker-guide-btn"
             onClick={() => setShowSizingGuide(true)}
-            className="flex items-center gap-2 px-3.5 py-2 rounded-lg bg-orange-500/10 border border-orange-500/30 text-orange-400 hover:bg-orange-500/20 hover:border-orange-500/50 text-xs font-semibold shadow-sm transition-all shrink-0"
+            className="flex items-center gap-2 px-3.5 py-2 rounded-lg bg-orange-500/10 border border-orange-500/30 text-orange-600 dark:text-orange-400 hover:bg-orange-500/20 hover:border-orange-500/50 text-xs font-semibold shadow-xs transition-all shrink-0 cursor-pointer"
             title="Breaker Sizing & Selectivity Principles Guide"
           >
-            <BookOpen size={15} className="text-orange-400" />
+            <BookOpen size={15} className="text-orange-600 dark:text-orange-400" />
             {t('breakerGuide.buttonLabel', 'Sizing Guide')}
           </button>
           {/* Page Tour Button */}
@@ -932,16 +932,16 @@ export default function BreakerSchedulePage() {
             onClick={() => {
               window.dispatchEvent(new CustomEvent('trigger-procal-breaker-schedule-tour'));
             }}
-            className="flex items-center gap-2 px-3.5 py-2 rounded-lg bg-slate-800 border border-slate-700 text-slate-300 hover:bg-slate-700 hover:text-white text-xs font-semibold shadow-sm transition-all shrink-0"
+            className="flex items-center gap-2 px-3.5 py-2 rounded-lg bg-[var(--card-bg-subtle)] border border-[var(--border-color)] text-[var(--foreground-color)] hover:border-orange-500/50 text-xs font-semibold shadow-xs transition-all shrink-0 cursor-pointer"
             title="Interactive Breaker Schedule Tour"
           >
-            <HelpCircle size={15} className="text-orange-400" />
+            <HelpCircle size={15} className="text-orange-600 dark:text-orange-400" />
             {t('cableSchedule.pageTour', 'Page Tour')}
           </button>
           <button
             onClick={loadProject}
             disabled={loading}
-            className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-800 text-gray-300 hover:bg-gray-700 disabled:opacity-50 text-sm"
+            className="flex items-center gap-2 px-3.5 py-2 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-xs font-semibold shadow-xs shadow-orange-600/25 disabled:opacity-50 text-white-force cursor-pointer transition-all shrink-0"
             title="Reload project data and recalculate schedule"
           >
             <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
@@ -960,27 +960,27 @@ export default function BreakerSchedulePage() {
       ) : (
         <>
       {/* Default Breaker Families */}
-      <div data-tour="breaker-family-select" className="rounded-xl border border-gray-800 bg-gray-900/40 p-4">
-        <h2 className="text-sm font-bold text-orange-400 mb-3 uppercase tracking-wide">{t('breakers.defaultFamilies', 'Default Breaker Families')}</h2>
+      <div data-tour="breaker-family-select" className="rounded-xl border border-[var(--border-color,#1f2937)] bg-[var(--card-bg,#0b0f19)] p-4 shadow-xs">
+        <h2 className="text-sm font-bold text-orange-600 dark:text-orange-400 mb-3 uppercase tracking-wide">{t('breakers.defaultFamilies', 'Default Breaker Families')}</h2>
         <div className="space-y-4">
           {[
             { key: 'ACB' as const, label: t('breakers.mainIncomer', 'Main Incomer'), description: t('breakers.acbDesc', 'ACB / main breaker / transformer secondary') },
             { key: 'MCCB' as const, label: t('breakers.feedersSubPanels', 'Feeders & Sub-panels'), description: t('breakers.mccbDesc', 'MCCB — mechanical loads, SMDB feeders, risers') },
             { key: 'MCB' as const, label: t('breakers.finalDistribution', 'Final Distribution'), description: t('breakers.mcbDesc', 'MCB — apartments, small shops, lighting') },
           ].map(({ key, label, description }) => (
-            <div key={key} className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6 pb-4 border-b border-gray-800 last:border-0 last:pb-0">
+            <div key={key} className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6 pb-4 border-b border-[var(--border-color,#1f2937)] last:border-0 last:pb-0">
               <div className="sm:w-64">
-                <strong className="text-gray-200 text-sm block">{label}</strong>
-                <small className="text-gray-400">{description}</small>
+                <strong className="text-[var(--foreground-color,#f8fafc)] text-sm block">{label}</strong>
+                <small className="text-[var(--table-header-color,#9ca3af)]">{description}</small>
               </div>
               <div className="flex-1">
-                <label htmlFor={`default-family-${key}`} className="block text-[10px] uppercase tracking-wide text-gray-400 mb-1">{t('breakers.series', 'Family / Series')}</label>
+                <label htmlFor={`default-family-${key}`} className="block text-[10px] uppercase tracking-wide text-[var(--table-header-color,#9ca3af)] mb-1">{t('breakers.series', 'Family / Series')}</label>
                 <select
                   id={`default-family-${key}`}
                   value={defaults[key] ?? ''}
                   onChange={(e) => handleFamilyChange(key, e.target.value)}
                   disabled={saving}
-                  className="w-full bg-gray-800 border border-gray-700 rounded-md px-3 py-2 text-sm text-gray-200 focus:border-orange-500 focus:outline-none disabled:opacity-50"
+                  className="w-full bg-[var(--input-bg,rgba(17,24,39,0.8))] border border-[var(--input-border,#374151)] rounded-md px-3 py-2 text-sm text-[var(--input-color,#ffffff)] focus:border-orange-500 focus:outline-none disabled:opacity-50"
                 >
                   <option value="">{t('breakers.useDefaultManufacturer', 'Use preferred manufacturer fallback')}</option>
                   {familyOptionsFor(key).map((f) => (
@@ -997,12 +997,14 @@ export default function BreakerSchedulePage() {
 
       {/* Building Filter */}
       <div className="flex items-center gap-3">
-        <Filter size={14} className="text-gray-500" />
+        <Filter size={14} className="text-[var(--table-header-color,#9ca3af)]" />
         <div className="flex gap-2 flex-wrap">
           <button
             onClick={() => setSelectedBuilding('all')}
-            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-              selectedBuilding === 'all' ? 'bg-orange-600 text-slate-950' : 'bg-gray-800 text-gray-400'
+            className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+              selectedBuilding === 'all'
+                ? 'bg-orange-600 text-white shadow-sm shadow-orange-600/20 text-white-force'
+                : 'bg-[var(--card-bg-subtle)] text-[var(--foreground-color)] hover:text-orange-600 dark:hover:text-orange-400 hover:bg-[var(--card-bg)] border border-[var(--border-color)]'
             }`}
           >
             {t('cableSchedule.allBuildings', 'All Buildings')}
@@ -1011,8 +1013,10 @@ export default function BreakerSchedulePage() {
             <button
               key={b.id}
               onClick={() => setSelectedBuilding(b.id)}
-              className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-                selectedBuilding === b.id ? 'bg-orange-600 text-slate-950' : 'bg-gray-800 text-gray-400'
+              className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                selectedBuilding === b.id
+                  ? 'bg-orange-600 text-white shadow-sm shadow-orange-600/20 text-white-force'
+                  : 'bg-[var(--card-bg-subtle)] text-[var(--foreground-color)] hover:text-orange-600 dark:hover:text-orange-400 hover:bg-[var(--card-bg)] border border-[var(--border-color)]'
               }`}
             >
               {b.name}
@@ -1030,10 +1034,10 @@ export default function BreakerSchedulePage() {
       )}
       <div data-tour="breaker-table" className="space-y-4" hidden={!catalogLoaded}>
       {Object.entries(grouped).map(([type, items]) => (
-        <div key={type} className="rounded-xl border border-gray-800 bg-gray-900/40 p-4">
+        <div key={type} className="rounded-xl border border-[var(--border-color,#1f2937)] bg-[var(--card-bg,#0b0f19)] p-4 shadow-xs">
           <div className="flex items-center justify-between mb-3">
-            <h3 className="text-sm font-bold text-orange-400">{t(`loadTypes.${type}`, type.replace('_', ' '))}</h3>
-            <span className="text-xs text-gray-400 font-mono">{t('breakerSchedule.breakersCount', '{{count}} breakers', { count: items.length })}</span>
+            <h3 className="text-sm font-bold text-orange-600 dark:text-orange-400">{t(`loadTypes.${type}`, type.replace('_', ' '))}</h3>
+            <span className="text-xs text-[var(--table-header-color,#9ca3af)] font-mono">{t('breakerSchedule.breakersCount', '{{count}} breakers', { count: items.length })}</span>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full engineering-table text-xs">
@@ -1068,10 +1072,10 @@ export default function BreakerSchedulePage() {
               </thead>
               <tbody>
                 {items.map((b) => (
-                  <tr key={b.id} className="hover:bg-gray-800/30">
-                    <td className="text-center text-gray-200 font-semibold">{b.name}</td>
-                    <td className="text-center text-gray-400 text-xs font-mono">{b.parentFeederName ?? t('breakers.mainIncomer', 'Main Incomer')}</td>
-                    <td className="text-center font-mono text-orange-400">F{b.floor}</td>
+                  <tr key={b.id} className="hover:bg-[var(--card-bg-subtle)] transition-colors">
+                    <td className="text-center text-[var(--foreground-color,#f8fafc)] font-semibold">{b.name}</td>
+                    <td className="text-center text-[var(--table-header-color,#9ca3af)] text-xs font-mono">{b.parentFeederName ?? t('breakers.mainIncomer', 'Main Incomer')}</td>
+                    <td className="text-center font-mono font-bold text-orange-600 dark:text-orange-400">F{b.floor}</td>
                     <td className="text-center font-mono">
                       <TraceableCell
                         getTrace={() => {
@@ -1127,13 +1131,13 @@ export default function BreakerSchedulePage() {
                         )}
                       </TraceableCell>
                     </td>
-                    <td className="text-center text-xs text-gray-300">
+                    <td className="text-center text-xs text-[var(--foreground-color,#f8fafc)]">
                       <div className="flex flex-col items-center justify-center gap-0.5">
                         <div className="flex items-center justify-center gap-1.5 flex-wrap">
                           <span className="font-medium">{b.breakerModel}</span>
                           {b.fallbackType === 'OTHER_FAMILY' && (
                             <span
-                              className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-blue-500/10 text-blue-400 border border-blue-500/20"
+                              className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-blue-500/10 text-blue-500 dark:text-blue-400 border border-blue-500/20"
                               title={`Rating ${b.breakerSize}A not available in selected family; sourced from ${b.familyName ?? 'other family'}.`}
                             >
                               {t('breakerSchedule.otherFamily', 'Other Family: {{name}}', { name: b.familyName })}
@@ -1141,7 +1145,7 @@ export default function BreakerSchedulePage() {
                           )}
                           {b.fallbackType === 'OTHER_BRAND' && (
                             <span
-                              className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20"
+                              className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20"
                               title={`Rating ${b.breakerSize}A not available in preferred brand; cross-brand fallback to ${b.manufacturer}.`}
                             >
                               {t('breakerSchedule.altBrand', 'Alt Brand: {{name}}', { name: b.manufacturer })}
@@ -1149,7 +1153,7 @@ export default function BreakerSchedulePage() {
                           )}
                           {b.fallbackType === 'GENERIC_SPEC' && (
                             <span
-                              className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-purple-500/10 text-purple-300 border border-purple-500/20"
+                              className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-purple-500/10 text-purple-700 dark:text-purple-300 border border-purple-500/20"
                               title={b.genericSpec?.procurementNotes ?? `Generic ${b.breakerSize}A specification for purchasing`}
                             >
                               {t('breakerSchedule.genericSpecBadge', 'Generic Spec')}
@@ -1158,7 +1162,7 @@ export default function BreakerSchedulePage() {
                         </div>
                       </div>
                     </td>
-                    <td className="text-center font-mono text-gray-300">
+                    <td className="text-center font-mono text-[var(--foreground-color,#f8fafc)]">
                       {b.faultCurrentKa ? (
                         <TraceableCell
                           getTrace={() =>
@@ -1182,31 +1186,35 @@ export default function BreakerSchedulePage() {
                     <td className="text-center">
                       <div className="flex flex-col items-center gap-1">
                         {b.selectivityStatus === 'FULL' ? (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-green-500/10 text-green-400 border border-green-500/20">
-                            <CheckCircle2 size={11} /> {t('breakerSchedule.fullSelectivity', 'FULL')}
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-500/15 dark:bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 border border-emerald-600/50 dark:border-emerald-500/40 shadow-xs">
+                            <CheckCircle2 size={12} className="text-emerald-700 dark:text-emerald-300" />
+                            <span>{t('breakerSchedule.fullSelectivity', 'FULL')}</span>
                           </span>
                         ) : b.selectivityStatus === 'PARTIAL' ? (
                           <span
-                            className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-yellow-500/10 text-yellow-400 border border-yellow-500/20"
+                            className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-500/15 dark:bg-amber-500/20 text-amber-900 dark:text-amber-300 border border-amber-600/50 dark:border-amber-500/40 shadow-xs"
                             title={`Selective up to ${b.selectivityLimitKa ? `${b.selectivityLimitKa} kA` : 'limited current'}`}
                           >
-                            <AlertTriangle size={11} /> {t('breakerSchedule.partialSelectivity', 'PARTIAL')} {b.selectivityLimitKa ? `(${b.selectivityLimitKa}k)` : ''}
+                            <AlertTriangle size={12} className="text-amber-700 dark:text-amber-300" />
+                            <span>{t('breakerSchedule.partialSelectivity', 'PARTIAL')}</span>
+                            {b.selectivityLimitKa ? <span className="font-mono text-[10px]">({b.selectivityLimitKa}k)</span> : null}
                           </span>
                         ) : (
                           <span
-                            className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-red-500/10 text-red-400 border border-red-500/20"
+                            className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-rose-500/15 dark:bg-rose-500/20 text-rose-800 dark:text-rose-300 border border-rose-600/50 dark:border-rose-500/40 shadow-xs"
                             title={b.selectivityReason ?? 'Selectivity violated'}
                           >
-                            <XCircle size={11} /> {t('breakerSchedule.noneSelectivity', 'NONE')}
+                            <XCircle size={12} className="text-rose-700 dark:text-rose-300" />
+                            <span>{t('breakerSchedule.noneSelectivity', 'NONE')}</span>
                           </span>
                         )}
                         {b.selectivityStatus !== 'FULL' && (
                           <button
                             onClick={() => setSelectedFeederForModal(b)}
-                            className="flex items-center gap-1 text-[10px] text-orange-400 hover:text-orange-300 bg-orange-500/10 hover:bg-orange-500/20 px-1.5 py-0.5 rounded border border-orange-500/30 transition-all font-medium group"
+                            className="flex items-center gap-1 text-[10px] text-orange-800 dark:text-orange-300 hover:text-orange-950 dark:hover:text-orange-100 bg-orange-500/15 hover:bg-orange-500/25 px-2 py-0.5 rounded border border-orange-500/40 dark:border-orange-500/30 transition-all font-semibold shadow-xs cursor-pointer group"
                             title="Click to view full coordination plot and alternative sizing recommendation"
                           >
-                            <Sparkles size={10} className="text-orange-400 shrink-0 group-hover:scale-110 transition-transform" />
+                            <Sparkles size={10} className="text-orange-600 dark:text-orange-400 shrink-0 group-hover:scale-110 transition-transform" />
                             <span className="truncate max-w-[130px]">{b.suggestedAlternative || 'Resolve Coordination'}</span>
                           </button>
                         )}
@@ -1215,7 +1223,7 @@ export default function BreakerSchedulePage() {
                     <td className="text-center">
                       <button
                         onClick={() => setSelectedFeederForModal(b)}
-                        className="p-1.5 rounded-lg bg-gray-800 hover:bg-orange-600/20 text-gray-400 hover:text-orange-400 border border-gray-700 hover:border-orange-500/30 transition-colors"
+                        className="p-1.5 rounded-lg bg-[var(--card-bg-subtle)] hover:bg-orange-500/15 text-[var(--table-header-color,#9ca3af)] hover:text-orange-600 dark:hover:text-orange-400 border border-[var(--border-color,#1f2937)] hover:border-orange-500/40 transition-all cursor-pointer"
                         title="View TCC Curve & Coordination Plot"
                       >
                         <Activity size={13} />

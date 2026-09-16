@@ -190,81 +190,81 @@ export default function MDBSchedule({
 
   if (!catalogLoaded) {
     return (
-      <div className="space-y-4 font-sans text-slate-900">
+      <div className="space-y-4 font-sans text-[var(--foreground-color)]">
         {showHeader && (
-          <div className="flex items-center justify-between text-xs text-slate-500 mb-1 font-mono">
-            <span className="font-semibold text-slate-900">{project.name}</span>
+          <div className="flex items-center justify-between text-xs text-[var(--text-muted)] mb-1 font-mono">
+            <span className="font-semibold text-[var(--foreground-color)]">{project.name}</span>
             <span>{project.date || new Date().toLocaleDateString()}</span>
           </div>
         )}
-        <div className="flex items-center justify-between border-b pb-2">
-          <h2 className="text-xs font-bold uppercase tracking-wider text-slate-900 border-l-4 border-amber-500 pl-2.5">
+        <div className="flex items-center justify-between border-b border-[var(--border-color)] pb-2">
+          <h2 className="text-xs font-bold uppercase tracking-wider text-[var(--foreground-color)] border-l-4 border-amber-500 pl-2.5">
             Main Distribution Board (MDB) Schedule
           </h2>
-          <span className="text-[11px] font-mono text-slate-600">
-            Total Feeders: <span className="font-bold text-slate-900">{mdbRows.length}</span>
+          <span className="text-[11px] font-mono text-[var(--text-muted)]">
+            Total Feeders: <span className="font-bold text-[var(--foreground-color)]">{mdbRows.length}</span>
           </span>
         </div>
-        <div className="p-6 text-center text-sm text-slate-400 font-mono">Loading breaker catalog…</div>
+        <div className="p-6 text-center text-sm text-[var(--text-muted)] font-mono">Loading breaker catalog…</div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-4 font-sans text-slate-900">
+    <div className="space-y-4 font-sans text-[var(--foreground-color)]">
       {showHeader && (
-        <div className="flex items-center justify-between text-xs text-slate-500 mb-1 font-mono">
-          <span className="font-semibold text-slate-900">{project.name}</span>
+        <div className="flex items-center justify-between text-xs text-[var(--text-muted)] mb-1 font-mono">
+          <span className="font-semibold text-[var(--foreground-color)]">{project.name}</span>
           <span>{project.date || new Date().toLocaleDateString()}</span>
         </div>
       )}
-      <div className="flex items-center justify-between border-b pb-2">
-        <h2 className="text-xs font-bold uppercase tracking-wider text-slate-900 border-l-4 border-amber-500 pl-2.5">
+      <div className="flex items-center justify-between border-b border-[var(--border-color)] pb-2">
+        <h2 className="text-xs font-bold uppercase tracking-wider text-[var(--foreground-color)] border-l-4 border-amber-500 pl-2.5">
           Main Distribution Board (MDB) Schedule
         </h2>
-        <span className="text-[11px] font-mono text-slate-600">
-          Standard: <span className="font-bold text-slate-900">{project.calculationStandard ?? 'IEC 60364'}</span>
+        <span className="text-[11px] font-mono text-[var(--text-muted)]">
+          Standard: <span className="font-bold text-[var(--foreground-color)]">{project.calculationStandard ?? 'IEC 60364'}</span>
         </span>
       </div>
-      <table className="w-full text-left text-xs border border-slate-300 rounded-lg overflow-hidden">
+      <table className="w-full text-left text-xs border border-[var(--border-color)] rounded-lg overflow-hidden shadow-xs">
         <thead>
-          <tr className="bg-slate-900 text-white text-[10px] font-bold uppercase tracking-wider">
-            <th className="p-2 border-r border-slate-800">#</th>
-            <th className="p-2 border-r border-slate-800">Building</th>
-            <th className="p-2 border-r border-slate-800 text-center">Floor</th>
-            <th className="p-2 border-r border-slate-800">Feeder Description</th>
-            <th className="p-2 border-r border-slate-800 text-center">Type</th>
-            <th className="p-2 border-r border-slate-800 text-right">Demand (kW)</th>
-            <th className="p-2 border-r border-slate-800 text-center">Current (A)</th>
-            <th className="p-2 border-r border-slate-800 text-center">Protection (In)</th>
-            <th className="p-2 border-r border-slate-800 text-center">Feeder Cable</th>
+          <tr className="bg-[var(--card-bg-subtle)] text-[var(--foreground-color)] text-[10px] font-bold uppercase tracking-wider border-b border-[var(--border-color)]">
+            <th className="p-2 border-r border-[var(--border-color)]">#</th>
+            <th className="p-2 border-r border-[var(--border-color)]">Building</th>
+            <th className="p-2 border-r border-[var(--border-color)] text-center">Floor</th>
+            <th className="p-2 border-r border-[var(--border-color)]">Feeder Description</th>
+            <th className="p-2 border-r border-[var(--border-color)] text-center">Type</th>
+            <th className="p-2 border-r border-[var(--border-color)] text-right">Demand (kW)</th>
+            <th className="p-2 border-r border-[var(--border-color)] text-center">Current (A)</th>
+            <th className="p-2 border-r border-[var(--border-color)] text-center">Protection (In)</th>
+            <th className="p-2 border-r border-[var(--border-color)] text-center">Feeder Cable</th>
             <th className="p-2 text-right">Iz (A)</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-slate-200 text-slate-800">
+        <tbody className="divide-y divide-[var(--border-color)] text-[var(--foreground-color)]">
           {mdbRows.map((row, idx) => (
             <tr
               key={row.idx}
               className={
                 row.isMainIncomer
-                  ? 'bg-amber-50/90 font-bold border-b-2 border-amber-300'
+                  ? 'bg-amber-500/15 font-bold border-b-2 border-amber-500/40 text-[var(--foreground-color)]'
                   : row.isSubPanel
-                  ? 'bg-sky-50/60 font-semibold'
+                  ? 'bg-sky-500/10 font-semibold text-[var(--foreground-color)]'
                   : idx % 2 === 0
-                  ? 'bg-white'
-                  : 'bg-slate-50/80'
+                  ? 'bg-[var(--card-bg)]'
+                  : 'bg-[var(--card-bg-subtle)]/50'
               }
             >
-              <td className="p-2 border-r border-slate-200 font-mono text-slate-500">{row.idx}</td>
-              <td className="p-2 border-r border-slate-200">{row.building}</td>
-              <td className="p-2 border-r border-slate-200 text-center font-mono">{row.isMainIncomer ? '—' : `F${row.floor}`}</td>
-              <td className="p-2 border-r border-slate-200 font-bold text-slate-900">{row.feeder}</td>
-              <td className="p-2 border-r border-slate-200 text-center text-[10px] font-mono">
-                <span className="px-1.5 py-0.5 rounded bg-slate-100 border border-slate-200">
+              <td className="p-2 border-r border-[var(--border-color)] font-mono text-[var(--text-muted)]">{row.idx}</td>
+              <td className="p-2 border-r border-[var(--border-color)]">{row.building}</td>
+              <td className="p-2 border-r border-[var(--border-color)] text-center font-mono">{row.isMainIncomer ? '—' : `F${row.floor}`}</td>
+              <td className="p-2 border-r border-[var(--border-color)] font-bold text-[var(--foreground-color)]">{row.feeder}</td>
+              <td className="p-2 border-r border-[var(--border-color)] text-center text-[10px] font-mono">
+                <span className="px-1.5 py-0.5 rounded bg-[var(--card-bg-subtle)] border border-[var(--border-color)] text-[var(--foreground-color)]">
                   {row.type.replace('_', ' ')}
                 </span>
               </td>
-              <td className="p-2 border-r border-slate-200 text-right font-mono font-bold text-slate-900">
+              <td className="p-2 border-r border-[var(--border-color)] text-right font-mono font-bold text-[var(--foreground-color)]">
                 <TraceableCell
                   getTrace={() =>
                     buildDesignCurrentTrace({
@@ -284,7 +284,7 @@ export default function MDBSchedule({
                   {row.demand.toFixed(1)}
                 </TraceableCell>
               </td>
-              <td className="p-2 border-r border-slate-200 text-center font-mono font-bold text-amber-700">
+              <td className="p-2 border-r border-[var(--border-color)] text-center font-mono font-bold text-amber-600 dark:text-amber-400">
                 <TraceableCell
                   getTrace={() =>
                     buildDesignCurrentTrace({
@@ -304,7 +304,7 @@ export default function MDBSchedule({
                   {row.current.toFixed(1)}
                 </TraceableCell>
               </td>
-              <td className="p-2 border-r border-slate-200 text-center font-mono font-bold text-slate-900">
+              <td className="p-2 border-r border-[var(--border-color)] text-center font-mono font-bold text-[var(--foreground-color)]">
                 <TraceableCell
                   getTrace={() => {
                     const breakerNumeric = parseInt(row.breaker.replace(/\D/g, ''), 10) || Math.ceil(row.current);
@@ -328,7 +328,7 @@ export default function MDBSchedule({
                   {row.breaker}
                 </TraceableCell>
               </td>
-              <td className="p-2 border-r border-slate-200 text-center font-mono text-slate-800">
+              <td className="p-2 border-r border-[var(--border-color)] text-center font-mono text-[var(--text-secondary)]">
                 <TraceableCell
                   getTrace={() => {
                     const parsed = parseCableSize(row.cable);
@@ -366,7 +366,7 @@ export default function MDBSchedule({
                   {formatCableSizeFor(row.cable, project.calculationStandard)}
                 </TraceableCell>
               </td>
-              <td className="p-2 text-right font-mono text-slate-700">
+              <td className="p-2 text-right font-mono text-[var(--text-muted)]">
                 {row.cableIz != null ? (
                   <TraceableCell
                     getTrace={() => {

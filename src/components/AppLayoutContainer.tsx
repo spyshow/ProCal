@@ -4,6 +4,7 @@ import React from 'react';
 import { SidebarProvider, useSidebar } from '@/context/SidebarContext';
 import { useTranslation } from '@/i18n';
 import Sidebar from '@/components/Sidebar';
+import { TopHeader } from '@/components/TopHeader';
 import { OnboardingTour } from '@/components/OnboardingTour';
 import { FeedbackFloatingButton } from '@/components/FeedbackFloatingButton';
 
@@ -21,9 +22,8 @@ function LayoutInner({ children }: { children: React.ReactNode }) {
       <div className="print:hidden flex-shrink-0">
         <Sidebar />
       </div>
-      <main
-        id="procal-main-content"
-        className={`flex-1 overflow-y-auto bg-slate-950 print:overflow-visible print:w-full print:h-auto print:m-0 ${
+      <div
+        className={`flex-1 flex flex-col min-w-0 h-screen overflow-hidden bg-[var(--background-color,#030712)] text-[var(--foreground-color,#f8fafc)] transition-colors duration-200 print:overflow-visible print:w-full print:h-auto print:m-0 ${
           mounted ? 'transition-[margin] duration-200' : ''
         } ${
           isRtl
@@ -35,8 +35,14 @@ function LayoutInner({ children }: { children: React.ReactNode }) {
             : 'md:ml-[240px] md:mr-0'
         }`}
       >
-        {children}
-      </main>
+        <TopHeader />
+        <main
+          id="procal-main-content"
+          className="flex-1 overflow-y-auto bg-[var(--background-color,#030712)] text-[var(--foreground-color,#f8fafc)] transition-colors duration-200 print:overflow-visible print:w-full print:h-auto print:m-0 custom-scrollbar"
+        >
+          {children}
+        </main>
+      </div>
       <OnboardingTour />
       <FeedbackFloatingButton />
     </div>

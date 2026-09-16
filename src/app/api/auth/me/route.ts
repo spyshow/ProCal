@@ -22,13 +22,13 @@ export async function PATCH(request: Request) {
       return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
     }
 
-    const { email, name } = body as { email?: string; name?: string };
+    const { email, name, theme } = body as { email?: string; name?: string; theme?: string };
 
-    if (email === undefined && name === undefined) {
+    if (email === undefined && name === undefined && theme === undefined) {
       return NextResponse.json({ error: "Nothing to update" }, { status: 400 });
     }
 
-    const data: { email?: string; name?: string } = {};
+    const data: { email?: string; name?: string; theme?: string } = {};
 
     if (email !== undefined) {
       if (typeof email !== "string") {
@@ -48,17 +48,34 @@ export async function PATCH(request: Request) {
       data.name = name.trim();
     }
 
+    if (theme !== undefined) {
+      if (typeof theme !== "string" || !["dark", "blueprint", "warm", "system"].includes(theme)) {
+        return NextResponse.json({ error: "Invalid theme value" }, { status: 400 });
+      }
+      data.theme = theme;
+    }
+
     const updatedUser = await db.user.update({
       where: { id: user.id },
       data,
-      select: { id: true, username: true, name: true, role: true, credits: true, email: true },
+      select: { id: true, username: true, name: true, role: true, credits: true, email: true, theme: true },
     });
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
       user: updatedUser,
       message: "Profile updated successfully",
     });
+
+    if (theme) {
+      response.cookies.set("procal_theme", theme, {
+        path: "/",
+        maxAge: 31536000, // 1 year
+        sameSite: "lax",
+      });
+    }
+
+    return response;
   } catch (error: unknown) {
     console.error("PATCH /api/auth/me Error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });

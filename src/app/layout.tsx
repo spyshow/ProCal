@@ -1,8 +1,11 @@
 import type { Metadata } from "next";
 import { Inter, Rubik } from "next/font/google";
+import { cookies } from "next/headers";
 import Script from "next/script";
 import "./globals.css";
 import { ProjectProvider } from "@/context/ProjectContext";
+import { ThemeProvider } from "@/context/ThemeContext";
+import { THEME_COOKIE_NAME, DEFAULT_THEME, isValidTheme } from "@/lib/theme";
 import { I18nProvider } from "@/i18n";
 
 const inter = Inter({
@@ -31,15 +34,21 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const cookieStore = await cookies();
+  const themeCookie = cookieStore.get(THEME_COOKIE_NAME)?.value;
+  const initialTheme = isValidTheme(themeCookie) ? themeCookie : DEFAULT_THEME;
+  const resolvedDomTheme = initialTheme === 'system' ? 'dark' : initialTheme;
+
   return (
     <html
       lang="en"
-      className={`${inter.variable} ${rubikArabic.variable} h-full`}
+      data-theme={resolvedDomTheme}
+      className={`${inter.variable} ${rubikArabic.variable} ${resolvedDomTheme === 'dark' ? 'dark' : ''} h-full`}
       suppressHydrationWarning
     >
       <head>
@@ -57,9 +66,11 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="min-h-full bg-slate-950 text-slate-100 antialiased font-sans" suppressHydrationWarning>
+      <body className="min-h-full bg-[var(--background-color,#030712)] text-[var(--foreground-color,#f8fafc)] antialiased font-sans" suppressHydrationWarning>
         <I18nProvider>
-          <ProjectProvider>{children}</ProjectProvider>
+          <ThemeProvider initialTheme={initialTheme}>
+            <ProjectProvider>{children}</ProjectProvider>
+          </ThemeProvider>
         </I18nProvider>
       </body>
     </html>

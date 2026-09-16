@@ -2,7 +2,8 @@
 @import "motion-icons-react/style.css";
 
 @layer base {
-  :root {
+  :root,
+  html[data-theme="dark"] {
     --background: 222 47% 4%; /* #030712 - Gray 950 */
     --foreground: 210 40% 98%; /* #f8fafc */
 
@@ -38,15 +39,582 @@
     --chart-3: 199 89% 48%;
     --chart-4: 38 92% 50%;
     --chart-5: 280 65% 60%;
+
+    /* Direct Theme Tokens */
+    --background-color: #030712;
+    --foreground-color: #f8fafc;
+    --card-bg: #0b0f19;
+    --card-fg: #f8fafc;
+    --card-bg-subtle: #111827;
+    --border-color: #1f2937;
+    --border-color-subtle: rgba(255, 255, 255, 0.08);
+    --input-bg: rgba(17, 24, 39, 0.8);
+    --input-border: #374151;
+    --input-color: #ffffff;
+    --table-header-bg: rgba(17, 24, 39, 0.6);
+    --table-header-color: #9ca3af;
+    --table-border: rgba(31, 41, 55, 0.6);
+    --glass-bg: rgba(11, 15, 25, 0.75);
+    --glow-card-bg: rgba(11, 15, 25, 0.7);
+    --glow-shadow: rgba(234, 88, 12, 0.15);
+    --scrollbar-track: #0b0f19;
+    --scrollbar-thumb: #1f2937;
+    --sidebar-bg: rgba(3, 7, 18, 0.95);
+    --sidebar-border: rgba(31, 41, 55, 0.8);
+    --brand-mark-bg: rgba(234, 88, 12, 0.2);
+    --brand-mark-border: rgba(234, 88, 12, 0.3);
+  }
+
+  html[data-theme="blueprint"] {
+    --background: 210 40% 98%; /* #f8fafc - Slate 50 */
+    --foreground: 222 47% 11%; /* #0f172a - Slate 900 */
+
+    --card: 0 0% 100%; /* #ffffff - Pure White */
+    --card-foreground: 222 47% 11%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+
+    --primary: 24 95% 53%; /* ABB Industrial Orange #ea580c */
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 210 40% 96%; /* #f1f5f9 - Slate 100 */
+    --secondary-foreground: 222 47% 11%;
+
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 16% 47%; /* #64748b - Slate 500 */
+
+    --accent: 210 40% 92%; /* #e2e8f0 - Slate 200 */
+    --accent-foreground: 222 47% 11%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 214 32% 91%; /* #e2e8f0 */
+    --input: 214 32% 91%;
+    --ring: 24 95% 53%;
+
+    --radius: 0.5rem;
+
+    --chart-1: 24 95% 53%;
+    --chart-2: 142 71% 45%;
+    --chart-3: 199 89% 48%;
+    --chart-4: 38 92% 50%;
+    --chart-5: 280 65% 60%;
+
+    /* Direct Theme Tokens */
+    --background-color: #eef2f6; /* Cool technical ice-slate drafting canvas */
+    --foreground-color: #0f172a; /* Deep ink slate */
+    --card-bg: #ffffff; /* Crisp white card */
+    --card-fg: #0f172a;
+    --card-bg-subtle: #f1f5f9;
+    --border-color: #cbd5e1; /* Sharp slate 300 gridlines */
+    --border-color-subtle: #e2e8f0;
+    --input-bg: #ffffff;
+    --input-border: #cbd5e1;
+    --input-color: #0f172a;
+    --table-header-bg: #e2e8f0;
+    --table-header-color: #334155;
+    --table-border: #cbd5e1;
+    --glass-bg: rgba(255, 255, 255, 0.92);
+    --glow-card-bg: #ffffff;
+    --glow-shadow: rgba(234, 88, 12, 0.15);
+    --scrollbar-track: #f1f5f9;
+    --scrollbar-thumb: #94a3b8;
+    --sidebar-bg: rgba(255, 255, 255, 0.98);
+    --sidebar-border: #cbd5e1;
+    --brand-mark-bg: rgba(234, 88, 12, 0.12);
+    --brand-mark-border: rgba(234, 88, 12, 0.3);
+  }
+
+  html[data-theme="warm"] {
+    --background: 38 35% 88%; /* #ede4d4 - Rich architectural sand parchment canvas */
+    --foreground: 26 26% 12%; /* #261e16 - Deep warm espresso drafting ink */
+
+    --card: 40 45% 95%; /* #f8f4ec - Warm ivory panel */
+    --card-foreground: 26 26% 12%;
+
+    --popover: 40 45% 95%;
+    --popover-foreground: 26 26% 12%;
+
+    --primary: 25 66% 47%; /* #c66928 - Warm honey amber / terracotta */
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 37 28% 81%; /* #dfd3c0 - Warm sand secondary */
+    --secondary-foreground: 26 26% 12%;
+
+    --muted: 37 28% 81%;
+    --muted-foreground: 29 16% 36%; /* #685a4c - Warm earthy umber */
+
+    --accent: 35 30% 75%; /* #d4c4af */
+    --accent-foreground: 26 26% 12%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 34 26% 72%; /* #cbb9a3 - Warm sepia drafting border */
+    --input: 34 26% 72%;
+    --ring: 25 66% 47%;
+
+    --radius: 0.5rem;
+
+    --chart-1: 25 66% 47%;
+    --chart-2: 142 55% 36%;
+    --chart-3: 199 75% 38%;
+    --chart-4: 28 85% 44%;
+    --chart-5: 280 45% 50%;
+
+    /* Direct Theme Tokens */
+    --background-color: #ede4d4; /* Rich architectural drafting parchment canvas */
+    --foreground-color: #261e16; /* Warm espresso/charcoal ink */
+    --card-bg: #f8f4ec; /* Warm ivory panel */
+    --card-fg: #261e16;
+    --card-bg-subtle: #dfd3c0; /* Warm sand secondary/header */
+    --border-color: #cbb9a3; /* Warm sepia/camel drafting border */
+    --border-color-subtle: #d8caba;
+    --input-bg: #fdfbf7;
+    --input-border: #cbb9a3;
+    --input-color: #261e16;
+    --table-header-bg: #dfd3c0;
+    --table-header-color: #4a3e31;
+    --table-border: #cbb9a3;
+    --glass-bg: rgba(248, 244, 236, 0.96);
+    --glow-card-bg: #f8f4ec;
+    --glow-shadow: rgba(198, 105, 40, 0.2);
+    --scrollbar-track: #dfd3c0;
+    --scrollbar-thumb: #b8a690;
+    --sidebar-bg: rgba(234, 225, 212, 0.98);
+    --sidebar-border: #cbb9a3;
+    --brand-mark-bg: rgba(198, 105, 40, 0.18);
+    --brand-mark-border: rgba(198, 105, 40, 0.4);
   }
 }
 
+/* Automatic adaptors for existing hardcoded dark utility classes */
+/* 1. Canvas / Shell Backgrounds */
+html[data-theme="blueprint"] .bg-slate-950,
+html[data-theme="blueprint"] .bg-slate-950\/40,
+html[data-theme="blueprint"] .bg-slate-950\/50,
+html[data-theme="blueprint"] .bg-slate-950\/60,
+html[data-theme="blueprint"] #procal-main-content {
+  background-color: #eef2f6 !important;
+}
+
+html[data-theme="warm"] .bg-slate-950,
+html[data-theme="warm"] .bg-slate-950\/40,
+html[data-theme="warm"] .bg-slate-950\/50,
+html[data-theme="warm"] .bg-slate-950\/60,
+html[data-theme="warm"] #procal-main-content {
+  background-color: #ede4d4 !important;
+}
+
+/* 2. Cards, Panels, Modals, Popovers and Dialogs */
+html[data-theme="blueprint"] .bg-slate-950\/70,
+html[data-theme="blueprint"] .bg-slate-950\/80,
+html[data-theme="blueprint"] .bg-slate-950\/90,
+html[data-theme="blueprint"] .bg-slate-950\/95,
+html[data-theme="blueprint"] .bg-slate-900,
+html[data-theme="blueprint"] .bg-slate-900\/95,
+html[data-theme="blueprint"] .bg-slate-900\/90,
+html[data-theme="blueprint"] .bg-slate-900\/80,
+html[data-theme="blueprint"] .bg-slate-900\/70,
+html[data-theme="blueprint"] .bg-slate-900\/60,
+html[data-theme="blueprint"] .bg-slate-900\/50,
+html[data-theme="blueprint"] .bg-slate-900\/40,
+html[data-theme="blueprint"] .bg-slate-900\/30,
+html[data-theme="blueprint"] .bg-slate-900\/20,
+html[data-theme="blueprint"] .bg-gray-900,
+html[data-theme="blueprint"] .bg-gray-900\/95,
+html[data-theme="blueprint"] .bg-gray-900\/90,
+html[data-theme="blueprint"] .bg-gray-900\/80,
+html[data-theme="blueprint"] .bg-gray-900\/70,
+html[data-theme="blueprint"] .bg-gray-900\/60,
+html[data-theme="blueprint"] .bg-gray-900\/50,
+html[data-theme="blueprint"] .bg-gray-900\/40,
+html[data-theme="blueprint"] .bg-gray-900\/30,
+html[data-theme="blueprint"] .bg-gray-900\/20 {
+  background-color: #ffffff !important;
+}
+
+html[data-theme="warm"] .bg-slate-950\/70,
+html[data-theme="warm"] .bg-slate-950\/80,
+html[data-theme="warm"] .bg-slate-950\/90,
+html[data-theme="warm"] .bg-slate-950\/95,
+html[data-theme="warm"] .bg-slate-900,
+html[data-theme="warm"] .bg-slate-900\/95,
+html[data-theme="warm"] .bg-slate-900\/90,
+html[data-theme="warm"] .bg-slate-900\/80,
+html[data-theme="warm"] .bg-slate-900\/70,
+html[data-theme="warm"] .bg-slate-900\/60,
+html[data-theme="warm"] .bg-slate-900\/50,
+html[data-theme="warm"] .bg-slate-900\/40,
+html[data-theme="warm"] .bg-slate-900\/30,
+html[data-theme="warm"] .bg-slate-900\/20,
+html[data-theme="warm"] .bg-gray-900,
+html[data-theme="warm"] .bg-gray-900\/95,
+html[data-theme="warm"] .bg-gray-900\/90,
+html[data-theme="warm"] .bg-gray-900\/80,
+html[data-theme="warm"] .bg-gray-900\/70,
+html[data-theme="warm"] .bg-gray-900\/60,
+html[data-theme="warm"] .bg-gray-900\/50,
+html[data-theme="warm"] .bg-gray-900\/40,
+html[data-theme="warm"] .bg-gray-900\/30,
+html[data-theme="warm"] .bg-gray-900\/20 {
+  background-color: #f8f4ec !important;
+}
+
+/* 3. Borders */
+html[data-theme="blueprint"] .border-gray-800,
+html[data-theme="blueprint"] .border-gray-700,
+html[data-theme="blueprint"] .border-slate-800,
+html[data-theme="blueprint"] .border-slate-800\/80,
+html[data-theme="blueprint"] .border-slate-800\/60,
+html[data-theme="blueprint"] .border-slate-800\/40,
+html[data-theme="blueprint"] .border-slate-700,
+html[data-theme="blueprint"] .border-slate-700\/80,
+html[data-theme="blueprint"] .border-slate-700\/60,
+html[data-theme="blueprint"] .border-white\/10,
+html[data-theme="blueprint"] .border-white\/5,
+html[data-theme="blueprint"] .border-white\/20,
+html[data-theme="blueprint"] .border-white\/15 {
+  border-color: #cbd5e1 !important;
+}
+
+html[data-theme="warm"] .border-gray-800,
+html[data-theme="warm"] .border-gray-700,
+html[data-theme="warm"] .border-slate-800,
+html[data-theme="warm"] .border-slate-800\/80,
+html[data-theme="warm"] .border-slate-800\/60,
+html[data-theme="warm"] .border-slate-800\/40,
+html[data-theme="warm"] .border-slate-700,
+html[data-theme="warm"] .border-slate-700\/80,
+html[data-theme="warm"] .border-slate-700\/60,
+html[data-theme="warm"] .border-white\/10,
+html[data-theme="warm"] .border-white\/5,
+html[data-theme="warm"] .border-white\/20,
+html[data-theme="warm"] .border-white\/15 {
+  border-color: #cbb9a3 !important;
+}
+
+/* 4. Text */
+html[data-theme="blueprint"] .text-white,
+html[data-theme="blueprint"] .text-slate-100,
+html[data-theme="blueprint"] .text-slate-200,
+html[data-theme="blueprint"] .text-gray-100,
+html[data-theme="blueprint"] .text-gray-200 {
+  color: #0f172a !important;
+}
+
+html[data-theme="warm"] .text-white,
+html[data-theme="warm"] .text-slate-100,
+html[data-theme="warm"] .text-slate-200,
+html[data-theme="warm"] .text-gray-100,
+html[data-theme="warm"] .text-gray-200 {
+  color: #261e16 !important;
+}
+
+html[data-theme="blueprint"] .text-slate-300,
+html[data-theme="blueprint"] .text-slate-400,
+html[data-theme="blueprint"] .text-gray-300,
+html[data-theme="blueprint"] .text-gray-400,
+html[data-theme="blueprint"] .text-gray-500 {
+  color: #475569 !important;
+}
+
+html[data-theme="warm"] .text-slate-300,
+html[data-theme="warm"] .text-slate-400,
+html[data-theme="warm"] .text-gray-300,
+html[data-theme="warm"] .text-gray-400,
+html[data-theme="warm"] .text-gray-500 {
+  color: #5c4d3f !important;
+}
+
+/* 4.1 Preserve crisp white text on buttons, badges, and chips with solid colored backgrounds */
+html[data-theme="blueprint"] .text-white-force,
+html[data-theme="blueprint"] button.bg-orange-600,
+html[data-theme="blueprint"] button.bg-orange-500,
+html[data-theme="blueprint"] button.bg-orange-700,
+html[data-theme="blueprint"] button[class*="from-orange-"],
+html[data-theme="blueprint"] .bg-orange-600,
+html[data-theme="blueprint"] .bg-orange-600 *,
+html[data-theme="blueprint"] .bg-orange-500,
+html[data-theme="blueprint"] .bg-orange-500 *,
+html[data-theme="blueprint"] [class*="from-orange-"],
+html[data-theme="blueprint"] [class*="from-orange-"] *,
+html[data-theme="blueprint"] .bg-rose-600,
+html[data-theme="blueprint"] .bg-rose-600 *,
+html[data-theme="blueprint"] .bg-blue-600,
+html[data-theme="blueprint"] .bg-blue-600 *,
+html[data-theme="blueprint"] button.bg-teal-600,
+html[data-theme="blueprint"] button.bg-teal-500,
+html[data-theme="blueprint"] .bg-teal-600,
+html[data-theme="blueprint"] .bg-teal-600 *,
+html[data-theme="blueprint"] button.bg-amber-600,
+html[data-theme="blueprint"] button.bg-amber-500,
+html[data-theme="blueprint"] .bg-amber-600,
+html[data-theme="blueprint"] .bg-amber-600 *,
+html[data-theme="blueprint"] button.bg-emerald-600,
+html[data-theme="blueprint"] button.bg-emerald-500,
+html[data-theme="blueprint"] .bg-emerald-600,
+html[data-theme="blueprint"] .bg-emerald-600 *,
+html[data-theme="blueprint"] button.bg-yellow-600,
+html[data-theme="blueprint"] .bg-yellow-600,
+html[data-theme="blueprint"] .bg-yellow-600 *,
+html[data-theme="warm"] .text-white-force,
+html[data-theme="warm"] button.bg-orange-600,
+html[data-theme="warm"] button.bg-orange-500,
+html[data-theme="warm"] button.bg-orange-700,
+html[data-theme="warm"] button[class*="from-orange-"],
+html[data-theme="warm"] .bg-orange-600,
+html[data-theme="warm"] .bg-orange-600 *,
+html[data-theme="warm"] .bg-orange-500,
+html[data-theme="warm"] .bg-orange-500 *,
+html[data-theme="warm"] [class*="from-orange-"],
+html[data-theme="warm"] [class*="from-orange-"] *,
+html[data-theme="warm"] .bg-rose-600,
+html[data-theme="warm"] .bg-rose-600 *,
+html[data-theme="warm"] .bg-blue-600,
+html[data-theme="warm"] .bg-blue-600 *,
+html[data-theme="warm"] button.bg-teal-600,
+html[data-theme="warm"] button.bg-teal-500,
+html[data-theme="warm"] .bg-teal-600,
+html[data-theme="warm"] .bg-teal-600 *,
+html[data-theme="warm"] button.bg-amber-600,
+html[data-theme="warm"] button.bg-amber-500,
+html[data-theme="warm"] .bg-amber-600,
+html[data-theme="warm"] .bg-amber-600 *,
+html[data-theme="warm"] button.bg-emerald-600,
+html[data-theme="warm"] button.bg-emerald-500,
+html[data-theme="warm"] .bg-emerald-600,
+html[data-theme="warm"] .bg-emerald-600 *,
+html[data-theme="warm"] button.bg-yellow-600,
+html[data-theme="warm"] .bg-yellow-600,
+html[data-theme="warm"] .bg-yellow-600 * {
+  color: #ffffff !important;
+}
+
+/* 5. Sub-containers & Secondary Items */
+html[data-theme="blueprint"] .bg-gray-800,
+html[data-theme="blueprint"] .bg-gray-800\/80,
+html[data-theme="blueprint"] .bg-gray-800\/60,
+html[data-theme="blueprint"] .bg-gray-800\/50,
+html[data-theme="blueprint"] .bg-gray-800\/40,
+html[data-theme="blueprint"] .bg-gray-800\/30,
+html[data-theme="blueprint"] .bg-gray-800\/20,
+html[data-theme="blueprint"] .bg-gray-800\/10,
+html[data-theme="blueprint"] .bg-slate-800,
+html[data-theme="blueprint"] .bg-slate-800\/90,
+html[data-theme="blueprint"] .bg-slate-800\/80,
+html[data-theme="blueprint"] .bg-slate-800\/60,
+html[data-theme="blueprint"] .bg-slate-800\/50,
+html[data-theme="blueprint"] .bg-slate-800\/40,
+html[data-theme="blueprint"] .bg-slate-800\/30,
+html[data-theme="blueprint"] .bg-slate-800\/20,
+html[data-theme="blueprint"] .bg-slate-800\/10,
+html[data-theme="blueprint"] .bg-gray-950,
+html[data-theme="blueprint"] .bg-gray-950\/90,
+html[data-theme="blueprint"] .bg-gray-950\/80,
+html[data-theme="blueprint"] .bg-gray-950\/70,
+html[data-theme="blueprint"] .bg-gray-950\/60,
+html[data-theme="blueprint"] .bg-gray-950\/50,
+html[data-theme="blueprint"] .bg-gray-950\/40,
+html[data-theme="blueprint"] .bg-gray-950\/30,
+html[data-theme="blueprint"] .bg-gray-950\/20,
+html[data-theme="blueprint"] .bg-gray-950\/10 {
+  background-color: #f1f5f9 !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="warm"] .bg-gray-800,
+html[data-theme="warm"] .bg-gray-800\/80,
+html[data-theme="warm"] .bg-gray-800\/60,
+html[data-theme="warm"] .bg-gray-800\/50,
+html[data-theme="warm"] .bg-gray-800\/40,
+html[data-theme="warm"] .bg-gray-800\/30,
+html[data-theme="warm"] .bg-gray-800\/20,
+html[data-theme="warm"] .bg-gray-800\/10,
+html[data-theme="warm"] .bg-slate-800,
+html[data-theme="warm"] .bg-slate-800\/90,
+html[data-theme="warm"] .bg-slate-800\/80,
+html[data-theme="warm"] .bg-slate-800\/60,
+html[data-theme="warm"] .bg-slate-800\/50,
+html[data-theme="warm"] .bg-slate-800\/40,
+html[data-theme="warm"] .bg-slate-800\/30,
+html[data-theme="warm"] .bg-slate-800\/20,
+html[data-theme="warm"] .bg-slate-800\/10,
+html[data-theme="warm"] .bg-gray-950,
+html[data-theme="warm"] .bg-gray-950\/90,
+html[data-theme="warm"] .bg-gray-950\/80,
+html[data-theme="warm"] .bg-gray-950\/70,
+html[data-theme="warm"] .bg-gray-950\/60,
+html[data-theme="warm"] .bg-gray-950\/50,
+html[data-theme="warm"] .bg-gray-950\/40,
+html[data-theme="warm"] .bg-gray-950\/30,
+html[data-theme="warm"] .bg-gray-950\/20,
+html[data-theme="warm"] .bg-gray-950\/10 {
+  background-color: #dfd3c0 !important;
+  color: #261e16 !important;
+}
+
+/* 5.1 Hover state adaptors for dark background utilities in light & warm themes */
+html[data-theme="blueprint"] .hover\:bg-slate-800:hover,
+html[data-theme="blueprint"] .hover\:bg-slate-700:hover,
+html[data-theme="blueprint"] .hover\:bg-gray-800:hover,
+html[data-theme="blueprint"] .hover\:bg-gray-700:hover {
+  background-color: rgba(234, 88, 12, 0.12) !important;
+  color: #c2410c !important;
+}
+
+html[data-theme="warm"] .hover\:bg-slate-800:hover,
+html[data-theme="warm"] .hover\:bg-slate-700:hover,
+html[data-theme="warm"] .hover\:bg-gray-800:hover,
+html[data-theme="warm"] .hover\:bg-gray-700:hover {
+  background-color: rgba(198, 105, 40, 0.15) !important;
+  color: #c66928 !important;
+}
+
+/* 6. Accent & status color adaptation for light & warm themes */
+html[data-theme="blueprint"] .text-orange-200,
+html[data-theme="blueprint"] .text-orange-300,
+html[data-theme="blueprint"] .text-orange-400 {
+  color: #c2410c !important;
+}
+
+html[data-theme="warm"] .text-orange-200,
+html[data-theme="warm"] .text-orange-300,
+html[data-theme="warm"] .text-orange-400,
+html[data-theme="warm"] .text-orange-500 {
+  color: #c66928 !important;
+}
+
+/* Status indicator color adaptations for light & warm themes */
+html[data-theme="blueprint"] .text-green-300,
+html[data-theme="blueprint"] .text-green-400,
+html[data-theme="blueprint"] .text-green-500,
+html[data-theme="blueprint"] .text-emerald-300,
+html[data-theme="blueprint"] .text-emerald-400,
+html[data-theme="blueprint"] .text-emerald-500 {
+  color: #047857 !important;
+}
+html[data-theme="warm"] .text-green-300,
+html[data-theme="warm"] .text-green-400,
+html[data-theme="warm"] .text-green-500,
+html[data-theme="warm"] .text-emerald-300,
+html[data-theme="warm"] .text-emerald-400,
+html[data-theme="warm"] .text-emerald-500 {
+  color: #065f46 !important;
+}
+
+html[data-theme="blueprint"] .text-yellow-300,
+html[data-theme="blueprint"] .text-yellow-400,
+html[data-theme="blueprint"] .text-yellow-500,
+html[data-theme="blueprint"] .text-amber-300,
+html[data-theme="blueprint"] .text-amber-400,
+html[data-theme="blueprint"] .text-amber-500 {
+  color: #92400e !important;
+}
+html[data-theme="warm"] .text-yellow-300,
+html[data-theme="warm"] .text-yellow-400,
+html[data-theme="warm"] .text-yellow-500,
+html[data-theme="warm"] .text-amber-300,
+html[data-theme="warm"] .text-amber-400,
+html[data-theme="warm"] .text-amber-500 {
+  color: #78350f !important;
+}
+
+html[data-theme="blueprint"] .text-red-300,
+html[data-theme="blueprint"] .text-red-400,
+html[data-theme="blueprint"] .text-red-500,
+html[data-theme="blueprint"] .text-rose-300,
+html[data-theme="blueprint"] .text-rose-400,
+html[data-theme="blueprint"] .text-rose-500 {
+  color: #be123c !important;
+}
+html[data-theme="warm"] .text-red-300,
+html[data-theme="warm"] .text-red-400,
+html[data-theme="warm"] .text-red-500,
+html[data-theme="warm"] .text-rose-300,
+html[data-theme="warm"] .text-rose-400,
+html[data-theme="warm"] .text-rose-500 {
+  color: #9f1239 !important;
+}
+
+/* Badge backgrounds & borders for status in light & warm modes */
+html[data-theme="blueprint"] .bg-green-500\/10,
+html[data-theme="blueprint"] .bg-emerald-500\/10 {
+  background-color: rgba(4, 120, 87, 0.12) !important;
+}
+html[data-theme="blueprint"] .border-green-500\/20,
+html[data-theme="blueprint"] .border-emerald-500\/20 {
+  border-color: rgba(4, 120, 87, 0.35) !important;
+}
+html[data-theme="blueprint"] .bg-yellow-500\/10,
+html[data-theme="blueprint"] .bg-amber-500\/10 {
+  background-color: rgba(146, 64, 14, 0.12) !important;
+}
+html[data-theme="blueprint"] .border-yellow-500\/20,
+html[data-theme="blueprint"] .border-amber-500\/20 {
+  border-color: rgba(146, 64, 14, 0.35) !important;
+}
+
+html[data-theme="warm"] .bg-green-500\/10,
+html[data-theme="warm"] .bg-emerald-500\/10 {
+  background-color: rgba(6, 95, 70, 0.12) !important;
+}
+html[data-theme="warm"] .border-green-500\/20,
+html[data-theme="warm"] .border-emerald-500\/20,
+html[data-theme="warm"] .border-green-500\/30,
+html[data-theme="warm"] .border-emerald-500\/30 {
+  border-color: rgba(6, 95, 70, 0.35) !important;
+}
+html[data-theme="warm"] .bg-yellow-500\/10,
+html[data-theme="warm"] .bg-amber-500\/10 {
+  background-color: rgba(120, 53, 15, 0.12) !important;
+}
+html[data-theme="warm"] .border-yellow-500\/20,
+html[data-theme="warm"] .border-amber-500\/20,
+html[data-theme="warm"] .border-yellow-500\/30,
+html[data-theme="warm"] .border-amber-500\/30 {
+  border-color: rgba(120, 53, 15, 0.35) !important;
+}
+
+html[data-theme="warm"] .bg-orange-500\/10,
+html[data-theme="warm"] .bg-orange-600\/20 {
+  background-color: rgba(198, 105, 40, 0.14) !important;
+}
+
+html[data-theme="warm"] .border-orange-500\/20,
+html[data-theme="warm"] .border-orange-500\/30,
+html[data-theme="warm"] .border-orange-500\/40 {
+  border-color: rgba(198, 105, 40, 0.35) !important;
+}
+
+/* 7. Native Select & Option Themability */
+html[data-theme="blueprint"] select {
+  background-color: #ffffff;
+  color: #0f172a;
+}
+html[data-theme="blueprint"] select option {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="warm"] select {
+  background-color: #f8f4ec;
+  color: #261e16;
+}
+html[data-theme="warm"] select option {
+  background-color: #f8f4ec !important;
+  color: #261e16 !important;
+}
+
 body {
-  background-color: #030712;
-  color: #f8fafc;
+  background-color: var(--background-color, #030712);
+  color: var(--foreground-color, #f8fafc);
   font-family: var(--font-inter), ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   overflow-x: hidden;
   min-height: 100vh;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 /* RTL & Arabic Typography */
@@ -138,24 +706,24 @@ html[dir="rtl"] .font-mono {
 /* Glowing card highlight on hover */
 .glow-card {
   position: relative;
-  background: rgba(11, 15, 25, 0.7);
+  background: var(--glow-card-bg, rgba(11, 15, 25, 0.7));
   backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--border-color-subtle, rgba(255, 255, 255, 0.08));
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .glow-card:hover {
   border-color: rgba(234, 88, 12, 0.4);
-  box-shadow: 0 0 25px -5px rgba(234, 88, 12, 0.15), 0 0 10px -2px rgba(234, 88, 12, 0.1);
+  box-shadow: 0 0 25px -5px var(--glow-shadow, rgba(234, 88, 12, 0.15)), 0 0 10px -2px rgba(234, 88, 12, 0.1);
   transform: translateY(-1px);
 }
 
 /* Glassmorphism panel */
 .glass-panel {
-  background: rgba(11, 15, 25, 0.75);
+  background: var(--glass-bg, rgba(11, 15, 25, 0.75));
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--border-color-subtle, rgba(255, 255, 255, 0.08));
 }
 
 /* Glow button styling */
@@ -174,10 +742,10 @@ html[dir="rtl"] .font-mono {
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #0b0f19;
+  background: var(--scrollbar-track, #0b0f19);
 }
 ::-webkit-scrollbar-thumb {
-  background: #1f2937;
+  background: var(--scrollbar-thumb, #1f2937);
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
@@ -191,9 +759,9 @@ html[dir="rtl"] .font-mono {
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: #9ca3af;
-  border-bottom: 1px solid #1f2937;
-  background-color: rgba(17, 24, 39, 0.5);
+  color: var(--table-header-color, #9ca3af);
+  border-bottom: 1px solid var(--table-border, #1f2937);
+  background-color: var(--table-header-bg, rgba(17, 24, 39, 0.5));
   text-align: center;
   vertical-align: middle;
 }
@@ -201,7 +769,8 @@ html[dir="rtl"] .font-mono {
 .engineering-table td {
   padding: 8px 10px;
   font-size: 0.8125rem;
-  border-bottom: 1px solid rgba(31, 41, 55, 0.6);
+  border-bottom: 1px solid var(--table-border, rgba(31, 41, 55, 0.6));
+  color: var(--foreground-color, #f8fafc);
   text-align: center;
   vertical-align: middle;
 }
@@ -220,9 +789,9 @@ html[dir="rtl"] .font-mono {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: #94a3b8;
-  border-bottom: 1px solid #334155;
-  background-color: rgba(15, 23, 42, 0.9);
+  color: var(--table-header-color, #94a3b8);
+  border-bottom: 1px solid var(--table-border, #334155);
+  background-color: var(--table-header-bg, rgba(15, 23, 42, 0.9));
   white-space: nowrap;
   text-align: center;
   vertical-align: middle;
@@ -231,7 +800,8 @@ html[dir="rtl"] .font-mono {
 .cable-schedule-table td {
   padding: 8px 12px;
   font-size: 0.75rem;
-  border-bottom: 1px solid rgba(51, 65, 85, 0.4);
+  border-bottom: 1px solid var(--table-border, rgba(51, 65, 85, 0.4));
+  color: var(--foreground-color, #f8fafc);
   text-align: center;
   vertical-align: middle;
 }
@@ -239,9 +809,9 @@ html[dir="rtl"] .font-mono {
 .dense-input {
   padding: 4px 8px;
   font-size: 0.8125rem;
-  background-color: rgba(17, 24, 39, 0.8);
-  border: 1px solid #374151;
-  color: #ffffff;
+  background-color: var(--input-bg, rgba(17, 24, 39, 0.8));
+  border: 1px solid var(--input-border, #374151);
+  color: var(--input-color, #ffffff);
   border-radius: 0.375rem;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
@@ -261,6 +831,17 @@ html[dir="rtl"] .font-mono {
 }
 
 @media print {
+  :root {
+    --card-bg: #ffffff !important;
+    --card-bg-subtle: #f8fafc !important;
+    --border-color: #cbd5e1 !important;
+    --foreground-color: #0f172a !important;
+    --text-muted: #475569 !important;
+    --background-color: #ffffff !important;
+    --input-bg: #ffffff !important;
+    --input-color: #0f172a !important;
+  }
+
   @page {
     size: 297mm 210mm !important;
     margin: 15mm 12mm 15mm 12mm !important;

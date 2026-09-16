@@ -67,28 +67,28 @@ export default function DashboardPage() {
       label: t('nav.projects', 'Projects'),
       value: projects.length,
       icon: FolderOpen,
-      color: 'text-orange-400',
+      color: 'text-orange-500 dark:text-orange-400',
       bg: 'bg-orange-500/10 border-orange-500/30',
     },
     {
       label: t('dashboard.totalBuildings', 'Buildings'),
       value: totalBuildings,
       icon: Building2,
-      color: 'text-sky-400',
+      color: 'text-sky-600 dark:text-sky-400',
       bg: 'bg-sky-500/10 border-sky-500/30',
     },
     {
       label: t('dashboard.totalApartments', 'Apartments'),
       value: totalApartments,
       icon: Plug,
-      color: 'text-emerald-400',
+      color: 'text-emerald-600 dark:text-emerald-400',
       bg: 'bg-emerald-500/10 border-emerald-500/30',
     },
     {
       label: t('dashboard.loadItems', 'Load Items'),
       value: projects.reduce((sum, p) => sum + (p.loadLibraryItems?.length ?? 0), 0),
       icon: Zap,
-      color: 'text-amber-400',
+      color: 'text-amber-600 dark:text-amber-400',
       bg: 'bg-amber-500/10 border-amber-500/30',
     },
   ];
@@ -111,29 +111,29 @@ export default function DashboardPage() {
   return (
     <div className="p-3 sm:p-5 space-y-6 w-full max-w-[1680px] mx-auto min-h-[80vh]">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[var(--border-color,#1f2937)] pb-6">
         <div>
-          <h1 className="text-3xl font-extrabold text-white tracking-tight">{t('dashboard.title', 'Dashboard')}</h1>
-          <p className="text-sm text-slate-400 mt-1">
+          <h1 className="text-3xl font-extrabold text-[var(--foreground-color,#f8fafc)] tracking-tight">{t('dashboard.title', 'Dashboard')}</h1>
+          <p className="text-sm text-[var(--table-header-color,#9ca3af)] mt-1">
             {t('dashboard.subtitle', 'Electrical Load Calculation & Switchboard Design Center')}
           </p>
         </div>
-        <Link href="/projects">
-          <Button variant="glow" className="gap-2">
+        <Button asChild variant="glow" className="gap-2 text-white-force cursor-pointer">
+          <Link href="/projects">
             <Plus className="w-4 h-4" />
             {t('projects.createNew', 'New Project')}
-          </Button>
-        </Link>
+          </Link>
+        </Button>
       </div>
 
       {/* Stat Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {statCards.map(({ label, value, icon: Icon, color, bg }) => (
-          <Card key={label} className="glow-card border-white/10 p-5">
+          <Card key={label} className="glow-card border border-[var(--border-color,#1f2937)] p-5">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">{label}</p>
-                <p className="text-3xl font-bold text-white mt-1 font-mono">
+                <p className="text-xs font-semibold uppercase tracking-wider text-[var(--table-header-color,#9ca3af)]">{label}</p>
+                <p className="text-3xl font-bold text-[var(--foreground-color,#f8fafc)] mt-1 font-mono">
                   {loading ? '—' : value}
                 </p>
               </div>
@@ -148,7 +148,7 @@ export default function DashboardPage() {
       {/* Quick Navigation Grid */}
       <div>
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xs font-bold uppercase tracking-widest text-slate-400 flex items-center gap-2">
+          <h2 className="text-xs font-bold uppercase tracking-widest text-[var(--table-header-color,#9ca3af)] flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-orange-500"></span> {t('dashboard.quickActions', 'Quick Navigation')}
           </h2>
         </div>
@@ -170,25 +170,25 @@ export default function DashboardPage() {
                 className={isRestricted ? 'cursor-not-allowed select-none' : ''}
               >
                 <Card
-                  className={`glow-card border-white/10 p-4 group h-full transition-all ${
+                  className={`glow-card border border-[var(--border-color,#1f2937)] p-4 group h-full transition-all ${
                     isRestricted
-                      ? 'opacity-40 hover:border-white/10'
+                      ? 'opacity-40 hover:border-[var(--border-color,#1f2937)]'
                       : 'hover:border-orange-500/40'
                   }`}
                 >
                   <div className="flex items-start gap-3">
                     <div
-                      className={`w-10 h-10 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-center transition-colors flex-shrink-0 ${
+                      className={`w-10 h-10 rounded-lg bg-[var(--card-bg-subtle,rgba(17,24,39,0.8))] border border-[var(--border-color,#1f2937)] flex items-center justify-center transition-colors flex-shrink-0 ${
                         isRestricted
-                          ? 'text-slate-600'
+                          ? 'text-slate-500'
                           : 'group-hover:bg-orange-500/15 group-hover:border-orange-500/30'
                       }`}
                     >
                       <Icon
                         className={`w-5 h-5 transition-colors ${
                           isRestricted
-                            ? 'text-slate-600'
-                            : 'text-slate-400 group-hover:text-orange-400'
+                            ? 'text-slate-500'
+                            : 'text-[var(--table-header-color,#9ca3af)] group-hover:text-orange-500 dark:group-hover:text-orange-400'
                         }`}
                       />
                     </div>
@@ -197,7 +197,7 @@ export default function DashboardPage() {
                         className={`text-sm font-semibold transition-colors flex items-center justify-between ${
                           isRestricted
                             ? 'text-slate-500'
-                            : 'text-slate-100 group-hover:text-orange-300'
+                            : 'text-[var(--foreground-color,#f8fafc)] group-hover:text-orange-600 dark:group-hover:text-orange-400'
                         }`}
                       >
                         <span className="flex items-center gap-1.5">
@@ -206,13 +206,13 @@ export default function DashboardPage() {
                         </span>
                         {!isRestricted && (
                           isRtl ? (
-                            <ArrowLeft className="w-3.5 h-3.5 text-slate-500 group-hover:text-orange-400 group-hover:-translate-x-0.5 transition-all" />
+                            <ArrowLeft className="w-3.5 h-3.5 text-[var(--table-header-color,#9ca3af)] group-hover:text-orange-500 dark:group-hover:text-orange-400 group-hover:-translate-x-0.5 transition-all" />
                           ) : (
-                            <ArrowRight className="w-3.5 h-3.5 text-slate-500 group-hover:text-orange-400 group-hover:translate-x-0.5 transition-all" />
+                            <ArrowRight className="w-3.5 h-3.5 text-[var(--table-header-color,#9ca3af)] group-hover:text-orange-500 dark:group-hover:text-orange-400 group-hover:translate-x-0.5 transition-all" />
                           )
                         )}
                       </p>
-                      <p className="text-xs text-slate-400 mt-1 line-clamp-2">{desc}</p>
+                      <p className="text-xs text-[var(--table-header-color,#9ca3af)] mt-1 line-clamp-2">{desc}</p>
                     </div>
                   </div>
                 </Card>
@@ -225,23 +225,23 @@ export default function DashboardPage() {
       {/* Recent Projects */}
       <div>
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xs font-bold uppercase tracking-widest text-slate-400 flex items-center gap-2">
+          <h2 className="text-xs font-bold uppercase tracking-widest text-[var(--table-header-color,#9ca3af)] flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-amber-500"></span> {t('dashboard.recentProjects', 'Recent Projects')}
           </h2>
-          <Link href="/projects" className="text-xs font-semibold text-orange-400 hover:text-orange-300 flex items-center gap-1">
+          <Link href="/projects" className="text-xs font-semibold text-orange-600 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300 flex items-center gap-1">
             <span>{t('dashboard.viewAllProjects', 'View All Projects')}</span>
             <span>{isRtl ? '←' : '→'}</span>
           </Link>
         </div>
 
         {loading ? (
-          <Card className="glow-card p-8 text-center text-slate-400 text-sm">
+          <Card className="glow-card border border-[var(--border-color,#1f2937)] p-8 text-center text-[var(--table-header-color,#9ca3af)] text-sm">
             {t('dashboard.loadingProjects', 'Loading projects…')}
           </Card>
         ) : projects.length === 0 ? (
-          <Card className="glow-card p-8 text-center">
-            <FolderOpen className="w-10 h-10 mx-auto text-slate-600 mb-3" />
-            <p className="text-sm text-slate-400">{t('dashboard.noActiveProjects', 'No active projects found')}</p>
+          <Card className="glow-card border border-[var(--border-color,#1f2937)] p-8 text-center">
+            <FolderOpen className="w-10 h-10 mx-auto text-[var(--table-header-color,#9ca3af)] mb-3" />
+            <p className="text-sm text-[var(--table-header-color,#9ca3af)]">{t('dashboard.noActiveProjects', 'No active projects found')}</p>
             <Link href="/projects" className="mt-3 inline-block">
               <Button variant="glow" size="sm" className="gap-2">
                 <Plus className="w-4 h-4" /> {t('projects.createProject', 'Create First Project')}
@@ -257,16 +257,16 @@ export default function DashboardPage() {
               );
               return (
                 <Link key={proj.id} href={`/projects`}>
-                  <Card className="glow-card border-white/10 hover:border-orange-500/40 p-4 group flex items-center justify-between gap-4">
+                  <Card className="glow-card border border-[var(--border-color,#1f2937)] hover:border-orange-500/40 p-4 group flex items-center justify-between gap-4">
                     <div className="flex items-center gap-3.5 min-w-0">
                       <div className="w-10 h-10 rounded-lg bg-orange-500/10 border border-orange-500/30 flex items-center justify-center flex-shrink-0">
-                        <Building2 className="w-5 h-5 text-orange-400" />
+                        <Building2 className="w-5 h-5 text-orange-600 dark:text-orange-400" />
                       </div>
                       <div className="min-w-0">
-                        <p className="text-sm font-semibold text-slate-100 group-hover:text-orange-300 truncate">
+                        <p className="text-sm font-semibold text-[var(--foreground-color,#f8fafc)] group-hover:text-orange-600 dark:group-hover:text-orange-400 truncate">
                           {proj.name}
                         </p>
-                        <p className="text-xs text-slate-400 truncate">
+                        <p className="text-xs text-[var(--table-header-color,#9ca3af)] truncate">
                           {proj.client || t('projects.noClient', 'No client specified')} · {proj.location || t('projects.noLocation', 'Location pending')}
                         </p>
                       </div>
@@ -274,17 +274,17 @@ export default function DashboardPage() {
 
                     <div className="flex items-center gap-6 flex-shrink-0">
                       <div className="text-end hidden sm:block">
-                        <p className="text-xs font-mono text-slate-300 font-semibold">
+                        <p className="text-xs font-mono text-[var(--foreground-color,#f8fafc)] font-bold">
                           {(proj.buildings ?? []).length} {t('projects.buildingsCount', 'Buildings')}
                         </p>
-                        <p className="text-[11px] text-slate-500">
+                        <p className="text-[11px] text-[var(--table-header-color,#9ca3af)] font-medium">
                           {totalApts} {t('calculator.apartments', 'Apartments')}
                         </p>
                       </div>
                       {isRtl ? (
-                        <ArrowLeft className="w-4 h-4 text-slate-600 group-hover:text-orange-400 group-hover:-translate-x-1 transition-all" />
+                        <ArrowLeft className="w-4 h-4 text-[var(--table-header-color,#9ca3af)] group-hover:text-orange-600 dark:group-hover:text-orange-400 group-hover:-translate-x-1 transition-all" />
                       ) : (
-                        <ArrowRight className="w-4 h-4 text-slate-600 group-hover:text-orange-400 group-hover:translate-x-1 transition-all" />
+                        <ArrowRight className="w-4 h-4 text-[var(--table-header-color,#9ca3af)] group-hover:text-orange-600 dark:group-hover:text-orange-400 group-hover:translate-x-1 transition-all" />
                       )}
                     </div>
                   </Card>

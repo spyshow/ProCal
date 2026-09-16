@@ -74,8 +74,9 @@ claude_memory.md
 !.agents/skills/
 !.agents/workflows/
 
-# graphify cache
+# graphify cache & backups
 graphify-out/cache/
+graphify-out/20*/
 
 # Remotion
 intro-video/

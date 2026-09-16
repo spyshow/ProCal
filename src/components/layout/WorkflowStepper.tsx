@@ -143,7 +143,7 @@ export default function WorkflowStepper({ currentStep, className }: WorkflowStep
   return (
     <div
       className={cn(
-        'rounded-xl border border-gray-800/80 bg-gray-900/60 backdrop-blur-md p-3 shadow-lg shadow-black/20',
+        'rounded-xl border border-[var(--border-color)] bg-[var(--card-bg)] shadow-xs p-2.5 sm:p-3',
         className
       )}
     >
@@ -171,12 +171,12 @@ export default function WorkflowStepper({ currentStep, className }: WorkflowStep
                 className={cn(
                   'flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all group outline-none',
                   isRestricted
-                    ? 'opacity-40 text-gray-500 hover:text-gray-500 bg-transparent border border-transparent cursor-not-allowed select-none'
+                    ? 'opacity-40 text-[var(--table-header-color)] hover:text-[var(--table-header-color)] bg-transparent border border-transparent cursor-not-allowed select-none'
                     : isActive
-                    ? 'bg-gradient-to-r from-orange-500/20 to-amber-500/10 border border-orange-500/40 text-orange-300 shadow-[0_0_15px_rgba(234,88,12,0.15)]'
+                    ? 'bg-orange-500/15 border border-orange-500 text-slate-900 dark:text-white font-bold shadow-xs'
                     : isCompleted
-                    ? 'bg-gray-950/60 border border-gray-800/80 text-gray-300 hover:border-gray-700 hover:text-white'
-                    : 'text-gray-400 hover:text-gray-300 hover:bg-gray-800/40 border border-transparent'
+                    ? 'bg-[var(--card-bg-subtle)] border border-[var(--border-color)] text-[var(--foreground-color)] hover:border-orange-500/40'
+                    : 'text-[var(--table-header-color)] hover:text-[var(--foreground-color)] hover:bg-[var(--card-bg-subtle)] border border-transparent'
                 )}
                 title={
                   isRestricted
@@ -188,29 +188,29 @@ export default function WorkflowStepper({ currentStep, className }: WorkflowStep
                   className={cn(
                     'w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-mono font-bold shrink-0 transition-colors',
                     isRestricted
-                      ? 'bg-gray-900 text-gray-600 border border-gray-800'
+                      ? 'bg-[var(--card-bg-subtle)] text-[var(--table-header-color)] border border-[var(--border-color)]'
                       : isActive
-                      ? 'bg-orange-500 text-white shadow-[0_0_8px_rgba(234,88,12,0.6)]'
+                      ? 'bg-orange-600 text-white shadow-xs shadow-orange-600/30'
                       : isCompleted
-                      ? 'bg-green-500/20 text-green-400 border border-green-500/30'
-                      : 'bg-gray-800 text-gray-400 group-hover:text-gray-300'
+                      ? 'bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border border-emerald-600/40'
+                      : 'bg-[var(--card-bg-subtle)] text-[var(--table-header-color)] border border-[var(--border-color)] group-hover:text-[var(--foreground-color)]'
                   )}
                 >
                   {isRestricted ? <Lock size={10} /> : isCompleted ? <Check size={11} strokeWidth={3} /> : step.step}
                 </span>
 
                 <div className="flex flex-col">
-                  <span className="hidden sm:inline whitespace-nowrap text-[11px] font-medium leading-tight">
+                  <span className={cn("hidden sm:inline whitespace-nowrap text-[11px] leading-tight", isActive ? "font-bold text-slate-900 dark:text-white" : "font-medium")}>
                     {name}
                   </span>
-                  <span className="sm:hidden whitespace-nowrap text-[11px] font-medium leading-tight">
+                  <span className={cn("sm:hidden whitespace-nowrap text-[11px] leading-tight", isActive ? "font-bold text-slate-900 dark:text-white" : "font-medium")}>
                     {shortName}
                   </span>
                 </div>
               </Link>
 
               {idx < WORKFLOW_STEPS.length - 1 && (
-                <StepChevron size={13} className="text-gray-700 shrink-0 select-none" />
+                <StepChevron size={13} className="text-[var(--border-color)] shrink-0 select-none" />
               )}
             </div>
           );

@@ -16,6 +16,7 @@ export type CurrentUser = {
   role: string;
   credits: number;
   email: string | null;
+  theme?: string;
 };
 
 type UserContextValue = {
@@ -63,3 +64,8 @@ export function useUser() {
   if (!ctx) throw new Error("useUser must be used within a UserProvider");
   return ctx;
 }
+
+export function useOptionalUser() {
+  return useContext(UserContext);
+}
+

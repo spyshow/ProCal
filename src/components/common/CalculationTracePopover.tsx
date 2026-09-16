@@ -437,20 +437,20 @@ export function CalculationTracePopover({
         ...(coords.bottom !== undefined ? { bottom: `${coords.bottom}px` } : {}),
         maxHeight: `${coords.maxHeight}px`,
       }}
-      className="w-[92vw] sm:w-[480px] flex flex-col rounded-2xl border border-orange-500/40 bg-slate-950/95 backdrop-blur-md shadow-[0_10px_40px_rgba(0,0,0,0.8),0_0_20px_rgba(234,88,12,0.15)] text-slate-100 overflow-hidden animate-in fade-in zoom-in-95 duration-150"
+      className="w-[92vw] sm:w-[480px] flex flex-col rounded-2xl border border-[var(--border-color,#1f2937)] hover:border-orange-500/50 bg-[var(--card-bg,#0b0f19)] text-[var(--foreground-color,#f8fafc)] shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-150 ring-1 ring-orange-500/20"
     >
       {/* Popover Header */}
-      <div className="p-3.5 px-4 bg-gradient-to-r from-slate-900 via-slate-900/90 to-slate-950 border-b border-slate-800 flex items-center justify-between gap-3 select-none">
+      <div className="p-3.5 px-4 bg-[var(--card-bg-subtle,#111827)] border-b border-[var(--border-color,#1f2937)] flex items-center justify-between gap-3 select-none">
         <div className="flex items-center gap-2.5 min-w-0">
-          <div className="w-7 h-7 rounded-lg bg-orange-600/20 border border-orange-500/40 flex items-center justify-center text-orange-400 shrink-0 shadow-xs">
+          <div className="w-7 h-7 rounded-lg bg-orange-500/15 border border-orange-500/30 flex items-center justify-center text-orange-600 dark:text-orange-400 shrink-0 shadow-xs">
             <Calculator size={15} />
           </div>
           <div className="min-w-0">
-            <h4 className="text-xs font-bold text-white tracking-tight truncate flex items-center gap-1.5">
+            <h4 className="text-xs font-bold text-[var(--foreground-color,#f8fafc)] tracking-tight truncate flex items-center gap-1.5">
               <span>{translatedTitle}</span>
             </h4>
             <div className="flex items-center gap-2 mt-0.5">
-              <span className="text-[10px] text-orange-400 font-semibold uppercase tracking-wider">
+              <span className="text-[10px] text-orange-600 dark:text-orange-400 font-semibold uppercase tracking-wider">
                 {translatedMetric}: {trace.resultValue}
               </span>
             </div>
@@ -458,17 +458,17 @@ export function CalculationTracePopover({
         </div>
 
         {/* Action Controls */}
-        <div className="flex items-center gap-1 shrink-0">
+        <div className="flex items-center gap-1.5 shrink-0">
           <button
             onClick={handleCopy}
-            className={`p-1.5 rounded-lg border transition-all text-xs flex items-center gap-1 ${
+            className={`px-2.5 py-1.5 rounded-lg border transition-all text-xs flex items-center gap-1.5 cursor-pointer ${
               copied
-                ? "bg-emerald-950/60 border-emerald-500/50 text-emerald-300"
-                : "bg-slate-900 hover:bg-slate-800 border-slate-700 text-slate-300 hover:text-white"
+                ? "bg-emerald-500/15 border-emerald-500/40 text-emerald-700 dark:text-emerald-300 font-semibold"
+                : "bg-[var(--card-bg,#0b0f19)] hover:bg-[var(--card-bg-subtle)] border-[var(--border-color,#1f2937)] text-[var(--foreground-color,#f8fafc)] hover:border-orange-500/40"
             }`}
             title={t("trace.copyTooltip", "Copy formula & calculation trace to clipboard")}
           >
-            {copied ? <Check size={13} className="text-emerald-400" /> : <Copy size={13} />}
+            {copied ? <Check size={13} className="text-emerald-600 dark:text-emerald-400" /> : <Copy size={13} />}
             <span className="text-[11px] font-medium hidden sm:inline">
               {copied ? t("trace.copied", "Copied") : t("trace.copyMath", "Copy Math")}
             </span>
@@ -476,10 +476,10 @@ export function CalculationTracePopover({
 
           <button
             onClick={() => setIsPinned(!isPinned)}
-            className={`p-1.5 rounded-lg border transition-colors ${
+            className={`p-1.5 rounded-lg border transition-colors cursor-pointer ${
               isPinned
-                ? "bg-orange-500/20 border-orange-500/50 text-orange-300"
-                : "bg-slate-900 hover:bg-slate-800 border-slate-700 text-slate-400 hover:text-white"
+                ? "bg-orange-500/20 border-orange-500/50 text-orange-600 dark:text-orange-300"
+                : "bg-[var(--card-bg,#0b0f19)] hover:bg-[var(--card-bg-subtle)] border-[var(--border-color,#1f2937)] text-[var(--table-header-color,#64748b)] hover:text-[var(--foreground-color,#f8fafc)] hover:border-orange-500/40"
             }`}
             title={isPinned ? t("trace.unpinTooltip", "Unpin popover") : t("trace.pinTooltip", "Pin popover to stay open")}
           >
@@ -488,7 +488,7 @@ export function CalculationTracePopover({
 
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+            className="p-1.5 rounded-lg text-[var(--table-header-color,#64748b)] hover:text-[var(--foreground-color,#f8fafc)] bg-[var(--card-bg,#0b0f19)] hover:bg-[var(--card-bg-subtle)] border border-[var(--border-color,#1f2937)] hover:border-orange-500/40 transition-colors cursor-pointer"
             title={t("trace.close", "Close")}
           >
             <X size={14} />
@@ -497,12 +497,12 @@ export function CalculationTracePopover({
       </div>
 
       {/* Governing Standard Citation Bar */}
-      <div className="px-4 py-1.5 bg-slate-900/60 border-b border-slate-800/80 flex items-center justify-between text-[11px]">
-        <div className="flex items-center gap-1.5 text-slate-400">
-          <BookOpen size={12} className="text-amber-400 shrink-0" />
-          <span className="font-medium text-slate-300">{trace.standardCitation}</span>
+      <div className="px-4 py-2 bg-[var(--card-bg-subtle,#111827)]/70 border-b border-[var(--border-color,#1f2937)] flex items-center justify-between text-[11px] gap-2">
+        <div className="flex items-center gap-1.5 text-[var(--table-header-color,#64748b)] min-w-0">
+          <BookOpen size={13} className="text-amber-600 dark:text-amber-400 shrink-0" />
+          <span className="font-semibold text-[var(--foreground-color,#f8fafc)] truncate">{trace.standardCitation}</span>
         </div>
-        <span className="text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700">
+        <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-md bg-orange-500/10 dark:bg-orange-500/15 text-orange-700 dark:text-orange-300 border border-orange-500/30 shrink-0">
           {translatedBadge}
         </span>
       </div>
@@ -511,12 +511,12 @@ export function CalculationTracePopover({
       <div className="p-4 space-y-4 overflow-y-auto flex-1 min-h-0 custom-scrollbar">
         {/* Step-by-step Math Formulas */}
         <div className="space-y-3">
-          <h5 className="text-[11px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-            <Sparkles size={12} className="text-orange-400" />
+          <h5 className="text-[11px] font-bold uppercase tracking-wider text-[var(--table-header-color,#64748b)] flex items-center gap-1.5">
+            <Sparkles size={13} className="text-orange-600 dark:text-orange-400" />
             <span>{t("trace.mathFormulaSection", "Mathematical Formula & Substituted Values")}</span>
           </h5>
 
-          <div className="space-y-2">
+          <div className="space-y-2.5">
             {trace.steps.map((step, idx) => {
               const stepLabel = getTranslatedStepLabel(step.label, t);
               const stepDesc = getTranslatedStepDescription(step.description, t);
@@ -524,11 +524,11 @@ export function CalculationTracePopover({
               return (
                 <div
                   key={idx}
-                  className="p-3 rounded-xl bg-slate-900/90 border border-slate-800/90 space-y-1.5 shadow-inner"
+                  className="p-3.5 rounded-xl bg-[var(--card-bg-subtle,#111827)]/40 border border-[var(--border-color,#1f2937)] space-y-2.5 shadow-2xs"
                 >
                   {stepLabel && (
-                    <div className="text-[11px] font-semibold text-orange-300/90 flex items-center gap-1.5">
-                      <span className="w-4 h-4 rounded-full bg-orange-500/20 text-orange-400 text-[9px] font-bold flex items-center justify-center shrink-0">
+                    <div className="text-xs font-bold text-orange-700 dark:text-orange-300 flex items-center gap-2">
+                      <span className="w-5 h-5 rounded-full bg-orange-500/15 border border-orange-500/30 text-orange-700 dark:text-orange-300 text-[10px] font-bold flex items-center justify-center shrink-0">
                         {idx + 1}
                       </span>
                       <span>{stepLabel}</span>
@@ -537,26 +537,26 @@ export function CalculationTracePopover({
 
                   {/* Symbolic Formula */}
                   <div className="space-y-1">
-                    <div className="text-[9px] uppercase tracking-wider font-semibold text-slate-400">
+                    <div className="text-[10px] uppercase tracking-wider font-bold text-[var(--table-header-color,#64748b)]">
                       {t("trace.formula", "Formula:")}
                     </div>
-                    <div className="px-2.5 py-1.5 rounded-lg bg-slate-950 border border-slate-800/60 font-mono text-xs text-slate-200 overflow-x-auto tracking-wide whitespace-pre">
+                    <div className="px-3 py-2 rounded-lg bg-[var(--card-bg,#0b0f19)] border border-[var(--border-color,#1f2937)] font-mono text-xs text-[var(--foreground-color,#f8fafc)] font-medium overflow-x-auto tracking-wide whitespace-pre shadow-2xs">
                       {step.formula}
                     </div>
                   </div>
 
                   {/* Substituted Numerical Values */}
                   <div className="space-y-1">
-                    <div className="text-[9px] uppercase tracking-wider font-semibold text-orange-400/90 flex items-center gap-1">
+                    <div className="text-[10px] uppercase tracking-wider font-bold text-orange-700 dark:text-orange-400 flex items-center gap-1">
                       <span>{t("trace.appliedCalculation", "Applied Calculation:")}</span>
                     </div>
-                    <div className="px-2.5 py-1.5 rounded-lg bg-orange-950/20 border border-orange-900/30 font-mono text-xs text-orange-200 overflow-x-auto tracking-wide font-medium whitespace-pre">
+                    <div className="px-3 py-2 rounded-lg bg-orange-500/10 dark:bg-orange-950/25 border border-orange-500/30 dark:border-orange-500/40 font-mono text-xs text-orange-900 dark:text-orange-200 font-semibold overflow-x-auto tracking-wide whitespace-pre shadow-2xs">
                       {step.substituted}
                     </div>
                   </div>
 
                   {stepDesc && (
-                    <p className="text-[10px] text-slate-400 italic pt-0.5 leading-tight">
+                    <p className="text-[11px] text-[var(--table-header-color,#64748b)] italic pt-0.5 leading-relaxed">
                       {stepDesc}
                     </p>
                   )}
@@ -569,35 +569,35 @@ export function CalculationTracePopover({
         {/* Input Parameters & Provenance Table */}
         {trace.parameters.length > 0 && (
           <div className="space-y-2">
-            <h5 className="text-[11px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-              <Layers size={12} className="text-amber-400" />
+            <h5 className="text-[11px] font-bold uppercase tracking-wider text-[var(--table-header-color,#64748b)] flex items-center gap-1.5">
+              <Layers size={13} className="text-amber-600 dark:text-amber-400" />
               <span>{t("trace.parametersSection", "Input Parameters & Source Provenance")}</span>
             </h5>
 
-            <div className="rounded-xl border border-slate-800 bg-slate-900/40 overflow-hidden text-[11px]">
+            <div className="rounded-xl border border-[var(--border-color,#1f2937)] bg-[var(--card-bg,#0b0f19)] overflow-hidden text-[11px] shadow-2xs">
               <table className="w-full text-center">
-                <thead className="bg-slate-900/90 text-slate-400 text-[10px] font-bold uppercase border-b border-slate-800">
+                <thead className="bg-[var(--table-header-bg,#111827)] text-[var(--table-header-color,#64748b)] text-[10px] font-bold uppercase border-b border-[var(--border-color,#1f2937)]">
                   <tr>
-                    <th className="py-1.5 px-3 text-center">{t("trace.parameter", "Parameter")}</th>
-                    <th className="py-1.5 px-2 text-center">{t("trace.symbol", "Symbol")}</th>
-                    <th className="py-1.5 px-2 text-center">{t("trace.value", "Value")}</th>
-                    <th className="py-1.5 px-3 text-center">{t("trace.sourceOrigin", "Source / Origin")}</th>
+                    <th className="py-2 px-3 text-center">{t("trace.parameter", "Parameter")}</th>
+                    <th className="py-2 px-2 text-center">{t("trace.symbol", "Symbol")}</th>
+                    <th className="py-2 px-2 text-center">{t("trace.value", "Value")}</th>
+                    <th className="py-2 px-3 text-center">{t("trace.sourceOrigin", "Source / Origin")}</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-800/60 text-slate-300">
+                <tbody className="divide-y divide-[var(--border-color,#1f2937)] text-[var(--foreground-color,#f8fafc)]">
                   {trace.parameters.map((p, i) => {
                     const paramName = getTranslatedParamName(p.name, t);
                     const paramSource = getTranslatedParamSource(p.source, t);
 
                     return (
-                      <tr key={i} className="hover:bg-slate-800/30 transition-colors">
-                        <td className="py-1.5 px-3 font-medium text-white text-center">{paramName}</td>
-                        <td className="py-1.5 px-2 font-mono text-orange-400 text-center">{p.symbol}</td>
-                        <td className="py-1.5 px-2 font-mono text-slate-100 text-center">
-                          {p.value} {p.unit ? <span className="text-slate-400 text-[10px]">{p.unit}</span> : null}
+                      <tr key={i} className="hover:bg-[var(--card-bg-subtle,#111827)] transition-colors">
+                        <td className="py-2 px-3 font-medium text-[var(--foreground-color,#f8fafc)] text-center">{paramName}</td>
+                        <td className="py-2 px-2 font-mono text-orange-600 dark:text-orange-400 font-bold text-center">{p.symbol}</td>
+                        <td className="py-2 px-2 font-mono text-[var(--foreground-color,#f8fafc)] font-semibold text-center">
+                          {p.value} {p.unit ? <span className="text-[var(--table-header-color,#64748b)] text-[10px] font-normal">{p.unit}</span> : null}
                         </td>
-                        <td className="py-1.5 px-3 text-[10px] text-center text-slate-400">
-                          <span className="px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700 text-slate-300 inline-block truncate max-w-[150px]" title={paramSource}>
+                        <td className="py-2 px-3 text-[10px] text-center text-[var(--table-header-color,#64748b)]">
+                          <span className="px-2 py-0.5 rounded-md bg-[var(--card-bg-subtle,#111827)] border border-[var(--border-color,#1f2937)] text-[var(--table-header-color,#64748b)] font-medium inline-block truncate max-w-[160px]" title={paramSource}>
                             {paramSource}
                           </span>
                         </td>
@@ -613,33 +613,37 @@ export function CalculationTracePopover({
         {/* Compliance / Safety Margin Banner */}
         {trace.compliance && (
           <div
-            className={`p-3 rounded-xl border flex items-start gap-2.5 text-xs ${
+            className={`p-3.5 rounded-xl border flex items-start gap-2.5 text-xs shadow-2xs ${
               trace.compliance.status === "PASS"
-                ? "bg-emerald-950/40 border-emerald-800/60 text-emerald-200"
+                ? "bg-emerald-500/10 dark:bg-emerald-950/40 border-emerald-600/30 dark:border-emerald-700/50 text-emerald-900 dark:text-emerald-200"
                 : trace.compliance.status === "WARN"
-                ? "bg-amber-950/40 border-amber-800/60 text-amber-200"
-                : "bg-rose-950/40 border-rose-800/60 text-rose-200"
+                ? "bg-amber-500/10 dark:bg-amber-950/40 border-amber-600/30 dark:border-amber-700/50 text-amber-900 dark:text-amber-200"
+                : "bg-rose-500/10 dark:bg-rose-950/40 border-rose-600/30 dark:border-rose-700/50 text-rose-900 dark:text-rose-200"
             }`}
           >
             {trace.compliance.status === "PASS" ? (
-              <CheckCircle2 size={16} className="text-emerald-400 shrink-0 mt-0.5" />
+              <CheckCircle2 size={16} className="text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
             ) : trace.compliance.status === "WARN" ? (
-              <AlertTriangle size={16} className="text-amber-400 shrink-0 mt-0.5" />
+              <AlertTriangle size={16} className="text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
             ) : (
-              <XCircle size={16} className="text-rose-400 shrink-0 mt-0.5" />
+              <XCircle size={16} className="text-rose-600 dark:text-rose-400 shrink-0 mt-0.5" />
             )}
 
-            <div className="space-y-1 min-w-0">
-              <div className="flex items-center gap-2">
-                <span className="font-bold uppercase tracking-wider text-[10px] px-1.5 py-0.5 rounded bg-slate-950/60 border border-current">
+            <div className="space-y-1.5 min-w-0 flex-1">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="font-bold uppercase tracking-wider text-[10px] px-2 py-0.5 rounded-md bg-[var(--card-bg,#0b0f19)] border border-current shadow-2xs">
                   {getTranslatedStatus(trace.compliance.status, t)}
                 </span>
-                <span className="font-semibold text-xs text-white">
-                  {t("trace.complianceRule", "Compliance Rule:")} <code className="font-mono text-[11px] text-orange-300">{trace.compliance.rule}</code>
+                <span className="font-semibold text-xs text-[var(--foreground-color,#f8fafc)]">
+                  {t("trace.complianceRule", "Compliance Rule:")}{" "}
+                  <code className="font-mono text-[11px] text-orange-700 dark:text-orange-300 bg-[var(--card-bg,#0b0f19)] px-1.5 py-0.5 rounded border border-[var(--border-color,#1f2937)]">
+                    {trace.compliance.rule}
+                  </code>
                 </span>
               </div>
-              <p className="text-[11px] leading-relaxed">
-                {t("trace.calculatedValue", "Calculated Value:")} <strong>{trace.compliance.actual}</strong> {t("trace.vsLimit", "vs Limit:")} <strong>{trace.compliance.limit}</strong>
+              <p className="text-[11px] leading-relaxed text-[var(--foreground-color,#f8fafc)]">
+                {t("trace.calculatedValue", "Calculated Value:")} <strong className="font-bold">{trace.compliance.actual}</strong>{" "}
+                {t("trace.vsLimit", "vs Limit:")} <strong className="font-bold">{trace.compliance.limit}</strong>
                 {trace.compliance.margin ? ` (${getTranslatedMargin(trace.compliance.margin, t)})` : ""}
               </p>
             </div>
@@ -648,10 +652,11 @@ export function CalculationTracePopover({
 
         {/* Engineering Notes */}
         {trace.notes && trace.notes.length > 0 && (
-          <div className="p-2.5 rounded-lg bg-slate-900/40 border border-slate-800/60 space-y-1">
+          <div className="p-3 rounded-xl bg-[var(--card-bg-subtle,#111827)]/60 border border-[var(--border-color,#1f2937)] space-y-1.5 shadow-2xs">
             {trace.notes.map((note, idx) => (
-              <p key={idx} className="text-[10px] text-slate-400 leading-tight">
-                • {getTranslatedNote(note, t)}
+              <p key={idx} className="text-[11px] text-[var(--table-header-color,#64748b)] leading-relaxed flex items-start gap-2">
+                <span className="text-orange-600 dark:text-orange-400 font-bold select-none">•</span>
+                <span>{getTranslatedNote(note, t)}</span>
               </p>
             ))}
           </div>

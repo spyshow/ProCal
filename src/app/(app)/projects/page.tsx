@@ -8,6 +8,7 @@ import { useProject } from '@/context/ProjectContext';
 import { useUser } from '@/context/UserContext';
 import { useTranslation } from '@/i18n';
 import { Building2, Plus, Trash2, ArrowRight, ArrowLeft, Wallet } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { COUNTRY_DEFAULTS } from '@/lib/country-defaults';
 
 interface Project {
@@ -139,26 +140,30 @@ export default function ProjectsPage() {
     <div className="p-3 sm:p-5 space-y-6 w-full max-w-[1680px] mx-auto min-h-[80vh]">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white">{t('projects.title', 'Projects')}</h1>
-          <p className="text-sm text-gray-400 mt-1">{t('projects.subtitle', 'Manage your electrical design projects')}</p>
+          <h1 className="text-2xl font-bold text-[var(--foreground-color,#f8fafc)] tracking-tight">{t('projects.title', 'Projects')}</h1>
+          <p className="text-sm text-[var(--table-header-color,#9ca3af)] mt-1">{t('projects.subtitle', 'Manage your electrical design projects')}</p>
         </div>
         {isZeroCredits ? (
-          <Link
-            href="/billing"
-            className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-sm font-semibold transition-colors"
+          <Button
+            asChild
+            variant="glow"
+            className="gap-2 text-white-force cursor-pointer"
             title="You have no project credits — request more"
           >
-            <Wallet size={16} />
-            {t('projects.getCredits', 'Get credits to create a project')}
-          </Link>
+            <Link href="/billing">
+              <Wallet className="w-4 h-4" />
+              {t('projects.getCredits', 'Get credits to create a project')}
+            </Link>
+          </Button>
         ) : (
-          <button
+          <Button
             onClick={() => setShowNew(!showNew)}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-sm font-semibold transition-colors"
+            variant="glow"
+            className="gap-2 text-white-force cursor-pointer"
           >
-            <Plus size={16} />
+            <Plus className="w-4 h-4" />
             {t('projects.newProject', 'New Project')}
-          </button>
+          </Button>
         )}
       </div>
 
@@ -319,35 +324,42 @@ export default function ProjectsPage() {
           ))}
         </div>
       ) : projects.length === 0 ? (
-        <div className="text-center py-16 rounded-xl border border-gray-800 bg-gray-900/40">
-          <Building2 size={40} className="mx-auto text-gray-600 mb-3" />
-          <p className="text-gray-400">{t('projects.noProjectsPrompt', 'No projects yet. Create one to get started.')}</p>
+        <div className="text-center py-16 rounded-xl border border-[var(--border-color,#1f2937)] bg-[var(--card-bg,#0b0f19)]">
+          <Building2 size={40} className="mx-auto text-[var(--table-header-color,#9ca3af)] mb-3" />
+          <p className="text-[var(--table-header-color,#9ca3af)]">{t('projects.noProjectsPrompt', 'No projects yet. Create one to get started.')}</p>
         </div>
       ) : (
         <div className="space-y-3">
           {projects.map((proj) => (
             <div
               key={proj.id}
-              className="flex items-center gap-4 rounded-xl border border-gray-800 bg-gray-900/40 p-4 hover:border-gray-700 transition-all group"
+              className="flex items-center gap-4 rounded-xl border border-[var(--border-color,#1f2937)] bg-[var(--card-bg,#0b0f19)] p-4 hover:border-orange-500/40 transition-all group"
             >
-              <div className="w-10 h-10 rounded-lg bg-orange-500/10 flex items-center justify-center flex-shrink-0">
-                <Building2 size={18} className="text-orange-500" />
+              <div className="w-10 h-10 rounded-lg bg-orange-500/10 border border-orange-500/30 flex items-center justify-center flex-shrink-0">
+                <Building2 size={18} className="text-orange-600 dark:text-orange-400" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-gray-200 truncate">{proj.name}</p>
-                <p className="text-xs text-gray-500 truncate">
+                <p className="text-sm font-semibold text-[var(--foreground-color,#f8fafc)] group-hover:text-orange-600 dark:group-hover:text-orange-400 truncate transition-colors">
+                  {proj.name}
+                </p>
+                <p className="text-xs text-[var(--table-header-color,#9ca3af)] truncate font-medium mt-0.5">
                   {proj.client || '—'} · {proj.location || '—'} · {proj.buildings.length} {t('calculator.buildingsCount', 'buildings')}
                 </p>
               </div>
               <button
                 onClick={() => handleSelect(proj.id)}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gray-800 hover:bg-orange-600/20 text-sm text-gray-300 hover:text-orange-300 transition-colors"
+                className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg border border-orange-500/60 dark:border-orange-500/40 bg-orange-500/10 dark:bg-orange-500/15 hover:bg-orange-600 dark:hover:bg-orange-500 text-sm font-semibold text-[var(--foreground-color,#f8fafc)] hover:!text-white hover:border-orange-600 transition-all shadow-xs group/btn cursor-pointer"
               >
-                {t('common.open', 'Open')} {isRtl ? <ArrowLeft size={14} /> : <ArrowRight size={14} />}
+                <span>{t('common.open', 'Open')}</span>
+                {isRtl ? (
+                  <ArrowLeft size={14} className="text-orange-600 dark:text-orange-400 group-hover/btn:!text-white group-hover/btn:-translate-x-0.5 transition-transform" />
+                ) : (
+                  <ArrowRight size={14} className="text-orange-600 dark:text-orange-400 group-hover/btn:!text-white group-hover/btn:translate-x-0.5 transition-transform" />
+                )}
               </button>
               <button
                 onClick={() => handleDelete(proj.id)}
-                className="p-1.5 rounded-lg text-gray-600 hover:text-red-400 hover:bg-red-500/10 transition-colors"
+                className="p-1.5 rounded-lg text-[var(--table-header-color,#9ca3af)] hover:text-rose-500 hover:bg-rose-500/10 transition-colors cursor-pointer"
                 title={t('common.delete', 'Delete project')}
               >
                 <Trash2 size={14} />

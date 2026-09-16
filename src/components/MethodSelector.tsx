@@ -367,33 +367,33 @@ export default function MethodSelector({ value, onChange, compact, standard }: M
   const getRefBadgeColor = (refCode: string) => {
     switch (refCode) {
       case '310.16':
-        return 'bg-sky-500/20 text-sky-300 border-sky-500/40';
+        return 'bg-sky-500/15 text-sky-700 dark:text-sky-300 border-sky-500/40';
       case '310.17':
-        return 'bg-purple-500/20 text-purple-300 border-purple-500/40';
+        return 'bg-purple-500/15 text-purple-700 dark:text-purple-300 border-purple-500/40';
       case '310.20':
-        return 'bg-yellow-600/20 text-yellow-400 border-yellow-600/40';
+        return 'bg-amber-500/15 text-amber-800 dark:text-amber-300 border-amber-500/40';
       case '392.80(A)':
-        return 'bg-orange-500/20 text-orange-300 border-orange-500/40';
+        return 'bg-orange-500/15 text-orange-700 dark:text-orange-300 border-orange-500/40';
       case '392.80(B)':
-        return 'bg-amber-500/20 text-amber-300 border-amber-500/40';
+        return 'bg-amber-500/15 text-amber-800 dark:text-amber-300 border-amber-500/40';
       case 'A1':
       case 'A2':
-        return 'bg-amber-500/20 text-amber-300 border-amber-500/40';
+        return 'bg-amber-500/15 text-amber-800 dark:text-amber-300 border-amber-500/40';
       case 'B1':
       case 'B2':
-        return 'bg-sky-500/20 text-sky-300 border-sky-500/40';
+        return 'bg-sky-500/15 text-sky-700 dark:text-sky-300 border-sky-500/40';
       case 'C':
-        return 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40';
+        return 'bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border-emerald-600/40';
       case 'E':
       case 'F':
-        return 'bg-orange-500/20 text-orange-300 border-orange-500/40';
+        return 'bg-orange-500/15 text-orange-700 dark:text-orange-300 border-orange-500/40';
       case 'G':
-        return 'bg-purple-500/20 text-purple-300 border-purple-500/40';
+        return 'bg-purple-500/15 text-purple-700 dark:text-purple-300 border-purple-500/40';
       case 'D1':
       case 'D2':
-        return 'bg-yellow-600/20 text-yellow-400 border-yellow-600/40';
+        return 'bg-amber-500/15 text-amber-800 dark:text-amber-300 border-amber-500/40';
       default:
-        return 'bg-slate-700/50 text-slate-300 border-slate-600';
+        return 'bg-[var(--card-bg-subtle)] text-[var(--foreground-color)] border-[var(--border-color)]';
     }
   };
 
@@ -407,7 +407,7 @@ export default function MethodSelector({ value, onChange, compact, standard }: M
           setIsOpen(!isOpen);
         }}
         className={cn(
-          "inline-flex items-center justify-between bg-slate-900/90 border border-slate-700 hover:border-orange-500/60 rounded-md transition-all duration-150 shadow-sm cursor-pointer group focus:outline-none focus:ring-1 focus:ring-orange-500",
+          "inline-flex items-center justify-between bg-[var(--input-bg)] hover:bg-[var(--card-bg-subtle)] border border-[var(--border-color)] hover:border-orange-500/60 rounded-md transition-all duration-150 shadow-2xs cursor-pointer group focus:outline-none focus:ring-1 focus:ring-orange-500",
           compact
             ? "gap-1.5 px-2 py-1 text-[11px] min-w-[110px]"
             : "gap-2.5 px-3 py-2 text-xs rounded-lg min-w-[170px]"
@@ -416,62 +416,62 @@ export default function MethodSelector({ value, onChange, compact, standard }: M
       >
         <div className="flex items-center gap-1.5 min-w-0">
           <div
-            className={cn("flex-shrink-0 bg-slate-950/80 rounded border border-slate-800 p-0.5", compact ? "w-5 h-4" : "w-7 h-5")}
+            className={cn("flex-shrink-0 bg-[var(--card-bg-subtle)] rounded border border-[var(--border-color)] p-0.5", compact ? "w-5 h-4" : "w-7 h-5")}
             dangerouslySetInnerHTML={{ __html: triggerSvg }}
           />
           <div className="flex items-center gap-1 min-w-0">
-            <span className="font-mono font-bold text-orange-400 truncate">
+            <span className="font-mono font-bold text-orange-700 dark:text-orange-400 truncate">
               {isNema ? selectedMethod.code : `${selectedMethod.number} · ${selectedMethod.code}`}
             </span>
           </div>
         </div>
         <ChevronDown
           size={compact ? 11 : 13}
-          className={cn("flex-shrink-0 transition-transform text-slate-400 group-hover:text-orange-400", isOpen && "rotate-180 text-orange-400")}
+          className={cn("flex-shrink-0 transition-transform text-[var(--table-header-color)] group-hover:text-orange-600 dark:group-hover:text-orange-400", isOpen && "rotate-180 text-orange-600 dark:text-orange-400")}
         />
       </button>
 
       {isOpen && createPortal(
         <div
           ref={dropdownRef}
-          className="fixed z-[9999] w-[500px] max-w-[calc(100vw-32px)] bg-slate-950/98 border border-slate-700 rounded-xl shadow-2xl backdrop-blur-xl animate-in fade-in-0 zoom-in-95 flex flex-col overflow-hidden text-slate-200"
+          className="fixed z-[9999] w-[500px] max-w-[calc(100vw-32px)] bg-[var(--card-bg)] border border-[var(--border-color)] rounded-xl shadow-2xl backdrop-blur-xl animate-in fade-in-0 zoom-in-95 flex flex-col overflow-hidden text-[var(--foreground-color)] ring-1 ring-orange-500/20"
           style={{ top: position.top, left: position.left }}
           onWheel={(e) => e.stopPropagation()}
         >
           {/* Header */}
-          <div className="px-4 py-3 border-b border-slate-800/90 flex items-center justify-between bg-slate-900/60">
+          <div className="px-4 py-3 border-b border-[var(--border-color)] flex items-center justify-between bg-[var(--card-bg-subtle)]">
             <div className="flex items-center gap-2">
-              <Layers className="w-4 h-4 text-orange-400" />
-              <h4 className="text-xs font-bold text-white tracking-wide">
+              <Layers className="w-4 h-4 text-orange-600 dark:text-orange-400" />
+              <h4 className="text-xs font-bold text-[var(--foreground-color)] tracking-wide">
                 {isNema ? "NEC / NEMA Installation & Wiring Methods" : "IEC 60364-5-52 Installation Methods"}
               </h4>
             </div>
             <button
               type="button"
               onClick={() => setIsOpen(false)}
-              className="text-slate-400 hover:text-white p-1 rounded-md hover:bg-slate-800 transition-colors"
+              className="text-[var(--table-header-color)] hover:text-[var(--foreground-color)] p-1 rounded-md hover:bg-[var(--card-bg)] transition-colors cursor-pointer"
             >
               <X size={15} />
             </button>
           </div>
 
           {/* Search Bar */}
-          <div className="p-3 border-b border-slate-800 bg-slate-900/30">
+          <div className="p-3 border-b border-[var(--border-color)] bg-[var(--card-bg-subtle)]/40">
             <div className="relative">
-              <Search className="absolute left-2.5 top-2.5 w-3.5 h-3.5 text-slate-500" />
+              <Search className="absolute left-2.5 top-2.5 w-3.5 h-3.5 text-[var(--table-header-color)]" />
               <input
                 ref={searchInputRef}
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder={isNema ? "Search NEC methods by name, code, or article (e.g. raceway, tray, 310.16, direct)..." : "Search by method number, reference code, or keyword (e.g. 31, tray, trefoil, duct, ground)..."}
-                className="w-full bg-slate-900 border border-slate-700 rounded-lg pl-8 pr-8 py-1.5 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 font-sans"
+                className="w-full bg-[var(--input-bg)] border border-[var(--border-color)] rounded-lg pl-8 pr-8 py-1.5 text-xs text-[var(--foreground-color)] placeholder:text-[var(--table-header-color)] focus:outline-none focus:border-orange-500/60 focus:ring-1 focus:ring-orange-500/60 font-sans"
               />
               {searchQuery && (
                 <button
                   type="button"
                   onClick={() => setSearchQuery('')}
-                  className="absolute right-2.5 top-2.5 text-slate-500 hover:text-white"
+                  className="absolute right-2.5 top-2.5 text-[var(--table-header-color)] hover:text-[var(--foreground-color)] cursor-pointer"
                 >
                   <X size={12} />
                 </button>
@@ -486,10 +486,10 @@ export default function MethodSelector({ value, onChange, compact, standard }: M
                   type="button"
                   onClick={() => setSelectedCategory(tab.key)}
                   className={cn(
-                    "px-2 py-1 rounded-md text-[10px] font-medium whitespace-nowrap transition-colors",
+                    "px-2 py-1 rounded-md text-[10px] font-medium whitespace-nowrap transition-colors cursor-pointer",
                     selectedCategory === tab.key
-                      ? "bg-orange-500/20 text-orange-300 border border-orange-500/40"
-                      : "bg-slate-800/60 text-slate-400 hover:text-slate-200 hover:bg-slate-800 border border-transparent"
+                      ? "bg-orange-500/15 text-orange-700 dark:text-orange-300 border border-orange-500/40 font-bold"
+                      : "bg-[var(--card-bg-subtle)] text-[var(--table-header-color)] hover:text-[var(--foreground-color)] hover:bg-[var(--card-bg)] border border-[var(--border-color)]"
                   )}
                 >
                   {tab.label}
@@ -500,11 +500,11 @@ export default function MethodSelector({ value, onChange, compact, standard }: M
 
           {/* Methods List */}
           <div
-            className="max-h-[300px] overflow-y-auto overscroll-contain divide-y divide-slate-800/60 custom-scrollbar p-1.5"
+            className="max-h-[300px] overflow-y-auto overscroll-contain divide-y divide-[var(--border-color)] custom-scrollbar p-1.5"
             onWheel={(e) => e.stopPropagation()}
           >
             {filteredMethods.length === 0 ? (
-              <div className="py-8 text-center text-xs text-slate-500">
+              <div className="py-8 text-center text-xs text-[var(--table-header-color)]">
                 No installation methods match &quot;{searchQuery}&quot;
               </div>
             ) : (
@@ -521,22 +521,22 @@ export default function MethodSelector({ value, onChange, compact, standard }: M
                       setIsOpen(false);
                     }}
                     className={cn(
-                      "w-full flex items-start gap-3 p-2.5 text-left transition-all rounded-lg my-0.5",
+                      "w-full flex items-start gap-3 p-2.5 text-left transition-all rounded-lg my-0.5 cursor-pointer",
                       isSelected
-                        ? "bg-orange-950/40 border border-orange-500/40 text-orange-200 shadow-sm"
-                        : "hover:bg-slate-900/80 text-slate-300 border border-transparent"
+                        ? "bg-orange-500/10 border border-orange-500/40 text-orange-950 dark:text-orange-200 shadow-2xs"
+                        : "hover:bg-[var(--card-bg-subtle)] text-[var(--foreground-color)] border border-transparent"
                     )}
                   >
                     {/* SVG Illustration */}
                     <div
-                      className="w-14 h-10 flex-shrink-0 bg-slate-900 rounded border border-slate-700/80 p-0.5 flex items-center justify-center overflow-hidden"
+                      className="w-14 h-10 flex-shrink-0 bg-[var(--card-bg-subtle)] rounded border border-[var(--border-color)] p-0.5 flex items-center justify-center overflow-hidden"
                       dangerouslySetInnerHTML={{ __html: svg }}
                     />
 
                     {/* Method Details */}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-0.5">
-                        <span className="font-mono font-bold text-xs text-white">
+                        <span className="font-mono font-bold text-xs text-[var(--foreground-color)]">
                           {isNema ? `${method.id} — ${method.name}` : `${method.number} — ${method.code}`}
                         </span>
                         <span
@@ -548,13 +548,13 @@ export default function MethodSelector({ value, onChange, compact, standard }: M
                           Ref {method.refMethod}
                         </span>
                         {isSelected && (
-                          <span className="ml-auto flex items-center text-[10px] font-semibold text-orange-400 gap-1">
-                            <Check size={12} className="text-orange-400" />
+                          <span className="ml-auto flex items-center text-[10px] font-semibold text-orange-700 dark:text-orange-400 gap-1">
+                            <Check size={12} className="text-orange-600 dark:text-orange-400" />
                             Selected
                           </span>
                         )}
                       </div>
-                      <p className="text-[11px] text-slate-400 leading-snug line-clamp-2">
+                      <p className="text-[11px] text-[var(--table-header-color)] leading-snug line-clamp-2">
                         {method.description}
                       </p>
                     </div>
@@ -565,7 +565,7 @@ export default function MethodSelector({ value, onChange, compact, standard }: M
           </div>
 
           {/* Footer Note */}
-          <div className="px-3.5 py-2 bg-slate-900/80 border-t border-slate-800 text-[10px] text-slate-500 flex justify-between items-center">
+          <div className="px-3.5 py-2 bg-[var(--card-bg-subtle)] border-t border-[var(--border-color)] text-[10px] text-[var(--table-header-color)] flex justify-between items-center">
             <span>Showing {filteredMethods.length} of {methodsCatalog.length} methods</span>
             <span className="font-mono">{isNema ? "NEC Article 300 / 310 / 392" : "IEC 60364-5-52 Table A.52.3"}</span>
           </div>

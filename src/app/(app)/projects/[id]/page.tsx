@@ -783,15 +783,22 @@ export default function ProjectDetailPage() {
               const expanded = expandedBuilding === bldg.id;
               const totalApts = bldg.floors * bldg.apartmentsPerFloor;
               return (
-                <div key={bldg.id} className="rounded-xl border border-gray-800 bg-gray-900/40 overflow-hidden">
+                <div
+                  key={bldg.id}
+                  className={`rounded-xl border border-[var(--border-color,#1f2937)] hover:border-orange-500/50 bg-[var(--card-bg,#0b0f19)] overflow-hidden transition-all ${
+                    expanded ? '' : 'hover:bg-[var(--card-bg-subtle)] cursor-pointer'
+                  }`}
+                >
                   <div
-                    className="flex items-center gap-4 p-4 cursor-pointer hover:bg-gray-800/30 transition-colors"
+                    className={`flex items-center gap-4 p-4 cursor-pointer transition-colors ${
+                      expanded ? 'hover:bg-[var(--card-bg-subtle)] rounded-t-xl' : 'rounded-xl'
+                    }`}
                     onClick={() => setExpandedBuilding(expanded ? null : bldg.id)}
                   >
                     {expanded ? <ChevronDown size={16} className="text-gray-500" /> : <ChevronRight size={16} className="text-gray-500" />}
                     <Building2 size={18} className="text-orange-500 flex-shrink-0" />
                     <div className="flex-1">
-                      <p className="text-sm font-semibold text-gray-200">{bldg.name}</p>
+                      <p className="text-sm font-semibold text-[var(--foreground-color,#f8fafc)]">{bldg.name}</p>
                       <p className="text-xs text-gray-500">
                         {bldg.floors} {t('projects.floorsCount', 'floors')} · {bldg.serviceFloors} {t('projects.serviceFloors', 'service')} · {totalApts} {t('projects.apartments', 'apartments')} · {bldg.buildingLoads?.length || 0} {t('projects.loadLibrary', 'building loads')}
                       </p>

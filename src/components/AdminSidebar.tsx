@@ -70,8 +70,8 @@ export default function AdminSidebar() {
                 "flex items-center gap-3 px-3.5 py-2 rounded-lg text-sm font-medium transition-all duration-200 outline-none",
                 isActive
                   ? isRtl
-                    ? "bg-gradient-to-l from-orange-600/25 to-amber-600/10 text-slate-900 dark:text-white border-r-2 border-orange-500 shadow-[0_0_15px_rgba(234,88,12,0.15)] font-bold"
-                    : "bg-gradient-to-r from-orange-600/25 to-amber-600/10 text-slate-900 dark:text-white border-l-2 border-orange-500 shadow-[0_0_15px_rgba(234,88,12,0.15)] font-bold"
+                    ? "sidebar-active-item border-r-2 shadow-[0_0_15px_rgba(234,88,12,0.15)] font-bold"
+                    : "sidebar-active-item border-l-2 shadow-[0_0_15px_rgba(234,88,12,0.15)] font-bold"
                   : isRtl
                   ? "text-[var(--table-header-color,#9ca3af)] hover:text-[var(--foreground-color,#f8fafc)] hover:bg-[var(--card-bg-subtle,rgba(17,24,39,0.8))] border-r-2 border-transparent"
                   : "text-[var(--table-header-color,#9ca3af)] hover:text-[var(--foreground-color,#f8fafc)] hover:bg-[var(--card-bg-subtle,rgba(17,24,39,0.8))] border-l-2 border-transparent"
@@ -81,10 +81,10 @@ export default function AdminSidebar() {
                 size={17}
                 className={cn(
                   "flex-shrink-0 transition-colors duration-200",
-                  isActive ? "text-orange-500 dark:text-orange-400" : "text-[var(--table-header-color,#9ca3af)]"
+                  isActive ? "text-orange-500" : "text-[var(--table-header-color,#9ca3af)]"
                 )}
               />
-              <span className={cn("truncate", isActive && "text-slate-900 dark:text-white font-bold")}>{label}</span>
+              <span className={cn("truncate sidebar-item-label", isActive && "font-bold")}>{label}</span>
             </Link>
           );
         })}

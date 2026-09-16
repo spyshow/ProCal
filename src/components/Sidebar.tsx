@@ -246,8 +246,8 @@ export default function Sidebar() {
                     isCollapsed ? "justify-center px-0 py-2.5" : "",
                     isActive
                       ? isRtl
-                        ? "bg-gradient-to-l from-orange-600/25 to-amber-600/10 text-slate-900 dark:text-white border-r-2 border-orange-500 shadow-[0_0_12px_rgba(234,88,12,0.12)] font-bold"
-                        : "bg-gradient-to-r from-orange-600/25 to-amber-600/10 text-slate-900 dark:text-white border-l-2 border-orange-500 shadow-[0_0_12px_rgba(234,88,12,0.12)] font-bold"
+                        ? "sidebar-active-item border-r-2 shadow-[0_0_12px_rgba(234,88,12,0.12)] font-bold"
+                        : "sidebar-active-item border-l-2 shadow-[0_0_12px_rgba(234,88,12,0.12)] font-bold"
                       : isRtl
                       ? "text-[var(--table-header-color,#9ca3af)] hover:text-[var(--foreground-color,#f8fafc)] hover:bg-[var(--card-bg-subtle,rgba(17,24,39,0.8))] border-r-2 border-transparent"
                       : "text-[var(--table-header-color,#9ca3af)] hover:text-[var(--foreground-color,#f8fafc)] hover:bg-[var(--card-bg-subtle,rgba(17,24,39,0.8))] border-l-2 border-transparent"
@@ -258,11 +258,11 @@ export default function Sidebar() {
                     size={16}
                     className={cn(
                       "flex-shrink-0 transition-colors duration-150",
-                      isActive ? "text-orange-500 dark:text-orange-400" : "text-[var(--table-header-color,#9ca3af)] group-hover:text-orange-500"
+                      isActive ? "text-orange-500" : "text-[var(--table-header-color,#9ca3af)] group-hover:text-orange-500"
                     )}
                   />
                   {!isCollapsed && (
-                    <span className={cn("truncate flex-1", isActive && "text-slate-900 dark:text-white font-bold")}>{label}</span>
+                    <span className={cn("truncate flex-1 sidebar-item-label", isActive && "font-bold")}>{label}</span>
                   )}
                   {!isCollapsed && isActive && (
                     <span className={cn(
@@ -285,7 +285,7 @@ export default function Sidebar() {
                           ? "mr-2 pr-2.5 pl-1.5 py-1.5 gap-1.5 border-r-2"
                           : "ml-2 pl-2.5 pr-1.5 py-1.5 gap-1.5 border-l-2",
                         isSelectedProjectActive
-                          ? "bg-orange-500/15 text-slate-900 dark:text-white border-orange-500 shadow-[0_0_10px_rgba(234,88,12,0.15)] font-bold"
+                          ? "sidebar-active-item border-orange-500 shadow-[0_0_10px_rgba(234,88,12,0.15)] font-bold"
                           : "border-[var(--border-color,#1f2937)] text-[var(--foreground-color,#f8fafc)] bg-[var(--card-bg-subtle,rgba(17,24,39,0.5))] hover:bg-[var(--card-bg-subtle,rgba(17,24,39,0.8))] hover:border-orange-500/40"
                       )}
                     >
@@ -296,14 +296,14 @@ export default function Sidebar() {
                       >
                         <Building2
                           size={13}
-                          className="flex-shrink-0 transition-colors text-orange-500 dark:text-orange-400"
+                          className="flex-shrink-0 transition-colors text-orange-500"
                         />
                         {!isCollapsed && (
                           <MarqueeText
                             text={selectedProject.name}
                             className={cn(
-                              "text-xs font-semibold",
-                              isSelectedProjectActive ? "text-slate-900 dark:text-white font-bold" : "text-[var(--foreground-color,#f8fafc)] group-hover:text-orange-400"
+                              "text-xs font-semibold sidebar-item-label",
+                              isSelectedProjectActive ? "font-bold" : "text-[var(--foreground-color,#f8fafc)] group-hover:text-orange-400"
                             )}
                           />
                         )}
@@ -376,7 +376,7 @@ export default function Sidebar() {
                               className={cn(
                                 "flex items-center gap-2 px-2 py-1.5 rounded-md text-[11px] font-medium transition-all duration-150 group/sub",
                                 sub.isActive
-                                  ? "bg-orange-500/15 text-slate-900 dark:text-white font-bold shadow-sm"
+                                  ? "sidebar-active-item font-bold shadow-sm"
                                   : "text-[var(--table-header-color,#9ca3af)] hover:text-[var(--foreground-color,#f8fafc)] hover:bg-[var(--card-bg-subtle,rgba(17,24,39,0.6))]"
                               )}
                             >
@@ -384,10 +384,10 @@ export default function Sidebar() {
                                 size={12}
                                 className={cn(
                                   "flex-shrink-0 transition-colors",
-                                  sub.isActive ? "text-orange-500 dark:text-orange-400" : "text-[var(--table-header-color,#9ca3af)] group-hover/sub:text-orange-400"
+                                  sub.isActive ? "text-orange-500" : "text-[var(--table-header-color,#9ca3af)] group-hover/sub:text-orange-400"
                                 )}
                               />
-                              <span className={cn("truncate flex-1", sub.isActive && "text-slate-900 dark:text-white font-bold")}>{sub.label}</span>
+                              <span className={cn("truncate flex-1 sidebar-item-label", sub.isActive && "font-bold")}>{sub.label}</span>
                               {sub.isActive && (
                                 <span className="w-1.5 h-1.5 rounded-full bg-orange-500 shadow-[0_0_6px_rgba(234,88,12,0.8)] flex-shrink-0" />
                               )}
@@ -459,8 +459,8 @@ export default function Sidebar() {
                         ? "opacity-40 text-slate-500 cursor-not-allowed select-none"
                         : isActive
                         ? isRtl
-                          ? "bg-gradient-to-l from-orange-600/25 to-amber-600/10 text-slate-900 dark:text-white border-r-2 border-orange-500 shadow-[0_0_12px_rgba(234,88,12,0.12)] font-bold"
-                          : "bg-gradient-to-r from-orange-600/25 to-amber-600/10 text-slate-900 dark:text-white border-l-2 border-orange-500 shadow-[0_0_12px_rgba(234,88,12,0.12)] font-bold"
+                          ? "sidebar-active-item border-r-2 shadow-[0_0_12px_rgba(234,88,12,0.12)] font-bold"
+                          : "sidebar-active-item border-l-2 shadow-[0_0_12px_rgba(234,88,12,0.12)] font-bold"
                         : isRtl
                         ? "text-[var(--table-header-color,#9ca3af)] hover:text-[var(--foreground-color,#f8fafc)] hover:bg-[var(--card-bg-subtle,rgba(17,24,39,0.8))] border-r-2 border-transparent"
                         : "text-[var(--table-header-color,#9ca3af)] hover:text-[var(--foreground-color,#f8fafc)] hover:bg-[var(--card-bg-subtle,rgba(17,24,39,0.8))] border-l-2 border-transparent"
@@ -504,13 +504,13 @@ export default function Sidebar() {
                           size={15}
                           className={cn(
                             "flex-shrink-0 transition-colors duration-150",
-                            isRestricted ? "text-slate-600" : isActive ? "text-orange-500 dark:text-orange-400" : "text-[var(--table-header-color,#9ca3af)] group-hover:text-orange-500"
+                            isRestricted ? "text-slate-600" : isActive ? "text-orange-500" : "text-[var(--table-header-color,#9ca3af)] group-hover:text-orange-500"
                           )}
                         />
 
                         <span className={cn(
-                          "truncate flex-1 text-xs",
-                          isRestricted ? "text-slate-500" : isActive ? "text-slate-900 dark:text-white font-bold" : "text-inherit"
+                          "truncate flex-1 text-xs sidebar-item-label",
+                          isRestricted ? "text-slate-500" : isActive ? "font-bold" : "text-inherit"
                         )}>
                           {label}
                         </span>
@@ -546,7 +546,7 @@ export default function Sidebar() {
             "flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-xs font-medium transition-all duration-150 outline-none",
             isCollapsed ? "justify-center px-0 py-2.5" : "",
             pathname === "/settings" || pathname.startsWith("/settings/")
-              ? "bg-orange-500/15 text-slate-900 dark:text-white border-l-2 border-orange-500 font-bold"
+              ? "sidebar-active-item border-l-2 font-bold"
               : "text-[var(--table-header-color,#9ca3af)] hover:text-[var(--foreground-color,#f8fafc)] hover:bg-[var(--card-bg-subtle,rgba(17,24,39,0.8))]"
           )}
         >
@@ -554,10 +554,10 @@ export default function Sidebar() {
             size={16}
             className={cn(
               "flex-shrink-0 transition-colors duration-150",
-              pathname.startsWith("/settings") ? "text-orange-500 dark:text-orange-400" : "text-[var(--table-header-color,#9ca3af)]"
+              pathname.startsWith("/settings") ? "text-orange-500" : "text-[var(--table-header-color,#9ca3af)]"
             )}
           />
-          {!isCollapsed && <span className={cn(pathname.startsWith("/settings") && "text-slate-900 dark:text-white font-bold")}>{t('nav.settings', 'Settings')}</span>}
+          {!isCollapsed && <span className={cn("sidebar-item-label", pathname.startsWith("/settings") && "font-bold")}>{t('nav.settings', 'Settings')}</span>}
         </Link>
 
         {/* Sidebar Collapse / Expand Button */}

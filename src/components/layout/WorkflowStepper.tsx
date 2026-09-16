@@ -173,7 +173,7 @@ export default function WorkflowStepper({ currentStep, className }: WorkflowStep
                   isRestricted
                     ? 'opacity-40 text-[var(--table-header-color)] hover:text-[var(--table-header-color)] bg-transparent border border-transparent cursor-not-allowed select-none'
                     : isActive
-                    ? 'bg-orange-500/15 border border-orange-500 text-slate-900 dark:text-white font-bold shadow-xs'
+                    ? 'sidebar-active-item border shadow-xs'
                     : isCompleted
                     ? 'bg-[var(--card-bg-subtle)] border border-[var(--border-color)] text-[var(--foreground-color)] hover:border-orange-500/40'
                     : 'text-[var(--table-header-color)] hover:text-[var(--foreground-color)] hover:bg-[var(--card-bg-subtle)] border border-transparent'
@@ -200,10 +200,10 @@ export default function WorkflowStepper({ currentStep, className }: WorkflowStep
                 </span>
 
                 <div className="flex flex-col">
-                  <span className={cn("hidden sm:inline whitespace-nowrap text-[11px] leading-tight", isActive ? "font-bold text-slate-900 dark:text-white" : "font-medium")}>
+                  <span className={cn("hidden sm:inline whitespace-nowrap text-[11px] leading-tight sidebar-item-label", isActive ? "font-bold" : "font-medium")}>
                     {name}
                   </span>
-                  <span className={cn("sm:hidden whitespace-nowrap text-[11px] leading-tight", isActive ? "font-bold text-slate-900 dark:text-white" : "font-medium")}>
+                  <span className={cn("sm:hidden whitespace-nowrap text-[11px] leading-tight sidebar-item-label", isActive ? "font-bold" : "font-medium")}>
                     {shortName}
                   </span>
                 </div>

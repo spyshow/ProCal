@@ -171,7 +171,7 @@ export default function ReportsPage() {
         import('@/lib/reports/excel'),
         import('xlsx'),
       ]);
-      const wb = buildReportWorkbook(project, findBreaker);
+      const wb = buildReportWorkbook(project, findBreaker, breakerSettings);
       XLSX.writeFile(wb, `${project.name.replace(/[^\w\- ]+/g, '').trim() || 'Project'} - Schedules.xlsx`);
     } catch (err) {
       console.error(err);

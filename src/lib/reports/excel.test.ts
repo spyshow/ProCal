@@ -156,4 +156,52 @@ describe('buildReportWorkbook', () => {
     expect(rows).toHaveLength(1);
     expect(['OK', 'WARNING', 'FAIL']).toContain(rows[0]['Status']);
   });
+
+  it('includes complete breaker BOM with switchgear tiers and dedicated sheets', () => {
+    const bldg = building({
+      floorDesigns: [
+        {
+          id: 'f1',
+          floorNumber: 1,
+          hasFloorSubPanels: true,
+          items: [
+            item({ id: 'i1', name: 'Apt 101', calculatedCurrent: 14, breakerSize: '16A', cableSize: '4 mm²' }),
+            item({ id: 'i2', name: 'Apt 102', calculatedCurrent: 22, breakerSize: '25A', cableSize: '6 mm²' }),
+          ],
+        },
+      ],
+    });
+    const wb = buildReportWorkbook(projectWith([bldg]), findBreaker);
+
+    // Verify all BOM sheets are present
+    expect(wb.SheetNames).toContain('BOM');
+    expect(wb.SheetNames).toContain('BOM — Breakers');
+    expect(wb.SheetNames).toContain('BOM — Cables');
+
+    // Verify dedicated BOM — Breakers sheet content
+    const breakerRows = XLSX.utils.sheet_to_json<Record<string, string | number>>(wb.Sheets['BOM — Breakers']);
+    expect(breakerRows.length).toBeGreaterThanOrEqual(3); // Incomer, Sub-panel SMDB riser, Branch breakers
+
+    // Check presence of rich procurement columns
+    const incomerRow = breakerRows.find((r) => r['Category'] === 'ACB' || r['Category'] === 'MCCB');
+    expect(incomerRow).toBeDefined();
+    expect(incomerRow).toHaveProperty('Rating (In)');
+    expect(incomerRow).toHaveProperty('Category');
+    expect(incomerRow).toHaveProperty('Poles');
+    expect(incomerRow).toHaveProperty('Model & Manufacturer');
+    expect(incomerRow).toHaveProperty('Sourcing Status');
+    expect(incomerRow).toHaveProperty('Quantity');
+
+    // Total row check
+    const totalRow = breakerRows.find((r) => r['Rating (In)'] === 'TOTAL');
+    expect(totalRow).toBeDefined();
+    expect(Number(totalRow?.Quantity)).toBeGreaterThan(0);
+
+    // Verify consolidated BOM sheet contains both cables and breakers with rich properties
+    const bomRows = XLSX.utils.sheet_to_json<Record<string, string | number>>(wb.Sheets['BOM']);
+    const mcb16 = bomRows.find((r) => r['Breaker (A)'] === 16 || r['Rating (In)'] === '16A');
+    expect(mcb16).toBeDefined();
+    expect(mcb16?.Quantity).toBe(1);
+    expect(mcb16?.Category).toBe('MCB');
+  });
 });

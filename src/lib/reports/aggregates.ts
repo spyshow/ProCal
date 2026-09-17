@@ -3,12 +3,13 @@ import {
   parseMm2,
   getItemCableLength,
   getBuildingLoadCableLength,
+  getRiserCableLength,
   formatCableSizeFor,
 } from "@/lib/calculations/cables";
 import { phaseBalance } from "@/lib/calculations/phaseBalance";
 import { awgLabel, nextBreakerRating } from "@/lib/calculations/codes";
-import { computeFeeders, type EquipmentItem, type FindBreaker } from "@/lib/calculations/feeders";
-import type { Building, FloorItem, Project } from "@/types";
+import { computeFeeders, createFindBreaker, type EquipmentItem, type FindBreaker } from "@/lib/calculations/feeders";
+import type { Building, FloorItem, Project, FallbackType, GenericBreakerSpec } from "@/types";
 import type {
   BOMResult,
   BreakerRow,
@@ -124,6 +125,327 @@ export function aggregateBOM(project: Project): BOMResult {
     }));
 
   return { cables, breakers };
+}
+
+export function resolveBreakerDisplayName(
+  savedModel: string | undefined | null,
+  feederModel: string | undefined | null
+): string {
+  const defaultModel = feederModel || 'Standard Circuit Breaker';
+  if (!savedModel) return defaultModel;
+  if (savedModel.includes(defaultModel)) return savedModel;
+  const parts = savedModel.split(/\s+/);
+  if (parts.length > 1 && defaultModel.startsWith(parts[0])) {
+    return savedModel;
+  }
+  return `${defaultModel} (${savedModel})`;
+}
+
+export interface DetailedCableBOMItem {
+  key: string;
+  sizeNum: number;
+  cores: number;
+  phase: number;
+  sizeLabel: string;
+  length: number;
+  count: number;
+}
+
+export interface DetailedBreakerBOMItem {
+  ratingAmps: number;
+  ratingLabel: string;
+  category: 'ACB' | 'MCCB' | 'MCB';
+  poles: string;
+  model: string;
+  manufacturer: string;
+  sourcingStatus: string;
+  fallbackType?: FallbackType;
+  genericSpec?: GenericBreakerSpec;
+  count: number;
+}
+
+export interface DetailedBOMResult {
+  allItems: (FloorItem & { floor: number; building: string })[];
+  cableRows: DetailedCableBOMItem[];
+  totalCableLength: number;
+  breakerRows: DetailedBreakerBOMItem[];
+  totalBreakers: number;
+  annexItems: DetailedBreakerBOMItem[];
+}
+
+/**
+ * Comprehensive Bill of Materials aggregation across all distribution tiers:
+ * - Main Incomer breaker & supply cables
+ * - Sub-panel SMDB riser breakers & feeder cables
+ * - All MDB distribution feeders & building mechanical loads
+ * - Individual sub-panel apartment & branch circuit breakers
+ */
+export function aggregateDetailedBOM(
+  project: Project,
+  findBreaker?: FindBreaker,
+  breakerSettings?: any[],
+  buildingId?: string
+): DetailedBOMResult {
+  const safeFindBreaker: FindBreaker =
+    findBreaker ||
+    createFindBreaker(
+      [],
+      {
+        ACB: project.defaultAcbFamilyId ?? undefined,
+        MCCB: project.defaultMccbFamilyId ?? undefined,
+        MCB: project.defaultMcbFamilyId ?? undefined,
+      },
+      project.preferredManufacturer
+    );
+
+  const allItems: (FloorItem & { floor: number; building: string })[] = [];
+
+  for (const b of project.buildings) {
+    if (buildingId && b.id !== buildingId) continue;
+    for (const fd of b.floorDesigns) {
+      for (const item of fd.items) {
+        allItems.push({
+          ...item,
+          floor: fd.floorNumber,
+          building: b.name,
+        });
+      }
+    }
+    for (const bl of b.buildingLoads || []) {
+      if (!bl.loadLibraryItem) continue;
+      allItems.push({
+        id: bl.id,
+        name: bl.loadLibraryItem.name,
+        type: 'SERVICE_PANEL' as const,
+        calculatedConnectedLoad: bl.loadLibraryItem.power * bl.quantity,
+        calculatedMaxDemand: bl.loadLibraryItem.power * bl.quantity,
+        calculatedCurrent: 0,
+        breakerSize: (bl as any).breakerSize || '32A',
+        cableSize: bl.cableSize || '4 mm²',
+        voltageDrop: 0,
+        cableLength: getBuildingLoadCableLength(bl),
+        floor: 0,
+        building: b.name,
+      });
+    }
+  }
+
+  // Aggregate Cables differentiating 2-core (1-phase) and 4-core (3-phase)
+  const cableBOM: Record<string, DetailedCableBOMItem> = {};
+
+  const addCable = (
+    cableSize: number,
+    isThreePhase: boolean,
+    length: number,
+    runs: number = 1
+  ) => {
+    if (!cableSize || cableSize <= 0) return;
+    const cores = isThreePhase ? 4 : 2;
+    const key = `${cores}C-${cableSize}`;
+    const sizeLabel = `${cores}C × ${formatCableSizeFor(cableSize, project.calculationStandard)}`;
+    if (!cableBOM[key]) {
+      cableBOM[key] = {
+        key,
+        sizeNum: cableSize,
+        cores,
+        phase: isThreePhase ? 3 : 1,
+        sizeLabel,
+        length: 0,
+        count: 0,
+      };
+    }
+    cableBOM[key].length += length * (runs || 1);
+    cableBOM[key].count += (runs || 1);
+  };
+
+  // Aggregate Breakers with real catalog & fallback model details
+  const breakerMap = new Map<string, DetailedBreakerBOMItem>();
+
+  for (const bldg of project.buildings) {
+    if (buildingId && bldg.id !== buildingId) continue;
+    const {
+      mdbFeeders,
+      smdbFloorNumbers,
+      smdbFeeders,
+      mainIncomerSettings,
+      mainBreakerIn,
+      mainCableSize,
+      mainParallelRuns,
+    } = computeFeeders(bldg, project, safeFindBreaker);
+
+    // 1. Process Main Incoming Supply Feeder Cable
+    if (mainCableSize > 0) {
+      const incomerLen = bldg.incomerCableLength ?? 20;
+      addCable(mainCableSize, true, incomerLen, mainParallelRuns);
+    }
+
+    const processFeeder = (f: {
+      breakerSize: number;
+      isThreePhase: boolean;
+      type: string;
+      breakerModel: string;
+      manufacturer: string | null;
+      fallbackType?: FallbackType;
+      genericSpec?: GenericBreakerSpec;
+    }) => {
+      const modelUpper = (f.breakerModel || '').toUpperCase();
+      const isMcbModel =
+        modelUpper.includes('MCB') ||
+        modelUpper.includes('S200') ||
+        modelUpper.includes('FAZ') ||
+        modelUpper.includes('IC60') ||
+        modelUpper.includes('C60');
+      const isMccbModel =
+        modelUpper.includes('MCCB') ||
+        modelUpper.includes('NSX') ||
+        modelUpper.includes('XT') ||
+        modelUpper.includes('DPX') ||
+        modelUpper.includes('NZM');
+      const isAcbModel =
+        modelUpper.includes('ACB') ||
+        modelUpper.includes('MASTERPACT') ||
+        modelUpper.includes('EVAL') ||
+        modelUpper.includes('AIR');
+
+      const cat: 'ACB' | 'MCCB' | 'MCB' =
+        isAcbModel || f.breakerSize >= 630
+          ? 'ACB'
+          : isMcbModel
+          ? 'MCB'
+          : isMccbModel
+          ? 'MCCB'
+          : f.type === 'INCOMER'
+          ? 'MCCB'
+          : f.breakerSize > 63
+          ? 'MCCB'
+          : 'MCB';
+      const polesStr = f.isThreePhase ? '3P' : '1P';
+      const key = `${f.breakerSize}-${cat}-${polesStr}-${f.breakerModel}`;
+
+      const sourcingStatus =
+        f.fallbackType === 'SAME_FAMILY' || !f.fallbackType
+          ? 'Catalog Match'
+          : f.fallbackType === 'OTHER_FAMILY'
+          ? 'Alternative Family'
+          : f.fallbackType === 'OTHER_BRAND'
+          ? `Alt Brand (${f.manufacturer || 'Standard'})`
+          : 'Generic Spec';
+
+      const existing = breakerMap.get(key);
+      if (existing) {
+        existing.count += 1;
+      } else {
+        breakerMap.set(key, {
+          ratingAmps: f.breakerSize,
+          ratingLabel: `${f.breakerSize}A`,
+          category: cat,
+          poles: polesStr,
+          model: f.breakerModel,
+          manufacturer: f.manufacturer || 'Standard',
+          sourcingStatus,
+          fallbackType: f.fallbackType,
+          genericSpec: f.genericSpec,
+          count: 1,
+        });
+      }
+    };
+
+    // 2. Process Main Incomer Breaker
+    const incomerSaved = breakerSettings?.find(
+      (s: any) =>
+        s.breakerId === `${project.id}-main-incomer-${bldg.id}` ||
+        s.breakerId === `main-incomer-${bldg.id}` ||
+        s.breakerId === `${project.id}-Main Incomer-${bldg.id}` ||
+        (project.buildings.length === 1 && (
+          s.breakerId === `${project.id}-main-incomer` ||
+          s.breakerId === `${project.id}-Main Incomer` ||
+          s.breakerId === 'main-incomer' ||
+          s.breakerId === 'Main Incomer'
+        ))
+    );
+    const effectiveIncomerModel = resolveBreakerDisplayName(
+      incomerSaved?.model,
+      mainIncomerSettings.model || `${mainIncomerSettings.manufacturer || 'Standard'} Incomer ACB`
+    );
+
+    processFeeder({
+      breakerSize: mainBreakerIn,
+      isThreePhase: true,
+      type: 'INCOMER',
+      breakerModel: effectiveIncomerModel,
+      manufacturer: mainIncomerSettings.manufacturer || 'Standard',
+      fallbackType: mainIncomerSettings.isGeneric ? 'GENERIC_SPEC' : 'SAME_FAMILY',
+      genericSpec: mainIncomerSettings.isGeneric
+        ? {
+            category: mainBreakerIn >= 630 ? 'ACB' : 'MCCB',
+            ratingAmps: mainBreakerIn,
+            requiredIcuKa: 50,
+            poles: 3,
+            tripUnitType: 'Electronic LSI / LSIG (Adjustable Ir, Isd, tsd, Ii)',
+            standard: 'IEC 60947-2',
+            procurementNotes: `Procure ${mainBreakerIn}A ${mainBreakerIn >= 630 ? 'ACB' : 'MCCB'} 3P incomer breaker compliant with IEC 60947-2.`,
+          }
+        : undefined,
+    });
+
+    for (const f of mdbFeeders) {
+      const stableId = `${project.id}-${f.name}`;
+      const saved = breakerSettings?.find((s: any) => s.breakerId === stableId);
+      const effectiveModel = resolveBreakerDisplayName(saved?.model, f.breakerModel);
+      processFeeder({ ...f, breakerModel: effectiveModel });
+
+      // Add to Cable BOM
+      let cableLen = 20;
+      if (f.type === 'SMDB') {
+        const matchFloor = f.floorDesignId
+          ? bldg.floorDesigns.find((fd) => fd.id === f.floorDesignId)
+          : undefined;
+        cableLen = getRiserCableLength(matchFloor, matchFloor?.floorNumber ?? 1);
+      } else if (f.buildingLoadId) {
+        const matchBl = (bldg.buildingLoads || []).find((bl) => bl.id === f.buildingLoadId);
+        cableLen = matchBl ? getBuildingLoadCableLength(matchBl) : 20;
+      } else if (f.itemId) {
+        const matchFd = bldg.floorDesigns.find((fd) => fd.items.some((it) => it.id === f.itemId));
+        const matchItem = matchFd?.items.find((it) => it.id === f.itemId);
+        cableLen = matchItem && matchFd ? getItemCableLength(matchItem, matchFd.floorNumber) : 20;
+      }
+      addCable(f.cableSize, f.isThreePhase, cableLen, f.parallelRuns);
+    }
+
+    for (const fl of smdbFloorNumbers) {
+      const matchFd = bldg.floorDesigns.find((fd) => fd.floorNumber === fl);
+      for (const f of smdbFeeders(fl)) {
+        const stableId = `${project.id}-${f.name}`;
+        const saved = breakerSettings?.find((s: any) => s.breakerId === stableId);
+        const effectiveModel = resolveBreakerDisplayName(saved?.model, f.breakerModel);
+        processFeeder({ ...f, breakerModel: effectiveModel });
+
+        const matchItem = matchFd?.items.find((it) => it.id === f.itemId || f.name.includes(it.name));
+        const cableLen = matchItem ? getItemCableLength(matchItem, fl) : (10 + (fl - 1) * 5);
+        addCable(f.cableSize, f.isThreePhase, cableLen, f.parallelRuns);
+      }
+    }
+  }
+
+  const cableRows = Object.values(cableBOM).sort(
+    (a, b) => a.cores - b.cores || a.sizeNum - b.sizeNum
+  );
+  const totalCableLength = Math.round(cableRows.reduce((s, e) => s + e.length, 0));
+
+  const breakerRows = Array.from(breakerMap.values()).sort(
+    (a, b) => a.ratingAmps - b.ratingAmps || a.category.localeCompare(b.category) || a.model.localeCompare(b.model)
+  );
+  const totalBreakers = breakerRows.reduce((sum, b) => sum + b.count, 0);
+  const annexItems = breakerRows.filter((b) => b.fallbackType || b.genericSpec);
+
+  return {
+    allItems,
+    cableRows,
+    totalCableLength,
+    breakerRows,
+    totalBreakers,
+    annexItems,
+  };
 }
 
 /**

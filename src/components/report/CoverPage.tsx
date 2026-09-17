@@ -147,7 +147,7 @@ export default function CoverPage({
           <h2 className="text-[10.5px] font-bold text-slate-900 uppercase mb-1 border-l-4 border-amber-500 pl-2">
             2. Project Distribution Hierarchy &amp; Infrastructure
           </h2>
-          <table className="w-full text-left text-[9.5px] border border-slate-300 rounded-lg overflow-hidden">
+          <table className="w-full text-left text-[9.5px] border border-slate-300 rounded-lg overflow-hidden engineering-table table-zebra">
             <thead>
               <tr className="bg-slate-900 text-white text-[8.5px] font-bold uppercase tracking-wider">
                 <th className="p-1.5 border-r border-slate-800 whitespace-nowrap">Building / Structure</th>
@@ -181,7 +181,7 @@ export default function CoverPage({
                 );
 
                 return (
-                  <tr key={bldg.id} className={idx % 2 === 0 ? 'bg-white' : 'bg-slate-50/80'}>
+                  <tr key={bldg.id} className={idx % 2 === 0 ? 'bg-white' : 'bg-slate-100'}>
                     <td className="p-1.5 border-r border-slate-200 font-bold text-slate-900 whitespace-nowrap">{bldg.name}</td>
                     <td className="p-1.5 border-r border-slate-200 text-center font-mono whitespace-nowrap">{bldg.floors} Floors</td>
                     <td className="p-1.5 border-r border-slate-200 text-center font-mono font-bold text-slate-900 whitespace-nowrap">
@@ -246,7 +246,7 @@ export default function CoverPage({
             <h2 className="text-[10.5px] font-bold text-slate-900 uppercase mb-1 border-l-4 border-amber-500 pl-2">
               3. Document Revisions History
             </h2>
-            <table className="w-full text-center text-[9px] border border-slate-300 rounded-lg overflow-hidden">
+            <table className="w-full text-center text-[9px] border border-slate-300 rounded-lg overflow-hidden engineering-table table-zebra">
               <thead>
                 <tr className="bg-slate-900 text-white font-bold uppercase tracking-wider text-[8px]">
                   <th className="p-1 border-r border-slate-800 w-10 whitespace-nowrap text-center">Rev</th>
@@ -257,7 +257,7 @@ export default function CoverPage({
               </thead>
               <tbody className="divide-y divide-slate-200 text-slate-800">
                 {revisions.length === 0 ? (
-                  <tr>
+                  <tr className="bg-white">
                     <td className="p-1 border-r border-slate-200 font-mono font-bold whitespace-nowrap text-center">R0</td>
                     <td className="p-1 border-r border-slate-200 whitespace-nowrap text-center">{reportDate}</td>
                     <td className="p-1 border-r border-slate-200 whitespace-nowrap text-center">Initial engineering release</td>
@@ -268,7 +268,7 @@ export default function CoverPage({
                     .sort((a, b) => (a.rev > b.rev ? -1 : 1))
                     .slice(0, 3)
                     .map((r, idx) => (
-                      <tr key={r.id} className={idx === 0 ? 'bg-amber-50/80 font-semibold' : ''}>
+                      <tr key={r.id} className={idx === 0 ? 'bg-amber-50/80 font-semibold' : idx % 2 === 0 ? 'bg-white' : 'bg-slate-100'}>
                         <td className="p-1 border-r border-slate-200 font-mono font-bold whitespace-nowrap text-center">{r.rev}</td>
                         <td className="p-1 border-r border-slate-200 whitespace-nowrap text-center">
                           {new Date(r.createdAt).toLocaleDateString()}

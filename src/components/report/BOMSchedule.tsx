@@ -113,7 +113,7 @@ export default function BOMSchedule({
           <span>1. Cable Drums &amp; Total Conductor Sizing Bill of Quantities</span>
           <span className="font-mono text-slate-500 text-[11px]">Total Estimated Run: {totalCableLength} m</span>
         </h3>
-        <table className="w-full text-center text-xs border border-slate-300 rounded-lg overflow-hidden shadow-xs">
+        <table className="w-full text-center text-xs border border-slate-300 rounded-lg overflow-hidden shadow-xs engineering-table table-zebra">
           <thead>
             <tr className="bg-slate-900 text-white text-[10px] font-bold uppercase tracking-wider">
               <th className="p-2 border-r border-slate-800 text-center">Cable Specification</th>
@@ -125,7 +125,7 @@ export default function BOMSchedule({
           </thead>
           <tbody className="divide-y divide-slate-200 text-slate-800">
             {cableRows.map((entry, idx) => (
-              <tr key={entry.key} className={idx % 2 === 0 ? 'bg-white' : 'bg-slate-50/80'}>
+              <tr key={entry.key} className={idx % 2 === 0 ? 'bg-white' : 'bg-slate-100'}>
                 <td className="p-2 border-r border-slate-200 font-mono font-bold text-slate-900 text-center">{entry.sizeLabel}</td>
                 <td className="p-2 border-r border-slate-200 text-center font-mono text-[11px] font-semibold">
                   <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${entry.cores === 2 ? 'bg-sky-50 text-sky-800 border border-sky-200' : 'bg-amber-50 text-amber-800 border border-amber-200'}`}>
@@ -154,7 +154,7 @@ export default function BOMSchedule({
           </h3>
           <span className="text-[11px] text-slate-500 font-mono">Total Units: <strong className="text-slate-900">{totalBreakers}</strong></span>
         </div>
-        <table className="w-full text-center text-xs border border-slate-300 rounded-lg overflow-hidden shadow-xs">
+        <table className="w-full text-center text-xs border border-slate-300 rounded-lg overflow-hidden shadow-xs engineering-table table-zebra">
           <thead>
             <tr className="bg-slate-900 text-white text-[10px] font-bold uppercase tracking-wider">
               <th className="p-2 border-r border-slate-800 text-center">Rating (In)</th>
@@ -167,7 +167,7 @@ export default function BOMSchedule({
           </thead>
           <tbody className="divide-y divide-slate-200 text-slate-800">
             {breakerRows.map((entry, idx) => (
-              <tr key={idx} className={idx % 2 === 0 ? 'bg-white' : 'bg-slate-50/80'}>
+              <tr key={idx} className={idx % 2 === 0 ? 'bg-white' : 'bg-slate-100'}>
                 <td className="p-2 border-r border-slate-200 font-mono font-bold text-slate-900 text-center">{entry.ratingLabel}</td>
                 <td className="p-2 border-r border-slate-200 text-center font-bold text-slate-900">{entry.category}</td>
                 <td className="p-2 border-r border-slate-200 text-center font-mono font-bold text-amber-700">{entry.poles}</td>

@@ -169,7 +169,7 @@ export default function ShortCircuitSchedule({
       </div>
 
       {/* Downstream Distribution Short-Circuit Table */}
-      <table className="w-full text-center text-xs border border-slate-300 rounded-lg overflow-hidden shadow-xs">
+      <table className="w-full text-center text-xs border border-slate-300 rounded-lg overflow-hidden shadow-xs engineering-table table-zebra">
         <thead>
           <tr className="bg-slate-900 text-white text-[10px] font-bold uppercase tracking-wider">
             <th className="p-2 border-r border-slate-800 text-center">#</th>
@@ -188,7 +188,7 @@ export default function ShortCircuitSchedule({
           {rows.map((row, idx) => (
             <tr
               key={`${row.buildingId}-${row.floor}-${idx}`}
-              className={idx % 2 === 0 ? 'bg-white' : 'bg-slate-50/80'}
+              className={idx % 2 === 0 ? 'bg-white' : 'bg-slate-100'}
             >
               <td className="p-2 border-r border-slate-200 font-mono text-slate-500 text-center">{idx + 1}</td>
               <td className="p-2 border-r border-slate-200 font-bold text-slate-900 text-center">

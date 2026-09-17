@@ -208,7 +208,7 @@ export default function CableSchedule({
           Standard: <span className="font-bold text-slate-900">IEC 60364-5-52 / BS 7671</span>
         </span>
       </div>
-      <table className="w-full text-left text-xs border border-slate-300 rounded-lg overflow-hidden">
+      <table className="w-full text-left text-xs border border-slate-300 rounded-lg overflow-hidden shadow-xs engineering-table table-zebra">
         <thead>
           <tr className="bg-slate-900 text-white text-[10px] font-bold uppercase tracking-wider">
             <th className="p-2 border-r border-slate-800">#</th>
@@ -232,7 +232,7 @@ export default function CableSchedule({
                   ? 'bg-amber-50/90 font-bold border-b-2 border-amber-300'
                   : idx % 2 === 0
                   ? 'bg-white'
-                  : 'bg-slate-50/80'
+                  : 'bg-slate-100'
               }
             >
               <td className="p-2 border-r border-slate-200 font-mono text-slate-500">{idx + 1}</td>

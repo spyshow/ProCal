@@ -179,4 +179,24 @@ describe('renderReportHtml', () => {
     expect(output).toContain('Test Schedule');
     expect(output).toContain('#print-all-tabs');
   });
+
+  it('includes high-contrast print-compatible zebra striping CSS and alternating row classes', () => {
+    const project = createSampleProject();
+    const html = renderReportHtml({
+      project,
+      equipment: mockEquipment,
+    });
+
+    // Check zebra CSS rules injected in HTML wrapper
+    expect(html).toContain('table tbody tr:nth-child(even)');
+    expect(html).toContain('#f1f5f9');
+    expect(html).toContain('-webkit-print-color-adjust: exact !important');
+    expect(html).toContain('print-color-adjust: exact !important');
+
+    // Check alternating table row classes and engineering table classes
+    expect(html).toContain('engineering-table');
+    expect(html).toContain('table-zebra');
+    expect(html).toContain('bg-slate-100');
+  });
 });
+

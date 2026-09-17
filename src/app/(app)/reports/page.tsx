@@ -240,6 +240,43 @@ export default function ReportsPage() {
           page-break-inside: avoid !important;
           break-inside: avoid !important;
         }
+        /* Universal High-Contrast Technical Document Zebra Striping */
+        table tbody tr:nth-child(even):not([class*="bg-amber"]):not([class*="bg-sky"]):not([class*="bg-yellow"]) {
+          background-color: #f1f5f9 !important;
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+        }
+        table tbody tr:nth-child(even):not([class*="bg-amber"]):not([class*="bg-sky"]):not([class*="bg-yellow"]) td {
+          background-color: #f1f5f9 !important;
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+        }
+        table tbody tr:nth-child(odd):not([class*="bg-amber"]):not([class*="bg-sky"]):not([class*="bg-yellow"]) {
+          background-color: #ffffff !important;
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+        }
+        table tbody tr:nth-child(odd):not([class*="bg-amber"]):not([class*="bg-sky"]):not([class*="bg-yellow"]) td {
+          background-color: #ffffff !important;
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+        }
+        table tbody tr.bg-slate-100 td,
+        table tbody tr[class*="bg-slate-100"] td {
+          background-color: #f1f5f9 !important;
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+        }
+        table tbody tr[class*="bg-amber"] td {
+          background-color: #fef3c7 !important;
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+        }
+        table tbody tr[class*="bg-sky"] td {
+          background-color: #f0f9ff !important;
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+        }
         /* Buttons vs Table Content */
         button:not(td *):not(th *),
         [role="button"]:not(td *):not(th *),

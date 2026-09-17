@@ -190,7 +190,7 @@ export default function RevisionsPanel({ projectId, open, onClose, onChanged }: 
                 No revisions issued yet. Issue one to snapshot the current design on the report cover.
               </p>
             ) : (
-              <table className="w-full text-sm text-center">
+              <table className="w-full engineering-table text-sm text-center">
                 <thead>
                   <tr className="border-b border-[var(--border-color)] text-center text-xs uppercase text-[var(--text-secondary)]">
                     <th className="py-1.5 px-2 text-center">Rev</th>

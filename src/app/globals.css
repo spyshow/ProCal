@@ -68,6 +68,8 @@
     --sidebar-active-bg: rgba(234, 88, 12, 0.22);
     --sidebar-active-fg: #ffffff;
     --sidebar-active-border: #f97316;
+    --table-zebra-bg: rgba(255, 255, 255, 0.028);
+    --table-row-hover: rgba(255, 255, 255, 0.065);
   }
 
   html[data-theme="blueprint"] {
@@ -133,6 +135,8 @@
     --sidebar-active-bg: rgba(234, 88, 12, 0.12);
     --sidebar-active-fg: #0f172a;
     --sidebar-active-border: #ea580c;
+    --table-zebra-bg: rgba(241, 245, 249, 0.75);
+    --table-row-hover: rgba(226, 232, 240, 0.85);
   }
 
   html[data-theme="warm"] {
@@ -198,6 +202,8 @@
     --sidebar-active-bg: rgba(198, 105, 40, 0.16);
     --sidebar-active-fg: #1c140e;
     --sidebar-active-border: #c66928;
+    --table-zebra-bg: rgba(223, 211, 192, 0.35);
+    --table-row-hover: rgba(223, 211, 192, 0.75);
   }
 }
 
@@ -799,12 +805,37 @@ html[dir="rtl"] .font-mono {
   vertical-align: middle;
 }
 
-.engineering-table tbody tr {
+.engineering-table tbody tr,
+.cable-schedule-table tbody tr,
+.table-zebra tbody tr {
   transition: background-color 0.15s ease;
 }
 
-.engineering-table tbody tr:hover {
-  background-color: var(--card-bg-subtle);
+/* Universal Zebra Striping for Engineering Tables, Cable Schedules & Data Tables */
+.engineering-table tbody tr:nth-child(even),
+.cable-schedule-table tbody tr:nth-child(even),
+.table-zebra tbody tr:nth-child(even) {
+  background-color: var(--table-zebra-bg);
+}
+
+.engineering-table tbody tr:hover,
+.cable-schedule-table tbody tr:hover,
+.table-zebra tbody tr:hover {
+  background-color: var(--table-row-hover) !important;
+}
+
+/* Base styling for .table-zebra utility */
+.table-zebra th {
+  padding: 8px 10px;
+  background-color: var(--table-header-bg);
+  color: var(--table-header-color);
+  border-bottom: 1px solid var(--table-border);
+}
+
+.table-zebra td {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--table-border);
+  color: var(--foreground-color);
 }
 
 /* Modern Engineering Cable Schedule Table */
@@ -836,14 +867,6 @@ html[dir="rtl"] .font-mono {
   color: var(--foreground-color, #f8fafc);
   text-align: center;
   vertical-align: middle;
-}
-
-.cable-schedule-table tbody tr {
-  transition: background-color 0.15s ease;
-}
-
-.cable-schedule-table tbody tr:hover {
-  background-color: var(--card-bg-subtle);
 }
 
 .dense-input {

@@ -447,7 +447,7 @@ export function ActivityLogTab({ projectId: propProjectId }: ActivityLogTabProps
                                   <span className="text-[10px] text-[var(--table-header-color)] lowercase font-normal">({detailsInfo.changes.length} fields)</span>
                                 </div>
                                 <div className="overflow-x-auto">
-                                  <table className="w-full text-left">
+                                  <table className="w-full engineering-table text-left">
                                     <thead>
                                       <tr className="border-b border-[var(--border-color)] text-[var(--table-header-color)] text-[10px] uppercase">
                                         <th className="pb-1.5 font-medium">{t('activity.parameter', 'Parameter')}</th>

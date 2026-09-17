@@ -591,7 +591,7 @@ export default function RiserPage() {
       <div className="rounded-xl border border-[var(--border-color)] bg-[var(--card-bg)] p-4 shadow-xs">
         <h3 className="text-sm font-semibold text-[var(--foreground-color)] mb-3">{t('riser.floorSummary', 'Floor Summary')}</h3>
         <div className="overflow-x-auto">
-          <table className="w-full text-xs text-center border-collapse">
+          <table className="w-full engineering-table text-xs text-center border-collapse">
             <thead>
               <tr className="border-b border-[var(--border-color)] bg-[var(--card-bg-subtle)]">
                 <th className="text-center py-2.5 px-3 text-[var(--text-muted)] font-semibold uppercase tracking-wider text-[11px]">{t('riser.floor', 'Floor')}</th>

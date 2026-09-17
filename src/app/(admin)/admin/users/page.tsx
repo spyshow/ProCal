@@ -149,7 +149,7 @@ export default function AdminUsersPage() {
         <p className="text-sm text-gray-500">Loading…</p>
       ) : (
         <div className="overflow-x-auto rounded-xl border border-[var(--border-color)] bg-[var(--card-bg)]">
-          <table className="w-full text-sm text-[var(--foreground-color)] text-center">
+          <table className="w-full engineering-table text-sm text-[var(--foreground-color)] text-center">
             <thead className="bg-[var(--table-header-bg)] text-[var(--table-header-color)] text-xs uppercase border-b border-[var(--border-color)]">
               <tr>
                 {["User", "Email", "Role", "Credits", "Projects", "Status", ""].map((h) => (

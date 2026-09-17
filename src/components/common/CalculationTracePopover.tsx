@@ -575,7 +575,7 @@ export function CalculationTracePopover({
             </h5>
 
             <div className="rounded-xl border border-[var(--border-color)] bg-[var(--card-bg)] overflow-hidden text-[11px] shadow-2xs">
-              <table className="w-full text-center">
+              <table className="w-full engineering-table text-center">
                 <thead className="bg-[var(--table-header-bg)] text-[var(--table-header-color)] text-[10px] font-bold uppercase border-b border-[var(--border-color)]">
                   <tr>
                     <th className="py-2 px-3 text-center">{t("trace.parameter", "Parameter")}</th>

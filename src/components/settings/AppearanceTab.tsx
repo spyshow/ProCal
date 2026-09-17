@@ -292,6 +292,19 @@ export function AppearanceTab() {
                   </span>
                 </td>
               </tr>
+              <tr>
+                <td className="font-mono font-semibold text-orange-400">SMDB-FL01</td>
+                <td className="font-mono">68.4 A</td>
+                <td className="font-mono">4 x (1C x 25 mm² Cu/XLPE)</td>
+                <td className="font-mono">18.0 m</td>
+                <td className="font-mono text-emerald-500 font-semibold">0.74% (&lt; 3%)</td>
+                <td>
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-500 border border-emerald-500/30">
+                    <ShieldCheck size={12} />
+                    IEC 60364 PASS
+                  </span>
+                </td>
+              </tr>
             </tbody>
           </table>
         </div>

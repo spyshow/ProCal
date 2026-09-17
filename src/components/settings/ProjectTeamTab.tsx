@@ -386,7 +386,7 @@ export function ProjectTeamTab({ projectId: propProjectId }: ProjectTeamTabProps
                 : "bg-emerald-500/15 text-emerald-300 border-emerald-500/30";
 
             return (
-              <div key={m.id} className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-[var(--card-bg-subtle)] transition-colors">
+              <div key={m.id} className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 even:bg-[var(--table-zebra-bg)] hover:bg-[var(--table-row-hover)] transition-colors">
                 <div className="flex items-center gap-3">
                   <div className="w-9 h-9 rounded-xl bg-[var(--card-bg-subtle)] border border-[var(--border-color)] flex items-center justify-center text-sm font-bold text-orange-500 shrink-0 shadow-2xs">
                     {m.name?.[0]?.toUpperCase() || m.username?.[0]?.toUpperCase() || "U"}
@@ -453,7 +453,7 @@ export function ProjectTeamTab({ projectId: propProjectId }: ProjectTeamTabProps
 
           <div className="divide-y divide-[var(--border-color)]/60">
             {invites.map((inv) => (
-              <div key={inv.id} className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-[var(--card-bg-subtle)] transition-colors">
+              <div key={inv.id} className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 even:bg-[var(--table-zebra-bg)] hover:bg-[var(--table-row-hover)] transition-colors">
                 <div>
                   <div className="flex items-center gap-2">
                     <span className="text-sm font-semibold text-[var(--foreground-color)]">

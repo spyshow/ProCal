@@ -569,14 +569,14 @@ export function CalculationTracePopover({
         {/* Input Parameters & Provenance Table */}
         {trace.parameters.length > 0 && (
           <div className="space-y-2">
-            <h5 className="text-[11px] font-bold uppercase tracking-wider text-[var(--table-header-color,#64748b)] flex items-center gap-1.5">
+            <h5 className="text-[11px] font-bold uppercase tracking-wider text-[var(--table-header-color)] flex items-center gap-1.5">
               <Layers size={13} className="text-amber-600 dark:text-amber-400" />
               <span>{t("trace.parametersSection", "Input Parameters & Source Provenance")}</span>
             </h5>
 
-            <div className="rounded-xl border border-[var(--border-color,#1f2937)] bg-[var(--card-bg,#0b0f19)] overflow-hidden text-[11px] shadow-2xs">
+            <div className="rounded-xl border border-[var(--border-color)] bg-[var(--card-bg)] overflow-hidden text-[11px] shadow-2xs">
               <table className="w-full text-center">
-                <thead className="bg-[var(--table-header-bg,#111827)] text-[var(--table-header-color,#64748b)] text-[10px] font-bold uppercase border-b border-[var(--border-color,#1f2937)]">
+                <thead className="bg-[var(--table-header-bg)] text-[var(--table-header-color)] text-[10px] font-bold uppercase border-b border-[var(--border-color)]">
                   <tr>
                     <th className="py-2 px-3 text-center">{t("trace.parameter", "Parameter")}</th>
                     <th className="py-2 px-2 text-center">{t("trace.symbol", "Symbol")}</th>
@@ -584,20 +584,20 @@ export function CalculationTracePopover({
                     <th className="py-2 px-3 text-center">{t("trace.sourceOrigin", "Source / Origin")}</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[var(--border-color,#1f2937)] text-[var(--foreground-color,#f8fafc)]">
+                <tbody className="divide-y divide-[var(--border-color)] text-[var(--foreground-color)]">
                   {trace.parameters.map((p, i) => {
                     const paramName = getTranslatedParamName(p.name, t);
                     const paramSource = getTranslatedParamSource(p.source, t);
 
                     return (
-                      <tr key={i} className="hover:bg-[var(--card-bg-subtle,#111827)] transition-colors">
-                        <td className="py-2 px-3 font-medium text-[var(--foreground-color,#f8fafc)] text-center">{paramName}</td>
+                      <tr key={i} className="hover:bg-[var(--card-bg-subtle)] transition-colors">
+                        <td className="py-2 px-3 font-medium text-[var(--foreground-color)] text-center">{paramName}</td>
                         <td className="py-2 px-2 font-mono text-orange-600 dark:text-orange-400 font-bold text-center">{p.symbol}</td>
-                        <td className="py-2 px-2 font-mono text-[var(--foreground-color,#f8fafc)] font-semibold text-center">
-                          {p.value} {p.unit ? <span className="text-[var(--table-header-color,#64748b)] text-[10px] font-normal">{p.unit}</span> : null}
+                        <td className="py-2 px-2 font-mono text-[var(--foreground-color)] font-semibold text-center">
+                          {p.value} {p.unit ? <span className="text-[var(--table-header-color)] text-[10px] font-normal">{p.unit}</span> : null}
                         </td>
-                        <td className="py-2 px-3 text-[10px] text-center text-[var(--table-header-color,#64748b)]">
-                          <span className="px-2 py-0.5 rounded-md bg-[var(--card-bg-subtle,#111827)] border border-[var(--border-color,#1f2937)] text-[var(--table-header-color,#64748b)] font-medium inline-block truncate max-w-[160px]" title={paramSource}>
+                        <td className="py-2 px-3 text-[10px] text-center text-[var(--table-header-color)]">
+                          <span className="px-2 py-0.5 rounded-md bg-[var(--card-bg-subtle)] border border-[var(--border-color)] text-[var(--table-header-color)] font-medium inline-block truncate max-w-[160px]" title={paramSource}>
                             {paramSource}
                           </span>
                         </td>

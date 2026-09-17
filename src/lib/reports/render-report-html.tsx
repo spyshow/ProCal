@@ -202,6 +202,14 @@ export function wrapReportMarkup(markup: string, title = 'Engineering Package'):
       display: none !important;
       content: none !important;
     }
+    .report-header img,
+    .cover-page img {
+      max-height: 44px !important;
+      max-width: 150px !important;
+      width: auto !important;
+      height: auto !important;
+      object-fit: contain !important;
+    }
   </style>
 </head>
 <body>

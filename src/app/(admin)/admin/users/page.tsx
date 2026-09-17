@@ -148,23 +148,23 @@ export default function AdminUsersPage() {
       {loading ? (
         <p className="text-sm text-gray-500">Loading…</p>
       ) : (
-        <div className="overflow-x-auto rounded-xl border border-gray-800">
-          <table className="w-full text-sm text-gray-300 text-center">
-            <thead className="bg-gray-900/60 text-gray-400 text-xs uppercase">
+        <div className="overflow-x-auto rounded-xl border border-[var(--border-color)] bg-[var(--card-bg)]">
+          <table className="w-full text-sm text-[var(--foreground-color)] text-center">
+            <thead className="bg-[var(--table-header-bg)] text-[var(--table-header-color)] text-xs uppercase border-b border-[var(--border-color)]">
               <tr>
                 {["User", "Email", "Role", "Credits", "Projects", "Status", ""].map((h) => (
                   <th key={h} className="px-4 py-3 text-center font-medium">{h}</th>
                 ))}
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-800">
+            <tbody className="divide-y divide-[var(--border-color)]">
               {users.map((u) => (
-                <tr key={u.id} className={u.disabled ? "opacity-50" : ""}>
+                <tr key={u.id} className={`${u.disabled ? "opacity-50" : ""} hover:bg-[var(--card-bg-subtle)] transition-colors`}>
                   <td className="px-4 py-3 text-center">
-                    <div className="font-medium text-gray-200">{u.name}</div>
-                    <div className="text-xs text-gray-500">@{u.username}</div>
+                    <div className="font-medium text-[var(--foreground-color)]">{u.name}</div>
+                    <div className="text-xs text-[var(--table-header-color)]">@{u.username}</div>
                   </td>
-                  <td className="px-4 py-3 text-gray-300 font-mono text-xs text-center">
+                  <td className="px-4 py-3 text-[var(--foreground-color)] font-mono text-xs text-center">
                     {u.email || <span className="text-gray-600 italic">No email</span>}
                   </td>
                   <td className="px-4 py-3 text-center">

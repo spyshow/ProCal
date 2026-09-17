@@ -111,7 +111,7 @@ export default function AdminLeadsPage() {
           <p className="text-gray-400">No {filter !== 'ALL' ? filter.toLowerCase() : ''} leads.</p>
         </div>
       ) : (
-        <div className="overflow-x-auto rounded-xl border border-gray-800 bg-gray-900/40">
+        <div className="overflow-x-auto rounded-xl border border-[var(--border-color)] bg-[var(--card-bg)]">
           <table className="engineering-table w-full text-center">
             <thead>
               <tr>
@@ -126,7 +126,7 @@ export default function AdminLeadsPage() {
             </thead>
             <tbody className="text-gray-300">
               {filtered.map((lead) => (
-                <tr key={lead.id}>
+                <tr key={lead.id} className="hover:bg-[var(--card-bg-subtle)] transition-colors">
                   <td className="text-gray-500 whitespace-nowrap text-center">
                     {new Date(lead.createdAt).toLocaleDateString()}{' '}
                     <span className="text-gray-600">{new Date(lead.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>

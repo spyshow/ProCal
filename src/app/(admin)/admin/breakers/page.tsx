@@ -623,7 +623,7 @@ export default function AdminBreakersPage() {
           </div>
 
           {/* Breaker table */}
-          <div className="rounded-xl border border-gray-800 bg-gray-900/40 p-4 overflow-x-auto">
+          <div className="rounded-xl border border-[var(--border-color)] bg-[var(--card-bg)] p-4 overflow-x-auto">
             <table className="w-full engineering-table text-xs">
               <thead>
                 <tr>
@@ -638,6 +638,7 @@ export default function AdminBreakersPage() {
                   <th className="text-center">Trip</th>
                   <th className="text-center">Selectivity & Settings</th>
                   <th className="text-center">Datasheet</th>
+                  <th className="text-center">Status</th>
                   <th className="text-center">Actions</th>
                 </tr>
               </thead>
@@ -645,7 +646,6 @@ export default function AdminBreakersPage() {
                 {loading ? (
                   <tr>
                     <td colSpan={12} className="text-center py-8 text-gray-500">
-                      <Loader2 size={16} className="inline animate-spin mr-2" />
                       Loading…
                     </td>
                   </tr>
@@ -657,7 +657,7 @@ export default function AdminBreakersPage() {
                   </tr>
                 ) : (
                   breakers.map((b) => (
-                    <tr key={b.id} className="hover:bg-gray-800/30">
+                    <tr key={b.id} className="hover:bg-[var(--card-bg-subtle)] transition-colors">
                       <td className="text-center text-gray-300 font-semibold">{b.manufacturer}</td>
                       <td className="text-center text-gray-300">
                         <span className="px-1.5 py-0.5 rounded text-[10px] font-mono bg-gray-800 text-gray-300 border border-gray-700">
@@ -721,7 +721,7 @@ export default function AdminBreakersPage() {
               Add Family
             </button>
           </div>
-          <div className="rounded-xl border border-gray-800 bg-gray-900/40 p-4 overflow-x-auto">
+          <div className="rounded-xl border border-[var(--border-color)] bg-[var(--card-bg)] p-4 overflow-x-auto">
             <table className="w-full engineering-table text-xs">
               <thead>
                 <tr>
@@ -748,7 +748,7 @@ export default function AdminBreakersPage() {
                   </tr>
                 ) : (
                   families.map((f) => (
-                    <tr key={f.id} className="hover:bg-gray-800/30">
+                    <tr key={f.id} className="hover:bg-[var(--card-bg-subtle)] transition-colors">
                       <td className="text-gray-300 font-semibold">{f.manufacturer}</td>
                       <td className="text-gray-300">
                         <span className="px-1.5 py-0.5 rounded text-[10px] font-mono bg-gray-800 text-gray-300 border border-gray-700">

@@ -202,7 +202,7 @@ export default function RevisionsPanel({ projectId, open, onClose, onChanged }: 
                 </thead>
                 <tbody>
                   {sorted.map((r) => (
-                    <tr key={r.id} className="border-b border-[var(--border-color)]/60 hover:bg-[var(--card-bg-subtle)]/50 transition-colors">
+                    <tr key={r.id} className="border-b border-[var(--border-color)]/60 hover:bg-[var(--card-bg-subtle)] transition-colors">
                       <td className="py-2 px-2 font-mono font-bold text-orange-500 dark:text-orange-400 text-center">{r.rev}</td>
                       <td className="py-2 px-2 text-[var(--text-secondary)] text-center">
                         {new Date(r.createdAt).toLocaleDateString()}

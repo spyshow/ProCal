@@ -23,6 +23,7 @@ export async function PUT(
     const auth = await verifyProjectAccess(floor.building.projectId, {
       requiredAction: "EDIT",
       pageKey: "calculator",
+      cachedProject: floor.building.project,
     });
     if (auth instanceof NextResponse) return auth;
 
@@ -40,7 +41,8 @@ export async function PUT(
       const userName = auth.user?.name || auth.user?.username || "Engineer";
       const userRole = auth.member?.role || auth.user?.role || "ENGINEER";
 
-      await logProjectActivity({
+      // Fire and forget audit logging so the client receives the response immediately
+      void logProjectActivity({
         projectId: floor.building.projectId,
         userId: auth.user?.id || null,
         userName,
@@ -50,7 +52,7 @@ export async function PUT(
         entityId: floor.id,
         description: diff.description,
         details: diff.details,
-      });
+      }).catch((err) => console.error("PUT FloorDesign audit log error:", err));
     }
 
     return NextResponse.json(updated);
@@ -79,6 +81,7 @@ export async function PATCH(
     const auth = await verifyProjectAccess(floor.building.projectId, {
       requiredAction: "EDIT",
       pageKey: "calculator",
+      cachedProject: floor.building.project,
     });
     if (auth instanceof NextResponse) return auth;
 
@@ -106,7 +109,8 @@ export async function PATCH(
       const userName = auth.user?.name || auth.user?.username || "Engineer";
       const userRole = auth.member?.role || auth.user?.role || "ENGINEER";
 
-      await logProjectActivity({
+      // Fire and forget audit logging so the client receives the response immediately
+      void logProjectActivity({
         projectId: floor.building.projectId,
         userId: auth.user?.id || null,
         userName,
@@ -116,7 +120,7 @@ export async function PATCH(
         entityId: floor.id,
         description: diff.description,
         details: diff.details,
-      });
+      }).catch((err) => console.error("PATCH FloorDesign audit log error:", err));
     }
 
     return NextResponse.json(updated);

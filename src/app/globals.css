@@ -799,6 +799,14 @@ html[dir="rtl"] .font-mono {
   vertical-align: middle;
 }
 
+.engineering-table tbody tr {
+  transition: background-color 0.15s ease;
+}
+
+.engineering-table tbody tr:hover {
+  background-color: var(--card-bg-subtle);
+}
+
 /* Modern Engineering Cable Schedule Table */
 .cable-schedule-table {
   width: 100%;
@@ -828,6 +836,14 @@ html[dir="rtl"] .font-mono {
   color: var(--foreground-color, #f8fafc);
   text-align: center;
   vertical-align: middle;
+}
+
+.cable-schedule-table tbody tr {
+  transition: background-color 0.15s ease;
+}
+
+.cable-schedule-table tbody tr:hover {
+  background-color: var(--card-bg-subtle);
 }
 
 .dense-input {
@@ -1157,9 +1173,18 @@ html[dir="rtl"] .font-mono {
     overflow: visible !important;
   }
 
-  img {
+  img:not(.report-header img):not(.cover-page img) {
     max-width: 100% !important;
     height: auto !important;
+  }
+
+  .report-header img,
+  .cover-page img {
+    max-height: 44px !important;
+    max-width: 150px !important;
+    width: auto !important;
+    height: auto !important;
+    object-fit: contain !important;
   }
 
   .bg-white.rounded-xl svg {

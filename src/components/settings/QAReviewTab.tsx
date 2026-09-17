@@ -88,7 +88,7 @@ export function QAReviewTab({ projectId: propProjectId }: QAReviewTabProps = {})
 
   if (!selectedProjectId) {
     return (
-      <div className="p-8 text-center text-sm text-slate-500 rounded-xl border border-slate-800 bg-slate-900/30">
+      <div className="p-8 text-center text-sm text-[var(--table-header-color)] rounded-xl border border-[var(--border-color)] bg-[var(--card-bg)]">
         {t('team.selectProjectPrompt', 'Please select an active project to view QA compliance notes.')}
       </div>
     );
@@ -108,40 +108,40 @@ export function QAReviewTab({ projectId: propProjectId }: QAReviewTabProps = {})
     <div className="space-y-6 w-full">
       {/* Metric Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div className="p-4 rounded-xl border border-slate-800 bg-slate-900/40">
-          <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block">{t('qa.totalNotes', 'Total Notes')}</span>
-          <span className="text-xl font-bold text-white mt-1 block">{items.length}</span>
+        <div className="p-4 rounded-xl border border-[var(--border-color)] bg-[var(--card-bg)] shadow-xs">
+          <span className="text-[11px] font-semibold text-[var(--table-header-color)] uppercase tracking-wider block">{t('qa.totalNotes', 'Total Notes')}</span>
+          <span className="text-xl font-bold text-[var(--foreground-color)] mt-1 block">{items.length}</span>
         </div>
 
-        <div className="p-4 rounded-xl border border-rose-900/40 bg-rose-950/10">
-          <span className="text-[11px] font-semibold text-rose-400 uppercase tracking-wider block">{t('qa.criticalNotes', 'Critical Issues')}</span>
-          <span className="text-xl font-bold text-rose-400 mt-1 block">{openCritical}</span>
+        <div className="p-4 rounded-xl border border-rose-500/30 bg-rose-500/10 dark:border-rose-900/40 dark:bg-rose-950/20 shadow-xs">
+          <span className="text-[11px] font-semibold text-rose-600 dark:text-rose-400 uppercase tracking-wider block">{t('qa.criticalNotes', 'Critical Issues')}</span>
+          <span className="text-xl font-bold text-rose-600 dark:text-rose-400 mt-1 block">{openCritical}</span>
         </div>
 
-        <div className="p-4 rounded-xl border border-amber-900/40 bg-amber-950/10">
-          <span className="text-[11px] font-semibold text-amber-400 uppercase tracking-wider block">{t('qa.warningNotes', 'Warnings')}</span>
-          <span className="text-xl font-bold text-amber-400 mt-1 block">{openWarning}</span>
+        <div className="p-4 rounded-xl border border-amber-500/30 bg-amber-500/10 dark:border-amber-900/40 dark:bg-amber-950/20 shadow-xs">
+          <span className="text-[11px] font-semibold text-amber-600 dark:text-amber-400 uppercase tracking-wider block">{t('qa.warningNotes', 'Warnings')}</span>
+          <span className="text-xl font-bold text-amber-600 dark:text-amber-400 mt-1 block">{openWarning}</span>
         </div>
 
-        <div className="p-4 rounded-xl border border-emerald-900/40 bg-emerald-950/10">
-          <span className="text-[11px] font-semibold text-emerald-400 uppercase tracking-wider block">{t('qa.resolvedNotes', 'Resolved')}</span>
-          <span className="text-xl font-bold text-emerald-400 mt-1 block">{resolved}</span>
+        <div className="p-4 rounded-xl border border-emerald-500/30 bg-emerald-500/10 dark:border-emerald-900/40 dark:bg-emerald-950/20 shadow-xs">
+          <span className="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider block">{t('qa.resolvedNotes', 'Resolved')}</span>
+          <span className="text-xl font-bold text-emerald-600 dark:text-emerald-400 mt-1 block">{resolved}</span>
         </div>
       </div>
 
       {/* Filter Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-3 p-3 rounded-xl border border-slate-800 bg-slate-900/40">
+      <div className="flex flex-wrap items-center justify-between gap-3 p-3 rounded-xl border border-[var(--border-color)] bg-[var(--card-bg)] shadow-xs">
         <div className="flex items-center gap-2">
-          <Filter size={13} className="text-slate-400" />
-          <span className="text-xs text-slate-300 font-medium">{t('common.status', 'Status')}:</span>
+          <Filter size={13} className="text-[var(--table-header-color)]" />
+          <span className="text-xs text-[var(--foreground-color)] font-medium">{t('common.status', 'Status')}:</span>
           {(["ALL", "OPEN", "RESOLVED"] as const).map((st) => (
             <button
               key={st}
               onClick={() => setStatusFilter(st)}
-              className={`px-2.5 py-1 rounded-lg text-xs font-semibold border transition-colors ${
+              className={`px-2.5 py-1 rounded-lg text-xs font-semibold border transition-colors cursor-pointer ${
                 statusFilter === st
-                  ? "bg-orange-500/20 text-orange-300 border-orange-500/40"
-                  : "bg-slate-800/80 text-slate-400 border-slate-700/60 hover:text-slate-200"
+                  ? "bg-orange-500/20 text-orange-600 dark:text-orange-300 border-orange-500/40 shadow-xs"
+                  : "bg-[var(--card-bg-subtle)] text-[var(--table-header-color)] border-[var(--border-color)] hover:text-[var(--foreground-color)] hover:bg-[var(--card-bg)]"
               }`}
             >
               {st === "ALL" ? t('activity.allActions', 'ALL') : st === "OPEN" ? t('qa.open', 'OPEN') : t('qa.resolved', 'RESOLVED')}
@@ -150,7 +150,7 @@ export function QAReviewTab({ projectId: propProjectId }: QAReviewTabProps = {})
         </div>
 
         <div className="flex items-center gap-2">
-          <button onClick={loadItems} className="text-slate-400 hover:text-white p-1" title={t('common.refresh', 'Refresh')}>
+          <button onClick={loadItems} className="text-[var(--table-header-color)] hover:text-[var(--foreground-color)] p-1 transition-colors cursor-pointer" title={t('common.refresh', 'Refresh')}>
             <RefreshCw size={13} className={loading ? "animate-spin" : ""} />
           </button>
         </div>
@@ -159,7 +159,7 @@ export function QAReviewTab({ projectId: propProjectId }: QAReviewTabProps = {})
       {/* Review Notes Feed */}
       <div className="space-y-3">
         {filteredItems.length === 0 ? (
-          <div className="p-12 text-center text-xs text-slate-500 rounded-xl border border-slate-800 bg-slate-900/30">
+          <div className="p-12 text-center text-xs text-[var(--table-header-color)] rounded-xl border border-[var(--border-color)] bg-[var(--card-bg)]">
             {loading ? t('common.loading', 'Loading QA review notes...') : t('qa.noNotes', 'No QA review notes match the selected filters.')}
           </div>
         ) : (
@@ -168,14 +168,14 @@ export function QAReviewTab({ projectId: propProjectId }: QAReviewTabProps = {})
             return (
               <div
                 key={item.id}
-                className={`p-4 rounded-xl border transition-all ${
+                className={`p-4 rounded-xl border transition-colors shadow-xs ${
                   isResolved
-                    ? "bg-slate-950/40 border-slate-900 opacity-60"
+                    ? "bg-[var(--card-bg)]/60 border-[var(--border-color)] opacity-60 hover:bg-[var(--card-bg-subtle)]"
                     : item.severity === "CRITICAL"
-                    ? "bg-rose-950/20 border-rose-800/40"
+                    ? "bg-rose-500/5 dark:bg-rose-950/20 border-rose-500/30 dark:border-rose-800/40 hover:bg-rose-500/10 dark:hover:bg-rose-950/30"
                     : item.severity === "WARNING"
-                    ? "bg-amber-950/20 border-amber-800/40"
-                    : "bg-slate-900/60 border-slate-800"
+                    ? "bg-amber-500/5 dark:bg-amber-950/20 border-amber-500/30 dark:border-amber-800/40 hover:bg-amber-500/10 dark:hover:bg-amber-950/30"
+                    : "bg-[var(--card-bg)] border-[var(--border-color)] hover:bg-[var(--card-bg-subtle)]"
                 }`}
               >
                 <div className="flex items-start justify-between gap-3 mb-2">
@@ -183,35 +183,35 @@ export function QAReviewTab({ projectId: propProjectId }: QAReviewTabProps = {})
                     <span
                       className={`text-[10px] font-bold px-2 py-0.5 rounded border uppercase ${
                         item.severity === "CRITICAL"
-                          ? "bg-rose-500/20 text-rose-300 border-rose-500/40"
+                          ? "bg-rose-500/20 text-rose-600 dark:text-rose-300 border-rose-500/40"
                           : item.severity === "WARNING"
-                          ? "bg-amber-500/20 text-amber-300 border-amber-500/40"
-                          : "bg-blue-500/20 text-blue-300 border-blue-500/40"
+                          ? "bg-amber-500/20 text-amber-600 dark:text-amber-300 border-amber-500/40"
+                          : "bg-blue-500/20 text-blue-600 dark:text-blue-300 border-blue-500/40"
                       }`}
                     >
                       {item.severity}
                     </span>
-                    <span className="text-[10px] font-semibold text-slate-400 uppercase bg-slate-800 px-2 py-0.5 rounded">
+                    <span className="text-[10px] font-semibold text-[var(--table-header-color)] uppercase bg-[var(--card-bg-subtle)] border border-[var(--border-color)] px-2 py-0.5 rounded">
                       {item.pageKey}
                     </span>
-                    <h4 className="text-sm font-bold text-white">{item.title}</h4>
+                    <h4 className="text-sm font-bold text-[var(--foreground-color)]">{item.title}</h4>
                   </div>
 
                   <button
                     onClick={() => handleToggleStatus(item)}
-                    className={`text-xs font-bold flex items-center gap-1.5 px-3 py-1 rounded-full border transition-colors shrink-0 ${
+                    className={`text-xs font-bold flex items-center gap-1.5 px-3 py-1 rounded-full border transition-colors shrink-0 cursor-pointer ${
                       isResolved
-                        ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/40 hover:bg-slate-800"
-                        : "bg-slate-800 text-slate-300 border-slate-700 hover:bg-emerald-500/20 hover:text-emerald-300"
+                        ? "bg-emerald-500/20 text-emerald-600 dark:text-emerald-300 border-emerald-500/40 hover:bg-[var(--card-bg-subtle)]"
+                        : "bg-[var(--card-bg-subtle)] text-[var(--foreground-color)] border-[var(--border-color)] hover:bg-emerald-500/20 hover:text-emerald-600 dark:hover:text-emerald-300"
                     }`}
                   >
-                    <CheckCircle2 size={13} className={isResolved ? "text-emerald-400" : "text-slate-500"} />
+                    <CheckCircle2 size={13} className={isResolved ? "text-emerald-500 dark:text-emerald-400" : "text-[var(--table-header-color)]"} />
                     {isResolved ? t('qa.resolved', 'Resolved') : t('qa.markResolved', 'Mark Resolved')}
                   </button>
                 </div>
 
                 {item.description && (
-                  <p className="text-xs text-slate-300 mb-3 whitespace-pre-wrap leading-relaxed">
+                  <p className="text-xs text-[var(--foreground-color)]/80 mb-3 whitespace-pre-wrap leading-relaxed">
                     {item.description}
                   </p>
                 )}
@@ -221,7 +221,7 @@ export function QAReviewTab({ projectId: propProjectId }: QAReviewTabProps = {})
                     <button
                       type="button"
                       onClick={() => setZoomImageUrl(item.screenshotUrl!)}
-                      className="group relative block overflow-hidden rounded-lg border border-slate-800 hover:border-orange-500/50 transition-all text-left bg-slate-950/80 max-w-sm"
+                      className="group relative block overflow-hidden rounded-lg border border-[var(--border-color)] hover:border-orange-500/50 transition-all text-left bg-[var(--card-bg-subtle)] max-w-sm cursor-pointer"
                     >
                       <img
                         src={item.screenshotUrl}
@@ -236,14 +236,14 @@ export function QAReviewTab({ projectId: propProjectId }: QAReviewTabProps = {})
                   </div>
                 )}
 
-                <div className="flex items-center justify-between text-[11px] text-slate-500 pt-2 border-t border-slate-800/60">
+                <div className="flex items-center justify-between text-[11px] text-[var(--table-header-color)] pt-2 border-t border-[var(--border-color)]/60">
                   <span>Logged by {item.createdBy?.name || item.createdBy?.username || "QA Reviewer"}</span>
                   <div className="flex items-center gap-3">
                     <span>{new Date(item.createdAt).toLocaleDateString()}</span>
                     {(isProjectManager || isQA) && (
                       <button
                         onClick={() => handleDelete(item.id)}
-                        className="text-slate-500 hover:text-rose-400 p-1"
+                        className="text-[var(--table-header-color)] hover:text-rose-500 dark:hover:text-rose-400 p-1 transition-colors cursor-pointer"
                         title={t('common.delete', 'Delete')}
                       >
                         <Trash2 size={13} />

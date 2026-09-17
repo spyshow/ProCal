@@ -6,7 +6,7 @@ import {
   formatCableSizeFor,
 } from "@/lib/calculations/cables";
 import { phaseBalance } from "@/lib/calculations/phaseBalance";
-import { awgLabel } from "@/lib/calculations/codes";
+import { awgLabel, nextBreakerRating } from "@/lib/calculations/codes";
 import { computeFeeders, type EquipmentItem, type FindBreaker } from "@/lib/calculations/feeders";
 import type { Building, FloorItem, Project } from "@/types";
 import type {
@@ -211,7 +211,7 @@ export function aggregateCableRows(project: Project): CableRow[] {
           buildingName: bldg.name,
           floor: fd.floorNumber,
           phase: phases,
-          current: item.calculatedCurrent,
+          current: item.calculatedCurrent || 0,
           breakerAmps: parseBreakerAmps(item.breakerSize),
           cableMm2: parseMm2(item.cableSize) ?? 4,
           method: (item.installMethod as string | undefined) || 'C',
@@ -340,8 +340,9 @@ export function aggregateBreakerRows(
       isThreePhase: true,
     });
 
-    const feederFloor = (feederName: string): number => {
-      const m = feederName.match(/^F(\d+)/);
+    const feederFloorNum = (feederName: string | null | undefined): number => {
+      if (!feederName) return 0;
+      const m = String(feederName).match(/^F(\d+)/);
       return m ? parseInt(m[1], 10) : 0;
     };
 
@@ -350,7 +351,7 @@ export function aggregateBreakerRows(
         feeder: f.name,
         buildingName: bldg.name,
         buildingId: bldg.id,
-        floor: feederFloor(f.name),
+        floor: feederFloorNum(f.name),
         type: f.type,
         current: f.current,
         breakerAmps: f.breakerSize,
@@ -455,12 +456,15 @@ function resolveItemPhases(item: FloorItem): number {
   return 3;
 }
 
-function parseBreakerAmps(value: string): number {
-  return parseFloat(value.replace(/[^0-9.]/g, '')) || 0;
+function parseBreakerAmps(value: string | number | null | undefined): number {
+  if (value == null) return 0;
+  if (typeof value === 'number') return Number.isFinite(value) ? value : 0;
+  return parseFloat(String(value).replace(/[^0-9.]/g, '')) || 0;
 }
 
-function feederFloor(feederName: string): number {
-  const m = feederName.match(/^F(\d+)/);
+function feederFloor(feederName: string | null | undefined): number {
+  if (!feederName) return 0;
+  const m = String(feederName).match(/^F(\d+)/);
   return m ? parseInt(m[1], 10) : 0;
 }
 

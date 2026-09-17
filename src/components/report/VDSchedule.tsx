@@ -238,46 +238,46 @@ export default function VDSchedule({
   return (
     <div className="space-y-4 font-sans text-slate-900">
       {showHeader && (
-        <div className="flex items-center justify-between text-xs text-[var(--text-muted)] mb-1 font-mono">
-          <span className="font-semibold text-[var(--foreground-color)]">{project.name}</span>
+        <div className="flex items-center justify-between text-xs text-slate-500 mb-1 font-mono">
+          <span className="font-semibold text-slate-900">{project.name}</span>
           <span>{project.date || new Date().toLocaleDateString()}</span>
         </div>
       )}
-      <div className="flex items-center justify-between border-b border-[var(--border-color)] pb-2">
-        <h2 className="text-xs font-bold uppercase tracking-wider text-[var(--foreground-color)] border-l-4 border-amber-500 pl-2.5">
+      <div className="flex items-center justify-between border-b pb-2">
+        <h2 className="text-xs font-bold uppercase tracking-wider text-slate-900 border-l-4 border-amber-500 pl-2.5">
           Voltage Drop &amp; Compliance Analysis Schedule
         </h2>
-        <span className="text-[11px] font-mono text-[var(--text-muted)]">
-          Standard: <span className="font-bold text-[var(--foreground-color)]">IEC 60364-5-52</span>
+        <span className="text-[11px] font-mono text-slate-600">
+          Standard: <span className="font-bold text-slate-900">IEC 60364-5-52</span>
         </span>
       </div>
-      <table className="w-full text-left text-xs border border-[var(--border-color)] rounded-lg overflow-hidden shadow-xs">
+      <table className="w-full text-left text-xs border border-slate-300 rounded-lg overflow-hidden shadow-xs">
         <thead>
-          <tr className="bg-[var(--card-bg-subtle)] text-[var(--foreground-color)] text-[10px] font-bold uppercase tracking-wider border-b border-[var(--border-color)]">
-            <th className="p-2 border-r border-[var(--border-color)]">#</th>
-            <th className="p-2 border-r border-[var(--border-color)]">Building</th>
-            <th className="p-2 border-r border-[var(--border-color)] text-center">Floor</th>
-            <th className="p-2 border-r border-[var(--border-color)]">Circuit / Feeder</th>
-            <th className="p-2 border-r border-[var(--border-color)] text-center">Ib (A)</th>
-            <th className="p-2 border-r border-[var(--border-color)] text-center">Cable Size</th>
-            <th className="p-2 border-r border-[var(--border-color)] text-right">Length (m)</th>
-            <th className="p-2 border-r border-[var(--border-color)] text-right">Voltage Drop (&Delta;V %)</th>
+          <tr className="bg-slate-900 text-white text-[10px] font-bold uppercase tracking-wider">
+            <th className="p-2 border-r border-slate-800">#</th>
+            <th className="p-2 border-r border-slate-800">Building</th>
+            <th className="p-2 border-r border-slate-800 text-center">Floor</th>
+            <th className="p-2 border-r border-slate-800">Circuit / Feeder</th>
+            <th className="p-2 border-r border-slate-800 text-center">Ib (A)</th>
+            <th className="p-2 border-r border-slate-800 text-center">Cable Size</th>
+            <th className="p-2 border-r border-slate-800 text-right">Length (m)</th>
+            <th className="p-2 border-r border-slate-800 text-right">Voltage Drop (&Delta;V %)</th>
             <th className="p-2 text-center">Compliance Status</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-[var(--border-color)] text-[var(--foreground-color)]">
+        <tbody className="divide-y divide-slate-200 text-slate-800">
           {rows.map((row, idx) => (
             <tr
               key={row.id}
-              className={idx % 2 === 0 ? 'bg-[var(--card-bg)]' : 'bg-[var(--card-bg-subtle)]/50'}
+              className={idx % 2 === 0 ? 'bg-white' : 'bg-slate-50/80'}
             >
-              <td className="p-2 border-r border-[var(--border-color)] font-mono text-[var(--text-muted)]">{idx + 1}</td>
-              <td className="p-2 border-r border-[var(--border-color)] font-medium text-[var(--foreground-color)]">{row.buildingName}</td>
-              <td className="p-2 border-r border-[var(--border-color)] text-center font-mono">
+              <td className="p-2 border-r border-slate-200 font-mono text-slate-500">{idx + 1}</td>
+              <td className="p-2 border-r border-slate-200 font-medium text-slate-900">{row.buildingName}</td>
+              <td className="p-2 border-r border-slate-200 text-center font-mono">
                 {row.floor === 0 ? 'MDB' : `F${row.floor}`}
               </td>
-              <td className="p-2 border-r border-[var(--border-color)] font-bold text-[var(--foreground-color)]">{row.circuit}</td>
-              <td className="p-2 border-r border-[var(--border-color)] text-center font-mono font-bold text-[var(--foreground-color)]">
+              <td className="p-2 border-r border-slate-200 font-bold text-slate-900">{row.circuit}</td>
+              <td className="p-2 border-r border-slate-200 text-center font-mono font-bold text-slate-900">
                 <TraceableCell
                   getTrace={() => {
                     const is3Ph = (project.voltage || 400) >= 380;
@@ -299,13 +299,13 @@ export default function VDSchedule({
                   {row.current.toFixed(1)} A
                 </TraceableCell>
               </td>
-              <td className="p-2 border-r border-[var(--border-color)] text-center font-mono font-bold text-[var(--foreground-color)]">
+              <td className="p-2 border-r border-slate-200 text-center font-mono font-bold text-slate-900">
                 {formatCableSizeFor(row.cable, project.calculationStandard)}
               </td>
-              <td className="p-2 border-r border-[var(--border-color)] text-right font-mono text-[var(--text-muted)]">
+              <td className="p-2 border-r border-slate-200 text-right font-mono text-slate-600">
                 {row.length} m
               </td>
-              <td className="p-2 border-r border-[var(--border-color)] text-right font-mono font-bold text-[var(--foreground-color)]">
+              <td className="p-2 border-r border-slate-200 text-right font-mono font-bold text-slate-900">
                 <TraceableCell
                   getTrace={() => {
                     const parsed = parseCableSize(row.cable);
@@ -361,10 +361,10 @@ export default function VDSchedule({
                   <span
                     className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-bold font-mono border ${
                       row.status === 'OK'
-                        ? 'bg-emerald-500/15 dark:bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 border-emerald-600/40 dark:border-emerald-500/30'
+                        ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
                         : row.status === 'WARNING'
-                        ? 'bg-amber-500/15 dark:bg-amber-500/20 text-amber-800 dark:text-amber-300 border-amber-600/40 dark:border-amber-500/30'
-                        : 'bg-rose-500/15 dark:bg-rose-500/20 text-rose-800 dark:text-rose-300 border-rose-600/40 dark:border-rose-500/30'
+                        ? 'bg-amber-50 text-amber-800 border-amber-200'
+                        : 'bg-rose-50 text-rose-800 border-rose-200'
                     }`}
                   >
                     {row.status === 'OK' ? 'PASS' : row.status === 'WARNING' ? 'MARGINAL' : 'FAIL'}
@@ -375,7 +375,7 @@ export default function VDSchedule({
           ))}
         </tbody>
       </table>
-      <div className="text-[10px] text-[var(--text-muted)] font-mono mt-2 flex justify-between">
+      <div className="text-[10px] text-slate-500 font-mono mt-2 flex justify-between">
         <span>
           IEC 60364-5-52 project limits: Max {project.maxVoltageDropLighting || 3}% lighting / {project.maxVoltageDropPower || 5}% power (single-phase rows evaluated against Uo = {Math.round((project.voltage || 400) / Math.sqrt(3))} V).
         </span>

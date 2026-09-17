@@ -90,10 +90,10 @@ describe("PATCH /api/floors/[id]", () => {
 
   it("requires EDIT on the calculator module", async () => {
     await patchFloor("floor-1", { riserCableLength: 42 });
-    expect(mocks.verifyProjectAccess).toHaveBeenCalledWith("proj-1", {
+    expect(mocks.verifyProjectAccess).toHaveBeenCalledWith("proj-1", expect.objectContaining({
       requiredAction: "EDIT",
       pageKey: "calculator",
-    });
+    }));
   });
 
   it("updates the floor when authorized", async () => {

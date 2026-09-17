@@ -43,6 +43,7 @@ export async function verifyProjectAccess(
     requiredRole?: "PROJECT_MANAGER" | "ENGINEER" | "QA";
     pageKey?: ProjectPageKey | string;
     requiredAction?: "VIEW" | "EDIT";
+    cachedProject?: { id: string; name: string; userId: string; [key: string]: any } | null;
   }
 ): Promise<VerifyProjectAccessResult> {
   const user = await getSessionUser();
@@ -50,7 +51,7 @@ export async function verifyProjectAccess(
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const project = await db.project.findUnique({
+  const project = options?.cachedProject || await db.project.findUnique({
     where: { id: projectId },
   });
 

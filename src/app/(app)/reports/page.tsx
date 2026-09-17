@@ -21,9 +21,6 @@ import {
   Printer,
 } from 'lucide-react';
 import RevisionsPanel from '@/components/report/RevisionsPanel';
-import { phaseBalance } from '@/lib/calculations/phaseBalance';
-import { sizeTransformer } from '@/lib/calculations/loads';
-import { formatCableSizeFor } from '@/lib/calculations/cables';
 import CoverPage from '@/components/report/CoverPage';
 import ReportHeader from '@/components/report/ReportHeader';
 import LoadSchedule from '@/components/report/LoadSchedule';
@@ -34,9 +31,8 @@ import BreakerSchedule from '@/components/report/BreakerSchedule';
 import VDSchedule from '@/components/report/VDSchedule';
 import ShortCircuitSchedule from '@/components/report/ShortCircuitSchedule';
 import type { Project, ProjectRevision, ReportTab } from '@/types';
-import { createFindBreaker, computeFeeders, type EquipmentItem, type FindBreaker } from '@/lib/calculations/feeders';
+import { createFindBreaker, type FindBreaker } from '@/lib/calculations/feeders';
 import { useEquipmentCatalog } from '@/hooks/useEquipmentCatalog';
-import { resolveBuildingIncomer } from '@/lib/reports/aggregates';
 import WorkflowStepper from '@/components/layout/WorkflowStepper';
 import { AccessRestricted } from '@/components/AccessRestricted';
 import { ReadOnlyBanner } from '@/components/ReadOnlyBanner';
@@ -420,239 +416,115 @@ export default function ReportsPage() {
     { key: 'bom', label: t('reports.tabBom', '8. Bill of Materials'), icon: Table },
   ];
 
-  const allProjectItems = project.buildings.flatMap((b) => [
-    ...b.floorDesigns.flatMap((fd) => fd.items),
-    ...(b.buildingLoads ?? []),
-  ]);
-  const totalBalance = phaseBalance(allProjectItems as never, project as never);
-  const totalDemandKw = totalBalance.totalKw;
-  const totalCurrentA = totalBalance.maxPhaseCurrent;
-  const reportPf = project.powerFactor || 0.85;
-  const demandKva = totalDemandKw / reportPf;
-  // Size on the worst-loaded winding so an unbalanced multi-building portfolio
-  // is not under-provisioned (same rule as computeFeeders and the panel page).
-  const perPhaseKva: [number, number, number] = [
-    totalBalance.phaseKw[0] / reportPf,
-    totalBalance.phaseKw[1] / reportPf,
-    totalBalance.phaseKw[2] / reportPf,
-  ];
-  const transformerKva = project.transformerSize || sizeTransformer(demandKva, 1.2, perPhaseKva);
-
-  const renderSummary = () => (
-    <div className="space-y-6 font-sans text-[var(--foreground-color)]">
-      {/* Top Banner Matching SLD Header */}
-      <div className="flex items-center justify-between border-b-2 border-orange-500/40 pb-3 bg-[var(--card-bg-subtle)] border border-[var(--border-color)] text-[var(--foreground-color)] p-4 rounded-xl shadow-xs">
-        <div>
-          <div className="flex items-center gap-2">
-            <span className="px-2 py-0.5 bg-amber-500 text-slate-950 font-black text-[10px] rounded uppercase tracking-wider font-mono">
-              Executive Engineering Report
-            </span>
-          </div>
-          <h1 className="text-xl font-black tracking-tight text-[var(--foreground-color)] uppercase mt-1">
-            {project.name}
-          </h1>
-          <p className="text-xs font-semibold text-[var(--text-muted)]">
-            EXECUTIVE ELECTRICAL ENGINEERING &amp; INFRASTRUCTURE PACKAGE
-          </p>
-          <p className="text-[10px] text-[var(--text-muted)] mt-0.5 font-mono">
-            Prepared in accordance with IEC 60364 &amp; BS 7671 Electrical Regulations
-          </p>
-        </div>
-        <div className="text-right text-xs space-y-0.5 font-mono text-[var(--text-muted)]">
-          <div className="font-bold text-sm text-amber-500 dark:text-amber-400">ProCal Engineering Suite</div>
-          <div>Report Ref: <span className="font-semibold text-[var(--foreground-color)]">PRJ-{project.id.slice(-6).toUpperCase()}</span></div>
-          <div>Date: <span className="font-semibold text-[var(--foreground-color)]">{project.date || new Date().toLocaleDateString()}</span></div>
-        </div>
-      </div>
-
-      {/* Project Meta 3-Card Grid */}
-      <div className="grid grid-cols-3 gap-3 border border-[var(--border-color)] rounded-xl p-3 bg-[var(--card-bg-subtle)] text-xs shadow-xs">
-        <div className="border-r border-[var(--border-color)] pr-2">
-          <span className="text-[var(--text-muted)] block text-[10px] uppercase font-bold tracking-wider">Client Name</span>
-          <span className="font-bold text-[var(--foreground-color)] text-sm">{project.client || 'N/A'}</span>
-        </div>
-        <div className="border-r border-[var(--border-color)] pr-2">
-          <span className="text-[var(--text-muted)] block text-[10px] uppercase font-bold tracking-wider">Consultant</span>
-          <span className="font-bold text-[var(--foreground-color)] text-sm">{project.consultant || 'N/A'}</span>
-        </div>
-        <div>
-          <span className="text-[var(--text-muted)] block text-[10px] uppercase font-bold tracking-wider">Lead Engineer</span>
-          <span className="font-bold text-[var(--foreground-color)] text-sm">{project.engineer || 'N/A'}</span>
-        </div>
-      </div>
-
-      {/* 1. System Electrical Calculations Summary (4 KPI Cards) */}
-      <div>
-        <h2 className="text-xs font-bold text-[var(--foreground-color)] uppercase mb-2 border-l-4 border-amber-500 pl-2.5">
-          1. System Electrical Calculations Summary
-        </h2>
-        <div className="grid grid-cols-4 gap-3 mb-2">
-          <div className="border border-amber-500/30 rounded-xl p-2.5 text-center bg-amber-500/10 shadow-xs">
-            <span className="text-[10px] font-bold uppercase text-amber-600 dark:text-amber-400 block">Total Max Demand</span>
-            <span className="text-base font-black text-[var(--foreground-color)] font-mono">{demandKva.toFixed(1)} kVA</span>
-            <span className="text-[11px] font-semibold text-amber-600 dark:text-amber-400 font-mono block mt-0.5">
-              {totalDemandKw.toFixed(1)} kW <span className="text-[var(--text-muted)] font-normal">(PF {reportPf})</span>
-            </span>
-          </div>
-          <div className="border border-sky-500/30 rounded-xl p-2.5 text-center bg-sky-500/10 shadow-xs">
-            <span className="text-[10px] font-bold uppercase text-sky-600 dark:text-sky-400 block">Calculated Current</span>
-            <span className="text-base font-black text-[var(--foreground-color)] font-mono">{totalCurrentA.toFixed(1)} A</span>
-          </div>
-          <div className="border border-emerald-500/30 rounded-xl p-2.5 text-center bg-emerald-500/10 shadow-xs">
-            <span className="text-[10px] font-bold uppercase text-emerald-600 dark:text-emerald-400 block">System Voltage</span>
-            <span className="text-base font-black text-[var(--foreground-color)] font-mono">{project.voltage}V 3-Phase</span>
-          </div>
-          <div className="border border-purple-500/30 rounded-xl p-2.5 text-center bg-purple-500/10 shadow-xs">
-            <span className="text-[10px] font-bold uppercase text-purple-600 dark:text-purple-400 block">Utility Transformer</span>
-            <span className="text-base font-black text-[var(--foreground-color)] font-mono">{transformerKva} kVA ({project.voltage}V)</span>
-          </div>
-        </div>
-      </div>
-
-      {/* 2. Project Distribution Hierarchy & Infrastructure */}
-      <div>
-        <h2 className="text-xs font-bold text-[var(--foreground-color)] uppercase mb-2 border-l-4 border-amber-500 pl-2.5">
-          2. Project Distribution Hierarchy &amp; Infrastructure
-        </h2>
-        <table className="w-full text-left text-xs border border-[var(--border-color)] rounded-lg overflow-hidden mb-2 shadow-xs">
-          <thead>
-            <tr className="bg-[var(--card-bg-subtle)] text-[var(--foreground-color)] text-[10px] font-bold uppercase tracking-wider border-b border-[var(--border-color)]">
-              <th className="p-2 border-r border-[var(--border-color)]">Building / Structure</th>
-              <th className="p-2 border-r border-[var(--border-color)] text-center">Floors</th>
-              <th className="p-2 border-r border-[var(--border-color)] text-center">Main Incomer Breaker</th>
-              <th className="p-2 border-r border-[var(--border-color)] text-center">Main Feeder Cable</th>
-              <th className="p-2 border-r border-[var(--border-color)] text-center">Sub-Panels (DB/SMDB)</th>
-              <th className="p-2 text-right">Max Demand (kVA / kW / Amps)</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-[var(--border-color)] text-[var(--foreground-color)]">
-            {project.buildings?.map((bldg, idx) => {
-              const bldgItems = [
-                ...bldg.floorDesigns.flatMap((fd) => fd.items),
-                ...(bldg.buildingLoads ?? []),
-              ];
-              const bldgBalance = phaseBalance(bldgItems as never, project as never);
-              const incomer = resolveBuildingIncomer(bldg, project, findBreaker, breakerSettings);
-
-              return (
-                <tr key={bldg.id} className={idx % 2 === 0 ? 'bg-[var(--card-bg)]' : 'bg-[var(--card-bg-subtle)]/50'}>
-                  <td className="p-2 border-r border-[var(--border-color)] font-bold text-[var(--foreground-color)]">{bldg.name}</td>
-                  <td className="p-2 border-r border-[var(--border-color)] text-center font-mono">{bldg.floors}</td>
-                  <td className="p-2 border-r border-[var(--border-color)] text-center font-mono font-bold text-[var(--foreground-color)]">
-                    <span className="px-2 py-0.5 rounded bg-amber-500/10 border border-amber-500/30 text-amber-600 dark:text-amber-400">
-                      {incomer.breakerRating}A {incomer.breakerCategory}
-                    </span>
-                  </td>
-                  <td className="p-2 border-r border-[var(--border-color)] text-center font-mono text-[11px] text-[var(--text-muted)]">
-                    {incomer.cableSpec}
-                  </td>
-                  <td className="p-2 border-r border-[var(--border-color)] text-center font-mono text-[var(--text-muted)]">
-                    {bldg.floorDesigns?.length || 0} Panels
-                  </td>
-                  <td className="p-2 text-right font-bold text-[var(--foreground-color)] font-mono">
-                    {(bldgBalance.totalKw / reportPf).toFixed(1)} kVA{' '}
-                    <span className="text-[var(--text-muted)] font-normal text-[11px]">
-                      ({bldgBalance.totalKw.toFixed(1)} kW)
-                    </span>{' '}
-                    <span className="text-amber-600 dark:text-amber-400 font-normal text-[11px]">
-                      [{bldgBalance.maxPhaseCurrent.toFixed(1)}A]
-                    </span>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-          {project.buildings && project.buildings.length > 1 && (
-            <tfoot>
-              <tr className="bg-amber-500/10 border-t-2 border-amber-500/30 font-bold text-[var(--foreground-color)]">
-                <td className="p-2 border-r border-amber-500/20 font-black">Total Project Infrastructure</td>
-                <td className="p-2 border-r border-amber-500/20 text-center font-mono">
-                  {project.buildings.reduce((sum, b) => sum + b.floors, 0)}
-                </td>
-                <td className="p-2 border-r border-amber-500/20 text-center font-mono text-xs text-amber-600 dark:text-amber-400">
-                  Main Distribution Board
-                </td>
-                <td className="p-2 border-r border-amber-500/20 text-center font-mono text-[11px] text-[var(--text-muted)]">
-                  Utility Feeder
-                </td>
-                <td className="p-2 border-r border-amber-500/20 text-center font-mono">
-                  {project.buildings.reduce((sum, b) => sum + (b.floorDesigns?.length || 0), 0)} Panels
-                </td>
-                <td className="p-2 text-right font-black font-mono text-amber-600 dark:text-amber-400">
-                  {demandKva.toFixed(1)} kVA{' '}
-                  <span className="text-[var(--text-muted)] font-normal text-[11px]">
-                    ({totalDemandKw.toFixed(1)} kW)
-                  </span>{' '}
-                  <span className="text-amber-600 dark:text-amber-400 font-normal text-[11px]">
-                    [{totalCurrentA.toFixed(1)}A]
-                  </span>
-                </td>
-              </tr>
-            </tfoot>
-          )}
-        </table>
-      </div>
-
-      {/* 3. Document Revisions Block */}
-      <div>
-        <h2 className="text-xs font-bold text-[var(--foreground-color)] uppercase mb-2 border-l-4 border-amber-500 pl-2.5">
-          3. Document Revisions History
-        </h2>
-        <table className="w-full text-left text-xs border border-[var(--border-color)] rounded-lg overflow-hidden shadow-xs">
-          <thead>
-            <tr className="bg-[var(--card-bg-subtle)] text-[var(--foreground-color)] text-[10px] font-bold uppercase tracking-wider border-b border-[var(--border-color)]">
-              <th className="p-2 border-r border-[var(--border-color)] w-16">Rev</th>
-              <th className="p-2 border-r border-[var(--border-color)] w-28">Date</th>
-              <th className="p-2 border-r border-[var(--border-color)]">Description</th>
-              <th className="p-2 w-36">Prepared By</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-[var(--border-color)] text-[var(--foreground-color)]">
-            {revisions.length === 0 ? (
-              <tr>
-                <td className="p-2 border-r border-[var(--border-color)] font-mono font-bold">R0</td>
-                <td className="p-2 border-r border-[var(--border-color)] font-mono">{project.date || new Date().toLocaleDateString()}</td>
-                <td className="p-2 border-r border-[var(--border-color)]">Initial issue and engineering baseline</td>
-                <td className="p-2 font-medium">{project.engineer || 'Lead Engineer'}</td>
-              </tr>
-            ) : (
-              [...revisions]
-                .sort((a, b) => (a.rev > b.rev ? -1 : 1))
-                .map((r, idx) => (
-                  <tr key={r.id} className={idx === 0 ? 'bg-amber-500/10 font-semibold' : ''}>
-                    <td className="p-2 border-r border-[var(--border-color)] font-mono font-bold text-[var(--foreground-color)]">{r.rev}</td>
-                    <td className="p-2 border-r border-[var(--border-color)] font-mono">
-                      {new Date(r.createdAt).toLocaleDateString()}
-                    </td>
-                    <td className="p-2 border-r border-[var(--border-color)]">{r.description}</td>
-                    <td className="p-2">{r.createdByUsername}</td>
-                  </tr>
-                ))
-            )}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  );
-
   const renderTabContent = (tab: ReportTab) => {
     switch (tab) {
       case 'summary':
-        return renderSummary();
+        return (
+          <CoverPage
+            project={project}
+            companyName={company.companyName}
+            companyLogoUrl={company.logoUrl}
+            revisions={revisions}
+            findBreaker={findBreaker}
+            breakerSettings={breakerSettings}
+          />
+        );
       case 'loads':
-        return <LoadSchedule project={project} buildingId={selectedBuilding ?? undefined} />;
+        return (
+          <div className="space-y-6">
+            <ReportHeader
+              project={project}
+              companyName={company.companyName}
+              companyLogoUrl={company.logoUrl}
+              title={project.name}
+              subtitle="LOAD ANALYSIS & PHASE BALANCING SCHEDULE"
+            />
+            <LoadSchedule project={project} buildingId={selectedBuilding ?? undefined} showHeader={false} />
+          </div>
+        );
       case 'mdb':
-        return <MDBSchedule project={project} buildingId={selectedBuilding ?? undefined} />;
+        return (
+          <div className="space-y-6">
+            <ReportHeader
+              project={project}
+              companyName={company.companyName}
+              companyLogoUrl={company.logoUrl}
+              title={project.name}
+              subtitle="MAIN DISTRIBUTION BOARD (MDB) FEEDER SCHEDULE"
+            />
+            <MDBSchedule project={project} buildingId={selectedBuilding ?? undefined} showHeader={false} />
+          </div>
+        );
       case 'cable':
-        return <CableSchedule project={project} buildingId={selectedBuilding ?? undefined} />;
+        return (
+          <div className="space-y-6">
+            <ReportHeader
+              project={project}
+              companyName={company.companyName}
+              companyLogoUrl={company.logoUrl}
+              title={project.name}
+              subtitle="CABLE SIZING & INSTALLATION SCHEDULE"
+            />
+            <CableSchedule project={project} buildingId={selectedBuilding ?? undefined} showHeader={false} />
+          </div>
+        );
       case 'breaker':
-        return <BreakerSchedule project={project} buildingId={selectedBuilding ?? undefined} manufacturer={preferredManufacturer} />;
+        return (
+          <div className="space-y-6">
+            <ReportHeader
+              project={project}
+              companyName={company.companyName}
+              companyLogoUrl={company.logoUrl}
+              title={project.name}
+              subtitle="CIRCUIT BREAKERS & SELECTIVITY PROTECTION SCHEDULE"
+            />
+            <BreakerSchedule
+              project={project}
+              buildingId={selectedBuilding ?? undefined}
+              manufacturer={preferredManufacturer}
+              showHeader={false}
+            />
+          </div>
+        );
       case 'vd':
-        return <VDSchedule project={project} buildingId={selectedBuilding ?? undefined} />;
+        return (
+          <div className="space-y-6">
+            <ReportHeader
+              project={project}
+              companyName={company.companyName}
+              companyLogoUrl={company.logoUrl}
+              title={project.name}
+              subtitle="VOLTAGE DROP & COMPLIANCE ANALYSIS SCHEDULE"
+            />
+            <VDSchedule project={project} buildingId={selectedBuilding ?? undefined} showHeader={false} />
+          </div>
+        );
       case 'shortCircuit':
-        return <ShortCircuitSchedule project={project} buildingId={selectedBuilding ?? undefined} />;
+        return (
+          <div className="space-y-6">
+            <ReportHeader
+              project={project}
+              companyName={company.companyName}
+              companyLogoUrl={company.logoUrl}
+              title={project.name}
+              subtitle="SHORT-CIRCUIT FAULT ANALYSIS SCHEDULE"
+            />
+            <ShortCircuitSchedule project={project} buildingId={selectedBuilding ?? undefined} showHeader={false} />
+          </div>
+        );
       case 'bom':
-        return <BOMSchedule project={project} buildingId={selectedBuilding ?? undefined} />;
+        return (
+          <div className="space-y-6">
+            <ReportHeader
+              project={project}
+              companyName={company.companyName}
+              companyLogoUrl={company.logoUrl}
+              title={project.name}
+              subtitle="BILL OF MATERIALS & PROCUREMENT SCHEDULE"
+            />
+            <BOMSchedule project={project} buildingId={selectedBuilding ?? undefined} showHeader={false} />
+          </div>
+        );
     }
   };
 
@@ -725,7 +597,7 @@ export default function ReportsPage() {
       </div>
 
       {/* Active tab container (screen only) */}
-      <div className="screen-only-report bg-[var(--card-bg)] text-[var(--foreground-color)] rounded-xl p-6 shadow-xs border border-[var(--border-color)]">
+      <div className="screen-only-report bg-white text-slate-900 rounded-xl p-4 sm:p-6 shadow-md border border-slate-200 overflow-x-auto ring-1 ring-black/5">
         {renderTabContent(activeTab)}
       </div>
 

@@ -609,7 +609,7 @@ export default function RiserPage() {
             </thead>
             <tbody>
               {floorData.map((fd) => (
-                <tr key={fd.id} className="border-b border-[var(--border-color)] hover:bg-[var(--card-bg-subtle)]/50 transition-colors">
+                <tr key={fd.id} className="border-b border-[var(--border-color)] hover:bg-[var(--card-bg-subtle)] transition-colors">
                   <td className="py-2.5 px-3 text-orange-500 font-semibold text-center">FL {fd.floorNumber}</td>
                   <td className="py-2.5 px-3 text-[var(--foreground-color)] text-center">{fd.hasFloorSubPanels ? `SDB-${fd.floorNumber}` : 'Direct'}</td>
                   <td className="py-2.5 px-3 text-[var(--foreground-color)] text-center">{fd.floorDemand.toFixed(1)} kW</td>

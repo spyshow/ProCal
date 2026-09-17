@@ -857,25 +857,86 @@ export default function ProjectDetailPage() {
                                     e.stopPropagation();
                                     if (isReadOnly) return;
                                     const newValue = !fd.hasFloorSubPanels;
-                                    await fetch(`/api/floors/${fd.id}`, {
-                                      method: 'PUT',
-                                      headers: { 'Content-Type': 'application/json' },
-                                      body: JSON.stringify({ hasFloorSubPanels: newValue }),
+
+                                    // 1. Instant optimistic UI update in local state (0ms user latency)
+                                    setProject((prev: any) => {
+                                      if (!prev) return prev;
+                                      return {
+                                        ...prev,
+                                        buildings: prev.buildings?.map((b: any) => ({
+                                          ...b,
+                                          floorDesigns: b.floorDesigns?.map((f: any) =>
+                                            f.id === fd.id ? { ...f, hasFloorSubPanels: newValue } : f
+                                          ),
+                                        })),
+                                      };
                                     });
-                                    loadProject();
+
+                                    // 2. Also keep global ProjectContext in sync
+                                    mutateProject((prev: any) => {
+                                      if (!prev) return prev;
+                                      return {
+                                        ...prev,
+                                        buildings: prev.buildings?.map((b: any) => ({
+                                          ...b,
+                                          floorDesigns: b.floorDesigns?.map((f: any) =>
+                                            f.id === fd.id ? { ...f, hasFloorSubPanels: newValue } : f
+                                          ),
+                                        })),
+                                      };
+                                    });
+
+                                    // 3. Persist in background without blocking or re-fetching whole project
+                                    try {
+                                      const res = await fetch(`/api/floors/${fd.id}`, {
+                                        method: 'PUT',
+                                        headers: { 'Content-Type': 'application/json' },
+                                        body: JSON.stringify({ hasFloorSubPanels: newValue }),
+                                      });
+                                      if (!res.ok) {
+                                        throw new Error('Failed to update sub-panel setting');
+                                      }
+                                    } catch (err) {
+                                      console.error('Error toggling floor sub-panel:', err);
+                                      // Revert on error
+                                      setProject((prev: any) => {
+                                        if (!prev) return prev;
+                                        return {
+                                          ...prev,
+                                          buildings: prev.buildings?.map((b: any) => ({
+                                            ...b,
+                                            floorDesigns: b.floorDesigns?.map((f: any) =>
+                                              f.id === fd.id ? { ...f, hasFloorSubPanels: !newValue } : f
+                                            ),
+                                          })),
+                                        };
+                                      });
+                                      mutateProject((prev: any) => {
+                                        if (!prev) return prev;
+                                        return {
+                                          ...prev,
+                                          buildings: prev.buildings?.map((b: any) => ({
+                                            ...b,
+                                            floorDesigns: b.floorDesigns?.map((f: any) =>
+                                              f.id === fd.id ? { ...f, hasFloorSubPanels: !newValue } : f
+                                            ),
+                                          })),
+                                        };
+                                      });
+                                    }
                                   }}
                                   disabled={isReadOnly}
-                                  className={`flex items-center gap-1.5 text-[10px] px-2 py-0.5 rounded font-medium transition-colors ${
+                                  className={`flex items-center gap-1.5 text-[10px] px-2 py-0.5 rounded font-medium transition-colors cursor-pointer ${
                                     fd.hasFloorSubPanels
-                                      ? 'bg-orange-600/20 text-orange-400 border border-orange-600/40'
-                                      : 'bg-gray-800 text-gray-500 border border-gray-700 hover:border-gray-600'
+                                      ? 'bg-orange-500/15 text-orange-600 dark:text-orange-400 border border-orange-500/30'
+                                      : 'bg-[var(--card-bg-subtle)] text-[var(--table-header-color)] border border-[var(--border-color)] hover:border-orange-500/40'
                                   } ${isReadOnly ? 'cursor-default opacity-80' : ''}`}
                                   title={fd.hasFloorSubPanels ? 'Sub-panel enabled' : 'Sub-panel disabled'}
                                 >
                                   <span className={`w-3 h-3 rounded-sm border flex items-center justify-center ${
                                     fd.hasFloorSubPanels
                                       ? 'bg-orange-600 border-orange-500'
-                                      : 'border-gray-600'
+                                      : 'border-[var(--border-color)]'
                                   }`}>
                                     {fd.hasFloorSubPanels && (
                                       <svg width="8" height="8" viewBox="0 0 8 8" fill="none">
@@ -1497,15 +1558,15 @@ function LoadLibrary({ projectId, onRefresh, loads, isReadOnly = false }: { proj
       )}
 
       {showNew && !isReadOnly && (
-        <form onSubmit={handleSubmit} className="rounded-xl border border-gray-800 bg-gray-900/60 p-4 space-y-3">
-          <h4 className="text-sm font-semibold text-gray-300">New Load Item</h4>
+        <form onSubmit={handleSubmit} className="rounded-xl border border-[var(--border-color)] bg-[var(--card-bg)] p-4 space-y-3 shadow-xs">
+          <h4 className="text-sm font-semibold text-[var(--foreground-color)]">New Load Item</h4>
           <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-8 gap-3">
             <div className="col-span-2">
-              <label className="block text-xs text-gray-400 mb-1">Name *</label>
+              <label className="block text-xs text-[var(--table-header-color)] mb-1">Name *</label>
               <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required className="dense-input w-full rounded" />
             </div>
             <div>
-              <label className="block text-xs text-gray-400 mb-1">Category</label>
+              <label className="block text-xs text-[var(--table-header-color)] mb-1">Category</label>
               <select value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} className="dense-input w-full rounded">
                 {['Lighting', 'Socket', 'AC', 'Pump', 'Elevator', 'Motor', 'Other'].map((c) => (
                   <option key={c} value={c}>{c}</option>
@@ -1513,11 +1574,11 @@ function LoadLibrary({ projectId, onRefresh, loads, isReadOnly = false }: { proj
               </select>
             </div>
             <div>
-              <label className="block text-xs text-gray-400 mb-1">Power (kW) *</label>
+              <label className="block text-xs text-[var(--table-header-color)] mb-1">Power (kW) *</label>
               <input type="number" step="0.01" min="0.01" value={form.power} onChange={(e) => setForm({ ...form, power: e.target.value })} required className="dense-input w-full rounded" />
             </div>
             <div>
-              <label className="block text-xs text-gray-400 mb-1">Phase</label>
+              <label className="block text-xs text-[var(--table-header-color)] mb-1">Phase</label>
               <select
                 value={form.phase}
                 onChange={(e) => {
@@ -1531,7 +1592,7 @@ function LoadLibrary({ projectId, onRefresh, loads, isReadOnly = false }: { proj
               </select>
             </div>
             <div>
-              <label className="block text-xs text-gray-400 mb-1" title="Power Factor (cos φ)">PF</label>
+              <label className="block text-xs text-[var(--table-header-color)] mb-1" title="Power Factor (cos φ)">PF</label>
               <input
                 type="number"
                 step="0.01"
@@ -1544,7 +1605,7 @@ function LoadLibrary({ projectId, onRefresh, loads, isReadOnly = false }: { proj
               />
             </div>
             <div>
-              <label className="block text-xs text-gray-400 mb-1" title="Demand Factor (0.05 - 1.0)">DF</label>
+              <label className="block text-xs text-[var(--table-header-color)] mb-1" title="Demand Factor (0.05 - 1.0)">DF</label>
               <input
                 type="number"
                 step="0.05"
@@ -1557,23 +1618,23 @@ function LoadLibrary({ projectId, onRefresh, loads, isReadOnly = false }: { proj
               />
             </div>
             <div>
-              <label className="block text-xs text-gray-400 mb-1">Quantity</label>
+              <label className="block text-xs text-[var(--table-header-color)] mb-1">Quantity</label>
               <input type="number" min="1" value={form.quantity} onChange={(e) => setForm({ ...form, quantity: e.target.value })} className="dense-input w-full rounded" />
             </div>
           </div>
           <div className="flex gap-2">
-            <button type="submit" className="px-4 py-2 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-sm font-semibold">Add</button>
-            <button type="button" onClick={() => setShowNew(false)} className="px-4 py-2 rounded-lg bg-gray-800 text-gray-300 text-sm">Cancel</button>
+            <button type="submit" className="px-4 py-2 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-sm font-semibold cursor-pointer">Add</button>
+            <button type="button" onClick={() => setShowNew(false)} className="px-4 py-2 rounded-lg bg-[var(--card-bg-subtle)] hover:bg-[var(--card-bg)] text-[var(--foreground-color)] border border-[var(--border-color)] text-sm cursor-pointer transition-colors">Cancel</button>
           </div>
         </form>
       )}
 
       {loads.length === 0 ? (
-        <div className="text-center py-12 text-gray-500 text-sm rounded-xl border border-gray-800 bg-gray-900/40">No load items yet</div>
+        <div className="text-center py-12 text-[var(--table-header-color)] text-sm rounded-xl border border-[var(--border-color)] bg-[var(--card-bg-subtle)]/40">No load items yet</div>
       ) : (
-        <div className="overflow-x-auto rounded-xl border border-gray-800">
+        <div className="overflow-x-auto rounded-xl border border-[var(--border-color)] bg-[var(--card-bg)]">
           <table className="w-full engineering-table text-center">
-            <thead className="bg-gray-900">
+            <thead className="bg-[var(--table-header-bg)] text-[var(--table-header-color)] border-b border-[var(--border-color)]">
               <tr>
                 <th className="text-center">Name</th>
                 <th className="text-center">Category</th>
@@ -1589,16 +1650,16 @@ function LoadLibrary({ projectId, onRefresh, loads, isReadOnly = false }: { proj
             <tbody>
               {loads.map((item: any) => (
                 editingId === item.id && !isReadOnly ? (
-                  <tr key={item.id} className="bg-gray-800/50">
+                  <tr key={item.id} className="bg-[var(--card-bg-subtle)] border-y border-[var(--border-color)]">
                     <td colSpan={9} className="p-3 text-center">
                       <form onSubmit={handleUpdate} className="space-y-3">
                         <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-8 gap-3">
                           <div className="col-span-2">
-                            <label className="block text-[10px] text-gray-500 mb-1">Name *</label>
+                            <label className="block text-[10px] text-[var(--table-header-color)] mb-1">Name *</label>
                             <input value={editForm.name} onChange={(e) => setEditForm({ ...editForm, name: e.target.value })} required className="dense-input w-full rounded text-xs" />
                           </div>
                           <div>
-                            <label className="block text-[10px] text-gray-500 mb-1">Category</label>
+                            <label className="block text-[10px] text-[var(--table-header-color)] mb-1">Category</label>
                             <select value={editForm.category} onChange={(e) => setEditForm({ ...editForm, category: e.target.value })} className="dense-input w-full rounded text-xs">
                               {['Lighting', 'Socket', 'AC', 'Pump', 'Elevator', 'Motor', 'Other'].map((c) => (
                                 <option key={c} value={c}>{c}</option>
@@ -1606,11 +1667,11 @@ function LoadLibrary({ projectId, onRefresh, loads, isReadOnly = false }: { proj
                             </select>
                           </div>
                           <div>
-                            <label className="block text-[10px] text-gray-500 mb-1">Power (kW) *</label>
+                            <label className="block text-[10px] text-[var(--table-header-color)] mb-1">Power (kW) *</label>
                             <input type="number" step="0.01" min="0.01" value={editForm.power} onChange={(e) => setEditForm({ ...editForm, power: e.target.value })} required className="dense-input w-full rounded text-xs" />
                           </div>
                           <div>
-                            <label className="block text-[10px] text-gray-500 mb-1">Phase</label>
+                            <label className="block text-[10px] text-[var(--table-header-color)] mb-1">Phase</label>
                             <select
                               value={editForm.phase}
                               onChange={(e) => {
@@ -1624,7 +1685,7 @@ function LoadLibrary({ projectId, onRefresh, loads, isReadOnly = false }: { proj
                             </select>
                           </div>
                           <div>
-                            <label className="block text-[10px] text-gray-500 mb-1" title="Power Factor (cos φ)">PF</label>
+                            <label className="block text-[10px] text-[var(--table-header-color)] mb-1" title="Power Factor (cos φ)">PF</label>
                             <input
                               type="number"
                               step="0.01"
@@ -1637,7 +1698,7 @@ function LoadLibrary({ projectId, onRefresh, loads, isReadOnly = false }: { proj
                             />
                           </div>
                           <div>
-                            <label className="block text-[10px] text-gray-500 mb-1" title="Demand Factor (0.05 - 1.0)">DF</label>
+                            <label className="block text-[10px] text-[var(--table-header-color)] mb-1" title="Demand Factor (0.05 - 1.0)">DF</label>
                             <input
                               type="number"
                               step="0.05"
@@ -1650,39 +1711,39 @@ function LoadLibrary({ projectId, onRefresh, loads, isReadOnly = false }: { proj
                             />
                           </div>
                           <div>
-                            <label className="block text-[10px] text-gray-500 mb-1">Quantity</label>
+                            <label className="block text-[10px] text-[var(--table-header-color)] mb-1">Quantity</label>
                             <input type="number" min="1" value={editForm.quantity} onChange={(e) => setEditForm({ ...editForm, quantity: e.target.value })} className="dense-input w-full rounded text-xs" />
                           </div>
                         </div>
                         <div className="flex gap-2 justify-center">
                           <button type="submit" className="px-3 py-1.5 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-xs font-semibold">Save</button>
-                          <button type="button" onClick={() => setEditingId(null)} className="px-3 py-1.5 rounded-lg bg-gray-800 text-gray-300 text-xs">Cancel</button>
+                          <button type="button" onClick={() => setEditingId(null)} className="px-3 py-1.5 rounded-lg bg-[var(--card-bg-subtle)] hover:bg-[var(--card-bg)] text-[var(--foreground-color)] border border-[var(--border-color)] text-xs">Cancel</button>
                         </div>
                       </form>
                     </td>
                   </tr>
                 ) : (
-                  <tr key={item.id} className="hover:bg-gray-800/30">
-                    <td className="font-medium text-gray-200 text-center">{item.name}</td>
-                    <td className="text-center text-xs text-gray-400">{item.category}</td>
-                    <td className="text-center font-mono">{item.power}</td>
-                    <td className="text-center font-mono">{item.phase}Φ</td>
-                    <td className="text-center font-mono">{item.powerFactor}</td>
-                    <td className="text-center font-mono">{item.demandFactor}</td>
-                    <td className="text-center font-mono">{item.quantity}</td>
-                    <td className="text-center font-mono text-orange-400">{item.runningCurrent}A</td>
+                  <tr key={item.id} className="hover:bg-[var(--card-bg-subtle)] transition-colors">
+                    <td className="font-medium text-[var(--foreground-color)] text-center">{item.name}</td>
+                    <td className="text-center text-xs text-[var(--table-header-color)]">{item.category}</td>
+                    <td className="text-center font-mono text-[var(--foreground-color)]">{item.power}</td>
+                    <td className="text-center font-mono text-[var(--foreground-color)]">{item.phase}Φ</td>
+                    <td className="text-center font-mono text-[var(--foreground-color)]">{item.powerFactor}</td>
+                    <td className="text-center font-mono text-[var(--foreground-color)]">{item.demandFactor}</td>
+                    <td className="text-center font-mono text-[var(--foreground-color)]">{item.quantity}</td>
+                    <td className="text-center font-mono text-orange-600 dark:text-orange-400 font-semibold">{item.runningCurrent}A</td>
                     <td className="text-center">
                       {!isReadOnly ? (
                         <div className="flex items-center justify-center gap-1">
-                          <button onClick={() => startEdit(item)} className="p-1 rounded text-gray-600 hover:text-orange-400">
+                          <button onClick={() => startEdit(item)} className="p-1 rounded text-[var(--table-header-color)] hover:text-orange-500 transition-colors">
                             <Pencil size={13} />
                           </button>
-                          <button onClick={() => handleDelete(item.id)} className="p-1 rounded text-gray-600 hover:text-red-400">
+                          <button onClick={() => handleDelete(item.id)} className="p-1 rounded text-[var(--table-header-color)] hover:text-red-500 transition-colors">
                             <Trash2 size={13} />
                           </button>
                         </div>
                       ) : (
-                        <span className="text-gray-600 text-xs">—</span>
+                        <span className="text-[var(--table-header-color)] text-xs">—</span>
                       )}
                     </td>
                   </tr>

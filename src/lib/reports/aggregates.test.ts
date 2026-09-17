@@ -657,5 +657,63 @@ describe('resolveBuildingIncomer (Breaker Schedule as Source of Truth)', () => {
     expect(incomer.breakerRating).toBe(400);
     expect(incomer.breakerModel).toBe('Custom Engineered ABB XT5 Incomer');
   });
+
+  it('gracefully handles null or undefined breakerSize in items and loads without throwing', () => {
+    const bldg = building({
+      floorDesigns: [
+        {
+          id: 'f-null',
+          floorNumber: 1,
+          hasFloorSubPanels: false,
+          items: [
+            item({
+              name: 'Unspecified Breaker Load',
+              calculatedCurrent: 28,
+              breakerSize: null as any,
+              cableSize: null as any,
+            }),
+            item({
+              name: 'Undefined Breaker Load',
+              calculatedCurrent: 14,
+              breakerSize: undefined as any,
+              cableSize: '10 mm²',
+            }),
+          ],
+        },
+      ],
+      buildingLoads: [
+        {
+          id: 'bl-null',
+          buildingId: 'b1',
+          name: 'Central Pump',
+          quantity: 1,
+          cableSize: null,
+          loadLibraryItem: {
+            id: 'lib-1',
+            name: 'Pump',
+            category: 'PUMP',
+            power: 15,
+            runningCurrent: 30,
+            startingCurrent: 90,
+            phase: 3,
+            powerFactor: 0.85,
+            demandFactor: 1,
+          },
+        } as any,
+      ],
+    });
+    const proj = projectWithBuildings([bldg]);
+
+    expect(() => aggregateCableRows(proj)).not.toThrow();
+    const cableRows = aggregateCableRows(proj);
+    expect(cableRows.length).toBe(2);
+    expect(cableRows[0].breakerAmps).toBe(0);
+    expect(cableRows[1].breakerAmps).toBe(0);
+
+    expect(() => aggregateBOM(proj)).not.toThrow();
+    const bom = aggregateBOM(proj);
+    expect(bom.breakers.length).toBeGreaterThan(0);
+  });
 });
+
 

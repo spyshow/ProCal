@@ -604,7 +604,7 @@ function CalculatorContent() {
               </div>
 
               {expanded && (
-                <div className="border-t border-[var(--border-color,#1f2937)] p-4 space-y-3 bg-[var(--card-bg-subtle,rgba(17,24,39,0.4))]">
+                <div className="border-t border-[var(--border-color,#1f2937)] p-4 space-y-3 bg-[var(--card-bg-subtle)]">
                   {fd.items.length > 0 && (
                     <table className="w-full engineering-table">
                       <thead>
@@ -631,7 +631,7 @@ function CalculatorContent() {
                             ? (item.assignedPhase ?? floorBalance.assignments.find((a) => a.id === item.id)?.assignedPhase ?? null)
                             : null;
                           return (
-                            <tr key={item.id} className="hover:bg-[var(--card-bg,#0b0f19)] transition-colors">
+                            <tr key={item.id} className="hover:bg-[var(--card-bg)] transition-colors">
                               <td className="text-center">
                                 <Icon size={12} className="text-orange-500 inline mr-1" />
                                 <span className="text-xs text-[var(--foreground-color,#f8fafc)]">{t(`loadTypes.${item.type}`, item.type.replace('_', ' '))}</span>

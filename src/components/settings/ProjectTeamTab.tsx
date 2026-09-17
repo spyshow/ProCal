@@ -299,7 +299,7 @@ export function ProjectTeamTab({ projectId: propProjectId }: ProjectTeamTabProps
 
   if (!selectedProjectId) {
     return (
-      <div className="p-8 text-center text-sm text-slate-500 rounded-xl border border-slate-800 bg-slate-900/30">
+      <div className="p-8 text-center text-sm text-[var(--table-header-color)] rounded-xl border border-[var(--border-color)] bg-[var(--card-bg-subtle)]/40">
         {t('team.selectProjectPrompt', 'Please select an active project to manage its team.')}
       </div>
     );
@@ -308,21 +308,21 @@ export function ProjectTeamTab({ projectId: propProjectId }: ProjectTeamTabProps
   return (
     <div className="space-y-6 w-full">
       {/* Header & Seat Pill */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-xl border border-slate-800 bg-slate-900/40">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-xl border border-[var(--border-color)] bg-[var(--card-bg)] shadow-xs">
         <div>
-          <h2 className="text-base font-bold text-white flex items-center gap-2">
+          <h2 className="text-base font-bold text-[var(--foreground-color)] flex items-center gap-2">
             <Users size={18} className="text-orange-500" />
             {selectedProject?.name ? `${selectedProject.name} — ` : ""}{t('team.title', 'Team & Access Control')}
           </h2>
-          <p className="text-xs text-slate-400 mt-1">
+          <p className="text-xs text-[var(--table-header-color)] mt-1">
             {t('team.subtitle', 'Manage project members, roles, and granular page permissions.')}
           </p>
         </div>
 
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-800/80 border border-slate-700 text-xs">
-            <span className="text-slate-400">{t('team.seats', 'Seats')}:</span>
-            <span className="font-bold text-orange-400">
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[var(--card-bg-subtle)] border border-[var(--border-color)] text-xs text-[var(--foreground-color)]">
+            <span className="text-[var(--table-header-color)]">{t('team.seats', 'Seats')}:</span>
+            <span className="font-bold text-orange-600 dark:text-orange-400">
               {usedSeats} / {totalSeats}
             </span>
           </div>
@@ -331,7 +331,7 @@ export function ProjectTeamTab({ projectId: propProjectId }: ProjectTeamTabProps
             <button
               onClick={() => setInviteModalOpen(true)}
               disabled={usedSeats >= totalSeats}
-              className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-orange-600 hover:bg-orange-500 text-white text-xs font-semibold shadow-lg shadow-orange-600/20 disabled:opacity-50 transition-all"
+              className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-orange-600 hover:bg-orange-500 text-white text-xs font-semibold shadow-lg shadow-orange-600/20 disabled:opacity-50 transition-all cursor-pointer"
             >
               <UserPlus size={14} />
               {t('team.inviteMember', 'Invite Member')}
@@ -366,17 +366,17 @@ export function ProjectTeamTab({ projectId: propProjectId }: ProjectTeamTabProps
       )}
 
       {/* Active Members Card */}
-      <div className="rounded-xl border border-slate-800 bg-slate-900/40 overflow-hidden">
-        <div className="px-4 py-3 border-b border-slate-800 flex items-center justify-between">
-          <h3 className="text-xs font-bold uppercase tracking-wider text-slate-300">
+      <div className="rounded-xl border border-[var(--border-color)] bg-[var(--card-bg)] overflow-hidden shadow-xs">
+        <div className="px-4 py-3 border-b border-[var(--border-color)] bg-[var(--card-bg-subtle)] flex items-center justify-between">
+          <h3 className="text-xs font-bold uppercase tracking-wider text-[var(--foreground-color)]">
             {t('team.activeMembers', 'Active Members')} ({members.length})
           </h3>
-          <button onClick={loadTeam} className="text-slate-400 hover:text-white p-1" title={t('common.refresh', 'Refresh')}>
+          <button onClick={loadTeam} className="text-[var(--table-header-color)] hover:text-[var(--foreground-color)] p-1" title={t('common.refresh', 'Refresh')}>
             <RefreshCw size={13} className={loading ? "animate-spin" : ""} />
           </button>
         </div>
 
-        <div className="divide-y divide-slate-800/60">
+        <div className="divide-y divide-[var(--border-color)]/60">
           {members.map((m) => {
             const roleBadgeClass =
               m.role === "PROJECT_MANAGER"
@@ -386,24 +386,24 @@ export function ProjectTeamTab({ projectId: propProjectId }: ProjectTeamTabProps
                 : "bg-emerald-500/15 text-emerald-300 border-emerald-500/30";
 
             return (
-              <div key={m.id} className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-slate-900/60 transition-colors">
+              <div key={m.id} className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-[var(--card-bg-subtle)] transition-colors">
                 <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center text-sm font-bold text-orange-400 shrink-0">
+                  <div className="w-9 h-9 rounded-xl bg-[var(--card-bg-subtle)] border border-[var(--border-color)] flex items-center justify-center text-sm font-bold text-orange-500 shrink-0 shadow-2xs">
                     {m.name?.[0]?.toUpperCase() || m.username?.[0]?.toUpperCase() || "U"}
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
-                      <span className="text-sm font-semibold text-white">{m.name || m.username}</span>
+                      <span className="text-sm font-semibold text-[var(--foreground-color)]">{m.name || m.username}</span>
                       <span className={`text-[9px] font-bold uppercase px-2 py-0.5 rounded-full border ${roleBadgeClass}`}>
                         {m.role === "PROJECT_MANAGER" ? t('team.roles.pm', 'Project Manager') : m.role === "QA" ? t('team.roles.qa', 'QA Reviewer') : t('team.roles.engineer', 'Engineer')}
                       </span>
                       {m.isOwner && (
-                        <span className="text-[9px] font-bold text-slate-400 bg-slate-800 px-1.5 py-0.5 rounded">
+                        <span className="text-[9px] font-bold text-[var(--table-header-color)] bg-[var(--card-bg-subtle)] border border-[var(--border-color)] px-1.5 py-0.5 rounded">
                           Creator
                         </span>
                       )}
                     </div>
-                    <p className="text-xs text-slate-400 mt-0.5">{m.email || `@${m.username}`}</p>
+                    <p className="text-xs text-[var(--table-header-color)] mt-0.5">{m.email || `@${m.username}`}</p>
                   </div>
                 </div>
 
@@ -418,7 +418,7 @@ export function ProjectTeamTab({ projectId: propProjectId }: ProjectTeamTabProps
                             DEFAULT_ROLE_PERMISSIONS[m.role as ProjectRole]
                         );
                       }}
-                      className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium border border-slate-700 transition-colors"
+                      className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-[var(--card-bg-subtle)] hover:bg-[var(--card-bg)] text-[var(--foreground-color)] text-xs font-medium border border-[var(--border-color)] transition-colors cursor-pointer"
                     >
                       <Edit2 size={12} />
                       {t('team.permissions', 'Permissions')}
@@ -427,7 +427,7 @@ export function ProjectTeamTab({ projectId: propProjectId }: ProjectTeamTabProps
                     {!m.isOwner && (
                       <button
                         onClick={() => handleRemoveMember(m.id, m.name || m.username || "Member")}
-                        className="p-1.5 rounded-lg text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 transition-colors"
+                        className="p-1.5 rounded-lg text-[var(--table-header-color)] hover:text-rose-500 dark:hover:text-rose-400 hover:bg-rose-500/10 transition-colors"
                         title={t('team.removeMember', 'Remove Member')}
                       >
                         <Trash2 size={14} />
@@ -443,28 +443,28 @@ export function ProjectTeamTab({ projectId: propProjectId }: ProjectTeamTabProps
 
       {/* Pending Invites Card */}
       {invites.length > 0 && (
-        <div className="rounded-xl border border-slate-800 bg-slate-900/40 overflow-hidden">
-          <div className="px-4 py-3 border-b border-slate-800">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center gap-2">
-              <Clock size={14} className="text-amber-400" />
+        <div className="rounded-xl border border-[var(--border-color)] bg-[var(--card-bg)] overflow-hidden shadow-xs">
+          <div className="px-4 py-3 border-b border-[var(--border-color)] bg-[var(--card-bg-subtle)]">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-[var(--foreground-color)] flex items-center gap-2">
+              <Clock size={14} className="text-amber-500 dark:text-amber-400" />
               {t('team.pendingInvites', 'Pending Invitations')} ({invites.length})
             </h3>
           </div>
 
-          <div className="divide-y divide-slate-800/60">
+          <div className="divide-y divide-[var(--border-color)]/60">
             {invites.map((inv) => (
-              <div key={inv.id} className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div key={inv.id} className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-[var(--card-bg-subtle)] transition-colors">
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="text-sm font-semibold text-white">
+                    <span className="text-sm font-semibold text-[var(--foreground-color)]">
                       {inv.name}
-                      {inv.username ? <span className="text-slate-400 text-xs ml-1.5 font-normal">(@{inv.username})</span> : null}
+                      {inv.username ? <span className="text-[var(--table-header-color)] text-xs ml-1.5 font-normal">(@{inv.username})</span> : null}
                     </span>
-                    <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-amber-500/15 text-amber-300 border border-amber-500/30">
+                    <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-amber-500/15 text-amber-600 dark:text-amber-300 border border-amber-500/30">
                       {inv.role === "PROJECT_MANAGER" ? t('team.roles.pm', 'PM') : inv.role === "QA" ? t('team.roles.qa', 'QA') : t('team.roles.engineer', 'Engineer')}
                     </span>
                   </div>
-                  <p className="text-xs text-slate-400 mt-0.5">
+                  <p className="text-xs text-[var(--table-header-color)] mt-0.5">
                     {inv.email} • {t('team.invitedBy', 'Invited by')} {inv.invitedBy || "PM"}
                   </p>
                 </div>
@@ -474,17 +474,17 @@ export function ProjectTeamTab({ projectId: propProjectId }: ProjectTeamTabProps
                     {inv.acceptUrl && (
                       <button
                         onClick={() => handleCopyInviteLink(inv.acceptUrl, inv.id)}
-                        className="text-xs text-slate-300 hover:text-white font-medium px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 border border-slate-700 flex items-center gap-1.5 transition-colors cursor-pointer"
+                        className="text-xs text-[var(--foreground-color)] font-medium px-2.5 py-1 rounded bg-[var(--card-bg-subtle)] hover:bg-[var(--card-bg)] border border-[var(--border-color)] flex items-center gap-1.5 transition-colors cursor-pointer"
                         title={inv.acceptUrl}
                       >
                         {copiedInviteId === inv.id ? (
                           <>
-                            <Check size={12} className="text-emerald-400" />
-                            <span className="text-emerald-400 font-semibold">{t('common.copied', 'Copied')}</span>
+                            <Check size={12} className="text-emerald-500 dark:text-emerald-400" />
+                            <span className="text-emerald-600 dark:text-emerald-400 font-semibold">{t('common.copied', 'Copied')}</span>
                           </>
                         ) : (
                           <>
-                            <Copy size={12} className="text-slate-400" />
+                            <Copy size={12} className="text-[var(--table-header-color)]" />
                             <span>{t('team.copyLink', 'Copy Link')}</span>
                           </>
                         )}
@@ -492,13 +492,13 @@ export function ProjectTeamTab({ projectId: propProjectId }: ProjectTeamTabProps
                     )}
                     <button
                       onClick={() => handleResendInvite(inv.id)}
-                      className="text-xs text-orange-400 hover:text-orange-300 font-medium px-2.5 py-1 rounded bg-orange-500/10 border border-orange-500/20 cursor-pointer"
+                      className="text-xs text-orange-600 dark:text-orange-400 font-medium px-2.5 py-1 rounded bg-orange-500/10 border border-orange-500/20 cursor-pointer hover:bg-orange-500/20 transition-colors"
                     >
                       {t('team.resendInvite', 'Resend')}
                     </button>
                     <button
                       onClick={() => handleRevokeInvite(inv.id)}
-                      className="text-xs text-slate-400 hover:text-rose-400 p-1 cursor-pointer"
+                      className="text-xs text-[var(--table-header-color)] hover:text-rose-500 dark:hover:text-rose-400 p-1 cursor-pointer transition-colors"
                     >
                       {t('team.revokeInvite', 'Revoke')}
                     </button>
@@ -513,15 +513,15 @@ export function ProjectTeamTab({ projectId: propProjectId }: ProjectTeamTabProps
       {/* Invite Member Modal */}
       {inviteModalOpen && (
         <div className="fixed inset-0 z-50 overflow-y-auto bg-black/70 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="w-full max-w-lg rounded-2xl border border-slate-800 bg-slate-950 p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-150">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-              <h3 className="text-base font-bold text-white flex items-center gap-2">
+          <div className="w-full max-w-lg rounded-2xl border border-[var(--border-color)] bg-[var(--card-bg)] p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-150">
+            <div className="flex items-center justify-between border-b border-[var(--border-color)] pb-3">
+              <h3 className="text-base font-bold text-[var(--foreground-color)] flex items-center gap-2">
                 <UserPlus size={18} className="text-orange-500" />
                 {t('team.inviteModalTitle', 'Invite Team Member')}
               </h3>
               <button
                 onClick={() => setInviteModalOpen(false)}
-                className="text-slate-400 hover:text-white p-1 rounded-lg"
+                className="text-[var(--table-header-color)] hover:text-[var(--foreground-color)] p-1 rounded-lg transition-colors cursor-pointer"
               >
                 <X size={16} />
               </button>
@@ -530,11 +530,11 @@ export function ProjectTeamTab({ projectId: propProjectId }: ProjectTeamTabProps
             <form onSubmit={handleSendInvite} className="space-y-4">
               <div>
                 <div className="flex items-center justify-between mb-1">
-                  <label className="block text-xs font-semibold text-slate-300">
-                    {t('team.username', 'Username')} <span className="text-slate-500 font-normal">({t('common.optional', 'optional')})</span>
+                  <label className="block text-xs font-semibold text-[var(--foreground-color)]">
+                    {t('team.username', 'Username')} <span className="text-[var(--table-header-color)] font-normal">({t('common.optional', 'optional')})</span>
                   </label>
                   {lookupLoading && (
-                    <span className="text-[10px] text-orange-400 animate-pulse flex items-center gap-1">
+                    <span className="text-[10px] text-orange-500 animate-pulse flex items-center gap-1">
                       <RefreshCw size={10} className="animate-spin" />
                       {t('common.searching', 'Searching...')}
                     </span>
@@ -564,17 +564,17 @@ export function ProjectTeamTab({ projectId: propProjectId }: ProjectTeamTabProps
                     placeholder={t('team.usernamePlaceholder', 'e.g., engineer_ahmad')}
                     className="dense-input w-full rounded-xl text-xs pl-8"
                   />
-                  <User className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                  <User className="w-3.5 h-3.5 text-[var(--table-header-color)] absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                 </div>
                 {lookupMatch && (
-                  <div className="mt-1.5 p-2 rounded-lg bg-emerald-950/40 border border-emerald-800/60 text-[11px] text-emerald-300 flex items-center justify-between">
+                  <div className="mt-1.5 p-2 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-[11px] text-emerald-600 dark:text-emerald-300 flex items-center justify-between">
                     <span>✓ {t('team.userFound', 'Account found')}: <strong>{lookupMatch.name || inviteUsername}</strong> ({lookupMatch.email})</span>
                   </div>
                 )}
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">{t('team.fullName', 'Full Name')}</label>
+                <label className="block text-xs font-semibold text-[var(--foreground-color)] mb-1">{t('team.fullName', 'Full Name')}</label>
                 <input
                   type="text"
                   value={inviteName}
@@ -586,7 +586,7 @@ export function ProjectTeamTab({ projectId: propProjectId }: ProjectTeamTabProps
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">{t('team.emailAddress', 'Email Address')}</label>
+                <label className="block text-xs font-semibold text-[var(--foreground-color)] mb-1">{t('team.emailAddress', 'Email Address')}</label>
                 <input
                   type="email"
                   value={inviteEmail}
@@ -598,17 +598,17 @@ export function ProjectTeamTab({ projectId: propProjectId }: ProjectTeamTabProps
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">{t('team.selectRole', 'Project Role')}</label>
+                <label className="block text-xs font-semibold text-[var(--foreground-color)] mb-1">{t('team.selectRole', 'Project Role')}</label>
                 <div className="grid grid-cols-3 gap-2">
                   {(["PROJECT_MANAGER", "ENGINEER", "QA"] as const).map((r) => (
                     <button
                       key={r}
                       type="button"
                       onClick={() => handleRoleChange(r, false)}
-                      className={`p-2.5 rounded-xl border text-xs font-bold text-center transition-all ${
+                      className={`p-2.5 rounded-xl border text-xs font-bold text-center transition-all cursor-pointer ${
                         inviteRole === r
-                          ? "bg-orange-500/20 border-orange-500 text-orange-300 shadow-[0_0_12px_rgba(234,88,12,0.2)]"
-                          : "bg-slate-900 border-slate-800 text-slate-400 hover:border-slate-700"
+                          ? "bg-orange-500/20 border-orange-500 text-orange-600 dark:text-orange-300 shadow-[0_0_12px_rgba(234,88,12,0.2)]"
+                          : "bg-[var(--card-bg-subtle)] border-[var(--border-color)] text-[var(--table-header-color)] hover:border-orange-500/50 hover:text-[var(--foreground-color)]"
                       }`}
                     >
                       {r === "PROJECT_MANAGER" ? t('team.roles.pm', 'PM') : r === "QA" ? t('team.roles.qa', 'QA') : t('team.roles.engineer', 'Engineer')}
@@ -619,9 +619,9 @@ export function ProjectTeamTab({ projectId: propProjectId }: ProjectTeamTabProps
 
               {/* Granular Permissions Matrix for Engineer */}
               {inviteRole === "ENGINEER" && (
-                <div className="space-y-2 pt-2 border-t border-slate-800">
+                <div className="space-y-2 pt-2 border-t border-[var(--border-color)]">
                   <div className="flex items-center justify-between">
-                    <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                    <label className="text-xs font-semibold text-[var(--foreground-color)] uppercase tracking-wider">
                       {t('team.customPermissions', 'Module Access Matrix')}
                     </label>
                   </div>
@@ -632,9 +632,9 @@ export function ProjectTeamTab({ projectId: propProjectId }: ProjectTeamTabProps
                       return (
                         <div
                           key={key}
-                          className="flex items-center justify-between p-2 rounded-lg bg-slate-900/60 border border-slate-800/80 text-xs"
+                          className="flex items-center justify-between p-2 rounded-lg bg-[var(--card-bg-subtle)] border border-[var(--border-color)]/80 text-xs"
                         >
-                          <span className="text-slate-300 font-medium">{t(PAGE_LABELS[key].labelKey, PAGE_LABELS[key].defaultLabel)}</span>
+                          <span className="text-[var(--foreground-color)] font-medium">{t(PAGE_LABELS[key].labelKey, PAGE_LABELS[key].defaultLabel)}</span>
                           <div className="flex items-center gap-1">
                             {(["EDIT", "VIEW", "NONE"] as const).map((action) => (
                               <button
@@ -646,14 +646,14 @@ export function ProjectTeamTab({ projectId: propProjectId }: ProjectTeamTabProps
                                     [key]: action,
                                   })
                                 }
-                                className={`px-2 py-0.5 rounded text-[10px] font-bold border transition-colors ${
+                                className={`px-2 py-0.5 rounded text-[10px] font-bold border transition-colors cursor-pointer ${
                                   perm === action
                                     ? action === "EDIT"
-                                      ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/40"
+                                      ? "bg-emerald-500/20 text-emerald-600 dark:text-emerald-300 border-emerald-500/40"
                                       : action === "VIEW"
-                                      ? "bg-blue-500/20 text-blue-300 border-blue-500/40"
-                                      : "bg-rose-500/20 text-rose-300 border-rose-500/40"
-                                    : "bg-slate-800/60 text-slate-500 border-transparent hover:text-slate-300"
+                                      ? "bg-blue-500/20 text-blue-600 dark:text-blue-300 border-blue-500/40"
+                                      : "bg-rose-500/20 text-rose-600 dark:text-rose-300 border-rose-500/40"
+                                    : "bg-[var(--card-bg)] text-[var(--table-header-color)] border-[var(--border-color)]/60 hover:text-[var(--foreground-color)]"
                                 }`}
                               >
                                 {action === "EDIT" ? t('team.permEdit', 'EDIT') : action === "VIEW" ? t('team.permView', 'VIEW') : t('team.permNone', 'NONE')}
@@ -667,18 +667,18 @@ export function ProjectTeamTab({ projectId: propProjectId }: ProjectTeamTabProps
                 </div>
               )}
 
-              <div className="flex justify-end gap-2 pt-3 border-t border-slate-800">
+              <div className="flex justify-end gap-2 pt-3 border-t border-[var(--border-color)]">
                 <button
                   type="button"
                   onClick={() => setInviteModalOpen(false)}
-                  className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white"
+                  className="px-4 py-2 rounded-xl text-xs font-semibold text-[var(--table-header-color)] hover:text-[var(--foreground-color)] transition-colors cursor-pointer"
                 >
                   {t('common.cancel', 'Cancel')}
                 </button>
                 <button
                   type="submit"
                   disabled={sendingInvite}
-                  className="flex items-center gap-2 px-4 py-2 rounded-xl bg-orange-600 hover:bg-orange-500 text-white text-xs font-semibold disabled:opacity-50"
+                  className="flex items-center gap-2 px-4 py-2 rounded-xl bg-orange-600 hover:bg-orange-500 text-white text-xs font-semibold disabled:opacity-50 cursor-pointer shadow-xs"
                 >
                   <Send size={13} />
                   {sendingInvite ? t('team.sending', 'Sending...') : t('team.sendInvite', 'Send Invitation')}
@@ -692,15 +692,15 @@ export function ProjectTeamTab({ projectId: propProjectId }: ProjectTeamTabProps
       {/* Edit Permissions Modal */}
       {editingMember && (
         <div className="fixed inset-0 z-50 overflow-y-auto bg-black/70 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="w-full max-w-lg rounded-2xl border border-slate-800 bg-slate-950 p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-150">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-              <h3 className="text-base font-bold text-white flex items-center gap-2">
+          <div className="w-full max-w-lg rounded-2xl border border-[var(--border-color)] bg-[var(--card-bg)] p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-150">
+            <div className="flex items-center justify-between border-b border-[var(--border-color)] pb-3">
+              <h3 className="text-base font-bold text-[var(--foreground-color)] flex items-center gap-2">
                 <Shield size={18} className="text-orange-500" />
                 {t('team.editModalTitle', 'Edit Permissions')}: {editingMember.name || editingMember.username}
               </h3>
               <button
                 onClick={() => setEditingMember(null)}
-                className="text-slate-400 hover:text-white p-1 rounded-lg"
+                className="text-[var(--table-header-color)] hover:text-[var(--foreground-color)] p-1 rounded-lg transition-colors cursor-pointer"
               >
                 <X size={16} />
               </button>
@@ -708,17 +708,17 @@ export function ProjectTeamTab({ projectId: propProjectId }: ProjectTeamTabProps
 
             <form onSubmit={handleSaveMemberEdit} className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">{t('team.role', 'Role')}</label>
+                <label className="block text-xs font-semibold text-[var(--foreground-color)] mb-1">{t('team.role', 'Role')}</label>
                 <div className="grid grid-cols-3 gap-2">
                   {(["PROJECT_MANAGER", "ENGINEER", "QA"] as const).map((r) => (
                     <button
                       key={r}
                       type="button"
                       onClick={() => handleRoleChange(r, true)}
-                      className={`p-2.5 rounded-xl border text-xs font-bold text-center transition-all ${
+                      className={`p-2.5 rounded-xl border text-xs font-bold text-center transition-all cursor-pointer ${
                         editRole === r
-                          ? "bg-orange-500/20 border-orange-500 text-orange-300 shadow-[0_0_12px_rgba(234,88,12,0.2)]"
-                          : "bg-slate-900 border-slate-800 text-slate-400 hover:border-slate-700"
+                          ? "bg-orange-500/20 border-orange-500 text-orange-600 dark:text-orange-300 shadow-[0_0_12px_rgba(234,88,12,0.2)]"
+                          : "bg-[var(--card-bg-subtle)] border-[var(--border-color)] text-[var(--table-header-color)] hover:border-orange-500/50 hover:text-[var(--foreground-color)]"
                       }`}
                     >
                       {r === "PROJECT_MANAGER" ? t('team.roles.pm', 'PM') : r === "QA" ? t('team.roles.qa', 'QA') : t('team.roles.engineer', 'Engineer')}
@@ -729,8 +729,8 @@ export function ProjectTeamTab({ projectId: propProjectId }: ProjectTeamTabProps
 
               {/* Granular Permissions Matrix */}
               {editRole === "ENGINEER" && (
-                <div className="space-y-2 pt-2 border-t border-slate-800">
-                  <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider block">
+                <div className="space-y-2 pt-2 border-t border-[var(--border-color)]">
+                  <label className="text-xs font-semibold text-[var(--foreground-color)] uppercase tracking-wider block">
                     {t('team.customPermissions', 'Module Access Matrix')}
                   </label>
 
@@ -740,9 +740,9 @@ export function ProjectTeamTab({ projectId: propProjectId }: ProjectTeamTabProps
                       return (
                         <div
                           key={key}
-                          className="flex items-center justify-between p-2 rounded-lg bg-slate-900/60 border border-slate-800/80 text-xs"
+                          className="flex items-center justify-between p-2 rounded-lg bg-[var(--card-bg-subtle)] border border-[var(--border-color)]/80 text-xs"
                         >
-                          <span className="text-slate-300 font-medium">{t(PAGE_LABELS[key].labelKey, PAGE_LABELS[key].defaultLabel)}</span>
+                          <span className="text-[var(--foreground-color)] font-medium">{t(PAGE_LABELS[key].labelKey, PAGE_LABELS[key].defaultLabel)}</span>
                           <div className="flex items-center gap-1">
                             {(["EDIT", "VIEW", "NONE"] as const).map((action) => (
                               <button
@@ -754,14 +754,14 @@ export function ProjectTeamTab({ projectId: propProjectId }: ProjectTeamTabProps
                                     [key]: action,
                                   })
                                 }
-                                className={`px-2 py-0.5 rounded text-[10px] font-bold border transition-colors ${
+                                className={`px-2 py-0.5 rounded text-[10px] font-bold border transition-colors cursor-pointer ${
                                   perm === action
                                     ? action === "EDIT"
-                                      ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/40"
+                                      ? "bg-emerald-500/20 text-emerald-600 dark:text-emerald-300 border-emerald-500/40"
                                       : action === "VIEW"
-                                      ? "bg-blue-500/20 text-blue-300 border-blue-500/40"
-                                      : "bg-rose-500/20 text-rose-300 border-rose-500/40"
-                                    : "bg-slate-800/60 text-slate-500 border-transparent hover:text-slate-300"
+                                      ? "bg-blue-500/20 text-blue-600 dark:text-blue-300 border-blue-500/40"
+                                      : "bg-rose-500/20 text-rose-600 dark:text-rose-300 border-rose-500/40"
+                                    : "bg-[var(--card-bg)] text-[var(--table-header-color)] border-[var(--border-color)]/60 hover:text-[var(--foreground-color)]"
                                 }`}
                               >
                                 {action === "EDIT" ? t('team.permEdit', 'EDIT') : action === "VIEW" ? t('team.permView', 'VIEW') : t('team.permNone', 'NONE')}
@@ -775,18 +775,18 @@ export function ProjectTeamTab({ projectId: propProjectId }: ProjectTeamTabProps
                 </div>
               )}
 
-              <div className="flex justify-end gap-2 pt-3 border-t border-slate-800">
+              <div className="flex justify-end gap-2 pt-3 border-t border-[var(--border-color)]">
                 <button
                   type="button"
                   onClick={() => setEditingMember(null)}
-                  className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white"
+                  className="px-4 py-2 rounded-xl text-xs font-semibold text-[var(--table-header-color)] hover:text-[var(--foreground-color)] transition-colors cursor-pointer"
                 >
                   {t('common.cancel', 'Cancel')}
                 </button>
                 <button
                   type="submit"
                   disabled={savingEdit}
-                  className="px-4 py-2 rounded-xl bg-orange-600 hover:bg-orange-500 text-white text-xs font-semibold disabled:opacity-50"
+                  className="px-4 py-2 rounded-xl bg-orange-600 hover:bg-orange-500 text-white text-xs font-semibold disabled:opacity-50 cursor-pointer shadow-xs"
                 >
                   {savingEdit ? t('team.saving', 'Saving...') : t('team.saveChanges', 'Save Changes')}
                 </button>

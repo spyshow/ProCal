@@ -102,7 +102,7 @@ export function buildReportWorkbook(
         : cableCell(project, r.cableMm2),
       Model: r.breakerModel,
       Phase: r.isThreePhase ? "3Φ" : "1Φ",
-      "Trip Unit Settings": r.isThreePhase && r.breakerAmps >= 100 ? `Ir=${r.current.toFixed(1)}A, Isd=${r.breakerAmps * 4}A, tsd=${r.type === 'INCOMER' ? '0.30s' : '0.05s'}, Ii=${r.breakerAmps * 10}A` : "Thermal-Magnetic Type C",
+      "Trip Unit Settings": r.isThreePhase && r.breakerAmps >= 100 ? `Ir=${(r.current || 0).toFixed(1)}A, Isd=${(r.breakerAmps || 0) * 4}A, tsd=${r.type === 'INCOMER' ? '0.30s' : '0.05s'}, Ii=${(r.breakerAmps || 0) * 10}A` : "Thermal-Magnetic Type C",
     }))
   );
   appendSheet(
@@ -228,7 +228,8 @@ function appendSheet(
   XLSX.utils.book_append_sheet(wb, ws, name);
 }
 
-function round(value: number, digits: number): number {
+function round(value: number | null | undefined, digits: number): number {
+  if (value == null || !Number.isFinite(value)) return 0;
   const factor = 10 ** digits;
   return Math.round(value * factor) / factor;
 }

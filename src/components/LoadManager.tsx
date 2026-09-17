@@ -100,8 +100,8 @@ export default function LoadManager({ projectId, loads, onRefresh }: LoadManager
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-sm font-bold text-white uppercase tracking-wider">Load Library</h3>
-          <p className="text-xs text-slate-400">Manage electrical equipment, connected loads, and power factors</p>
+          <h3 className="text-sm font-bold text-[var(--foreground-color)] uppercase tracking-wider">Load Library</h3>
+          <p className="text-xs text-[var(--table-header-color)]">Manage electrical equipment, connected loads, and power factors</p>
         </div>
         {!isReadOnly && (
           <Button
@@ -123,55 +123,55 @@ export default function LoadManager({ projectId, loads, onRefresh }: LoadManager
           <form onSubmit={handleSubmit} className="space-y-4 py-2">
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               <div className="col-span-2">
-                <label className="block mb-1 text-xs font-semibold text-slate-300">Name</label>
+                <label className="block mb-1 text-xs font-semibold text-[var(--foreground-color)]">Name</label>
                 <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="e.g. Corridor Lighting" required />
               </div>
               <div className="col-span-2">
-                <label className="block mb-1 text-xs font-semibold text-slate-300">Category</label>
+                <label className="block mb-1 text-xs font-semibold text-[var(--foreground-color)]">Category</label>
                 <select
                   value={form.category}
                   onChange={(e) => setForm({ ...form, category: e.target.value })}
-                  className="flex h-9 w-full rounded-md border border-slate-700/80 bg-slate-900/80 px-3 py-1 text-sm text-slate-100 shadow-sm transition-all focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
+                  className="flex h-9 w-full rounded-md border border-[var(--border-color)] bg-[var(--card-bg)] px-3 py-1 text-sm text-[var(--foreground-color)] shadow-xs transition-all focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
                 >
                   {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
                 </select>
               </div>
               <div>
-                <label className="block mb-1 text-xs font-semibold text-slate-300">Power (kW)</label>
+                <label className="block mb-1 text-xs font-semibold text-[var(--foreground-color)]">Power (kW)</label>
                 <Input value={form.power || ''} onChange={(e) => setForm({ ...form, power: parseFloat(e.target.value) || 0 })} type="number" step="0.1" required />
               </div>
               <div>
-                <label className="block mb-1 text-xs font-semibold text-slate-300">Voltage (V)</label>
+                <label className="block mb-1 text-xs font-semibold text-[var(--foreground-color)]">Voltage (V)</label>
                 <select
                   value={form.voltage}
                   onChange={(e) => setForm({ ...form, voltage: parseInt(e.target.value) })}
-                  className="flex h-9 w-full rounded-md border border-slate-700/80 bg-slate-900/80 px-3 py-1 text-sm text-slate-100 shadow-sm transition-all focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
+                  className="flex h-9 w-full rounded-md border border-[var(--border-color)] bg-[var(--card-bg)] px-3 py-1 text-sm text-[var(--foreground-color)] shadow-xs transition-all focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
                 >
                   <option value={230}>230V (1-Ph)</option>
                   <option value={400}>400V (3-Ph)</option>
                 </select>
               </div>
               <div>
-                <label className="block mb-1 text-xs font-semibold text-slate-300">Phase</label>
+                <label className="block mb-1 text-xs font-semibold text-[var(--foreground-color)]">Phase</label>
                 <select
                   value={form.phase}
                   onChange={(e) => setForm({ ...form, phase: parseInt(e.target.value) })}
-                  className="flex h-9 w-full rounded-md border border-slate-700/80 bg-slate-900/80 px-3 py-1 text-sm text-slate-100 shadow-sm transition-all focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
+                  className="flex h-9 w-full rounded-md border border-[var(--border-color)] bg-[var(--card-bg)] px-3 py-1 text-sm text-[var(--foreground-color)] shadow-xs transition-all focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
                 >
                   <option value={1}>1-Phase</option>
                   <option value={3}>3-Phase</option>
                 </select>
               </div>
               <div>
-                <label className="block mb-1 text-xs font-semibold text-slate-300">PF</label>
+                <label className="block mb-1 text-xs font-semibold text-[var(--foreground-color)]">PF</label>
                 <Input value={form.powerFactor} onChange={(e) => setForm({ ...form, powerFactor: parseFloat(e.target.value) || 0.85 })} type="number" step="0.01" />
               </div>
               <div>
-                <label className="block mb-1 text-xs font-semibold text-slate-300">Demand Factor</label>
+                <label className="block mb-1 text-xs font-semibold text-[var(--foreground-color)]">Demand Factor</label>
                 <Input value={form.demandFactor} onChange={(e) => setForm({ ...form, demandFactor: parseFloat(e.target.value) || 1 })} type="number" step="0.01" />
               </div>
               <div>
-                <label className="block mb-1 text-xs font-semibold text-slate-300">Quantity</label>
+                <label className="block mb-1 text-xs font-semibold text-[var(--foreground-color)]">Quantity</label>
                 <Input value={form.quantity} onChange={(e) => setForm({ ...form, quantity: parseInt(e.target.value) || 1 })} type="number" min="1" />
               </div>
             </div>
@@ -202,14 +202,14 @@ export default function LoadManager({ projectId, loads, onRefresh }: LoadManager
         <TableBody>
           {loads.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={9} className="text-center py-6 text-slate-500">
+              <TableCell colSpan={9} className="text-center py-6 text-[var(--table-header-color)]">
                 No load items defined yet
               </TableCell>
             </TableRow>
           ) : (
             loads.map((l) => (
               <TableRow key={l.id}>
-                <TableCell className="font-semibold text-slate-100">{l.name}</TableCell>
+                <TableCell className="font-semibold text-[var(--foreground-color)]">{l.name}</TableCell>
                 <TableCell>
                   <Badge variant="outline">{l.category}</Badge>
                 </TableCell>
@@ -218,19 +218,19 @@ export default function LoadManager({ projectId, loads, onRefresh }: LoadManager
                 <TableCell className="font-mono">{l.powerFactor}</TableCell>
                 <TableCell className="font-mono">{l.demandFactor}</TableCell>
                 <TableCell className="font-mono">{l.quantity}</TableCell>
-                <TableCell className="font-mono text-orange-400 font-bold">{l.runningCurrent} A</TableCell>
+                <TableCell className="font-mono text-orange-600 dark:text-orange-400 font-bold">{l.runningCurrent} A</TableCell>
                 <TableCell className="text-right">
                   {!isReadOnly ? (
                     <div className="flex items-center justify-end gap-1">
                       <Button onClick={() => startEdit(l)} variant="ghost" size="icon" className="h-7 w-7">
-                        <Pencil className="w-3.5 h-3.5 text-slate-400 hover:text-orange-400" />
+                        <Pencil className="w-3.5 h-3.5 text-[var(--table-header-color)] hover:text-orange-500" />
                       </Button>
                       <Button onClick={() => handleDelete(l.id)} variant="ghost" size="icon" className="h-7 w-7">
-                        <Trash2 className="w-3.5 h-3.5 text-slate-400 hover:text-rose-400" />
+                        <Trash2 className="w-3.5 h-3.5 text-[var(--table-header-color)] hover:text-rose-500" />
                       </Button>
                     </div>
                   ) : (
-                    <span className="text-slate-600 text-xs">—</span>
+                    <span className="text-[var(--table-header-color)] text-xs">—</span>
                   )}
                 </TableCell>
               </TableRow>

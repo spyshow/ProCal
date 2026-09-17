@@ -134,14 +134,17 @@ export default function ReportHeader({
         </div>
         <div className="text-right text-[10px] space-y-0.5 font-mono text-slate-300 flex flex-col items-end">
           {displayLogo ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={displayLogo}
-              alt={`${displayCompany} logo`}
-              className="h-6 max-w-[140px] w-auto object-contain mb-0.5 bg-white/90 p-0.5 rounded"
-            />
+            <div className="flex items-center justify-end max-h-11 max-w-[150px] mb-1 overflow-hidden">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={displayLogo}
+                alt={`${displayCompany} logo`}
+                style={{ maxHeight: '44px', maxWidth: '150px', width: 'auto', height: 'auto', objectFit: 'contain' }}
+                className="max-h-11 max-w-[150px] w-auto h-auto object-contain bg-white/90 p-1 rounded shadow-xs"
+              />
+            </div>
           ) : (
-            <div className="font-bold text-xs text-amber-400">{displayCompany}</div>
+            <div className="font-bold text-xs text-amber-400 mb-0.5">{displayCompany}</div>
           )}
           <div>Ref: <span className="font-semibold text-white">PRJ-{project.id.slice(-6).toUpperCase()}</span></div>
           <div>Date: <span className="font-semibold text-white">{reportDate}</span></div>

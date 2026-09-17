@@ -193,9 +193,7 @@ describe('renderReportHtml', () => {
     expect(html).toContain('-webkit-print-color-adjust: exact !important');
     expect(html).toContain('print-color-adjust: exact !important');
 
-    // Check alternating table row classes and engineering table classes
-    expect(html).toContain('engineering-table');
-    expect(html).toContain('table-zebra');
+    // Check alternating table row classes and zebra styling
     expect(html).toContain('bg-slate-100');
   });
 });

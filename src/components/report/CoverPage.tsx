@@ -147,7 +147,7 @@ export default function CoverPage({
           <h2 className="text-[10.5px] font-bold text-slate-900 uppercase mb-1 border-l-4 border-amber-500 pl-2">
             2. Project Distribution Hierarchy &amp; Infrastructure
           </h2>
-          <table className="w-full text-left text-[9.5px] border border-slate-300 rounded-lg overflow-hidden engineering-table table-zebra">
+          <table className="w-full text-left text-[9.5px] border border-slate-300 rounded-lg overflow-hidden">
             <thead>
               <tr className="bg-slate-900 text-white text-[8.5px] font-bold uppercase tracking-wider">
                 <th className="p-1.5 border-r border-slate-800 whitespace-nowrap">Building / Structure</th>
@@ -246,7 +246,7 @@ export default function CoverPage({
             <h2 className="text-[10.5px] font-bold text-slate-900 uppercase mb-1 border-l-4 border-amber-500 pl-2">
               3. Document Revisions History
             </h2>
-            <table className="w-full text-center text-[9px] border border-slate-300 rounded-lg overflow-hidden engineering-table table-zebra">
+            <table className="w-full text-center text-[9px] border border-slate-300 rounded-lg overflow-hidden">
               <thead>
                 <tr className="bg-slate-900 text-white font-bold uppercase tracking-wider text-[8px]">
                   <th className="p-1 border-r border-slate-800 w-10 whitespace-nowrap text-center">Rev</th>

@@ -84,7 +84,7 @@ export default function LoadSchedule({
       </div>
 
       {/* Engineering Load Table */}
-      <table className="w-full text-center text-xs border border-slate-300 rounded-lg overflow-hidden shadow-xs engineering-table table-zebra">
+      <table className="w-full text-center text-xs border border-slate-300 rounded-lg overflow-hidden shadow-xs">
         <thead>
           <tr className="bg-slate-900 text-white text-[10px] font-bold uppercase tracking-wider">
             <th className="p-2 border-r border-slate-800 text-center">#</th>

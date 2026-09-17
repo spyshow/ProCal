@@ -885,6 +885,81 @@ html[dir="rtl"] .font-mono {
 }
 
 /* ---------------------------------------------------------------------------
+   Report Document Isolation - Always White Drafting Paper & Dark Technical Ink
+   Prevents dark/midnight themes from turning report fonts white on screen
+   --------------------------------------------------------------------------- */
+.screen-only-report,
+.report-root,
+#print-all-tabs {
+  --background-color: #ffffff !important;
+  --foreground-color: #0f172a !important;
+  --text-muted: #475569 !important;
+  --card-bg: #ffffff !important;
+  --card-fg: #0f172a !important;
+  --border-color: #cbd5e1 !important;
+  --border-color-subtle: #e2e8f0 !important;
+  --table-border: #cbd5e1 !important;
+  --table-header-bg: #0f172a !important;
+  --table-header-color: #ffffff !important;
+  --table-zebra-bg: #f1f5f9 !important;
+  --table-row-hover: #e2e8f0 !important;
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+}
+
+.screen-only-report table,
+.report-root table,
+#print-all-tabs table {
+  color: #0f172a !important;
+}
+
+.screen-only-report td,
+.report-root td,
+#print-all-tabs td {
+  color: inherit;
+}
+
+.screen-only-report thead tr,
+.report-root thead tr,
+#print-all-tabs thead tr {
+  background-color: #0f172a !important;
+  color: #ffffff !important;
+}
+
+.screen-only-report thead th,
+.report-root thead th,
+#print-all-tabs thead th {
+  background-color: #0f172a !important;
+  color: #ffffff !important;
+  border-color: #1e293b !important;
+}
+
+/* Ensure alternating zebra striping is always visible on screen and print */
+.screen-only-report table tbody tr:nth-child(even):not([class*="bg-amber"]):not([class*="bg-sky"]):not([class*="bg-yellow"]) td,
+.report-root table tbody tr:nth-child(even):not([class*="bg-amber"]):not([class*="bg-sky"]):not([class*="bg-yellow"]) td,
+#print-all-tabs table tbody tr:nth-child(even):not([class*="bg-amber"]):not([class*="bg-sky"]):not([class*="bg-yellow"]) td {
+  background-color: #f1f5f9 !important;
+}
+
+.screen-only-report table tbody tr:nth-child(odd):not([class*="bg-amber"]):not([class*="bg-sky"]):not([class*="bg-yellow"]) td,
+.report-root table tbody tr:nth-child(odd):not([class*="bg-amber"]):not([class*="bg-sky"]):not([class*="bg-yellow"]) td,
+#print-all-tabs table tbody tr:nth-child(odd):not([class*="bg-amber"]):not([class*="bg-sky"]):not([class*="bg-yellow"]) td {
+  background-color: #ffffff !important;
+}
+
+.screen-only-report table tbody tr[class*="bg-amber"] td,
+.report-root table tbody tr[class*="bg-amber"] td,
+#print-all-tabs table tbody tr[class*="bg-amber"] td {
+  background-color: #fef3c7 !important;
+}
+
+.screen-only-report table tbody tr[class*="bg-sky"] td,
+.report-root table tbody tr[class*="bg-sky"] td,
+#print-all-tabs table tbody tr[class*="bg-sky"] td {
+  background-color: #f0f9ff !important;
+}
+
+/* ---------------------------------------------------------------------------
    Print styles - Professional PDF report output (Landscape A4: 297mm x 210mm)
    --------------------------------------------------------------------------- */
 

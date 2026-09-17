@@ -113,7 +113,7 @@ export default function BOMSchedule({
           <span>1. Cable Drums &amp; Total Conductor Sizing Bill of Quantities</span>
           <span className="font-mono text-slate-500 text-[11px]">Total Estimated Run: {totalCableLength} m</span>
         </h3>
-        <table className="w-full text-center text-xs border border-slate-300 rounded-lg overflow-hidden shadow-xs engineering-table table-zebra">
+        <table className="w-full text-center text-xs border border-slate-300 rounded-lg overflow-hidden shadow-xs">
           <thead>
             <tr className="bg-slate-900 text-white text-[10px] font-bold uppercase tracking-wider">
               <th className="p-2 border-r border-slate-800 text-center">Cable Specification</th>
@@ -154,7 +154,7 @@ export default function BOMSchedule({
           </h3>
           <span className="text-[11px] text-slate-500 font-mono">Total Units: <strong className="text-slate-900">{totalBreakers}</strong></span>
         </div>
-        <table className="w-full text-center text-xs border border-slate-300 rounded-lg overflow-hidden shadow-xs engineering-table table-zebra">
+        <table className="w-full text-center text-xs border border-slate-300 rounded-lg overflow-hidden shadow-xs">
           <thead>
             <tr className="bg-slate-900 text-white text-[10px] font-bold uppercase tracking-wider">
               <th className="p-2 border-r border-slate-800 text-center">Rating (In)</th>

@@ -251,7 +251,7 @@ export default function VDSchedule({
           Standard: <span className="font-bold text-slate-900">IEC 60364-5-52</span>
         </span>
       </div>
-      <table className="w-full text-left text-xs border border-slate-300 rounded-lg overflow-hidden shadow-xs engineering-table table-zebra">
+      <table className="w-full text-left text-xs border border-slate-300 rounded-lg overflow-hidden shadow-xs">
         <thead>
           <tr className="bg-slate-900 text-white text-[10px] font-bold uppercase tracking-wider">
             <th className="p-2 border-r border-slate-800">#</th>

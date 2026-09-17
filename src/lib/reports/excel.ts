@@ -138,14 +138,7 @@ export function buildReportWorkbook(
       Status: r.status,
     }))
   );
-  appendSheet(wb, "BOM", buildBomRows(project, findBreaker, breakerSettings));
-  appendSheet(wb, "BOM — Breakers", buildBomBreakerRows(project, findBreaker, breakerSettings));
-  appendSheet(wb, "BOM — Cables", buildBomCableRows(project, findBreaker, breakerSettings));
-
-  const detailed = aggregateDetailedBOM(project, findBreaker, breakerSettings);
-  if (detailed.annexItems && detailed.annexItems.length > 0) {
-    appendSheet(wb, "BOM — Procurement Annex", buildBomAnnexRows(detailed.annexItems));
-  }
+  appendAoaSheet(wb, "BOM", buildBomAoa(project, findBreaker, breakerSettings));
 
   return wb;
 }
@@ -198,6 +191,110 @@ function buildProjectRows(project: Project): Record<string, string | number>[] {
   return rows;
 }
 
+/** Single consolidated BOM sheet with clean vertically stacked tables for Cables, Breakers, and Annex. */
+export function buildBomAoa(
+  project: Project,
+  findBreaker?: FindBreaker,
+  breakerSettings?: any[]
+): (string | number)[][] {
+  const detailed = aggregateDetailedBOM(project, findBreaker, breakerSettings);
+  const aoa: (string | number)[][] = [];
+
+  // --- Section 1: Cable Drums & Total Conductor Sizing BOQ ---
+  aoa.push([
+    "Cable Specification",
+    "Cores / System",
+    "Conductor Size",
+    "Circuits",
+    "Total Length (m)",
+  ]);
+
+  for (const c of detailed.cableRows) {
+    aoa.push([
+      c.sizeLabel,
+      c.cores === 2 ? "2-Core (1φ)" : "4-Core (3φ)",
+      cableCell(project, c.sizeNum),
+      c.count,
+      Math.round(c.length),
+    ]);
+  }
+
+  aoa.push([
+    "Total Aggregated Cables",
+    "",
+    "",
+    detailed.allItems.length,
+    detailed.totalCableLength,
+  ]);
+
+  // Blank separator
+  aoa.push([]);
+
+  // --- Section 2: Protective Switchgear & Circuit Breakers BOQ ---
+  aoa.push(["2. Protective Switchgear & Circuit Breakers BOQ"]);
+  aoa.push([
+    "Rating (In)",
+    "Category",
+    "Poles",
+    "Model & Manufacturer",
+    "Sourcing Status",
+    "Quantity",
+  ]);
+
+  for (const b of detailed.breakerRows) {
+    aoa.push([
+      b.ratingLabel,
+      b.category,
+      b.poles,
+      b.model,
+      b.sourcingStatus,
+      b.count,
+    ]);
+  }
+
+  aoa.push([
+    "Total Protective Switchgear Units",
+    "",
+    "",
+    "",
+    "",
+    detailed.totalBreakers,
+  ]);
+
+  // --- Section 3: Procurement Technical Specifications Annex (if any) ---
+  if (detailed.annexItems && detailed.annexItems.length > 0) {
+    aoa.push([]);
+    aoa.push(["3. Procurement Technical Specifications Annex"]);
+    aoa.push([
+      "Rating (In)",
+      "Category",
+      "Poles",
+      "Model / Reference",
+      "Sourcing Status",
+      "Required Icu (kA)",
+      "Standard",
+      "Trip Unit Specification",
+      "Procurement Notes",
+    ]);
+
+    for (const a of detailed.annexItems) {
+      aoa.push([
+        a.ratingLabel,
+        a.category,
+        a.poles,
+        a.model,
+        a.sourcingStatus,
+        a.genericSpec?.requiredIcuKa ? `${a.genericSpec.requiredIcuKa} kA` : "—",
+        a.genericSpec?.standard ?? "IEC 60947-2",
+        a.genericSpec?.tripUnitType ?? "Electronic LSI / TMD",
+        a.genericSpec?.procurementNotes ?? `Procure ${a.ratingLabel} ${a.category} ${a.poles} breaker.`,
+      ]);
+    }
+  }
+
+  return aoa;
+}
+
 /** Consolidated BOM sheet rows (cables + complete protective switchgear). */
 export function buildBomRows(
   project: Project,
@@ -235,75 +332,29 @@ export function buildBomRows(
   return rows;
 }
 
-/** Dedicated Protective Switchgear BOQ sheet rows. */
-export function buildBomBreakerRows(
-  project: Project,
-  findBreaker?: FindBreaker,
-  breakerSettings?: any[]
-): Record<string, string | number>[] {
-  const detailed = aggregateDetailedBOM(project, findBreaker, breakerSettings);
-  const rows: Record<string, string | number>[] = detailed.breakerRows.map((b) => ({
-    "Rating (In)": b.ratingLabel,
-    "Category": b.category,
-    "Poles": b.poles,
-    "Model & Manufacturer": b.model,
-    "Sourcing Status": b.sourcingStatus,
-    "Quantity": b.count,
-  }));
+function appendAoaSheet(
+  wb: XLSX.WorkBook,
+  name: string,
+  aoa: (string | number | null | undefined)[][]
+): void {
+  const ws = XLSX.utils.aoa_to_sheet(aoa);
+  const maxCols = aoa.reduce((max, row) => Math.max(max, row.length), 0);
+  const colWidths: { wch: number }[] = [];
 
-  rows.push({
-    "Rating (In)": "TOTAL",
-    "Category": "",
-    "Poles": "",
-    "Model & Manufacturer": "Total Protective Switchgear Units",
-    "Sourcing Status": "",
-    "Quantity": detailed.totalBreakers,
-  });
+  for (let c = 0; c < maxCols; c++) {
+    let maxLen = 10;
+    for (const row of aoa) {
+      const val = row[c];
+      if (val != null) {
+        if (c === 0 && row.length === 1) continue;
+        maxLen = Math.max(maxLen, String(val).length);
+      }
+    }
+    colWidths.push({ wch: Math.min(Math.max(maxLen + 2, 12), 48) });
+  }
 
-  return rows;
-}
-
-/** Dedicated Cable Drums & Conductor Sizing BOQ sheet rows. */
-export function buildBomCableRows(
-  project: Project,
-  findBreaker?: FindBreaker,
-  breakerSettings?: any[]
-): Record<string, string | number>[] {
-  const detailed = aggregateDetailedBOM(project, findBreaker, breakerSettings);
-  const rows: Record<string, string | number>[] = detailed.cableRows.map((c) => ({
-    "Cable Specification": c.sizeLabel,
-    "Cores / System": c.cores === 2 ? "2-Core (1φ)" : "4-Core (3φ)",
-    "Conductor Size": cableCell(project, c.sizeNum),
-    "Connected Circuits": c.count,
-    "Total Estimated Length (m)": Math.round(c.length),
-  }));
-
-  rows.push({
-    "Cable Specification": "TOTAL",
-    "Cores / System": "",
-    "Conductor Size": "",
-    "Connected Circuits": detailed.allItems.length,
-    "Total Estimated Length (m)": detailed.totalCableLength,
-  });
-
-  return rows;
-}
-
-/** Procurement Technical Specifications Annex sheet rows. */
-export function buildBomAnnexRows(
-  annexItems: DetailedBreakerBOMItem[]
-): Record<string, string | number>[] {
-  return annexItems.map((b) => ({
-    "Rating (In)": b.ratingLabel,
-    "Category": b.category,
-    "Poles": b.poles,
-    "Model / Reference": b.model,
-    "Sourcing Status": b.sourcingStatus,
-    "Required Icu (kA)": b.genericSpec?.requiredIcuKa ? `${b.genericSpec.requiredIcuKa} kA` : "—",
-    "Standard": b.genericSpec?.standard ?? "IEC 60947-2",
-    "Trip Unit Specification": b.genericSpec?.tripUnitType ?? "Electronic LSI / TMD",
-    "Procurement Notes": b.genericSpec?.procurementNotes ?? `Procure ${b.ratingLabel} ${b.category} ${b.poles} breaker.`,
-  }));
+  ws["!cols"] = colWidths;
+  XLSX.utils.book_append_sheet(wb, ws, name);
 }
 
 function appendSheet(

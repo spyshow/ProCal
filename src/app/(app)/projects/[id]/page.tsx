@@ -29,6 +29,7 @@ import type { RoomData } from '@/components/RoomInput';
 import { ProjectTeamTab } from '@/components/settings/ProjectTeamTab';
 import { QAReviewTab } from '@/components/settings/QAReviewTab';
 import { ActivityLogTab } from '@/components/settings/ActivityLogTab';
+import { ProjectSettingsTab } from '@/components/settings/ProjectSettingsTab';
 
 interface FloorDesign {
   id: string;
@@ -110,7 +111,7 @@ export default function ProjectDetailPage() {
   const searchParams = useSearchParams();
   const [loading, setLoading] = useState(() => !(selectedProject && selectedProject.id === projectId));
 
-  type ProjectDetailTab = 'buildings' | 'templates' | 'loads' | 'team' | 'qa' | 'activity';
+  type ProjectDetailTab = 'buildings' | 'templates' | 'loads' | 'team' | 'qa' | 'activity' | 'settings';
   const [activeTab, setActiveTab] = useState<ProjectDetailTab>(() => {
     const tabParam = searchParams?.get('tab');
     if (tabParam === 'team') return 'team';
@@ -118,6 +119,7 @@ export default function ProjectDetailPage() {
     if (tabParam === 'activity' || tabParam === 'audit') return 'activity';
     if (tabParam === 'templates') return 'templates';
     if (tabParam === 'loads') return 'loads';
+    if (tabParam === 'settings' || tabParam === 'engineering' || tabParam === 'company') return 'settings';
     return 'buildings';
   });
 
@@ -129,6 +131,7 @@ export default function ProjectDetailPage() {
     else if (tabParam === 'activity' || tabParam === 'audit') setActiveTab('activity');
     else if (tabParam === 'templates') setActiveTab('templates');
     else if (tabParam === 'loads') setActiveTab('loads');
+    else if (tabParam === 'settings' || tabParam === 'engineering' || tabParam === 'company') setActiveTab('settings');
     else if (tabParam === 'buildings') setActiveTab('buildings');
   }, [searchParams]);
 
@@ -549,8 +552,8 @@ export default function ProjectDetailPage() {
           </p>
         </div>
         <button
-          onClick={startEditProject}
-          className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-800 hover:bg-gray-700 text-sm text-gray-300 transition-colors"
+          onClick={() => handleTabChange('settings')}
+          className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-800 hover:bg-gray-700 text-sm text-gray-300 transition-colors cursor-pointer"
         >
           <Settings size={14} />
           {t('projects.settings', 'Settings')}
@@ -705,6 +708,7 @@ export default function ProjectDetailPage() {
           { key: 'team' as const, label: t('settings.team', 'Project Team'), icon: Users },
           { key: 'qa' as const, label: t('settings.qa', 'QA & Compliance'), icon: ClipboardCheck },
           { key: 'activity' as const, label: t('settings.activity', 'Activity Log'), icon: History },
+          { key: 'settings' as const, label: t('projects.projectSettings', 'Project Settings'), icon: Settings },
         ].map(({ key, label, icon: Icon }) => (
           <button
             key={key}
@@ -1460,6 +1464,23 @@ export default function ProjectDetailPage() {
       {activeTab === 'activity' && (
         <div className="space-y-4">
           <ActivityLogTab projectId={projectId} />
+        </div>
+      )}
+
+      {/* Project Settings Tab */}
+      {activeTab === 'settings' && (
+        <div className="space-y-4">
+          <ProjectSettingsTab
+            projectId={projectId}
+            initialSubtab={
+              searchParams?.get('tab') === 'engineering'
+                ? 'engineering'
+                : searchParams?.get('tab') === 'company'
+                ? 'company'
+                : 'general'
+            }
+            onProjectUpdated={loadProject}
+          />
         </div>
       )}
     </div>

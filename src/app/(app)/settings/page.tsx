@@ -1,13 +1,10 @@
 'use client';
 
-/* eslint-disable react-hooks/immutability, react-hooks/set-state-in-effect, @next/next/no-img-element */
+/* eslint-disable react-hooks/immutability, react-hooks/set-state-in-effect */
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   Settings,
-  Save,
-  RotateCcw,
-  Building2,
   Globe,
   Shield,
   KeyRound,
@@ -19,28 +16,22 @@ import {
   CheckCircle2,
   AlertCircle,
   Palette,
+  Save,
 } from 'lucide-react';
-import { COUNTRY_DEFAULTS, ROOM_TYPES, CountryConfig, AcSizingRule } from '@/lib/country-defaults';
 import { useTranslation, SupportedLanguage } from '@/i18n';
 import { useUser } from '@/context/UserContext';
 import { useProject } from '@/context/ProjectContext';
 import { AppearanceTab } from '@/components/settings/AppearanceTab';
 
-type SettingsTab = 'engineering' | 'company' | 'appearance' | 'language' | 'account';
+type SettingsTab = 'appearance' | 'language' | 'account';
 
 export default function SettingsPage() {
   const router = useRouter();
-  const { t, language, setLanguage, isRtl } = useTranslation();
+  const { t, language, setLanguage } = useTranslation();
   const { user: currentUser, refreshUser } = useUser();
-  const { isQA, canEdit, currentMemberRole, selectedProjectId } = useProject();
-  const isReadOnly = isQA || !canEdit('calculator') || currentMemberRole === 'QA';
+  const { selectedProjectId } = useProject();
 
-  const [settings, setSettings] = useState<Record<string, CountryConfig>>({});
-  const [selectedCountry, setSelectedCountry] = useState('Syria');
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
-  const [activeTab, setActiveTab] = useState<SettingsTab>('engineering');
+  const [activeTab, setActiveTab] = useState<SettingsTab>('appearance');
 
   // Profile change state
   const [profileName, setProfileName] = useState(currentUser?.name || '');
@@ -66,17 +57,7 @@ export default function SettingsPage() {
   const [passwordUpdating, setPasswordUpdating] = useState(false);
   const [passwordMessage, setPasswordMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
-  // Voltage drop limits
-  const [vdLimits, setVdLimits] = useState({ lighting: 3, power: 5 });
-
-  // Company settings
-  const [company, setCompany] = useState({ companyName: "", logoUrl: "" });
-  const [uploading, setUploading] = useState(false);
-
   useEffect(() => {
-    loadSettings();
-    loadCompany();
-
     // Support direct tab linking via ?tab=...
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search);
@@ -84,7 +65,11 @@ export default function SettingsPage() {
       if (tabParam === 'account' || tabParam === 'security') {
         setActiveTab('account');
       } else if (tabParam === 'company') {
-        setActiveTab('company');
+        router.replace(selectedProjectId ? `/projects/${selectedProjectId}?tab=company` : '/projects');
+      } else if (tabParam === 'engineering') {
+        router.replace(selectedProjectId ? `/projects/${selectedProjectId}?tab=engineering` : '/projects');
+      } else if (tabParam === 'settings' || tabParam === 'project') {
+        router.replace(selectedProjectId ? `/projects/${selectedProjectId}?tab=settings` : '/projects');
       } else if (tabParam === 'team' || tabParam === 'activity' || tabParam === 'audit' || tabParam === 'qa' || tabParam === 'review') {
         const targetTab = tabParam === 'audit' ? 'activity' : tabParam === 'review' ? 'qa' : tabParam;
         router.replace(selectedProjectId ? `/projects/${selectedProjectId}?tab=${targetTab}` : '/projects');
@@ -92,90 +77,9 @@ export default function SettingsPage() {
         setActiveTab('language');
       } else if (tabParam === 'appearance' || tabParam === 'theme') {
         setActiveTab('appearance');
-      } else if (tabParam === 'engineering') {
-        setActiveTab('engineering');
       }
     }
   }, [selectedProjectId, router]);
-
-  useEffect(() => {
-    const saved = localStorage.getItem('procal-vd-limits');
-    if (saved) {
-      try {
-        setVdLimits(JSON.parse(saved));
-      } catch {
-        // ignore malformed saved data
-      }
-    }
-  }, []);
-
-  const loadSettings = async () => {
-    try {
-      const res = await fetch('/api/settings');
-      if (res.ok) {
-        const data = await res.json();
-        setSettings(data.countrySettings || data);
-      } else {
-        setSettings({ ...COUNTRY_DEFAULTS });
-      }
-    } catch {
-      setSettings({ ...COUNTRY_DEFAULTS });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const loadCompany = async () => {
-    try {
-      const res = await fetch('/api/settings');
-      if (res.ok) {
-        const data = await res.json();
-        if (data.company) setCompany(data.company);
-      }
-    } catch {}
-  };
-
-  const handleSave = async () => {
-    setSaving(true);
-    setMessage(null);
-    try {
-      const res = await fetch('/api/settings', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ country: selectedCountry, settings: settings[selectedCountry] }),
-      });
-      if (res.ok) {
-        setMessage({ type: 'success', text: t('settings.saveSuccess', 'Settings saved successfully') });
-      } else {
-        setMessage({ type: 'error', text: t('settings.saveError', 'Failed to save settings') });
-      }
-    } catch {
-      setMessage({ type: 'error', text: t('settings.saveError', 'Failed to save settings') });
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const handleSaveCompany = async () => {
-    setSaving(true);
-    setMessage(null);
-    try {
-      const res = await fetch('/api/settings', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ company }),
-      });
-      if (res.ok) {
-        setMessage({ type: 'success', text: t('settings.saveCompanySuccess', 'Company settings saved') });
-      } else {
-        setMessage({ type: 'error', text: t('settings.saveError', 'Failed to save') });
-      }
-    } catch {
-      setMessage({ type: 'error', text: t('settings.saveError', 'Failed to save') });
-    } finally {
-      setSaving(false);
-    }
-  };
 
   const handleUpdateProfile = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -307,89 +211,6 @@ export default function SettingsPage() {
     }
   };
 
-  const handleReset = () => {
-    const defaults = COUNTRY_DEFAULTS[selectedCountry];
-    if (defaults) {
-      setSettings({
-        ...settings,
-        [selectedCountry]: { ...defaults },
-      });
-      setMessage({ type: 'success', text: t('settings.resetSuccess', 'Settings reset to defaults') });
-    }
-  };
-
-  const updateRoomDensity = (roomType: string, value: number) => {
-    const current = settings[selectedCountry];
-    if (!current) return;
-
-    setSettings({
-      ...settings,
-      [selectedCountry]: {
-        ...current,
-        roomDensities: {
-          ...current.roomDensities,
-          [roomType]: value,
-        },
-      },
-    });
-  };
-
-  const updateAcRule = (index: number, field: keyof AcSizingRule, value: number) => {
-    const current = settings[selectedCountry];
-    if (!current) return;
-
-    const newRules = [...current.acSizingRules];
-    newRules[index] = { ...newRules[index], [field]: value };
-
-    setSettings({
-      ...settings,
-      [selectedCountry]: {
-        ...current,
-        acSizingRules: newRules,
-      },
-    });
-  };
-
-  const addAcRule = () => {
-    const current = settings[selectedCountry];
-    if (!current) return;
-
-    setSettings({
-      ...settings,
-      [selectedCountry]: {
-        ...current,
-        acSizingRules: [
-          ...current.acSizingRules,
-          { maxArea: 60, btu: 36000, watts: 10548 },
-        ],
-      },
-    });
-  };
-
-  const removeAcRule = (index: number) => {
-    const current = settings[selectedCountry];
-    if (!current || current.acSizingRules.length <= 1) return;
-
-    const newRules = current.acSizingRules.filter((_, i) => i !== index);
-    setSettings({
-      ...settings,
-      [selectedCountry]: {
-        ...current,
-        acSizingRules: newRules,
-      },
-    });
-  };
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-full">
-        <div className="text-gray-500 text-sm">{t('settings.loading', 'Loading settings…')}</div>
-      </div>
-    );
-  }
-
-  const currentSettings = settings[selectedCountry];
-
   return (
     <div className="p-3 sm:p-5 space-y-6 w-full max-w-[1680px] mx-auto min-h-[80vh]">
       {/* Header */}
@@ -400,7 +221,7 @@ export default function SettingsPage() {
             {t('settings.title', 'Settings')}
           </h1>
           <p className="text-sm text-gray-400 mt-1">
-            {t('settings.subtitle', 'Configure engineering defaults and company branding')}
+            {t('settings.userSubtitle', 'Manage your theme appearance, language preferences, and account security')}
           </p>
         </div>
       </div>
@@ -408,8 +229,6 @@ export default function SettingsPage() {
       {/* Tabs */}
       <div className="flex gap-1 border-b border-[var(--border-color,#1f2937)] overflow-x-auto custom-scrollbar">
         {([
-          { key: 'engineering' as const, label: t('settings.engineering', 'Engineering Defaults'), icon: Settings },
-          { key: 'company' as const, label: t('settings.company', 'Company & Branding'), icon: Building2 },
           { key: 'appearance' as const, label: t('theme.title', 'Appearance & Theme'), icon: Palette },
           { key: 'language' as const, label: t('common.language', 'Language & RTL'), icon: Globe },
           { key: 'account' as const, label: t('settings.account', 'Account & Security'), icon: Shield },
@@ -428,298 +247,6 @@ export default function SettingsPage() {
           </button>
         ))}
       </div>
-
-      {/* Success/Error Message */}
-      {message && (
-        <div className={`p-3 rounded-lg text-sm ${
-          message.type === 'success' ? 'bg-green-500/10 text-green-400' : 'bg-red-500/10 text-red-400'
-        }`}>
-          {message.text}
-        </div>
-      )}
-
-      {/* Engineering Defaults Tab */}
-      {activeTab === 'engineering' && (
-        <>
-          {isReadOnly && (
-            <div className="flex items-center gap-2 p-3 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-300 text-xs">
-              <Shield size={14} className="shrink-0 text-amber-400" />
-              <span>{t('team.readOnlyNotice', 'Read-Only Mode: You have QA / Reviewer permissions. Parameters and calculations can be inspected but not modified.')}</span>
-            </div>
-          )}
-
-          {!isReadOnly && (
-            <div className="flex justify-end gap-2">
-              <button
-                onClick={handleReset}
-                className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-300 text-sm"
-              >
-                <RotateCcw size={14} />
-                {t('settings.reset', 'Reset to Defaults')}
-              </button>
-              <button
-                onClick={handleSave}
-                disabled={saving}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-sm font-semibold disabled:opacity-50"
-              >
-                <Save size={14} />
-                {saving ? t('settings.saving', 'Saving…') : t('settings.save', 'Save Settings')}
-              </button>
-            </div>
-          )}
-
-          {/* Country Selector */}
-          <div className="rounded-xl border border-gray-800 bg-gray-900/40 p-4">
-            <label className="block text-xs text-gray-400 mb-2">{t('settings.selectCountry', 'Select Country')}</label>
-            <select
-              value={selectedCountry}
-              onChange={(e) => setSelectedCountry(e.target.value)}
-              className="dense-input w-full max-w-xs rounded"
-            >
-              {Object.keys(COUNTRY_DEFAULTS).map((c) => (
-                <option key={c} value={c}>{c}</option>
-              ))}
-            </select>
-          </div>
-
-          {currentSettings && (
-            <>
-              {/* Room Densities */}
-              <div className="rounded-xl border border-gray-800 bg-gray-900/40 p-4 space-y-4">
-                <h2 className="text-sm font-semibold text-gray-300 uppercase tracking-wider">
-                  {t('settings.roomDensities', 'Room Densities (VA/m²)')}
-                </h2>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  {ROOM_TYPES.map((room) => (
-                    <div key={room.value}>
-                      <label className="block text-xs text-gray-400 mb-1">{room.label}</label>
-                      <input
-                        type="number"
-                        value={currentSettings.roomDensities[room.value.toLowerCase() as keyof typeof currentSettings.roomDensities] || 0}
-                        onChange={(e) => updateRoomDensity(room.value.toLowerCase(), parseFloat(e.target.value) || 0)}
-                        className="dense-input w-full rounded"
-                        min="0"
-                        step="5"
-                      />
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* AC Sizing Rules */}
-              <div className="rounded-xl border border-gray-800 bg-gray-900/40 p-4 space-y-4">
-                <div className="flex items-center justify-between">
-                  <h2 className="text-sm font-semibold text-gray-300 uppercase tracking-wider">
-                    {t('settings.acSizingRules', 'AC Sizing Rules (BTU → Watts)')}
-                  </h2>
-                  <button
-                    onClick={addAcRule}
-                    className="text-xs text-orange-400 hover:text-orange-300"
-                  >
-                    {t('settings.addRule', '+ Add Rule')}
-                  </button>
-                </div>
-                <div className="space-y-3">
-                  {currentSettings.acSizingRules.map((rule, index) => (
-                    <div key={index} className="flex items-center gap-4">
-                      <div className="flex-1">
-                        <label className="block text-[10px] text-gray-500 mb-1">{t('settings.maxArea', 'Max Area (m²)')}</label>
-                        <input
-                          type="number"
-                          value={rule.maxArea === Infinity || rule.maxArea == null ? '' : rule.maxArea}
-                          onChange={(e) => {
-                            const val = e.target.value === '' ? Infinity : parseFloat(e.target.value);
-                            updateAcRule(index, 'maxArea', val);
-                          }}
-                          className="dense-input w-full rounded"
-                          placeholder="∞"
-                          disabled={rule.maxArea === Infinity}
-                        />
-                      </div>
-                      <div className="flex-1">
-                        <label className="block text-[10px] text-gray-500 mb-1">{t('settings.btu', 'BTU')}</label>
-                        <input
-                          type="number"
-                          value={rule.btu}
-                          onChange={(e) => updateAcRule(index, 'btu', parseInt(e.target.value) || 0)}
-                          className="dense-input w-full rounded"
-                        />
-                      </div>
-                      <div className="flex-1">
-                        <label className="block text-[10px] text-gray-500 mb-1">{t('settings.watts', 'Watts')}</label>
-                        <input
-                          type="number"
-                          value={rule.watts}
-                          onChange={(e) => updateAcRule(index, 'watts', parseInt(e.target.value) || 0)}
-                          className="dense-input w-full rounded"
-                        />
-                      </div>
-                      {currentSettings.acSizingRules.length > 1 && rule.maxArea !== Infinity && (
-                        <button
-                          onClick={() => removeAcRule(index)}
-                          className="mt-5 text-gray-600 hover:text-red-400"
-                        >
-                          ×
-                        </button>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Voltage Drop Limits */}
-              <div className="rounded-xl border border-gray-800 bg-gray-900/40 p-4 space-y-3">
-                <h3 className="text-sm font-semibold text-gray-300 border-b border-gray-800 pb-1">
-                  {t('settings.voltageDropLimits', 'Voltage Drop Limits (IEC 60364-5-52)')}
-                </h3>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-[10px] text-gray-500 mb-1">{t('settings.lightingLimit', 'Lighting Circuits (%)')}</label>
-                    <input
-                      type="number"
-                      step="0.5"
-                      value={vdLimits.lighting}
-                      onChange={(e) => {
-                        const next = { ...vdLimits, lighting: parseFloat(e.target.value) || 3 };
-                        setVdLimits(next);
-                        localStorage.setItem('procal-vd-limits', JSON.stringify(next));
-                      }}
-                      className="dense-input w-full rounded"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-[10px] text-gray-500 mb-1">{t('settings.powerLimit', 'Power Circuits (%)')}</label>
-                    <input
-                      type="number"
-                      step="0.5"
-                      value={vdLimits.power}
-                      onChange={(e) => {
-                        const next = { ...vdLimits, power: parseFloat(e.target.value) || 5 };
-                        setVdLimits(next);
-                        localStorage.setItem('procal-vd-limits', JSON.stringify(next));
-                      }}
-                      className="dense-input w-full rounded"
-                    />
-                  </div>
-                </div>
-                <p className="text-[10px] text-gray-600">
-                  {t('settings.voltageDropNote', 'IEC 60364-5-52 standard: 3% for lighting, 5% for power loads. Total from source to load.')}
-                </p>
-              </div>
-            </>
-          )}
-        </>
-      )}
-
-      {/* Company & Branding Tab */}
-      {activeTab === 'company' && (
-        <div className="rounded-xl border border-gray-800 bg-gray-900/40 p-4 space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-sm font-semibold text-gray-300 uppercase tracking-wider">
-              {t('settings.companyInfo', 'Company Information')}
-            </h2>
-            {isReadOnly && (
-              <span className="px-2.5 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-300 text-[11px] font-semibold flex items-center gap-1">
-                <Shield size={12} />
-                QA / Reviewer (Read-Only)
-              </span>
-            )}
-          </div>
-
-          {isReadOnly && (
-            <div className="flex items-center gap-2 p-3 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-300 text-xs">
-              <Shield size={14} className="shrink-0 text-amber-400" />
-              <span>{t('team.readOnlyNotice', 'Read-Only Mode: You have QA / Reviewer permissions. Parameters and calculations can be inspected but not modified.')}</span>
-            </div>
-          )}
-
-          {/* Company Name */}
-          <div>
-            <label className="block text-xs text-gray-400 mb-1">{t('settings.companyName', 'Company Name')}</label>
-            <input
-              type="text"
-              value={company.companyName}
-              onChange={(e) => setCompany({ ...company, companyName: e.target.value })}
-              disabled={isReadOnly}
-              className="dense-input w-full max-w-md rounded disabled:opacity-60 disabled:cursor-not-allowed"
-              placeholder={t('settings.companyNamePlaceholder', 'Your Company Name')}
-            />
-          </div>
-
-          {/* Logo Upload */}
-          <div>
-            <label className="block text-xs text-gray-400 mb-1">{t('settings.companyLogo', 'Company Logo')}</label>
-            <div className="flex items-center gap-4">
-              {company.logoUrl ? (
-                <div className="relative">
-                  <img
-                    src={company.logoUrl}
-                    alt="Company logo"
-                    className="h-20 w-auto object-contain rounded border border-gray-700 bg-white p-1"
-                  />
-                  {!isReadOnly && (
-                    <button
-                      onClick={() => setCompany({ ...company, logoUrl: "" })}
-                      className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-red-600 text-white text-xs flex items-center justify-center hover:bg-red-500"
-                    >
-                      ×
-                    </button>
-                  )}
-                </div>
-              ) : isReadOnly ? (
-                <p className="text-xs text-gray-500 italic">No company logo uploaded</p>
-              ) : (
-                <label className="flex flex-col items-center justify-center w-32 h-20 border-2 border-dashed border-gray-700 rounded-lg cursor-pointer hover:border-orange-500 transition-colors">
-                  <span className="text-xs text-gray-500">
-                    {uploading ? t('settings.uploading', 'Uploading…') : t('settings.clickToUpload', 'Click to upload')}
-                  </span>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={async (e) => {
-                      const file = e.target.files?.[0];
-                      if (!file) return;
-                      setUploading(true);
-                      try {
-                        const formData = new FormData();
-                        formData.append("file", file);
-                        const res = await fetch("/api/upload", { method: "POST", body: formData });
-                        if (res.ok) {
-                          const data = await res.json();
-                          setCompany({ ...company, logoUrl: data.url });
-                        }
-                      } finally {
-                        setUploading(false);
-                      }
-                    }}
-                  />
-                </label>
-              )}
-            </div>
-            {!isReadOnly && <p className="text-[10px] text-gray-600 mt-1">{t('settings.logoFormats', 'PNG, JPG, SVG, or WebP. Max 2MB.')}</p>}
-          </div>
-
-          {/* Save */}
-          <div className="flex items-center justify-end gap-2">
-            {!isReadOnly ? (
-              <button
-                onClick={handleSaveCompany}
-                disabled={saving}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-sm font-semibold disabled:opacity-50"
-              >
-                <Save size={14} />
-                {saving ? t('settings.saving', 'Saving…') : t('settings.saveCompany', 'Save Company Settings')}
-              </button>
-            ) : (
-              <span className="px-3 py-2 rounded-lg bg-gray-800/80 border border-gray-700/60 text-gray-400 text-xs font-medium flex items-center gap-1.5">
-                <Shield size={13} className="text-amber-400" />
-                {t('team.readOnlyActionDisabled', 'Action disabled in QA / Reviewer read-only mode')}
-              </span>
-            )}
-          </div>
-        </div>
-      )}
 
       {/* Appearance & Theme Settings Tab */}
       {activeTab === 'appearance' && (

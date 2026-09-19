@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useTheme } from '@/context/ThemeContext';
 import { useTranslation } from '@/i18n';
 import { Moon, Sun, Coffee, Check, Laptop, Sparkles, Zap, ShieldCheck } from 'lucide-react';
@@ -9,8 +9,70 @@ import { ThemeMode } from '@/lib/theme';
 export function AppearanceTab() {
   const { theme, resolvedTheme, setTheme } = useTheme();
   const { t, isRtl } = useTranslation();
+  const [hoveredTheme, setHoveredTheme] = useState<'dark' | 'blueprint' | 'warm' | null>(null);
 
   const isSystem = theme === 'system';
+  const effectivePreviewTheme: 'dark' | 'blueprint' | 'warm' = hoveredTheme || resolvedTheme || 'dark';
+
+  const themeStyles: Record<'dark' | 'blueprint' | 'warm', {
+    cardBg: string;
+    borderColor: string;
+    fgColor: string;
+    headerBg: string;
+    headerColor: string;
+    tableBorder: string;
+    zebraBg: string;
+    rowHover: string;
+    primary: string;
+    badgeBg: string;
+    badgeText: string;
+    badgeBorder: string;
+  }> = {
+    dark: {
+      cardBg: '#0b0f19',
+      borderColor: '#1f2937',
+      fgColor: '#f8fafc',
+      headerBg: 'rgba(17, 24, 39, 0.85)',
+      headerColor: '#9ca3af',
+      tableBorder: 'rgba(31, 41, 55, 0.8)',
+      zebraBg: 'rgba(255, 255, 255, 0.028)',
+      rowHover: 'rgba(255, 255, 255, 0.065)',
+      primary: '#ea580c',
+      badgeBg: 'rgba(16, 185, 129, 0.1)',
+      badgeText: '#34d399',
+      badgeBorder: 'rgba(16, 185, 129, 0.3)',
+    },
+    blueprint: {
+      cardBg: '#ffffff',
+      borderColor: '#cbd5e1',
+      fgColor: '#0f172a',
+      headerBg: '#e2e8f0',
+      headerColor: '#334155',
+      tableBorder: '#cbd5e1',
+      zebraBg: 'rgba(241, 245, 249, 0.75)',
+      rowHover: 'rgba(226, 232, 240, 0.85)',
+      primary: '#ea580c',
+      badgeBg: '#ecfdf5',
+      badgeText: '#059669',
+      badgeBorder: '#a7f3d0',
+    },
+    warm: {
+      cardBg: '#f8f4ec',
+      borderColor: '#cbb9a3',
+      fgColor: '#261e16',
+      headerBg: '#dfd3c0',
+      headerColor: '#4a3e31',
+      tableBorder: '#cbb9a3',
+      zebraBg: 'rgba(223, 211, 192, 0.35)',
+      rowHover: 'rgba(223, 211, 192, 0.75)',
+      primary: '#c66928',
+      badgeBg: 'rgba(16, 185, 129, 0.12)',
+      badgeText: '#047857',
+      badgeBorder: 'rgba(16, 185, 129, 0.35)',
+    },
+  };
+
+  const curThemeStyle = themeStyles[effectivePreviewTheme];
 
   const themes: {
     id: 'dark' | 'blueprint' | 'warm';
@@ -128,15 +190,20 @@ export function AppearanceTab() {
         {themes.map((item) => {
           const isSelected = !isSystem && theme === item.id;
           const isCurrentlyActive = resolvedTheme === item.id;
+          const isHovered = hoveredTheme === item.id;
           const Icon = item.icon;
 
           return (
             <div
               key={item.id}
               onClick={() => setTheme(item.id)}
+              onMouseEnter={() => setHoveredTheme(item.id)}
+              onMouseLeave={() => setHoveredTheme(null)}
               className={`group relative rounded-2xl border-2 p-5 cursor-pointer transition-all duration-200 flex flex-col justify-between overflow-hidden ${
                 isSelected
                   ? 'border-orange-500 shadow-[0_0_20px_rgba(234,88,12,0.2)] bg-[var(--card-bg,#0b0f19)]'
+                  : isHovered
+                  ? 'border-orange-500/80 shadow-[0_0_15px_rgba(234,88,12,0.15)] bg-[var(--card-bg,#0b0f19)]'
                   : 'border-[var(--border-color,#1f2937)] bg-[var(--card-bg,#0b0f19)] hover:border-orange-500/50'
               }`}
             >
@@ -250,24 +317,66 @@ export function AppearanceTab() {
       </div>
 
       {/* Live Interactive Engineering Preview */}
-      <div className="p-4 rounded-xl border border-[var(--border-color,#1f2937)] bg-[var(--card-bg,#0b0f19)]">
+      <div
+        data-theme={effectivePreviewTheme}
+        className="p-4 rounded-xl border transition-all duration-300 shadow-sm"
+        style={{
+          backgroundColor: curThemeStyle.cardBg,
+          borderColor: curThemeStyle.borderColor,
+          color: curThemeStyle.fgColor,
+          ['--card-bg' as string]: curThemeStyle.cardBg,
+          ['--border-color' as string]: curThemeStyle.borderColor,
+          ['--foreground-color' as string]: curThemeStyle.fgColor,
+          ['--table-header-bg' as string]: curThemeStyle.headerBg,
+          ['--table-header-color' as string]: curThemeStyle.headerColor,
+          ['--table-border' as string]: curThemeStyle.tableBorder,
+          ['--table-zebra-bg' as string]: curThemeStyle.zebraBg,
+          ['--table-row-hover' as string]: curThemeStyle.rowHover,
+        }}
+      >
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
-            <Zap size={16} className="text-orange-400" />
-            <span className="text-xs font-semibold text-[var(--foreground-color,#f8fafc)] uppercase tracking-wider">
+            <Zap size={16} style={{ color: curThemeStyle.primary }} />
+            <span
+              className="text-xs font-semibold uppercase tracking-wider transition-colors"
+              style={{ color: curThemeStyle.fgColor }}
+            >
               {t('theme.previewTitle', 'Live Engineering Preview')}
             </span>
-          </div>
-          <span className="text-[10px] text-[var(--table-header-color,#9ca3af)]">
-            {t(
-              'theme.previewDesc',
-              'Real-time preview of engineering table elements and badges in the selected theme'
+            {hoveredTheme && (
+              <span
+                className="text-[10px] font-semibold px-2.5 py-0.5 rounded-full transition-colors flex items-center gap-1.5"
+                style={{
+                  backgroundColor: `${curThemeStyle.primary}18`,
+                  color: curThemeStyle.primary,
+                  border: `1px solid ${curThemeStyle.primary}40`,
+                }}
+              >
+                <span className="w-1.5 h-1.5 rounded-full animate-ping" style={{ backgroundColor: curThemeStyle.primary }} />
+                {t('theme.previewing', 'Previewing')}: {themes.find((th) => th.id === hoveredTheme)?.title}
+              </span>
             )}
+          </div>
+          <span
+            className="text-[10px] transition-colors"
+            style={{ color: curThemeStyle.headerColor }}
+          >
+            {hoveredTheme
+              ? t('theme.previewHoverNotice', 'Showing how engineering schedules look in this theme')
+              : t('theme.previewDesc', 'Real-time preview of engineering table elements and badges in the selected theme')}
           </span>
         </div>
 
-        <div className="overflow-x-auto rounded-lg border border-[var(--border-color,#1f2937)]">
-          <table className="cable-schedule-table text-xs">
+        <div
+          className="overflow-x-auto rounded-lg border transition-colors duration-300"
+          style={{ borderColor: curThemeStyle.borderColor }}
+        >
+          <table
+            className="cable-schedule-table text-xs w-full transition-colors duration-300"
+            style={{
+              backgroundColor: curThemeStyle.cardBg,
+            }}
+          >
             <thead>
               <tr>
                 <th>Circuit Ref</th>
@@ -280,26 +389,48 @@ export function AppearanceTab() {
             </thead>
             <tbody>
               <tr>
-                <td className="font-mono font-semibold text-orange-400">MDB-TOWER-1</td>
-                <td className="font-mono">385.7 A</td>
-                <td className="font-mono">4 x (1C x 240 mm² Cu/XLPE)</td>
-                <td className="font-mono">45.0 m</td>
-                <td className="font-mono text-emerald-500 font-semibold">1.12% (&lt; 3%)</td>
+                <td className="font-mono font-semibold transition-colors" style={{ color: curThemeStyle.primary }}>
+                  MDB-TOWER-1
+                </td>
+                <td className="font-mono transition-colors">385.7 A</td>
+                <td className="font-mono transition-colors">4 x (1C x 240 mm² Cu/XLPE)</td>
+                <td className="font-mono transition-colors">45.0 m</td>
+                <td className="font-mono font-semibold transition-colors" style={{ color: curThemeStyle.badgeText }}>
+                  1.12% (&lt; 3%)
+                </td>
                 <td>
-                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-500 border border-emerald-500/30">
+                  <span
+                    className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold transition-colors"
+                    style={{
+                      backgroundColor: curThemeStyle.badgeBg,
+                      color: curThemeStyle.badgeText,
+                      border: `1px solid ${curThemeStyle.badgeBorder}`,
+                    }}
+                  >
                     <ShieldCheck size={12} />
                     IEC 60364 PASS
                   </span>
                 </td>
               </tr>
               <tr>
-                <td className="font-mono font-semibold text-orange-400">SMDB-FL01</td>
-                <td className="font-mono">68.4 A</td>
-                <td className="font-mono">4 x (1C x 25 mm² Cu/XLPE)</td>
-                <td className="font-mono">18.0 m</td>
-                <td className="font-mono text-emerald-500 font-semibold">0.74% (&lt; 3%)</td>
+                <td className="font-mono font-semibold transition-colors" style={{ color: curThemeStyle.primary }}>
+                  SMDB-FL01
+                </td>
+                <td className="font-mono transition-colors">68.4 A</td>
+                <td className="font-mono transition-colors">4 x (1C x 25 mm² Cu/XLPE)</td>
+                <td className="font-mono transition-colors">18.0 m</td>
+                <td className="font-mono font-semibold transition-colors" style={{ color: curThemeStyle.badgeText }}>
+                  0.74% (&lt; 3%)
+                </td>
                 <td>
-                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-500 border border-emerald-500/30">
+                  <span
+                    className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold transition-colors"
+                    style={{
+                      backgroundColor: curThemeStyle.badgeBg,
+                      color: curThemeStyle.badgeText,
+                      border: `1px solid ${curThemeStyle.badgeBorder}`,
+                    }}
+                  >
                     <ShieldCheck size={12} />
                     IEC 60364 PASS
                   </span>

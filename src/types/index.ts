@@ -173,6 +173,8 @@ export interface Project {
   voltage: number;
   frequency: number;
   powerFactor: number;
+  maxDemandFactor?: number;
+  notes?: string | null;
   transformerSize?: number | null; // kVA — sized transformer (Prisma: Float?)
   country: string;
   preferredManufacturer: string;

@@ -1,6 +1,6 @@
 {
   "name": "procal",
-  "version": "1.4.6",
+  "version": "1.4.7",
   "description": "ProCal — Low-voltage Electrical design, Solved",
   "private": true,
   "scripts": {

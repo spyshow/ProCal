@@ -941,11 +941,8 @@ export function computeFeeders(
         assignedPhase: null,
       });
     } else {
-      // No sub-panel → individual apartment / load feeders. Project each from
-      // the floor-resolved phase so per-feeder L-columns sum to the floor
-      // aggregate (not each re-balanced alone onto L1).
       const phaseById = new Map(
-        floorBalance.assignments.map((a) => [a.id, a.assignedPhase])
+        overallBalance.assignments.map((a) => [a.id, a.assignedPhase])
       );
       for (const item of fd.items) {
         const resolved = item.assignedPhase ?? phaseById.get(item.id) ?? null;

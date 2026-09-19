@@ -323,9 +323,15 @@ describe('Golden Path Cross-Module Integration Test', () => {
     let expectedL2 = 0;
     let expectedL3 = 0;
 
-    // Sum from each individual floor's phaseBalance
+    const buildingBalance = phaseBalance([
+      ...building.floorDesigns.flatMap((fd) => fd.items),
+      ...building.buildingLoads,
+    ], project);
+    const buildingPhaseMap = new Map(
+      buildingBalance.assignments.map((assignment) => [assignment.id, assignment.assignedPhase])
+    );
     for (const fd of building.floorDesigns) {
-      const fb = phaseBalance(fd.items, project);
+      const fb = phaseBalance(fd.items, project, fd.hasFloorSubPanels ? undefined : buildingPhaseMap);
       expectedL1 += fb.phaseCurrent[0];
       expectedL2 += fb.phaseCurrent[1];
       expectedL3 += fb.phaseCurrent[2];

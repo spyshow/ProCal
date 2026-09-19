@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { isThreePhaseForItem, computeFeeders, createFindBreaker, type EquipmentItem } from './feeders';
 import { sizeCableAndBreaker } from './cables';
+import { aggregateLoadRows } from '../reports/aggregates';
 import type { FloorItem, Building, Project } from '@/types';
 
 // ---------------------------------------------------------------------------
@@ -136,6 +137,28 @@ describe('createFindBreaker 4-tier catalog search', () => {
 // ---------------------------------------------------------------------------
 
 describe('computeFeeders', () => {
+  it.each([
+    { phases: [null, null], expected: [[30, 0, 0], [0, 30, 0]], main: 30 },
+    { phases: [3, 1], expected: [[0, 0, 30], [30, 0, 0]], main: 30 },
+    { phases: [1, 1], expected: [[30, 0, 0], [30, 0, 0]], main: 60 },
+  ])('keeps cross-floor direct feeder phases consistent for $phases', ({ phases, expected, main }) => {
+    const bldg = building({
+      floorDesigns: phases.map((assignedPhase, index) => ({
+        id: `floor-${index}`, floorNumber: index + 1, hasFloorSubPanels: false,
+        items: [item({
+          id: `item-${index}`, assignedPhase, calculatedCurrent: 30,
+          calculatedMaxDemand: 5, cableSize: '16', cableLength: 20,
+        })],
+      })),
+    });
+    const result = computeFeeders(bldg, baseProject, createFindBreaker([]));
+    expect(result.mdbFeeders.map((feeder) => feeder.phaseCurrent)).toEqual(expected);
+    expect(result.mainIncomerCurrent).toBeCloseTo(main, 1);
+    const rows = aggregateLoadRows({ ...baseProject, buildings: [bldg] });
+    expect(rows.map((row) => [row.currentL1, row.currentL2, row.currentL3])).toEqual(expected);
+    expect(bldg.floorDesigns.map((floor) => floor.items[0].assignedPhase)).toEqual(phases);
+  });
+
   it('floor WITH hasFloorSubPanels → one SMDB feeder sized by max-loaded phase current', () => {
     const findBreaker = createFindBreaker(equipment, {}, 'ABB');
     const bldg = building({

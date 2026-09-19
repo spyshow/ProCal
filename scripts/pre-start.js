@@ -25,15 +25,26 @@ async function ensureMigrationReady() {
   try {
     const client = await pool.connect();
     try {
-      console.log('[pre-start] Checking for stalled/failed migrations in _prisma_migrations...');
-      const res = await client.query(`
+      console.log('[pre-start] Checking database schema & migrations...');
+      await client.query(`
         DO $$ BEGIN
           IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = '_prisma_migrations') THEN
             DELETE FROM "_prisma_migrations" WHERE "finished_at" IS NULL;
           END IF;
         END $$;
+
+        -- Ensure User.theme and other potential schema columns exist
+        ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "theme" TEXT DEFAULT 'dark';
+        ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "email" TEXT;
+        ALTER TABLE "Building" ADD COLUMN IF NOT EXISTS "incomerCableSize" TEXT;
+        ALTER TABLE "Building" ADD COLUMN IF NOT EXISTS "incomerCableLength" DOUBLE PRECISION;
+        ALTER TABLE "Building" ADD COLUMN IF NOT EXISTS "incomerInstallMethod" TEXT;
+        ALTER TABLE "Building" ADD COLUMN IF NOT EXISTS "incomerCableInsulation" TEXT;
+        ALTER TABLE "Building" ADD COLUMN IF NOT EXISTS "incomerCableMaterial" TEXT DEFAULT 'copper';
+        ALTER TABLE "Building" ADD COLUMN IF NOT EXISTS "incomerAmbientTemp" DOUBLE PRECISION DEFAULT 30;
+        ALTER TABLE "Building" ADD COLUMN IF NOT EXISTS "incomerGroupingCount" INTEGER DEFAULT 1;
       `);
-      console.log('[pre-start] Stalled migrations cleaned up successfully.');
+      console.log('[pre-start] Schema verification and migration cleanup complete.');
     } finally {
       client.release();
     }

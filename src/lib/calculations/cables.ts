@@ -18,6 +18,10 @@ export interface SizingResult {
    *  was supplied. Undefined otherwise. */
   dropPercent?: number;
   dropVolts?: number;
+  /** Starting voltage drop of the selected arrangement, when a startingVoltageDrop
+   *  constraint was supplied. Undefined otherwise. */
+  startingDropPercent?: number;
+  startingDropVolts?: number;
   /** Non-fatal engineering caveats (clamped breaker, catalog-exhausted
    *  fallbacks, unsatisfiable target runs). Surfaced to the UI/reports so
    *  degraded sizing is never silent. */
@@ -32,6 +36,13 @@ export interface VoltageDropConstraint {
   lengthMeters: number;
   powerFactor: number;
   systemVoltage: number;
+  maxPercent: number;
+}
+
+/** Optional starting inrush ΔU constraint for motor / inductive loads. */
+export interface StartingVoltageDropConstraint {
+  startingCurrent: number;
+  powerFactor: number;
   maxPercent: number;
 }
 
@@ -224,6 +235,7 @@ export function sizeCableAndBreaker(
     /** Breaker-rating catalog — defaults to IEC; NEC projects pass "NEC". */
     code?: CodeStandard;
     voltageDrop?: VoltageDropConstraint;
+    startingVoltageDrop?: StartingVoltageDropConstraint;
   }
 ): SizingResult {
   assertNonNegative('designCurrent', ib);
@@ -240,6 +252,11 @@ export function sizeCableAndBreaker(
     assertPositive('voltageDrop.systemVoltage', vd.systemVoltage);
     assertPositive('voltageDrop.maxPercent', vd.maxPercent);
   }
+  const svd = options.startingVoltageDrop;
+  if (svd) {
+    assertPositive('startingVoltageDrop.startingCurrent', svd.startingCurrent);
+    assertPositive('startingVoltageDrop.maxPercent', svd.maxPercent);
+  }
 
   const { material, insulation, ambientTemp, groupingCount, neutralCurrent, installMethod } = options;
   const maxCableSize = options.maxCableSize ?? 300;
@@ -247,14 +264,18 @@ export function sizeCableAndBreaker(
   const methodId = installMethod ?? (options.code === 'NEC' ? 'NEC-1' : 'C');
   const calcStandard = options.code === 'NEC' ? 'NEMA' : 'IEC';
 
-  // ΔU gate for a candidate arrangement (IEC 60364-5-52 §525). With no
-  // constraint supplied the sizer is ampacity-only, as before.
+  // ΔU gate for a candidate arrangement (IEC 60364-5-52 §525 & IEC 60034-1).
+  // With no constraint supplied the sizer is ampacity-only, as before.
   const vdOk = (size: number, runs: number): boolean => {
-    if (!vd) return true;
-    return (
-      calculateVoltageDrop(ib, vd.lengthMeters, size, vd.powerFactor, isThreePhase, vd.systemVoltage, runs, material, insulation)
-        .dropPercent <= vd.maxPercent
-    );
+    if (vd) {
+      const drop = calculateVoltageDrop(ib, vd.lengthMeters, size, vd.powerFactor, isThreePhase, vd.systemVoltage, runs, material, insulation);
+      if (drop.dropPercent > vd.maxPercent) return false;
+      if (svd) {
+        const startDrop = calculateVoltageDrop(svd.startingCurrent, vd.lengthMeters, size, svd.powerFactor, isThreePhase, vd.systemVoltage, runs, material, insulation);
+        if (startDrop.dropPercent > svd.maxPercent) return false;
+      }
+    }
+    return true;
   };
 
   // 1. Select breaker size (In >= Ib) from the project's code catalog
@@ -438,6 +459,29 @@ export function sizeCableAndBreaker(
     }
   }
 
+  let startingDropPercent: number | undefined;
+  let startingDropVolts: number | undefined;
+  if (svd && vd) {
+    const finalStartVd = calculateVoltageDrop(
+      svd.startingCurrent,
+      vd.lengthMeters,
+      phaseSize,
+      svd.powerFactor,
+      isThreePhase,
+      vd.systemVoltage,
+      selectedRuns,
+      material,
+      insulation
+    );
+    startingDropPercent = finalStartVd.dropPercent;
+    startingDropVolts = finalStartVd.dropVolts;
+    if (finalStartVd.dropPercent > svd.maxPercent) {
+      warnings.push(
+        `Starting voltage drop ${finalStartVd.dropPercent.toFixed(2)}% exceeds the ${svd.maxPercent}% limit even at the best available arrangement (${formatCableSize(phaseSize, selectedRuns)}) — shorten the run, reduce starting inrush (e.g. VFD/Soft Starter), or accept the shortfall.`
+      );
+    }
+  }
+
   return {
     cableSize: phaseSize,
     parallelRuns: selectedRuns,
@@ -450,6 +494,7 @@ export function sizeCableAndBreaker(
     neutralSize,
     earthSize,
     ...(vd ? { dropPercent, dropVolts } : {}),
+    ...(svd && vd ? { startingDropPercent, startingDropVolts } : {}),
     warnings,
   };
 }

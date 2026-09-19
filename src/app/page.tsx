@@ -14,6 +14,7 @@ import {
   Sparkles,
   CheckCircle2,
   Cpu,
+  Calculator,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -120,6 +121,13 @@ export default function Home() {
 
           {/* Action Navigation & Top Language Switcher */}
           <div className="flex items-center gap-3">
+            <Link
+              href="/tools"
+              className="text-xs font-semibold text-slate-300 hover:text-orange-400 transition-colors hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-slate-900 border border-transparent hover:border-slate-800"
+            >
+              <Zap className="w-3.5 h-3.5 text-orange-500" />
+              <span>Free Tools</span>
+            </Link>
             <a
               href="#pricing"
               className="text-xs font-semibold text-slate-300 hover:text-orange-400 transition-colors hidden sm:inline-flex items-center gap-1 px-3 py-1.5 rounded-lg hover:bg-slate-900 border border-transparent hover:border-slate-800"
@@ -190,10 +198,10 @@ export default function Home() {
                 {isRtl ? <ArrowLeft className="w-5 h-5" /> : <ArrowRight className="w-5 h-5" />}
               </Button>
             </Link>
-            <Link href="/projects" className="w-full sm:w-auto">
+            <Link href="/tools" className="w-full sm:w-auto">
               <Button variant="outline" size="lg" className="w-full sm:w-auto gap-2 px-8 py-6 text-base">
-                <Building2 className="w-5 h-5 text-orange-400" />
-                <span>{t('landing.manageProjects', 'Manage Projects')}</span>
+                <Calculator className="w-5 h-5 text-orange-400" />
+                <span>{t('landing.tryFreeTools', 'Try our Free Tools')}</span>
               </Button>
             </Link>
           </motion.div>
@@ -384,6 +392,9 @@ export default function Home() {
 
           <div className="flex items-center gap-6">
             <LanguageSelector variant="footer" />
+            <Link href="/tools" className="hover:text-white transition-colors">
+              Free Tools
+            </Link>
             <a href="#pricing" className="hover:text-white transition-colors">
               {t('nav.pricing', 'Pricing')}
             </a>

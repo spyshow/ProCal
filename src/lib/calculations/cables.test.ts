@@ -170,6 +170,32 @@ describe('sizeCableAndBreaker', () => {
     expect(result.dropPercent).toBeUndefined();
     expect(result.dropVolts).toBeUndefined();
   });
+
+  it('startingVoltageDrop constraint upsizes beyond running drop pick when motor inrush governs', () => {
+    const base = {
+      material: 'copper' as const,
+      insulation: 'XLPE' as const,
+      ambientTemp: 30,
+      groupingCount: 1,
+    };
+    // 37 kW motor running current ~64A, starting current 416A at 80m.
+    // Running VD at 80m on 16 mm² is ~2.72% <= 3%.
+    // Starting VD at 80m on 16 mm² is ~8.07% > 7%.
+    // With startingVoltageDrop: { startingCurrent: 416, powerFactor: 0.35, maxPercent: 7 },
+    // it upsizes to 25 mm² where starting VD is ~5.47% <= 7%.
+    const runningOnly = sizeCableAndBreaker(64, true, {
+      ...base,
+      voltageDrop: { lengthMeters: 80, powerFactor: 0.86, systemVoltage: 400, maxPercent: 3 },
+    });
+    const withStarting = sizeCableAndBreaker(64, true, {
+      ...base,
+      voltageDrop: { lengthMeters: 80, powerFactor: 0.86, systemVoltage: 400, maxPercent: 3 },
+      startingVoltageDrop: { startingCurrent: 416, powerFactor: 0.35, maxPercent: 7 },
+    });
+    expect(runningOnly.cableSize).toBe(16);
+    expect(withStarting.cableSize).toBe(25);
+    expect(withStarting.startingDropPercent!).toBeLessThanOrEqual(7);
+  });
 });
 
 describe('calculateVoltageDrop', () => {

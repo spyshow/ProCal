@@ -78,8 +78,8 @@ Navigate to **GitHub Repository** → **Settings** → **Secrets and variables**
 
 ### C. Render (QA Server) Configuration
 - Render continues listening to the `master` branch.
-- **Build Command**: `npm install --include=dev && npx prisma generate && npx prisma migrate deploy && npx tsx prisma/seed.ts && npm run build`
-- **Start Command**: `npm run start`
+- **Build Command**: `npm install --include=dev && npx prisma generate && npm run build`
+- **Start Command**: `node scripts/pre-start.js && npm run start`
 
 ---
 

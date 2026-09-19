@@ -1,4 +1,4 @@
-﻿-- AlterTable Building
+-- AlterTable Building
 ALTER TABLE "Building" ADD COLUMN IF NOT EXISTS "incomerCableSize" TEXT,
 ADD COLUMN IF NOT EXISTS "incomerCableLength" DOUBLE PRECISION,
 ADD COLUMN IF NOT EXISTS "incomerInstallMethod" TEXT,

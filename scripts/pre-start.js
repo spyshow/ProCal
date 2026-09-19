@@ -51,6 +51,16 @@ async function ensureMigrationReady() {
     console.error('[pre-start] prisma migrate deploy failed:', err.message);
     process.exit(1);
   }
+
+  // Ensure initial admin user and breaker catalog are seeded
+  console.log('[pre-start] Ensuring initial seed data exists...');
+  try {
+    process.env.SEED_ADMIN_PASSWORD = process.env.SEED_ADMIN_PASSWORD || 'password123';
+    execSync('npx tsx prisma/seed.ts', { stdio: 'inherit' });
+    console.log('[pre-start] Seed check complete.');
+  } catch (err) {
+    console.warn('[pre-start] Seed notice (non-fatal):', err.message);
+  }
 }
 
 ensureMigrationReady()

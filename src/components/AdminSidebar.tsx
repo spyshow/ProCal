@@ -39,7 +39,7 @@ export default function AdminSidebar() {
 
   return (
     <aside
-      style={{ width: "240px" }}
+      style={{ width: "260px" }}
       className={cn(
         "fixed top-0 h-screen flex flex-col bg-[var(--sidebar-bg,rgba(3,7,18,0.95))] backdrop-blur-xl z-40 select-none shadow-2xl transition-all duration-200",
         isRtl ? "right-0 border-l border-[var(--sidebar-border,rgba(31,41,55,0.8))]" : "left-0 border-r border-[var(--sidebar-border,rgba(31,41,55,0.8))]"
@@ -55,7 +55,7 @@ export default function AdminSidebar() {
 
       {/* Navigation */}
       <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-0.5 custom-scrollbar" aria-label="Admin navigation">
-        <p className="px-1 pb-2 text-[10px] font-semibold uppercase tracking-widest text-[var(--table-header-color,#9ca3af)]">
+        <p className="px-1 pb-2 text-xs font-semibold uppercase tracking-wider text-[var(--table-header-color,#9ca3af)]">
           {t('common.actions', 'Management')}
         </p>
         {navItems.map(({ label, href, icon: Icon }) => {

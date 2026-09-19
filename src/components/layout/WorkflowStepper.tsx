@@ -200,10 +200,10 @@ export default function WorkflowStepper({ currentStep, className }: WorkflowStep
                 </span>
 
                 <div className="flex flex-col">
-                  <span className={cn("hidden sm:inline whitespace-nowrap text-[11px] leading-tight sidebar-item-label", isActive ? "font-bold" : "font-medium")}>
+                  <span className={cn("hidden sm:inline whitespace-nowrap text-xs leading-tight sidebar-item-label", isActive ? "font-bold" : "font-medium")}>
                     {name}
                   </span>
-                  <span className={cn("sm:hidden whitespace-nowrap text-[11px] leading-tight sidebar-item-label", isActive ? "font-bold" : "font-medium")}>
+                  <span className={cn("sm:hidden whitespace-nowrap text-xs leading-tight sidebar-item-label", isActive ? "font-bold" : "font-medium")}>
                     {shortName}
                   </span>
                 </div>

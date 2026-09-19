@@ -29,10 +29,10 @@ function LayoutInner({ children }: { children: React.ReactNode }) {
           isRtl
             ? isCollapsed
               ? 'md:mr-[64px] md:ml-0'
-              : 'md:mr-[240px] md:ml-0'
+              : 'md:mr-[260px] md:ml-0'
             : isCollapsed
             ? 'md:ml-[64px] md:mr-0'
-            : 'md:ml-[240px] md:mr-0'
+            : 'md:ml-[260px] md:mr-0'
         }`}
       >
         <TopHeader />

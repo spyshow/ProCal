@@ -182,7 +182,7 @@ export default function Sidebar() {
 
   return (
     <aside
-      style={{ width: isCollapsed ? "64px" : "240px" }}
+      style={{ width: isCollapsed ? "64px" : "260px" }}
       className={cn(
         "fixed top-0 h-screen flex flex-col bg-[var(--sidebar-bg,rgba(3,7,18,0.95))] backdrop-blur-xl z-40 select-none shadow-2xl transition-colors duration-200",
         mounted && "transition-all duration-200",
@@ -190,7 +190,7 @@ export default function Sidebar() {
       )}
     >
       {/* Logo Header */}
-      <div data-tour="brand-logo" className="flex items-center gap-2.5 px-3.5 py-3.5 border-b border-[var(--sidebar-border,rgba(31,41,55,0.8))] shrink-0">
+      <div data-tour="brand-logo" className="flex items-center gap-3 px-4 py-3.5 border-b border-[var(--sidebar-border,rgba(31,41,55,0.8))] shrink-0">
         <div className="w-8 h-8 rounded-lg bg-[var(--brand-mark-bg,rgba(234,88,12,0.2))] border border-[var(--brand-mark-border,rgba(234,88,12,0.3))] flex items-center justify-center shadow-[0_0_12px_rgba(234,88,12,0.3)] shrink-0 mx-auto md:mx-0">
           <LogoMark />
         </div>
@@ -201,13 +201,13 @@ export default function Sidebar() {
                 {t('common.appName', 'ProCal')}
               </span>
               <span className={cn(
-                "text-[9px] font-bold uppercase tracking-wider text-orange-400 bg-orange-500/10 border border-orange-500/20 px-1.5 py-0.5 rounded",
+                "text-[10px] font-bold uppercase tracking-wider text-orange-400 bg-orange-500/10 border border-orange-500/20 px-1.5 py-0.5 rounded",
                 isRtl ? "mr-auto" : "ml-auto"
               )}>
-                v1.4.6
+                v1.5.0
               </span>
             </div>
-            <p className="text-[9px] text-[var(--table-header-color,#94a3b8)] tracking-tight font-medium truncate mt-0.5">
+            <p className="text-xs text-[var(--table-header-color,#94a3b8)] tracking-tight font-medium truncate mt-0.5">
               {isRtl ? (
                 <>تصميم كهربائي للجهد المنخفض، <span className="text-orange-400 font-semibold">محلول</span></>
               ) : (
@@ -219,11 +219,11 @@ export default function Sidebar() {
       </div>
 
       {/* Navigation Body */}
-      <nav className="flex-1 overflow-y-auto px-2 py-3 space-y-4 custom-scrollbar" aria-label="Main navigation">
+      <nav className="flex-1 overflow-y-auto px-2.5 py-3.5 space-y-4 custom-scrollbar" aria-label="Main navigation">
         {/* SECTION 1: OVERVIEW */}
         <div className="space-y-1">
           {!isCollapsed && (
-            <p className="px-2 pb-1 text-[10px] font-semibold uppercase tracking-widest text-[var(--table-header-color,#9ca3af)]">
+            <p className="px-2.5 pb-1.5 text-xs font-semibold uppercase tracking-wider text-[var(--table-header-color,#9ca3af)]">
               {t('common.overview', 'Overview')}
             </p>
           )}
@@ -242,7 +242,7 @@ export default function Sidebar() {
                   data-tour={tourKey}
                   title={isCollapsed ? label : undefined}
                   className={cn(
-                    "group flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-xs font-medium transition-all duration-150 outline-none",
+                    "group flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 outline-none",
                     isCollapsed ? "justify-center px-0 py-2.5" : "",
                     isActive
                       ? isRtl
@@ -255,7 +255,7 @@ export default function Sidebar() {
                   aria-current={isActive ? "page" : undefined}
                 >
                   <Icon
-                    size={16}
+                    size={18}
                     className={cn(
                       "flex-shrink-0 transition-colors duration-150",
                       isActive ? "text-orange-500" : "text-[var(--table-header-color,#9ca3af)] group-hover:text-orange-500"
@@ -274,16 +274,16 @@ export default function Sidebar() {
 
                 {/* Selected Project Collapsible Sub-Navigation */}
                 {isProjectsItem && selectedProject && (
-                  <div className="my-1" data-tour="selected-project-nav">
+                  <div className="my-1.5" data-tour="selected-project-nav">
                     {/* Project Header Row */}
                     <div
                       className={cn(
-                        "group flex items-center justify-between rounded-lg text-xs font-semibold transition-all duration-150 outline-none relative overflow-hidden",
+                        "group flex items-center justify-between rounded-lg text-sm font-semibold transition-all duration-150 outline-none relative overflow-hidden",
                         isCollapsed
-                          ? "justify-center p-2 mx-auto w-9 h-8"
+                          ? "justify-center p-2 mx-auto w-10 h-9"
                           : isRtl
-                          ? "mr-2 pr-2.5 pl-1.5 py-1.5 gap-1.5 border-r-2"
-                          : "ml-2 pl-2.5 pr-1.5 py-1.5 gap-1.5 border-l-2",
+                          ? "mr-2 pr-3 pl-2 py-2 gap-2 border-r-2"
+                          : "ml-2 pl-3 pr-2 py-2 gap-2 border-l-2",
                         isSelectedProjectActive
                           ? "sidebar-active-item border-orange-500 shadow-[0_0_10px_rgba(234,88,12,0.15)] font-bold"
                           : "border-[var(--border-color,#1f2937)] text-[var(--foreground-color,#f8fafc)] bg-[var(--card-bg-subtle,rgba(17,24,39,0.5))] hover:bg-[var(--card-bg-subtle,rgba(17,24,39,0.8))] hover:border-orange-500/40"
@@ -295,14 +295,14 @@ export default function Sidebar() {
                         className="flex items-center gap-2 flex-1 min-w-0"
                       >
                         <Building2
-                          size={13}
+                          size={15}
                           className="flex-shrink-0 transition-colors text-orange-500"
                         />
                         {!isCollapsed && (
                           <MarqueeText
                             text={selectedProject.name}
                             className={cn(
-                              "text-xs font-semibold sidebar-item-label",
+                              "text-sm font-semibold sidebar-item-label",
                               isSelectedProjectActive ? "font-bold" : "text-[var(--foreground-color,#f8fafc)] group-hover:text-orange-400"
                             )}
                           />
@@ -318,7 +318,7 @@ export default function Sidebar() {
                           aria-expanded={projectSubnavOpen}
                         >
                           <ChevronDown
-                            size={12}
+                            size={14}
                             className={cn(
                               "transition-transform duration-200",
                               !projectSubnavOpen && (isRtl ? "rotate-90" : "-rotate-90")
@@ -381,14 +381,14 @@ export default function Sidebar() {
                               key={sub.id}
                               href={sub.href}
                               className={cn(
-                                "flex items-center gap-2 px-2 py-1.5 rounded-md text-[11px] font-medium transition-all duration-150 group/sub",
+                                "flex items-center gap-2.5 px-2.5 py-2 rounded-md text-xs font-medium transition-all duration-150 group/sub",
                                 sub.isActive
                                   ? "sidebar-active-item font-bold shadow-sm"
                                   : "text-[var(--table-header-color,#9ca3af)] hover:text-[var(--foreground-color,#f8fafc)] hover:bg-[var(--card-bg-subtle,rgba(17,24,39,0.6))]"
                               )}
                             >
                               <SubIcon
-                                size={12}
+                                size={14}
                                 className={cn(
                                   "flex-shrink-0 transition-colors",
                                   sub.isActive ? "text-orange-500" : "text-[var(--table-header-color,#9ca3af)] group-hover/sub:text-orange-400"
@@ -413,12 +413,12 @@ export default function Sidebar() {
         {/* SECTION 2: ENGINEERING PIPELINE STEPPER */}
         <div className="space-y-1 relative">
           {!isCollapsed && (
-            <div className="flex items-center justify-between px-2 pb-1.5">
-              <p className="text-[10px] font-semibold uppercase tracking-widest text-orange-500/90 dark:text-orange-400/90 flex items-center gap-1.5">
+            <div className="flex items-center justify-between px-2.5 pb-2">
+              <p className="text-xs font-semibold uppercase tracking-wider text-orange-500/90 dark:text-orange-400/90 flex items-center gap-1.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse" />
                 {t('workflow.pipeline', 'Engineering Workflow')}
               </p>
-              <span className="text-[9px] font-mono text-[var(--table-header-color,#9ca3af)]">
+              <span className="text-xs font-mono text-[var(--table-header-color,#9ca3af)]">
                 1–8
               </span>
             </div>
@@ -460,8 +460,8 @@ export default function Sidebar() {
                     data-tour={tourKey}
                     title={isCollapsed ? (isRestricted ? `${stepNumber}. ${label} (${t('rbac.accessRestricted', 'Restricted')})` : `${stepNumber}. ${label}`) : isRestricted ? `${label} (${t('rbac.accessRestricted', 'Restricted')})` : undefined}
                     className={cn(
-                      "group flex items-center rounded-lg text-xs font-medium transition-all duration-150 outline-none relative",
-                      isCollapsed ? "justify-center p-2.5" : "gap-2.5 px-2 py-2",
+                      "group flex items-center rounded-lg text-sm font-medium transition-all duration-150 outline-none relative",
+                      isCollapsed ? "justify-center p-2.5" : "gap-2.5 px-2.5 py-2",
                       isRestricted
                         ? "opacity-40 text-slate-500 cursor-not-allowed select-none"
                         : isActive
@@ -478,14 +478,14 @@ export default function Sidebar() {
                     {isCollapsed ? (
                       <div className="relative flex items-center justify-center">
                         <Icon
-                          size={18}
+                          size={20}
                           className={cn(
                             "transition-colors duration-150",
                             isRestricted ? "text-slate-600" : isActive ? "text-orange-500" : "text-[var(--table-header-color,#9ca3af)] group-hover:text-orange-500"
                           )}
                         />
                         <span className={cn(
-                          "absolute -top-1.5 -right-2 text-[9px] font-mono font-bold w-3.5 h-3.5 rounded-full flex items-center justify-center border",
+                          "absolute -top-1.5 -right-2 text-[10px] font-mono font-bold w-4 h-4 rounded-full flex items-center justify-center border",
                           isActive
                             ? "bg-orange-500 text-white border-orange-400 shadow-[0_0_6px_rgba(234,88,12,0.8)]"
                             : "bg-[var(--card-bg,#0b0f19)] text-[var(--table-header-color,#9ca3af)] border-[var(--border-color,#1f2937)]"
@@ -498,7 +498,7 @@ export default function Sidebar() {
                       <>
                         <span
                           className={cn(
-                            "w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-mono font-bold transition-all duration-150 shrink-0 border z-10",
+                            "w-5 h-5 rounded-full flex items-center justify-center text-[11px] font-mono font-bold transition-all duration-150 shrink-0 border z-10",
                             isActive
                               ? "bg-orange-500 text-white border-orange-400 shadow-[0_0_10px_rgba(234,88,12,0.6)] ring-2 ring-orange-500/20"
                               : "bg-[var(--card-bg,#0b0f19)] text-[var(--table-header-color,#9ca3af)] border-[var(--border-color,#1f2937)] group-hover:border-orange-500/50 group-hover:text-[var(--foreground-color,#f8fafc)]"
@@ -508,7 +508,7 @@ export default function Sidebar() {
                         </span>
 
                         <Icon
-                          size={15}
+                          size={17}
                           className={cn(
                             "flex-shrink-0 transition-colors duration-150",
                             isRestricted ? "text-slate-600" : isActive ? "text-orange-500" : "text-[var(--table-header-color,#9ca3af)] group-hover:text-orange-500"
@@ -516,14 +516,14 @@ export default function Sidebar() {
                         />
 
                         <span className={cn(
-                          "truncate flex-1 text-xs sidebar-item-label",
+                          "truncate flex-1 text-sm sidebar-item-label",
                           isRestricted ? "text-slate-500" : isActive ? "font-bold" : "text-inherit"
                         )}>
                           {label}
                         </span>
 
                         {isRestricted && (
-                          <Lock size={12} className="text-slate-500 shrink-0" />
+                          <Lock size={14} className="text-slate-500 shrink-0" />
                         )}
 
                         {isActive && !isRestricted && (
@@ -543,14 +543,14 @@ export default function Sidebar() {
       </nav>
 
       {/* SECTION 3: MINIMALIST FOOTER (Settings & Collapse Toggle Only) */}
-      <div className="border-t border-[var(--sidebar-border,rgba(31,41,55,0.8))] p-2 space-y-1 shrink-0 bg-[var(--sidebar-bg,rgba(3,7,18,0.98))]">
+      <div className="border-t border-[var(--sidebar-border,rgba(31,41,55,0.8))] p-2.5 space-y-1.5 shrink-0 bg-[var(--sidebar-bg,rgba(3,7,18,0.98))]">
         {/* Settings Button */}
         <Link
           href={selectedProject ? `/projects/${selectedProject.id}?tab=settings` : "/settings"}
           data-tour="tour-settings"
           title={isCollapsed ? (selectedProject ? `${selectedProject.name} — ${t('projects.projectSettings', 'Project Settings')}` : t('nav.settings', 'Settings')) : undefined}
           className={cn(
-            "flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-xs font-medium transition-all duration-150 outline-none",
+            "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 outline-none",
             isCollapsed ? "justify-center px-0 py-2.5" : "",
             pathname === "/settings" || pathname.startsWith("/settings/") || (isSelectedProjectActive && (pathname.includes('tab=settings') || pathname.includes('tab=engineering') || pathname.includes('tab=company')))
               ? "sidebar-active-item border-l-2 font-bold"
@@ -558,14 +558,14 @@ export default function Sidebar() {
           )}
         >
           <Settings
-            size={16}
+            size={18}
             className={cn(
               "flex-shrink-0 transition-colors duration-150",
               pathname.startsWith("/settings") || (isSelectedProjectActive && (pathname.includes('tab=settings') || pathname.includes('tab=engineering') || pathname.includes('tab=company'))) ? "text-orange-500" : "text-[var(--table-header-color,#9ca3af)]"
             )}
           />
           {!isCollapsed && (
-            <span className={cn("sidebar-item-label", (pathname.startsWith("/settings") || (isSelectedProjectActive && (pathname.includes('tab=settings') || pathname.includes('tab=engineering') || pathname.includes('tab=company')))) && "font-bold")}>
+            <span className={cn("text-sm sidebar-item-label", (pathname.startsWith("/settings") || (isSelectedProjectActive && (pathname.includes('tab=settings') || pathname.includes('tab=engineering') || pathname.includes('tab=company')))) && "font-bold")}>
               {selectedProject ? t('projects.projectSettings', 'Project Settings') : t('nav.settings', 'Settings')}
             </span>
           )}
@@ -577,21 +577,21 @@ export default function Sidebar() {
           data-tour="sidebar-toggle"
           onClick={toggleSidebar}
           className={cn(
-            "flex items-center rounded-lg transition-all duration-150 text-xs w-full outline-none",
+            "flex items-center rounded-lg transition-all duration-150 text-sm w-full outline-none",
             "text-[var(--table-header-color,#9ca3af)] hover:text-[var(--foreground-color,#f8fafc)] hover:bg-[var(--card-bg-subtle,rgba(17,24,39,0.8))]",
-            isCollapsed ? "justify-center p-2.5" : "justify-between px-2.5 py-2"
+            isCollapsed ? "justify-center p-2.5" : "justify-between px-3 py-2.5"
           )}
           title={isCollapsed ? t('nav.expandSidebar', 'Expand Sidebar') : t('nav.collapseSidebar', 'Collapse Sidebar')}
           aria-label={isCollapsed ? t('nav.expandSidebar', 'Expand Sidebar') : t('nav.collapseSidebar', 'Collapse Sidebar')}
         >
           {isCollapsed ? (
-            <PanelLeftOpen size={16} className={cn("text-orange-500 dark:text-orange-400", isRtl && "scale-x-[-1]")} />
+            <PanelLeftOpen size={18} className={cn("text-orange-500 dark:text-orange-400", isRtl && "scale-x-[-1]")} />
           ) : (
             <>
-              <span className="text-xs font-medium text-[var(--table-header-color,#9ca3af)]">
+              <span className="text-sm font-medium text-[var(--table-header-color,#9ca3af)]">
                 {t('nav.collapseSidebar', 'Collapse')}
               </span>
-              <PanelLeftClose size={15} className={cn("text-[var(--table-header-color,#9ca3af)]", isRtl && "scale-x-[-1]")} />
+              <PanelLeftClose size={17} className={cn("text-[var(--table-header-color,#9ca3af)]", isRtl && "scale-x-[-1]")} />
             </>
           )}
         </button>

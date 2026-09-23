@@ -214,4 +214,46 @@ describe('Cable recalculation', () => {
     expect(result.ampacity).toBeGreaterThanOrEqual(63);
     expect(result.changed).toBe(true);
   });
+
+  it('reports the installed cable ΔV even when an upsize is proposed', () => {
+    // 4mm² Cu XLPE 1-phase at 230V, 100m, 21.74A → way over 5% limit → upsize.
+    const result = recalculateCable({
+      current: 21.74,
+      isThreePhase: false,
+      lengthMeters: 100,
+      existingCableSize: 4,
+      powerFactor: 0.85,
+      systemVoltage: 230,
+      maxVoltageDropPercent: 5,
+      method: 'C',
+      insulation: 'XLPE',
+      ambientTemp: 30,
+      groupingCount: 1,
+    });
+    expect(result.changed).toBe(true);
+    // installedVoltageDropPercent is the as-installed breach (before the fix),
+    // NOT the post-fix voltageDropPercent of the proposed cable.
+    expect(result.installedVoltageDropPercent).toBeGreaterThan(5);
+    expect(result.installedVoltageDropPercent).toBeGreaterThan(result.voltageDropPercent);
+  });
+
+  it('computes a lower ΔV for PVC than XLPE (70°C vs 90°C resistance)', () => {
+    const run = (insulation: 'PVC' | 'XLPE') =>
+      recalculateCable({
+        current: 21.74,
+        isThreePhase: false,
+        lengthMeters: 30,
+        existingCableSize: 4,
+        powerFactor: 0.85,
+        systemVoltage: 230,
+        maxVoltageDropPercent: 5,
+        method: 'C',
+        insulation,
+        ambientTemp: 30,
+        groupingCount: 1,
+      });
+    const xlpe = run('XLPE');
+    const pvc = run('PVC');
+    expect(pvc.voltageDropPercent).toBeLessThan(xlpe.voltageDropPercent);
+  });
 });

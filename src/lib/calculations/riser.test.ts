@@ -328,16 +328,26 @@ describe('Riser Diagram Voltage Drop Calculations', () => {
     });
   });
 
-  describe('Missing cable data: flagged, never fabricated', () => {
-    it('direct floor with no cableLength → branchNoData, zero branch, no worst item', () => {
+  describe('Missing cable data: size is flagged; length falls back to the shared default', () => {
+    it('direct floor with no cableLength → uses the shared default (10m + 5m/floor), not "no data"', () => {
       const r = computeFloorRiserVd(floor({ items: [apt({ cableLength: null })] }), proj);
+      // Same default the cable schedule applies: getItemCableLength → floor 1 → 10m.
+      const expected = calculateVoltageDrop(20, 10, 16, 0.85, false, V230).dropPercent;
+      expect(r.branchNoData).toBe(false);
+      expect(r.branchVdPercent).toBe(expected);
+      expect(r.totalVdPercent).toBe(expected);
+      expect(r.worstItemName).toBe('Apt A');
+    });
+
+    it('item with no cable size → branchNoData, zero branch, no worst item', () => {
+      const r = computeFloorRiserVd(floor({ items: [apt({ cableSize: null as unknown as string })] }), proj);
       expect(r.branchNoData).toBe(true);
       expect(r.totalNoData).toBe(true);
       expect(r.branchVdPercent).toBe(0);
       expect(r.worstItemName).toBeNull();
     });
 
-    it('SDB floor with a riser but missing riser size/length → riserNoData, riserVd=0', () => {
+    it('SDB floor with a riser but missing riser size → riserNoData, riserVd=0', () => {
       const r = computeFloorRiserVd(
         floor({ hasFloorSubPanels: true, riserCableSize: null, riserCableLength: null,
                 items: [apt({ cableLength: 10 })] }),
@@ -372,6 +382,28 @@ describe('Riser Diagram Voltage Drop Calculations', () => {
       // For 17.0 A through 30m of 6mm² Cu XLPE at 400V 3ph:
       // Drop % is approx ~1.3% (whereas 8.5 A would be ~0.65%)
       expect(r.branchVdPercent).toBeGreaterThan(1.0);
+    });
+  });
+
+  describe('Insulation-aware branch ΔV (PVC vs XLPE resistance)', () => {
+    it('a PVC-insulated branch computes a lower ΔV than the same XLPE branch', () => {
+      const pvc = computeFloorRiserVd(
+        floor({ items: [apt({ cableLength: 30, cableSize: '4 mm²', cableInsulation: 'PVC' })] }),
+        proj
+      );
+      const xlpe = computeFloorRiserVd(
+        floor({ items: [apt({ cableLength: 30, cableSize: '4 mm²', cableInsulation: 'XLPE' })] }),
+        proj
+      );
+      // PVC conductor runs at 70°C → lower resistance than XLPE's 90°C.
+      expect(pvc.branchVdPercent).toBeLessThan(xlpe.branchVdPercent);
+      // And both match the shared calculateVoltageDrop with the same insulation.
+      expect(pvc.branchVdPercent).toBe(
+        calculateVoltageDrop(20, 30, 4, 0.85, false, V230, 1, 'copper', 'PVC').dropPercent
+      );
+      expect(xlpe.branchVdPercent).toBe(
+        calculateVoltageDrop(20, 30, 4, 0.85, false, V230, 1, 'copper', 'XLPE').dropPercent
+      );
     });
   });
 });

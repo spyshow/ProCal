@@ -1,5 +1,5 @@
 'use client';
-/* eslint-disable react-hooks/set-state-in-effect, react-hooks/immutability, react-hooks/exhaustive-deps, @typescript-eslint/no-unused-vars */
+/* eslint-disable react-hooks/set-state-in-effect, @typescript-eslint/no-unused-vars */
 
 import { useEffect, useState, useCallback, useRef, useMemo } from 'react';
 import { useProject } from '@/context/ProjectContext';
@@ -84,19 +84,9 @@ export default function RiserPage() {
     }
   }, [loadProject, selectedProject, selectedProjectId]);
 
-  if (!project && (loading || contextLoading || selectedProjectId)) {
-    return <PageSkeleton titleWidth="w-56" rowCount={6} />;
-  }
-
-  if (!project || project.buildings.length === 0) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] text-center p-8 bg-[var(--card-bg)] border border-[var(--border-color)] rounded-2xl">
-        <GitBranch size={40} className="text-[var(--text-muted)] mb-3" />
-        <p className="text-[var(--text-muted)] text-sm">No project data. Select a project from the sidebar.</p>
-      </div>
-    );
-  }
-
+  // Hooks MUST run unconditionally (before any early return) or React throws
+  // "rendered more hooks than during the previous render" (#310) — the guard
+  // for missing project data sits after the hook block below.
   const query = useMemo(() => {
     const params = new URLSearchParams();
     if (project?.preferredManufacturer && project.preferredManufacturer !== 'MIXED') {
@@ -119,6 +109,19 @@ export default function RiserPage() {
       ),
     [equipment, project]
   );
+
+  if (!project && (loading || contextLoading || selectedProjectId)) {
+    return <PageSkeleton titleWidth="w-56" rowCount={6} />;
+  }
+
+  if (!project || project.buildings.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] text-center p-8 bg-[var(--card-bg)] border border-[var(--border-color)] rounded-2xl">
+        <GitBranch size={40} className="text-[var(--text-muted)] mb-3" />
+        <p className="text-[var(--text-muted)] text-sm">No project data. Select a project from the sidebar.</p>
+      </div>
+    );
+  }
 
   const bldg = project.buildings.find((b) => b.id === selectedBuilding) || project.buildings[0];
   const sortedFloors = [...bldg.floorDesigns].sort((a, b) => a.floorNumber - b.floorNumber);
@@ -184,7 +187,10 @@ export default function RiserPage() {
   // riser.ts. Honest per-apartment branch ΔV (1-phase/230V or 3-phase/400V),
   // SDB riser off maxPhaseCurrent (imbalance-aware per eng-review), and flagged
   // "no data" instead of the fabricated direct-floor riser that gave wrong ΔV.
-  const TOTAL_VD_LIMIT = 4; // IEC 60364 total transformer→furthest load
+  // Total path ΔV budget (transformer → furthest load). Aligned with the
+  // project's power-load limit (default 5%, IEC 60364-5-52 Annex G) instead
+  // of the old hardcoded 4% so the riser verdict matches the cable schedule.
+  const TOTAL_VD_LIMIT = project.maxVoltageDropPower ?? 4;
   const floorData: FloorData[] = sortedFloors.map((fd) => {
     const floorDemand = fd.items.reduce((s, item) => s + item.calculatedMaxDemand, 0);
     const floorConnectedLoad = fd.items.reduce((s, item) => s + (item.calculatedConnectedLoad || 0), 0);
@@ -572,14 +578,14 @@ export default function RiserPage() {
             <g transform={`translate(60, ${svgHeight - 20})`}>
               <text x="0" y="0" fill="currentColor" className="text-[var(--foreground-color)]" fontSize="9" fontWeight="600">{t('sld.legend', 'Legend')} (total ΔV, transformer→furthest load):</text>
               <line x1="310" y1="0" x2="330" y2="0" stroke="#3b82f6" strokeWidth="2" />
-              <text x="335" y="3" fill="currentColor" className="text-[var(--text-muted)]" fontSize="8">Normal ({'<'}3.2%)</text>
+              <text x="335" y="3" fill="currentColor" className="text-[var(--text-muted)]" fontSize="8">Normal ({'<'}{(TOTAL_VD_LIMIT * 0.8).toFixed(1)}%)</text>
               <line x1="415" y1="0" x2="435" y2="0" stroke="#f59e0b" strokeWidth="2" />
               <text x="440" y="3" fill="currentColor" className="text-[var(--text-muted)]" fontSize="8">Warning</text>
               <line x1="515" y1="0" x2="535" y2="0" stroke="#ef4444" strokeWidth="2" />
-              <text x="540" y="3" fill="currentColor" className="text-[var(--text-muted)]" fontSize="8">Danger ({'>'}4%)</text>
+              <text x="540" y="3" fill="currentColor" className="text-[var(--text-muted)]" fontSize="8">Danger ({'>'}{TOTAL_VD_LIMIT}%)</text>
               <line x1="620" y1="0" x2="640" y2="0" stroke="#6b7280" strokeWidth="2" strokeDasharray="3" />
               <text x="645" y="3" fill="currentColor" className="text-[var(--text-muted)]" fontSize="8">no data</text>
-              <text x="710" y="3" fill="currentColor" className="text-[var(--text-muted)]" fontSize="8">| IEC 60364: Sub-main {'<'}1%, Final {'<'}3%, Total {'<'}4%</text>
+              <text x="710" y="3" fill="currentColor" className="text-[var(--text-muted)]" fontSize="8">| IEC 60364: Sub-main {'<'}1%, Final {'<'}3%, Total {'<'}{TOTAL_VD_LIMIT}%</text>
             </g>
           </svg>
             </div>
@@ -602,7 +608,7 @@ export default function RiserPage() {
                 <th className="text-center py-2.5 px-3 text-[var(--text-muted)] font-semibold uppercase tracking-wider text-[11px]">{t('riser.current', 'Current')}</th>
                 <th className="text-center py-2.5 px-3 text-[var(--text-muted)] font-semibold uppercase tracking-wider text-[11px]">{t('riser.riserVd', 'Riser ΔV')}<span className="block font-normal opacity-70">{'<1%'}</span></th>
                 <th className="text-center py-2.5 px-3 text-[var(--text-muted)] font-semibold uppercase tracking-wider text-[11px]">{t('riser.branchVd', 'Branch ΔV')}<span className="block font-normal opacity-70">{'<3%'}</span></th>
-                <th className="text-center py-2.5 px-3 text-[var(--text-muted)] font-semibold uppercase tracking-wider text-[11px]">{t('riser.totalVd', 'Total ΔV')}<span className="block font-normal opacity-70">{'<4%'}</span></th>
+                <th className="text-center py-2.5 px-3 text-[var(--text-muted)] font-semibold uppercase tracking-wider text-[11px]">{t('riser.totalVd', 'Total ΔV')}<span className="block font-normal opacity-70">{'<'}{TOTAL_VD_LIMIT}%</span></th>
                 <th className="text-center py-2.5 px-3 text-[var(--text-muted)] font-semibold uppercase tracking-wider text-[11px]">{t('riser.voltage', 'Voltage')}</th>
                 <th className="text-center py-2.5 px-3 text-[var(--text-muted)] font-semibold uppercase tracking-wider text-[11px]">{t('riser.status', 'Status')}</th>
               </tr>
@@ -622,7 +628,7 @@ export default function RiserPage() {
                   <td className="py-2.5 px-3 text-center" style={{ color: bandColor(fd.branchVdPercent, 3, !fd.branchNoData) }}>
                     {fd.branchNoData ? '—' : `${fd.branchVdPercent.toFixed(2)}%`}
                   </td>
-                  <td className="py-2.5 px-3 text-center font-semibold" style={{ color: bandColor(fd.totalVdPercent, 4, !fd.totalNoData) }}>
+                  <td className="py-2.5 px-3 text-center font-semibold" style={{ color: bandColor(fd.totalVdPercent, TOTAL_VD_LIMIT, !fd.totalNoData) }}>
                     {fd.totalNoData ? '—' : `${fd.totalVdPercent.toFixed(2)}%`}
                   </td>
                   <td className="py-2.5 px-3 text-[var(--foreground-color)] text-center">{fd.totalNoData ? '—' : `${fd.actualVoltage.toFixed(1)} V`}</td>
@@ -641,6 +647,9 @@ export default function RiserPage() {
             </tbody>
           </table>
         </div>
+        <p className="mt-2 text-[10px] text-[var(--text-muted)] leading-relaxed">
+          Branch ΔV = worst floor branch — apartments at full connected-load design current (undiversified, IEC 60364-5-52 §525; diversity applies to the shared riser only), other loads at their design current. Riser ΔV uses the floor max-loaded-phase current. Cable lengths missing from the project default to 10 m + 5 m per floor above the first, matching the Cable Schedule. Total budget = the project Power ΔV limit ({TOTAL_VD_LIMIT}%).
+        </p>
       </div>
     </div>
   );

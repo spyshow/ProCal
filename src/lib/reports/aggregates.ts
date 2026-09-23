@@ -736,6 +736,7 @@ export function aggregateVoltageDropRows(project: Project): VoltageDropRow[] {
           isThreePhase,
           systemVoltageLL: project.voltage,
           material: (item.cableMaterial as 'copper' | 'aluminum' | undefined) || 'copper',
+          insulation: (item.cableInsulation as 'PVC' | 'XLPE' | undefined) || 'XLPE',
         });
         if (!vd) continue; // no computable cable data — skip rather than fabricate
 

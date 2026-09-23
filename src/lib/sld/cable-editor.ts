@@ -36,6 +36,11 @@ export interface CableEditorResult {
   breakerSize: number;
   voltageDropPercent: number;
   voltageDropVolts: number;
+  /** Voltage drop of the INSTALLED cable at the design current, before any
+   *  upsizing proposal. When the installed cable is compliant this equals
+   *  voltageDropPercent; when an upsize is proposed it differs, so the UI can
+   *  flag the as-installed breach instead of only the proposal's outcome. */
+  installedVoltageDropPercent: number;
   changed: boolean;
   ampacity: number;
   singleAmpacity: number;
@@ -88,7 +93,7 @@ export function recalculateCable(input: CableEditorInput): CableEditorResult {
   const installedBaseAmpacity = getAmpacity(existingParsed.size, method, insulation, isThreePhase, material, calcStandard);
   const installedSingleAmpacity = installedBaseAmpacity * totalDerating;
   const installedTotalAmpacity = installedSingleAmpacity * currentRuns;
-  const installedVD = calculateVoltageDrop(current, lengthMeters, existingParsed.size, powerFactor, isThreePhase, systemVoltage, currentRuns, material);
+  const installedVD = calculateVoltageDrop(current, lengthMeters, existingParsed.size, powerFactor, isThreePhase, systemVoltage, currentRuns, material, insulation);
 
   const breakerSize = input.assignedBreakerSize ?? findBreakerSize(current, code);
   // Branch circuits with fixed thermal-magnetic breakers (<= 630A) must satisfy
@@ -108,6 +113,7 @@ export function recalculateCable(input: CableEditorInput): CableEditorResult {
       breakerSize,
       voltageDropPercent: installedVD.dropPercent,
       voltageDropVolts: installedVD.dropVolts,
+      installedVoltageDropPercent: installedVD.dropPercent,
       changed: false,
       ampacity: rounded,
       singleAmpacity: Math.round(installedSingleAmpacity * 10) / 10,
@@ -140,6 +146,7 @@ export function recalculateCable(input: CableEditorInput): CableEditorResult {
     breakerSize: input.assignedBreakerSize ?? sizing.breakerSize,
     voltageDropPercent: sizing.dropPercent ?? installedVD.dropPercent,
     voltageDropVolts: sizing.dropVolts ?? installedVD.dropVolts,
+    installedVoltageDropPercent: installedVD.dropPercent,
     changed: sizing.cableSize !== existingParsed.size || runs !== existingParsed.runs,
     ampacity: sizing.deratedAmpacity,
     singleAmpacity: Math.round(perRunAmpacity * 10) / 10,

@@ -70,6 +70,47 @@ interface CableEntry {
   isOverloaded: boolean;
   breakerSize?: number;
   kind: 'floor' | 'building' | 'sdb' | 'incomer';
+  /** True for lighting-classified rows (apartments / light loads) — checked
+   *  against the lighting ΔV limit, matching the VD schedule & reports. */
+  isLighting: boolean;
+  /** The project's ΔV limit this row is evaluated against. */
+  vdLimit: number;
+  /** ΔV of the INSTALLED cable at design current, before any upsize proposal. */
+  installedVd: number | null;
+  /** True when the installed cable's ΔV exceeds this row's vdLimit. */
+  vdFail: boolean;
+}
+
+/**
+ * Resolve the per-project voltage-drop limits, matching the reports/VD
+ * schedule (which read project.maxVoltageDropLighting/Power). The legacy
+ * localStorage override only applies when the project has no limit stored.
+ */
+function resolveVdLimits(project: Project | null): { lighting: number; power: number } {
+  let saved: { lighting?: number; power?: number } | null = null;
+  try {
+    const raw = typeof window !== 'undefined' ? localStorage.getItem('procal-vd-limits') : null;
+    if (raw) saved = JSON.parse(raw) as { lighting?: number; power?: number };
+  } catch {
+    // ignore malformed saved data
+  }
+  return {
+    lighting: project?.maxVoltageDropLighting ?? saved?.lighting ?? 3,
+    power: project?.maxVoltageDropPower ?? saved?.power ?? 5,
+  };
+}
+
+/** Lighting classification mirroring aggregateVoltageDropRows (reports). */
+function isLightingItem(
+  type: string | null | undefined,
+  name: string | null | undefined,
+  category: string | null | undefined
+): boolean {
+  return (
+    type === 'APARTMENT' ||
+    (name || '').toLowerCase().includes('light') ||
+    (category || '').toLowerCase().includes('light')
+  );
 }
 
 function CableLengthInput({
@@ -244,8 +285,7 @@ export default function CableSchedulePage() {
   useEffect(() => {
     if (!project) return;
 
-    const savedLimits = localStorage.getItem('procal-vd-limits');
-    const limits = savedLimits ? JSON.parse(savedLimits) : { lighting: 3, power: 5 };
+    const limits = resolveVdLimits(project);
 
     // Build cable schedule from project data with pre-calculated VD
     const cableList: CableEntry[] = [];
@@ -330,6 +370,10 @@ export default function CableSchedulePage() {
           isOverloaded: result.isOverloaded,
           breakerSize: feedersData.mainBreakerIn ?? result.breakerSize,
           kind: 'incomer',
+          isLighting: false,
+          vdLimit: limits.power,
+          installedVd: result.installedVoltageDropPercent,
+          vdFail: result.installedVoltageDropPercent > limits.power,
         });
       }
 
@@ -372,7 +416,9 @@ export default function CableSchedulePage() {
             assignedBreakerSize: matchingFeeder?.breakerSize,
             powerFactor: project.powerFactor || 0.85,
             systemVoltage: systemVoltageBase(project.voltage || 400, isThreePhase),
-            maxVoltageDropPercent: limits.power,
+            maxVoltageDropPercent: isLightingItem(item.type, item.name, item.loadLibraryItem?.category)
+              ? limits.lighting
+              : limits.power,
             method,
             insulation,
             material,
@@ -381,6 +427,10 @@ export default function CableSchedulePage() {
             maxCableSize: defaultMaxCableSize,
             code: codeOf(project?.calculationStandard),
           });
+
+          const vdLimit = isLightingItem(item.type, item.name, item.loadLibraryItem?.category)
+            ? limits.lighting
+            : limits.power;
 
           cableList.push({
             id: item.id || `${fd.floorNumber}-${item.name}`,
@@ -414,6 +464,10 @@ export default function CableSchedulePage() {
             isOverloaded: result.isOverloaded,
             breakerSize: matchingFeeder?.breakerSize ?? result.breakerSize,
             kind: 'floor',
+            isLighting: isLightingItem(item.type, item.name, item.loadLibraryItem?.category),
+            vdLimit,
+            installedVd: result.installedVoltageDropPercent,
+            vdFail: result.installedVoltageDropPercent > vdLimit,
           });
         });
       }
@@ -470,7 +524,7 @@ export default function CableSchedulePage() {
           assignedBreakerSize: matchingFeeder?.breakerSize,
           powerFactor: project.powerFactor || 0.85,
           systemVoltage: systemVoltageBase(project.voltage || 400, isThreePhase),
-          maxVoltageDropPercent: limits.power,
+          maxVoltageDropPercent: isLightingItem(null, lib.name, lib.category) ? limits.lighting : limits.power,
           method,
           insulation,
           material,
@@ -479,6 +533,8 @@ export default function CableSchedulePage() {
           maxCableSize: defaultMaxCableSize,
           code: codeOf(project?.calculationStandard),
         });
+
+        const vdLimit = isLightingItem(null, lib.name, lib.category) ? limits.lighting : limits.power;
 
         cableList.push({
           id: bl.id,
@@ -512,6 +568,10 @@ export default function CableSchedulePage() {
           isOverloaded: result.isOverloaded,
           breakerSize: matchingFeeder?.breakerSize ?? result.breakerSize,
           kind: 'building',
+          isLighting: isLightingItem(null, lib.name, lib.category),
+          vdLimit,
+          installedVd: result.installedVoltageDropPercent,
+          vdFail: result.installedVoltageDropPercent > vdLimit,
         });
       });
 
@@ -589,6 +649,10 @@ export default function CableSchedulePage() {
           isOverloaded: result.isOverloaded,
           breakerSize: matchingFeeder?.breakerSize ?? result.breakerSize,
           kind: 'sdb',
+          isLighting: false,
+          vdLimit: limits.power,
+          installedVd: result.installedVoltageDropPercent,
+          vdFail: result.installedVoltageDropPercent > limits.power,
         });
       }
     }
@@ -604,8 +668,7 @@ export default function CableSchedulePage() {
     if (currentValue === value) return;
     if (field === 'length' && Number(currentValue) === Number(value)) return;
 
-    const savedLimits = localStorage.getItem('procal-vd-limits');
-    const limits = savedLimits ? JSON.parse(savedLimits) : { lighting: 3, power: 5 };
+    const limits = resolveVdLimits(project);
 
     const newLength = field === 'length' ? value : c.length;
     const newMethod = field === 'method' ? value : c.method;
@@ -624,7 +687,7 @@ export default function CableSchedulePage() {
       assignedBreakerSize: c.breakerSize,
       powerFactor: project?.powerFactor || 0.85,
       systemVoltage: systemVoltageBase(project?.voltage || 400, c.isThreePhase),
-      maxVoltageDropPercent: limits.power,
+      maxVoltageDropPercent: c.vdLimit ?? limits.power,
       method: newMethod,
       insulation: newInsulation,
       material: newMaterial,
@@ -660,6 +723,8 @@ export default function CableSchedulePage() {
             singleAmpacity: result.singleAmpacity,
             isOverloaded: result.isOverloaded,
             breakerSize: result.breakerSize,
+            installedVd: result.installedVoltageDropPercent,
+            vdFail: result.installedVoltageDropPercent > (item.vdLimit ?? limits.power),
           };
         }
         return {
@@ -679,6 +744,8 @@ export default function CableSchedulePage() {
           singleAmpacity: result.singleAmpacity,
           isOverloaded: result.isOverloaded,
           breakerSize: result.breakerSize,
+          installedVd: result.installedVoltageDropPercent,
+          vdFail: result.installedVoltageDropPercent > (item.vdLimit ?? limits.power),
         };
       })
     );
@@ -772,8 +839,7 @@ export default function CableSchedulePage() {
   };
 
   const recalculateAll = () => {
-    const savedLimits = localStorage.getItem('procal-vd-limits');
-    const limits = savedLimits ? JSON.parse(savedLimits) : { lighting: 3, power: 5 };
+    const limits = resolveVdLimits(project);
 
     setCables(prev => prev.map(c => {
       const result = recalculateCable({
@@ -785,7 +851,7 @@ export default function CableSchedulePage() {
         assignedBreakerSize: c.breakerSize,
         powerFactor: project?.powerFactor || 0.85,
         systemVoltage: systemVoltageBase(project?.voltage || 400, c.isThreePhase),
-        maxVoltageDropPercent: limits.power,
+        maxVoltageDropPercent: c.vdLimit ?? (c.isLighting ? limits.lighting : limits.power),
         method: c.method,
         insulation: c.insulation,
         material: c.material,
@@ -805,14 +871,15 @@ export default function CableSchedulePage() {
         singleAmpacity: result.singleAmpacity,
         isOverloaded: result.isOverloaded,
         breakerSize: result.breakerSize,
+        installedVd: result.installedVoltageDropPercent,
+        vdFail: result.installedVoltageDropPercent > (c.vdLimit ?? (c.isLighting ? limits.lighting : limits.power)),
       };
     }));
   };
 
   const applyChanges = async () => {
     setSaving(true);
-    const savedLimits = localStorage.getItem('procal-vd-limits');
-    const limits = savedLimits ? JSON.parse(savedLimits) : { lighting: 3, power: 5 };
+    const limits = resolveVdLimits(project);
     const changedCables = cables.filter(c => c.changed && (c.newFormattedSize || c.newCableSize !== null));
 
     try {
@@ -893,7 +960,7 @@ export default function CableSchedulePage() {
             assignedBreakerSize: c.breakerSize,
             powerFactor: project?.powerFactor || 0.85,
             systemVoltage: systemVoltageBase(project?.voltage || 400, c.isThreePhase),
-            maxVoltageDropPercent: limits.power,
+            maxVoltageDropPercent: c.vdLimit ?? (c.isLighting ? limits.lighting : limits.power),
             method: c.method,
             insulation: c.insulation,
             material: c.material,
@@ -916,6 +983,8 @@ export default function CableSchedulePage() {
             singleAmpacity: result.singleAmpacity,
             isOverloaded: result.isOverloaded,
             breakerSize: result.breakerSize,
+            installedVd: result.installedVoltageDropPercent,
+            vdFail: result.installedVoltageDropPercent > (c.vdLimit ?? (c.isLighting ? limits.lighting : limits.power)),
           };
         }
         return c;
@@ -949,8 +1018,7 @@ export default function CableSchedulePage() {
 
   const applyDefaultsToAll = async () => {
     setApplyingDefaults(true);
-    const savedLimits = localStorage.getItem('procal-vd-limits');
-    const limits = savedLimits ? JSON.parse(savedLimits) : { lighting: 3, power: 5 };
+    const limits = resolveVdLimits(project);
 
     try {
       if (project?.id) {
@@ -979,7 +1047,7 @@ export default function CableSchedulePage() {
           assignedBreakerSize: c.breakerSize,
           powerFactor: project?.powerFactor || 0.85,
           systemVoltage: systemVoltageBase(project?.voltage || 400, c.isThreePhase),
-          maxVoltageDropPercent: limits.power,
+          maxVoltageDropPercent: c.vdLimit ?? (c.isLighting ? limits.lighting : limits.power),
           method: defaultMethod,
           insulation: defaultInsulation,
           material: defaultMaterial,
@@ -1004,6 +1072,8 @@ export default function CableSchedulePage() {
           singleAmpacity: result.singleAmpacity,
           isOverloaded: result.isOverloaded,
           breakerSize: result.breakerSize,
+          installedVd: result.installedVoltageDropPercent,
+          vdFail: result.installedVoltageDropPercent > (c.vdLimit ?? (c.isLighting ? limits.lighting : limits.power)),
         };
       }));
     } catch (err) {
@@ -1730,7 +1800,7 @@ export default function CableSchedulePage() {
                               isThreePhase: c.isThreePhase,
                               dropVolts,
                               dropPercent: c.newVD || 0,
-                              maxDropPercentLimit: project?.maxVoltageDropPower || 5.0,
+                              maxDropPercentLimit: c.vdLimit ?? project?.maxVoltageDropPower ?? 5.0,
                               calculationStandard: selectedProject?.calculationStandard || project?.calculationStandard,
                             });
                           }}
@@ -1742,6 +1812,10 @@ export default function CableSchedulePage() {
                           ) : (c.breakerSize && c.ampacity < c.breakerSize) ? (
                             <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-500/15 border border-amber-600/40 text-amber-900 dark:text-amber-300 font-bold text-[11px] shadow-2xs" title={`Under-protected: Ampacity ${c.ampacity}A < Breaker ${c.breakerSize}A (IEC 60364-4-43 §433.1)`}>
                               <AlertTriangle size={12} /> {t('cableSchedule.upsize', 'UP')}
+                            </span>
+                          ) : c.vdFail ? (
+                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-rose-500/15 border border-rose-600/40 text-rose-800 dark:text-rose-300 font-bold text-[11px] shadow-2xs" title={`Installed cable ΔV ${(c.installedVd ?? 0).toFixed(2)}% exceeds the ${c.vdLimit}% ${c.isLighting ? 'lighting' : 'power'} limit (IEC 60364-5-52 §525)`}>
+                              <AlertTriangle size={12} /> VD {t('cableSchedule.upsize', 'FAIL')}
                             </span>
                           ) : c.changed ? (
                             <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-500/15 border border-amber-600/40 text-amber-900 dark:text-amber-300 font-bold text-[11px] shadow-2xs">

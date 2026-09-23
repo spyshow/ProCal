@@ -19,7 +19,7 @@
  * (2·I·L path); only 3-phase feeders use √3·I·L at 400V. The page used to pass
  * 3-phase/400V for everything — that was the bulk of "ΔV not correct".
  */
-import { calculateVoltageDrop, parseMm2 } from "./cables";
+import { calculateVoltageDrop, parseMm2, getItemCableLength, getRiserCableLength } from "./cables";
 import { phaseBalance } from "./phaseBalance";
 import { isThreePhaseForItem, pfForFloorItem } from "./feeders";
 import type { FloorDesign, FloorItem, Project } from "@/types";
@@ -54,11 +54,16 @@ export interface RiserFloorVd {
 /** Per-apartment branch ΔV, using the item's own cable/length/phase/PF. null if no data. */
 function itemBranchVd(
   item: FloorItem,
-  project: Project
+  project: Project,
+  floorNumber: number = 1
 ): { dropVolts: number; dropPercent: number } | null {
-  const len = item.cableLength;
+  // Missing cable size means nothing was designed — honest "no data". A missing
+  // LENGTH falls back to the shared default (getItemCableLength: 10 m + 5 m per
+  // floor above the first) so the riser and the cable schedule evaluate the
+  // same assumed run instead of the riser dropping to "no data".
   const size = parseMm2(item.cableSize);
-  if (len == null || len <= 0 || size == null) return null;
+  if (size == null) return null;
+  const len = getItemCableLength(item, floorNumber);
 
   const is3ph = isThreePhaseForItem(item);
   const pf = pfForFloorItem(item, project);
@@ -77,6 +82,7 @@ function itemBranchVd(
   if (!current || current <= 0) return null;
   const itemVoltage = is3ph ? project.voltage : project.voltage / Math.sqrt(3);
   const material = (item.cableMaterial as 'copper' | 'aluminum') ?? 'copper';
+  const insulation = (item.cableInsulation as 'PVC' | 'XLPE') ?? 'XLPE';
   return calculateVoltageDrop(
     current,
     len,
@@ -85,7 +91,8 @@ function itemBranchVd(
     is3ph,
     itemVoltage,
     1,
-    material
+    material,
+    insulation
   );
 }
 
@@ -105,7 +112,7 @@ export function computeFloorRiserVd(fd: FloorDesign, project: Project): RiserFlo
   let worstBranch: { dropVolts: number; dropPercent: number } | null = null;
   let worstItemName: string | null = null;
   for (const item of fd.items) {
-    const vd = itemBranchVd(item, project);
+    const vd = itemBranchVd(item, project, fd.floorNumber);
     if (vd == null) continue;
     if (worstBranch == null || vd.dropPercent > worstBranch.dropPercent) {
       worstBranch = vd;
@@ -116,20 +123,21 @@ export function computeFloorRiserVd(fd: FloorDesign, project: Project): RiserFlo
   const branchNoData = worstBranch == null;
 
   if (fd.hasFloorSubPanels) {
-    const riserLen = fd.riserCableLength;
+    const riserLen = getRiserCableLength(fd, fd.floorNumber);
     const riserSize = parseMm2(fd.riserCableSize);
-    const riserNoData = riserLen == null || riserLen <= 0 || riserSize == null || riserCurrent <= 0;
+    const riserNoData = riserLen <= 0 || riserSize == null || riserCurrent <= 0;
     const riserVd = riserNoData
       ? { dropVolts: 0, dropPercent: 0 }
       : calculateVoltageDrop(
           riserCurrent,
-          riserLen!,
-          riserSize!,
+          riserLen,
+          riserSize,
           project.powerFactor ?? 0.85,
           true,
           project.voltage,
           1,
-          (fd.riserCableMaterial as 'copper' | 'aluminum') ?? 'copper'
+          (fd.riserCableMaterial as 'copper' | 'aluminum') ?? 'copper',
+          (fd.riserCableInsulation as 'PVC' | 'XLPE') ?? 'XLPE'
         );
     const riserVdPercent = riserVd.dropPercent;
     // Percentages sum — never raw volts. The riser leg drops against 400V

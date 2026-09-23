@@ -783,6 +783,7 @@ export function computeItemVoltageDrop(opts: {
   isThreePhase: boolean;
   systemVoltageLL: number;
   material?: 'copper' | 'aluminum';
+  insulation?: 'PVC' | 'XLPE';
 }): { dropVolts: number; dropPercent: number } | null {
   const parsed = parseCableSize(opts.cableSizeInput);
   if (!parsed || parsed.size <= 0) return null;
@@ -803,7 +804,8 @@ export function computeItemVoltageDrop(opts: {
       opts.isThreePhase,
       systemVoltage,
       parsed.runs,
-      opts.material ?? 'copper'
+      opts.material ?? 'copper',
+      opts.insulation ?? 'XLPE'
     );
   } catch {
     return null;

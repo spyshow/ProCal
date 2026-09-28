@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation';
 import { useProject } from '@/context/ProjectContext';
 import { useUser } from '@/context/UserContext';
 import { useTranslation } from '@/i18n';
-import { Building2, Plus, Trash2, ArrowRight, ArrowLeft, Wallet } from 'lucide-react';
+import { Building2, Plus, Trash2, ArrowRight, ArrowLeft, Wallet, Search, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { COUNTRY_DEFAULTS } from '@/lib/country-defaults';
 
@@ -23,6 +23,21 @@ interface Project {
   buildings: { id: string; name: string; floors: number }[];
 }
 
+const DEFAULT_PROJECT_FORM = {
+  name: '',
+  client: '',
+  consultant: '',
+  contractor: '',
+  location: '',
+  engineer: '',
+  country: 'Syria',
+  voltage: '400',
+  frequency: '50',
+  powerFactor: '0.85',
+  maxDemandFactor: '0.8',
+  calculationStandard: 'IEC',
+};
+
 export default function ProjectsPage() {
   const router = useRouter();
   const { selectProject } = useProject();
@@ -31,22 +46,16 @@ export default function ProjectsPage() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [showNew, setShowNew] = useState(false);
-  const [form, setForm] = useState({
-    name: '',
-    client: '',
-    consultant: '',
-    contractor: '',
-    location: '',
-    engineer: '',
-    country: 'Syria',
-    voltage: '400',
-    frequency: '50',
-    powerFactor: '0.85',
-    maxDemandFactor: '0.8',
-    calculationStandard: 'IEC',
-  });
+  const [form, setForm] = useState(DEFAULT_PROJECT_FORM);
   const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState('');
+
+  // Pagination & Search States
+  const [search, setSearch] = useState('');
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
+  const pageSize = 12;
 
   // CQ-C proactive gate: a non-admin with zero project credits can't create —
   // route them to buy (Track 4 /billing). Admins bypass the credit gate
@@ -55,16 +64,34 @@ export default function ProjectsPage() {
   // in handleCreate; this gate only hides creation when credits are already 0.
   const isZeroCredits = user != null && user.role !== 'ADMIN' && user.credits < 1;
 
-  const loadProjects = () => {
-    fetch('/api/projects')
+  const loadProjects = (targetPage = page, searchVal = search) => {
+    setLoading(true);
+    const params = new URLSearchParams();
+    params.set('page', String(targetPage));
+    params.set('limit', String(pageSize));
+    if (searchVal.trim()) {
+      params.set('search', searchVal.trim());
+    }
+
+    fetch(`/api/projects?${params.toString()}`)
       .then((r) => r.json())
-      .then((data) => setProjects(Array.isArray(data) ? data : []))
+      .then((data) => {
+        if (Array.isArray(data)) {
+          setProjects(data);
+          setTotalCount(data.length);
+          setTotalPages(1);
+        } else {
+          setProjects(data.projects ?? []);
+          setTotalCount(data.total ?? data.totalCount ?? (data.projects?.length || 0));
+          setTotalPages(data.totalPages ?? 1);
+        }
+      })
       .catch(() => {})
       .finally(() => setLoading(false));
   };
 
   useEffect(() => {
-    loadProjects();
+    loadProjects(1, '');
   }, []);
 
   const handleCreate = async (e: React.FormEvent) => {
@@ -306,6 +333,30 @@ export default function ProjectsPage() {
         </form>
       )}
 
+      {/* Search and Summary Bar */}
+      <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between">
+        <div className="relative flex-1 max-w-md">
+          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+          <input
+            type="search"
+            value={search}
+            onChange={(e) => {
+              const val = e.target.value;
+              setSearch(val);
+              setPage(1);
+              loadProjects(1, val);
+            }}
+            placeholder={t('projects.searchPlaceholder', 'Search projects by name, client, location…')}
+            className="w-full pl-9 pr-4 py-2 text-sm rounded-lg border border-[var(--border-color,#1f2937)] bg-[var(--card-bg,#0b0f19)] text-[var(--foreground-color,#f8fafc)] placeholder-gray-500 focus:outline-none focus:border-orange-500 transition-colors"
+          />
+        </div>
+        {totalCount > 0 && (
+          <span className="text-xs text-[var(--table-header-color,#9ca3af)] self-center">
+            {totalCount} {totalCount === 1 ? t('projects.singleProject', 'project') : t('projects.multipleProjects', 'projects')}
+          </span>
+        )}
+      </div>
+
       {/* Projects List */}
       {loading ? (
         <div className="space-y-3" aria-busy="true" aria-label="Loading projects">
@@ -326,46 +377,90 @@ export default function ProjectsPage() {
       ) : projects.length === 0 ? (
         <div className="text-center py-16 rounded-xl border border-[var(--border-color,#1f2937)] bg-[var(--card-bg,#0b0f19)]">
           <Building2 size={40} className="mx-auto text-[var(--table-header-color,#9ca3af)] mb-3" />
-          <p className="text-[var(--table-header-color,#9ca3af)]">{t('projects.noProjectsPrompt', 'No projects yet. Create one to get started.')}</p>
+          <p className="text-[var(--table-header-color,#9ca3af)]">
+            {search.trim()
+              ? t('projects.noSearchResults', `No projects found matching "${search}"`)
+              : t('projects.noProjectsPrompt', 'No projects yet. Create one to get started.')}
+          </p>
         </div>
       ) : (
-        <div className="space-y-3">
-          {projects.map((proj) => (
-            <div
-              key={proj.id}
-              className="flex items-center gap-4 rounded-xl border border-[var(--border-color,#1f2937)] bg-[var(--card-bg,#0b0f19)] p-4 hover:border-orange-500/40 transition-all group"
-            >
-              <div className="w-10 h-10 rounded-lg bg-orange-500/10 border border-orange-500/30 flex items-center justify-center flex-shrink-0">
-                <Building2 size={18} className="text-orange-600 dark:text-orange-400" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-[var(--foreground-color,#f8fafc)] group-hover:text-orange-600 dark:group-hover:text-orange-400 truncate transition-colors">
-                  {proj.name}
-                </p>
-                <p className="text-xs text-[var(--table-header-color,#9ca3af)] truncate font-medium mt-0.5">
-                  {proj.client || '—'} · {proj.location || '—'} · {proj.buildings.length} {t('calculator.buildingsCount', 'buildings')}
-                </p>
-              </div>
-              <button
-                onClick={() => handleSelect(proj.id)}
-                className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg border border-orange-500/60 dark:border-orange-500/40 bg-orange-500/10 dark:bg-orange-500/15 hover:bg-orange-600 dark:hover:bg-orange-500 text-sm font-semibold text-[var(--foreground-color,#f8fafc)] hover:!text-white hover:border-orange-600 transition-all shadow-xs group/btn cursor-pointer"
+        <div className="space-y-4">
+          <div className="space-y-3">
+            {projects.map((proj) => (
+              <div
+                key={proj.id}
+                className="flex items-center gap-4 rounded-xl border border-[var(--border-color,#1f2937)] bg-[var(--card-bg,#0b0f19)] p-4 hover:border-orange-500/40 transition-all group"
               >
-                <span>{t('common.open', 'Open')}</span>
-                {isRtl ? (
-                  <ArrowLeft size={14} className="text-orange-600 dark:text-orange-400 group-hover/btn:!text-white group-hover/btn:-translate-x-0.5 transition-transform" />
-                ) : (
-                  <ArrowRight size={14} className="text-orange-600 dark:text-orange-400 group-hover/btn:!text-white group-hover/btn:translate-x-0.5 transition-transform" />
-                )}
-              </button>
-              <button
-                onClick={() => handleDelete(proj.id)}
-                className="p-1.5 rounded-lg text-[var(--table-header-color,#9ca3af)] hover:text-rose-500 hover:bg-rose-500/10 transition-colors cursor-pointer"
-                title={t('common.delete', 'Delete project')}
-              >
-                <Trash2 size={14} />
-              </button>
+                <div className="w-10 h-10 rounded-lg bg-orange-500/10 border border-orange-500/30 flex items-center justify-center flex-shrink-0">
+                  <Building2 size={18} className="text-orange-600 dark:text-orange-400" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-[var(--foreground-color,#f8fafc)] group-hover:text-orange-600 dark:group-hover:text-orange-400 truncate transition-colors">
+                    {proj.name}
+                  </p>
+                  <p className="text-xs text-[var(--table-header-color,#9ca3af)] truncate font-medium mt-0.5">
+                    {proj.client || '—'} · {proj.location || '—'} · {proj.buildings.length} {t('calculator.buildingsCount', 'buildings')}
+                  </p>
+                </div>
+                <button
+                  onClick={() => handleSelect(proj.id)}
+                  className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg border border-orange-500/60 dark:border-orange-500/40 bg-orange-500/10 dark:bg-orange-500/15 hover:bg-orange-600 dark:hover:bg-orange-500 text-sm font-semibold text-[var(--foreground-color,#f8fafc)] hover:!text-white hover:border-orange-600 transition-all shadow-xs group/btn cursor-pointer"
+                >
+                  <span>{t('common.open', 'Open')}</span>
+                  {isRtl ? (
+                    <ArrowLeft size={14} className="text-orange-600 dark:text-orange-400 group-hover/btn:!text-white group-hover/btn:-translate-x-0.5 transition-transform" />
+                  ) : (
+                    <ArrowRight size={14} className="text-orange-600 dark:text-orange-400 group-hover/btn:!text-white group-hover/btn:translate-x-0.5 transition-transform" />
+                  )}
+                </button>
+                <button
+                  onClick={() => handleDelete(proj.id)}
+                  className="p-1.5 rounded-lg text-[var(--table-header-color,#9ca3af)] hover:text-rose-500 hover:bg-rose-500/10 transition-colors cursor-pointer"
+                  title={t('common.delete', 'Delete project')}
+                >
+                  <Trash2 size={14} />
+                </button>
+              </div>
+            ))}
+          </div>
+
+          {totalPages > 1 && (
+            <div className="flex items-center justify-between pt-4 border-t border-[var(--border-color,#1f2937)]">
+              <p className="text-xs text-[var(--table-header-color,#9ca3af)]">
+                {t('projects.pageIndicator', `Page ${page} of ${totalPages}`)} ({totalCount} {t('projects.total', 'total')})
+              </p>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={page <= 1 || loading}
+                  onClick={() => {
+                    const prev = Math.max(1, page - 1);
+                    setPage(prev);
+                    loadProjects(prev, search);
+                  }}
+                  className="gap-1 text-xs"
+                >
+                  {isRtl ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
+                  {t('common.prev', 'Previous')}
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={page >= totalPages || loading}
+                  onClick={() => {
+                    const next = Math.min(totalPages, page + 1);
+                    setPage(next);
+                    loadProjects(next, search);
+                  }}
+                  className="gap-1 text-xs"
+                >
+                  {t('common.next', 'Next')}
+                  {isRtl ? <ChevronLeft size={14} /> : <ChevronRight size={14} />}
+                </Button>
+              </div>
             </div>
-          ))}
+          )}
         </div>
       )}
     </div>

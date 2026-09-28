@@ -6,46 +6,87 @@ import { logProjectActivity } from "@/lib/audit-logger";
 import { seedDefaultProjectTemplates, seedDefaultLoadLibrary } from "@/lib/project-defaults";
 import { validateProjectSettings } from "@/lib/calculations/validate";
 
-export async function GET() {
+export async function GET(request?: Request) {
   try {
     const user = await getSessionUser();
     if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const projects = await db.project.findMany({
-      where: {
-        OR: [
-          { userId: user.id },
-          { members: { some: { userId: user.id } } },
-        ],
-      },
-      select: {
-        id: true,
-        name: true,
-        client: true,
-        consultant: true,
-        contractor: true,
-        location: true,
-        engineer: true,
-        country: true,
-        voltage: true,
-        frequency: true,
-        powerFactor: true,
-        calculationStandard: true,
-        preferredManufacturer: true,
-        updatedAt: true,
-        userId: true,
-        buildings: {
-          select: { id: true, name: true, floors: true },
+    const url = request?.url ? new URL(request.url) : new URL("http://localhost/api/projects");
+    const { searchParams } = url;
+
+    const pageParam = parseInt(searchParams.get("page") || "1", 10);
+    const page = Number.isFinite(pageParam) && pageParam > 0 ? pageParam : 1;
+
+    const limitParamRaw = searchParams.get("limit") || searchParams.get("pageSize");
+    const parsedLimit = limitParamRaw ? parseInt(limitParamRaw, 10) : 20;
+    const limit = Number.isFinite(parsedLimit) && parsedLimit > 0 ? Math.min(parsedLimit, 100) : 20;
+
+    const offsetParamRaw = searchParams.get("offset");
+    const offset = offsetParamRaw !== null ? Math.max(0, parseInt(offsetParamRaw, 10) || 0) : (page - 1) * limit;
+
+    const isAll = searchParams.get("all") === "true" || searchParams.get("all") === "1";
+    const search = searchParams.get("search")?.trim() || "";
+    const format = searchParams.get("format");
+
+    const userAccessCondition = {
+      OR: [
+        { userId: user.id },
+        { members: { some: { userId: user.id } } },
+      ],
+    };
+
+    const where: any = search
+      ? {
+          AND: [
+            userAccessCondition,
+            {
+              OR: [
+                { name: { contains: search, mode: "insensitive" } },
+                { client: { contains: search, mode: "insensitive" } },
+                { location: { contains: search, mode: "insensitive" } },
+                { consultant: { contains: search, mode: "insensitive" } },
+                { contractor: { contains: search, mode: "insensitive" } },
+                { engineer: { contains: search, mode: "insensitive" } },
+              ],
+            },
+          ],
+        }
+      : userAccessCondition;
+
+    const [projects, totalCount] = await Promise.all([
+      db.project.findMany({
+        where,
+        select: {
+          id: true,
+          name: true,
+          client: true,
+          consultant: true,
+          contractor: true,
+          location: true,
+          engineer: true,
+          country: true,
+          voltage: true,
+          frequency: true,
+          powerFactor: true,
+          calculationStandard: true,
+          preferredManufacturer: true,
+          updatedAt: true,
+          userId: true,
+          buildings: {
+            select: { id: true, name: true, floors: true },
+          },
+          members: {
+            where: { userId: user.id },
+            select: { role: true, permissions: true },
+          },
         },
-        members: {
-          where: { userId: user.id },
-          select: { role: true, permissions: true },
-        },
-      },
-      orderBy: { updatedAt: "desc" },
-    });
+        orderBy: { updatedAt: "desc" },
+        ...(isAll ? {} : { take: limit, skip: offset }),
+      }),
+      db.project.count({ where }),
+    ]);
 
     const enriched = projects.map((p) => {
       const isOwner = p.userId === user.id;
@@ -61,7 +102,24 @@ export async function GET() {
       };
     });
 
-    return NextResponse.json(enriched);
+    if (format === "flat") {
+      return NextResponse.json(enriched);
+    }
+
+    const effectivePage = isAll ? 1 : page;
+    const effectiveLimit = isAll ? totalCount : limit;
+    const totalPages = isAll ? (totalCount > 0 ? 1 : 0) : (limit > 0 ? Math.ceil(totalCount / limit) : 0);
+    const hasMore = isAll ? false : (offset + enriched.length < totalCount);
+
+    return NextResponse.json({
+      projects: enriched,
+      total: totalCount,
+      totalCount,
+      page: effectivePage,
+      limit: effectiveLimit,
+      totalPages,
+      hasMore,
+    });
   } catch (error: unknown) {
     console.error("GET Projects Error:", error);
     const message =

@@ -42,7 +42,7 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('/api/projects')
+    fetch('/api/projects?all=true')
       .then((r) => r.json())
       .then((data) => {
         setProjects(Array.isArray(data) ? data : data.projects ?? []);

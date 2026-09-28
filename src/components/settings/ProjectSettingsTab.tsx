@@ -90,6 +90,10 @@ export function ProjectSettingsTab({
         notes: selectedProject.notes || "",
       }));
       setSelectedCountry(selectedProject.country || "Syria");
+      setVdLimits({
+        lighting: selectedProject.maxVoltageDropLighting ?? 3,
+        power: selectedProject.maxVoltageDropPower ?? 5,
+      });
     }
   }, [selectedProject]);
 
@@ -157,6 +161,10 @@ export function ProjectSettingsTab({
       if (res.ok) {
         const updated = await res.json();
         mutateProject((prev) => (prev ? { ...prev, ...updated } : null));
+        const lightingLimit = parseFloat(projectForm.maxVoltageDropLighting) || 3;
+        const powerLimit = parseFloat(projectForm.maxVoltageDropPower) || 5;
+        setVdLimits({ lighting: lightingLimit, power: powerLimit });
+        localStorage.setItem("procal-vd-limits", JSON.stringify({ lighting: lightingLimit, power: powerLimit }));
         if (onProjectUpdated) onProjectUpdated();
         setMessage({ type: "success", text: t("settings.saveSuccess", "Project specifications saved successfully") });
       } else {
@@ -625,6 +633,54 @@ export function ProjectSettingsTab({
               </div>
 
               <div>
+                <label className="block text-xs font-medium text-[var(--table-header-color,#9ca3af)] mb-1 flex items-center gap-1.5">
+                  {t("settings.lightingLimit", "Max Voltage Drop – Lighting (%)")}
+                  <InfoTooltip label="Lighting Voltage Drop" helper="Maximum allowable voltage drop percentage for lighting circuits (IEC 60364-5-52: 3%)." />
+                </label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="number"
+                    step="0.5"
+                    min="0.5"
+                    max="20"
+                    value={projectForm.maxVoltageDropLighting}
+                    onChange={(e) => {
+                      const val = parseFloat(e.target.value) || 3;
+                      setProjectForm({ ...projectForm, maxVoltageDropLighting: val });
+                      setVdLimits((prev) => ({ ...prev, lighting: val }));
+                    }}
+                    disabled={isReadOnly}
+                    className="dense-input w-full rounded font-mono disabled:opacity-60"
+                  />
+                  <span className="text-xs font-mono text-[var(--table-header-color,#9ca3af)]">%</span>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-[var(--table-header-color,#9ca3af)] mb-1 flex items-center gap-1.5">
+                  {t("settings.powerLimit", "Max Voltage Drop – Power (%)")}
+                  <InfoTooltip label="Power Voltage Drop" helper="Maximum allowable voltage drop percentage for power, HVAC, and motor circuits (IEC 60364-5-52: 5%)." />
+                </label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="number"
+                    step="0.5"
+                    min="0.5"
+                    max="20"
+                    value={projectForm.maxVoltageDropPower}
+                    onChange={(e) => {
+                      const val = parseFloat(e.target.value) || 5;
+                      setProjectForm({ ...projectForm, maxVoltageDropPower: val });
+                      setVdLimits((prev) => ({ ...prev, power: val }));
+                    }}
+                    disabled={isReadOnly}
+                    className="dense-input w-full rounded font-mono disabled:opacity-60"
+                  />
+                  <span className="text-xs font-mono text-[var(--table-header-color,#9ca3af)]">%</span>
+                </div>
+              </div>
+
+              <div>
                 <label className="block text-xs font-medium text-[var(--table-header-color,#9ca3af)] mb-1">
                   {t("common.standard", "Calculation Standard")}
                 </label>
@@ -871,7 +927,11 @@ export function ProjectSettingsTab({
                     min="1"
                     max="10"
                     value={vdLimits.lighting}
-                    onChange={(e) => setVdLimits({ ...vdLimits, lighting: parseFloat(e.target.value) || 3 })}
+                    onChange={(e) => {
+                      const val = parseFloat(e.target.value) || 3;
+                      setVdLimits({ ...vdLimits, lighting: val });
+                      setProjectForm((prev) => ({ ...prev, maxVoltageDropLighting: val }));
+                    }}
                     disabled={isReadOnly}
                     className="dense-input w-full rounded font-mono text-xs disabled:opacity-60"
                   />
@@ -890,7 +950,11 @@ export function ProjectSettingsTab({
                     min="1"
                     max="15"
                     value={vdLimits.power}
-                    onChange={(e) => setVdLimits({ ...vdLimits, power: parseFloat(e.target.value) || 5 })}
+                    onChange={(e) => {
+                      const val = parseFloat(e.target.value) || 5;
+                      setVdLimits({ ...vdLimits, power: val });
+                      setProjectForm((prev) => ({ ...prev, maxVoltageDropPower: val }));
+                    }}
                     disabled={isReadOnly}
                     className="dense-input w-full rounded font-mono text-xs disabled:opacity-60"
                   />

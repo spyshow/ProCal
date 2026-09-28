@@ -17,19 +17,23 @@ import {
   AlertCircle,
   Palette,
   Save,
+  Sliders,
+  Zap,
+  Building2,
 } from 'lucide-react';
 import { useTranslation, SupportedLanguage } from '@/i18n';
 import { useUser } from '@/context/UserContext';
 import { useProject } from '@/context/ProjectContext';
 import { AppearanceTab } from '@/components/settings/AppearanceTab';
+import InfoTooltip from '@/components/InfoTooltip';
 
-type SettingsTab = 'appearance' | 'language' | 'account';
+type SettingsTab = 'appearance' | 'language' | 'account' | 'engineering';
 
 export default function SettingsPage() {
   const router = useRouter();
   const { t, language, setLanguage } = useTranslation();
   const { user: currentUser, refreshUser } = useUser();
-  const { selectedProjectId } = useProject();
+  const { selectedProject, selectedProjectId, selectProject, mutateProject } = useProject();
 
   const [activeTab, setActiveTab] = useState<SettingsTab>('appearance');
 
@@ -57,6 +61,104 @@ export default function SettingsPage() {
   const [passwordUpdating, setPasswordUpdating] = useState(false);
   const [passwordMessage, setPasswordMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
+  // Engineering / Voltage Drop Limits DB state
+  const [projectList, setProjectList] = useState<{ id: string; name: string }[]>([]);
+  const [vdForm, setVdForm] = useState({
+    lighting: selectedProject?.maxVoltageDropLighting ?? 3,
+    power: selectedProject?.maxVoltageDropPower ?? 5,
+    voltage: selectedProject?.voltage ?? 400,
+    frequency: selectedProject?.frequency ?? 50,
+    powerFactor: selectedProject?.powerFactor ?? 0.85,
+    maxDemandFactor: selectedProject?.maxDemandFactor ?? 0.8,
+    calculationStandard: selectedProject?.calculationStandard || 'IEC',
+  });
+  const [vdSaving, setVdSaving] = useState(false);
+  const [vdMessage, setVdMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
+  // Sync vdForm when selectedProject changes
+  useEffect(() => {
+    if (selectedProject) {
+      setVdForm({
+        lighting: selectedProject.maxVoltageDropLighting ?? 3,
+        power: selectedProject.maxVoltageDropPower ?? 5,
+        voltage: selectedProject.voltage ?? 400,
+        frequency: selectedProject.frequency ?? 50,
+        powerFactor: selectedProject.powerFactor ?? 0.85,
+        maxDemandFactor: selectedProject.maxDemandFactor ?? 0.8,
+        calculationStandard: selectedProject.calculationStandard || 'IEC',
+      });
+    }
+  }, [selectedProject]);
+
+  // Load project list if needed
+  useEffect(() => {
+    if (activeTab === 'engineering' && projectList.length === 0) {
+      fetch('/api/projects?all=true')
+        .then((r) => r.json())
+        .then((data) => {
+          const list = Array.isArray(data) ? data : (data.projects ?? []);
+          const mapped = list.map((p: any) => ({ id: p.id, name: p.name }));
+          setProjectList(mapped);
+          if (!selectedProjectId && mapped.length > 0) {
+            selectProject(mapped[0].id);
+          }
+        })
+        .catch(() => {});
+    }
+  }, [activeTab, projectList.length, selectedProjectId, selectProject]);
+
+  const handleSaveVdLimits = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedProjectId) return;
+    setVdSaving(true);
+    setVdMessage(null);
+
+    const payload = {
+      maxVoltageDropLighting: parseFloat(String(vdForm.lighting)) || 3,
+      maxVoltageDropPower: parseFloat(String(vdForm.power)) || 5,
+      voltage: parseFloat(String(vdForm.voltage)) || 400,
+      frequency: parseFloat(String(vdForm.frequency)) || 50,
+      powerFactor: parseFloat(String(vdForm.powerFactor)) || 0.85,
+      maxDemandFactor: parseFloat(String(vdForm.maxDemandFactor)) || 0.8,
+      calculationStandard: vdForm.calculationStandard || 'IEC',
+    };
+
+    try {
+      const res = await fetch(`/api/projects/${selectedProjectId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      if (res.ok) {
+        const updated = await res.json();
+        mutateProject((prev) => (prev ? { ...prev, ...updated } : null));
+        // Keep localStorage synced as legacy fallback
+        localStorage.setItem(
+          'procal-vd-limits',
+          JSON.stringify({ lighting: payload.maxVoltageDropLighting, power: payload.maxVoltageDropPower })
+        );
+        setVdMessage({
+          type: 'success',
+          text: t('settings.vdSaveSuccess', 'Voltage drop limits and engineering standards saved to project database.'),
+        });
+      } else {
+        const err = await res.json().catch(() => ({}));
+        setVdMessage({
+          type: 'error',
+          text: err.error || t('settings.vdSaveError', 'Failed to save voltage drop limits.'),
+        });
+      }
+    } catch {
+      setVdMessage({
+        type: 'error',
+        text: t('settings.vdSaveError', 'Failed to save voltage drop limits.'),
+      });
+    } finally {
+      setVdSaving(false);
+    }
+  };
+
   useEffect(() => {
     // Support direct tab linking via ?tab=...
     if (typeof window !== 'undefined') {
@@ -64,12 +166,10 @@ export default function SettingsPage() {
       const tabParam = params.get('tab');
       if (tabParam === 'account' || tabParam === 'security') {
         setActiveTab('account');
+      } else if (tabParam === 'engineering' || tabParam === 'settings' || tabParam === 'project') {
+        setActiveTab('engineering');
       } else if (tabParam === 'company') {
         router.replace(selectedProjectId ? `/projects/${selectedProjectId}?tab=company` : '/projects');
-      } else if (tabParam === 'engineering') {
-        router.replace(selectedProjectId ? `/projects/${selectedProjectId}?tab=engineering` : '/projects');
-      } else if (tabParam === 'settings' || tabParam === 'project') {
-        router.replace(selectedProjectId ? `/projects/${selectedProjectId}?tab=settings` : '/projects');
       } else if (tabParam === 'team' || tabParam === 'activity' || tabParam === 'audit' || tabParam === 'qa' || tabParam === 'review') {
         const targetTab = tabParam === 'audit' ? 'activity' : tabParam === 'review' ? 'qa' : tabParam;
         router.replace(selectedProjectId ? `/projects/${selectedProjectId}?tab=${targetTab}` : '/projects');
@@ -232,6 +332,7 @@ export default function SettingsPage() {
           { key: 'appearance' as const, label: t('theme.title', 'Appearance & Theme'), icon: Palette },
           { key: 'language' as const, label: t('common.language', 'Language & RTL'), icon: Globe },
           { key: 'account' as const, label: t('settings.account', 'Account & Security'), icon: Shield },
+          { key: 'engineering' as const, label: t('settings.engineeringStandards', 'Voltage Drop & Standards'), icon: Sliders },
         ]).map(({ key, label, icon: Icon }) => (
           <button
             key={key}
@@ -609,6 +710,289 @@ export default function SettingsPage() {
               </div>
             </form>
           </div>
+        </div>
+      )}
+
+      {/* Engineering Standards & Voltage Drop Tab */}
+      {activeTab === 'engineering' && (
+        <div className="space-y-6 max-w-3xl">
+          {/* Project Header / Selector */}
+          <div className="rounded-xl border border-gray-800 bg-gray-900/40 p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-orange-500/10 border border-orange-500/30 flex items-center justify-center text-orange-400 shrink-0">
+                <Building2 size={20} />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <h2 className="text-sm font-semibold text-white">
+                    {selectedProject ? selectedProject.name : t('settings.noProjectSelected', 'No Project Selected')}
+                  </h2>
+                  {selectedProject?.calculationStandard && (
+                    <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-orange-500/10 text-orange-400 border border-orange-500/20 font-bold">
+                      {selectedProject.calculationStandard}
+                    </span>
+                  )}
+                </div>
+                <p className="text-xs text-gray-400 mt-0.5">
+                  {selectedProject
+                    ? `${selectedProject.client || 'ProCal Client'} • ${selectedProject.location || 'Standard Site'}`
+                    : t('settings.selectProjectDesc', 'Select an active project below to inspect and customize database-level engineering limits')}
+                </p>
+              </div>
+            </div>
+
+            {projectList.length > 1 && (
+              <div className="w-full sm:w-auto">
+                <select
+                  value={selectedProjectId || ''}
+                  onChange={(e) => selectProject(e.target.value || null)}
+                  className="w-full sm:w-auto bg-slate-900/90 border border-slate-700 hover:border-slate-600 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 text-white rounded-lg px-3 py-2 text-xs font-medium outline-none cursor-pointer"
+                >
+                  <option value="" disabled>{t('settings.selectProject', 'Switch Project…')}</option>
+                  {projectList.map((p) => (
+                    <option key={p.id} value={p.id}>{p.name}</option>
+                  ))}
+                </select>
+              </div>
+            )}
+          </div>
+
+          {!selectedProjectId ? (
+            <div className="p-6 rounded-xl border border-gray-800 bg-gray-900/40 text-center space-y-3">
+              <p className="text-sm text-gray-400">
+                {t('settings.pleaseSelectProject', 'Please select an existing project to configure its voltage drop limits and electrical design parameters.')}
+              </p>
+              <button
+                type="button"
+                onClick={() => router.push('/projects')}
+                className="px-4 py-2 text-xs font-semibold rounded-lg bg-orange-600 hover:bg-orange-500 text-white transition-colors"
+              >
+                {t('projects.title', 'Go to Projects')}
+              </button>
+            </div>
+          ) : (
+            <form onSubmit={handleSaveVdLimits} className="space-y-6">
+              {/* Feedback Message */}
+              {vdMessage && (
+                <div
+                  className={`p-3.5 rounded-xl text-sm flex items-start gap-2.5 ${
+                    vdMessage.type === 'success'
+                      ? 'bg-emerald-500/10 border border-emerald-500/20 text-emerald-400'
+                      : 'bg-rose-500/10 border border-rose-500/20 text-rose-400'
+                  }`}
+                >
+                  {vdMessage.type === 'success' ? (
+                    <CheckCircle2 size={18} className="shrink-0 mt-0.5" />
+                  ) : (
+                    <AlertCircle size={18} className="shrink-0 mt-0.5" />
+                  )}
+                  <span>{vdMessage.text}</span>
+                </div>
+              )}
+
+              {/* Voltage Drop Limits Card */}
+              <div className="rounded-xl border border-gray-800 bg-gray-900/40 p-6 space-y-4">
+                <div>
+                  <h3 className="text-base font-semibold text-white flex items-center gap-2">
+                    <Zap size={18} className="text-orange-400" />
+                    {t('settings.vdLimitsTitle', 'Voltage Drop Compliance Limits')}
+                  </h3>
+                  <p className="text-xs text-gray-400 mt-1">
+                    {t(
+                      'settings.vdLimitsSubtitle',
+                      'Configure maximum allowable voltage drop percentages. These values are saved directly to the database and govern calculations in Cable Sizing, Riser, SLD, and verification reports.'
+                    )}
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+                      {t('settings.lightingLimit', 'Max Voltage Drop – Lighting (%)')}
+                      <InfoTooltip
+                        label="Lighting Voltage Drop"
+                        helper="Maximum allowable percentage voltage drop for lighting circuits. Recommended standard: IEC 60364-5-52 Table G.52.1 specifies 3%."
+                      />
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="number"
+                        step="0.1"
+                        min="0.1"
+                        max="20"
+                        value={vdForm.lighting}
+                        onChange={(e) =>
+                          setVdForm({ ...vdForm, lighting: parseFloat(e.target.value) || 0 })
+                        }
+                        className="w-full bg-slate-900/90 border border-slate-700 hover:border-slate-600 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 text-white rounded-xl px-4 py-2.5 text-sm font-mono font-medium outline-none transition-all pe-10"
+                        required
+                      />
+                      <span className="absolute inset-y-0 end-0 pe-3.5 flex items-center text-xs font-mono text-gray-400 pointer-events-none">
+                        %
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-gray-500 mt-1">
+                      {t('settings.iecLightingDefault', 'IEC 60364-5-52 default: 3.0%')}
+                    </p>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+                      {t('settings.powerLimit', 'Max Voltage Drop – Power & Other (%)')}
+                      <InfoTooltip
+                        label="Power Voltage Drop"
+                        helper="Maximum allowable percentage voltage drop for power, motor, and general circuits. Recommended standard: IEC 60364-5-52 specifies 5%; NEC 210.19 recommends 5% total."
+                      />
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="number"
+                        step="0.1"
+                        min="0.1"
+                        max="20"
+                        value={vdForm.power}
+                        onChange={(e) =>
+                          setVdForm({ ...vdForm, power: parseFloat(e.target.value) || 0 })
+                        }
+                        className="w-full bg-slate-900/90 border border-slate-700 hover:border-slate-600 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 text-white rounded-xl px-4 py-2.5 text-sm font-mono font-medium outline-none transition-all pe-10"
+                        required
+                      />
+                      <span className="absolute inset-y-0 end-0 pe-3.5 flex items-center text-xs font-mono text-gray-400 pointer-events-none">
+                        %
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-gray-500 mt-1">
+                      {t('settings.iecPowerDefault', 'IEC 60364-5-52 default: 5.0%')}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="p-3 rounded-lg border border-slate-800 bg-slate-950/40 text-xs text-gray-400 flex items-start gap-2 mt-2">
+                  <span className="text-orange-400 font-bold shrink-0">ℹ</span>
+                  <span>
+                    {t(
+                      'settings.vdNote',
+                      'Values updated here take immediate precedence across all calculators. A local browser fallback copy is kept in sync for offline resilience.'
+                    )}
+                  </span>
+                </div>
+              </div>
+
+              {/* System Electrical Baseline Card */}
+              <div className="rounded-xl border border-gray-800 bg-gray-900/40 p-6 space-y-4">
+                <div>
+                  <h3 className="text-base font-semibold text-white flex items-center gap-2">
+                    <Sliders size={18} className="text-orange-400" />
+                    {t('settings.systemBaseline', 'Electrical System Parameters')}
+                  </h3>
+                  <p className="text-xs text-gray-400 mt-1">
+                    {t('settings.systemBaselineSubtitle', 'Nominal project operating parameters used as baseline for load balancing and sizing')}
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-1.5">
+                      {t('projects.voltage', 'Nominal Voltage (V)')}
+                    </label>
+                    <input
+                      type="number"
+                      value={vdForm.voltage}
+                      onChange={(e) =>
+                        setVdForm({ ...vdForm, voltage: parseFloat(e.target.value) || 400 })
+                      }
+                      className="w-full bg-slate-900/90 border border-slate-700 hover:border-slate-600 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 text-white rounded-xl px-4 py-2.5 text-sm font-mono font-medium outline-none transition-all"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-1.5">
+                      {t('projects.frequency', 'Frequency (Hz)')}
+                    </label>
+                    <select
+                      value={vdForm.frequency}
+                      onChange={(e) =>
+                        setVdForm({ ...vdForm, frequency: parseFloat(e.target.value) || 50 })
+                      }
+                      className="w-full bg-slate-900/90 border border-slate-700 hover:border-slate-600 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 text-white rounded-xl px-4 py-2.5 text-sm font-mono font-medium outline-none transition-all cursor-pointer"
+                    >
+                      <option value={50}>50 Hz (IEC / BS)</option>
+                      <option value={60}>60 Hz (NEC / UL)</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-1.5">
+                      {t('common.standard', 'Calculation Standard')}
+                    </label>
+                    <select
+                      value={vdForm.calculationStandard}
+                      onChange={(e) =>
+                        setVdForm({ ...vdForm, calculationStandard: e.target.value })
+                      }
+                      className="w-full bg-slate-900/90 border border-slate-700 hover:border-slate-600 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 text-white rounded-xl px-4 py-2.5 text-sm font-mono font-medium outline-none transition-all cursor-pointer"
+                    >
+                      <option value="IEC">IEC 60364 / 60909</option>
+                      <option value="NEC">NEC NFPA 70</option>
+                      <option value="BS">BS 7671</option>
+                      <option value="DIN">DIN VDE 0100</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-1.5">
+                      {t('projects.powerFactor', 'Power Factor (cos φ)')}
+                    </label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="0.5"
+                      max="1.0"
+                      value={vdForm.powerFactor}
+                      onChange={(e) =>
+                        setVdForm({ ...vdForm, powerFactor: parseFloat(e.target.value) || 0.85 })
+                      }
+                      className="w-full bg-slate-900/90 border border-slate-700 hover:border-slate-600 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 text-white rounded-xl px-4 py-2.5 text-sm font-mono font-medium outline-none transition-all"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-1.5">
+                      {t('projects.demandFactor', 'Max Demand Factor')}
+                    </label>
+                    <input
+                      type="number"
+                      step="0.05"
+                      min="0.1"
+                      max="1.0"
+                      value={vdForm.maxDemandFactor}
+                      onChange={(e) =>
+                        setVdForm({ ...vdForm, maxDemandFactor: parseFloat(e.target.value) || 0.8 })
+                      }
+                      className="w-full bg-slate-900/90 border border-slate-700 hover:border-slate-600 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 text-white rounded-xl px-4 py-2.5 text-sm font-mono font-medium outline-none transition-all"
+                      required
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Submit Button */}
+              <div className="flex justify-end pt-2">
+                <button
+                  type="submit"
+                  disabled={vdSaving}
+                  className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-orange-600 hover:bg-orange-500 active:scale-[0.99] text-white text-sm font-semibold shadow-lg shadow-orange-600/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-150 cursor-pointer"
+                >
+                  <Save size={15} />
+                  {vdSaving
+                    ? t('settings.savingVdLimits', 'Saving to Database…')
+                    : t('settings.saveVdLimits', 'Save Engineering Limits')}
+                </button>
+              </div>
+            </form>
+          )}
         </div>
       )}
     </div>

@@ -20,15 +20,17 @@ import {
   Sliders,
   Zap,
   Building2,
+  Bot,
 } from 'lucide-react';
 import { useTranslation, SupportedLanguage } from '@/i18n';
 import { useUser } from '@/context/UserContext';
 import { useProject } from '@/context/ProjectContext';
 import { AppearanceTab } from '@/components/settings/AppearanceTab';
+import { McpTokensTab } from '@/components/settings/McpTokensTab';
 import InfoTooltip from '@/components/InfoTooltip';
 import type { CalculationStandard } from '@/types';
 
-type SettingsTab = 'appearance' | 'language' | 'account' | 'engineering';
+type SettingsTab = 'appearance' | 'language' | 'account' | 'mcp' | 'engineering';
 
 export default function SettingsPage() {
   const router = useRouter();
@@ -333,6 +335,7 @@ export default function SettingsPage() {
           { key: 'appearance' as const, label: t('theme.title', 'Appearance & Theme'), icon: Palette },
           { key: 'language' as const, label: t('common.language', 'Language & RTL'), icon: Globe },
           { key: 'account' as const, label: t('settings.account', 'Account & Security'), icon: Shield },
+          { key: 'mcp' as const, label: t('settings.mcp.tab', 'AI Agent Access (MCP)'), icon: Bot },
           { key: 'engineering' as const, label: t('settings.engineeringStandards', 'Voltage Drop & Standards'), icon: Sliders },
         ]).map(({ key, label, icon: Icon }) => (
           <button
@@ -713,6 +716,9 @@ export default function SettingsPage() {
           </div>
         </div>
       )}
+
+      {/* AI Agent Access (MCP) Tab */}
+      {activeTab === 'mcp' && <McpTokensTab />}
 
       {/* Engineering Standards & Voltage Drop Tab */}
       {activeTab === 'engineering' && (

@@ -263,6 +263,11 @@ export type UserWhereInput = {
   sentInvites?: Prisma.ProjectInviteListRelationFilter
   reviewItems?: Prisma.ProjectReviewItemListRelationFilter
   auditLogs?: Prisma.ProjectAuditLogListRelationFilter
+  mcpTokens?: Prisma.McpTokenListRelationFilter
+  mcpArtifacts?: Prisma.McpArtifactListRelationFilter
+  subscriptions?: Prisma.SubscriptionListRelationFilter
+  creditTxns?: Prisma.CreditTransactionListRelationFilter
+  checkoutIntents?: Prisma.CheckoutIntentListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -283,6 +288,11 @@ export type UserOrderByWithRelationInput = {
   sentInvites?: Prisma.ProjectInviteOrderByRelationAggregateInput
   reviewItems?: Prisma.ProjectReviewItemOrderByRelationAggregateInput
   auditLogs?: Prisma.ProjectAuditLogOrderByRelationAggregateInput
+  mcpTokens?: Prisma.McpTokenOrderByRelationAggregateInput
+  mcpArtifacts?: Prisma.McpArtifactOrderByRelationAggregateInput
+  subscriptions?: Prisma.SubscriptionOrderByRelationAggregateInput
+  creditTxns?: Prisma.CreditTransactionOrderByRelationAggregateInput
+  checkoutIntents?: Prisma.CheckoutIntentOrderByRelationAggregateInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -306,6 +316,11 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   sentInvites?: Prisma.ProjectInviteListRelationFilter
   reviewItems?: Prisma.ProjectReviewItemListRelationFilter
   auditLogs?: Prisma.ProjectAuditLogListRelationFilter
+  mcpTokens?: Prisma.McpTokenListRelationFilter
+  mcpArtifacts?: Prisma.McpArtifactListRelationFilter
+  subscriptions?: Prisma.SubscriptionListRelationFilter
+  creditTxns?: Prisma.CreditTransactionListRelationFilter
+  checkoutIntents?: Prisma.CheckoutIntentListRelationFilter
 }, "id" | "username">
 
 export type UserOrderByWithAggregationInput = {
@@ -360,6 +375,11 @@ export type UserCreateInput = {
   sentInvites?: Prisma.ProjectInviteCreateNestedManyWithoutInvitedByInput
   reviewItems?: Prisma.ProjectReviewItemCreateNestedManyWithoutCreatedByInput
   auditLogs?: Prisma.ProjectAuditLogCreateNestedManyWithoutUserInput
+  mcpTokens?: Prisma.McpTokenCreateNestedManyWithoutUserInput
+  mcpArtifacts?: Prisma.McpArtifactCreateNestedManyWithoutUserInput
+  subscriptions?: Prisma.SubscriptionCreateNestedManyWithoutUserInput
+  creditTxns?: Prisma.CreditTransactionCreateNestedManyWithoutUserInput
+  checkoutIntents?: Prisma.CheckoutIntentCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -380,6 +400,11 @@ export type UserUncheckedCreateInput = {
   sentInvites?: Prisma.ProjectInviteUncheckedCreateNestedManyWithoutInvitedByInput
   reviewItems?: Prisma.ProjectReviewItemUncheckedCreateNestedManyWithoutCreatedByInput
   auditLogs?: Prisma.ProjectAuditLogUncheckedCreateNestedManyWithoutUserInput
+  mcpTokens?: Prisma.McpTokenUncheckedCreateNestedManyWithoutUserInput
+  mcpArtifacts?: Prisma.McpArtifactUncheckedCreateNestedManyWithoutUserInput
+  subscriptions?: Prisma.SubscriptionUncheckedCreateNestedManyWithoutUserInput
+  creditTxns?: Prisma.CreditTransactionUncheckedCreateNestedManyWithoutUserInput
+  checkoutIntents?: Prisma.CheckoutIntentUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserUpdateInput = {
@@ -400,6 +425,11 @@ export type UserUpdateInput = {
   sentInvites?: Prisma.ProjectInviteUpdateManyWithoutInvitedByNestedInput
   reviewItems?: Prisma.ProjectReviewItemUpdateManyWithoutCreatedByNestedInput
   auditLogs?: Prisma.ProjectAuditLogUpdateManyWithoutUserNestedInput
+  mcpTokens?: Prisma.McpTokenUpdateManyWithoutUserNestedInput
+  mcpArtifacts?: Prisma.McpArtifactUpdateManyWithoutUserNestedInput
+  subscriptions?: Prisma.SubscriptionUpdateManyWithoutUserNestedInput
+  creditTxns?: Prisma.CreditTransactionUpdateManyWithoutUserNestedInput
+  checkoutIntents?: Prisma.CheckoutIntentUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -420,6 +450,11 @@ export type UserUncheckedUpdateInput = {
   sentInvites?: Prisma.ProjectInviteUncheckedUpdateManyWithoutInvitedByNestedInput
   reviewItems?: Prisma.ProjectReviewItemUncheckedUpdateManyWithoutCreatedByNestedInput
   auditLogs?: Prisma.ProjectAuditLogUncheckedUpdateManyWithoutUserNestedInput
+  mcpTokens?: Prisma.McpTokenUncheckedUpdateManyWithoutUserNestedInput
+  mcpArtifacts?: Prisma.McpArtifactUncheckedUpdateManyWithoutUserNestedInput
+  subscriptions?: Prisma.SubscriptionUncheckedUpdateManyWithoutUserNestedInput
+  creditTxns?: Prisma.CreditTransactionUncheckedUpdateManyWithoutUserNestedInput
+  checkoutIntents?: Prisma.CheckoutIntentUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -542,6 +577,76 @@ export type DateTimeFieldUpdateOperationsInput = {
   set?: Date | string
 }
 
+export type UserCreateNestedOneWithoutSubscriptionsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutSubscriptionsInput, Prisma.UserUncheckedCreateWithoutSubscriptionsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutSubscriptionsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutSubscriptionsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutSubscriptionsInput, Prisma.UserUncheckedCreateWithoutSubscriptionsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutSubscriptionsInput
+  upsert?: Prisma.UserUpsertWithoutSubscriptionsInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutSubscriptionsInput, Prisma.UserUpdateWithoutSubscriptionsInput>, Prisma.UserUncheckedUpdateWithoutSubscriptionsInput>
+}
+
+export type UserCreateNestedOneWithoutCreditTxnsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutCreditTxnsInput, Prisma.UserUncheckedCreateWithoutCreditTxnsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutCreditTxnsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutCreditTxnsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutCreditTxnsInput, Prisma.UserUncheckedCreateWithoutCreditTxnsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutCreditTxnsInput
+  upsert?: Prisma.UserUpsertWithoutCreditTxnsInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutCreditTxnsInput, Prisma.UserUpdateWithoutCreditTxnsInput>, Prisma.UserUncheckedUpdateWithoutCreditTxnsInput>
+}
+
+export type UserCreateNestedOneWithoutCheckoutIntentsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutCheckoutIntentsInput, Prisma.UserUncheckedCreateWithoutCheckoutIntentsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutCheckoutIntentsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutCheckoutIntentsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutCheckoutIntentsInput, Prisma.UserUncheckedCreateWithoutCheckoutIntentsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutCheckoutIntentsInput
+  upsert?: Prisma.UserUpsertWithoutCheckoutIntentsInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutCheckoutIntentsInput, Prisma.UserUpdateWithoutCheckoutIntentsInput>, Prisma.UserUncheckedUpdateWithoutCheckoutIntentsInput>
+}
+
+export type UserCreateNestedOneWithoutMcpTokensInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutMcpTokensInput, Prisma.UserUncheckedCreateWithoutMcpTokensInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutMcpTokensInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutMcpTokensNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutMcpTokensInput, Prisma.UserUncheckedCreateWithoutMcpTokensInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutMcpTokensInput
+  upsert?: Prisma.UserUpsertWithoutMcpTokensInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutMcpTokensInput, Prisma.UserUpdateWithoutMcpTokensInput>, Prisma.UserUncheckedUpdateWithoutMcpTokensInput>
+}
+
+export type UserCreateNestedOneWithoutMcpArtifactsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutMcpArtifactsInput, Prisma.UserUncheckedCreateWithoutMcpArtifactsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutMcpArtifactsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutMcpArtifactsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutMcpArtifactsInput, Prisma.UserUncheckedCreateWithoutMcpArtifactsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutMcpArtifactsInput
+  upsert?: Prisma.UserUpsertWithoutMcpArtifactsInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutMcpArtifactsInput, Prisma.UserUpdateWithoutMcpArtifactsInput>, Prisma.UserUncheckedUpdateWithoutMcpArtifactsInput>
+}
+
 export type UserCreateNestedOneWithoutContactRequestsInput = {
   create?: Prisma.XOR<Prisma.UserCreateWithoutContactRequestsInput, Prisma.UserUncheckedCreateWithoutContactRequestsInput>
   connectOrCreate?: Prisma.UserCreateOrConnectWithoutContactRequestsInput
@@ -642,6 +747,566 @@ export type UserUpdateOneRequiredWithoutRevisionsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutRevisionsInput, Prisma.UserUpdateWithoutRevisionsInput>, Prisma.UserUncheckedUpdateWithoutRevisionsInput>
 }
 
+export type UserCreateWithoutSubscriptionsInput = {
+  id?: string
+  username: string
+  passwordHash: string
+  name: string
+  email?: string | null
+  role?: string
+  theme?: string
+  credits?: number
+  disabled?: boolean
+  createdAt?: Date | string
+  projects?: Prisma.ProjectCreateNestedManyWithoutUserInput
+  revisions?: Prisma.ProjectRevisionCreateNestedManyWithoutCreatedByInput
+  contactRequests?: Prisma.ContactRequestCreateNestedManyWithoutUserInput
+  projectMembers?: Prisma.ProjectMemberCreateNestedManyWithoutUserInput
+  sentInvites?: Prisma.ProjectInviteCreateNestedManyWithoutInvitedByInput
+  reviewItems?: Prisma.ProjectReviewItemCreateNestedManyWithoutCreatedByInput
+  auditLogs?: Prisma.ProjectAuditLogCreateNestedManyWithoutUserInput
+  mcpTokens?: Prisma.McpTokenCreateNestedManyWithoutUserInput
+  mcpArtifacts?: Prisma.McpArtifactCreateNestedManyWithoutUserInput
+  creditTxns?: Prisma.CreditTransactionCreateNestedManyWithoutUserInput
+  checkoutIntents?: Prisma.CheckoutIntentCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutSubscriptionsInput = {
+  id?: string
+  username: string
+  passwordHash: string
+  name: string
+  email?: string | null
+  role?: string
+  theme?: string
+  credits?: number
+  disabled?: boolean
+  createdAt?: Date | string
+  projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutUserInput
+  revisions?: Prisma.ProjectRevisionUncheckedCreateNestedManyWithoutCreatedByInput
+  contactRequests?: Prisma.ContactRequestUncheckedCreateNestedManyWithoutUserInput
+  projectMembers?: Prisma.ProjectMemberUncheckedCreateNestedManyWithoutUserInput
+  sentInvites?: Prisma.ProjectInviteUncheckedCreateNestedManyWithoutInvitedByInput
+  reviewItems?: Prisma.ProjectReviewItemUncheckedCreateNestedManyWithoutCreatedByInput
+  auditLogs?: Prisma.ProjectAuditLogUncheckedCreateNestedManyWithoutUserInput
+  mcpTokens?: Prisma.McpTokenUncheckedCreateNestedManyWithoutUserInput
+  mcpArtifacts?: Prisma.McpArtifactUncheckedCreateNestedManyWithoutUserInput
+  creditTxns?: Prisma.CreditTransactionUncheckedCreateNestedManyWithoutUserInput
+  checkoutIntents?: Prisma.CheckoutIntentUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutSubscriptionsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutSubscriptionsInput, Prisma.UserUncheckedCreateWithoutSubscriptionsInput>
+}
+
+export type UserUpsertWithoutSubscriptionsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutSubscriptionsInput, Prisma.UserUncheckedUpdateWithoutSubscriptionsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutSubscriptionsInput, Prisma.UserUncheckedCreateWithoutSubscriptionsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutSubscriptionsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutSubscriptionsInput, Prisma.UserUncheckedUpdateWithoutSubscriptionsInput>
+}
+
+export type UserUpdateWithoutSubscriptionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.StringFieldUpdateOperationsInput | string
+  theme?: Prisma.StringFieldUpdateOperationsInput | string
+  credits?: Prisma.IntFieldUpdateOperationsInput | number
+  disabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  projects?: Prisma.ProjectUpdateManyWithoutUserNestedInput
+  revisions?: Prisma.ProjectRevisionUpdateManyWithoutCreatedByNestedInput
+  contactRequests?: Prisma.ContactRequestUpdateManyWithoutUserNestedInput
+  projectMembers?: Prisma.ProjectMemberUpdateManyWithoutUserNestedInput
+  sentInvites?: Prisma.ProjectInviteUpdateManyWithoutInvitedByNestedInput
+  reviewItems?: Prisma.ProjectReviewItemUpdateManyWithoutCreatedByNestedInput
+  auditLogs?: Prisma.ProjectAuditLogUpdateManyWithoutUserNestedInput
+  mcpTokens?: Prisma.McpTokenUpdateManyWithoutUserNestedInput
+  mcpArtifacts?: Prisma.McpArtifactUpdateManyWithoutUserNestedInput
+  creditTxns?: Prisma.CreditTransactionUpdateManyWithoutUserNestedInput
+  checkoutIntents?: Prisma.CheckoutIntentUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutSubscriptionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.StringFieldUpdateOperationsInput | string
+  theme?: Prisma.StringFieldUpdateOperationsInput | string
+  credits?: Prisma.IntFieldUpdateOperationsInput | number
+  disabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  projects?: Prisma.ProjectUncheckedUpdateManyWithoutUserNestedInput
+  revisions?: Prisma.ProjectRevisionUncheckedUpdateManyWithoutCreatedByNestedInput
+  contactRequests?: Prisma.ContactRequestUncheckedUpdateManyWithoutUserNestedInput
+  projectMembers?: Prisma.ProjectMemberUncheckedUpdateManyWithoutUserNestedInput
+  sentInvites?: Prisma.ProjectInviteUncheckedUpdateManyWithoutInvitedByNestedInput
+  reviewItems?: Prisma.ProjectReviewItemUncheckedUpdateManyWithoutCreatedByNestedInput
+  auditLogs?: Prisma.ProjectAuditLogUncheckedUpdateManyWithoutUserNestedInput
+  mcpTokens?: Prisma.McpTokenUncheckedUpdateManyWithoutUserNestedInput
+  mcpArtifacts?: Prisma.McpArtifactUncheckedUpdateManyWithoutUserNestedInput
+  creditTxns?: Prisma.CreditTransactionUncheckedUpdateManyWithoutUserNestedInput
+  checkoutIntents?: Prisma.CheckoutIntentUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutCreditTxnsInput = {
+  id?: string
+  username: string
+  passwordHash: string
+  name: string
+  email?: string | null
+  role?: string
+  theme?: string
+  credits?: number
+  disabled?: boolean
+  createdAt?: Date | string
+  projects?: Prisma.ProjectCreateNestedManyWithoutUserInput
+  revisions?: Prisma.ProjectRevisionCreateNestedManyWithoutCreatedByInput
+  contactRequests?: Prisma.ContactRequestCreateNestedManyWithoutUserInput
+  projectMembers?: Prisma.ProjectMemberCreateNestedManyWithoutUserInput
+  sentInvites?: Prisma.ProjectInviteCreateNestedManyWithoutInvitedByInput
+  reviewItems?: Prisma.ProjectReviewItemCreateNestedManyWithoutCreatedByInput
+  auditLogs?: Prisma.ProjectAuditLogCreateNestedManyWithoutUserInput
+  mcpTokens?: Prisma.McpTokenCreateNestedManyWithoutUserInput
+  mcpArtifacts?: Prisma.McpArtifactCreateNestedManyWithoutUserInput
+  subscriptions?: Prisma.SubscriptionCreateNestedManyWithoutUserInput
+  checkoutIntents?: Prisma.CheckoutIntentCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutCreditTxnsInput = {
+  id?: string
+  username: string
+  passwordHash: string
+  name: string
+  email?: string | null
+  role?: string
+  theme?: string
+  credits?: number
+  disabled?: boolean
+  createdAt?: Date | string
+  projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutUserInput
+  revisions?: Prisma.ProjectRevisionUncheckedCreateNestedManyWithoutCreatedByInput
+  contactRequests?: Prisma.ContactRequestUncheckedCreateNestedManyWithoutUserInput
+  projectMembers?: Prisma.ProjectMemberUncheckedCreateNestedManyWithoutUserInput
+  sentInvites?: Prisma.ProjectInviteUncheckedCreateNestedManyWithoutInvitedByInput
+  reviewItems?: Prisma.ProjectReviewItemUncheckedCreateNestedManyWithoutCreatedByInput
+  auditLogs?: Prisma.ProjectAuditLogUncheckedCreateNestedManyWithoutUserInput
+  mcpTokens?: Prisma.McpTokenUncheckedCreateNestedManyWithoutUserInput
+  mcpArtifacts?: Prisma.McpArtifactUncheckedCreateNestedManyWithoutUserInput
+  subscriptions?: Prisma.SubscriptionUncheckedCreateNestedManyWithoutUserInput
+  checkoutIntents?: Prisma.CheckoutIntentUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutCreditTxnsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutCreditTxnsInput, Prisma.UserUncheckedCreateWithoutCreditTxnsInput>
+}
+
+export type UserUpsertWithoutCreditTxnsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutCreditTxnsInput, Prisma.UserUncheckedUpdateWithoutCreditTxnsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutCreditTxnsInput, Prisma.UserUncheckedCreateWithoutCreditTxnsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutCreditTxnsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutCreditTxnsInput, Prisma.UserUncheckedUpdateWithoutCreditTxnsInput>
+}
+
+export type UserUpdateWithoutCreditTxnsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.StringFieldUpdateOperationsInput | string
+  theme?: Prisma.StringFieldUpdateOperationsInput | string
+  credits?: Prisma.IntFieldUpdateOperationsInput | number
+  disabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  projects?: Prisma.ProjectUpdateManyWithoutUserNestedInput
+  revisions?: Prisma.ProjectRevisionUpdateManyWithoutCreatedByNestedInput
+  contactRequests?: Prisma.ContactRequestUpdateManyWithoutUserNestedInput
+  projectMembers?: Prisma.ProjectMemberUpdateManyWithoutUserNestedInput
+  sentInvites?: Prisma.ProjectInviteUpdateManyWithoutInvitedByNestedInput
+  reviewItems?: Prisma.ProjectReviewItemUpdateManyWithoutCreatedByNestedInput
+  auditLogs?: Prisma.ProjectAuditLogUpdateManyWithoutUserNestedInput
+  mcpTokens?: Prisma.McpTokenUpdateManyWithoutUserNestedInput
+  mcpArtifacts?: Prisma.McpArtifactUpdateManyWithoutUserNestedInput
+  subscriptions?: Prisma.SubscriptionUpdateManyWithoutUserNestedInput
+  checkoutIntents?: Prisma.CheckoutIntentUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutCreditTxnsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.StringFieldUpdateOperationsInput | string
+  theme?: Prisma.StringFieldUpdateOperationsInput | string
+  credits?: Prisma.IntFieldUpdateOperationsInput | number
+  disabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  projects?: Prisma.ProjectUncheckedUpdateManyWithoutUserNestedInput
+  revisions?: Prisma.ProjectRevisionUncheckedUpdateManyWithoutCreatedByNestedInput
+  contactRequests?: Prisma.ContactRequestUncheckedUpdateManyWithoutUserNestedInput
+  projectMembers?: Prisma.ProjectMemberUncheckedUpdateManyWithoutUserNestedInput
+  sentInvites?: Prisma.ProjectInviteUncheckedUpdateManyWithoutInvitedByNestedInput
+  reviewItems?: Prisma.ProjectReviewItemUncheckedUpdateManyWithoutCreatedByNestedInput
+  auditLogs?: Prisma.ProjectAuditLogUncheckedUpdateManyWithoutUserNestedInput
+  mcpTokens?: Prisma.McpTokenUncheckedUpdateManyWithoutUserNestedInput
+  mcpArtifacts?: Prisma.McpArtifactUncheckedUpdateManyWithoutUserNestedInput
+  subscriptions?: Prisma.SubscriptionUncheckedUpdateManyWithoutUserNestedInput
+  checkoutIntents?: Prisma.CheckoutIntentUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutCheckoutIntentsInput = {
+  id?: string
+  username: string
+  passwordHash: string
+  name: string
+  email?: string | null
+  role?: string
+  theme?: string
+  credits?: number
+  disabled?: boolean
+  createdAt?: Date | string
+  projects?: Prisma.ProjectCreateNestedManyWithoutUserInput
+  revisions?: Prisma.ProjectRevisionCreateNestedManyWithoutCreatedByInput
+  contactRequests?: Prisma.ContactRequestCreateNestedManyWithoutUserInput
+  projectMembers?: Prisma.ProjectMemberCreateNestedManyWithoutUserInput
+  sentInvites?: Prisma.ProjectInviteCreateNestedManyWithoutInvitedByInput
+  reviewItems?: Prisma.ProjectReviewItemCreateNestedManyWithoutCreatedByInput
+  auditLogs?: Prisma.ProjectAuditLogCreateNestedManyWithoutUserInput
+  mcpTokens?: Prisma.McpTokenCreateNestedManyWithoutUserInput
+  mcpArtifacts?: Prisma.McpArtifactCreateNestedManyWithoutUserInput
+  subscriptions?: Prisma.SubscriptionCreateNestedManyWithoutUserInput
+  creditTxns?: Prisma.CreditTransactionCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutCheckoutIntentsInput = {
+  id?: string
+  username: string
+  passwordHash: string
+  name: string
+  email?: string | null
+  role?: string
+  theme?: string
+  credits?: number
+  disabled?: boolean
+  createdAt?: Date | string
+  projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutUserInput
+  revisions?: Prisma.ProjectRevisionUncheckedCreateNestedManyWithoutCreatedByInput
+  contactRequests?: Prisma.ContactRequestUncheckedCreateNestedManyWithoutUserInput
+  projectMembers?: Prisma.ProjectMemberUncheckedCreateNestedManyWithoutUserInput
+  sentInvites?: Prisma.ProjectInviteUncheckedCreateNestedManyWithoutInvitedByInput
+  reviewItems?: Prisma.ProjectReviewItemUncheckedCreateNestedManyWithoutCreatedByInput
+  auditLogs?: Prisma.ProjectAuditLogUncheckedCreateNestedManyWithoutUserInput
+  mcpTokens?: Prisma.McpTokenUncheckedCreateNestedManyWithoutUserInput
+  mcpArtifacts?: Prisma.McpArtifactUncheckedCreateNestedManyWithoutUserInput
+  subscriptions?: Prisma.SubscriptionUncheckedCreateNestedManyWithoutUserInput
+  creditTxns?: Prisma.CreditTransactionUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutCheckoutIntentsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutCheckoutIntentsInput, Prisma.UserUncheckedCreateWithoutCheckoutIntentsInput>
+}
+
+export type UserUpsertWithoutCheckoutIntentsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutCheckoutIntentsInput, Prisma.UserUncheckedUpdateWithoutCheckoutIntentsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutCheckoutIntentsInput, Prisma.UserUncheckedCreateWithoutCheckoutIntentsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutCheckoutIntentsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutCheckoutIntentsInput, Prisma.UserUncheckedUpdateWithoutCheckoutIntentsInput>
+}
+
+export type UserUpdateWithoutCheckoutIntentsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.StringFieldUpdateOperationsInput | string
+  theme?: Prisma.StringFieldUpdateOperationsInput | string
+  credits?: Prisma.IntFieldUpdateOperationsInput | number
+  disabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  projects?: Prisma.ProjectUpdateManyWithoutUserNestedInput
+  revisions?: Prisma.ProjectRevisionUpdateManyWithoutCreatedByNestedInput
+  contactRequests?: Prisma.ContactRequestUpdateManyWithoutUserNestedInput
+  projectMembers?: Prisma.ProjectMemberUpdateManyWithoutUserNestedInput
+  sentInvites?: Prisma.ProjectInviteUpdateManyWithoutInvitedByNestedInput
+  reviewItems?: Prisma.ProjectReviewItemUpdateManyWithoutCreatedByNestedInput
+  auditLogs?: Prisma.ProjectAuditLogUpdateManyWithoutUserNestedInput
+  mcpTokens?: Prisma.McpTokenUpdateManyWithoutUserNestedInput
+  mcpArtifacts?: Prisma.McpArtifactUpdateManyWithoutUserNestedInput
+  subscriptions?: Prisma.SubscriptionUpdateManyWithoutUserNestedInput
+  creditTxns?: Prisma.CreditTransactionUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutCheckoutIntentsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.StringFieldUpdateOperationsInput | string
+  theme?: Prisma.StringFieldUpdateOperationsInput | string
+  credits?: Prisma.IntFieldUpdateOperationsInput | number
+  disabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  projects?: Prisma.ProjectUncheckedUpdateManyWithoutUserNestedInput
+  revisions?: Prisma.ProjectRevisionUncheckedUpdateManyWithoutCreatedByNestedInput
+  contactRequests?: Prisma.ContactRequestUncheckedUpdateManyWithoutUserNestedInput
+  projectMembers?: Prisma.ProjectMemberUncheckedUpdateManyWithoutUserNestedInput
+  sentInvites?: Prisma.ProjectInviteUncheckedUpdateManyWithoutInvitedByNestedInput
+  reviewItems?: Prisma.ProjectReviewItemUncheckedUpdateManyWithoutCreatedByNestedInput
+  auditLogs?: Prisma.ProjectAuditLogUncheckedUpdateManyWithoutUserNestedInput
+  mcpTokens?: Prisma.McpTokenUncheckedUpdateManyWithoutUserNestedInput
+  mcpArtifacts?: Prisma.McpArtifactUncheckedUpdateManyWithoutUserNestedInput
+  subscriptions?: Prisma.SubscriptionUncheckedUpdateManyWithoutUserNestedInput
+  creditTxns?: Prisma.CreditTransactionUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutMcpTokensInput = {
+  id?: string
+  username: string
+  passwordHash: string
+  name: string
+  email?: string | null
+  role?: string
+  theme?: string
+  credits?: number
+  disabled?: boolean
+  createdAt?: Date | string
+  projects?: Prisma.ProjectCreateNestedManyWithoutUserInput
+  revisions?: Prisma.ProjectRevisionCreateNestedManyWithoutCreatedByInput
+  contactRequests?: Prisma.ContactRequestCreateNestedManyWithoutUserInput
+  projectMembers?: Prisma.ProjectMemberCreateNestedManyWithoutUserInput
+  sentInvites?: Prisma.ProjectInviteCreateNestedManyWithoutInvitedByInput
+  reviewItems?: Prisma.ProjectReviewItemCreateNestedManyWithoutCreatedByInput
+  auditLogs?: Prisma.ProjectAuditLogCreateNestedManyWithoutUserInput
+  mcpArtifacts?: Prisma.McpArtifactCreateNestedManyWithoutUserInput
+  subscriptions?: Prisma.SubscriptionCreateNestedManyWithoutUserInput
+  creditTxns?: Prisma.CreditTransactionCreateNestedManyWithoutUserInput
+  checkoutIntents?: Prisma.CheckoutIntentCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutMcpTokensInput = {
+  id?: string
+  username: string
+  passwordHash: string
+  name: string
+  email?: string | null
+  role?: string
+  theme?: string
+  credits?: number
+  disabled?: boolean
+  createdAt?: Date | string
+  projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutUserInput
+  revisions?: Prisma.ProjectRevisionUncheckedCreateNestedManyWithoutCreatedByInput
+  contactRequests?: Prisma.ContactRequestUncheckedCreateNestedManyWithoutUserInput
+  projectMembers?: Prisma.ProjectMemberUncheckedCreateNestedManyWithoutUserInput
+  sentInvites?: Prisma.ProjectInviteUncheckedCreateNestedManyWithoutInvitedByInput
+  reviewItems?: Prisma.ProjectReviewItemUncheckedCreateNestedManyWithoutCreatedByInput
+  auditLogs?: Prisma.ProjectAuditLogUncheckedCreateNestedManyWithoutUserInput
+  mcpArtifacts?: Prisma.McpArtifactUncheckedCreateNestedManyWithoutUserInput
+  subscriptions?: Prisma.SubscriptionUncheckedCreateNestedManyWithoutUserInput
+  creditTxns?: Prisma.CreditTransactionUncheckedCreateNestedManyWithoutUserInput
+  checkoutIntents?: Prisma.CheckoutIntentUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutMcpTokensInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutMcpTokensInput, Prisma.UserUncheckedCreateWithoutMcpTokensInput>
+}
+
+export type UserUpsertWithoutMcpTokensInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutMcpTokensInput, Prisma.UserUncheckedUpdateWithoutMcpTokensInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutMcpTokensInput, Prisma.UserUncheckedCreateWithoutMcpTokensInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutMcpTokensInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutMcpTokensInput, Prisma.UserUncheckedUpdateWithoutMcpTokensInput>
+}
+
+export type UserUpdateWithoutMcpTokensInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.StringFieldUpdateOperationsInput | string
+  theme?: Prisma.StringFieldUpdateOperationsInput | string
+  credits?: Prisma.IntFieldUpdateOperationsInput | number
+  disabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  projects?: Prisma.ProjectUpdateManyWithoutUserNestedInput
+  revisions?: Prisma.ProjectRevisionUpdateManyWithoutCreatedByNestedInput
+  contactRequests?: Prisma.ContactRequestUpdateManyWithoutUserNestedInput
+  projectMembers?: Prisma.ProjectMemberUpdateManyWithoutUserNestedInput
+  sentInvites?: Prisma.ProjectInviteUpdateManyWithoutInvitedByNestedInput
+  reviewItems?: Prisma.ProjectReviewItemUpdateManyWithoutCreatedByNestedInput
+  auditLogs?: Prisma.ProjectAuditLogUpdateManyWithoutUserNestedInput
+  mcpArtifacts?: Prisma.McpArtifactUpdateManyWithoutUserNestedInput
+  subscriptions?: Prisma.SubscriptionUpdateManyWithoutUserNestedInput
+  creditTxns?: Prisma.CreditTransactionUpdateManyWithoutUserNestedInput
+  checkoutIntents?: Prisma.CheckoutIntentUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutMcpTokensInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.StringFieldUpdateOperationsInput | string
+  theme?: Prisma.StringFieldUpdateOperationsInput | string
+  credits?: Prisma.IntFieldUpdateOperationsInput | number
+  disabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  projects?: Prisma.ProjectUncheckedUpdateManyWithoutUserNestedInput
+  revisions?: Prisma.ProjectRevisionUncheckedUpdateManyWithoutCreatedByNestedInput
+  contactRequests?: Prisma.ContactRequestUncheckedUpdateManyWithoutUserNestedInput
+  projectMembers?: Prisma.ProjectMemberUncheckedUpdateManyWithoutUserNestedInput
+  sentInvites?: Prisma.ProjectInviteUncheckedUpdateManyWithoutInvitedByNestedInput
+  reviewItems?: Prisma.ProjectReviewItemUncheckedUpdateManyWithoutCreatedByNestedInput
+  auditLogs?: Prisma.ProjectAuditLogUncheckedUpdateManyWithoutUserNestedInput
+  mcpArtifacts?: Prisma.McpArtifactUncheckedUpdateManyWithoutUserNestedInput
+  subscriptions?: Prisma.SubscriptionUncheckedUpdateManyWithoutUserNestedInput
+  creditTxns?: Prisma.CreditTransactionUncheckedUpdateManyWithoutUserNestedInput
+  checkoutIntents?: Prisma.CheckoutIntentUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutMcpArtifactsInput = {
+  id?: string
+  username: string
+  passwordHash: string
+  name: string
+  email?: string | null
+  role?: string
+  theme?: string
+  credits?: number
+  disabled?: boolean
+  createdAt?: Date | string
+  projects?: Prisma.ProjectCreateNestedManyWithoutUserInput
+  revisions?: Prisma.ProjectRevisionCreateNestedManyWithoutCreatedByInput
+  contactRequests?: Prisma.ContactRequestCreateNestedManyWithoutUserInput
+  projectMembers?: Prisma.ProjectMemberCreateNestedManyWithoutUserInput
+  sentInvites?: Prisma.ProjectInviteCreateNestedManyWithoutInvitedByInput
+  reviewItems?: Prisma.ProjectReviewItemCreateNestedManyWithoutCreatedByInput
+  auditLogs?: Prisma.ProjectAuditLogCreateNestedManyWithoutUserInput
+  mcpTokens?: Prisma.McpTokenCreateNestedManyWithoutUserInput
+  subscriptions?: Prisma.SubscriptionCreateNestedManyWithoutUserInput
+  creditTxns?: Prisma.CreditTransactionCreateNestedManyWithoutUserInput
+  checkoutIntents?: Prisma.CheckoutIntentCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutMcpArtifactsInput = {
+  id?: string
+  username: string
+  passwordHash: string
+  name: string
+  email?: string | null
+  role?: string
+  theme?: string
+  credits?: number
+  disabled?: boolean
+  createdAt?: Date | string
+  projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutUserInput
+  revisions?: Prisma.ProjectRevisionUncheckedCreateNestedManyWithoutCreatedByInput
+  contactRequests?: Prisma.ContactRequestUncheckedCreateNestedManyWithoutUserInput
+  projectMembers?: Prisma.ProjectMemberUncheckedCreateNestedManyWithoutUserInput
+  sentInvites?: Prisma.ProjectInviteUncheckedCreateNestedManyWithoutInvitedByInput
+  reviewItems?: Prisma.ProjectReviewItemUncheckedCreateNestedManyWithoutCreatedByInput
+  auditLogs?: Prisma.ProjectAuditLogUncheckedCreateNestedManyWithoutUserInput
+  mcpTokens?: Prisma.McpTokenUncheckedCreateNestedManyWithoutUserInput
+  subscriptions?: Prisma.SubscriptionUncheckedCreateNestedManyWithoutUserInput
+  creditTxns?: Prisma.CreditTransactionUncheckedCreateNestedManyWithoutUserInput
+  checkoutIntents?: Prisma.CheckoutIntentUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutMcpArtifactsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutMcpArtifactsInput, Prisma.UserUncheckedCreateWithoutMcpArtifactsInput>
+}
+
+export type UserUpsertWithoutMcpArtifactsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutMcpArtifactsInput, Prisma.UserUncheckedUpdateWithoutMcpArtifactsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutMcpArtifactsInput, Prisma.UserUncheckedCreateWithoutMcpArtifactsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutMcpArtifactsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutMcpArtifactsInput, Prisma.UserUncheckedUpdateWithoutMcpArtifactsInput>
+}
+
+export type UserUpdateWithoutMcpArtifactsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.StringFieldUpdateOperationsInput | string
+  theme?: Prisma.StringFieldUpdateOperationsInput | string
+  credits?: Prisma.IntFieldUpdateOperationsInput | number
+  disabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  projects?: Prisma.ProjectUpdateManyWithoutUserNestedInput
+  revisions?: Prisma.ProjectRevisionUpdateManyWithoutCreatedByNestedInput
+  contactRequests?: Prisma.ContactRequestUpdateManyWithoutUserNestedInput
+  projectMembers?: Prisma.ProjectMemberUpdateManyWithoutUserNestedInput
+  sentInvites?: Prisma.ProjectInviteUpdateManyWithoutInvitedByNestedInput
+  reviewItems?: Prisma.ProjectReviewItemUpdateManyWithoutCreatedByNestedInput
+  auditLogs?: Prisma.ProjectAuditLogUpdateManyWithoutUserNestedInput
+  mcpTokens?: Prisma.McpTokenUpdateManyWithoutUserNestedInput
+  subscriptions?: Prisma.SubscriptionUpdateManyWithoutUserNestedInput
+  creditTxns?: Prisma.CreditTransactionUpdateManyWithoutUserNestedInput
+  checkoutIntents?: Prisma.CheckoutIntentUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutMcpArtifactsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.StringFieldUpdateOperationsInput | string
+  theme?: Prisma.StringFieldUpdateOperationsInput | string
+  credits?: Prisma.IntFieldUpdateOperationsInput | number
+  disabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  projects?: Prisma.ProjectUncheckedUpdateManyWithoutUserNestedInput
+  revisions?: Prisma.ProjectRevisionUncheckedUpdateManyWithoutCreatedByNestedInput
+  contactRequests?: Prisma.ContactRequestUncheckedUpdateManyWithoutUserNestedInput
+  projectMembers?: Prisma.ProjectMemberUncheckedUpdateManyWithoutUserNestedInput
+  sentInvites?: Prisma.ProjectInviteUncheckedUpdateManyWithoutInvitedByNestedInput
+  reviewItems?: Prisma.ProjectReviewItemUncheckedUpdateManyWithoutCreatedByNestedInput
+  auditLogs?: Prisma.ProjectAuditLogUncheckedUpdateManyWithoutUserNestedInput
+  mcpTokens?: Prisma.McpTokenUncheckedUpdateManyWithoutUserNestedInput
+  subscriptions?: Prisma.SubscriptionUncheckedUpdateManyWithoutUserNestedInput
+  creditTxns?: Prisma.CreditTransactionUncheckedUpdateManyWithoutUserNestedInput
+  checkoutIntents?: Prisma.CheckoutIntentUncheckedUpdateManyWithoutUserNestedInput
+}
+
 export type UserCreateWithoutContactRequestsInput = {
   id?: string
   username: string
@@ -659,6 +1324,11 @@ export type UserCreateWithoutContactRequestsInput = {
   sentInvites?: Prisma.ProjectInviteCreateNestedManyWithoutInvitedByInput
   reviewItems?: Prisma.ProjectReviewItemCreateNestedManyWithoutCreatedByInput
   auditLogs?: Prisma.ProjectAuditLogCreateNestedManyWithoutUserInput
+  mcpTokens?: Prisma.McpTokenCreateNestedManyWithoutUserInput
+  mcpArtifacts?: Prisma.McpArtifactCreateNestedManyWithoutUserInput
+  subscriptions?: Prisma.SubscriptionCreateNestedManyWithoutUserInput
+  creditTxns?: Prisma.CreditTransactionCreateNestedManyWithoutUserInput
+  checkoutIntents?: Prisma.CheckoutIntentCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutContactRequestsInput = {
@@ -678,6 +1348,11 @@ export type UserUncheckedCreateWithoutContactRequestsInput = {
   sentInvites?: Prisma.ProjectInviteUncheckedCreateNestedManyWithoutInvitedByInput
   reviewItems?: Prisma.ProjectReviewItemUncheckedCreateNestedManyWithoutCreatedByInput
   auditLogs?: Prisma.ProjectAuditLogUncheckedCreateNestedManyWithoutUserInput
+  mcpTokens?: Prisma.McpTokenUncheckedCreateNestedManyWithoutUserInput
+  mcpArtifacts?: Prisma.McpArtifactUncheckedCreateNestedManyWithoutUserInput
+  subscriptions?: Prisma.SubscriptionUncheckedCreateNestedManyWithoutUserInput
+  creditTxns?: Prisma.CreditTransactionUncheckedCreateNestedManyWithoutUserInput
+  checkoutIntents?: Prisma.CheckoutIntentUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutContactRequestsInput = {
@@ -713,6 +1388,11 @@ export type UserUpdateWithoutContactRequestsInput = {
   sentInvites?: Prisma.ProjectInviteUpdateManyWithoutInvitedByNestedInput
   reviewItems?: Prisma.ProjectReviewItemUpdateManyWithoutCreatedByNestedInput
   auditLogs?: Prisma.ProjectAuditLogUpdateManyWithoutUserNestedInput
+  mcpTokens?: Prisma.McpTokenUpdateManyWithoutUserNestedInput
+  mcpArtifacts?: Prisma.McpArtifactUpdateManyWithoutUserNestedInput
+  subscriptions?: Prisma.SubscriptionUpdateManyWithoutUserNestedInput
+  creditTxns?: Prisma.CreditTransactionUpdateManyWithoutUserNestedInput
+  checkoutIntents?: Prisma.CheckoutIntentUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutContactRequestsInput = {
@@ -732,6 +1412,11 @@ export type UserUncheckedUpdateWithoutContactRequestsInput = {
   sentInvites?: Prisma.ProjectInviteUncheckedUpdateManyWithoutInvitedByNestedInput
   reviewItems?: Prisma.ProjectReviewItemUncheckedUpdateManyWithoutCreatedByNestedInput
   auditLogs?: Prisma.ProjectAuditLogUncheckedUpdateManyWithoutUserNestedInput
+  mcpTokens?: Prisma.McpTokenUncheckedUpdateManyWithoutUserNestedInput
+  mcpArtifacts?: Prisma.McpArtifactUncheckedUpdateManyWithoutUserNestedInput
+  subscriptions?: Prisma.SubscriptionUncheckedUpdateManyWithoutUserNestedInput
+  creditTxns?: Prisma.CreditTransactionUncheckedUpdateManyWithoutUserNestedInput
+  checkoutIntents?: Prisma.CheckoutIntentUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutProjectsInput = {
@@ -751,6 +1436,11 @@ export type UserCreateWithoutProjectsInput = {
   sentInvites?: Prisma.ProjectInviteCreateNestedManyWithoutInvitedByInput
   reviewItems?: Prisma.ProjectReviewItemCreateNestedManyWithoutCreatedByInput
   auditLogs?: Prisma.ProjectAuditLogCreateNestedManyWithoutUserInput
+  mcpTokens?: Prisma.McpTokenCreateNestedManyWithoutUserInput
+  mcpArtifacts?: Prisma.McpArtifactCreateNestedManyWithoutUserInput
+  subscriptions?: Prisma.SubscriptionCreateNestedManyWithoutUserInput
+  creditTxns?: Prisma.CreditTransactionCreateNestedManyWithoutUserInput
+  checkoutIntents?: Prisma.CheckoutIntentCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutProjectsInput = {
@@ -770,6 +1460,11 @@ export type UserUncheckedCreateWithoutProjectsInput = {
   sentInvites?: Prisma.ProjectInviteUncheckedCreateNestedManyWithoutInvitedByInput
   reviewItems?: Prisma.ProjectReviewItemUncheckedCreateNestedManyWithoutCreatedByInput
   auditLogs?: Prisma.ProjectAuditLogUncheckedCreateNestedManyWithoutUserInput
+  mcpTokens?: Prisma.McpTokenUncheckedCreateNestedManyWithoutUserInput
+  mcpArtifacts?: Prisma.McpArtifactUncheckedCreateNestedManyWithoutUserInput
+  subscriptions?: Prisma.SubscriptionUncheckedCreateNestedManyWithoutUserInput
+  creditTxns?: Prisma.CreditTransactionUncheckedCreateNestedManyWithoutUserInput
+  checkoutIntents?: Prisma.CheckoutIntentUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutProjectsInput = {
@@ -805,6 +1500,11 @@ export type UserUpdateWithoutProjectsInput = {
   sentInvites?: Prisma.ProjectInviteUpdateManyWithoutInvitedByNestedInput
   reviewItems?: Prisma.ProjectReviewItemUpdateManyWithoutCreatedByNestedInput
   auditLogs?: Prisma.ProjectAuditLogUpdateManyWithoutUserNestedInput
+  mcpTokens?: Prisma.McpTokenUpdateManyWithoutUserNestedInput
+  mcpArtifacts?: Prisma.McpArtifactUpdateManyWithoutUserNestedInput
+  subscriptions?: Prisma.SubscriptionUpdateManyWithoutUserNestedInput
+  creditTxns?: Prisma.CreditTransactionUpdateManyWithoutUserNestedInput
+  checkoutIntents?: Prisma.CheckoutIntentUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutProjectsInput = {
@@ -824,6 +1524,11 @@ export type UserUncheckedUpdateWithoutProjectsInput = {
   sentInvites?: Prisma.ProjectInviteUncheckedUpdateManyWithoutInvitedByNestedInput
   reviewItems?: Prisma.ProjectReviewItemUncheckedUpdateManyWithoutCreatedByNestedInput
   auditLogs?: Prisma.ProjectAuditLogUncheckedUpdateManyWithoutUserNestedInput
+  mcpTokens?: Prisma.McpTokenUncheckedUpdateManyWithoutUserNestedInput
+  mcpArtifacts?: Prisma.McpArtifactUncheckedUpdateManyWithoutUserNestedInput
+  subscriptions?: Prisma.SubscriptionUncheckedUpdateManyWithoutUserNestedInput
+  creditTxns?: Prisma.CreditTransactionUncheckedUpdateManyWithoutUserNestedInput
+  checkoutIntents?: Prisma.CheckoutIntentUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutProjectMembersInput = {
@@ -843,6 +1548,11 @@ export type UserCreateWithoutProjectMembersInput = {
   sentInvites?: Prisma.ProjectInviteCreateNestedManyWithoutInvitedByInput
   reviewItems?: Prisma.ProjectReviewItemCreateNestedManyWithoutCreatedByInput
   auditLogs?: Prisma.ProjectAuditLogCreateNestedManyWithoutUserInput
+  mcpTokens?: Prisma.McpTokenCreateNestedManyWithoutUserInput
+  mcpArtifacts?: Prisma.McpArtifactCreateNestedManyWithoutUserInput
+  subscriptions?: Prisma.SubscriptionCreateNestedManyWithoutUserInput
+  creditTxns?: Prisma.CreditTransactionCreateNestedManyWithoutUserInput
+  checkoutIntents?: Prisma.CheckoutIntentCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutProjectMembersInput = {
@@ -862,6 +1572,11 @@ export type UserUncheckedCreateWithoutProjectMembersInput = {
   sentInvites?: Prisma.ProjectInviteUncheckedCreateNestedManyWithoutInvitedByInput
   reviewItems?: Prisma.ProjectReviewItemUncheckedCreateNestedManyWithoutCreatedByInput
   auditLogs?: Prisma.ProjectAuditLogUncheckedCreateNestedManyWithoutUserInput
+  mcpTokens?: Prisma.McpTokenUncheckedCreateNestedManyWithoutUserInput
+  mcpArtifacts?: Prisma.McpArtifactUncheckedCreateNestedManyWithoutUserInput
+  subscriptions?: Prisma.SubscriptionUncheckedCreateNestedManyWithoutUserInput
+  creditTxns?: Prisma.CreditTransactionUncheckedCreateNestedManyWithoutUserInput
+  checkoutIntents?: Prisma.CheckoutIntentUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutProjectMembersInput = {
@@ -897,6 +1612,11 @@ export type UserUpdateWithoutProjectMembersInput = {
   sentInvites?: Prisma.ProjectInviteUpdateManyWithoutInvitedByNestedInput
   reviewItems?: Prisma.ProjectReviewItemUpdateManyWithoutCreatedByNestedInput
   auditLogs?: Prisma.ProjectAuditLogUpdateManyWithoutUserNestedInput
+  mcpTokens?: Prisma.McpTokenUpdateManyWithoutUserNestedInput
+  mcpArtifacts?: Prisma.McpArtifactUpdateManyWithoutUserNestedInput
+  subscriptions?: Prisma.SubscriptionUpdateManyWithoutUserNestedInput
+  creditTxns?: Prisma.CreditTransactionUpdateManyWithoutUserNestedInput
+  checkoutIntents?: Prisma.CheckoutIntentUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutProjectMembersInput = {
@@ -916,6 +1636,11 @@ export type UserUncheckedUpdateWithoutProjectMembersInput = {
   sentInvites?: Prisma.ProjectInviteUncheckedUpdateManyWithoutInvitedByNestedInput
   reviewItems?: Prisma.ProjectReviewItemUncheckedUpdateManyWithoutCreatedByNestedInput
   auditLogs?: Prisma.ProjectAuditLogUncheckedUpdateManyWithoutUserNestedInput
+  mcpTokens?: Prisma.McpTokenUncheckedUpdateManyWithoutUserNestedInput
+  mcpArtifacts?: Prisma.McpArtifactUncheckedUpdateManyWithoutUserNestedInput
+  subscriptions?: Prisma.SubscriptionUncheckedUpdateManyWithoutUserNestedInput
+  creditTxns?: Prisma.CreditTransactionUncheckedUpdateManyWithoutUserNestedInput
+  checkoutIntents?: Prisma.CheckoutIntentUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutSentInvitesInput = {
@@ -935,6 +1660,11 @@ export type UserCreateWithoutSentInvitesInput = {
   projectMembers?: Prisma.ProjectMemberCreateNestedManyWithoutUserInput
   reviewItems?: Prisma.ProjectReviewItemCreateNestedManyWithoutCreatedByInput
   auditLogs?: Prisma.ProjectAuditLogCreateNestedManyWithoutUserInput
+  mcpTokens?: Prisma.McpTokenCreateNestedManyWithoutUserInput
+  mcpArtifacts?: Prisma.McpArtifactCreateNestedManyWithoutUserInput
+  subscriptions?: Prisma.SubscriptionCreateNestedManyWithoutUserInput
+  creditTxns?: Prisma.CreditTransactionCreateNestedManyWithoutUserInput
+  checkoutIntents?: Prisma.CheckoutIntentCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutSentInvitesInput = {
@@ -954,6 +1684,11 @@ export type UserUncheckedCreateWithoutSentInvitesInput = {
   projectMembers?: Prisma.ProjectMemberUncheckedCreateNestedManyWithoutUserInput
   reviewItems?: Prisma.ProjectReviewItemUncheckedCreateNestedManyWithoutCreatedByInput
   auditLogs?: Prisma.ProjectAuditLogUncheckedCreateNestedManyWithoutUserInput
+  mcpTokens?: Prisma.McpTokenUncheckedCreateNestedManyWithoutUserInput
+  mcpArtifacts?: Prisma.McpArtifactUncheckedCreateNestedManyWithoutUserInput
+  subscriptions?: Prisma.SubscriptionUncheckedCreateNestedManyWithoutUserInput
+  creditTxns?: Prisma.CreditTransactionUncheckedCreateNestedManyWithoutUserInput
+  checkoutIntents?: Prisma.CheckoutIntentUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutSentInvitesInput = {
@@ -989,6 +1724,11 @@ export type UserUpdateWithoutSentInvitesInput = {
   projectMembers?: Prisma.ProjectMemberUpdateManyWithoutUserNestedInput
   reviewItems?: Prisma.ProjectReviewItemUpdateManyWithoutCreatedByNestedInput
   auditLogs?: Prisma.ProjectAuditLogUpdateManyWithoutUserNestedInput
+  mcpTokens?: Prisma.McpTokenUpdateManyWithoutUserNestedInput
+  mcpArtifacts?: Prisma.McpArtifactUpdateManyWithoutUserNestedInput
+  subscriptions?: Prisma.SubscriptionUpdateManyWithoutUserNestedInput
+  creditTxns?: Prisma.CreditTransactionUpdateManyWithoutUserNestedInput
+  checkoutIntents?: Prisma.CheckoutIntentUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSentInvitesInput = {
@@ -1008,6 +1748,11 @@ export type UserUncheckedUpdateWithoutSentInvitesInput = {
   projectMembers?: Prisma.ProjectMemberUncheckedUpdateManyWithoutUserNestedInput
   reviewItems?: Prisma.ProjectReviewItemUncheckedUpdateManyWithoutCreatedByNestedInput
   auditLogs?: Prisma.ProjectAuditLogUncheckedUpdateManyWithoutUserNestedInput
+  mcpTokens?: Prisma.McpTokenUncheckedUpdateManyWithoutUserNestedInput
+  mcpArtifacts?: Prisma.McpArtifactUncheckedUpdateManyWithoutUserNestedInput
+  subscriptions?: Prisma.SubscriptionUncheckedUpdateManyWithoutUserNestedInput
+  creditTxns?: Prisma.CreditTransactionUncheckedUpdateManyWithoutUserNestedInput
+  checkoutIntents?: Prisma.CheckoutIntentUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutAuditLogsInput = {
@@ -1027,6 +1772,11 @@ export type UserCreateWithoutAuditLogsInput = {
   projectMembers?: Prisma.ProjectMemberCreateNestedManyWithoutUserInput
   sentInvites?: Prisma.ProjectInviteCreateNestedManyWithoutInvitedByInput
   reviewItems?: Prisma.ProjectReviewItemCreateNestedManyWithoutCreatedByInput
+  mcpTokens?: Prisma.McpTokenCreateNestedManyWithoutUserInput
+  mcpArtifacts?: Prisma.McpArtifactCreateNestedManyWithoutUserInput
+  subscriptions?: Prisma.SubscriptionCreateNestedManyWithoutUserInput
+  creditTxns?: Prisma.CreditTransactionCreateNestedManyWithoutUserInput
+  checkoutIntents?: Prisma.CheckoutIntentCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutAuditLogsInput = {
@@ -1046,6 +1796,11 @@ export type UserUncheckedCreateWithoutAuditLogsInput = {
   projectMembers?: Prisma.ProjectMemberUncheckedCreateNestedManyWithoutUserInput
   sentInvites?: Prisma.ProjectInviteUncheckedCreateNestedManyWithoutInvitedByInput
   reviewItems?: Prisma.ProjectReviewItemUncheckedCreateNestedManyWithoutCreatedByInput
+  mcpTokens?: Prisma.McpTokenUncheckedCreateNestedManyWithoutUserInput
+  mcpArtifacts?: Prisma.McpArtifactUncheckedCreateNestedManyWithoutUserInput
+  subscriptions?: Prisma.SubscriptionUncheckedCreateNestedManyWithoutUserInput
+  creditTxns?: Prisma.CreditTransactionUncheckedCreateNestedManyWithoutUserInput
+  checkoutIntents?: Prisma.CheckoutIntentUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutAuditLogsInput = {
@@ -1081,6 +1836,11 @@ export type UserUpdateWithoutAuditLogsInput = {
   projectMembers?: Prisma.ProjectMemberUpdateManyWithoutUserNestedInput
   sentInvites?: Prisma.ProjectInviteUpdateManyWithoutInvitedByNestedInput
   reviewItems?: Prisma.ProjectReviewItemUpdateManyWithoutCreatedByNestedInput
+  mcpTokens?: Prisma.McpTokenUpdateManyWithoutUserNestedInput
+  mcpArtifacts?: Prisma.McpArtifactUpdateManyWithoutUserNestedInput
+  subscriptions?: Prisma.SubscriptionUpdateManyWithoutUserNestedInput
+  creditTxns?: Prisma.CreditTransactionUpdateManyWithoutUserNestedInput
+  checkoutIntents?: Prisma.CheckoutIntentUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAuditLogsInput = {
@@ -1100,6 +1860,11 @@ export type UserUncheckedUpdateWithoutAuditLogsInput = {
   projectMembers?: Prisma.ProjectMemberUncheckedUpdateManyWithoutUserNestedInput
   sentInvites?: Prisma.ProjectInviteUncheckedUpdateManyWithoutInvitedByNestedInput
   reviewItems?: Prisma.ProjectReviewItemUncheckedUpdateManyWithoutCreatedByNestedInput
+  mcpTokens?: Prisma.McpTokenUncheckedUpdateManyWithoutUserNestedInput
+  mcpArtifacts?: Prisma.McpArtifactUncheckedUpdateManyWithoutUserNestedInput
+  subscriptions?: Prisma.SubscriptionUncheckedUpdateManyWithoutUserNestedInput
+  creditTxns?: Prisma.CreditTransactionUncheckedUpdateManyWithoutUserNestedInput
+  checkoutIntents?: Prisma.CheckoutIntentUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutReviewItemsInput = {
@@ -1119,6 +1884,11 @@ export type UserCreateWithoutReviewItemsInput = {
   projectMembers?: Prisma.ProjectMemberCreateNestedManyWithoutUserInput
   sentInvites?: Prisma.ProjectInviteCreateNestedManyWithoutInvitedByInput
   auditLogs?: Prisma.ProjectAuditLogCreateNestedManyWithoutUserInput
+  mcpTokens?: Prisma.McpTokenCreateNestedManyWithoutUserInput
+  mcpArtifacts?: Prisma.McpArtifactCreateNestedManyWithoutUserInput
+  subscriptions?: Prisma.SubscriptionCreateNestedManyWithoutUserInput
+  creditTxns?: Prisma.CreditTransactionCreateNestedManyWithoutUserInput
+  checkoutIntents?: Prisma.CheckoutIntentCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutReviewItemsInput = {
@@ -1138,6 +1908,11 @@ export type UserUncheckedCreateWithoutReviewItemsInput = {
   projectMembers?: Prisma.ProjectMemberUncheckedCreateNestedManyWithoutUserInput
   sentInvites?: Prisma.ProjectInviteUncheckedCreateNestedManyWithoutInvitedByInput
   auditLogs?: Prisma.ProjectAuditLogUncheckedCreateNestedManyWithoutUserInput
+  mcpTokens?: Prisma.McpTokenUncheckedCreateNestedManyWithoutUserInput
+  mcpArtifacts?: Prisma.McpArtifactUncheckedCreateNestedManyWithoutUserInput
+  subscriptions?: Prisma.SubscriptionUncheckedCreateNestedManyWithoutUserInput
+  creditTxns?: Prisma.CreditTransactionUncheckedCreateNestedManyWithoutUserInput
+  checkoutIntents?: Prisma.CheckoutIntentUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutReviewItemsInput = {
@@ -1173,6 +1948,11 @@ export type UserUpdateWithoutReviewItemsInput = {
   projectMembers?: Prisma.ProjectMemberUpdateManyWithoutUserNestedInput
   sentInvites?: Prisma.ProjectInviteUpdateManyWithoutInvitedByNestedInput
   auditLogs?: Prisma.ProjectAuditLogUpdateManyWithoutUserNestedInput
+  mcpTokens?: Prisma.McpTokenUpdateManyWithoutUserNestedInput
+  mcpArtifacts?: Prisma.McpArtifactUpdateManyWithoutUserNestedInput
+  subscriptions?: Prisma.SubscriptionUpdateManyWithoutUserNestedInput
+  creditTxns?: Prisma.CreditTransactionUpdateManyWithoutUserNestedInput
+  checkoutIntents?: Prisma.CheckoutIntentUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutReviewItemsInput = {
@@ -1192,6 +1972,11 @@ export type UserUncheckedUpdateWithoutReviewItemsInput = {
   projectMembers?: Prisma.ProjectMemberUncheckedUpdateManyWithoutUserNestedInput
   sentInvites?: Prisma.ProjectInviteUncheckedUpdateManyWithoutInvitedByNestedInput
   auditLogs?: Prisma.ProjectAuditLogUncheckedUpdateManyWithoutUserNestedInput
+  mcpTokens?: Prisma.McpTokenUncheckedUpdateManyWithoutUserNestedInput
+  mcpArtifacts?: Prisma.McpArtifactUncheckedUpdateManyWithoutUserNestedInput
+  subscriptions?: Prisma.SubscriptionUncheckedUpdateManyWithoutUserNestedInput
+  creditTxns?: Prisma.CreditTransactionUncheckedUpdateManyWithoutUserNestedInput
+  checkoutIntents?: Prisma.CheckoutIntentUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutRevisionsInput = {
@@ -1211,6 +1996,11 @@ export type UserCreateWithoutRevisionsInput = {
   sentInvites?: Prisma.ProjectInviteCreateNestedManyWithoutInvitedByInput
   reviewItems?: Prisma.ProjectReviewItemCreateNestedManyWithoutCreatedByInput
   auditLogs?: Prisma.ProjectAuditLogCreateNestedManyWithoutUserInput
+  mcpTokens?: Prisma.McpTokenCreateNestedManyWithoutUserInput
+  mcpArtifacts?: Prisma.McpArtifactCreateNestedManyWithoutUserInput
+  subscriptions?: Prisma.SubscriptionCreateNestedManyWithoutUserInput
+  creditTxns?: Prisma.CreditTransactionCreateNestedManyWithoutUserInput
+  checkoutIntents?: Prisma.CheckoutIntentCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutRevisionsInput = {
@@ -1230,6 +2020,11 @@ export type UserUncheckedCreateWithoutRevisionsInput = {
   sentInvites?: Prisma.ProjectInviteUncheckedCreateNestedManyWithoutInvitedByInput
   reviewItems?: Prisma.ProjectReviewItemUncheckedCreateNestedManyWithoutCreatedByInput
   auditLogs?: Prisma.ProjectAuditLogUncheckedCreateNestedManyWithoutUserInput
+  mcpTokens?: Prisma.McpTokenUncheckedCreateNestedManyWithoutUserInput
+  mcpArtifacts?: Prisma.McpArtifactUncheckedCreateNestedManyWithoutUserInput
+  subscriptions?: Prisma.SubscriptionUncheckedCreateNestedManyWithoutUserInput
+  creditTxns?: Prisma.CreditTransactionUncheckedCreateNestedManyWithoutUserInput
+  checkoutIntents?: Prisma.CheckoutIntentUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutRevisionsInput = {
@@ -1265,6 +2060,11 @@ export type UserUpdateWithoutRevisionsInput = {
   sentInvites?: Prisma.ProjectInviteUpdateManyWithoutInvitedByNestedInput
   reviewItems?: Prisma.ProjectReviewItemUpdateManyWithoutCreatedByNestedInput
   auditLogs?: Prisma.ProjectAuditLogUpdateManyWithoutUserNestedInput
+  mcpTokens?: Prisma.McpTokenUpdateManyWithoutUserNestedInput
+  mcpArtifacts?: Prisma.McpArtifactUpdateManyWithoutUserNestedInput
+  subscriptions?: Prisma.SubscriptionUpdateManyWithoutUserNestedInput
+  creditTxns?: Prisma.CreditTransactionUpdateManyWithoutUserNestedInput
+  checkoutIntents?: Prisma.CheckoutIntentUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutRevisionsInput = {
@@ -1284,6 +2084,11 @@ export type UserUncheckedUpdateWithoutRevisionsInput = {
   sentInvites?: Prisma.ProjectInviteUncheckedUpdateManyWithoutInvitedByNestedInput
   reviewItems?: Prisma.ProjectReviewItemUncheckedUpdateManyWithoutCreatedByNestedInput
   auditLogs?: Prisma.ProjectAuditLogUncheckedUpdateManyWithoutUserNestedInput
+  mcpTokens?: Prisma.McpTokenUncheckedUpdateManyWithoutUserNestedInput
+  mcpArtifacts?: Prisma.McpArtifactUncheckedUpdateManyWithoutUserNestedInput
+  subscriptions?: Prisma.SubscriptionUncheckedUpdateManyWithoutUserNestedInput
+  creditTxns?: Prisma.CreditTransactionUncheckedUpdateManyWithoutUserNestedInput
+  checkoutIntents?: Prisma.CheckoutIntentUncheckedUpdateManyWithoutUserNestedInput
 }
 
 
@@ -1299,6 +2104,11 @@ export type UserCountOutputType = {
   sentInvites: number
   reviewItems: number
   auditLogs: number
+  mcpTokens: number
+  mcpArtifacts: number
+  subscriptions: number
+  creditTxns: number
+  checkoutIntents: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1309,6 +2119,11 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   sentInvites?: boolean | UserCountOutputTypeCountSentInvitesArgs
   reviewItems?: boolean | UserCountOutputTypeCountReviewItemsArgs
   auditLogs?: boolean | UserCountOutputTypeCountAuditLogsArgs
+  mcpTokens?: boolean | UserCountOutputTypeCountMcpTokensArgs
+  mcpArtifacts?: boolean | UserCountOutputTypeCountMcpArtifactsArgs
+  subscriptions?: boolean | UserCountOutputTypeCountSubscriptionsArgs
+  creditTxns?: boolean | UserCountOutputTypeCountCreditTxnsArgs
+  checkoutIntents?: boolean | UserCountOutputTypeCountCheckoutIntentsArgs
 }
 
 /**
@@ -1370,6 +2185,41 @@ export type UserCountOutputTypeCountAuditLogsArgs<ExtArgs extends runtime.Types.
   where?: Prisma.ProjectAuditLogWhereInput
 }
 
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountMcpTokensArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.McpTokenWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountMcpArtifactsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.McpArtifactWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountSubscriptionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.SubscriptionWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountCreditTxnsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CreditTransactionWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountCheckoutIntentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CheckoutIntentWhereInput
+}
+
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1389,6 +2239,11 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   sentInvites?: boolean | Prisma.User$sentInvitesArgs<ExtArgs>
   reviewItems?: boolean | Prisma.User$reviewItemsArgs<ExtArgs>
   auditLogs?: boolean | Prisma.User$auditLogsArgs<ExtArgs>
+  mcpTokens?: boolean | Prisma.User$mcpTokensArgs<ExtArgs>
+  mcpArtifacts?: boolean | Prisma.User$mcpArtifactsArgs<ExtArgs>
+  subscriptions?: boolean | Prisma.User$subscriptionsArgs<ExtArgs>
+  creditTxns?: boolean | Prisma.User$creditTxnsArgs<ExtArgs>
+  checkoutIntents?: boolean | Prisma.User$checkoutIntentsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -1440,6 +2295,11 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   sentInvites?: boolean | Prisma.User$sentInvitesArgs<ExtArgs>
   reviewItems?: boolean | Prisma.User$reviewItemsArgs<ExtArgs>
   auditLogs?: boolean | Prisma.User$auditLogsArgs<ExtArgs>
+  mcpTokens?: boolean | Prisma.User$mcpTokensArgs<ExtArgs>
+  mcpArtifacts?: boolean | Prisma.User$mcpArtifactsArgs<ExtArgs>
+  subscriptions?: boolean | Prisma.User$subscriptionsArgs<ExtArgs>
+  creditTxns?: boolean | Prisma.User$creditTxnsArgs<ExtArgs>
+  checkoutIntents?: boolean | Prisma.User$checkoutIntentsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -1455,6 +2315,11 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     sentInvites: Prisma.$ProjectInvitePayload<ExtArgs>[]
     reviewItems: Prisma.$ProjectReviewItemPayload<ExtArgs>[]
     auditLogs: Prisma.$ProjectAuditLogPayload<ExtArgs>[]
+    mcpTokens: Prisma.$McpTokenPayload<ExtArgs>[]
+    mcpArtifacts: Prisma.$McpArtifactPayload<ExtArgs>[]
+    subscriptions: Prisma.$SubscriptionPayload<ExtArgs>[]
+    creditTxns: Prisma.$CreditTransactionPayload<ExtArgs>[]
+    checkoutIntents: Prisma.$CheckoutIntentPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1868,6 +2733,11 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   sentInvites<T extends Prisma.User$sentInvitesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$sentInvitesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProjectInvitePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   reviewItems<T extends Prisma.User$reviewItemsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$reviewItemsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProjectReviewItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   auditLogs<T extends Prisma.User$auditLogsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$auditLogsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProjectAuditLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  mcpTokens<T extends Prisma.User$mcpTokensArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$mcpTokensArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$McpTokenPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  mcpArtifacts<T extends Prisma.User$mcpArtifactsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$mcpArtifactsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$McpArtifactPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  subscriptions<T extends Prisma.User$subscriptionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$subscriptionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SubscriptionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  creditTxns<T extends Prisma.User$creditTxnsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$creditTxnsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CreditTransactionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  checkoutIntents<T extends Prisma.User$checkoutIntentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$checkoutIntentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CheckoutIntentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2465,6 +3335,126 @@ export type User$auditLogsArgs<ExtArgs extends runtime.Types.Extensions.Internal
   take?: number
   skip?: number
   distinct?: Prisma.ProjectAuditLogScalarFieldEnum | Prisma.ProjectAuditLogScalarFieldEnum[]
+}
+
+/**
+ * User.mcpTokens
+ */
+export type User$mcpTokensArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the McpToken
+   */
+  select?: Prisma.McpTokenSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the McpToken
+   */
+  omit?: Prisma.McpTokenOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.McpTokenInclude<ExtArgs> | null
+  where?: Prisma.McpTokenWhereInput
+  orderBy?: Prisma.McpTokenOrderByWithRelationInput | Prisma.McpTokenOrderByWithRelationInput[]
+  cursor?: Prisma.McpTokenWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.McpTokenScalarFieldEnum | Prisma.McpTokenScalarFieldEnum[]
+}
+
+/**
+ * User.mcpArtifacts
+ */
+export type User$mcpArtifactsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the McpArtifact
+   */
+  select?: Prisma.McpArtifactSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the McpArtifact
+   */
+  omit?: Prisma.McpArtifactOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.McpArtifactInclude<ExtArgs> | null
+  where?: Prisma.McpArtifactWhereInput
+  orderBy?: Prisma.McpArtifactOrderByWithRelationInput | Prisma.McpArtifactOrderByWithRelationInput[]
+  cursor?: Prisma.McpArtifactWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.McpArtifactScalarFieldEnum | Prisma.McpArtifactScalarFieldEnum[]
+}
+
+/**
+ * User.subscriptions
+ */
+export type User$subscriptionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Subscription
+   */
+  select?: Prisma.SubscriptionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Subscription
+   */
+  omit?: Prisma.SubscriptionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SubscriptionInclude<ExtArgs> | null
+  where?: Prisma.SubscriptionWhereInput
+  orderBy?: Prisma.SubscriptionOrderByWithRelationInput | Prisma.SubscriptionOrderByWithRelationInput[]
+  cursor?: Prisma.SubscriptionWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.SubscriptionScalarFieldEnum | Prisma.SubscriptionScalarFieldEnum[]
+}
+
+/**
+ * User.creditTxns
+ */
+export type User$creditTxnsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CreditTransaction
+   */
+  select?: Prisma.CreditTransactionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CreditTransaction
+   */
+  omit?: Prisma.CreditTransactionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CreditTransactionInclude<ExtArgs> | null
+  where?: Prisma.CreditTransactionWhereInput
+  orderBy?: Prisma.CreditTransactionOrderByWithRelationInput | Prisma.CreditTransactionOrderByWithRelationInput[]
+  cursor?: Prisma.CreditTransactionWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CreditTransactionScalarFieldEnum | Prisma.CreditTransactionScalarFieldEnum[]
+}
+
+/**
+ * User.checkoutIntents
+ */
+export type User$checkoutIntentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CheckoutIntent
+   */
+  select?: Prisma.CheckoutIntentSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CheckoutIntent
+   */
+  omit?: Prisma.CheckoutIntentOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CheckoutIntentInclude<ExtArgs> | null
+  where?: Prisma.CheckoutIntentWhereInput
+  orderBy?: Prisma.CheckoutIntentOrderByWithRelationInput | Prisma.CheckoutIntentOrderByWithRelationInput[]
+  cursor?: Prisma.CheckoutIntentWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CheckoutIntentScalarFieldEnum | Prisma.CheckoutIntentScalarFieldEnum[]
 }
 
 /**

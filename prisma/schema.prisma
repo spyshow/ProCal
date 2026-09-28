@@ -25,6 +25,135 @@ model User {
   sentInvites     ProjectInvite[]     @relation("SentInvites")
   reviewItems     ProjectReviewItem[]
   auditLogs       ProjectAuditLog[]
+  mcpTokens       McpToken[]
+  mcpArtifacts    McpArtifact[]
+  subscriptions   Subscription[]
+  creditTxns      CreditTransaction[]
+  checkoutIntents CheckoutIntent[]
+}
+
+// --- Billing (Task 3) ------------------------------------------------------
+//
+// Model decided in docs/ideas/pricing-strategy.md §4: subscription-first with a
+// single-project pass as the no-subscription escape hatch. The pass is priced
+// ABOVE the entry tier on purpose — a cheap pass removes any reason to subscribe.
+
+model Subscription {
+  id                   String    @id @default(uuid())
+  userId               String
+  user                 User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tier                 String    // starter | professional | team
+  status               String    @default("active") // active | past_due | canceled
+  stripeCustomerId     String?
+  stripeSubscriptionId String?   @unique
+  // Both bounds are stored because the per-period project allowance
+  // (1 / 5 / 15 by tier) is counted against currentPeriodStart. Deriving the
+  // start from the end would drift on anniversary billing.
+  currentPeriodStart   DateTime?
+  currentPeriodEnd     DateTime?
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+
+  @@index([userId])
+  @@index([status])
+}
+
+// Every credit movement, so the balance stops being an unauditable integer.
+model CreditTransaction {
+  id              String   @id @default(uuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  delta           Int
+  reason          String   // PURCHASE | PROMO | ADMIN_GRANT | ADMIN_ADJUST | PROJECT_SPENT
+  stripeSessionId String?
+  promoCodeId     String?
+  promoCode       PromoCode? @relation(fields: [promoCodeId], references: [id], onDelete: SetNull)
+  actorId         String?  // admin who granted, when applicable
+  note            String?
+  createdAt       DateTime @default(now())
+
+  @@index([userId])
+  @@index([stripeSessionId])
+}
+
+// Promotional / offer codes — the admin "offer" side of free-credit grants.
+model PromoCode {
+  id            String             @id @default(uuid())
+  code          String             @unique
+  credits       Int
+  maxRedemptions Int
+  redemptions   Int                @default(0)
+  description   String?
+  expiresAt     DateTime?
+  active        Boolean            @default(true)
+  createdAt     DateTime           @default(now())
+  transactions  CreditTransaction[]
+
+  @@index([active])
+}
+
+// A purchase in flight. `specJson` holds an MCP project spec so the agent's work
+// survives the payment round-trip: the Project row is only created on the webhook,
+// which means no existing route has to learn about a "pending project" state.
+model CheckoutIntent {
+  id              String   @id @default(uuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  kind            String   // SUBSCRIPTION | CREDIT_PACK
+  tier            String?  // starter | professional | team
+  credits         Int      @default(1)
+  specJson        String?
+  projectId       String?
+  stripeSessionId String?  @unique // webhook idempotency key
+  status          String   @default("PENDING") // PENDING | PAID | EXPIRED | CANCELED
+  createdAt       DateTime @default(now())
+  expiresAt       DateTime
+
+  @@index([userId])
+  @@index([status])
+}
+
+// Personal Access Tokens for the MCP server (`POST /api/mcp`).
+//
+// MCP clients (Claude Desktop/Code, Cursor, VS Code) cannot send the
+// session_token cookie, so each gets a bearer token instead. Only the SHA-256
+// hash is stored; `prefix` is the first few characters of the secret, shown in
+// the UI so a user can tell tokens apart without exposing them.
+model McpToken {
+  id         String    @id @default(uuid())
+  userId     String
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name       String // user-supplied label, e.g. "Claude Code (laptop)"
+  tokenHash  String    @unique // sha256(secret), hex
+  prefix     String // first 8 chars of the secret, for display
+  lastUsedAt DateTime?
+  revokedAt  DateTime? // soft revoke so audit trails survive
+  createdAt  DateTime  @default(now())
+
+  @@index([userId])
+}
+
+// Generated files (PDF / XLSX) produced by MCP export tools.
+//
+// MCP tool results are text or JSON, so a 2 MB PDF cannot be returned inline.
+// Tools store the bytes here and return a download URL instead. Bytes live in
+// Postgres rather than on disk because Vercel serverless filesystems are
+// ephemeral, and a drawing pack is only 1-3 MB.
+model McpArtifact {
+  id         String   @id @default(uuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  projectId  String?
+  kind       String   // "report_pdf" | "drawings_pdf" | "excel"
+  filename   String
+  mime       String
+  bytes      Bytes
+  sizeBytes  Int
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+
+  @@index([userId])
+  @@index([expiresAt])
 }
 
 // Captured-lead billing loop (Approach B). One OPEN per user is enforced in-app

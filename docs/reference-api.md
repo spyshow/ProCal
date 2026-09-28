@@ -24,17 +24,40 @@ non-obvious behavior (the parts that would surprise you reading the code cold).
   object (and to survive a future matcher edit), but they don't *have* to.
 - **Ownership checks** look up the parent and compare `*.userId === user.id`,
   returning `404` (not `403`) on mismatch — resource-exists-leak avoidance.
-- **`recalculate` is matcher-excluded AND sessionless.** `/api/buildings/[id]/recalculate`
-  calls `getSessionUser` *nowhere* and only checks the building exists (404). Since
-  `api/buildings` is matcher-excluded, an unauthenticated caller can POST to it.
-  It re-sizes apartment items by building id — no data leaks (no user data in the
-  response), but it's the one route whose auth posture is neither self-auth nor
-  matcher-protected. Documented as a known gap, not a hidden bug.
+- **`recalculate` self-guards.** `/api/buildings/[id]/recalculate` calls
+  `verifyProjectAccess(..., { pageKey: "calculator", requiredAction: "EDIT" })`.
+  It is matcher-excluded, so it must guard itself. *(The earlier "sessionless"
+  note in this file was stale — the guard is present.)*
+- **`/api/mcp` is excluded from the matcher in two places.** It is both allow-listed
+  and added to the matcher's negative lookahead in `src/proxy.ts`. The allow-list
+  alone is not enough: without the matcher exclusion the proxy would 302 a
+  bearer-token client to `/login`, which fails opaquely. It is also
+  **not** session-authenticated — it takes `Authorization: Bearer <pat>` via
+  `resolveMcpActor()`. See [reference-mcp.md](./reference-mcp.md).
 - **Next 16 async params.** Every dynamic route is
   `{ params }: { params: Promise<{ id: string }> }` then
   `const { id } = await params;`. The old sync form does not compile here.
-- **Errors.** `400` validation, `401` unauth, `402` credit gate, `404` not
-  owned / not found, `409` dedupe, `500` catch-all `{ error }`.
+- **Errors.** `400` validation, `401` unauth, `402` credit gate / spent quota,
+  `404` not owned / not found, `409` dedupe, `500` catch-all `{ error }`.
+  A `402` body carries `reason` (`payment_required` | `quota_exhausted`) plus, for
+  a subscription, `tier` / `allowance` / `usedThisPeriod` so the client can tell a
+  paying customer to upgrade rather than to buy credits.
+
+## MCP & billing
+
+| Route | Auth | Notes |
+|---|---|---|
+| `POST /api/mcp` | Bearer PAT | Streamable HTTP, stateless. `GET`/`DELETE` → 405. Returns JSON-RPC 401 (never a redirect). See [reference-mcp.md](./reference-mcp.md). |
+| `GET/POST/DELETE /api/mcp/tokens` | Cookie | Mint / list / revoke personal access tokens. `POST` is the only place a raw secret is returned. |
+| `GET /api/mcp/artifacts/[id]` | Bearer **or** cookie | Downloads an export. Ownership + 24h expiry enforced. Lets a user click the URL an agent gave them. |
+| `POST /api/billing/checkout` | Cookie | Creates a `CheckoutIntent` + Stripe Checkout session. `503` when `STRIPE_SECRET_KEY` is unset, so `/billing` falls back to the lead form. |
+| `POST /api/billing/webhook` | Stripe signature | Verifies against the **raw** body. Idempotent per `CheckoutIntent.stripeSessionId`, so Stripe retries cannot double-grant. |
+| `POST /api/billing/portal` | Cookie | Stripe Customer Portal for subscription changes. Return URL is fixed to `APP_URL` — never taken from the request. |
+| `GET/POST /api/billing/redeem` | Cookie | `GET` = credit ledger + subscription. `POST` = redeem a promo code; the redemption counter is incremented conditionally so two concurrent redemptions of the last use cannot both win. |
+| `GET /api/billing/quota` | Cookie | Read-only "can I start another project?" — used by the `/billing` usage meter. Same `canStartProject()` the create path uses, so the explanation can never disagree with the decision. |
+| `GET/POST/PATCH /api/admin/promo-codes` | Admin | `PATCH` is the **bulk grant** action. |
+| `PATCH/DELETE /api/admin/promo-codes/[id]` | Admin | Soft-disable, or hard-delete only when `redemptions === 0`. |
+
 
 ## Auth & account
 

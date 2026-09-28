@@ -4,11 +4,38 @@
 
 Structured docs live in `docs/` (Diataxis framework — tutorial / how-to / reference / explanation). Read the relevant doc before changing a subsystem, and keep it updated when you change load-bearing behavior:
 
-- **Reference** (contracts/signatures): [calc engine](docs/reference-calc-engine.md) · [data model](docs/reference-data-model.md) · [API](docs/reference-api.md) · [auth & admin](docs/reference-auth-admin.md) · [SLD & reports](docs/reference-sld-reports.md)
+- **Reference** (contracts/signatures): [calc engine](docs/reference-calc-engine.md) · [data model](docs/reference-data-model.md) · [API](docs/reference-api.md) · [auth & admin](docs/reference-auth-admin.md) · [SLD & reports](docs/reference-sld-reports.md) · [MCP tools](docs/reference-mcp.md)
 - **Explanation** (why decisions were made): [phase balancing](docs/explanation-phase-balancing.md) · [captured-lead credit gate](docs/explanation-billing-captured-lead.md)
-- **How-to / tutorial**: see [`docs/README.md`](docs/README.md)
+- **How-to / tutorial**: see [`docs/README.md`](docs/README.md) · [connect an AI client](docs/how-to-connect-ai-client.md)
 
 The numbers in the calc engine, API routes, SLD, and reports never drift because they all import from the same pure-TS modules under `src/lib/calculations/`. If you change one, run `npm test` and `recalculate` on a seeded project to verify the others still agree — and update the doc that claims the old behavior.
+
+## MCP server
+
+`POST /api/mcp` exposes ProCal to AI agents via 13 `procal_*` tools (Streamable HTTP, bearer PAT auth). Source: `src/mcp/`, schema in [reference-mcp.md](docs/reference-mcp.md).
+
+Things that will bite you if you don't know them:
+
+- **MCP tools are thin.** They validate with zod and call `src/lib/calculations/`. Never compute engineering values in a tool handler.
+- **Every export calls `ensureFresh()` first** (`src/mcp/freshness.ts`). Most report schedules read *stored* `FloorItem` columns, so exporting without it ships a confidently wrong submittal. Don't add an export tool that skips it.
+- **Every project-scoped tool goes through `ctx.resolveProject()`** → `verifyProjectAccessAsUser`. That is what stops a token reaching what its owner cannot reach in the UI. There is no other permission path.
+- **`src/proxy.ts` needs `api/mcp` in two places** (allow-list *and* the matcher negative lookahead). Removing either turns a bearer 401 into an opaque redirect failure.
+- **Drawings are server-rendered** through `src/lib/drawings/`. The riser geometry is shared with the interactive page via `riser-model.ts` + `riser-svg.tsx`; the SLD DSL renders to SVG in Node via schematex's `render()`. Riser pagination (`paginateRiser`) exists because a 20-floor riser is ~4400 units tall and unreadable on one sheet.
+- **`page.evaluate` must take a string, not a function.** tsx/esbuild wraps named inner functions in a `__name()` helper that throws inside Chromium.
+- **Hand-written HTML passed to `wrapReportMarkup()` needs `class=`, not `className=`** — those strings never pass through React.
+
+Verify end to end with `npx tsx scripts/verify-mcp-e2e.ts` (needs a running server and `PROCAL_MCP_TOKEN`); `npm test` covers the protocol in-process.
+
+## Billing
+
+Stripe is **optional**. With no `STRIPE_SECRET_KEY`, `/api/billing/checkout` returns 503, `/billing` shows the manual credit-request form, and the MCP `procal_create_checkout` tool tells the user to buy credits by hand. Everything else works without it.
+
+The project gate is `canStartProject()` in `src/lib/billing/entitlement.ts` — precedence **admin → active subscription (quota permitting) → credits**. `POST /api/projects`, `GET /api/billing/quota` and the MCP create tool all use it; do not re-inline the rule. Pricing is decided in `docs/ideas/pricing-strategy.md` §4 (note: that directory is gitignored).
+
+Subscription allowances are **1 / 5 / 15 projects per period** by tier, stored in `TIER_PROJECT_ALLOWANCE` next to the prices so the two cannot disagree. The quota gates *creation*, not existence. Two rules worth keeping:
+
+- A spent quota returns `reason: "quota_exhausted"`, **not** `payment_required`, and must never fall back to credits — that would silently convert a paying subscriber into a per-project customer.
+- An unrecognised tier **refuses** rather than granting unlimited. Failing open here is a revenue leak.
 
 ## gstack
 

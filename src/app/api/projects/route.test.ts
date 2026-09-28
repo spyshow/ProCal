@@ -8,6 +8,7 @@ const mocks = {
   userFindUnique: vi.fn(),
   userUpdate: vi.fn(),
   projectMemberCreate: vi.fn(),
+  subscriptionFindFirst: vi.fn(async () => null),
   transaction: vi.fn(),
 };
 
@@ -28,6 +29,14 @@ vi.mock("@/lib/db", () => ({
     },
     projectMember: {
       create: vi.fn(async (...args) => mocks.projectMemberCreate(...args)),
+    },
+    // Added with the billing refactor (Task 3): canStartProject now consults an
+    // active subscription before falling back to the credit balance.
+    subscription: {
+      findFirst: vi.fn(async () => mocks.subscriptionFindFirst()),
+    },
+    creditTransaction: {
+      create: vi.fn(async () => ({ id: 'ct1' })),
     },
     $transaction: vi.fn(async (ops) => mocks.transaction(ops)),
   },

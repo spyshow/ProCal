@@ -271,16 +271,102 @@ Per-feeder protection settings (Ir/Tr/Isd/Tsd/I²t/Ii/Ig/Tg), standalone.
 | `ii` | `Float?` | I pickup (instantaneous) |
 | `ig` `tg` | `Float?` | G pickup + delay |
 
+## Collaboration models
+
+Not in an earlier revision of this file. All present in `prisma/schema.prisma`.
+
+### ProjectMember
+Join table. `@@unique([projectId, userId])`. `role` is
+`PROJECT_MANAGER | ENGINEER | QA`; `permissions` is an optional JSON map of
+page → `VIEW | EDIT | NONE`, layered over the role defaults in
+`project-permissions.ts`.
+
+### ProjectInvite
+`email`, `name`, `role`, `permissions?`, `token @unique`, `invitedById → User("SentInvites")`,
+`expiresAt`, `status` (`PENDING | ACCEPTED | REVOKED | EXPIRED`).
+
+### ProjectRevision
+Immutable snapshot. `rev` (`"R0"`, `"R1"`…), `description`, `createdById`,
+`snapshotJson` = the whole project at issue time.
+
+### ProjectAuditLog
+`userId?` + **denormalized** `userName`/`userRole` snapshots (so the trail survives
+user deletion), `action`, `entityType`, `entityId?`, `description`, `details?`
+(JSON before/after). MCP mutations write `details.source = "mcp"` so agent edits
+are distinguishable from human ones.
+
+### ProjectReviewItem
+QA punch list. `pageKey` (`cableSchedule | breakerSchedule | calculator | sld | general`),
+`severity`, `title`/`description`, `screenshotUrl?`, `status`, `resolvedAt?`.
+
+### AppSetting
+Durable key/value (`key @id`, `value` JSON). Backs company branding and logo
+assets; falls back to `data/company.json` when the table is unavailable.
+
+## MCP models
+
+### McpToken
+Personal Access Token for `POST /api/mcp`. `tokenHash` is SHA-256 of the secret —
+**the raw token is never stored**. `prefix` (first 8 chars) is kept for display
+only. `lastUsedAt`, `revokedAt` (soft revoke). `onDelete: Cascade` from `User`.
+
+### McpArtifact
+Generated binaries. MCP tool results are text/JSON, so PDFs and workbooks are
+stored here and referenced by URL. `bytes` is the file, `mime`/`filename` describe
+it, `expiresAt` bounds it (24h default). Bytes live in Postgres rather than on disk
+because serverless filesystems are ephemeral.
+
+## Billing models
+
+Model decided in [`../ideas/pricing-strategy.md`](../ideas/pricing-strategy.md) §4 —
+subscription-first, with the single-project pass as the no-subscription escape
+hatch.
+
+### Subscription
+`userId`, `tier` (`starter | professional | team`), `status`
+(`active | past_due | canceled`), `stripeCustomerId?`, `stripeSubscriptionId?
+@unique`, `currentPeriodStart?`, `currentPeriodEnd?`.
+
+**Both period bounds are stored** because the per-period project allowance
+(1 / 5 / 15 by tier) is counted against `currentPeriodStart`; deriving the start
+from the end would drift on anniversary billing. Entitlement precedence is
+**admin → active subscription (quota permitting) → credits**, enforced in
+`src/lib/billing/entitlement.ts`.
+
+### CreditTransaction
+Every credit movement, so the balance stops being an unauditable integer.
+`delta` (signed), `reason` (`PURCHASE | PROMO | ADMIN_GRANT | ADMIN_ADJUST |
+PROJECT_SPENT`), `stripeSessionId?`, `promoCodeId?` (`ON DELETE SET NULL` so
+revoking a code never destroys the ledger), `actorId?`, `note?`.
+
+### PromoCode
+Offer codes: `code @unique`, `credits`, `maxRedemptions`, `redemptions`, `active`,
+`expiresAt?`. Redemption increments `redemptions` conditionally
+(`where: { redemptions: { lt: maxRedemptions } }`) so two concurrent uses of the
+last remaining redemption cannot both succeed.
+
+### CheckoutIntent
+A purchase in flight. `kind` (`SUBSCRIPTION | CREDIT_PACK`), `tier?`, `credits`,
+`specJson?` (an MCP project spec), `stripeSessionId? @unique` — the webhook
+idempotency key — and `status`.
+
 ## Migrations
 
 `prisma/migrations/` — workflow is `npx prisma migrate dev --name <name>`
-(NOT `db-push`). The ContactRequest migration is
-`20260802105606_add_contact_request`. `prisma.config.ts` loads `dotenv/config`
-so `tsx`-style bare runs that need the DB must go through the Prisma config.
+(NOT `db-push`). `prisma.config.ts` loads `dotenv/config` so `tsx`-style bare runs
+that need the DB must go through the Prisma config. `prisma generate` does **not**
+run automatically under Prisma 7.
+
+MCP and billing arrived in two migrations:
+`20260928120000_add_mcp_tokens_and_artifacts` and `20260928130000_add_billing`.
+Both are written idempotently (`CREATE TABLE IF NOT EXISTS`) and **neither has been
+applied to the shared remote database** — run `npx prisma migrate deploy`.
 
 ## Related
 
 - [API reference](./reference-api.md) — the route handlers that read/write these
   tables.
+- [MCP tool reference](./reference-mcp.md) — the agent-facing surface.
 - [Captured-lead credit gate](./explanation-billing-captured-lead.md) — why
-  `ContactRequest` is shaped the way it is.
+  `ContactRequest` is shaped the way it is. Note: Stripe now supplements it, it
+  does not replace it.

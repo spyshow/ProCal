@@ -1,0 +1,281 @@
+import { z } from 'zod';
+import { db } from '@/lib/db';
+import { logProjectActivity } from '@/lib/audit-logger';
+import { getCompanySettings, getLogoAsset } from '@/lib/app-settings';
+import { renderReportHtml } from '@/lib/reports/render-report-html';
+import { generateServerPdf } from '@/lib/reports/server-pdf';
+import { buildReportWorkbook } from '@/lib/reports/excel';
+import { createFindBreaker } from '@/lib/calculations/feeders';
+import { generateDrawingsPdf } from '@/lib/drawings/drawings-pdf';
+import { ensureFresh } from '../freshness';
+import { safeFilename, storeArtifact } from '../artifacts';
+import { McpToolError, type McpCtx } from '../context';
+import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+
+/**
+ * Export tools.
+ *
+ * Every one of them calls `ensureFresh()` first. Most report schedules read the
+ * stored `FloorItem` columns rather than recomputing, so exporting without this
+ * would produce a confident, wrong submittal — the single worst failure mode for
+ * an agent-driven workflow.
+ *
+ * Binaries are stored as artifacts and returned as a download URL, because MCP
+ * tool results are text or JSON.
+ */
+
+type ToolResult = {
+  content: Array<{ type: 'text'; text: string }>;
+  isError?: boolean;
+  structuredContent?: Record<string, unknown>;
+};
+
+const ok = (data: unknown): ToolResult => ({
+  content: [{ type: 'text', text: JSON.stringify(data, null, 2) }],
+  structuredContent: data as Record<string, unknown>,
+});
+
+interface ExportDeps {
+  makeCtx: () => McpCtx;
+  origin: string;
+}
+
+/** Everything the report renderer and Excel builder need, loaded once. */
+async function loadExportInputs(projectId: string) {
+  const [project, company, equipment, breakerSettings, revisions] = await Promise.all([
+    db.project.findUnique({
+      where: { id: projectId },
+      include: {
+        buildings: {
+          include: {
+            floorDesigns: {
+              include: {
+                items: {
+                  include: {
+                    apartmentTemplate: { include: { rooms: true } },
+                    loadLibraryItem: true,
+                  },
+                },
+              },
+            },
+            buildingLoads: { include: { loadLibraryItem: true } },
+          },
+        },
+        apartmentTemplates: { include: { rooms: true } },
+        loadLibraryItems: true,
+      },
+    }),
+    getCompanySettings().catch(() => null),
+    db.equipmentCatalog.findMany({
+      include: { family: true },
+      orderBy: [
+        { manufacturer: 'asc' },
+        { category: 'asc' },
+        { ratedCurrent: 'asc' },
+      ],
+    }),
+    db.breakerSettings.findMany({ orderBy: { model: 'asc' } }),
+    db.projectRevision.findMany({
+      where: { projectId },
+      include: { createdBy: { select: { username: true } } },
+      orderBy: { createdAt: 'desc' },
+    }),
+  ]);
+  if (!project) throw new McpToolError('Project not found.', 404);
+
+  return { project, company, equipment, breakerSettings, revisions };
+}
+
+/** Inline the company logo so headless Chromium (on about:blank) can render it. */
+async function inlineLogo(html: string): Promise<string> {
+  const company = await getCompanySettings().catch(() => null);
+  if (!company?.logoUrl?.includes('/api/assets/')) return html;
+  const rawKey = company.logoUrl.split('/api/assets/')[1]?.split('?')[0]?.split('#')[0] || '';
+  const asset = await getLogoAsset(decodeURIComponent(rawKey));
+  if (!asset?.mime || !asset?.data) return html;
+  const dataUri = `data:${asset.mime};base64,${asset.data}`;
+  return html
+    .split(company.logoUrl)
+    .join(dataUri)
+    .split(encodeURI(company.logoUrl))
+    .join(dataUri);
+}
+
+export function registerExportTools(server: McpServer, deps: ExportDeps) {
+  // ------------------------------------------------------------- report PDF
+  server.registerTool(
+    'procal_export_report_pdf',
+    {
+      title: 'Export the engineering report PDF',
+      description:
+        'Generate the multi-page A4-landscape engineering package: cover, load analysis, MDB schedule, cable schedule, breaker and selectivity schedule, voltage drop, short-circuit, and bill of materials. Recalculates first if the stored numbers are stale. Returns a download URL.',
+      annotations: { readOnlyHint: true, openWorldHint: false },
+      inputSchema: {
+        projectId: z.string().uuid(),
+        buildingId: z.string().uuid().optional().describe('Limit schedules to one building.'),
+      },
+    },
+    async ({ projectId, buildingId }) => {
+      const ctx = deps.makeCtx();
+      await ctx.resolveProject(projectId, { pageKey: 'reports', requiredAction: 'VIEW' });
+
+      const fresh = await ensureFresh(projectId);
+      const { project, company, equipment, breakerSettings, revisions } =
+        await loadExportInputs(projectId);
+
+      const html = renderReportHtml({
+        project: project as never,
+        buildingId,
+        manufacturer: project.preferredManufacturer,
+        equipment: equipment as never,
+        breakerSettings,
+        revisions: revisions.map((r) => ({
+          ...r,
+          createdByUsername: r.createdBy?.username,
+        })) as never,
+        companyName: company?.companyName,
+        companyLogoUrl: company?.logoUrl,
+      });
+
+      const pdf = await generateServerPdf(await inlineLogo(html));
+      const filename = `${safeFilename(project.name)}_Engineering_Package.pdf`;
+      const artifact = await storeArtifact({
+        ctx,
+        projectId,
+        kind: 'report_pdf',
+        filename,
+        mime: 'application/pdf',
+        data: pdf,
+      });
+
+      await logProjectActivity({
+        projectId,
+        userId: ctx.user.id,
+        userName: ctx.user.name || ctx.user.username,
+        userRole: 'ENGINEER',
+        action: 'UPDATE',
+        entityType: 'PROJECT',
+        entityId: projectId,
+        description: `Exported engineering report PDF via MCP`,
+        details: { source: 'mcp', sizeBytes: artifact.sizeBytes },
+      });
+
+      return ok({
+        projectId,
+        filename: artifact.filename,
+        downloadUrl: artifact.downloadUrl(deps.origin),
+        sizeBytes: artifact.sizeBytes,
+        expiresAt: artifact.expiresAt,
+        recalculated: fresh,
+        pages: 'cover + 8 schedules',
+      });
+    }
+  );
+
+  // -------------------------------------------------------------- Excel
+  server.registerTool(
+    'procal_export_excel',
+    {
+      title: 'Export the schedules workbook',
+      description:
+        'Generate the multi-sheet Excel workbook: project, load analysis, MDB, cable, breaker, voltage drop, short-circuit, and three BOM sheets. Recalculates first if stale. Returns a download URL.',
+      annotations: { readOnlyHint: true, openWorldHint: false },
+      inputSchema: { projectId: z.string().uuid() },
+    },
+    async ({ projectId }) => {
+      const ctx = deps.makeCtx();
+      await ctx.resolveProject(projectId, { pageKey: 'reports', requiredAction: 'VIEW' });
+
+      const fresh = await ensureFresh(projectId);
+      const { project, equipment, breakerSettings } = await loadExportInputs(projectId);
+
+      const findBreaker = createFindBreaker(
+        equipment as never,
+        {
+          ACB: project.defaultAcbFamilyId ?? undefined,
+          MCCB: project.defaultMccbFamilyId ?? undefined,
+          MCB: project.defaultMcbFamilyId ?? undefined,
+        },
+        project.preferredManufacturer
+      );
+
+      // Server-side, so the ~1 MB SheetJS bundle is not in the client chunk.
+      const XLSX = await import('xlsx');
+      const workbook = buildReportWorkbook(project as never, findBreaker, breakerSettings);
+      const data = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' }) as Buffer;
+
+      const filename = `${safeFilename(project.name)}_Schedules.xlsx`;
+      const artifact = await storeArtifact({
+        ctx,
+        projectId,
+        kind: 'excel',
+        filename,
+        mime: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        data,
+      });
+
+      return ok({
+        projectId,
+        filename: artifact.filename,
+        downloadUrl: artifact.downloadUrl(deps.origin),
+        sizeBytes: artifact.sizeBytes,
+        expiresAt: artifact.expiresAt,
+        recalculated: fresh,
+        sheets: workbook.SheetNames,
+      });
+    }
+  );
+
+  // -------------------------------------------------------------- Drawings
+  server.registerTool(
+    'procal_export_drawings_pdf',
+    {
+      title: 'Export the drawings PDF',
+      description:
+        'Generate the drawing pack: one landscape A4 sheet per SLD floor (so a 20-storey tower is 20 sheets) plus paginated riser diagrams, one per building. Uses the same styling as the engineering report. Recalculates first if stale. Returns a download URL.',
+      annotations: { readOnlyHint: true, openWorldHint: false },
+      inputSchema: {
+        projectId: z.string().uuid(),
+        buildingId: z.string().uuid().optional().describe('Limit the pack to one building.'),
+      },
+    },
+    async ({ projectId, buildingId }) => {
+      const ctx = deps.makeCtx();
+      await ctx.resolveProject(projectId, { pageKey: 'sldDesigner', requiredAction: 'VIEW' });
+
+      const fresh = await ensureFresh(projectId);
+      const { project, equipment, breakerSettings, company } = await loadExportInputs(projectId);
+
+      const result = await generateDrawingsPdf({
+        project: project as never,
+        equipment: equipment as never,
+        breakerSettings,
+        buildingId,
+        companyName: company?.companyName,
+      });
+
+      const filename = `${safeFilename(project.name)}_Drawings.pdf`;
+      const artifact = await storeArtifact({
+        ctx,
+        projectId,
+        kind: 'drawings_pdf',
+        filename,
+        mime: 'application/pdf',
+        data: result.pdf,
+      });
+
+      return ok({
+        projectId,
+        filename: artifact.filename,
+        downloadUrl: artifact.downloadUrl(deps.origin),
+        sizeBytes: artifact.sizeBytes,
+        expiresAt: artifact.expiresAt,
+        recalculated: fresh,
+        sldSheets: (result.svgs?.length ?? 0) || result.sheetCount - result.riserSheetCount,
+        riserSheets: result.riserSheetCount,
+        totalSheets: result.sheetCount,
+        schematexDiagnostics: result.diagnostics,
+      });
+    }
+  );
+}

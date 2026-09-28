@@ -32,21 +32,37 @@ export type VerifyProjectAccessResult = ProjectAuthSuccess | NextResponse;
 
 /**
  * Server-side guard to verify project access, membership, and granular permissions.
+ *
+ * Thin cookie wrapper. All the real logic lives in `verifyProjectAccessAsUser` so
+ * that the MCP server — which authenticates with a bearer token, not a cookie —
+ * is bound by exactly the same permission rules as the UI.
  */
 export async function verifyProjectAccess(
   projectId: string,
-  options?: {
-    requiredRole?: "PROJECT_MANAGER" | "ENGINEER" | "QA";
-    pageKey?: ProjectPageKey | string;
-    requiredAction?: "VIEW" | "EDIT";
-    cachedProject?: Project | null;
-  }
+  options?: ProjectAccessOptions
 ): Promise<VerifyProjectAccessResult> {
   const user = await getSessionUser();
   if (!user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+  return verifyProjectAccessAsUser(user, projectId, options);
+}
 
+export interface ProjectAccessOptions {
+  requiredRole?: "PROJECT_MANAGER" | "ENGINEER" | "QA";
+  pageKey?: ProjectPageKey | string;
+  requiredAction?: "VIEW" | "EDIT";
+  cachedProject?: Project | null;
+}
+
+/** The shape `getSessionUser()` and `resolveMcpActor()` both return. */
+export type AuthedUser = NonNullable<Awaited<ReturnType<typeof getSessionUser>>>;
+
+export async function verifyProjectAccessAsUser(
+  user: AuthedUser,
+  projectId: string,
+  options?: ProjectAccessOptions
+): Promise<VerifyProjectAccessResult> {
   const project = options?.cachedProject || await db.project.findUnique({
     where: { id: projectId },
   });

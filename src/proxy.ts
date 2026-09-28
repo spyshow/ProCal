@@ -15,7 +15,13 @@ const JWT_SECRET = new TextEncoder().encode(
 );
 
 export async function proxy(request: NextRequest) {
-  // Allow-list landing page, auth pages, invite acceptance, and auth/invite API calls
+  // Allow-list landing page, auth pages, invite acceptance, auth/invite API calls,
+  // and the MCP endpoint.
+  //
+  // /api/mcp is here because MCP clients (Claude Desktop/Code, Cursor) send
+  // `Authorization: Bearer <pat>` and cannot follow a browser redirect — a 302 to
+  // /login would surface as an opaque protocol error rather than a 401. It is
+  // authenticated inside the route by `resolveMcpActor`.
   const { pathname } = request.nextUrl;
   if (
     pathname === "/" ||
@@ -25,7 +31,8 @@ export async function proxy(request: NextRequest) {
     pathname.startsWith("/forgot-password") ||
     pathname.startsWith("/reset-password") ||
     pathname.startsWith("/api/auth") ||
-    pathname.startsWith("/api/invites")
+    pathname.startsWith("/api/invites") ||
+    pathname.startsWith("/api/mcp")
   ) {
     return NextResponse.next();
   }
@@ -57,8 +64,13 @@ export const config = {
      * Match all request paths except:
      * - API routes that are NOT auth API routes
      * - static files, images, favicon
+     *
+     * `api/mcp` is in both the allow-list above AND this negative lookahead.
+     * The allow-list alone is not enough: without the matcher exclusion the
+     * proxy would still run for /api/mcp and redirect a bearer-token client
+     * to /login instead of letting the route return a JSON 401.
      */
-    "/((?!api/projects|api/buildings|api/cables|api/equipment|api/contact|api/admin|api/invites|_next/static|_next/image|favicon.ico).*)",
+    "/((?!api/projects|api/buildings|api/cables|api/equipment|api/contact|api/admin|api/invites|api/mcp|_next/static|_next/image|favicon.ico).*)",
   ],
 };
 

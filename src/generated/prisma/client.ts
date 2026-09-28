@@ -47,6 +47,36 @@ export { Prisma }
  */
 export type User = Prisma.UserModel
 /**
+ * Model Subscription
+ * 
+ */
+export type Subscription = Prisma.SubscriptionModel
+/**
+ * Model CreditTransaction
+ * 
+ */
+export type CreditTransaction = Prisma.CreditTransactionModel
+/**
+ * Model PromoCode
+ * 
+ */
+export type PromoCode = Prisma.PromoCodeModel
+/**
+ * Model CheckoutIntent
+ * 
+ */
+export type CheckoutIntent = Prisma.CheckoutIntentModel
+/**
+ * Model McpToken
+ * 
+ */
+export type McpToken = Prisma.McpTokenModel
+/**
+ * Model McpArtifact
+ * 
+ */
+export type McpArtifact = Prisma.McpArtifactModel
+/**
  * Model ContactRequest
  * 
  */

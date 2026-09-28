@@ -52,6 +52,12 @@ export const AnyNull = runtime.AnyNull
 
 export const ModelName = {
   User: 'User',
+  Subscription: 'Subscription',
+  CreditTransaction: 'CreditTransaction',
+  PromoCode: 'PromoCode',
+  CheckoutIntent: 'CheckoutIntent',
+  McpToken: 'McpToken',
+  McpArtifact: 'McpArtifact',
   ContactRequest: 'ContactRequest',
   Project: 'Project',
   ProjectMember: 'ProjectMember',
@@ -102,6 +108,99 @@ export const UserScalarFieldEnum = {
 } as const
 
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
+
+
+export const SubscriptionScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  tier: 'tier',
+  status: 'status',
+  stripeCustomerId: 'stripeCustomerId',
+  stripeSubscriptionId: 'stripeSubscriptionId',
+  currentPeriodStart: 'currentPeriodStart',
+  currentPeriodEnd: 'currentPeriodEnd',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SubscriptionScalarFieldEnum = (typeof SubscriptionScalarFieldEnum)[keyof typeof SubscriptionScalarFieldEnum]
+
+
+export const CreditTransactionScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  delta: 'delta',
+  reason: 'reason',
+  stripeSessionId: 'stripeSessionId',
+  promoCodeId: 'promoCodeId',
+  actorId: 'actorId',
+  note: 'note',
+  createdAt: 'createdAt'
+} as const
+
+export type CreditTransactionScalarFieldEnum = (typeof CreditTransactionScalarFieldEnum)[keyof typeof CreditTransactionScalarFieldEnum]
+
+
+export const PromoCodeScalarFieldEnum = {
+  id: 'id',
+  code: 'code',
+  credits: 'credits',
+  maxRedemptions: 'maxRedemptions',
+  redemptions: 'redemptions',
+  description: 'description',
+  expiresAt: 'expiresAt',
+  active: 'active',
+  createdAt: 'createdAt'
+} as const
+
+export type PromoCodeScalarFieldEnum = (typeof PromoCodeScalarFieldEnum)[keyof typeof PromoCodeScalarFieldEnum]
+
+
+export const CheckoutIntentScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  kind: 'kind',
+  tier: 'tier',
+  credits: 'credits',
+  specJson: 'specJson',
+  projectId: 'projectId',
+  stripeSessionId: 'stripeSessionId',
+  status: 'status',
+  createdAt: 'createdAt',
+  expiresAt: 'expiresAt'
+} as const
+
+export type CheckoutIntentScalarFieldEnum = (typeof CheckoutIntentScalarFieldEnum)[keyof typeof CheckoutIntentScalarFieldEnum]
+
+
+export const McpTokenScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  name: 'name',
+  tokenHash: 'tokenHash',
+  prefix: 'prefix',
+  lastUsedAt: 'lastUsedAt',
+  revokedAt: 'revokedAt',
+  createdAt: 'createdAt'
+} as const
+
+export type McpTokenScalarFieldEnum = (typeof McpTokenScalarFieldEnum)[keyof typeof McpTokenScalarFieldEnum]
+
+
+export const McpArtifactScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  projectId: 'projectId',
+  kind: 'kind',
+  filename: 'filename',
+  mime: 'mime',
+  bytes: 'bytes',
+  sizeBytes: 'sizeBytes',
+  expiresAt: 'expiresAt',
+  createdAt: 'createdAt'
+} as const
+
+export type McpArtifactScalarFieldEnum = (typeof McpArtifactScalarFieldEnum)[keyof typeof McpArtifactScalarFieldEnum]
 
 
 export const ContactRequestScalarFieldEnum = {

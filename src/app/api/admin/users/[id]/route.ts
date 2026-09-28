@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { requireAdmin } from "@/lib/auth";
+import { recordCreditTransaction } from "@/lib/billing/entitlement";
 
 export async function PATCH(
   request: Request,
@@ -30,6 +31,33 @@ export async function PATCH(
     // Role is an allow-listed enum, matches POST.
     if (role !== undefined && role !== "ADMIN" && role !== "USER") {
       return NextResponse.json({ error: "role must be ADMIN or USER" }, { status: 400 });
+    }
+
+    // A credit change is a money movement, so it goes through the ledger helper
+    // rather than a bare update: balance and audit trail stay in one transaction.
+    // A `credits` value equal to the current balance is an ADMIN_ADJUST (a
+    // correction); a genuine top-up is an ADMIN_GRANT.
+    if (credits !== undefined) {
+      const before = await db.user.findUnique({
+        where: { id },
+        select: { credits: true },
+      });
+      if (!before) {
+        return NextResponse.json({ error: "User not found" }, { status: 404 });
+      }
+      const delta = credits - before.credits;
+      if (delta !== 0) {
+        await recordCreditTransaction({
+          userId: id,
+          delta,
+          reason: delta > 0 ? "ADMIN_GRANT" : "ADMIN_ADJUST",
+          actorId: gate.id,
+          note:
+            delta > 0
+              ? `Granted ${delta} credit${delta === 1 ? "" : "s"} by admin`
+              : `Adjusted by ${Math.abs(delta)} by admin`,
+        });
+      }
     }
 
     const data: Record<string, unknown> = {};

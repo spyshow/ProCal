@@ -1,4 +1,5 @@
 'use client';
+/* eslint-disable react-hooks/set-state-in-effect, react-hooks/purity */
 
 import { useEffect, useState } from 'react';
 import { X, History, Loader2, Plus, RotateCcw, FileDiff, Trash2 } from 'lucide-react';

@@ -23,6 +23,7 @@ import { verifyCoordination, suggestAlternativeBreaker, resolveCatalogBreakerOrA
 import TccPlotModal from '@/components/coordination/TccPlotModal';
 import { BreakerSizingGuideModal } from '@/components/breaker/BreakerSizingGuideModal';
 import InfoTooltip from '@/components/InfoTooltip';
+import type { BreakerSettingItem } from '@/lib/reports/aggregates';
 import type { Project, PanelFeeder, BreakerAlternativeSuggestion, FallbackType, GenericBreakerSpec } from '@/types';
 import WorkflowStepper from '@/components/layout/WorkflowStepper';
 import { AccessRestricted } from '@/components/AccessRestricted';
@@ -92,7 +93,7 @@ export default function BreakerSchedulePage() {
   const [saving, setSaving] = useState(false);
   const [equipment, setEquipment] = useState<EquipmentItem[]>([]);
   const [families, setFamilies] = useState<BreakerFamilyOption[]>([]);
-  const [breakerSettings, setBreakerSettings] = useState<any[]>([]);
+  const [breakerSettings, setBreakerSettings] = useState<BreakerSettingItem[]>([]);
   const [selectedBuilding, setSelectedBuilding] = useState<string>('all');
   const [selectedFeederForModal, setSelectedFeederForModal] = useState<BreakerEntry | null>(null);
   const [applyingSuggestionId, setApplyingSuggestionId] = useState<string | null>(null);
@@ -234,10 +235,10 @@ export default function BreakerSchedulePage() {
     return savedModel;
   };
 
-  const normalizeBreakerId = (id: string) => id.replace(/[–—]/g, '-').trim();
+  const normalizeBreakerId = (id?: string | null) => (id || '').replace(/[–—]/g, '-').trim();
 
   const findSavedBreakerSetting = useCallback(
-    (f: PanelFeeder) => {
+    (f: { name: string; itemId?: string; buildingLoadId?: string }) => {
       if (!project) return undefined;
       const normName = normalizeBreakerId(f.name);
       return breakerSettings.find(
@@ -292,7 +293,7 @@ export default function BreakerSchedulePage() {
         incomerSaved?.model,
         mainIncomerSettings.model || 'Main Incomer ACB'
       );
-      const savedIncomerFrame = incomerSaved?.frameSize ? parseInt(incomerSaved.frameSize, 10) : NaN;
+      const savedIncomerFrame = incomerSaved?.frameSize ? parseInt(String(incomerSaved.frameSize), 10) : NaN;
       const effectiveIncomerIn = !isNaN(savedIncomerFrame) && savedIncomerFrame > 0 ? savedIncomerFrame : mainBreakerIn;
       const isUnderProtected = effectiveIncomerIn > mainCableIz || mainCableUnderProtected;
 
@@ -687,7 +688,7 @@ export default function BreakerSchedulePage() {
               normalizeBreakerId(b.name) === normalizeBreakerId(selectedFeederForModal.parentFeederName || '')
           );
           if (upFeeder) {
-            const upSaved = findSavedBreakerSetting(upFeeder as any);
+            const upSaved = findSavedBreakerSetting(upFeeder);
             const stableBreakerId = `${project.id}-${upFeeder.name}`;
             await fetch('/api/breaker-settings', {
               method: 'POST',
@@ -854,7 +855,7 @@ export default function BreakerSchedulePage() {
             : null;
 
           if (upstreamFeeder) {
-            const upstreamSaved = findSavedBreakerSetting(upstreamFeeder as any);
+            const upstreamSaved = findSavedBreakerSetting(upstreamFeeder);
             const isUpIncomer = upstreamFeeder.name === 'Main Incomer' || upstreamFeeder.type === 'INCOMER';
             const upstreamBreakerId = isUpIncomer
               ? (bldg ? `${project.id}-main-incomer-${bldg.id}` : `${project.id}-main-incomer`)
@@ -1287,17 +1288,17 @@ export default function BreakerSchedulePage() {
             upstreamBreakerModel={upstreamFeederForModal?.breakerModel}
             upstreamBreakerSize={upstreamFeederForModal?.breakerSize}
             upstreamCurrent={upstreamFeederForModal?.current}
-            upstreamIr={savedUp?.ir}
-            upstreamIsd={savedUp?.isd}
-            upstreamTsd={savedUp?.tsd}
-            upstreamIi={savedUp?.ii}
+            upstreamIr={savedUp?.ir ?? undefined}
+            upstreamIsd={savedUp?.isd ?? undefined}
+            upstreamTsd={savedUp?.tsd ?? undefined}
+            upstreamIi={savedUp?.ii ?? undefined}
             downstreamBreakerModel={selectedFeederForModal.breakerModel}
             downstreamBreakerSize={selectedFeederForModal.breakerSize}
             downstreamCurrent={selectedFeederForModal.current}
-            downstreamIr={savedDown?.ir}
-            downstreamIsd={savedDown?.isd}
-            downstreamTsd={savedDown?.tsd}
-            downstreamIi={savedDown?.ii}
+            downstreamIr={savedDown?.ir ?? undefined}
+            downstreamIsd={savedDown?.isd ?? undefined}
+            downstreamTsd={savedDown?.tsd ?? undefined}
+            downstreamIi={savedDown?.ii ?? undefined}
             downstreamCableSize={selectedFeederForModal.cableSize}
             downstreamParallelRuns={selectedFeederForModal.parallelRuns}
             downstreamCategory={downstreamCategory}

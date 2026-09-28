@@ -4,6 +4,7 @@ const requireModule = createRequire(import.meta.url);
 const ReactDOMServer = requireModule('react-dom/server');
 import type { Project, ProjectRevision } from '@/types';
 import { createFindBreaker, type EquipmentItem, type FindBreaker } from '@/lib/calculations/feeders';
+import type { BreakerSettingItem } from './aggregates';
 import { REPORT_COMPILED_CSS } from './report-css';
 import CoverPage from '@/components/report/CoverPage';
 import LoadSchedule from '@/components/report/LoadSchedule';
@@ -20,7 +21,7 @@ export interface RenderReportHtmlOptions {
   buildingId?: string;
   manufacturer?: string;
   equipment?: EquipmentItem[];
-  breakerSettings?: any[];
+  breakerSettings?: BreakerSettingItem[];
   revisions?: ProjectRevision[];
   companyName?: string;
   companyLogoUrl?: string;
@@ -33,7 +34,7 @@ export function renderReportHtml(options: RenderReportHtmlOptions): string {
     manufacturer,
     equipment = [],
     breakerSettings = [],
-    revisions = options.revisions ?? (project as any).revisions ?? [],
+    revisions = options.revisions ?? (project as unknown as { revisions?: ProjectRevision[] }).revisions ?? [],
     companyName = 'ProCal — Low-voltage Electrical design, Solved',
     companyLogoUrl,
   } = options;

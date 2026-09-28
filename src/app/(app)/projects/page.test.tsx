@@ -11,8 +11,8 @@ import { render, screen, waitFor, fireEvent } from "@testing-library/react";
 const refreshUser = vi.fn();
 const push = vi.fn();
 
-function setUser(user: any) { mockUser.current = user; }
-const mockUser: { current: any } = { current: null };
+function setUser(user: unknown) { mockUser.current = user; }
+const mockUser: { current: unknown } = { current: null };
 
 vi.mock("@/context/UserContext", () => ({
   useUser: () => ({
@@ -35,7 +35,7 @@ vi.mock("next/navigation", () => ({
 
 // fetch is the single chokepoint for /api/projects GET (list) + POST (create).
 const fetchMock = vi.fn();
-(globalThis as any).fetch = fetchMock;
+vi.stubGlobal("fetch", fetchMock);
 beforeEach(() => {
   vi.resetModules();
   vi.clearAllMocks();

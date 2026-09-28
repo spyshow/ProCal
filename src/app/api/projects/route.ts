@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { db } from "@/lib/db";
+import { db, type Prisma } from "@/lib/db";
 import { getSessionUser } from "@/lib/auth";
 import { parseMemberPermissions } from "@/lib/project-permissions";
 import { logProjectActivity } from "@/lib/audit-logger";
@@ -37,7 +37,7 @@ export async function GET(request?: Request) {
       ],
     };
 
-    const where: any = search
+    const where: Prisma.ProjectWhereInput = search
       ? {
           AND: [
             userAccessCondition,
@@ -175,8 +175,9 @@ export async function POST(request: Request) {
         maxVoltageDropLighting: vdLNum,
         maxVoltageDropPower: vdPNum,
       });
-    } catch (validationErr: any) {
-      return NextResponse.json({ error: validationErr.message }, { status: 400 });
+    } catch (validationErr: unknown) {
+      const message = validationErr instanceof Error ? validationErr.message : String(validationErr);
+      return NextResponse.json({ error: message }, { status: 400 });
     }
 
     // Admins bypass the credit gate (they manage the system).

@@ -31,8 +31,9 @@ async function main() {
         ALTER TABLE "Building" ADD COLUMN IF NOT EXISTS "incomerAmbientTemp" DOUBLE PRECISION DEFAULT 30;
         ALTER TABLE "Building" ADD COLUMN IF NOT EXISTS "incomerGroupingCount" INTEGER DEFAULT 1;
       `);
-    } catch (e: any) {
-      console.warn("Notice: Column check during seed:", e.message);
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : String(e);
+      console.warn("Notice: Column check during seed:", msg);
     }
   }
 

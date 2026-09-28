@@ -80,7 +80,7 @@ vi.mock("@/context/ProjectContext", () => ({
 }));
 
 const fetchMock = vi.fn();
-(globalThis as any).fetch = fetchMock;
+vi.stubGlobal("fetch", fetchMock);
 
 describe("SettingsPage - Voltage Drop Limits & Engineering Standards", () => {
   beforeEach(() => {
@@ -131,10 +131,10 @@ describe("SettingsPage - Voltage Drop Limits & Engineering Standards", () => {
     fireEvent.change(powerInput, { target: { value: "4.0" } });
 
     // Mock PUT response
-    fetchMock.mockImplementationOnce(async (url: string, opts: any) => {
+    fetchMock.mockImplementationOnce(async (url: string, opts?: RequestInit) => {
       expect(url).toBe("/api/projects/proj-123");
-      expect(opts.method).toBe("PUT");
-      const parsedBody = JSON.parse(opts.body);
+      expect(opts?.method).toBe("PUT");
+      const parsedBody = JSON.parse(opts?.body as string);
       expect(parsedBody.maxVoltageDropLighting).toBe(2.5);
       expect(parsedBody.maxVoltageDropPower).toBe(4.0);
       return new Response(

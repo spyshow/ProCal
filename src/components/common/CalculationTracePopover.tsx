@@ -1,4 +1,5 @@
 "use client";
+/* eslint-disable react-hooks/set-state-in-effect */
 
 import React, { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
@@ -33,7 +34,7 @@ export interface CalculationTracePopoverProps {
 // Translation Helpers for Dynamic Trace Engine Content
 // ---------------------------------------------------------------------------
 
-function getTranslatedTitle(title: string, t: (key: string, fallback?: string, options?: Record<string, any>) => string): string {
+function getTranslatedTitle(title: string, t: (key: string, fallback?: string, options?: Record<string, unknown>) => string): string {
   if (title.startsWith("Design Current Trace: ")) {
     const name = title.replace("Design Current Trace: ", "");
     return t("trace.titles.designCurrent", `Design Current Trace: ${name}`, { name });

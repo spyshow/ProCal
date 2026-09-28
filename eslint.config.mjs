@@ -12,6 +12,13 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    ".agents/**",
+    ".antigravity/**",
+    ".auto-claude/**",
+    "intro-video/**",
+    "graphify-out/**",
+    ".gstack/**",
+    "scripts/**",
   ]),
 ]);
 

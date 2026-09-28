@@ -346,14 +346,14 @@ describe('phaseBalance', () => {
       type: 'LIBRARY',
       current: 30,
       assignedPhase: 1,
-      loadLibraryItem: { id: 'lib-res', name: 'Heater', powerFactor: 1.0, phase: 1 } as any,
+      loadLibraryItem: { id: 'lib-res', name: 'Heater', powerFactor: 1.0, phase: 1 } as unknown as LoadLibraryItem,
     });
     const l2 = floorItemFixture({
       id: 'ind-l2',
       type: 'LIBRARY',
       current: 30,
       assignedPhase: 2,
-      loadLibraryItem: { id: 'lib-ind', name: 'Inductive', powerFactor: 0.8, phase: 1 } as any,
+      loadLibraryItem: { id: 'lib-ind', name: 'Inductive', powerFactor: 0.8, phase: 1 } as unknown as LoadLibraryItem,
     });
 
     const b = phaseBalance([l1, l2], project);

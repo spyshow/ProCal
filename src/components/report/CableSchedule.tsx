@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
-import { isThreePhaseForItem, computeFeeders, createFindBreaker } from '@/lib/calculations/feeders';
+import { isThreePhaseForItem, computeFeeders, createFindBreaker, type EquipmentItem, type FindBreaker } from '@/lib/calculations/feeders';
 import { parseCableSize, formatCableSizeFor, calculateCableAmpacity } from '@/lib/calculations/cables';
 import { codeOf } from '@/lib/calculations/codes';
 import { TraceableCell } from '@/components/common/TraceableCell';
@@ -17,8 +17,8 @@ export interface CableScheduleProps {
   project: Project;
   buildingId?: string;
   showHeader?: boolean;
-  equipment?: any[];
-  findBreaker?: any;
+  equipment?: EquipmentItem[];
+  findBreaker?: FindBreaker;
 }
 
 interface CableRow {
@@ -122,8 +122,8 @@ export default function CableSchedule({
           breaker: smdbFeeder ? `${smdbFeeder.breakerSize}A` : '—',
           cable: riserCable,
           method: fd.riserInstallMethod || 'C',
-          insulation: (fd.riserCableInsulation as any) || 'XLPE',
-          material: (fd.riserCableMaterial as any) || 'copper',
+          insulation: fd.riserCableInsulation || 'XLPE',
+          material: fd.riserCableMaterial || 'copper',
           category: smdbFeeder?.category ?? 'MCCB',
           breakingCapacityKa: smdbFeeder?.breakingCapacityKa ?? 36,
           type: 'SMDB',
@@ -169,7 +169,8 @@ export default function CableSchedule({
         ? totalKw / (Math.sqrt(3) * (lib.voltage / 1000) * lib.powerFactor)
         : totalKw / ((lib.voltage / 1000) * lib.powerFactor);
       const matchingFeeder = mdbFeeders.find(f => f.buildingLoadId === bl.id);
-      const effectiveBreaker = (bl as any).breakerSize || (matchingFeeder?.breakerSize ? `${matchingFeeder.breakerSize}A` : '32A');
+      const blAny = bl as { breakerSize?: string; cableLength?: number; voltageDrop?: number };
+      const effectiveBreaker = blAny.breakerSize || (matchingFeeder?.breakerSize ? `${matchingFeeder.breakerSize}A` : '32A');
       const effectiveCable = bl.cableSize || matchingFeeder?.formattedCableSize || '4 mm²';
       rows.push({
         id: bl.id,
@@ -186,8 +187,8 @@ export default function CableSchedule({
         category: matchingFeeder?.category,
         breakingCapacityKa: matchingFeeder?.breakingCapacityKa,
         type: 'BUILDING_LOAD',
-        length: (bl as any).cableLength || undefined,
-        voltageDrop: (bl as any).voltageDrop,
+        length: blAny.cableLength || undefined,
+        voltageDrop: blAny.voltageDrop,
       });
     }
   }

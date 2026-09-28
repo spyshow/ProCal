@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { renderReportHtml, wrapReportMarkup } from './render-report-html';
-import type { Project, Building, FloorItem } from '@/types';
+import type { Project, Building, FloorItem, BuildingLoad, LoadLibraryItem } from '@/types';
 import type { EquipmentItem } from '@/lib/calculations/feeders';
 
 const mockEquipment: EquipmentItem[] = [
@@ -87,8 +87,8 @@ function createSampleProject(): Project {
               loadType: 'MOTOR',
               voltage: 400,
               phase: 3,
-            } as any,
-          } as any,
+            } as unknown as LoadLibraryItem,
+          } as unknown as BuildingLoad,
         ],
       } as Building,
     ],

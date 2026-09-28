@@ -32,7 +32,7 @@ async function patch(id: string, body: unknown) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
     }),
-    { params: Promise.resolve({ id }) } as any
+    { params: Promise.resolve({ id }) }
   );
 }
 

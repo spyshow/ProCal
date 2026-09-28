@@ -1,4 +1,5 @@
 'use client';
+/* eslint-disable react-hooks/set-state-in-effect, react-hooks/purity */
 
 import { useState, useMemo, useEffect, useCallback } from 'react';
 import { useTranslation } from '@/i18n';
@@ -46,6 +47,24 @@ interface ProjectFeederItem extends PanelFeeder {
   floor: number;
 }
 
+interface BreakerSettingRecord {
+  id?: string;
+  projectId?: string;
+  breakerId?: string;
+  model?: string | null;
+  manufacturer?: string | null;
+  frameSize?: string | null;
+  ir?: number | null;
+  tr?: number | null;
+  isd?: number | null;
+  tsd?: number | null;
+  i2t?: boolean | null;
+  ii?: number | null;
+  ig?: number | null;
+  tg?: number | null;
+  [key: string]: unknown;
+}
+
 export default function CoordinationPage() {
   const { t } = useTranslation();
   const { selectedProjectId, selectedProject, loading: contextLoading, preferredManufacturer, refreshProject, canView, canEdit } = useProject();
@@ -68,7 +87,7 @@ export default function CoordinationPage() {
     MCCB: selectedProject?.defaultMccbFamilyId ?? undefined,
     MCB: selectedProject?.defaultMcbFamilyId ?? undefined,
   }));
-  const [breakerSettings, setBreakerSettings] = useState<any[]>([]);
+  const [breakerSettings, setBreakerSettings] = useState<BreakerSettingRecord[]>([]);
 
   // Upstream breaker curve settings
   const [upstream, setUpstream] = useState<BreakerCurveSettings>({
@@ -199,7 +218,7 @@ export default function CoordinationPage() {
       return key;
     };
 
-    const normalizeBreakerId = (id: string) => id.replace(/[–—]/g, '-').trim();
+    const normalizeBreakerId = (id?: string | null) => (id || '').replace(/[–—]/g, '-').trim();
 
     const findSavedBreakerSetting = (f: PanelFeeder) => {
       const normName = normalizeBreakerId(f.name);
@@ -531,7 +550,7 @@ export default function CoordinationPage() {
             s.breakerId === 'main-incomer'
           ))
       );
-      const effectiveIn = saved ? (parseInt(saved.frameSize) || computedMainIncomer.inRating) : computedMainIncomer.inRating;
+      const effectiveIn = saved?.frameSize ? (parseInt(saved.frameSize, 10) || computedMainIncomer.inRating) : computedMainIncomer.inRating;
       const effectiveIr = saved?.ir ?? computedMainIncomer.ir;
       const effectiveCategory: 'ACB' | 'MCCB' = effectiveIn >= 630 ? 'ACB' : 'MCCB';
       const effectiveModel = saved?.model ?? computedMainIncomer.model;
@@ -558,7 +577,7 @@ export default function CoordinationPage() {
         ? breakerSettings.find((s) => s.breakerId === `${project?.id}-${upstreamFeeder.name}` || s.breakerId === upstreamFeeder.name)
         : null;
 
-      const rawUpIn = savedUp ? parseInt(savedUp.frameSize) : upstreamFeeder?.breakerSize ?? (feeder.breakerSize >= 400 ? 630 : 400);
+      const rawUpIn = savedUp?.frameSize ? parseInt(savedUp.frameSize, 10) : upstreamFeeder?.breakerSize ?? (feeder.breakerSize >= 400 ? 630 : 400);
       const upIn = Math.max(1, rawUpIn || 400);
       const rawUpIr = savedUp?.ir ?? (upstreamFeeder ? Math.max(upstreamFeeder.current, upIn * 0.85) : upIn * 0.85);
       const upIr = Math.max(0.5, (rawUpIr && rawUpIr > 0) ? rawUpIr : upIn * 0.85);
@@ -586,7 +605,7 @@ export default function CoordinationPage() {
       (s) => s.breakerId === `${project?.id}-${feeder.name}` || s.breakerId === feeder.name || (feeder.itemId && s.breakerId === feeder.itemId)
     );
 
-    const rawDownIn = savedDown ? parseInt(savedDown.frameSize) : feeder.breakerSize;
+    const rawDownIn = savedDown?.frameSize ? parseInt(savedDown.frameSize, 10) : feeder.breakerSize;
     const downIn = Math.max(1, rawDownIn || 16);
     const rawDownIr = savedDown?.ir ?? feeder.current;
     const downIr = Math.max(0.5, (rawDownIr && rawDownIr > 0) ? rawDownIr : downIn * 0.8);
@@ -703,7 +722,7 @@ export default function CoordinationPage() {
       console.warn('Alternative breaker suggestion calculation error:', err);
       return [];
     }
-  }, [result.status, safeUpstream, safeDownstream, safeFaultCurrent, safeCableSize, upstreamFeederLabel, project?.preferredManufacturer, equipment]);
+  }, [result.status, safeUpstream, safeDownstream, safeFaultCurrent, safeCableSize, upstreamFeederLabel, project, equipment]);
 
   const STATUS_CONFIG: Record<SelectivityStatus, { color: string; bg: string; border: string; icon: typeof CheckCircle; label: string }> = {
     FULL: {

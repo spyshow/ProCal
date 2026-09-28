@@ -6,6 +6,8 @@ import { verifyProjectAccess } from "@/lib/project-auth";
 import { getCompanySettings, getLogoAsset } from "@/lib/app-settings";
 import { renderReportHtml, wrapReportMarkup } from "@/lib/reports/render-report-html";
 import { generateServerPdf } from "@/lib/reports/server-pdf";
+import type { Project, ProjectRevision } from "@/types";
+import type { EquipmentItem } from "@/lib/calculations/feeders";
 
 export const maxDuration = 60;
 
@@ -108,7 +110,7 @@ export async function POST(
     const safeProjectName = project.name.replace(/[^a-zA-Z0-9_-]/g, "_");
     const filename = `${safeProjectName}_Executive_Engineering_Package.pdf`;
 
-    return new Response(pdfBuffer as any, {
+    return new Response(pdfBuffer as unknown as BodyInit, {
       status: 200,
       headers: {
         "Content-Type": "application/pdf",
@@ -214,12 +216,12 @@ export async function GET(
     }));
 
     const html = renderReportHtml({
-      project: project as any,
+      project: project as unknown as Project,
       buildingId,
       manufacturer,
-      equipment: equipment as any,
+      equipment: equipment as unknown as EquipmentItem[],
       breakerSettings,
-      revisions: revisions as any,
+      revisions: revisions as unknown as ProjectRevision[],
       companyName: company?.companyName || "ProCal — Low-voltage Electrical design, Solved",
       companyLogoUrl: company?.logoUrl || undefined,
     });
@@ -229,7 +231,7 @@ export async function GET(
     const safeProjectName = project.name.replace(/[^a-zA-Z0-9_-]/g, "_");
     const filename = `${safeProjectName}_Executive_Engineering_Package.pdf`;
 
-    return new Response(pdfBuffer as any, {
+    return new Response(pdfBuffer as unknown as BodyInit, {
       status: 200,
       headers: {
         "Content-Type": "application/pdf",

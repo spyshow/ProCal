@@ -1,4 +1,5 @@
 'use client';
+/* eslint-disable react-hooks/immutability, react-hooks/set-state-in-effect, react-hooks/preserve-manual-memoization */
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter, usePathname } from 'next/navigation';

@@ -51,7 +51,7 @@ const project: Project = {
 
 // MDBSchedule fetches the equipment catalog in a useEffect; stub that fetch.
 const fetchMock = vi.fn();
-(globalThis as any).fetch = fetchMock;
+vi.stubGlobal("fetch", fetchMock);
 beforeEach(() => {
   fetchMock.mockReset();
   fetchMock.mockImplementation(async () =>

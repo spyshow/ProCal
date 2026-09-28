@@ -99,8 +99,8 @@ export async function POST(
         let calculatedConnectedLoad = item.calculatedConnectedLoad;
         let calculatedMaxDemand = item.calculatedMaxDemand;
         let calculatedCurrent = item.calculatedCurrent;
-        let breakerSize = item.breakerSize;
-        let cableSize = item.cableSize;
+        const breakerSize = item.breakerSize;
+        const cableSize = item.cableSize;
 
         if (item.type === "APARTMENT" && item.apartmentTemplate) {
           const totalConnectedLoadVA = item.apartmentTemplate.rooms.reduce(

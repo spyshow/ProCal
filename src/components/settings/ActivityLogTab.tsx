@@ -1,4 +1,5 @@
 "use client";
+/* eslint-disable react-hooks/set-state-in-effect */
 
 import React, { useState, useEffect, useCallback } from "react";
 import {
@@ -37,10 +38,10 @@ interface ParsedDetails {
     label: string;
     oldDisplay?: string;
     newDisplay?: string;
-    oldValue?: any;
-    newValue?: any;
+    oldValue?: unknown;
+    newValue?: unknown;
   }>;
-  raw?: Record<string, any>;
+  raw?: Record<string, unknown>;
   hasDetails: boolean;
 }
 

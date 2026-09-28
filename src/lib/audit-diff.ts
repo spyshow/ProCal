@@ -289,9 +289,9 @@ function areValuesEqual(field: string, v1: unknown, v2: unknown): boolean {
  * resolving BreakerFamily IDs into friendly names (e.g. "Schneider Acti9 iC60N").
  */
 export async function computeProjectDiff(
-  existing: Record<string, any>,
-  updated: Record<string, any>,
-  rawPayload?: Record<string, any>
+  existing: Record<string, unknown>,
+  updated: Record<string, unknown>,
+  rawPayload?: Record<string, unknown>
 ): Promise<AuditDiffResult> {
   const projectFields = [
     "defaultAcbFamilyId", "defaultMccbFamilyId", "defaultMcbFamilyId", "preferredManufacturer",
@@ -405,8 +405,8 @@ const INCOMER_BREAKER_FIELDS = new Set([
  */
 export function computeBuildingDiff(
   buildingName: string,
-  existing: Record<string, any>,
-  updated: Record<string, any>,
+  existing: Record<string, unknown>,
+  updated: Record<string, unknown>,
   incomerCableTag: string = "W_MDB"
 ): AuditDiffResult {
   const trackedFields = [
@@ -503,8 +503,8 @@ const RISER_CABLE_FIELDS = new Set([
 export function computeFloorDiff(
   floorName: string,
   buildingName: string,
-  existing: Record<string, any>,
-  updated: Record<string, any>,
+  existing: Record<string, unknown>,
+  updated: Record<string, unknown>,
   riserCableTag?: string
 ): AuditDiffResult {
   const trackedFields = [
@@ -597,8 +597,8 @@ const CABLE_CIRCUIT_FIELDS = new Set([
 export function computeCableCircuitDiff(
   targetName: string,
   locationContext?: string | null,
-  existing: Record<string, any> = {},
-  updated: Record<string, any> = {},
+  existing: Record<string, unknown> = {},
+  updated: Record<string, unknown> = {},
   cableName?: string,
   buildingName?: string | null,
   floorName?: string | null
@@ -722,21 +722,40 @@ export function computeCableCircuitDiff(
  * Helper to enrich legacy audit logs that have generic or technical descriptions.
  * Takes a raw log item and a pre-loaded map of breaker family ID -> name.
  */
-export function enrichLegacyAuditLog(
-  log: {
-    id: string;
-    description: string;
-    entityType: string;
-    details?: string | null;
-    [key: string]: any;
-  },
+interface ParsedAuditDetails {
+  cableName?: string;
+  floorName?: string;
+  floorNumber?: number | string;
+  buildingName?: string;
+  cableTag?: string;
+  defaultAcbFamilyId?: string;
+  defaultMccbFamilyId?: string;
+  defaultMcbFamilyId?: string;
+  changes?: Array<{
+    field: string;
+    label?: string;
+    oldValue?: unknown;
+    newValue?: unknown;
+    oldDisplay?: string;
+    newDisplay?: string;
+  }>;
+  [key: string]: unknown;
+}
+
+export function enrichLegacyAuditLog<T extends {
+  id: string;
+  description: string;
+  entityType: string;
+  details?: string | null;
+}>(
+  log: T,
   familyNameMap: Map<string, string>
-) {
+): T {
   if (!log.details) return log;
 
-  let parsed: any;
+  let parsed: ParsedAuditDetails | null = null;
   try {
-    parsed = JSON.parse(log.details);
+    parsed = JSON.parse(log.details) as ParsedAuditDetails;
   } catch {
     return log;
   }
@@ -781,8 +800,8 @@ export function enrichLegacyAuditLog(
     const contextPart = oldCircuitMatch[4]?.trim() || "";
 
     const bldg = parsed?.buildingName || (contextPart.match(/Tower\s+[A-Za-z0-9]+|Building\s+[A-Za-z0-9]+/i)?.[0]) || "";
-    let cable = parsed?.cableName || parsed?.cableTag || (contextPart.match(/Cable\s+([A-Za-z0-9_-]+)/i)?.[1]) || "";
-    let floor = parsed?.floorName || (parsed?.floorNumber != null ? `Floor ${parsed.floorNumber}` : "") || (contextPart.match(/(Floor\s+\d+|Level\s+\d+)/i)?.[0]) || "";
+    const cable = parsed?.cableName || parsed?.cableTag || (contextPart.match(/Cable\s+([A-Za-z0-9_-]+)/i)?.[1]) || "";
+    const floor = parsed?.floorName || (parsed?.floorNumber != null ? `Floor ${parsed.floorNumber}` : "") || (contextPart.match(/(Floor\s+\d+|Level\s+\d+)/i)?.[0]) || "";
 
     if (cable) {
       const fullTarget = bldg
@@ -933,15 +952,18 @@ export function enrichLegacyAuditLog(
     enrichedEntityType = "BREAKER";
     const breakerSummaries: string[] = [];
     if (parsed.defaultAcbFamilyId) {
-      const name = familyNameMap.get(parsed.defaultAcbFamilyId) || parsed.defaultAcbFamilyId;
+      const id = String(parsed.defaultAcbFamilyId);
+      const name = familyNameMap.get(id) || id;
       breakerSummaries.push(`ACB: ${name}`);
     }
     if (parsed.defaultMccbFamilyId) {
-      const name = familyNameMap.get(parsed.defaultMccbFamilyId) || parsed.defaultMccbFamilyId;
+      const id = String(parsed.defaultMccbFamilyId);
+      const name = familyNameMap.get(id) || id;
       breakerSummaries.push(`MCCB: ${name}`);
     }
     if (parsed.defaultMcbFamilyId) {
-      const name = familyNameMap.get(parsed.defaultMcbFamilyId) || parsed.defaultMcbFamilyId;
+      const id = String(parsed.defaultMcbFamilyId);
+      const name = familyNameMap.get(id) || id;
       breakerSummaries.push(`MCB: ${name}`);
     }
 

@@ -1,5 +1,5 @@
 'use client';
-/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-unused-vars, react-hooks/set-state-in-effect */
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';

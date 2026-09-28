@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { errorResponse } from "@/lib/api-errors";
-import { db } from "@/lib/db";
+import { db, type Prisma } from "@/lib/db";
 import { verifyProjectAccess } from "@/lib/project-auth";
 import { getApartmentDiversityFactor } from "@/lib/calculations/loads";
 import { ENGINE_VERSION } from "@/lib/calculations/version";
@@ -66,7 +66,7 @@ export async function POST(
         calculatedCurrent = calculatedMaxDemand / ((voltageKv / Math.sqrt(3)) * powerFactor);
       }
 
-      const dataToUpdate: Record<string, any> = {
+      const dataToUpdate: Prisma.FloorItemUpdateInput = {
         calculatedConnectedLoad,
         calculatedMaxDemand,
         calculatedCurrent: parseFloat(calculatedCurrent.toFixed(2)),

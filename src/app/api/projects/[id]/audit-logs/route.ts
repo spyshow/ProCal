@@ -3,14 +3,16 @@ import { db } from "@/lib/db";
 import { verifyProjectAccess } from "@/lib/project-auth";
 import { enrichLegacyAuditLog } from "@/lib/audit-diff";
 
-async function enrichAuditLogs(rawLogs: any[]) {
+type AuditLogRecord = Parameters<typeof enrichLegacyAuditLog>[0];
+
+async function enrichAuditLogs<T extends AuditLogRecord>(rawLogs: T[]): Promise<T[]> {
   const familyIds = new Set<string>();
   const breakerKeys = ["defaultAcbFamilyId", "defaultMccbFamilyId", "defaultMcbFamilyId"];
 
   for (const log of rawLogs) {
     if (log.details) {
       try {
-        const parsed = JSON.parse(log.details);
+        const parsed = JSON.parse(log.details) as Record<string, unknown>;
         for (const k of breakerKeys) {
           if (parsed && parsed[k]) familyIds.add(String(parsed[k]));
         }

@@ -18,7 +18,7 @@ import { Card, CardContent } from '@/components/ui/card';
 interface ProCalConversionBannerProps {
   toolName: string;
   toolType: string;
-  calculationData: Record<string, any>;
+  calculationData: Record<string, unknown>;
   headline?: string;
   description?: string;
 }

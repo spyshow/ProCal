@@ -3,7 +3,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { formatCableSizeFor } from '@/lib/calculations/cables';
 import { createFindBreaker, type FindBreaker, type EquipmentItem } from '@/lib/calculations/feeders';
-import { aggregateDetailedBOM } from '@/lib/reports/aggregates';
+import { aggregateDetailedBOM, type BreakerSettingItem } from '@/lib/reports/aggregates';
 import { useEquipmentCatalog } from '@/hooks/useEquipmentCatalog';
 import type { FloorItem, Project, FallbackType, GenericBreakerSpec } from '@/types';
 import { FileText, ChevronDown, ChevronRight, ShieldCheck, AlertTriangle } from 'lucide-react';
@@ -13,7 +13,7 @@ export interface BOMScheduleProps {
   buildingId?: string;
   showHeader?: boolean;
   equipment?: EquipmentItem[];
-  breakerSettings?: any[];
+  breakerSettings?: BreakerSettingItem[];
   findBreaker?: FindBreaker;
 }
 
@@ -32,7 +32,7 @@ export default function BOMSchedule({
   findBreaker: preloadedFindBreaker,
 }: BOMScheduleProps) {
   const [annexOpen, setAnnexOpen] = useState(true);
-  const [internalBreakerSettings, setInternalBreakerSettings] = useState<any[]>([]);
+  const [internalBreakerSettings, setInternalBreakerSettings] = useState<BreakerSettingItem[]>([]);
 
   useEffect(() => {
     if (preloadedBreakerSettings) return;

@@ -5,6 +5,7 @@ import {
   DEFAULT_THEME,
   THEME_COOKIE_NAME,
   VALID_THEMES,
+  type ThemeMode,
 } from './theme';
 
 describe('Theme utilities', () => {
@@ -33,7 +34,7 @@ describe('Theme utilities', () => {
   });
 
   it('falls back to default theme for unrecognized inputs', () => {
-    expect(resolveTheme('invalid' as any, false)).toBe(DEFAULT_THEME);
+    expect(resolveTheme('invalid' as unknown as ThemeMode, false)).toBe(DEFAULT_THEME);
   });
 
   it('exports expected constants', () => {

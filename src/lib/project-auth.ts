@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { db } from "./db";
 import { getSessionUser } from "./auth";
+import type { Project } from "@/generated/prisma/client";
 import {
   hasProjectPagePermission,
   parseMemberPermissions,
@@ -24,12 +25,7 @@ export interface ProjectAuthSuccess {
     role: string;
     permissions: Record<ProjectPageKey, PermissionAction>;
   };
-  project: {
-    id: string;
-    name: string;
-    userId: string;
-    [key: string]: any;
-  };
+  project: Project;
 }
 
 export type VerifyProjectAccessResult = ProjectAuthSuccess | NextResponse;
@@ -43,7 +39,7 @@ export async function verifyProjectAccess(
     requiredRole?: "PROJECT_MANAGER" | "ENGINEER" | "QA";
     pageKey?: ProjectPageKey | string;
     requiredAction?: "VIEW" | "EDIT";
-    cachedProject?: { id: string; name: string; userId: string; [key: string]: any } | null;
+    cachedProject?: Project | null;
   }
 ): Promise<VerifyProjectAccessResult> {
   const user = await getSessionUser();

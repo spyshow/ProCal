@@ -1,4 +1,5 @@
 'use client';
+/* eslint-disable react-hooks/set-state-in-effect */
 
 import { useEffect, useState, useCallback, useRef, FormEvent } from 'react';
 import {
@@ -46,6 +47,31 @@ interface Breaker {
   datasheetUrl: string | null;
   familyId: string | null;
   familyName: string | null;
+}
+
+interface BreakerTripUnitSettings {
+  Icw?: number | string;
+  Ics?: number | string;
+  category?: string;
+  standard?: string;
+  L?: { range?: string; delay?: string; defaultIr?: number; defaultTr?: number };
+  S?: { range?: string; delay?: string; i2t?: boolean; defaultIsd?: number; defaultTsd?: number };
+  I?: { range?: string; defaultIi?: number; off?: boolean };
+  G?: { range?: string; delay?: string };
+  thermal?: { range?: string; defaultIr?: number };
+  magnetic?: { range?: string; defaultIm?: number };
+  curveType?: string;
+  magneticPickup?: string;
+  letThroughI2t?: number;
+  sensitivity?: string;
+  type?: string;
+  coilVoltage?: string;
+  utilizationCategory?: string;
+  ratedPower?: string;
+  settingRange?: string;
+  tripClass?: string;
+  accuracyClass?: string;
+  protocol?: string;
 }
 
 interface BreakerForm {
@@ -159,8 +185,8 @@ export default function AdminBreakersPage() {
       if (!res.ok) throw new Error('Failed to fetch equipment items');
       const data = await res.json();
       setBreakers(data);
-    } catch (err: any) {
-      setError(err.message || 'Error fetching equipment');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Error fetching equipment');
     } finally {
       setLoading(false);
     }
@@ -180,7 +206,7 @@ export default function AdminBreakersPage() {
       if (!res.ok) throw new Error('Failed to fetch breaker families');
       const data = await res.json();
       setFamilies(data);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
     } finally {
       setLoadingFamilies(false);
@@ -254,8 +280,8 @@ export default function AdminBreakersPage() {
 
       setShowBreakerModal(false);
       fetchBreakers();
-    } catch (err: any) {
-      alert(err.message || 'Error saving equipment item');
+    } catch (err: unknown) {
+      alert(err instanceof Error ? err.message : 'Error saving equipment item');
     } finally {
       setSavingBreaker(false);
     }
@@ -267,8 +293,8 @@ export default function AdminBreakersPage() {
       const res = await fetch(`/api/admin/breakers/${id}`, { method: 'DELETE' });
       if (!res.ok) throw new Error('Failed to delete equipment item');
       fetchBreakers();
-    } catch (err: any) {
-      alert(err.message || 'Error deleting equipment item');
+    } catch (err: unknown) {
+      alert(err instanceof Error ? err.message : 'Error deleting equipment item');
     }
   };
 
@@ -313,8 +339,8 @@ export default function AdminBreakersPage() {
 
       setShowFamilyModal(false);
       fetchFamilies();
-    } catch (err: any) {
-      alert(err.message || 'Error saving family');
+    } catch (err: unknown) {
+      alert(err instanceof Error ? err.message : 'Error saving family');
     } finally {
       setSavingFamily(false);
     }
@@ -329,8 +355,8 @@ export default function AdminBreakersPage() {
         throw new Error(errData.error || 'Failed to delete family');
       }
       fetchFamilies();
-    } catch (err: any) {
-      alert(err.message || 'Error deleting family');
+    } catch (err: unknown) {
+      alert(err instanceof Error ? err.message : 'Error deleting family');
     }
   };
 
@@ -374,10 +400,10 @@ export default function AdminBreakersPage() {
         message: `Successfully imported ${data.importedCount} items (${data.createdCount} created, ${data.updatedCount} updated).`,
       });
       fetchBreakers();
-    } catch (err: any) {
+    } catch (err: unknown) {
       setImportStatus({
         type: 'error',
-        message: err.message || 'Error during CSV import',
+        message: err instanceof Error ? err.message : 'Error during CSV import',
       });
     } finally {
       setImporting(false);
@@ -786,9 +812,9 @@ export default function AdminBreakersPage() {
 
       {/* Interactive Technical Datasheet & Specification Modal */}
       {inspectSettingsBreaker && (() => {
-        let parsed: any = {};
+        let parsed: BreakerTripUnitSettings = {};
         try {
-          parsed = JSON.parse(inspectSettingsBreaker.settingsJson || '{}');
+          parsed = JSON.parse(inspectSettingsBreaker.settingsJson || '{}') as BreakerTripUnitSettings;
         } catch {
           parsed = {};
         }
@@ -861,7 +887,7 @@ export default function AdminBreakersPage() {
                 {/* LSI / LSIG Electronic Trip Unit */}
                 {(parsed.L || parsed.S || parsed.I) ? (
                   <div className="rounded-xl border border-gray-800 bg-gray-950/80 overflow-hidden divide-y divide-gray-800/60 text-xs">
-                    {parsed.L && (
+                    {Boolean(parsed.L) && parsed.L && (
                       <div className="p-3 grid grid-cols-1 sm:grid-cols-3 gap-2 items-center">
                         <div className="font-semibold text-blue-400 flex items-center gap-1.5">
                           <span className="w-5 h-5 rounded-full bg-blue-950 text-blue-300 flex items-center justify-center text-[10px] font-bold">L</span>
@@ -873,7 +899,7 @@ export default function AdminBreakersPage() {
                         </div>
                       </div>
                     )}
-                    {parsed.S && (
+                    {Boolean(parsed.S) && parsed.S && (
                       <div className="p-3 grid grid-cols-1 sm:grid-cols-3 gap-2 items-center">
                         <div className="font-semibold text-amber-400 flex items-center gap-1.5">
                           <span className="w-5 h-5 rounded-full bg-amber-950 text-amber-300 flex items-center justify-center text-[10px] font-bold">S</span>
@@ -885,7 +911,7 @@ export default function AdminBreakersPage() {
                         </div>
                       </div>
                     )}
-                    {parsed.I && (
+                    {Boolean(parsed.I) && parsed.I && (
                       <div className="p-3 grid grid-cols-1 sm:grid-cols-3 gap-2 items-center">
                         <div className="font-semibold text-red-400 flex items-center gap-1.5">
                           <span className="w-5 h-5 rounded-full bg-red-950 text-red-300 flex items-center justify-center text-[10px] font-bold">I</span>
@@ -897,7 +923,7 @@ export default function AdminBreakersPage() {
                         </div>
                       </div>
                     )}
-                    {parsed.G && (
+                    {Boolean(parsed.G) && parsed.G && (
                       <div className="p-3 grid grid-cols-1 sm:grid-cols-3 gap-2 items-center">
                         <div className="font-semibold text-emerald-400 flex items-center gap-1.5">
                           <span className="w-5 h-5 rounded-full bg-emerald-950 text-emerald-300 flex items-center justify-center text-[10px] font-bold">G</span>

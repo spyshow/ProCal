@@ -295,7 +295,7 @@ export function buildCableAmpacityTrace(inputs: CableAmpacityTraceInputs): Trace
   }
 
   let complianceStatus: "PASS" | "WARN" | "FAIL" = "PASS";
-  let complianceRule = isUpsizedForVoltageDrop
+  const complianceRule = isUpsizedForVoltageDrop
     ? (isNec ? `Iz ≥ In ≥ Ib & ΔU ≤ ${maxLimit.toFixed(1)}% (NEC 210.19(A))` : `Iz ≥ In ≥ Ib & ΔU ≤ ${maxLimit.toFixed(1)}% (IEC 60364-5-52 §525)`)
     : "Iz ≥ In ≥ Ib";
   let marginText = "";

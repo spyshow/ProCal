@@ -67,7 +67,7 @@ export async function PATCH(
 
     const buildingName = item.floorDesign.building?.name || "Building";
     const floorNumber = item.floorDesign.floorNumber;
-    const floorLabel = (item.floorDesign as any).name || (floorNumber != null ? `Floor ${floorNumber}` : "Floor");
+    const floorLabel = (item.floorDesign as { name?: string | null }).name || (floorNumber != null ? `Floor ${floorNumber}` : "Floor");
 
     let cableTag = (typeof body.cableName === "string" && body.cableName.trim()) ? body.cableName.trim() : "";
     if (!cableTag && item.floorDesign.items) {
@@ -195,7 +195,7 @@ export async function DELETE(
       ? "apartment"
       : item.type.toLowerCase().replace(/_/g, " ");
 
-    const floorLabel = (item.floorDesign as any).name || (item.floorDesign.floorNumber != null ? `Floor ${item.floorDesign.floorNumber}` : "Floor");
+    const floorLabel = (item.floorDesign as { name?: string | null }).name || (item.floorDesign.floorNumber != null ? `Floor ${item.floorDesign.floorNumber}` : "Floor");
 
     await logProjectActivity({
       projectId: item.floorDesign.building.projectId,

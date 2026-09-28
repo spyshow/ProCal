@@ -711,7 +711,7 @@ Generated with ProCal (https://procal.app/tools/motor-protection-calculator)`;
                       <span className="text-[10px] text-slate-500 block">Conductor</span>
                       <select
                         value={cableMaterial}
-                        onChange={(e) => setCableMaterial(e.target.value as any)}
+                        onChange={(e) => setCableMaterial(e.target.value as 'copper' | 'aluminum')}
                         className="w-full h-8 rounded-md bg-slate-950 border border-slate-800 px-2 text-xs font-mono text-slate-200"
                       >
                         <option value="copper">Copper (Cu)</option>
@@ -723,7 +723,7 @@ Generated with ProCal (https://procal.app/tools/motor-protection-calculator)`;
                       <span className="text-[10px] text-slate-500 block">Insulation</span>
                       <select
                         value={cableInsulation}
-                        onChange={(e) => setCableInsulation(e.target.value as any)}
+                        onChange={(e) => setCableInsulation(e.target.value as 'XLPE' | 'PVC')}
                         className="w-full h-8 rounded-md bg-slate-950 border border-slate-800 px-2 text-xs font-mono text-slate-200"
                       >
                         <option value="XLPE">XLPE (90°C)</option>

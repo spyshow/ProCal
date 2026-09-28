@@ -73,7 +73,7 @@ export async function PUT(
       },
     });
 
-    const changes: Array<{ field: string; label: string; oldValue?: any; newValue?: any }> = [];
+    const changes: Array<{ field: string; label: string; oldValue?: unknown; newValue?: unknown }> = [];
     if (name !== loadItem.name) changes.push({ field: "name", label: "Name", oldValue: loadItem.name, newValue: name });
     if (category !== loadItem.category) changes.push({ field: "category", label: "Category", oldValue: loadItem.category, newValue: category });
     if (power !== loadItem.power) changes.push({ field: "power", label: "Power", oldValue: `${loadItem.power} kW`, newValue: `${power} kW` });

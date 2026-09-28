@@ -9,12 +9,12 @@ const mocks = {
   userCreate: vi.fn(),
   memberUpsert: vi.fn(),
   logProjectActivity: vi.fn(),
-  signJWT: vi.fn(async (_payload?: any) => "jwt-session-token"),
+  signJWT: vi.fn(async (_payload?: unknown) => "jwt-session-token"),
 };
 
 vi.mock("@/lib/auth", () => ({
   getSessionUser: vi.fn(async () => mocks.sessionUser),
-  signJWT: vi.fn(async (payload?: any) => mocks.signJWT(payload)),
+  signJWT: vi.fn(async (payload?: unknown) => mocks.signJWT(payload)),
 }));
 
 vi.mock("@/lib/audit-logger", () => ({

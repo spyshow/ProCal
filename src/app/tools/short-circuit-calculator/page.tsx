@@ -226,7 +226,7 @@ Generated with ProCal (https://procal.app/tools/short-circuit-calculator)`;
             Short-Circuit & Breaker Breaking Capacity Calculator
           </h1>
           <p className="text-slate-400 text-sm sm:text-base leading-relaxed">
-            Calculate symmetrical short-circuit current (Ik''), peak making current (Ip),
+            Calculate symmetrical short-circuit current (Ik&apos;&apos;), peak making current (Ip),
             and determine the minimum required circuit breaker breaking capacity (Icu / Ics)
             at transformer terminals and downstream sub-distribution boards.
           </p>
@@ -491,7 +491,7 @@ Generated with ProCal (https://procal.app/tools/short-circuit-calculator)`;
                     {/* Primary Highlight */}
                     <div className="pt-2">
                       <span className="text-xs text-slate-400 block">
-                        3-Phase Symmetrical Fault Current (Ik'') at Transformer:
+                        3-Phase Symmetrical Fault Current (Ik&apos;&apos;) at Transformer:
                       </span>
                       <div className="flex items-baseline gap-2 mt-1">
                         <span className="text-3xl font-extrabold text-white font-mono">
@@ -533,7 +533,7 @@ Generated with ProCal (https://procal.app/tools/short-circuit-calculator)`;
                         <span className="font-mono font-bold text-slate-200 text-base">
                           {scResult.twoPhaseIsc} kA
                         </span>
-                        <span className="text-[10px] text-slate-500 block">0.866 × Ik''</span>
+                        <span className="text-[10px] text-slate-500 block">0.866 × Ik&apos;&apos;</span>
                       </div>
 
                       <div className="p-2.5 rounded-md bg-slate-950/60 border border-slate-800">
@@ -633,10 +633,10 @@ Generated with ProCal (https://procal.app/tools/short-circuit-calculator)`;
 
             <div className="p-4 rounded-xl bg-slate-900/50 border border-slate-800 space-y-2">
               <h3 className="font-semibold text-white text-xs uppercase tracking-wider text-orange-400">
-                2. Symmetrical Fault Current (Ik'')
+                2. Symmetrical Fault Current (Ik&apos;&apos;)
               </h3>
               <div className="p-2 rounded bg-slate-950 font-mono text-xs text-orange-300 text-center">
-                I_k'' = (c_max × U_n) / (√3 × Z_total)
+                I_k&apos;&apos; = (c_max × U_n) / (√3 × Z_total)
               </div>
               <p className="text-xs text-slate-400">
                 Where c_max = 1.05 (for low-voltage systems) accounts for utility voltage fluctuations.

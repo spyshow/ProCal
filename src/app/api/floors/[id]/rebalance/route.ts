@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { verifyProjectAccess } from "@/lib/project-auth";
 import { phaseBalance } from "@/lib/calculations/phaseBalance";
+import type { FloorItem, Project } from "@/types";
 
 /**
  * Re-balance: run the greedy LPT phase assignment for all 1-phase loads on this
@@ -40,7 +41,7 @@ export async function POST(
     if (auth instanceof NextResponse) return auth;
 
     const project = floorDesign.building.project;
-    const balance = phaseBalance(floorDesign.items as any, project as any);
+    const balance = phaseBalance(floorDesign.items as unknown as FloorItem[], project as unknown as Project);
 
     // Persist assignments for 1-phase items only, but preserve manual overrides.
     // Items with an existing assignedPhase in the DB are pinned — skip them.

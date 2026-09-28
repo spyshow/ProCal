@@ -30,7 +30,7 @@ vi.mock("@/lib/db", () => ({
   },
 }));
 
-async function postRecalculate(buildingId: string, body?: any) {
+async function postRecalculate(buildingId: string, body?: unknown) {
   const { POST } = await import("./route");
   return POST(
     new Request(`http://localhost/api/buildings/${buildingId}/recalculate`, {

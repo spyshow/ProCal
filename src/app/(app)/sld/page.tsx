@@ -65,6 +65,17 @@ export interface ComponentProperty {
   buildingName?: string;
 }
 
+export interface HierarchyItem {
+  id: string;
+  name: string;
+  type: string;
+  icon: 'zap' | 'cpu' | 'layers' | 'breaker' | 'plug';
+  badge?: string;
+  floorNumber?: number;
+  children?: HierarchyItem[];
+  data: ComponentProperty;
+}
+
 export default function SLDPage() {
   const { selectedProjectId, selectedProject, loading: contextLoading, canView, canEdit } = useProject();
   const { t, isRtl } = useTranslation();
@@ -153,7 +164,7 @@ export default function SLDPage() {
       ...(b.buildingLoads || []),
     ]) || [];
     if (allProjectItems.length > 0) {
-      const balance = phaseBalance(allProjectItems as any, project as any);
+      const balance = phaseBalance(allProjectItems as unknown as Parameters<typeof phaseBalance>[0], project);
       const pf = project.powerFactor || 0.85;
       const demandKva = balance.totalKw / pf;
       const perPhaseKva: [number, number, number] = [
@@ -233,16 +244,7 @@ export default function SLDPage() {
   const dynamicTree = useMemo(() => {
     if (!project) return [];
 
-    const rootItems: Array<{
-      id: string;
-      name: string;
-      type: string;
-      icon: 'zap' | 'cpu' | 'layers' | 'breaker' | 'plug';
-      badge?: string;
-      floorNumber?: number;
-      children?: Array<any>;
-      data: ComponentProperty;
-    }> = [];
+    const rootItems: HierarchyItem[] = [];
 
     // 1. Grid Incomer
     let dynamicTx = 1000;
@@ -251,7 +253,7 @@ export default function SLDPage() {
       ...(b.buildingLoads || []),
     ]) || [];
     if (allItems.length > 0) {
-      const balance = phaseBalance(allItems as any, project as any);
+      const balance = phaseBalance(allItems as unknown as Parameters<typeof phaseBalance>[0], project);
       const pf = project.powerFactor || 0.85;
       const demandKva = balance.totalKw / pf;
       const perPhaseKva: [number, number, number] = [
@@ -307,7 +309,7 @@ export default function SLDPage() {
     // 3. Buildings & Floor Switchboards
     if (project.buildings) {
       project.buildings.forEach((bldg) => {
-        const bldgChildren: Array<any> = [];
+        const bldgChildren: HierarchyItem[] = [];
 
         if (bldg.floorDesigns) {
           const sortedFloors = [...bldg.floorDesigns].sort(
@@ -319,7 +321,7 @@ export default function SLDPage() {
             const floorCurrent = fd.items.reduce((s, i) => s + (i.calculatedCurrent || 0), 0);
             const floorPower = fd.items.reduce((s, i) => s + (i.calculatedMaxDemand || 0), 0);
 
-            const itemChildren = fd.items.map((item, idx) => {
+            const itemChildren: HierarchyItem[] = fd.items.map((item, idx) => {
               const itemId = `item-${bldg.id}-${fd.floorNumber}-${idx}`;
               const itemCable =
                 item.cableSize ||
@@ -331,7 +333,7 @@ export default function SLDPage() {
                 id: itemId,
                 name: `${item.name} (${item.breakerSize || 'MCB'})`,
                 type: item.type || 'Electrical Load',
-                icon: 'plug',
+                icon: 'plug' as const,
                 badge: item.breakerSize,
                 floorNumber: fd.floorNumber,
                 data: {
@@ -447,7 +449,7 @@ export default function SLDPage() {
 
         if (matchesBldg && item.children) {
           const floorChild = item.children.find(
-            (c: any) => c.floorNumber === targetFloorNum
+            (c) => c.floorNumber === targetFloorNum
           );
           if (floorChild) {
             setSelectedComponent(floorChild.data);
@@ -462,7 +464,7 @@ export default function SLDPage() {
         for (const item of dynamicTree) {
           if (item.children) {
             const floorChild = item.children.find(
-              (c: any) => c.floorNumber === targetFloorNum
+              (c) => c.floorNumber === targetFloorNum
             );
             if (floorChild) {
               setSelectedComponent(floorChild.data);
@@ -1021,7 +1023,7 @@ export default function SLDPage() {
                         {/* Render Children Recursively */}
                         {item.children && isExpanded && (
                           <div className="pl-4 space-y-0.5 mt-0.5 border-l border-[var(--border-color)] ml-2.5">
-                            {item.children.map((child: any) => {
+                            {item.children.map((child: HierarchyItem) => {
                               const isChildSelected = selectedComponent?.id === child.data.id;
                               const childStatus = getStatus(child.data.id);
                               return (
@@ -1048,7 +1050,7 @@ export default function SLDPage() {
                                   {/* Nested Sub-Items */}
                                   {child.children && (
                                     <div className="pl-3 space-y-0.5 mt-0.5 border-l border-[var(--border-color)]/70 ml-2">
-                                      {child.children.map((sub: any) => {
+                                      {child.children.map((sub: HierarchyItem) => {
                                         const isSubSelected = selectedComponent?.id === sub.data.id;
                                         return (
                                           <button

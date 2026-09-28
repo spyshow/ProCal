@@ -1,4 +1,5 @@
 'use client';
+/* eslint-disable react-hooks/set-state-in-effect */
 
 import React, { createContext, useContext, useEffect, useState, useTransition, useCallback } from 'react';
 import i18n, { SupportedLanguage, LANGUAGE_STORAGE_KEY, getInitialLanguage } from './config';
@@ -7,7 +8,7 @@ interface I18nContextType {
   language: SupportedLanguage;
   setLanguage: (lang: SupportedLanguage) => void;
   isRtl: boolean;
-  t: (key: string, fallback?: string, options?: Record<string, any>) => string;
+  t: (key: string, fallback?: string, options?: Record<string, unknown>) => string;
 }
 
 const I18nContext = createContext<I18nContextType>({
@@ -55,7 +56,7 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
   const isRtl = language === 'ar';
 
   const t = useCallback(
-    (key: string, fallback?: string, options?: Record<string, any>) => {
+    (key: string, fallback?: string, options?: Record<string, unknown>) => {
       if (i18n.exists(key, options)) {
         return String(i18n.t(key, options));
       }

@@ -10,7 +10,7 @@ const mocks = {
   dbUserFindFirst: vi.fn(),
   dbContactRequestCreate: vi.fn(),
   dbContactRequestFindMany: vi.fn(),
-  sendResult: { ok: true, messageId: "test-mid" } as const,
+  sendResult: { ok: true, messageId: "test-mid" } as { ok: boolean; messageId?: string; error?: string },
 };
 
 vi.mock("@/lib/auth", () => ({
@@ -59,7 +59,7 @@ describe("POST /api/contact", () => {
   });
 
   it("T2 send-fail-no-row: sendLeadNotification {ok:false} → 502, NO row persisted", async () => {
-    mocks.sendResult = { ok: false, error: "SMTP down" } as any;
+    mocks.sendResult = { ok: false, error: "SMTP down" };
     const res = await post({ email: "alice@example.com", message: "hello" });
     expect(res.status).toBe(502);
     expect(create).not.toHaveBeenCalled(); // D4 hard merge gate — the tested invariant

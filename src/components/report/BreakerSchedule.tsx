@@ -12,6 +12,7 @@ import {
   buildShortCircuitTrace,
 } from '@/lib/calculations/trace-engine';
 import type { Project } from '@/types';
+import type { BreakerSettingItem } from '@/lib/reports/aggregates';
 
 export interface BreakerScheduleProps {
   project: Project;
@@ -19,7 +20,7 @@ export interface BreakerScheduleProps {
   manufacturer?: string;
   showHeader?: boolean;
   equipment?: EquipmentItem[];
-  breakerSettings?: any[];
+  breakerSettings?: BreakerSettingItem[];
   findBreaker?: FindBreaker;
 }
 
@@ -69,7 +70,7 @@ export default function BreakerSchedule({
   breakerSettings: preloadedBreakerSettings,
   findBreaker: preloadedFindBreaker,
 }: BreakerScheduleProps) {
-  const [internalBreakerSettings, setInternalBreakerSettings] = useState<any[]>([]);
+  const [internalBreakerSettings, setInternalBreakerSettings] = useState<BreakerSettingItem[]>([]);
 
   useEffect(() => {
     if (preloadedBreakerSettings) return;
@@ -158,7 +159,7 @@ export default function BreakerSchedule({
       const effectiveIncomerIn = !isNaN(savedIncomerFrame) && savedIncomerFrame > 0 ? savedIncomerFrame : mainBreakerIn;
       const isUnderProtected = effectiveIncomerIn > mainCableIz || mainCableUnderProtected;
 
-      const normalizeBreakerId = (id: string) => id.replace(/[–—]/g, '-').trim();
+      const normalizeBreakerId = (id?: string | null) => (id || '').replace(/[–—]/g, '-').trim();
       const findSaved = (fName: string, itemId?: string, buildingLoadId?: string) => {
         const norm = normalizeBreakerId(fName);
         return breakerSettings.find(

@@ -85,13 +85,38 @@ export async function PUT(
       return NextResponse.json({ error: "Forbidden: QA role is view-only" }, { status: 403 });
     }
 
-    const data = (await request.json()) as Record<string, any>;
+type UpdateProjectPayload = {
+  name?: string;
+  client?: string;
+  consultant?: string;
+  contractor?: string;
+  location?: string;
+  engineer?: string;
+  date?: string;
+  notes?: string | null;
+  country?: string;
+  preferredManufacturer?: string;
+  logoUrl?: string | null;
+  calculationStandard?: string;
+  voltage?: number | string;
+  frequency?: number | string;
+  powerFactor?: number | string;
+  maxDemandFactor?: number | string;
+  maxVoltageDropLighting?: number | string;
+  maxVoltageDropPower?: number | string;
+  transformerSize?: number | string | null;
+  defaultAcbFamilyId?: string | null;
+  defaultMccbFamilyId?: string | null;
+  defaultMcbFamilyId?: string | null;
+};
+
+    const data = (await request.json()) as UpdateProjectPayload;
     const existingProject = auth.project;
 
     // Numeric settings feed the calc engine directly — reject out-of-range
     // values at this trust boundary instead of persisting NaN/garbage that
     // later poisons every downstream calculation.
-    const num = (key: string) =>
+    const num = (key: keyof UpdateProjectPayload) =>
       data[key] !== undefined ? parseFloat(String(data[key])) : undefined;
     const voltage = num("voltage");
     if (voltage !== undefined) assertPositive("voltage", voltage);
@@ -152,7 +177,7 @@ export async function PUT(
       },
     });
 
-    const diff = await computeProjectDiff(existingProject, updatedProject, data);
+    const diff = await computeProjectDiff(existingProject, updatedProject, data as Record<string, unknown>);
 
     await logProjectActivity({
       projectId: id,

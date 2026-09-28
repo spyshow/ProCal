@@ -185,7 +185,7 @@ export async function POST(
       ? "apartment"
       : item.type.toLowerCase().replace(/_/g, " ");
 
-    const floorLabel = (floorDesign as any).name || (floorDesign.floorNumber != null ? `Floor ${floorDesign.floorNumber}` : "Floor");
+    const floorLabel = (floorDesign as { name?: string | null }).name || (floorDesign.floorNumber != null ? `Floor ${floorDesign.floorNumber}` : "Floor");
 
     await logProjectActivity({
       projectId: project.id,

@@ -19,7 +19,7 @@ import { computeFeeders, createFindBreaker } from '@/lib/calculations/feeders';
 import { useEquipmentCatalog } from '@/hooks/useEquipmentCatalog';
 import { computeFloorRiserVd, type RiserFloorVd } from '@/lib/calculations/riser';
 import { PageSkeleton } from '@/components/ui/skeleton';
-import type { FloorDesign, Project } from '@/types';
+import type { Building, FloorDesign, Project } from '@/types';
 import WorkflowStepper from '@/components/layout/WorkflowStepper';
 import { AccessRestricted } from '@/components/AccessRestricted';
 import { ReadOnlyBanner } from '@/components/ReadOnlyBanner';
@@ -93,7 +93,7 @@ export default function RiserPage() {
       params.set('manufacturer', project.preferredManufacturer);
     }
     return params.toString();
-  }, [project?.preferredManufacturer]);
+  }, [project]);
   const { equipment } = useEquipmentCatalog(query);
 
   const findBreaker = useMemo(
@@ -125,7 +125,7 @@ export default function RiserPage() {
 
   const bldg = project.buildings.find((b) => b.id === selectedBuilding) || project.buildings[0];
   const sortedFloors = [...bldg.floorDesigns].sort((a, b) => a.floorNumber - b.floorNumber);
-  const feedersData = computeFeeders(bldg as any, project as any, findBreaker);
+  const feedersData = computeFeeders(bldg as unknown as Building, project as unknown as Project, findBreaker);
 
   // Layout constants
   const ITEM_SPACING = 28;

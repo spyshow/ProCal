@@ -99,7 +99,7 @@ export default function CableSizerPage() {
           maxPercent: clampedMaxVd,
         },
       });
-    } catch (err: any) {
+    } catch {
       return null;
     }
   }, [
@@ -745,7 +745,7 @@ Generated with ProCal (https://procal.app/tools/cable-sizer)`;
                 1. Overload Protection (IEC 60364-4-43)
               </h3>
               <p className="text-xs text-slate-400 leading-relaxed">
-                The continuous current rating of the protective device ($I_n$) and the cable's derated current-carrying
+                The continuous current rating of the protective device ($I_n$) and the cable&apos;s derated current-carrying
                 capacity ($I_z$) must satisfy the fundamental coordination chain:
               </p>
               <div className="my-2 p-2 rounded bg-slate-950 font-mono text-xs text-orange-300 text-center">

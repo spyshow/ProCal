@@ -10,6 +10,7 @@ import {
   aggregateLoadRows,
   aggregateShortCircuitRows,
   type DetailedBreakerBOMItem,
+  type BreakerSettingItem,
 } from "./aggregates";
 import { phaseBalance } from "@/lib/calculations/phaseBalance";
 import { sizeTransformer } from "@/lib/calculations/loads";
@@ -34,7 +35,7 @@ function cableCell(project: Project, sizeMm2: number | null | undefined): string
 export function buildReportWorkbook(
   project: Project,
   findBreaker: FindBreaker,
-  breakerSettings?: any[]
+  breakerSettings?: BreakerSettingItem[]
 ): XLSX.WorkBook {
   const wb = XLSX.utils.book_new();
 
@@ -195,7 +196,7 @@ function buildProjectRows(project: Project): Record<string, string | number>[] {
 export function buildBomAoa(
   project: Project,
   findBreaker?: FindBreaker,
-  breakerSettings?: any[]
+  breakerSettings?: BreakerSettingItem[]
 ): (string | number)[][] {
   const detailed = aggregateDetailedBOM(project, findBreaker, breakerSettings);
   const aoa: (string | number)[][] = [];
@@ -299,7 +300,7 @@ export function buildBomAoa(
 export function buildBomRows(
   project: Project,
   findBreaker?: FindBreaker,
-  breakerSettings?: any[]
+  breakerSettings?: BreakerSettingItem[]
 ): Record<string, string | number>[] {
   const detailed = aggregateDetailedBOM(project, findBreaker, breakerSettings);
   const rows: Record<string, string | number>[] = [];

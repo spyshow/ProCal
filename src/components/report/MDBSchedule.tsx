@@ -115,7 +115,7 @@ export default function MDBSchedule({
         ...bldg.floorDesigns.flatMap((fd) => fd.items),
         ...(bldg.buildingLoads ?? []),
       ];
-      const bldgBalance = phaseBalance(allBldgItems as any, project as any);
+      const bldgBalance = phaseBalance(allBldgItems as unknown as Parameters<typeof phaseBalance>[0], project);
 
       mdbIndex += 1;
       rows.push({

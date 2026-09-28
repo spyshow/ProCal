@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { db } from "@/lib/db";
+import { db, type Prisma } from "@/lib/db";
 import { verifyProjectAccess } from "@/lib/project-auth";
 import { logProjectActivity } from "@/lib/audit-logger";
 import { computeBuildingDiff } from "@/lib/audit-diff";
@@ -152,7 +152,7 @@ export async function PATCH(
       return NextResponse.json({ error: "Forbidden: QA role is view-only" }, { status: 403 });
     }
 
-    const updateData: Record<string, any> = {};
+    const updateData: Prisma.BuildingUpdateInput = {};
     if (data.name !== undefined) updateData.name = data.name;
     if (data.floors !== undefined) updateData.floors = parseInt(data.floors, 10);
     if (data.serviceFloors !== undefined) updateData.serviceFloors = parseInt(data.serviceFloors, 10);

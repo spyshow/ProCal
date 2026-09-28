@@ -1,6 +1,7 @@
 import { formatCableSizeFor } from "@/lib/calculations/cables";
 import { sizeTransformer } from "@/lib/calculations/loads";
 import { phaseBalance } from "@/lib/calculations/phaseBalance";
+import type { BuildingLoad, FloorItem, Project } from "@/types";
 
 interface SLDProject {
   name: string;
@@ -13,7 +14,7 @@ interface SLDProject {
     id?: string;
     name: string;
     floors: number;
-    buildingLoads?: any[];
+    buildingLoads?: BuildingLoad[] | unknown[];
     floorDesigns: {
       id?: string;
       floorNumber: number;
@@ -28,13 +29,12 @@ interface SLDProject {
         calculatedCurrent: number;
         breakerSize?: string | null;
         cableSize?: string | null;
-        [key: string]: any;
       }[];
     }[];
   }[];
 }
 
-export function generateSLD(project: SLDProject): string {
+export function generateSLD(project: Project | SLDProject): string {
   const lines: string[] = [];
   let mdbBreakerIdx = 0;
 
@@ -53,7 +53,7 @@ export function generateSLD(project: SLDProject): string {
       ...(b.buildingLoads || []),
     ]) || [];
     if (allItems.length > 0) {
-      const balance = phaseBalance(allItems as any, project as any);
+      const balance = phaseBalance(allItems as unknown as FloorItem[], project as unknown as Project);
       const pf = project.powerFactor || 0.85;
       const demandKva = balance.totalKw / pf;
       const perPhaseKva: [number, number, number] = [
@@ -135,7 +135,7 @@ export interface SLDPage {
  * Generate individual floor diagrams — each page is ONE floor rendered
  * as a vertical diagram, not spread horizontally on the MDB bus.
  */
-export function generateSLDPages(project: SLDProject): SLDPage[] {
+export function generateSLDPages(project: Project | SLDProject): SLDPage[] {
   const pages: SLDPage[] = [];
 
   const allFloors: { building: string; fd: typeof project.buildings[0]['floorDesigns'][0] }[] = [];

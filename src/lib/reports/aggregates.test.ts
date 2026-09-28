@@ -138,7 +138,7 @@ describe('aggregateBOM', () => {
         id: 'f1', floorNumber: 1, hasFloorSubPanels: false,
         items: [
           // 1-phase apartment load: 4 mm² -> 2C × 4 mm²
-          item({ type: 'APARTMENT', cableSize: '4 mm²', apartmentTemplate: { id: 't1', name: '1P', phases: 1 } as any, cableLength: 20 }),
+          item({ type: 'APARTMENT', cableSize: '4 mm²', apartmentTemplate: { id: 't1', name: '1P', phases: 1 } as unknown as FloorItem['apartmentTemplate'], cableLength: 20 }),
           // 3-phase manual or elevator load: 4 mm² -> 4C × 4 mm²
           item({ type: 'ELEVATOR', cableSize: '4 mm²', apartmentTemplate: null, cableLength: 35 }),
         ],
@@ -601,8 +601,8 @@ describe('aggregateShortCircuitRows', () => {
       floorDesigns: [{
         id: 'f1', floorNumber: 1, hasFloorSubPanels: false,
         items: [
-          item({ name: '3P Apt', type: 'APARTMENT', calculatedCurrent: 40, apartmentTemplate: { phases: 3, rooms: [] } as any }),
-          item({ name: '1P Light', type: 'LIGHTING', calculatedCurrent: 10, loadLibraryItem: { phase: 1 } as any }),
+          item({ name: '3P Apt', type: 'APARTMENT', calculatedCurrent: 40, apartmentTemplate: { phases: 3, rooms: [] } as unknown as FloorItem['apartmentTemplate'] }),
+          item({ name: '1P Light', type: 'LIGHTING', calculatedCurrent: 10, loadLibraryItem: { phase: 1 } as unknown as FloorItem['loadLibraryItem'] }),
         ],
       }],
     });
@@ -669,13 +669,13 @@ describe('resolveBuildingIncomer (Breaker Schedule as Source of Truth)', () => {
             item({
               name: 'Unspecified Breaker Load',
               calculatedCurrent: 28,
-              breakerSize: null as any,
-              cableSize: null as any,
+              breakerSize: null as unknown as string,
+              cableSize: null as unknown as string,
             }),
             item({
               name: 'Undefined Breaker Load',
               calculatedCurrent: 14,
-              breakerSize: undefined as any,
+              breakerSize: undefined as unknown as string,
               cableSize: '10 mm²',
             }),
           ],
@@ -699,7 +699,7 @@ describe('resolveBuildingIncomer (Breaker Schedule as Source of Truth)', () => {
             powerFactor: 0.85,
             demandFactor: 1,
           },
-        } as any,
+        } as unknown as NonNullable<Building['buildingLoads']>[number],
       ],
     });
     const proj = projectWithBuildings([bldg]);

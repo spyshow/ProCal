@@ -12,7 +12,7 @@ import {
 
 const mockHtml2Canvas = vi.fn();
 vi.mock("html2canvas", () => ({
-  default: (...args: any[]) => mockHtml2Canvas(...args),
+  default: (...args: unknown[]) => mockHtml2Canvas(...args),
 }));
 
 describe("screenshot utility", () => {

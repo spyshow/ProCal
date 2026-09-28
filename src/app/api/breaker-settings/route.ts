@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getSessionUser } from "@/lib/auth";
-import { verifyProjectAccess } from "@/lib/project-auth";
+import { verifyProjectAccess, type VerifyProjectAccessResult } from "@/lib/project-auth";
 import { logProjectActivity } from "@/lib/audit-logger";
 
 export async function GET() {
@@ -107,7 +107,7 @@ export async function POST(request: Request) {
       requiredAction: "EDIT",
       pageKey: "breakerSchedule",
     });
-    let coordinationAuth: any = null;
+    let coordinationAuth: VerifyProjectAccessResult | null = null;
     if (breakerAuth instanceof NextResponse) {
       coordinationAuth = await verifyProjectAccess(projectId, {
         requiredAction: "EDIT",
@@ -148,12 +148,13 @@ export async function POST(request: Request) {
       },
     });
 
-    const effectiveAuth = (breakerAuth instanceof NextResponse ? coordinationAuth : breakerAuth) as any;
+    const effectiveAuth = breakerAuth instanceof NextResponse ? coordinationAuth : breakerAuth;
+    const userRole = effectiveAuth && !(effectiveAuth instanceof NextResponse) ? effectiveAuth.member?.role || "ENGINEER" : "ENGINEER";
     await logProjectActivity({
       projectId,
       userId: user.id,
       userName: user.name || user.username,
-      userRole: effectiveAuth?.member?.role || "ENGINEER",
+      userRole,
       action: "UPDATE",
       entityType: "BREAKER",
       entityId: breakerId,

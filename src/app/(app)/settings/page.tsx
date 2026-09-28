@@ -26,6 +26,7 @@ import { useUser } from '@/context/UserContext';
 import { useProject } from '@/context/ProjectContext';
 import { AppearanceTab } from '@/components/settings/AppearanceTab';
 import InfoTooltip from '@/components/InfoTooltip';
+import type { CalculationStandard } from '@/types';
 
 type SettingsTab = 'appearance' | 'language' | 'account' | 'engineering';
 
@@ -97,7 +98,7 @@ export default function SettingsPage() {
         .then((r) => r.json())
         .then((data) => {
           const list = Array.isArray(data) ? data : (data.projects ?? []);
-          const mapped = list.map((p: any) => ({ id: p.id, name: p.name }));
+          const mapped = list.map((p: { id: string; name: string }) => ({ id: p.id, name: p.name }));
           setProjectList(mapped);
           if (!selectedProjectId && mapped.length > 0) {
             selectProject(mapped[0].id);
@@ -929,14 +930,12 @@ export default function SettingsPage() {
                     <select
                       value={vdForm.calculationStandard}
                       onChange={(e) =>
-                        setVdForm({ ...vdForm, calculationStandard: e.target.value })
+                        setVdForm({ ...vdForm, calculationStandard: e.target.value as CalculationStandard })
                       }
                       className="w-full bg-slate-900/90 border border-slate-700 hover:border-slate-600 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 text-white rounded-xl px-4 py-2.5 text-sm font-mono font-medium outline-none transition-all cursor-pointer"
                     >
-                      <option value="IEC">IEC 60364 / 60909</option>
-                      <option value="NEC">NEC NFPA 70</option>
-                      <option value="BS">BS 7671</option>
-                      <option value="DIN">DIN VDE 0100</option>
+                      <option value="IEC">IEC 60364 (EN)</option>
+                      <option value="NEMA">NEC / NEMA (US)</option>
                     </select>
                   </div>
 

@@ -117,7 +117,7 @@ export default function ToolsIndexPage() {
                 Short-Circuit & Breaker Icu Sizer
               </CardTitle>
               <CardDescription className="text-xs text-slate-400">
-                Transformer prospective fault current (Ik''), peak making current (Ip), downstream feeder cable attenuation, and breaker Icu sizing.
+                Transformer prospective fault current (Ik&apos;&apos;), peak making current (Ip), downstream feeder cable attenuation, and breaker Icu sizing.
               </CardDescription>
             </CardHeader>
             <CardContent className="pt-2">

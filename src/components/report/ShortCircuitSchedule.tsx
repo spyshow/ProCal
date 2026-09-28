@@ -68,7 +68,7 @@ export default function ShortCircuitSchedule({
       ...b.floorDesigns.flatMap((fd) => fd.items),
       ...(b.buildingLoads ?? []),
     ]);
-    const balance = phaseBalance(allItems as any, project as any);
+    const balance = phaseBalance(allItems as unknown as Parameters<typeof phaseBalance>[0], project);
     const pf = project.powerFactor || 0.85;
     const demandKva = balance.totalKw / pf;
     const perPhaseKva: [number, number, number] = [

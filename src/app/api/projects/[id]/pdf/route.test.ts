@@ -49,7 +49,7 @@ async function get(id: string, searchParams = "") {
   );
 }
 
-async function post(id: string, body: any) {
+async function post(id: string, body: unknown) {
   const { POST } = await import("./route");
   return POST(
     new Request(`http://localhost/api/projects/${id}/pdf`, {

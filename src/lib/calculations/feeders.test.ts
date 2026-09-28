@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { isThreePhaseForItem, computeFeeders, createFindBreaker, type EquipmentItem } from './feeders';
 import { sizeCableAndBreaker } from './cables';
 import { aggregateLoadRows } from '../reports/aggregates';
-import type { FloorItem, Building, Project } from '@/types';
+import type { FloorItem, Building, Project, BuildingLoad, LoadLibraryItem } from '@/types';
 
 // ---------------------------------------------------------------------------
 // Fixtures
@@ -558,7 +558,7 @@ describe('regression: three-phase classification', () => {
       runningCurrent: 39.7,
       startingCurrent: 240,
       notes: null,
-    } as any;
+    } as unknown as LoadLibraryItem;
 
     const bldg = building({
       buildingLoads: [{
@@ -575,7 +575,7 @@ describe('regression: three-phase classification', () => {
         groupingCount: 1,
         breakerSize: null,
         assignedPhase: null,
-      } as any],
+      } as unknown as BuildingLoad],
     });
 
     const result = computeFeeders(bldg, baseProject, findBreaker);

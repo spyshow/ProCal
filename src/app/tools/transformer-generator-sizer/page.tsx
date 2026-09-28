@@ -274,15 +274,15 @@ Generated with ProCal (https://procal.app/tools/transformer-generator-sizer)`;
                   <Label className="text-xs text-slate-300">Motor Starting Method</Label>
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-1">
                     {[
-                      { id: 'DOL', label: 'DOL (6×)' },
-                      { id: 'StarDelta', label: 'Star-Delta (2.5×)' },
-                      { id: 'SoftStarter', label: 'Soft Start (2.5×)' },
-                      { id: 'VFD', label: 'VFD (1.2×)' },
+                      { id: 'DOL' as const, label: 'DOL (6×)' },
+                      { id: 'StarDelta' as const, label: 'Star-Delta (2.5×)' },
+                      { id: 'SoftStarter' as const, label: 'Soft Start (2.5×)' },
+                      { id: 'VFD' as const, label: 'VFD (1.2×)' },
                     ].map((m) => (
                       <button
                         key={m.id}
                         type="button"
-                        onClick={() => setMotorStartingMethod(m.id as any)}
+                        onClick={() => setMotorStartingMethod(m.id)}
                         className={`py-1.5 px-2 text-xs rounded-md border font-medium transition-all ${
                           motorStartingMethod === m.id
                             ? 'bg-orange-950/60 border-orange-500/80 text-orange-300 font-bold'

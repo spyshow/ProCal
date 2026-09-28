@@ -33,6 +33,22 @@ export type {
   ReportSection,
 } from "./types";
 
+export interface BreakerSettingItem {
+  breakerId?: string;
+  model?: string | null;
+  frameSize?: string | null;
+  manufacturer?: string | null;
+  ir?: number | null;
+  tr?: number | null;
+  isd?: number | null;
+  tsd?: number | null;
+  i2t?: boolean | null;
+  ii?: number | null;
+  ig?: number | null;
+  tg?: number | null;
+  [key: string]: unknown;
+}
+
 
 /**
  * Aggregate BOM rows across every building in the project.
@@ -183,7 +199,7 @@ export interface DetailedBOMResult {
 export function aggregateDetailedBOM(
   project: Project,
   findBreaker?: FindBreaker,
-  breakerSettings?: any[],
+  breakerSettings?: BreakerSettingItem[],
   buildingId?: string
 ): DetailedBOMResult {
   const safeFindBreaker: FindBreaker =
@@ -220,7 +236,7 @@ export function aggregateDetailedBOM(
         calculatedConnectedLoad: bl.loadLibraryItem.power * bl.quantity,
         calculatedMaxDemand: bl.loadLibraryItem.power * bl.quantity,
         calculatedCurrent: 0,
-        breakerSize: (bl as any).breakerSize || '32A',
+        breakerSize: bl.breakerSize || '32A',
         cableSize: bl.cableSize || '4 mm²',
         voltageDrop: 0,
         cableLength: getBuildingLoadCableLength(bl),
@@ -352,7 +368,7 @@ export function aggregateDetailedBOM(
 
     // 2. Process Main Incomer Breaker
     const incomerSaved = breakerSettings?.find(
-      (s: any) =>
+      (s) =>
         s.breakerId === `${project.id}-main-incomer-${bldg.id}` ||
         s.breakerId === `main-incomer-${bldg.id}` ||
         s.breakerId === `${project.id}-Main Incomer-${bldg.id}` ||
@@ -390,7 +406,7 @@ export function aggregateDetailedBOM(
 
     for (const f of mdbFeeders) {
       const stableId = `${project.id}-${f.name}`;
-      const saved = breakerSettings?.find((s: any) => s.breakerId === stableId);
+      const saved = breakerSettings?.find((s) => s.breakerId === stableId);
       const effectiveModel = resolveBreakerDisplayName(saved?.model, f.breakerModel);
       processFeeder({ ...f, breakerModel: effectiveModel });
 
@@ -416,7 +432,7 @@ export function aggregateDetailedBOM(
       const matchFd = bldg.floorDesigns.find((fd) => fd.floorNumber === fl);
       for (const f of smdbFeeders(fl)) {
         const stableId = `${project.id}-${f.name}`;
-        const saved = breakerSettings?.find((s: any) => s.breakerId === stableId);
+        const saved = breakerSettings?.find((s) => s.breakerId === stableId);
         const effectiveModel = resolveBreakerDisplayName(saved?.model, f.breakerModel);
         processFeeder({ ...f, breakerModel: effectiveModel });
 
@@ -571,7 +587,7 @@ export function resolveBuildingIncomer(
   building: Building,
   project: Project,
   findBreaker: FindBreaker,
-  breakerSettings?: any[]
+  breakerSettings?: BreakerSettingItem[]
 ): BuildingIncomerResolution {
   const {
     mainIncomerSettings,
@@ -585,7 +601,7 @@ export function resolveBuildingIncomer(
 
   // Check persisted user overrides from Step 2 (/breaker-schedule)
   const incomerSaved = breakerSettings?.find(
-    (s: any) =>
+    (s) =>
       s.breakerId === `${project.id}-main-incomer-${building.id}` ||
       s.breakerId === `main-incomer-${building.id}` ||
       s.breakerId === `${project.id}-Main Incomer-${building.id}` ||
@@ -818,7 +834,7 @@ export function aggregateLoadRows(project: Project): LoadRow[] {
       ...bldg.floorDesigns.flatMap((fd) => fd.items),
       ...(bldg.buildingLoads ?? []),
     ];
-    const bldgBalance = phaseBalance(allBldgItems as any, project as any);
+    const bldgBalance = phaseBalance(allBldgItems as unknown as FloorItem[], project);
     const bldgPhaseById = new Map(
       bldgBalance.assignments.filter((a) => a.phaseCount === 1).map((a) => [a.id, a.assignedPhase])
     );

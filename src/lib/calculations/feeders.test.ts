@@ -672,6 +672,43 @@ describe('regression: three-phase classification', () => {
     expect(lightCircuit?.category).toBe('MCB');
     expect(pumpCircuit?.category).toBe('MCCB');
   });
+
+  it('correctly evaluates cable protection with project code (NEC 150A on 35 mm² cable is safe)', () => {
+    const findBreaker = createFindBreaker(equipment, {}, 'ABB');
+    const necProject: Project = {
+      ...baseProject,
+      calculationStandard: 'NEC',
+    };
+    const bldg = building({
+      floorDesigns: [{
+        id: 'f1',
+        floorNumber: 1,
+        hasFloorSubPanels: false,
+        items: [
+          item({
+            id: 'nec-item-1',
+            name: '150A Feeder Load',
+            type: 'SERVICE_PANEL',
+            calculatedCurrent: 145,
+            breakerSize: '150 A',
+            cableSize: '35 mm²',
+            cableInsulation: 'XLPE',
+            cableMaterial: 'copper',
+            apartmentTemplate: null,
+            loadLibraryItem: null,
+          }),
+        ],
+      }],
+    });
+
+    const { mdbFeeders } = computeFeeders(bldg, necProject, findBreaker);
+    const feeder = mdbFeeders.find((f) => f.name.includes('150A Feeder Load'));
+    expect(feeder).toBeDefined();
+    // Under NEC Table 310.16, 35 mm² Cu XLPE Iz = 150 A >= In = 150 A.
+    // Must NOT flag under-protection (diverging 147A IEC Method C vs 150A NEC).
+    expect(feeder!.cableIz).toBe(150);
+    expect(feeder!.isUnderProtected).toBe(false);
+  });
 });
 
 

@@ -729,19 +729,22 @@ export function evaluateCableProtection(
     installMethod?: string;
     parallelRuns?: number;
     maxCableSize?: number;
+    code?: CodeStandard;
   } = {}
 ): CableProtectionEvaluation {
   const amp = calculateCableAmpacity(cableInput, isThreePhase, options);
   const isUnderProtected = amp.deratedAmpacity < breakerAmps;
 
+  const defaultInstallMethod = options.code === "NEC" ? "NEC-1" : "C";
   const requiredSizing = sizeCableAndBreaker(breakerAmps, isThreePhase, {
     material: options.material ?? "copper",
     insulation: options.insulation ?? "XLPE",
     ambientTemp: options.ambientTemp ?? 30,
     groupingCount: options.groupingCount ?? 1,
-    installMethod: options.installMethod ?? "C",
+    installMethod: options.installMethod ?? defaultInstallMethod,
     maxCableSize: options.maxCableSize ?? 300,
     manualBreakerRating: breakerAmps,
+    code: options.code,
   });
 
   return {

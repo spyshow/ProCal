@@ -17,7 +17,7 @@ export type CodeStandard = "IEC" | "NEC";
  * stored alias for NEC practice; null/anything else falls back to IEC.
  */
 export function codeOf(calculationStandard?: string | null): CodeStandard {
-  return calculationStandard === "NEMA" ? "NEC" : "IEC";
+  return calculationStandard === "NEMA" || calculationStandard === "NEC" ? "NEC" : "IEC";
 }
 
 /** Standard breaker ratings (Amperes) — IEC 60898/60947 preferred values. */

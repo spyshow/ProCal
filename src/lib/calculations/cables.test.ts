@@ -434,6 +434,54 @@ describe('evaluateCableProtection with parallel runs', () => {
     // Sizing recommendation should provide sufficient ampacity (e.g. 2 x 185 mm² or larger single)
     expect(evalResult.recommendedCableSizeFormatted).toBeDefined();
   });
+
+  it('correctly validates 150 A NEC circuit with 35 mm² cable (Iz = 150 A) as safe without flagging under-protection', () => {
+    // Under NEC Table 310.16 (75°C/90°C), 35 mm² copper XLPE has ampacity 150 A.
+    // Paired with a 150 A breaker, Iz (150 A) >= In (150 A), so it is fully protected.
+    const evalNec = evaluateCableProtection(35, 150, true, {
+      material: 'copper',
+      insulation: 'XLPE',
+      ambientTemp: 30,
+      groupingCount: 1,
+      code: 'NEC',
+    });
+
+    expect(evalNec.deratedAmpacity).toBe(150);
+    expect(evalNec.isUnderProtected).toBe(false);
+    expect(evalNec.reason).toBeUndefined();
+    expect(evalNec.recommendedCableSizeMm2).toBe(35);
+  });
+
+  it('evaluates a 150 A breaker on 35 mm² Cu XLPE cable as under-protected under IEC Method C (Iz = 147 A)', () => {
+    // Under IEC 60364-5-52 Method C, 35 mm² copper XLPE has ampacity 147 A.
+    // Paired with a 150 A breaker, Iz (147 A) < In (150 A), requiring an upsized cable (50 mm²).
+    const evalIec = evaluateCableProtection(35, 150, true, {
+      material: 'copper',
+      insulation: 'XLPE',
+      ambientTemp: 30,
+      groupingCount: 1,
+      code: 'IEC',
+    });
+
+    expect(evalIec.deratedAmpacity).toBe(147);
+    expect(evalIec.isUnderProtected).toBe(true);
+    expect(evalIec.reason).toContain('147A');
+    expect(evalIec.recommendedCableSizeMm2).toBe(50);
+  });
+
+  it('defaults installMethod to NEC-1 when code is NEC and installMethod is omitted', () => {
+    const evalResult = evaluateCableProtection(35, 150, true, {
+      material: 'copper',
+      insulation: 'XLPE',
+      ambientTemp: 30,
+      groupingCount: 1,
+      code: 'NEC',
+    });
+
+    expect(evalResult.deratedAmpacity).toBe(150);
+    expect(evalResult.isUnderProtected).toBe(false);
+    expect(evalResult.recommendedCableSizeMm2).toBe(35);
+  });
 });
 
 describe('calculateCableAmpacity never rounds a size UP', () => {

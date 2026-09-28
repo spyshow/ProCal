@@ -574,6 +574,7 @@ function feederFromItem(
     ambientTemp,
     groupingCount,
     installMethod,
+    code,
   });
 
   const warnings = [
@@ -708,6 +709,7 @@ function feederFromBuildingLoad(
     ambientTemp,
     groupingCount,
     installMethod,
+    code,
   });
 
   const warnings = [
@@ -894,6 +896,7 @@ export function computeFeeders(
         ambientTemp: riserAmbientTemp,
         groupingCount: riserGroupingCount,
         installMethod: riserInstallMethod,
+        code,
       });
 
       const isBreakerUpsized = actualBreakerSize > sizing.breakerSize;

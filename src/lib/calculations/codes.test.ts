@@ -9,8 +9,9 @@ import {
 import { sizeCableAndBreaker, STANDARD_BREAKERS, formatCableSizeFor } from "./cables";
 
 describe("codeOf", () => {
-  it('maps the stored "NEMA" alias to the NEC profile', () => {
+  it('maps the stored "NEMA" alias and "NEC" to the NEC profile', () => {
     expect(codeOf("NEMA")).toBe("NEC");
+    expect(codeOf("NEC")).toBe("NEC");
   });
 
   it.each([undefined, null, "", "IEC", "iec", "garbage"])(

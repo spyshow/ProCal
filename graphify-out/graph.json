@@ -24488,7 +24488,7 @@
       "label": "CatalogItemInfo",
       "file_type": "code",
       "source_file": "src/lib/calculations/selectivity.ts",
-      "source_location": "L709",
+      "source_location": "L719",
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
@@ -24527,7 +24527,7 @@
       "label": "ResolvedCatalogBreaker",
       "file_type": "code",
       "source_file": "src/lib/calculations/selectivity.ts",
-      "source_location": "L1013",
+      "source_location": "L1023",
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
@@ -24553,7 +24553,7 @@
       "label": "SuggestAlternativeOptions",
       "file_type": "code",
       "source_file": "src/lib/calculations/selectivity.ts",
-      "source_location": "L719",
+      "source_location": "L729",
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
@@ -24579,7 +24579,7 @@
       "label": "VerifyCoordinationOptions",
       "file_type": "code",
       "source_file": "src/lib/calculations/selectivity.ts",
-      "source_location": "L476",
+      "source_location": "L499",
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
@@ -33866,42 +33866,6 @@
     {
       "label": "DELETE()",
       "file_type": "code",
-      "source_file": "src/app/api/projects/[id]/route.ts",
-      "source_location": "L175",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_app_api_projects_id_route_delete",
-      "community": 131,
-      "community_name": "verifyProjectAccess",
-      "norm_label": "delete()"
-    },
-    {
-      "label": "GET()",
-      "file_type": "code",
-      "source_file": "src/app/api/projects/[id]/route.ts",
-      "source_location": "L13",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_app_api_projects_id_route_get",
-      "community": 131,
-      "community_name": "verifyProjectAccess",
-      "norm_label": "get()"
-    },
-    {
-      "label": "PUT()",
-      "file_type": "code",
-      "source_file": "src/app/api/projects/[id]/route.ts",
-      "source_location": "L74",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_app_api_projects_id_route_put",
-      "community": 131,
-      "community_name": "verifyProjectAccess",
-      "norm_label": "put()"
-    },
-    {
-      "label": "DELETE()",
-      "file_type": "code",
       "source_file": "src/app/api/templates/[id]/route.ts",
       "source_location": "L202",
       "_callable": true,
@@ -33970,18 +33934,6 @@
       "community": 131,
       "community_name": "verifyProjectAccess",
       "norm_label": "computefloordiff()"
-    },
-    {
-      "label": "computeProjectDiff()",
-      "file_type": "code",
-      "source_file": "src/lib/audit-diff.ts",
-      "source_location": "L291",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_lib_audit_diff_computeprojectdiff",
-      "community": 131,
-      "community_name": "verifyProjectAccess",
-      "norm_label": "computeprojectdiff()"
     },
     {
       "label": "enrichLegacyAuditLog()",
@@ -38640,18 +38592,6 @@
       "norm_label": ".then()"
     },
     {
-      "label": ".test_add_components_already_installed()",
-      "file_type": "code",
-      "source_file": ".agents/skills/ui-styling/scripts/tests/test_shadcn_add.py",
-      "source_location": "L111",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "agents_skills_ui_styling_scripts_tests_test_shadcn_add_testshadcninstaller_test_add_components_already_installed",
-      "community": 247,
-      "community_name": ".test_add_components_already_installed",
-      "norm_label": ".test_add_components_already_installed()"
-    },
-    {
       "label": "getColumnIndexes()",
       "file_type": "code",
       "source_file": "src/app/api/admin/breakers/import/route.ts",
@@ -39048,6 +38988,42 @@
       "norm_label": "post()"
     },
     {
+      "label": "DELETE()",
+      "file_type": "code",
+      "source_file": "src/app/api/projects/[id]/route.ts",
+      "source_location": "L175",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_app_api_projects_id_route_delete",
+      "community": 28,
+      "community_name": "loads.ts",
+      "norm_label": "delete()"
+    },
+    {
+      "label": "GET()",
+      "file_type": "code",
+      "source_file": "src/app/api/projects/[id]/route.ts",
+      "source_location": "L13",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_app_api_projects_id_route_get",
+      "community": 28,
+      "community_name": "loads.ts",
+      "norm_label": "get()"
+    },
+    {
+      "label": "PUT()",
+      "file_type": "code",
+      "source_file": "src/app/api/projects/[id]/route.ts",
+      "source_location": "L74",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_app_api_projects_id_route_put",
+      "community": 28,
+      "community_name": "loads.ts",
+      "norm_label": "put()"
+    },
+    {
       "label": "PUT()",
       "file_type": "code",
       "source_file": "src/app/api/templates/[id]/route.ts",
@@ -39082,6 +39058,18 @@
       "community": 28,
       "community_name": "loads.ts",
       "norm_label": "errorresponse()"
+    },
+    {
+      "label": "computeProjectDiff()",
+      "file_type": "code",
+      "source_file": "src/lib/audit-diff.ts",
+      "source_location": "L291",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_lib_audit_diff_computeprojectdiff",
+      "community": 28,
+      "community_name": "loads.ts",
+      "norm_label": "computeprojectdiff()"
     },
     {
       "label": "calculateSinglePhaseCurrent()",
@@ -39135,7 +39123,7 @@
       "label": "recommendBreakerSettings()",
       "file_type": "code",
       "source_file": "src/lib/calculations/selectivity.ts",
-      "source_location": "L673",
+      "source_location": "L683",
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_calculations_selectivity_recommendbreakersettings",
@@ -39586,6 +39574,18 @@
       "community": 305,
       "community_name": "pre-start.js",
       "norm_label": "ensuremigrationready()"
+    },
+    {
+      "label": ".test_add_components_no_config()",
+      "file_type": "code",
+      "source_file": ".agents/skills/ui-styling/scripts/tests/test_shadcn_add.py",
+      "source_location": "L103",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "agents_skills_ui_styling_scripts_tests_test_shadcn_add_testshadcninstaller_test_add_components_no_config",
+      "community": 306,
+      "community_name": ".test_add_components_no_config",
+      "norm_label": ".test_add_components_no_config()"
     },
     {
       "label": ".test_init_default_project_root()",
@@ -40800,6 +40800,18 @@
       "norm_label": "persist_design_system()"
     },
     {
+      "label": "_resolve_dial()",
+      "file_type": "code",
+      "source_file": ".agents/skills/ui-ux-pro-max/scripts/design_system.py",
+      "source_location": "L69",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "agents_skills_ui_ux_pro_max_scripts_design_system_resolve_dial",
+      "community": 36,
+      "community_name": "design_system.py",
+      "norm_label": "_resolve_dial()"
+    },
+    {
       "label": "safe_slug()",
       "file_type": "code",
       "source_file": ".agents/skills/ui-ux-pro-max/scripts/design_system.py",
@@ -41139,7 +41151,7 @@
       "label": "lookupTestedSelectivity()",
       "file_type": "code",
       "source_file": "src/lib/calculations/selectivity.ts",
-      "source_location": "L443",
+      "source_location": "L444",
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_calculations_selectivity_lookuptestedselectivity",
@@ -41151,7 +41163,7 @@
       "label": "resolveCatalogBreakerOrAlternative()",
       "file_type": "code",
       "source_file": "src/lib/calculations/selectivity.ts",
-      "source_location": "L1031",
+      "source_location": "L1041",
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_calculations_selectivity_resolvecatalogbreakeroralternative",
@@ -41163,7 +41175,7 @@
       "label": "suggestAlternativeBreaker()",
       "file_type": "code",
       "source_file": "src/lib/calculations/selectivity.ts",
-      "source_location": "L738",
+      "source_location": "L748",
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_calculations_selectivity_suggestalternativebreaker",
@@ -41175,7 +41187,7 @@
       "label": "verifyCoordination()",
       "file_type": "code",
       "source_file": "src/lib/calculations/selectivity.ts",
-      "source_location": "L493",
+      "source_location": "L516",
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_calculations_selectivity_verifycoordination",
@@ -42058,18 +42070,6 @@
       "community": 49,
       "community_name": "DesignSystemGenerator",
       "norm_label": "._select_best_match()"
-    },
-    {
-      "label": "_resolve_dial()",
-      "file_type": "code",
-      "source_file": ".agents/skills/ui-ux-pro-max/scripts/design_system.py",
-      "source_location": "L69",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "agents_skills_ui_ux_pro_max_scripts_design_system_resolve_dial",
-      "community": 49,
-      "community_name": "DesignSystemGenerator",
-      "norm_label": "_resolve_dial()"
     },
     {
       "label": ".test_known_category_matches_exactly()",
@@ -47016,16 +47016,16 @@
       "norm_label": "main()"
     },
     {
-      "label": ".test_add_components_no_config()",
+      "label": ".test_add_components_already_installed()",
       "file_type": "code",
       "source_file": ".agents/skills/ui-styling/scripts/tests/test_shadcn_add.py",
-      "source_location": "L103",
+      "source_location": "L111",
       "_callable": true,
       "_origin": "ast",
-      "id": "agents_skills_ui_styling_scripts_tests_test_shadcn_add_testshadcninstaller_test_add_components_no_config",
+      "id": "agents_skills_ui_styling_scripts_tests_test_shadcn_add_testshadcninstaller_test_add_components_already_installed",
       "community": 85,
       "community_name": "ShadcnInstaller",
-      "norm_label": ".test_add_components_no_config()"
+      "norm_label": ".test_add_components_already_installed()"
     },
     {
       "label": ".test_get_installed_components_no_config()",
@@ -51052,17 +51052,6 @@
       "norm_label": "mocks"
     },
     {
-      "label": "projects/[id]/route.ts",
-      "file_type": "code",
-      "source_file": "src/app/api/projects/[id]/route.ts",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "src_app_api_projects_id_route",
-      "community": 131,
-      "community_name": "verifyProjectAccess",
-      "norm_label": "projects/[id]/route.ts"
-    },
-    {
       "label": "audit-diff.ts",
       "file_type": "code",
       "source_file": "src/lib/audit-diff.ts",
@@ -51272,15 +51261,15 @@
       "norm_label": "admin/page.tsx"
     },
     {
-      "label": "padding-y",
+      "label": "padding-x",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L111",
+      "source_location": "L110",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_button_padding_y",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_button_padding_x",
       "community": 136,
       "community_name": "input",
-      "norm_label": "padding-y"
+      "norm_label": "padding-x"
     },
     {
       "label": "input",
@@ -51327,23 +51316,23 @@
       "norm_label": "focus-ring"
     },
     {
-      "label": "padding-y",
+      "label": "padding-x",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L120",
+      "source_location": "L119",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_input_padding_y",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_input_padding_x",
       "community": 136,
       "community_name": "input",
-      "norm_label": "padding-y"
+      "norm_label": "padding-x"
     },
     {
       "label": "$type",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L111",
+      "source_location": "L110",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_padding_y_type",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_padding_x_type",
       "community": 136,
       "community_name": "input",
       "norm_label": "$type"
@@ -51352,9 +51341,9 @@
       "label": "$value",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L111",
+      "source_location": "L110",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_padding_y_value",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_padding_x_value",
       "community": 136,
       "community_name": "input",
       "norm_label": "$value"
@@ -54044,59 +54033,48 @@
       "norm_label": "cablepersist.test.ts"
     },
     {
-      "label": "lg",
+      "label": "padding-y",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L56",
+      "source_location": "L111",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_fontsize_lg",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_button_padding_y",
       "community": 166,
-      "community_name": "lg",
-      "norm_label": "lg"
+      "community_name": "padding-y",
+      "norm_label": "padding-y"
+    },
+    {
+      "label": "padding-y",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L120",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_input_padding_y",
+      "community": 166,
+      "community_name": "padding-y",
+      "norm_label": "padding-y"
     },
     {
       "label": "$type",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L56",
+      "source_location": "L111",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_lg_type",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_padding_y_type",
       "community": 166,
-      "community_name": "lg",
+      "community_name": "padding-y",
       "norm_label": "$type"
     },
     {
       "label": "$value",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L56",
+      "source_location": "L111",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_lg_value",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_padding_y_value",
       "community": 166,
-      "community_name": "lg",
+      "community_name": "padding-y",
       "norm_label": "$value"
-    },
-    {
-      "label": "lg",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L67",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_radius_lg",
-      "community": 166,
-      "community_name": "lg",
-      "norm_label": "lg"
-    },
-    {
-      "label": "lg",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L76",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_shadow_lg",
-      "community": 166,
-      "community_name": "lg",
-      "norm_label": "lg"
     },
     {
       "label": "calculator/page.tsx",
@@ -57968,15 +57946,48 @@
       "norm_label": "$value"
     },
     {
-      "label": "Test adding components that are already installed.",
-      "file_type": "rationale",
-      "source_file": ".agents/skills/ui-styling/scripts/tests/test_shadcn_add.py",
-      "source_location": "L112",
+      "label": "$type",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L66",
       "_origin": "ast",
-      "id": "agents_skills_ui_styling_scripts_tests_test_shadcn_add_rationale_112",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_md_type",
       "community": 247,
-      "community_name": ".test_add_components_already_installed",
-      "norm_label": "test adding components that are already installed."
+      "community_name": "md",
+      "norm_label": "$type"
+    },
+    {
+      "label": "$value",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L66",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_md_value",
+      "community": 247,
+      "community_name": "md",
+      "norm_label": "$value"
+    },
+    {
+      "label": "md",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L66",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_radius_md",
+      "community": 247,
+      "community_name": "md",
+      "norm_label": "md"
+    },
+    {
+      "label": "md",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L75",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_shadow_md",
+      "community": 247,
+      "community_name": "md",
+      "norm_label": "md"
     },
     {
       "label": "framer-motion",
@@ -59286,6 +59297,17 @@
       "community": 28,
       "community_name": "loads.ts",
       "norm_label": "batch-defaults/route.ts"
+    },
+    {
+      "label": "projects/[id]/route.ts",
+      "file_type": "code",
+      "source_file": "src/app/api/projects/[id]/route.ts",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_app_api_projects_id_route",
+      "community": 28,
+      "community_name": "loads.ts",
+      "norm_label": "projects/[id]/route.ts"
     },
     {
       "label": "templates/[id]/route.ts",
@@ -61004,47 +61026,36 @@
       "norm_label": "headers"
     },
     {
-      "label": "padding-x",
+      "label": "destructive",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L110",
+      "source_location": "L95",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_button_padding_x",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_color_destructive",
       "community": 297,
-      "community_name": "padding-x",
-      "norm_label": "padding-x"
-    },
-    {
-      "label": "padding-x",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L119",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_input_padding_x",
-      "community": 297,
-      "community_name": "padding-x",
-      "norm_label": "padding-x"
+      "community_name": "destructive",
+      "norm_label": "destructive"
     },
     {
       "label": "$type",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L110",
+      "source_location": "L95",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_padding_x_type",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_destructive_type",
       "community": 297,
-      "community_name": "padding-x",
+      "community_name": "destructive",
       "norm_label": "$type"
     },
     {
       "label": "$value",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L110",
+      "source_location": "L95",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_padding_x_value",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_destructive_value",
       "community": 297,
-      "community_name": "padding-x",
+      "community_name": "destructive",
       "norm_label": "$value"
     },
     {
@@ -61455,37 +61466,15 @@
       "norm_label": "{ pool }"
     },
     {
-      "label": "primary",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L88",
+      "label": "Test adding components without shadcn config.",
+      "file_type": "rationale",
+      "source_file": ".agents/skills/ui-styling/scripts/tests/test_shadcn_add.py",
+      "source_location": "L104",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_color_primary",
+      "id": "agents_skills_ui_styling_scripts_tests_test_shadcn_add_rationale_104",
       "community": 306,
-      "community_name": "primary",
-      "norm_label": "primary"
-    },
-    {
-      "label": "$type",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L88",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_primary_type",
-      "community": 306,
-      "community_name": "primary",
-      "norm_label": "$type"
-    },
-    {
-      "label": "$value",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L88",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_primary_value",
-      "community": 306,
-      "community_name": "primary",
-      "norm_label": "$value"
+      "community_name": ".test_add_components_no_config",
+      "norm_label": "test adding components without shadcn config."
     },
     {
       "label": "puppeteer-core",
@@ -61554,6 +61543,17 @@
       "norm_label": "$value"
     },
     {
+      "label": "lg",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L56",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_fontsize_lg",
+      "community": 31,
+      "community_name": "radius",
+      "norm_label": "lg"
+    },
+    {
       "label": "$type",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
@@ -61579,9 +61579,9 @@
       "label": "$type",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L66",
+      "source_location": "L56",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_md_type",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_lg_type",
       "community": 31,
       "community_name": "radius",
       "norm_label": "$type"
@@ -61590,9 +61590,9 @@
       "label": "$value",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L66",
+      "source_location": "L56",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_md_value",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_lg_value",
       "community": 31,
       "community_name": "radius",
       "norm_label": "$value"
@@ -61653,15 +61653,15 @@
       "norm_label": "full"
     },
     {
-      "label": "md",
+      "label": "lg",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L66",
+      "source_location": "L67",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_radius_md",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_radius_lg",
       "community": 31,
       "community_name": "radius",
-      "norm_label": "md"
+      "norm_label": "lg"
     },
     {
       "label": "default",
@@ -61675,15 +61675,15 @@
       "norm_label": "default"
     },
     {
-      "label": "md",
+      "label": "lg",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L75",
+      "source_location": "L76",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_shadow_md",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_shadow_lg",
       "community": 31,
       "community_name": "radius",
-      "norm_label": "md"
+      "norm_label": "lg"
     },
     {
       "label": "ring",
@@ -63050,6 +63050,17 @@
       "norm_label": "format design system as markdown."
     },
     {
+      "label": "Bucket a 1-10 dial value into its tier config. Returns None if value is None.",
+      "file_type": "rationale",
+      "source_file": ".agents/skills/ui-ux-pro-max/scripts/design_system.py",
+      "source_location": "L70",
+      "_origin": "ast",
+      "id": "agents_skills_ui_ux_pro_max_scripts_design_system_rationale_70",
+      "community": 36,
+      "community_name": "design_system.py",
+      "norm_label": "bucket a 1-10 dial value into its tier config. returns none if value is none."
+    },
+    {
       "label": "Main entry point for design system generation. Args: query: Search query (e.g.,\u2026",
       "file_type": "rationale",
       "source_file": ".agents/skills/ui-ux-pro-max/scripts/design_system.py",
@@ -63636,7 +63647,7 @@
       "label": "STANDARD_BREAKER_SIZES",
       "file_type": "code",
       "source_file": "src/lib/calculations/selectivity.ts",
-      "source_location": "L730",
+      "source_location": "L740",
       "_origin": "ast",
       "id": "src_lib_calculations_selectivity_standard_breaker_sizes",
       "community": 40,
@@ -65657,17 +65668,6 @@
       "norm_label": "generate complete design system recommendation. variance/motion/density are..."
     },
     {
-      "label": "Bucket a 1-10 dial value into its tier config. Returns None if value is None.",
-      "file_type": "rationale",
-      "source_file": ".agents/skills/ui-ux-pro-max/scripts/design_system.py",
-      "source_location": "L70",
-      "_origin": "ast",
-      "id": "agents_skills_ui_ux_pro_max_scripts_design_system_rationale_70",
-      "community": 49,
-      "community_name": "DesignSystemGenerator",
-      "norm_label": "bucket a 1-10 dial value into its tier config. returns none if value is none."
-    },
-    {
       "label": "LoadLibraryItem.ts",
       "file_type": "code",
       "source_file": "src/generated/prisma/models/LoadLibraryItem.ts",
@@ -66295,17 +66295,6 @@
       "norm_label": "background"
     },
     {
-      "label": "destructive",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L95",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_color_destructive",
-      "community": 54,
-      "community_name": "color",
-      "norm_label": "destructive"
-    },
-    {
       "label": "foreground",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
@@ -66328,6 +66317,17 @@
       "norm_label": "muted-foreground"
     },
     {
+      "label": "primary",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L88",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_color_primary",
+      "community": 54,
+      "community_name": "color",
+      "norm_label": "primary"
+    },
+    {
       "label": "primary-hover",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
@@ -66348,28 +66348,6 @@
       "community": 54,
       "community_name": "color",
       "norm_label": "secondary"
-    },
-    {
-      "label": "$type",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L95",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_destructive_type",
-      "community": 54,
-      "community_name": "color",
-      "norm_label": "$type"
-    },
-    {
-      "label": "$value",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L95",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_destructive_value",
-      "community": 54,
-      "community_name": "color",
-      "norm_label": "$value"
     },
     {
       "label": "$type",
@@ -66433,6 +66411,28 @@
       "source_location": "L89",
       "_origin": "ast",
       "id": "agents_skills_design_system_templates_design_tokens_starter_primary_hover_value",
+      "community": 54,
+      "community_name": "color",
+      "norm_label": "$value"
+    },
+    {
+      "label": "$type",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L88",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_primary_type",
+      "community": 54,
+      "community_name": "color",
+      "norm_label": "$type"
+    },
+    {
+      "label": "$value",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L88",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_primary_value",
       "community": 54,
       "community_name": "color",
       "norm_label": "$value"
@@ -67868,15 +67868,15 @@
       "norm_label": "tests for shadcn_add.py"
     },
     {
-      "label": "Test adding components without shadcn config.",
+      "label": "Test adding components that are already installed.",
       "file_type": "rationale",
       "source_file": ".agents/skills/ui-styling/scripts/tests/test_shadcn_add.py",
-      "source_location": "L104",
+      "source_location": "L112",
       "_origin": "ast",
-      "id": "agents_skills_ui_styling_scripts_tests_test_shadcn_add_rationale_104",
+      "id": "agents_skills_ui_styling_scripts_tests_test_shadcn_add_rationale_112",
       "community": 85,
       "community_name": "ShadcnInstaller",
-      "norm_label": "test adding components without shadcn config."
+      "norm_label": "test adding components that are already installed."
     },
     {
       "label": "Test listing installed components when they exist.",
@@ -85256,7 +85256,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/calculations/selectivity.ts",
-      "source_location": "L678",
+      "source_location": "L688",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_lib_calculations_selectivity_recommendbreakersettings",
@@ -85268,7 +85268,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/calculations/selectivity.ts",
-      "source_location": "L679",
+      "source_location": "L689",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_lib_calculations_selectivity_recommendbreakersettings",
@@ -85280,7 +85280,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/calculations/selectivity.ts",
-      "source_location": "L499",
+      "source_location": "L522",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_lib_calculations_selectivity_verifycoordination",
@@ -85292,7 +85292,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/calculations/selectivity.ts",
-      "source_location": "L503",
+      "source_location": "L526",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_lib_calculations_selectivity_verifycoordination",
@@ -85303,7 +85303,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/lib/calculations/selectivity.ts",
-      "source_location": "L531",
+      "source_location": "L554",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_lib_calculations_selectivity_verifycoordination",
@@ -85315,7 +85315,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/lib/calculations/selectivity.ts",
-      "source_location": "L537",
+      "source_location": "L560",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_lib_calculations_selectivity_verifycoordination",
@@ -85327,7 +85327,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/lib/calculations/selectivity.ts",
-      "source_location": "L565",
+      "source_location": "L573",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_lib_calculations_selectivity_verifycoordination",
@@ -88399,7 +88399,7 @@
       "context": "export",
       "confidence": "EXTRACTED",
       "source_file": "src/lib/calculations/selectivity.ts",
-      "source_location": "L727",
+      "source_location": "L737",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_lib_calculations_selectivity",
@@ -117481,7 +117481,7 @@
       "context": "re-export",
       "confidence": "EXTRACTED",
       "source_file": "src/lib/calculations/selectivity.ts",
-      "source_location": "L727",
+      "source_location": "L737",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_lib_calculations_selectivity",
@@ -117493,7 +117493,7 @@
       "context": "re-export",
       "confidence": "EXTRACTED",
       "source_file": "src/lib/calculations/selectivity.ts",
-      "source_location": "L727",
+      "source_location": "L737",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_lib_calculations_selectivity",
@@ -117505,7 +117505,7 @@
       "context": "re-export",
       "confidence": "EXTRACTED",
       "source_file": "src/lib/calculations/selectivity.ts",
-      "source_location": "L727",
+      "source_location": "L737",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_lib_calculations_selectivity",
@@ -163038,7 +163038,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/lib/calculations/selectivity.ts",
-      "source_location": "L1013",
+      "source_location": "L1023",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_lib_calculations_selectivity",
@@ -163049,7 +163049,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/lib/calculations/selectivity.ts",
-      "source_location": "L1031",
+      "source_location": "L1041",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_lib_calculations_selectivity",
@@ -163181,7 +163181,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/lib/calculations/selectivity.ts",
-      "source_location": "L443",
+      "source_location": "L444",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_lib_calculations_selectivity",
@@ -163192,7 +163192,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/lib/calculations/selectivity.ts",
-      "source_location": "L476",
+      "source_location": "L499",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_lib_calculations_selectivity",
@@ -163203,7 +163203,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/lib/calculations/selectivity.ts",
-      "source_location": "L493",
+      "source_location": "L516",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_lib_calculations_selectivity",
@@ -163225,7 +163225,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/lib/calculations/selectivity.ts",
-      "source_location": "L673",
+      "source_location": "L683",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_lib_calculations_selectivity",
@@ -163236,7 +163236,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/lib/calculations/selectivity.ts",
-      "source_location": "L709",
+      "source_location": "L719",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_lib_calculations_selectivity",
@@ -163247,7 +163247,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/lib/calculations/selectivity.ts",
-      "source_location": "L719",
+      "source_location": "L729",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_lib_calculations_selectivity",
@@ -163258,7 +163258,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/lib/calculations/selectivity.ts",
-      "source_location": "L730",
+      "source_location": "L740",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_lib_calculations_selectivity",
@@ -163269,7 +163269,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/lib/calculations/selectivity.ts",
-      "source_location": "L738",
+      "source_location": "L748",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_lib_calculations_selectivity",
@@ -179290,5 +179290,5 @@
       "source_file": "public/slides/slide_load_calc.webp"
     }
   ],
-  "built_at_commit": "89eb2c3dede61f56416af21d9b117c7d09649df0"
+  "built_at_commit": "72b8be6ada1a2f5b1b2a7f355bf55df863688ffd"
 }

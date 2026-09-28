@@ -439,11 +439,34 @@ const TESTED_SELECTIVITY_TABLES: TestedSelectivityRule[] = [
 
 /**
  * Looks up verified manufacturer tested selectivity limits (ABB DOC / Schneider ECODIAL).
+ * Requires both upstream and downstream to be non-generic catalog devices from the same manufacturer.
  */
 export function lookupTestedSelectivity(
   upstream: BreakerCurveSettings,
-  downstream: BreakerCurveSettings
+  downstream: BreakerCurveSettings,
+  manufacturerPair?: { upstreamMfg?: string | null; downstreamMfg?: string | null }
 ): number | null {
+  const upstreamMfg = manufacturerPair?.upstreamMfg ?? upstream.manufacturer ?? '';
+  const downstreamMfg = manufacturerPair?.downstreamMfg ?? downstream.manufacturer ?? '';
+
+  const sameMfg = Boolean(
+    upstreamMfg &&
+    downstreamMfg &&
+    upstreamMfg.trim().toUpperCase() === downstreamMfg.trim().toUpperCase()
+  );
+
+  // The tested tables (ABB DOC / Schneider ECODIAL) only hold for real catalog
+  // device pairs from the same manufacturer. A generic spec defaults its manufacturer
+  // to the project preference, so same-brand alone must not unlock a tested limit.
+  const catalogDevices =
+    !upstream.isGeneric &&
+    !downstream.isGeneric &&
+    Boolean(upstreamMfg && downstreamMfg);
+
+  if (!sameMfg || !catalogDevices) {
+    return null;
+  }
+
   const upCat = upstream.category ?? (upstream.inRating >= 630 ? 'ACB' : 'MCCB');
   const downCat = downstream.category ?? (downstream.inRating >= 630 ? 'ACB' : downstream.inRating <= 63 ? 'MCB' : 'MCCB');
 
@@ -547,25 +570,12 @@ export function verifyCoordination(
 
   // Phase 3: Energy Selectivity & Tested Manufacturer Tables
   let energySelectivityApplied = false;
-  let testedLimitAmps: number | null = null;
-
-  const sameMfg = Boolean(
-    upstreamMfg &&
-    downstreamMfg &&
-    upstreamMfg.trim().toUpperCase() === downstreamMfg.trim().toUpperCase()
-  );
-  // The tested tables (ABB DOC / Schneider ECODIAL) only hold for real catalog
-  // device pairs. A generic spec defaults its manufacturer to the project
-  // preference, so same-brand alone must not unlock a tested limit.
-  const catalogDevices =
-    !upstream.isGeneric &&
-    !downstream.isGeneric &&
-    Boolean(upstreamMfg && downstreamMfg);
-  if (sameMfg && catalogDevices) {
-    testedLimitAmps = lookupTestedSelectivity(upstream, downstream);
-    if (testedLimitAmps !== null) {
-      energySelectivityApplied = true;
-    }
+  const testedLimitAmps = lookupTestedSelectivity(upstream, downstream, {
+    upstreamMfg,
+    downstreamMfg,
+  });
+  if (testedLimitAmps !== null) {
+    energySelectivityApplied = true;
   }
 
   // Phase 4: Calculate Selectivity Limit by scanning curves

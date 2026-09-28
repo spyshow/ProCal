@@ -265,17 +265,40 @@ describe('Cable Thermal Withstand (IEC 60364-4-43 Table 43.1)', () => {
 
 describe('Tested Manufacturer Selectivity Matrix', () => {
   it('looks up tested ABB / Schneider combinations', () => {
-    const upstream = { inRating: 630, ir: 500, tr: 12, category: 'ACB' as const };
-    const downstream = { inRating: 160, ir: 128, tr: 12, category: 'MCCB' as const };
+    const upstream = { inRating: 630, ir: 500, tr: 12, category: 'ACB' as const, manufacturer: 'ABB' };
+    const downstream = { inRating: 160, ir: 128, tr: 12, category: 'MCCB' as const, manufacturer: 'ABB' };
     const limit = lookupTestedSelectivity(upstream, downstream);
     expect(limit).toBe(50000); // 50 kA
   });
 
   it('returns null for non-listed pairs', () => {
-    const upstream = { inRating: 32, ir: 25, tr: 12, category: 'MCB' as const };
-    const downstream = { inRating: 16, ir: 16, tr: 12, category: 'MCB' as const };
+    const upstream = { inRating: 32, ir: 25, tr: 12, category: 'MCB' as const, manufacturer: 'ABB' };
+    const downstream = { inRating: 16, ir: 16, tr: 12, category: 'MCB' as const, manufacturer: 'ABB' };
     const limit = lookupTestedSelectivity(upstream, downstream);
     expect(limit).toBeNull();
+  });
+
+  it('gates on manufacturer: returns null for cross-brand, missing brand, or generic devices', () => {
+    const upstreamAbb = { inRating: 630, ir: 500, tr: 12, category: 'ACB' as const, manufacturer: 'ABB' };
+    const downstreamSchneider = { inRating: 160, ir: 128, tr: 12, category: 'MCCB' as const, manufacturer: 'Schneider' };
+    expect(lookupTestedSelectivity(upstreamAbb, downstreamSchneider)).toBeNull();
+
+    const downstreamNoBrand = { inRating: 160, ir: 128, tr: 12, category: 'MCCB' as const };
+    expect(lookupTestedSelectivity(upstreamAbb, downstreamNoBrand)).toBeNull();
+
+    const upstreamNoBrand = { inRating: 630, ir: 500, tr: 12, category: 'ACB' as const };
+    expect(lookupTestedSelectivity(upstreamNoBrand, downstreamSchneider)).toBeNull();
+
+    const upstreamGeneric = { inRating: 630, ir: 500, tr: 12, category: 'ACB' as const, manufacturer: 'ABB', isGeneric: true };
+    const downstreamAbb = { inRating: 160, ir: 128, tr: 12, category: 'MCCB' as const, manufacturer: 'ABB' };
+    expect(lookupTestedSelectivity(upstreamGeneric, downstreamAbb)).toBeNull();
+  });
+
+  it('supports manufacturer resolution via manufacturerPair parameter', () => {
+    const upstream = { inRating: 630, ir: 500, tr: 12, category: 'ACB' as const };
+    const downstream = { inRating: 160, ir: 128, tr: 12, category: 'MCCB' as const };
+    expect(lookupTestedSelectivity(upstream, downstream, { upstreamMfg: 'Schneider', downstreamMfg: 'Schneider' })).toBe(50000);
+    expect(lookupTestedSelectivity(upstream, downstream, { upstreamMfg: 'ABB', downstreamMfg: 'Schneider' })).toBeNull();
   });
 });
 

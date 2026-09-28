@@ -675,9 +675,13 @@ describe('regression: three-phase classification', () => {
 
   it('correctly evaluates cable protection with project code (NEC 150A on 35 mm² cable is safe)', () => {
     const findBreaker = createFindBreaker(equipment, {}, 'ABB');
+    // 'NEMA' is the *stored* alias for NEC practice (CalculationStandard is
+    // "IEC" | "NEMA"); codeOf() maps it to the "NEC" code profile. Passing the
+    // engine alias 'NEC' here was a type error — it passed at runtime because
+    // vitest does not typecheck, which is why it went unnoticed.
     const necProject: Project = {
       ...baseProject,
-      calculationStandard: 'NEC',
+      calculationStandard: 'NEMA',
     };
     const bldg = building({
       floorDesigns: [{

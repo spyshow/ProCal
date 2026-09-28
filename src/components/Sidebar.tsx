@@ -191,7 +191,7 @@ export default function Sidebar() {
       )}
     >
       {/* Logo Header */}
-      <div data-tour="brand-logo" className="flex items-center gap-3 px-4 py-3.5 border-b border-[var(--sidebar-border,rgba(31,41,55,0.8))] shrink-0">
+      <div data-tour="brand-logo" className="flex items-center gap-2.5 px-3.5 py-3.5 border-b border-[var(--sidebar-border,rgba(31,41,55,0.8))] shrink-0">
         <div className="w-8 h-8 rounded-lg bg-[var(--brand-mark-bg,rgba(234,88,12,0.2))] border border-[var(--brand-mark-border,rgba(234,88,12,0.3))] flex items-center justify-center shadow-[0_0_12px_rgba(234,88,12,0.3)] shrink-0 mx-auto md:mx-0">
           <LogoMark />
         </div>
@@ -208,11 +208,14 @@ export default function Sidebar() {
                 v1.5.0
               </span>
             </div>
-            <p className="text-xs text-[var(--table-header-color,#94a3b8)] tracking-tight font-medium truncate mt-0.5">
+            <p
+              title={isRtl ? "تصميم كهربائي للجهد المنخفض، محلول" : "Low-voltage Electrical design, Solved"}
+              className="text-[10px] leading-tight text-[var(--table-header-color,#94a3b8)] tracking-tight font-medium mt-0.5"
+            >
               {isRtl ? (
-                <>تصميم كهربائي للجهد المنخفض، <span className="text-orange-400 font-semibold">محلول</span></>
+                <>تصميم كهربائي للجهد المنخفض، <span className="text-orange-400 font-semibold whitespace-nowrap">محلول</span></>
               ) : (
-                <>Low-voltage Electrical design, <span className="text-orange-400 font-semibold">Solved</span></>
+                <>Low-voltage Electrical design, <span className="text-orange-400 font-semibold whitespace-nowrap">Solved</span></>
               )}
             </p>
           </div>

@@ -89,13 +89,35 @@ npm view @modelcontextprotocol/sdk version peerDependencies
 
 This decision determines how all of Task 5 is built. Do not defer it.
 
-- [ ] **Step 3: Note a pre-existing pricing contradiction**
+- [x] **Step 3: Settle the pricing model (DONE 2026-09-28)**
 
-`docs/ideas/pricing-strategy.md` specifies a **subscription-first** model (Free → Starter $29 → Professional $89 → Team $249 per month, with credit packs as a pay-as-you-go add-on), and its own Phase 3 calls for exactly the Stripe Checkout + webhook work in Task 3.
+The landing page previously advertised "first project $20, then flat $100 per project, zero recurring fees" — which contradicted `docs/ideas/pricing-strategy.md` and priced the product **3-10x above** every option in that doc. The subscription model is now canonical.
 
-The landing page copy at `src/i18n/locales/en.json:901-933` instead advertises "first project $20, then flat $100 per project, zero recurring fees," and `PricingSection.tsx` renders that. The credit counter in the database matches the strategy doc, not the copy.
+**Decided tiers** (all with 1 seat baseline; `+$39/seat/mo` thereafter):
 
-Decide which is canonical **before** Task 3, because the `Subscription` model only makes sense under the strategy doc. This plan assumes the strategy doc wins and the landing copy gets corrected. If the per-project model wins instead, drop `Subscription` and keep the credit ledger alone — nothing else in this plan changes.
+| Plan | Price | Projects / month | Seats | $ / project |
+|---|---|---|---|---|
+| Free trial | $0 | 1 (one-time, watermarked PDF) | 1 | — |
+| Starter | $29/mo | 1 | 1 | $29.00 |
+| Single Project Pass | $49 one-time | 1 | 1 | $49.00 |
+| Professional | $89/mo | 5 | 2 | $17.80 |
+| Team | $249/mo | 15 | 5 | $16.60 |
+
+Three rules that the schema must enforce:
+
+1. **The pass must be the most expensive way to buy a project.** At $30 it made Professional ($89 for 3) pointless against 3 passes ($90). This is the whole conversion lever.
+2. **Every plan includes 1 seat.** A $29 Starter with 0 included seats means a solo user pays $68.
+3. **Seats do not apply to the pass** — it is a one-time, single-user purchase.
+
+**Entitlement semantics:** the quota gates project **creation**, not project **existence**. Once created, a project stays accessible forever. This is mandatory for MCP: an agent creates a project once and must never be locked out of its own work mid-session. `User.credits` already models this, so no new accounting concept is needed.
+
+**No volume bundles.** The old $69/5 and $149/15 packs ran $9.93-13.80/project, undercutting Starter and becoming a subscription bypass.
+
+**"Unlimited projects" is retired everywhere** — a heavy user consuming 20 projects for $89 destroys cost-to-serve.
+
+Implemented in this pass: `docs/ideas/pricing-strategy.md` rewritten, plus the `pricing` block in all four locales (`en`/`ar`/`de`/`it`) and `src/components/PricingSection.tsx` rebuilt to render free trial + 3 tiers + pass.
+
+**Still to build in Task 3:** `Subscription` (per plan) and `CheckoutIntent.kind` (`SUBSCRIPTION | CREDIT_PACK`). Credit packs become the $49 pass, so the pack products are $29/$89/$249 recurring and one $49 one-time.
 
 ---
 
@@ -297,12 +319,14 @@ The gate is currently hard-coded at `src/app/api/projects/route.ts:182-188` (cre
 ```ts
 export async function canStartProject(user): Promise<{ allowed: boolean; reason?: string; checkoutUrl?: string }>
 // ADMIN                        → allowed
-// active Subscription          → allowed
-// credits >= 1                 → allowed
+// active Subscription          → allowed within the tier's projects/month allowance
+// sufficient credits (pass)    → allowed
 // otherwise                    → { allowed: false, reason: "payment_required", checkoutUrl }
 ```
 
 Point `src/app/api/projects/route.ts` at it. The existing 402 response and client redirect to `/billing` must keep working unchanged.
+
+The allowance counts **projects created in the current billing period**, not currently-open projects — see Task 0 Step 3, entitlement semantics.
 
 - [ ] **Step 4: Checkout + webhook + portal**
 
@@ -459,7 +483,7 @@ New `docs/reference-mcp.md` (every tool, every schema) and `docs/how-to-connect-
 ## Risks
 
 - **zod 4 vs SDK** — Task 0 Step 2 is a gate, not a formality; it determines how Task 5 is built.
-- **Pricing contradiction** — the landing copy and the strategy doc disagree. Task 0 Step 3 must be settled before Task 3.
+- **Pricing model** — **settled** (Task 0 Step 3): subscription-first, capped allowances, $49 one-time pass as the escape hatch. `Subscription` + `CheckoutIntent` are now unambiguous. The real remaining risk is the 20% discount for annual billing, which is asserted on the landing page but not yet priced into the Stripe products — do that in Task 3.
 - **Vercel serverless** — the existing PDF route already sets `maxDuration = 60`, so there is precedent, but Chromium cold-start inflates a 50 MB pack on first call. Pre-warm or budget for a slow first export.
 - **schematex is AGPL-3.0-only** — pre-existing, but record an explicit decision before shipping MCP commercially.
 - **20+ page PDFs** — memory and time in a single render; Task 1 Step 4 is where this surfaces.

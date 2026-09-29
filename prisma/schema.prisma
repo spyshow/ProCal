@@ -156,6 +156,24 @@ model McpArtifact {
   @@index([expiresAt])
 }
 
+// Per-identity rate-limit windows for the agent (MCP) surface.
+//
+// Lives in Postgres rather than process memory because the endpoint runs on
+// Vercel, where each serverless instance has its own heap: an in-process counter
+// resets on every cold start and limits nothing.
+//
+// `key` is "<bucket>:<identity>" (e.g. "export:mcp_abc123"), so one token
+// cannot spend another's budget and the tighter export budget is accounted
+// separately from ordinary tool calls.
+model AgentRateLimit {
+    key         String   @id
+    count       Int      @default(0)
+    windowStart DateTime @default(now())
+    updatedAt   DateTime @default(now())
+
+    @@index([windowStart])
+}
+
 // Captured-lead billing loop (Approach B). One OPEN per user is enforced in-app
 // (eng-review CQ-C); onDelete: Restrict guards against a manual delete that would
 // orphan the lead ledger against Project.user's Cascade.

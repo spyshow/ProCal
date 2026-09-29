@@ -391,6 +391,7 @@ export const ModelName = {
   CheckoutIntent: 'CheckoutIntent',
   McpToken: 'McpToken',
   McpArtifact: 'McpArtifact',
+  AgentRateLimit: 'AgentRateLimit',
   ContactRequest: 'ContactRequest',
   Project: 'Project',
   ProjectMember: 'ProjectMember',
@@ -424,7 +425,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "subscription" | "creditTransaction" | "promoCode" | "checkoutIntent" | "mcpToken" | "mcpArtifact" | "contactRequest" | "project" | "projectMember" | "projectInvite" | "projectAuditLog" | "projectReviewItem" | "projectRevision" | "building" | "buildingLoad" | "apartmentTemplate" | "apartmentRoom" | "loadLibraryItem" | "floorDesign" | "floorItem" | "equipmentCatalog" | "breakerFamily" | "breakerSettings" | "appSetting"
+    modelProps: "user" | "subscription" | "creditTransaction" | "promoCode" | "checkoutIntent" | "mcpToken" | "mcpArtifact" | "agentRateLimit" | "contactRequest" | "project" | "projectMember" | "projectInvite" | "projectAuditLog" | "projectReviewItem" | "projectRevision" | "building" | "buildingLoad" | "apartmentTemplate" | "apartmentRoom" | "loadLibraryItem" | "floorDesign" | "floorItem" | "equipmentCatalog" | "breakerFamily" | "breakerSettings" | "appSetting"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -943,6 +944,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.McpArtifactCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.McpArtifactCountAggregateOutputType> | number
+        }
+      }
+    }
+    AgentRateLimit: {
+      payload: Prisma.$AgentRateLimitPayload<ExtArgs>
+      fields: Prisma.AgentRateLimitFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.AgentRateLimitFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AgentRateLimitPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.AgentRateLimitFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AgentRateLimitPayload>
+        }
+        findFirst: {
+          args: Prisma.AgentRateLimitFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AgentRateLimitPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.AgentRateLimitFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AgentRateLimitPayload>
+        }
+        findMany: {
+          args: Prisma.AgentRateLimitFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AgentRateLimitPayload>[]
+        }
+        create: {
+          args: Prisma.AgentRateLimitCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AgentRateLimitPayload>
+        }
+        createMany: {
+          args: Prisma.AgentRateLimitCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.AgentRateLimitCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AgentRateLimitPayload>[]
+        }
+        delete: {
+          args: Prisma.AgentRateLimitDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AgentRateLimitPayload>
+        }
+        update: {
+          args: Prisma.AgentRateLimitUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AgentRateLimitPayload>
+        }
+        deleteMany: {
+          args: Prisma.AgentRateLimitDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.AgentRateLimitUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.AgentRateLimitUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AgentRateLimitPayload>[]
+        }
+        upsert: {
+          args: Prisma.AgentRateLimitUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AgentRateLimitPayload>
+        }
+        aggregate: {
+          args: Prisma.AgentRateLimitAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateAgentRateLimit>
+        }
+        groupBy: {
+          args: Prisma.AgentRateLimitGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AgentRateLimitGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.AgentRateLimitCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AgentRateLimitCountAggregateOutputType> | number
         }
       }
     }
@@ -2426,6 +2501,16 @@ export const McpArtifactScalarFieldEnum = {
 export type McpArtifactScalarFieldEnum = (typeof McpArtifactScalarFieldEnum)[keyof typeof McpArtifactScalarFieldEnum]
 
 
+export const AgentRateLimitScalarFieldEnum = {
+  key: 'key',
+  count: 'count',
+  windowStart: 'windowStart',
+  updatedAt: 'updatedAt'
+} as const
+
+export type AgentRateLimitScalarFieldEnum = (typeof AgentRateLimitScalarFieldEnum)[keyof typeof AgentRateLimitScalarFieldEnum]
+
+
 export const ContactRequestScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
@@ -2970,6 +3055,7 @@ export type GlobalOmitConfig = {
   checkoutIntent?: Prisma.CheckoutIntentOmit
   mcpToken?: Prisma.McpTokenOmit
   mcpArtifact?: Prisma.McpArtifactOmit
+  agentRateLimit?: Prisma.AgentRateLimitOmit
   contactRequest?: Prisma.ContactRequestOmit
   project?: Prisma.ProjectOmit
   projectMember?: Prisma.ProjectMemberOmit

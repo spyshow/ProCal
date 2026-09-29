@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server';
 import { WebStandardStreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js';
-import { resolveMcpActor } from '@/lib/mcp-auth';
-import { createMcpServer } from '@/mcp/registry';
+  import { resolveMcpActorWithToken } from '@/lib/mcp-auth';
+  import { bucketForTool, consumeRateLimit, type RateBucket } from '@/lib/services/rate-limit';
+  import { createMcpServer } from '@/mcp/registry';
 
 /**
  * ProCal MCP endpoint (Task 5 Step 1).
@@ -23,13 +24,39 @@ import { createMcpServer } from '@/mcp/registry';
 export const maxDuration = 120;
 export const dynamic = 'force-dynamic';
 
-const JSONRPC_METHOD_NOT_ALLOWED = -32601;
+  const JSONRPC_METHOD_NOT_ALLOWED = -32601;
+  // Implementation-defined server error, per JSON-RPC 2.0. Rate limited.
+  const JSONRPC_RATE_LIMITED = -32029;
 
 function methodNotAllowed(message: string) {
   return NextResponse.json(
     { jsonrpc: '2.0', error: { code: JSONRPC_METHOD_NOT_ALLOWED, message }, id: null },
     { status: 405, headers: { Allow: 'POST' } }
   );
+}
+
+/**
+ * Decide which budget a request draws from, by peeking at the JSON-RPC body.
+ *
+ * Only `tools/call` for a browser-spawning tool needs the tight window; the
+ * handshake and listing are cheap. A malformed body is charged to the general
+ * budget and then rejected by the transport, so a client cannot dodge the limiter
+ * by sending garbage.
+ */
+async function bucketForRequest(request: Request): Promise<RateBucket> {
+  try {
+    // Cloned, because the transport reads the real body afterwards.
+    const parsed = (await request.clone().json()) as {
+      method?: string;
+      params?: { name?: string };
+    } | null;
+    if (parsed?.method === 'tools/call' && typeof parsed.params?.name === 'string') {
+      return bucketForTool(parsed.params.name);
+    }
+  } catch {
+    // Unparseable JSON: charge the general budget and let the transport complain.
+  }
+  return 'general';
 }
 
 export async function GET() {
@@ -44,8 +71,8 @@ export async function DELETE() {
 }
 
 export async function POST(request: Request) {
-  const user = await resolveMcpActor(request);
-  if (!user) {
+  const actor = await resolveMcpActorWithToken(request);
+  if (!actor) {
     return NextResponse.json(
       {
         jsonrpc: '2.0',
@@ -60,6 +87,25 @@ export async function POST(request: Request) {
         status: 401,
         headers: { 'WWW-Authenticate': 'Bearer realm="procal-mcp"' },
       }
+    );
+  }
+  const { user, tokenId } = actor;
+
+  // Charge one unit of budget per request. Export tools spawn a headless Chromium
+  // instance each, so they draw from a much tighter window than ordinary calls —
+  // without a bound, a looping or confused client could saturate the function pool.
+  const limit = await consumeRateLimit({ key: tokenId, bucket: await bucketForRequest(request) });
+  if (!limit.allowed) {
+    return NextResponse.json(
+      {
+        jsonrpc: '2.0',
+        error: {
+          code: JSONRPC_RATE_LIMITED,
+          message: `Rate limit exceeded (${limit.limit} requests per minute for this token on this endpoint class). Retry in ${limit.retryAfterSeconds}s.`,
+        },
+        id: null,
+      },
+      { status: 429, headers: { 'Retry-After': String(limit.retryAfterSeconds) } }
     );
   }
 

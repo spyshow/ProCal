@@ -80,7 +80,15 @@ export async function revokeMcpToken(
  * compare is needed: an attacker guessing a secret would have to collide with a
  * stored hash rather than be compared against one.
  */
-export async function resolveMcpActor(request: Request): Promise<McpUser | null> {
+/**
+ * Resolve the bearer token on a request to a user, and to the token itself.
+ *
+ * The token id is used for per-token rate limiting, so a user with several
+ * clients cannot have one client's export loop exhaust everyone's budget.
+ */
+export async function resolveMcpActorWithToken(
+  request: Request
+): Promise<{ user: McpUser; tokenId: string } | null> {
   const header = request.headers.get('authorization');
   if (!header) return null;
 
@@ -98,5 +106,9 @@ export async function resolveMcpActor(request: Request): Promise<McpUser | null>
   // Best-effort audit stamp: a failure here must not fail the request.
   void touchTokenLastUsed(row.id).catch(() => undefined);
 
-  return row.user;
+  return { user: row.user, tokenId: row.id };
+}
+
+export async function resolveMcpActor(request: Request): Promise<McpUser | null> {
+  return (await resolveMcpActorWithToken(request))?.user ?? null;
 }

@@ -58,6 +58,7 @@ export const ModelName = {
   CheckoutIntent: 'CheckoutIntent',
   McpToken: 'McpToken',
   McpArtifact: 'McpArtifact',
+  AgentRateLimit: 'AgentRateLimit',
   ContactRequest: 'ContactRequest',
   Project: 'Project',
   ProjectMember: 'ProjectMember',
@@ -201,6 +202,16 @@ export const McpArtifactScalarFieldEnum = {
 } as const
 
 export type McpArtifactScalarFieldEnum = (typeof McpArtifactScalarFieldEnum)[keyof typeof McpArtifactScalarFieldEnum]
+
+
+export const AgentRateLimitScalarFieldEnum = {
+  key: 'key',
+  count: 'count',
+  windowStart: 'windowStart',
+  updatedAt: 'updatedAt'
+} as const
+
+export type AgentRateLimitScalarFieldEnum = (typeof AgentRateLimitScalarFieldEnum)[keyof typeof AgentRateLimitScalarFieldEnum]
 
 
 export const ContactRequestScalarFieldEnum = {

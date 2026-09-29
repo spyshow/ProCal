@@ -77,6 +77,11 @@ export type McpToken = Prisma.McpTokenModel
  */
 export type McpArtifact = Prisma.McpArtifactModel
 /**
+ * Model AgentRateLimit
+ * 
+ */
+export type AgentRateLimit = Prisma.AgentRateLimitModel
+/**
  * Model ContactRequest
  * 
  */

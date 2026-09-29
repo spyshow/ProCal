@@ -33,6 +33,10 @@ export async function proxy(request: NextRequest) {
     pathname.startsWith("/api/auth") ||
     pathname.startsWith("/api/invites") ||
     pathname.startsWith("/api/mcp") ||
+    // Agent API. Like /api/mcp it authenticates with a bearer token, not a
+    // session cookie, so a browser session must not be what gets it in.
+    // See src/lib/agent/request.ts.
+    pathname.startsWith("/api/agent") ||
     // Headless-print entry point. Authenticates with a short-lived signed print
     // ticket instead of a session cookie, because Chromium is a fresh process
     // with no cookies. See src/lib/reports/print-ticket.ts.
@@ -74,11 +78,13 @@ export const config = {
      * proxy would still run for /api/mcp and redirect a bearer-token client
      * to /login instead of letting the route return a JSON 401.
      *
+     * `api/agent` is excluded for the same reason — it is a bearer-token API.
+     *
      * `print` is excluded for the same reason: headless Chromium has no session
      * cookie, so the print route must be reached and allowed to render its own
      * "ticket rejected" response rather than being redirected to /login.
      */
-    "/((?!api/projects|api/buildings|api/cables|api/equipment|api/contact|api/admin|api/invites|api/mcp|print|_next/static|_next/image|favicon.ico).*)",
+    "/((?!api/projects|api/buildings|api/cables|api/equipment|api/contact|api/admin|api/invites|api/mcp|api/agent|print|_next/static|_next/image|favicon.ico).*)",
   ],
 };
 

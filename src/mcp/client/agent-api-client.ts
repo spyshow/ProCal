@@ -2,13 +2,14 @@ import type { DesignGraph, VisibleProject } from '@/lib/services/projects';
 import type { Project, ProjectRevision } from '@/types';
 import type { EquipmentItem } from '@/lib/calculations/feeders';
 import type { BreakerSettingItem } from '@/lib/reports/aggregates';
+import { AGENT_ROUTES, buildAgentUrl, type HttpMethod } from './agent-routes';
 
 /**
  * The single seam between MCP tools and the application.
  *
  * Tools call these methods and nothing else. The operation itself lives in
- * `src/lib/services/*`, which the browser routes also use; how the call reaches
- * it is the transport's problem, not the tool's.
+ * `src/lib/services/*`, which the browser routes also use; how the call reaches it
+ * is the transport's problem, not the tool's.
  *
  * Two interchangeable transports:
  *
@@ -25,6 +26,10 @@ import type { BreakerSettingItem } from '@/lib/reports/aggregates';
  * The actor is supplied once, at construction, from a token the caller cannot
  * influence. There is deliberately no method that accepts a user id — that would
  * be an authorisation bypass wearing a parameter.
+ *
+ * The methods are one-per-tool, not one-per-database-call. That is what lets the
+ * http transport build its URLs from `AGENT_ROUTES` instead of hard-coding paths
+ * that could drift from the routes they claim to call.
  */
 
 export class AgentApiError extends Error {
@@ -100,20 +105,38 @@ export interface AppliedLoad {
   powerKw: number;
 }
 
+export interface DesignSummary {
+  buildingId: string;
+  buildingName: string;
+  floorNumber: number;
+  hasFloorSubPanels: boolean;
+  riserCurrent: number;
+  riserVdPercent: number;
+  branchVdPercent: number;
+  totalVdPercent: number;
+  totalNoData: boolean;
+}
+
+/** One method per registered tool. */
 export interface AgentApi {
-  // --- discover -------------------------------------------------------------
   listProjects(): Promise<VisibleProject[]>;
-  getProjectGraph(projectId: string): Promise<DesignGraph>;
-  // --- derive ---------------------------------------------------------------
+  getProjectBrief(projectId: string): Promise<DesignGraph>;
+  getDesignSummary(projectId: string): Promise<DesignSummary[]>;
   recalculateProject(projectId: string): Promise<RecalculateResult>;
-  // --- build ----------------------------------------------------------------
-  createProject(input: unknown): Promise<{ id: string; [key: string]: unknown }>;
-  createBuildingsForSpec(projectId: string, buildings: unknown[]): Promise<unknown[]>;
+  createCheckout(input: unknown): Promise<unknown>;
+
+  createProjectFromSpec(input: unknown): Promise<{ id: string; [key: string]: unknown }>;
   defineApartmentTemplate(input: unknown): Promise<CreatedTemplate>;
   upsertBuilding(input: unknown): Promise<CreatedBuildingResult>;
   assignFloorTemplate(input: unknown): Promise<{ floorNumber: number; apartmentCount: number }>;
   setBuildingLoads(input: unknown): Promise<AppliedLoad[]>;
-  // --- export ---------------------------------------------------------------
+  /**
+   * Create a batch of buildings. Kept as its own method because the one-shot spec
+   * needs it, but it is not a separate HTTP endpoint: the http transport issues
+   * one upsertBuilding per building, so the two surfaces cannot diverge.
+   */
+  createBuildingsForSpec(projectId: string, buildings: unknown[]): Promise<CreatedBuildingResult[]>;
+
   loadReportBundle(projectId: string): Promise<ExportBundle>;
 }
 
@@ -128,24 +151,25 @@ interface InProcessDeps {
   assignFloorTemplateRow: (input: never) => Promise<{ floorNumber: number; apartmentCount: number }>;
   replaceBuildingLoads: (input: never) => Promise<AppliedLoad[]>;
   loadReportData: (projectId: string) => Promise<ExportBundle | null>;
+  summariseRiser: (graph: never) => DesignSummary[];
   ENGINE_VERSION: string;
 }
 
 function createInProcessApi(actor: AgentApiActor): AgentApi {
-  // Resolved lazily so that the http transport — the one used when the MCP server
-  // is deployed as its own service — never pulls the application's data layer into
-  // the bundle. Static imports here would defeat the point of having two
-  // transports at all.
+  // Resolved lazily so the http transport — the one used when the MCP server is
+  // deployed as its own service — never pulls the application's data layer into
+  // the bundle. Static imports here would defeat the point of two transports.
   let depsPromise: Promise<InProcessDeps> | null = null;
   const deps = (): Promise<InProcessDeps> => {
     if (depsPromise) return depsPromise;
     depsPromise = (async () => {
-      const [projects, recalculate, writes, reportData, version] = await Promise.all([
+      const [projects, recalculate, writes, reportData, version, fresh] = await Promise.all([
         import('@/lib/services/projects'),
         import('@/lib/services/recalculate'),
         import('@/lib/services/design-writes'),
         import('@/lib/services/report-data'),
         import('@/lib/calculations/version'),
+        import('../freshness'),
       ]);
       return {
         listVisibleProjects: projects.listVisibleProjects,
@@ -158,6 +182,7 @@ function createInProcessApi(actor: AgentApiActor): AgentApi {
         assignFloorTemplateRow: writes.assignFloorTemplateRow,
         replaceBuildingLoads: writes.replaceBuildingLoads,
         loadReportData: reportData.loadReportData,
+        summariseRiser: fresh.summariseRiser,
         ENGINE_VERSION: version.ENGINE_VERSION,
       };
     })();
@@ -177,24 +202,25 @@ function createInProcessApi(actor: AgentApiActor): AgentApi {
     }
   };
 
+  const requireGraph = (graph: DesignGraph | null, projectId: string): DesignGraph => {
+    if (!graph) throw new AgentApiError(`Project ${projectId} not found`, 404);
+    return graph;
+  };
+
   return {
     listProjects: () => wrap((s) => s.listVisibleProjects(actor.id)),
 
-    getProjectGraph: (projectId) =>
-      wrap(async (s) => {
-        const graph = await s.loadDesignGraph(projectId);
-        if (!graph) throw new AgentApiError(`Project ${projectId} not found`, 404);
-        return graph;
-      }),
+    getProjectBrief: (projectId) =>
+      wrap(async (s) => requireGraph(await s.loadDesignGraph(projectId), projectId)),
+
+    getDesignSummary: (projectId) =>
+      wrap(async (s) => s.summariseRiser(requireGraph(await s.loadDesignGraph(projectId), projectId) as never)),
 
     recalculateProject: (projectId) =>
       wrap(async (s) => {
         // "Was it stale" is a comparison against the stored engine version, which
         // only the service can see. Recomputing the rule here would duplicate it.
-        const graph = (await s.loadDesignGraph(projectId)) as
-          | { engineVersion?: string | null }
-          | null;
-        if (!graph) throw new AgentApiError(`Project ${projectId} not found`, 404);
+        const graph = requireGraph(await s.loadDesignGraph(projectId), projectId);
         if (graph.engineVersion === s.ENGINE_VERSION) {
           return { wasStale: false, engineVersion: graph.engineVersion, itemsRecalculated: 0 };
         }
@@ -206,13 +232,23 @@ function createInProcessApi(actor: AgentApiActor): AgentApi {
         };
       }),
 
-    createProject: (input) => wrap((s) => s.createProjectRow(input as never)),
-    createBuildingsForSpec: (projectId, buildings) =>
-      wrap((s) => s.createBuildingsForSpec(projectId, buildings as never)),
+    // Checkout and credit accounting stay with the billing module: they are not
+    // part of the agent contract and must keep the same wallet semantics.
+    createCheckout: () =>
+      wrap(async () => {
+        throw new AgentApiError(
+          'Checkout is not available through the agent API. Use POST /api/billing/checkout with a session.',
+          501
+        );
+      }),
+
+    createProjectFromSpec: (input) => wrap((s) => s.createProjectRow(input as never)),
     defineApartmentTemplate: (input) => wrap((s) => s.createApartmentTemplateRow(input as never)),
     upsertBuilding: (input) => wrap((s) => s.upsertBuildingRow(input as never)),
     assignFloorTemplate: (input) => wrap((s) => s.assignFloorTemplateRow(input as never)),
     setBuildingLoads: (input) => wrap((s) => s.replaceBuildingLoads(input as never)),
+    createBuildingsForSpec: (projectId, buildings) =>
+      wrap((s) => s.createBuildingsForSpec(projectId, buildings as never) as Promise<CreatedBuildingResult[]>),
 
     loadReportBundle: (projectId) =>
       wrap(async (s) => {
@@ -229,8 +265,15 @@ function createHttpApi(options: AgentApiClientOptions): AgentApi {
     throw new Error('The http transport requires baseUrl and token.');
   }
 
-  const call = async <T>(method: string, path: string, body?: unknown): Promise<T> => {
-    const res = await fetch(`${base}/api/agent/v1${path}`, {
+  /**
+   * Every URL is built from the shared route map, so the transport cannot call a
+   * path that the map does not claim, and cannot drift from a renamed route.
+   */
+  const call = async <T>(tool: string, method: HttpMethod, params: Record<string, string>, body?: unknown): Promise<T> => {
+    const spec = AGENT_ROUTES.find((r) => r.tool === tool);
+    if (!spec) throw new AgentApiError(`No agent route is registered for ${tool}`, 500);
+
+    const res = await fetch(`${base}${buildAgentUrl(spec, params)}`, {
       method,
       headers: {
         Authorization: `Bearer ${options.token}`,
@@ -249,24 +292,42 @@ function createHttpApi(options: AgentApiClientOptions): AgentApi {
     }
 
     if (!res.ok) {
-      const err = (parsed as { error?: string } | null)?.error;
-      throw new AgentApiError(err ?? `Agent API ${method} ${path} failed`, res.status);
+      const body = parsed as { error?: string } | null;
+      throw new AgentApiError(body?.error ?? `Agent API ${method} ${spec.path} failed`, res.status);
     }
     return parsed as T;
   };
 
   return {
-    listProjects: () => call('GET', '/projects'),
-    getProjectGraph: (projectId) => call('GET', `/projects/${projectId}`),
-    recalculateProject: (projectId) => call('POST', `/projects/${projectId}/recalculate`),
-    createProject: (input) => call('POST', '/projects', input),
-    createBuildingsForSpec: (projectId, buildings) =>
-      call('POST', `/projects/${projectId}/buildings`, { buildings }),
-    defineApartmentTemplate: (input) => call('POST', '/templates', input),
-    upsertBuilding: (input) => call('POST', '/buildings', input),
-    assignFloorTemplate: (input) => call('POST', '/floors/assign-template', input),
-    setBuildingLoads: (input) => call('PUT', '/buildings/loads', input),
-    loadReportBundle: (projectId) => call('GET', `/projects/${projectId}/report-bundle`),
+    listProjects: () =>
+      call<{ projects: VisibleProject[] }>('procal_list_projects', 'GET', {}).then((r) => r.projects),
+    getProjectBrief: (projectId) => call('procal_get_project_brief', 'GET', { projectId }),
+    getDesignSummary: (projectId) =>
+      call<{ summary: DesignSummary[] }>('procal_get_design_summary', 'GET', { projectId }).then(
+        (r) => r.summary
+      ),
+    recalculateProject: (projectId) => call('procal_recalculate_project', 'POST', { projectId }),
+    createCheckout: (input) => call('procal_create_checkout', 'POST', {}, input),
+    createProjectFromSpec: (input) => call('procal_create_project_from_spec', 'POST', {}, input),
+    defineApartmentTemplate: (input) => call('procal_define_apartment_template', 'POST', {}, input),
+    upsertBuilding: (input) => call('procal_upsert_building', 'POST', {}, input),
+    assignFloorTemplate: (input) =>
+      call('procal_assign_floor_template', 'POST', { projectId: (input as { projectId: string }).projectId }, input),
+    setBuildingLoads: (input) =>
+      call('procal_set_building_loads', 'PUT', {
+        projectId: (input as { projectId: string }).projectId,
+        buildingId: (input as { buildingId: string }).buildingId,
+      }, input),
+    // Composed from the building endpoint rather than a batch route of its own, so
+    // the one-shot project creation works identically over both transports.
+    createBuildingsForSpec: async (projectId, buildings) => {
+      const out: CreatedBuildingResult[] = [];
+      for (const b of buildings) {
+        out.push(await call<CreatedBuildingResult>('procal_upsert_building', 'POST', {}, { projectId, ...(b as object) }));
+      }
+      return out;
+    },
+    loadReportBundle: (projectId) => call('procal_export_report_pdf', 'GET', { projectId }),
   };
 }
 

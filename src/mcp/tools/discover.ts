@@ -68,7 +68,7 @@ export function registerDiscoverTools(
     async ({ projectId }) => {
       const ctx = makeCtx();
       await ctx.resolveProject(projectId, { pageKey: 'calculator', requiredAction: 'VIEW' });
-      const project = await makeApi().getProjectGraph(projectId);
+      const project = await makeApi().getProjectBrief(projectId);
 
       const buildings = project.buildings.map((b) => ({
         id: b.id,
@@ -182,7 +182,7 @@ export function registerDiscoverTools(
     async ({ projectId, buildingId }) => {
       const ctx = makeCtx();
       await ctx.resolveProject(projectId, { pageKey: 'calculator', requiredAction: 'VIEW' });
-      const project = await makeApi().getProjectGraph(projectId);
+      const project = await makeApi().getProjectBrief(projectId);
 
       const risers = summariseRiser(project).filter(
         (r) => !buildingId || r.buildingId === buildingId

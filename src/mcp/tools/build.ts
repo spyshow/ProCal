@@ -110,7 +110,7 @@ type ProjectSpec = z.infer<typeof specSchema>;
 
 /** Create the Project row and its creator membership + default seed data. */
 async function materializeProject(ctx: McpCtx, api: AgentApi, spec: ProjectSpec) {
-  return api.createProject({
+  return api.createProjectFromSpec({
     name: spec.name,
     client: spec.client,
     consultant: spec.consultant,

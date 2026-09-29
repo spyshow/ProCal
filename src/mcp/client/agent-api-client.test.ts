@@ -123,7 +123,7 @@ describe('AgentApiClient in-process transport', () => {
     serviceMocks.loadDesignGraph.mockResolvedValue(null);
     const client = createAgentApiClient({ actor: ACTOR, transport: 'in-process' });
 
-    await expect(client.getProjectGraph('missing')).rejects.toMatchObject({ status: 404 });
+    await expect(client.getProjectBrief('missing')).rejects.toMatchObject({ status: 404 });
   });
 });
 

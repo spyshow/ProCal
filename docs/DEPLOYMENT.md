@@ -11,7 +11,11 @@ ProCal uses a **Dual-Tier Release Pipeline**:
 | Environment | Purpose | Hosting Platform | Database | Trigger Branch / Event | URL |
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | **QA / Staging** | Continuous integration, QA verification, feature previews | **Render** | Render PostgreSQL / Staging DB | Push / PR merge to `master` | [`https://procal.onrender.com`](https://procal.onrender.com) |
-| **Production** | Live public production service | **Vercel** | **Supabase** (PostgreSQL) | Release Tag (`v*.*.*`) or GitHub Release | Production Domain / `https://procal.vercel.app` |
+| **Production** | Live public production service | **Vercel** | **Supabase** (PostgreSQL) | Release Tag (`v*.*.*`) or GitHub Release | [`https://procal-mu.vercel.app`](https://procal-mu.vercel.app) |
+
+> **Note:** the production Vercel project is `procal-mu`. An older revision of this
+> doc pointed at `procal.vercel.app`, which serves a *different* application
+> ("CalPro") — do not use it to verify a ProCal release.
 
 ---
 

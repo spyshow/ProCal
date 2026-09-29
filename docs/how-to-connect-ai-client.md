@@ -26,15 +26,18 @@ can be revoked at any time from the same screen; revoking takes effect immediate
 The endpoint is:
 
 ```
-https://your-procal-domain/api/mcp
+https://procal-mu.vercel.app/api/mcp
 ```
 
 It speaks **Streamable HTTP** and authenticates with a bearer token.
 
+> Self-hosting, or using QA? The endpoint path is always `/api/mcp`; only the host
+> changes (QA is `https://procal.onrender.com/api/mcp`).
+
 ### Claude Code
 
 ```bash
-claude mcp add --transport http procal https://your-procal-domain/api/mcp \
+claude mcp add --transport http procal https://procal-mu.vercel.app/api/mcp \
   --header "Authorization: Bearer YOUR_TOKEN"
 ```
 
@@ -45,7 +48,7 @@ Or edit `.mcp.json` in your project:
   "mcpServers": {
     "procal": {
       "type": "http",
-      "url": "https://your-procal-domain/api/mcp",
+      "url": "https://procal-mu.vercel.app/api/mcp",
       "headers": {
         "Authorization": "Bearer YOUR_TOKEN"
       }
@@ -63,7 +66,7 @@ Or edit `.mcp.json` in your project:
   "mcpServers": {
     "procal": {
       "type": "http",
-      "url": "https://your-procal-domain/api/mcp",
+      "url": "https://procal-mu.vercel.app/api/mcp",
       "headers": {
         "Authorization": "Bearer YOUR_TOKEN"
       }

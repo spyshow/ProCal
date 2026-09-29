@@ -1,21 +1,13 @@
-import { ENGINE_VERSION } from '@/lib/calculations/version';
 import { computeFloorRiserVd } from '@/lib/calculations/riser';
-import { getBuildingDiversityFactor } from '@/lib/calculations/loads';
-import { applyApartmentSizing, isCommercialBuilding } from '@/lib/services/recalculate';
-import { findProjectRow, loadDesignGraphOrThrow } from '@/lib/services/projects';
 
 /**
- * Freshness guard for exported deliverables (Task 5 Step 3).
+ * Pure helpers for reading a loaded design graph.
  *
- * Most report schedules — cable, MDB, BOM, voltage drop — read the **stored**
- * `FloorItem` columns (`calculatedConnectedLoad`, `calculatedMaxDemand`,
- * `calculatedCurrent`, `breakerSize`, `cableSize`, `voltageDrop`) rather than
- * recomputing. Those columns only change when a recalculate runs. An agent that
- * builds a project and exports immediately would therefore ship a confident,
- * wrong submittal.
- *
- * Every export tool calls `ensureFresh()` first. It is the difference between a
- * plausible deliverable and a correct one.
+ * The freshness guard and the project loader used to live here alongside the
+ * database calls. They are now methods on `AgentApiClient`, because a tool must
+ * not choose how an operation is reached — that is the whole point of the client
+ * being the single seam. What remains is pure analysis over a graph the client
+ * already loaded, which needs no seam at all.
  */
 
 export interface FreshnessResult {
@@ -25,53 +17,10 @@ export interface FreshnessResult {
 }
 
 /**
- * Recalculate a project if its stored numbers predate the current engine.
- *
- * Delegates to `src/lib/services/recalculate`, which is the same implementation
- * `POST /api/buildings/[id]/recalculate` uses. This previously carried its own
- * copy of that rule and described the other as one it "mirrors" — two
- * implementations of an overload-safety check, kept in sync by hand.
- */
-export async function ensureFresh(projectId: string): Promise<FreshnessResult> {
-  const project = await findProjectRow(projectId);
-
-  if (!project) {
-    throw new Error(`Project ${projectId} not found`);
-  }
-
-  if (project.engineVersion === ENGINE_VERSION) {
-    return {
-      wasStale: false,
-      engineVersion: project.engineVersion,
-      itemsRecalculated: 0,
-    };
-  }
-
-  const result = await applyApartmentSizing(projectId);
-
-  return {
-    wasStale: true,
-    engineVersion: ENGINE_VERSION,
-    itemsRecalculated: result?.itemsRecalculated ?? 0,
-  };
-}
-
-/**
- * Re-read a project with everything the calculation engine and report renderer
- * need, in the shape `src/types`' `Project` expects.
- *
- * Shared by the export tools and the design-summary tool so an agent sees the same
- * numbers the report will.
- */
-export async function loadProjectForDesign(projectId: string) {
-  return loadDesignGraphOrThrow(projectId);
-}
-
-/**
  * Per-floor ΔV verdict, for the design-summary tool.
  *
- * Typed loosely on purpose: the caller passes the Prisma include shape from
- * `loadProjectForDesign`, which is structurally compatible with the fields
+ * Typed loosely on purpose: the caller passes the Prisma include shape from the
+ * client's project load, which is structurally compatible with the fields
  * `computeFloorRiserVd` actually reads but is not the `Project` interface.
  */
 export function summariseRiser(project: {

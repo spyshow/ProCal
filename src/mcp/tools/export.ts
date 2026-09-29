@@ -1,14 +1,12 @@
 import { z } from 'zod';
 import { logProjectActivity } from '@/lib/audit-logger';
-import { getCompanySettings } from '@/lib/app-settings';
 import { generateReportPdfFromPrintRoute } from '@/lib/reports/print-report-pdf';
 import { createPrintTicket } from '@/lib/reports/print-ticket';
-import { loadReportData } from '@/lib/services/report-data';
 import { buildReportWorkbook } from '@/lib/reports/excel';
 import { createFindBreaker } from '@/lib/calculations/feeders';
 import { generateDrawingsPdf } from '@/lib/drawings/drawings-pdf';
-import { ensureFresh } from '../freshness';
 import { safeFilename, storeArtifact } from '../artifacts';
+import type { AgentApi } from '../client/agent-api-client';
 import { McpToolError, type McpCtx } from '../context';
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 
@@ -37,12 +35,13 @@ const ok = (data: unknown): ToolResult => ({
 
 interface ExportDeps {
   makeCtx: () => McpCtx;
+  makeApi: () => AgentApi;
   origin: string;
 }
 
 /** Load the deliverable inputs, or fail the tool with a clear message. */
-async function loadExportInputs(projectId: string) {
-  const data = await loadReportData(projectId);
+async function loadExportInputs(api: AgentApi, projectId: string) {
+  const data = await api.loadReportBundle(projectId);
   if (!data) throw new McpToolError('Project not found.', 404);
   return {
     project: data.project,
@@ -71,8 +70,8 @@ export function registerExportTools(server: McpServer, deps: ExportDeps) {
       const ctx = deps.makeCtx();
       await ctx.resolveProject(projectId, { pageKey: 'reports', requiredAction: 'VIEW' });
 
-      const fresh = await ensureFresh(projectId);
-      const { project } = await loadExportInputs(projectId);
+      const fresh = await deps.makeApi().recalculateProject(projectId);
+      const { project } = await loadExportInputs(deps.makeApi(), projectId);
 
       // The report schedules are client components (the "Show Your Work" trace
       // popover), so rendering them with renderToStaticMarkup throws on a real
@@ -138,8 +137,8 @@ export function registerExportTools(server: McpServer, deps: ExportDeps) {
       const ctx = deps.makeCtx();
       await ctx.resolveProject(projectId, { pageKey: 'reports', requiredAction: 'VIEW' });
 
-      const fresh = await ensureFresh(projectId);
-      const { project, equipment, breakerSettings } = await loadExportInputs(projectId);
+      const fresh = await deps.makeApi().recalculateProject(projectId);
+      const { project, equipment, breakerSettings } = await loadExportInputs(deps.makeApi(), projectId);
 
       const findBreaker = createFindBreaker(
         equipment as never,
@@ -195,8 +194,8 @@ export function registerExportTools(server: McpServer, deps: ExportDeps) {
       const ctx = deps.makeCtx();
       await ctx.resolveProject(projectId, { pageKey: 'sldDesigner', requiredAction: 'VIEW' });
 
-      const fresh = await ensureFresh(projectId);
-      const { project, equipment, breakerSettings, company } = await loadExportInputs(projectId);
+      const fresh = await deps.makeApi().recalculateProject(projectId);
+      const { project, equipment, breakerSettings, company } = await loadExportInputs(deps.makeApi(), projectId);
 
       const result = await generateDrawingsPdf({
         project: project as never,

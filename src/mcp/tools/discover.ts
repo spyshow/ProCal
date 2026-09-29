@@ -1,8 +1,9 @@
 import { z } from 'zod';
 import { ENGINE_VERSION } from '@/lib/calculations/version';
 import { logProjectActivity } from '@/lib/audit-logger';
-import { ensureFresh, loadProjectForDesign, summariseRiser } from '../freshness';
+import { summariseRiser } from '../freshness';
 import { canStartProject } from '@/lib/billing/entitlement';
+import type { AgentApi } from '../client/agent-api-client';
 import type { McpCtx } from '../context';
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 
@@ -22,7 +23,11 @@ const ok = (data: unknown): ToolResult => ({
   structuredContent: data as Record<string, unknown>,
 });
 
-export function registerDiscoverTools(server: McpServer, makeCtx: () => McpCtx) {
+export function registerDiscoverTools(
+  server: McpServer,
+  deps: { makeCtx: () => McpCtx; makeApi: () => AgentApi }
+) {
+  const { makeCtx, makeApi } = deps;
   server.registerTool(
     'procal_list_projects',
     {
@@ -63,7 +68,7 @@ export function registerDiscoverTools(server: McpServer, makeCtx: () => McpCtx) 
     async ({ projectId }) => {
       const ctx = makeCtx();
       await ctx.resolveProject(projectId, { pageKey: 'calculator', requiredAction: 'VIEW' });
-      const project = await loadProjectForDesign(projectId);
+      const project = await makeApi().getProjectGraph(projectId);
 
       const buildings = project.buildings.map((b) => ({
         id: b.id,
@@ -139,7 +144,7 @@ export function registerDiscoverTools(server: McpServer, makeCtx: () => McpCtx) 
     async ({ projectId }) => {
       const ctx = makeCtx();
       await ctx.resolveProject(projectId, { pageKey: 'calculator', requiredAction: 'EDIT' });
-      const result = await ensureFresh(projectId);
+      const result = await makeApi().recalculateProject(projectId);
 
       await logProjectActivity({
         projectId,
@@ -177,7 +182,7 @@ export function registerDiscoverTools(server: McpServer, makeCtx: () => McpCtx) 
     async ({ projectId, buildingId }) => {
       const ctx = makeCtx();
       await ctx.resolveProject(projectId, { pageKey: 'calculator', requiredAction: 'VIEW' });
-      const project = await loadProjectForDesign(projectId);
+      const project = await makeApi().getProjectGraph(projectId);
 
       const risers = summariseRiser(project).filter(
         (r) => !buildingId || r.buildingId === buildingId

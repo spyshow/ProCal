@@ -1,9 +1,10 @@
-import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
-import { createMcpCtx, type McpCtx } from './context';
-import { registerDiscoverTools } from './tools/discover';
-import { registerBuildTools } from './tools/build';
-import { registerExportTools } from './tools/export';
-import type { AuthedUser } from '@/lib/project-auth';
+  import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+  import { createMcpCtx, type McpCtx } from './context';
+  import { createAgentApiClient, type AgentApi } from './client/agent-api-client';
+  import { registerDiscoverTools } from './tools/discover';
+  import { registerBuildTools } from './tools/build';
+  import { registerExportTools } from './tools/export';
+  import type { AuthedUser } from '@/lib/project-auth';
 
 /**
  * Builds the MCP server for one request.
@@ -34,9 +35,14 @@ export function createMcpServer(user: AuthedUser, origin: string): McpServer {
 
   const makeCtx = (): McpCtx => createMcpCtx(user);
 
-  registerDiscoverTools(server, makeCtx);
-  registerBuildTools(server, makeCtx);
-  registerExportTools(server, { makeCtx, origin });
+  // One place where the transport is chosen, so extracting this server into its
+  // own service is a change here rather than in thirteen tool handlers. The
+  // in-process transport is what runs today; 'http' talks to /api/agent/v1.
+  const makeApi = (): AgentApi => createAgentApiClient({ actor: { id: user.id, role: user.role } });
+
+  registerDiscoverTools(server, { makeCtx, makeApi });
+  registerBuildTools(server, { makeCtx, makeApi });
+  registerExportTools(server, { makeCtx, makeApi, origin });
 
   return server;
 }

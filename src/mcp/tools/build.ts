@@ -1,15 +1,7 @@
 import { z } from 'zod';
 import { logProjectActivity } from '@/lib/audit-logger';
 import { canStartProject, refundProjectCredit, spendProjectCredit } from '@/lib/billing/entitlement';
-import {
-  assignFloorTemplateRow,
-  createApartmentTemplateRow,
-  createBuildingsForSpec,
-  createProjectRow,
-  replaceBuildingLoads,
-  upsertBuildingRow,
-} from '@/lib/services/design-writes';
-import { ensureFresh } from '../freshness';
+import type { AgentApi } from '../client/agent-api-client';
 import { McpToolError, type McpCtx } from '../context';
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 
@@ -117,8 +109,8 @@ const specSchema = z.object({
 type ProjectSpec = z.infer<typeof specSchema>;
 
 /** Create the Project row and its creator membership + default seed data. */
-async function materializeProject(ctx: McpCtx, spec: ProjectSpec) {
-  return createProjectRow({
+async function materializeProject(ctx: McpCtx, api: AgentApi, spec: ProjectSpec) {
+  return api.createProject({
     name: spec.name,
     client: spec.client,
     consultant: spec.consultant,
@@ -138,8 +130,8 @@ async function materializeProject(ctx: McpCtx, spec: ProjectSpec) {
 }
 
 /** Create the building, its floors, the apartment templates, and the circuits. */
-async function materializeBuildings(ctx: McpCtx, projectId: string, spec: ProjectSpec) {
-  return createBuildingsForSpec(
+async function materializeBuildings(ctx: McpCtx, api: AgentApi, projectId: string, spec: ProjectSpec) {
+  return api.createBuildingsForSpec(
     projectId,
     spec.buildings.map((bSpec) => ({
       name: bSpec.name,
@@ -164,7 +156,8 @@ async function materializeBuildings(ctx: McpCtx, projectId: string, spec: Projec
   );
 }
 
-export function registerBuildTools(server: McpServer, makeCtx: () => McpCtx) {
+export function registerBuildTools(server: McpServer, deps: { makeCtx: () => McpCtx; makeApi: () => AgentApi }) {
+  const { makeCtx, makeApi } = deps;
   // ---------------------------------------------------------------- templates
   server.registerTool(
     'procal_define_apartment_template',
@@ -182,9 +175,10 @@ export function registerBuildTools(server: McpServer, makeCtx: () => McpCtx) {
     },
     async ({ projectId, name, phases, rooms }) => {
       const ctx = makeCtx();
+      const api = makeApi();
       await ctx.resolveProject(projectId, { pageKey: 'calculator', requiredAction: 'EDIT' });
 
-      const template = await createApartmentTemplateRow({ projectId, name, phases, rooms });
+      const template = await api.defineApartmentTemplate({ projectId, name, phases, rooms });
       const connectedLoadVA = template.rooms.reduce((s, r) => s + r.connectedLoad, 0);
       return ok({
         templateId: template.id,
@@ -240,6 +234,7 @@ export function registerBuildTools(server: McpServer, makeCtx: () => McpCtx) {
     },
     async (args) => {
       const ctx = makeCtx();
+      const api = makeApi();
       const { projectId, buildingId, floors, ...buildingFields } = args;
       await ctx.resolveProject(projectId, { pageKey: 'calculator', requiredAction: 'EDIT' });
 
@@ -254,7 +249,7 @@ export function registerBuildTools(server: McpServer, makeCtx: () => McpCtx) {
           throw new McpToolError('Only the project owner or a Project Manager can edit buildings.', 403);
         }
       }
-      ({ building, updatedFloors } = await upsertBuildingRow({
+      ({ building, updatedFloors } = await api.upsertBuilding({
         projectId,
         buildingId,
         fields: buildingFields,
@@ -293,10 +288,11 @@ export function registerBuildTools(server: McpServer, makeCtx: () => McpCtx) {
     },
     async ({ projectId, floorDesignId, templateName, apartmentCount }) => {
       const ctx = makeCtx();
+      const api = makeApi();
       await ctx.resolveProject(projectId, { pageKey: 'calculator', requiredAction: 'EDIT' });
 
-      const result = await assignFloorTemplateRow({ projectId, floorDesignId, templateName, apartmentCount });
-      const fresh = await ensureFresh(projectId);
+      const result = await api.assignFloorTemplate({ projectId, floorDesignId, templateName, apartmentCount });
+      const fresh = await api.recalculateProject(projectId);
       return ok({ floorDesignId, floorNumber: result.floorNumber, apartmentCount, fresh });
     }
   );
@@ -323,10 +319,11 @@ export function registerBuildTools(server: McpServer, makeCtx: () => McpCtx) {
     },
     async ({ projectId, buildingId, loads }) => {
       const ctx = makeCtx();
+      const api = makeApi();
       await ctx.resolveProject(projectId, { pageKey: 'calculator', requiredAction: 'EDIT' });
 
-      const applied = await replaceBuildingLoads({ projectId, buildingId, loads });
-      const fresh = await ensureFresh(projectId);
+      const applied = await api.setBuildingLoads({ projectId, buildingId, loads });
+      const fresh = await api.recalculateProject(projectId);
       return ok({ buildingId, applied, fresh });
     }
   );
@@ -343,6 +340,7 @@ export function registerBuildTools(server: McpServer, makeCtx: () => McpCtx) {
     },
     async ({ spec }) => {
       const ctx = makeCtx();
+      const api = makeApi();
 
       // Payment / quota gate FIRST — never create a row the user cannot pay for.
       const gate = await canStartProject(ctx.user);
@@ -386,11 +384,11 @@ export function registerBuildTools(server: McpServer, makeCtx: () => McpCtx) {
       }
 
       try {
-        const project = await materializeProject(ctx, spec);
+        const project = await materializeProject(ctx, makeApi(), spec);
 
         // Apartment templates referenced by floors
         for (const t of spec.apartmentTemplates) {
-          await createApartmentTemplateRow({
+          await api.defineApartmentTemplate({
             projectId: project.id,
             name: t.name,
             phases: t.phases,
@@ -398,8 +396,8 @@ export function registerBuildTools(server: McpServer, makeCtx: () => McpCtx) {
           });
         }
 
-        const buildings = await materializeBuildings(ctx, project.id, spec);
-        const fresh = await ensureFresh(project.id);
+        const buildings = await materializeBuildings(ctx, makeApi(), project.id, spec);
+        const fresh = await api.recalculateProject(project.id);
 
         await logProjectActivity({
           projectId: project.id,

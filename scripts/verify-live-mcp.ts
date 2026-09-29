@@ -13,11 +13,12 @@ import { mintMcpToken, revokeMcpToken } from '../src/lib/mcp-auth';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js';
 
-const URL_ = process.env.PROCAL_MCP_URL;
-if (!URL_) {
+const rawUrl = process.env.PROCAL_MCP_URL;
+if (!rawUrl) {
   console.error('Set PROCAL_MCP_URL, e.g. https://procal-mu.vercel.app/api/mcp');
   process.exit(1);
 }
+const URL_: string = rawUrl;
 
 let failures = 0;
 const check = (label: string, ok: boolean, detail = '') => {

@@ -116,10 +116,6 @@ export async function POST(request: Request) {
       if (coordinationAuth instanceof NextResponse) return coordinationAuth;
     }
 
-    const parsedFrame = parseFloat(frameSize) || 40;
-    const parsedIr = parseFloat(ir);
-    const safeIr = parsedIr > 0 ? parsedIr : (parsedFrame * 0.8);
-
     // Upsert: update if exists, create if not
     const settings = await db.breakerSettings.upsert({
       where: { breakerId },
@@ -127,7 +123,7 @@ export async function POST(request: Request) {
         model,
         manufacturer,
         frameSize,
-        ir: safeIr,
+        ir: parseFloat(ir) || 0,
         tr: parseFloat(tr) || 12,
         isd: isd ? parseFloat(isd) : null,
         tsd: tsd ? parseFloat(tsd) : null,
@@ -141,7 +137,7 @@ export async function POST(request: Request) {
         model,
         manufacturer,
         frameSize,
-        ir: safeIr,
+        ir: parseFloat(ir) || 0,
         tr: parseFloat(tr) || 12,
         isd: isd ? parseFloat(isd) : null,
         tsd: tsd ? parseFloat(tsd) : null,

@@ -15,13 +15,7 @@ const JWT_SECRET = new TextEncoder().encode(
 );
 
 export async function proxy(request: NextRequest) {
-  // Allow-list landing page, auth pages, invite acceptance, auth/invite API calls,
-  // and the MCP endpoint.
-  //
-  // /api/mcp is here because MCP clients (Claude Desktop/Code, Cursor) send
-  // `Authorization: Bearer <pat>` and cannot follow a browser redirect — a 302 to
-  // /login would surface as an opaque protocol error rather than a 401. It is
-  // authenticated inside the route by `resolveMcpActor`.
+  // Allow-list landing page, auth pages, invite acceptance, and auth/invite API calls
   const { pathname } = request.nextUrl;
   if (
     pathname === "/" ||
@@ -31,16 +25,7 @@ export async function proxy(request: NextRequest) {
     pathname.startsWith("/forgot-password") ||
     pathname.startsWith("/reset-password") ||
     pathname.startsWith("/api/auth") ||
-    pathname.startsWith("/api/invites") ||
-    pathname.startsWith("/api/mcp") ||
-    // Agent API. Like /api/mcp it authenticates with a bearer token, not a
-    // session cookie, so a browser session must not be what gets it in.
-    // See src/lib/agent/request.ts.
-    pathname.startsWith("/api/agent") ||
-    // Headless-print entry point. Authenticates with a short-lived signed print
-    // ticket instead of a session cookie, because Chromium is a fresh process
-    // with no cookies. See src/lib/reports/print-ticket.ts.
-    pathname.startsWith("/print")
+    pathname.startsWith("/api/invites")
   ) {
     return NextResponse.next();
   }
@@ -72,19 +57,8 @@ export const config = {
      * Match all request paths except:
      * - API routes that are NOT auth API routes
      * - static files, images, favicon
-     *
-     * `api/mcp` is in both the allow-list above AND this negative lookahead.
-     * The allow-list alone is not enough: without the matcher exclusion the
-     * proxy would still run for /api/mcp and redirect a bearer-token client
-     * to /login instead of letting the route return a JSON 401.
-     *
-     * `api/agent` is excluded for the same reason — it is a bearer-token API.
-     *
-     * `print` is excluded for the same reason: headless Chromium has no session
-     * cookie, so the print route must be reached and allowed to render its own
-     * "ticket rejected" response rather than being redirected to /login.
      */
-    "/((?!api/projects|api/buildings|api/cables|api/equipment|api/contact|api/admin|api/invites|api/mcp|api/agent|print|_next/static|_next/image|favicon.ico).*)",
+    "/((?!api/projects|api/buildings|api/cables|api/equipment|api/contact|api/admin|api/invites|_next/static|_next/image|favicon.ico).*)",
   ],
 };
 

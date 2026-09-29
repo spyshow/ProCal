@@ -6,7 +6,6 @@ import { useProject } from '@/context/ProjectContext';
 import { useTranslation } from '@/i18n';
 import { SchematexDiagram } from 'schematex/react';
 import { generateSLDPages, generateSLD, type SLDPage as SLDPageType } from '@/lib/sld/generator';
-import { extendCables, repositionLabels } from '@/lib/sld/svg-postprocess';
 import { sizeTransformer } from '@/lib/calculations/loads';
 import { phaseBalance } from '@/lib/calculations/phaseBalance';
 import {
@@ -599,9 +598,113 @@ export default function SLDPage() {
     }, 200);
   };
 
-  // extendCables / repositionLabels now live in @/lib/sld/svg-postprocess so the
-  // server-side print path can reuse them. See that module for the constraint on
-  // keeping them self-contained.
+  // Extend vertical cables
+  const extendCables = (svg: SVGSVGElement) => {
+    const allLines = svg.querySelectorAll('line');
+    const allPaths = svg.querySelectorAll('path');
+    const EXTRA = 80;
+
+    const busLines: number[] = [];
+    allLines.forEach((line) => {
+      const y1 = parseFloat(line.getAttribute('y1') || '0');
+      const y2 = parseFloat(line.getAttribute('y2') || '0');
+      const x1 = parseFloat(line.getAttribute('x1') || '0');
+      const x2 = parseFloat(line.getAttribute('x2') || '0');
+      if (y1 === y2 && Math.abs(x2 - x1) > 200) {
+        busLines.push(y1);
+      }
+    });
+
+    allLines.forEach((line) => {
+      const x1 = parseFloat(line.getAttribute('x1') || '0');
+      const y1 = parseFloat(line.getAttribute('y1') || '0');
+      const x2 = parseFloat(line.getAttribute('x2') || '0');
+      const y2 = parseFloat(line.getAttribute('y2') || '0');
+      if (x1 === x2 && y1 !== y2) {
+        const topY = Math.min(y1, y2);
+        const botY = Math.max(y1, y2);
+        if (busLines.some((b) => Math.abs(b - topY) < 5) && botY - topY < 100) {
+          line.setAttribute('y2', String(botY + EXTRA));
+        }
+      }
+    });
+
+    allPaths.forEach((path) => {
+      const d = path.getAttribute('d') || '';
+      const match = d.match(/^M\s*([\d.]+)\s+([\d.]+)\s+L\s*([\d.]+)\s+([\d.]+)$/);
+      if (match) {
+        const [, x1, y1, x2, y2] = match.map(Number);
+        if (x1 === x2 && Math.abs(y2 - y1) < 100) {
+          const topY = Math.min(y1, y2);
+          if (busLines.some((b) => Math.abs(b - topY) < 5)) {
+            path.setAttribute('d', `M ${x1} ${y1} L ${x2} ${Math.max(y1, y2) + EXTRA}`);
+          }
+        }
+      }
+    });
+
+    const bbox = svg.getBBox();
+    svg.setAttribute('viewBox', `0 0 ${bbox.width} ${bbox.height + EXTRA * 2}`);
+    svg.style.height = 'auto';
+  };
+
+  const repositionLabels = (svg: SVGSVGElement) => {
+    const texts = svg.querySelectorAll('text');
+    if (texts.length === 0) return;
+
+    const mcbSymbols: { cx: number; cy: number; topY: number; botY: number; rightX: number }[] = [];
+    svg.querySelectorAll('line').forEach((line) => {
+      const x1 = parseFloat(line.getAttribute('x1') || '0');
+      const y1 = parseFloat(line.getAttribute('y1') || '0');
+      const x2 = parseFloat(line.getAttribute('x2') || '0');
+      const y2 = parseFloat(line.getAttribute('y2') || '0');
+      if (x1 !== x2 && y1 !== y2 && Math.abs(y2 - y1) > 5 && Math.abs(x2 - x1) > 5) {
+        mcbSymbols.push({
+          cx: (x1 + x2) / 2,
+          cy: (y1 + y2) / 2,
+          topY: Math.min(y1, y2),
+          botY: Math.max(y1, y2),
+          rightX: Math.max(x1, x2),
+        });
+      }
+    });
+
+    if (mcbSymbols.length === 0) return;
+
+    texts.forEach((text) => {
+      const bbox = text.getBBox();
+      const tx = bbox.x + bbox.width / 2;
+      const ty = bbox.y + bbox.height / 2;
+      const content = text.textContent?.trim() || '';
+
+      if (
+        content.includes('Single Line') ||
+        content.includes('MDB Bus') ||
+        content.includes('Utility') ||
+        content.includes('400V') ||
+        content.includes('Sub-Panel') ||
+        content === 'DB'
+      )
+        return;
+
+      let nearestMCB: (typeof mcbSymbols)[0] | null = null;
+      let minDist = Infinity;
+      for (const mcb of mcbSymbols) {
+        const dx = Math.abs(tx - mcb.cx);
+        const dy = Math.abs(ty - mcb.cy);
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < 100 && dist < minDist) {
+          minDist = dist;
+          nearestMCB = mcb;
+        }
+      }
+
+      if (nearestMCB) {
+        text.setAttribute('x', String(nearestMCB.rightX + 14));
+        text.setAttribute('text-anchor', 'start');
+      }
+    });
+  };
 
   useEffect(() => {
     if (activeTab === 'sld') return;

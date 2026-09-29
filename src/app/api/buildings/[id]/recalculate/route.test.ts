@@ -4,63 +4,26 @@ import { NextResponse } from "next/server";
 const mocks = {
   verifyProjectAccess: vi.fn(),
   buildingFindUnique: vi.fn(),
-  buildingFindMany: vi.fn(),
   floorItemFindMany: vi.fn(),
   floorItemUpdate: vi.fn(),
-  projectFindUnique: vi.fn(),
   projectUpdate: vi.fn(),
   transaction: vi.fn(),
-  /** The project carried by the most recent building fixture. */
-  stashedProject: null as unknown,
 };
 
 vi.mock("@/lib/project-auth", () => ({
   verifyProjectAccess: vi.fn(async (...args) => mocks.verifyProjectAccess(...args)),
 }));
 
-/**
- * The route is now a thin wrapper over `src/lib/services/recalculate.ts`, which
- * reads the building row, the project row, and the per-building apartment counts
- * as three separate queries instead of one nested include.
- *
- * The fixtures below are still written in the old nested shape, so the mock
- * adapts them: `building.findUnique` stashes the nested project and returns the
- * flat row the service selects, and `building.findMany` derives the apartment
- * counts the diversity rule needs. Behavioural assertions are unchanged.
- */
 vi.mock("@/lib/db", () => ({
   db: {
     building: {
-      findUnique: vi.fn(async (...args) => {
-        const row = await mocks.buildingFindUnique(...args);
-        if (!row) return null;
-        mocks.stashedProject = row.project ?? null;
-        return { id: row.id, name: row.name ?? "Tower A", projectId: row.projectId };
-      }),
-      findMany: vi.fn(async (...args) => {
-        const project = mocks.stashedProject as
-          | { buildings?: Array<{ id: string; name?: string; floorDesigns?: Array<{ items?: Array<{ id: string; type: string }> }> }> }
-          | null;
-        const buildings =
-          project?.buildings ??
-          [{ id: "bldg-1", name: "Tower A", floorDesigns: [] as Array<{ items: Array<{ id: string; type: string }> }> }];
-        return buildings.map((b) => ({
-          id: b.id,
-          name: b.name ?? "Tower A",
-          floorDesigns: (b.floorDesigns ?? []).map((fd) => ({
-            items: (fd.items ?? [])
-              .filter((i) => i.type === "APARTMENT")
-              .map((i) => ({ id: i.id })),
-          })),
-        }));
-      }),
+      findUnique: vi.fn(async (...args) => mocks.buildingFindUnique(...args)),
     },
     floorItem: {
       findMany: vi.fn(async (...args) => mocks.floorItemFindMany(...args)),
       update: vi.fn(async (...args) => mocks.floorItemUpdate(...args)),
     },
     project: {
-      findUnique: vi.fn(async (...args) => mocks.projectFindUnique(...args)),
       update: vi.fn(async (...args) => mocks.projectUpdate(...args)),
     },
     $transaction: vi.fn(async (...args) => mocks.transaction(...args)),
@@ -86,15 +49,6 @@ describe("POST /api/buildings/[id]/recalculate", () => {
     mocks.verifyProjectAccess.mockResolvedValue({
       project: { id: "proj-1" },
       memberRole: "ENGINEER",
-    });
-    // Default project row for the service's findProjectRow() call. Individual
-    // tests override it when the case depends on voltage or power factor.
-    mocks.projectFindUnique.mockResolvedValue({
-      id: "proj-1",
-      voltage: 400,
-      powerFactor: 0.85,
-      engineVersion: "old",
-      buildings: [],
     });
   });
 

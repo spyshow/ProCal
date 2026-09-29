@@ -5,7 +5,6 @@ import { parseMemberPermissions } from "@/lib/project-permissions";
 import { logProjectActivity } from "@/lib/audit-logger";
 import { seedDefaultProjectTemplates, seedDefaultLoadLibrary } from "@/lib/project-defaults";
 import { validateProjectSettings } from "@/lib/calculations/validate";
-import { canStartProject, recordCreditTransaction, spendProjectCredit } from "@/lib/billing/entitlement";
 
 export async function GET(request?: Request) {
   try {
@@ -181,23 +180,12 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: message }, { status: 400 });
     }
 
-    // Credit gate lives in @/lib/billing/entitlement so the HTTP route and the
-    // MCP create tool cannot drift (Task 3 Step 3). Admins bypass.
-    const gate = await canStartProject(user);
-    if (!gate.allowed) {
-      // A spent subscription quota is reported as 402 with the allowance detail
-      // so the client can tell the user to upgrade rather than "buy credits".
-      return NextResponse.json(
-        {
-          error: gate.message ?? "No credits remaining",
-          reason: gate.reason,
-          tier: gate.tier,
-          allowance: gate.allowance,
-          usedThisPeriod: gate.usedThisPeriod,
-          checkoutUrl: gate.checkoutUrl,
-        },
-        { status: 402 }
-      );
+    // Admins bypass the credit gate (they manage the system).
+    if (user.role !== "ADMIN") {
+      const fresh = await db.user.findUnique({ where: { id: user.id }, select: { credits: true } });
+      if (!fresh || fresh.credits < 1) {
+        return NextResponse.json({ error: "No credits remaining" }, { status: 402 });
+      }
     }
 
     const projectData = {
@@ -224,24 +212,13 @@ export async function POST(request: Request) {
     };
 
     let project;
-    if (gate.reason === "admin_bypass" || gate.reason === "subscription") {
-      // No credit spend on these paths, but the creation is still recorded so
-      // /billing shows project activity against a subscription too.
-      if (gate.reason === "subscription") {
-        await recordCreditTransaction({
-          userId: user.id,
-          delta: 0,
-          reason: "PROJECT_SPENT",
-          note: `Created project "${name}" (${gate.tier} plan)`,
-        });
-      }
+    if (user.role === "ADMIN") {
       project = await db.project.create({ data: projectData });
     } else {
-      const spent = await spendProjectCredit(user.id, `Created project "${name}"`);
-      if (!spent) {
-        return NextResponse.json({ error: "No credits remaining" }, { status: 402 });
-      }
-      project = await db.project.create({ data: projectData });
+      [, project] = await db.$transaction([
+        db.user.update({ where: { id: user.id }, data: { credits: { decrement: 1 } } }),
+        db.project.create({ data: projectData }),
+      ]);
     }
 
     // Automatically create ProjectMember record for creator as PROJECT_MANAGER

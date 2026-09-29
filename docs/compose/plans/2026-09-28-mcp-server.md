@@ -68,25 +68,26 @@
 
 **Covers:** Branch hygiene and the zod compatibility gate
 
-- [x] **Step 1: Resolve the working tree** — DONE
+- [ ] **Step 1: Resolve the working tree**
 
-Tree was clean at the time of branching (the uncommitted files were swept into `6badf5e` by the auto-commit agent). Branched:
+`master` has 15 uncommitted files and deploys run from `master` / `production`. Commit or stash them, then branch:
 
 ```bash
 git checkout -b feat/mcp-server
 ```
 
-- [x] **Step 2: Gate the zod version — CLEARED, no blocker**
+- [ ] **Step 2: Gate the zod version — do this before writing any tool code**
+
+You are on zod `^4.4.3`. The MCP SDK historically declares a zod `^3.23` peer. Check the actual requirement of the version you intend to install, then pick one:
 
 ```bash
 npm view @modelcontextprotocol/sdk version peerDependencies
-# version = '1.30.1'
-# peerDependencies = { zod: '^3.25 || ^4.0', '@cfworker/json-schema': '^4.1.1' }
 ```
 
-SDK 1.30.1 accepts **zod 4**, so the existing `zod ^4.4.3` is used as-is. No version pinning, no rewrite of the `ZodError` import in `src/lib/api-errors.ts:3`.
+- SDK supports zod 4 → proceed as written.
+- SDK requires zod 3 only → either use a release with v4 support, or pin zod 3 and update the single `ZodError` import in `src/lib/api-errors.ts:3`.
 
-**Note:** `@cfworker/json-schema ^4.1.1` is also a peer dependency and must be installed explicitly.
+This decision determines how all of Task 5 is built. Do not defer it.
 
 - [x] **Step 3: Settle the pricing model (DONE 2026-09-28)**
 
@@ -131,32 +132,39 @@ Implemented in this pass: `docs/ideas/pricing-strategy.md` rewritten, plus the `
 - Consumes: `generateSLDPages()` from `src/lib/sld/generator.ts`, `render()` from `schematex`, `generateServerPdf()` from `src/lib/reports/server-pdf.ts`
 - Produces: a validated answer to "can the SLD be printed server-side?"
 
-- [x] **Step 1: Prove the SLD renders to a string in Node** — CONFIRMED
+- [ ] **Step 1: Prove the SLD renders to a string in Node**
 
-`render(page.dsl)` returns a plain SVG string with no DOM. `generateSLDPages()` is also pure and needs no database, so the whole path is testable with synthetic project data.
+```ts
+import { render } from 'schematex';
+const svg = render(page.dsl);   // string, no DOM required
+```
 
-- [x] **Step 2: Post-process inside Chromium** — CONFIRMED
+Confirm this works outside a browser before building anything on it.
 
-`extendCables` / `repositionLabels` stringify and evaluate cleanly in the page realm. `viewBox` was rewritten on **20/20** sheets (594 → 686), proving `getBBox()`-dependent code runs.
+- [ ] **Step 2: Post-process inside Chromium**
 
-- [x] **Step 3: Print 20 landscape pages** — CONFIRMED
+`extendCables` and `repositionLabels` (currently at `src/app/(app)/sld/page.tsx:600-705`) depend on `getBBox()`, so they need a laid-out DOM. Stringify them and run them in the browser you already have:
 
-`page.pdf({ format: 'A4', landscape: true, preferCSSPageSize: true })` over one `.sheet` container per floor.
+```ts
+await page.evaluate(`${extendCables.toString()}; extendCables(document.querySelector('svg'));`);
+```
 
-- [x] **Step 4: Test on a 20-floor tower** — CONFIRMED
+- [ ] **Step 3: Print 20 landscape pages**
 
-Result: **20 pages, 94 KB, no clipping, no overlap.** Verified visually by screenshotting F1 (direct feed), F3 (sub-panel), and F20 (highest floor). Both floor topologies render correctly and output quality does not degrade with floor number.
+One `page-break-before: always` block per SLD page, then:
 
-- [x] **Step 5: Record the outcome** — **PASS**, proceed to Task 4
+```ts
+await page.pdf({ format: 'A4', landscape: true, printBackground: true, preferCSSPageSize: true });
+```
 
-> **API correction for Task 4:** `renderResult()` returns `status: "valid"`, **not** `"ok"`. Do not gate on a magic string — read the `diagnostics` array and fail only when a diagnostic is an error.
+- [ ] **Step 4: Test on a 20-floor tower — the case that matters**
 
-### Defects found during the spike (both pre-existing, both in the client SLD too)
+Assert exactly 20 pages, one per floor, nothing clipped or overlapping. A big tower is where layout breaks.
 
-1. **Duplicate breaker ratings.** `generator.ts` sets *both* `label` and `rating` to the same `item.breakerSize`, so schematex draws each ampacity twice. After `repositionLabels` moves one copy beside the breaker, a ghost copy remains in grey at the original position. Every branch shows its rating twice.
-2. **Repositioned labels collide with the cable-tag row.** `repositionLabels` sets `x = rightX + 14`, which lands on the `Wf20a / 6 mm²` row on wide sheets. On the sub-panel sheets the bold breaker labels visibly overlap the cable tags.
+- [ ] **Step 5: Record the outcome**
 
-Neither blocks the MCP work, but both are visible in a submittal PDF. Fix them **in the export post-processing path only** (`src/lib/drawings/sld-render.ts`) so the interactive SLD page is not changed. Add a de-duplication pass plus a vertical nudge to the label-repositioning step, and re-screenshot to confirm.
+- **Success** → proceed to Task 4 as written.
+- **Post-processing flaky** → drop `extendCables`/`repositionLabels` from the export path. They are cosmetic; the schematic still prints correctly, just with shorter stub cables and MCB labels in their default position.
 
 ---
 
@@ -175,7 +183,7 @@ Neither blocks the MCP work, but both are visible in a submittal PDF. Fix them *
 **Interfaces:**
 - Produces: `resolveMcpActor(request) → McpUser | null`, `verifyProjectAccessAsUser(user, projectId, opts) → VerifyProjectAccessResult`
 
-- [x] **Step 1: Add the `McpToken` model** — DONE
+- [ ] **Step 1: Add the `McpToken` model**
 
 Store only the hash. `prefix` is shown in the UI so a user can tell tokens apart; the raw value is displayed exactly once at mint time.
 
@@ -195,9 +203,7 @@ model McpToken {
 }
 ```
 
-- [x] **Step 2: Extract the user-agnostic core of `project-auth.ts`** — DONE
-
-Shipped as `ProjectAuthSuccess` / `AuthedUser` / `ProjectAccessOptions` exports so the MCP context and every future caller share one permission implementation and one options type.
+- [ ] **Step 2: Extract the user-agnostic core of `project-auth.ts`**
 
 `verifyProjectAccess` currently calls `getSessionUser()` internally. Split it so the permission logic has one implementation shared by both auth paths — this is what keeps MCP bound to the same permissions as the UI.
 
@@ -210,7 +216,7 @@ export async function verifyProjectAccess(projectId, options) {
 }
 ```
 
-- [x] **Step 3: Update `src/proxy.ts` — two changes, both required** — DONE
+- [ ] **Step 3: Update `src/proxy.ts` — two changes, both required**
 
 Add `/api/mcp` to the top-level allow-list **and** to the matcher negative lookahead at `src/proxy.ts:61`. Miss the matcher and the endpoint 302-redirects to `/login`, which MCP clients fail on opaquely.
 
@@ -220,13 +226,13 @@ pathname.startsWith("/api/mcp") ||   // in the allow-list
 "/((?!api/projects|api/buildings|api/cables|api/equipment|api/contact|api/admin|api/invites|api/mcp|...).*)"
 ```
 
-- [x] **Step 4: Implement `src/lib/mcp-auth.ts`** — DONE
+- [ ] **Step 4: Implement `src/lib/mcp-auth.ts`**
 
-Revoked tokens and disabled users are filtered **in the query** rather than after it, so the selected shape is already exactly `McpUser` and no field has to be stripped. `lastUsedAt` is a fire-and-forget write that cannot fail the request. No constant-time compare: the lookup is an exact indexed hash match, so an attacker would have to *collide* with a stored hash rather than be compared against one.
+SHA-256 the presented token, look it up, reject if `revokedAt` is set or the user is `disabled`. Return the same user shape `getSessionUser()` returns so downstream code is identical on both paths. Update `lastUsedAt` on success.
 
-- [x] **Step 5: Add token endpoints and the settings UI** — DONE
+- [ ] **Step 5: Add token endpoints and the settings UI**
 
-`GET/POST/DELETE /api/mcp/tokens` plus a new "AI Agent Access (MCP)" tab (`src/components/settings/McpTokensTab.tsx`) with a one-time reveal, copy button, revoke, and a copy-paste client config.
+`GET` list (prefix + created + last used, never the token), `POST` mint (returns the raw token once), `DELETE` revoke.
 
 ---
 
@@ -322,41 +328,6 @@ Point `src/app/api/projects/route.ts` at it. The existing 402 response and clien
 
 The allowance counts **projects created in the current billing period**, not currently-open projects — see Task 0 Step 3, entitlement semantics.
 
-**DONE.** `TIER_PROJECT_ALLOWANCE` (1 / 5 / 15 by tier) lives in `src/lib/stripe.ts`
-next to the prices so a tier's price and its allowance cannot disagree. The count is
-`Project.count({ createdAt: { gte: currentPeriodStart } })`.
-
-`Subscription.currentPeriodStart` was added because deriving the period start from
-`currentPeriodEnd` drifts on anniversary billing. The webhook populates it on both
-`checkout.session.completed` and `customer.subscription.updated` — the renewal is
-the event that resets the allowance.
-
-Three deliberate edge-case decisions:
-
-- **A spent quota never falls back to credits.** It returns
-  `reason: "quota_exhausted"`, not `payment_required`. Falling back would silently
-  convert an $89 subscriber into a per-project customer without them agreeing to
-  it. The message says "upgrade or buy a pass", and the MCP tool's `nextStep`
-  explicitly tells the agent *not* to offer credits.
-- **An unrecognised tier refuses rather than granting unlimited.** Failing open on
-  data drift is a revenue leak; failing closed is a visible, fixable error.
-- **A missing `currentPeriodStart` falls back to a rolling 30-day window** and logs
-  a warning, so our own bookkeeping can never lock out a paying customer.
-
-Surfaced in three places, so the explanation always matches the decision:
-`GET /api/billing/quota` (the `/billing` usage meter), the `402` body from
-`POST /api/projects` (`reason` + `tier` + `allowance` + `usedThisPeriod`), and a
-`quota` block on a successful MCP create.
-
-Coverage: 10 tests in `billing.test.ts` (per-tier caps, period-boundary query,
-no-credit-fallback, unknown-tier refusal, rolling-window fallback) and 1 MCP
-protocol test asserting `quota_exhausted` reaches the agent as a non-error.
-
-**Regression caught while implementing this:** centralising the gate initially sent
-`admin_bypass` down the credit-spend branch, so admins got a 402. The existing
-`POST /api/projects` test failed. Both `admin_bypass` and `subscription` now skip
-the spend.
-
 - [ ] **Step 4: Checkout + webhook + portal**
 
 `POST /api/billing/checkout` creates a Checkout Session with `metadata.userId` and `metadata.intentId`. `POST /api/billing/webhook` verifies the signature, then in one transaction: apply credits or upsert the subscription, write a ledger row, mark the intent `PAID`, and — if `specJson` is present — call `materializeProjectFromSpec()`. Idempotent on the unique `stripeSessionId`, so Stripe's retries cannot double-grant. Handle `customer.subscription.updated` and `customer.subscription.deleted` to keep `Subscription.status` honest.
@@ -390,43 +361,29 @@ It currently renders only a lead-capture form. Add Stripe Checkout and the Custo
 **Interfaces:**
 - Produces: `buildRiserModel(project, buildingId, findBreaker) → RiserModel`, `renderSldPageSvg(page) → string`, `renderDrawingsHtml(opts) → string`, `generateDrawingsPdf(opts) → Buffer`
 
-- [x] **Step 1: Move the SLD post-processors out of the client component** — DONE
+- [ ] **Step 1: Move the SLD post-processors out of the client component**
 
-`src/lib/sld/svg-postprocess.ts` holds both functions verbatim; the SLD page imports them. The module documents the self-contained constraint (they are stringified into the browser, so no imports and no closure over module scope).
+Copy `extendCables` and `repositionLabels` verbatim from `src/app/(app)/sld/page.tsx:600-705` into `src/lib/sld/svg-postprocess.ts` and import them back. Pure DOM, no React state, no behavior change — verify the client SLD page renders identically.
 
-- [x] **Step 2: Extract the riser geometry** — DONE
+- [ ] **Step 2: Extract the riser geometry**
 
-`src/lib/drawings/riser-model.ts` → `buildRiserModel(project, buildingId, findBreaker)`. The page's inline `FloorData` interface and the duplicate circuit-label IIFE are gone; the model now supplies `circuits[]` so the component stays presentational.
+Lift lines 130-234 of `src/app/(app)/riser/page.tsx` into a pure `buildRiserModel()`. Every input is already a pure function from `src/lib/calculations/`, so this is a move, not a rewrite.
 
-**Dropped as dead code:** the page computed a `mdbSizing = sizeCableAndBreaker(...)` result and then rendered the MDB box from `computeFeeders` output instead, so it was never displayed. Not carried forward.
+- [ ] **Step 3: Make the riser SVG server-renderable**
 
-- [x] **Step 3: Make the riser SVG server-renderable** — DONE
+The current JSX calls `t()` for i18n and references `var(--card-bg)`, neither of which resolves during server printing. Produce `riser-svg.tsx` taking `RiserModel` plus `theme: 'print' | 'screen'`: no hooks, literal English strings, concrete hex colors in print mode. This de-duplicates the renderer and is a net win for the codebase.
 
-`src/lib/drawings/riser-svg.tsx` takes `model`, optional `sheet`, a `theme` (`SCREEN_RISER_THEME` uses the app's CSS variables, `PRINT_RISER_THEME` uses concrete hex) and a `labels` override. No hooks, no i18next. The page passes translated labels; the print path passes `DEFAULT_RISER_LABELS`. `ref` is a normal prop (React 19).
+- [ ] **Step 4: Build the landscape sheets**
 
-- [x] **Step 4: Build the landscape sheets** — DONE, plus **riser pagination** (see finding 3)
+`renderDrawingsHtml()` must reuse **`wrapReportMarkup()`** so the styling is literally the report's, with `ReportHeader` on every sheet and a "Sheet N of M" footer. Each SLD page gets its own `.print-page-container` (which already sets `page-break-before: always`) so 20 floors becomes 20 landscape pages. Constrain each SVG to the landscape text block with a max-height guard.
 
-`renderDrawingsHtml()` reuses `wrapReportMarkup()`, so the drawings inherit the report's exact stylesheet. `ReportHeader` was **not** used — it needs a full `Project` with a different prop shape, and the drawings build their own `.drawing-head` / `.drawing-foot` in the same visual language, which keeps `drawings-html` free of a hard dependency on the report component set.
+- [ ] **Step 5: Pool the Chromium instance**
 
-- [x] **Step 5: Pool the Chromium instance** — DONE
+Each launch costs 3-8s and hundreds of MB. Use a module-level singleton with a one-concurrent gate rather than launching per call.
 
-`src/lib/drawings/chromium-pool.ts`. Measured on the 20-floor tower: **1.0s first call, 0.6s second** (browser reused), against a 3-8s launch per call. Failures never poison the queue.
+- [ ] **Step 6: Rewire the riser page and re-run the spike scenario**
 
-- [x] **Step 6: Rewire the riser page and re-run the scenario** — DONE
-
-- Page renders from the shared model + component; `tsc`, `eslint` and the visual check all pass.
-- `scripts/verify-drawings.ts` is the permanent regression check: 20-floor tower → asserts the PDF page count, prints the pool timings, and writes sheet screenshots to `scratch/`.
-- Test suite: **800 passing** (779 before this plan + 21 new).
-- `npm run build` green.
-
-### Findings from Task 4 — carry these forward
-
-1. **`page.evaluate` must take a string, not a function.** tsx/esbuild wraps named inner functions in a `__name()` helper; serialising such a function into Chromium throws `ReferenceError: __name is not defined`. `page.evaluate('document.fonts.ready')` and the stringified post-processor both work. Any future `page.evaluate` in this repo must avoid inner function expressions.
-2. **Raw HTML strings need `class=`, not `className=`.** The sheet markup is a template string, so it never passes through React. `wrapReportMarkup` injects it verbatim. Using `className=` produced markup with no `class` attribute at all — no styling, no page breaks, and a 24-page PDF for 21 sheets. Anything hand-written into `wrapReportMarkup` must use plain HTML attributes.
-3. **A tall riser must paginate.** A 20-floor riser is 1100 × ~4400 SVG user units. Fitted to a landscape A4 body (~1047 × 597 px) that is a **14% scale — illegible**. `paginateRiser()` now splits floors into ~880-unit sheets (≈5 floors each), draws the transformer/incomer/MDB block on the first sheet only, and labels continuations. Result: 4 readable riser sheets instead of 1 unreadable one. `generateDrawingsPdf` reports the paginated count.
-4. **The two spike defects are fixed, print-path only.** `stripDuplicateMcbLabels()` drops the redundant `rating` when it equals the `label` (dropping the *label* instead is wrong — schematex then renders a literal "MCB"), and the export post-processor nudges repositioned labels off the cable-tag row. Confirmed by screenshot: each breaker now shows its rating once, clear of the `Wf1a / 6 mm²` annotations. The interactive page is unchanged.
-
-**Known cosmetic item, not addressed:** schematex renders the floor-breaker `rating` (e.g. "81A") with a very thin "1", which reads as a gap at print scale. Pre-existing in the client SLD as well, and it comes from schematex's own text layout, not from this refactor.
+Confirm the on-screen riser is visually unchanged, then re-run the 20-floor case as a permanent test.
 
 ---
 
@@ -445,29 +402,55 @@ It currently renders only a lead-capture form. Add Stripe Checkout and the Custo
 - Consumes: `verifyProjectAccessAsUser`, `canStartProject`, `renderReportHtml`, `buildReportWorkbook`, `generateDrawingsPdf`
 - Produces: 14 tools, all `procal_`-prefixed
 
-- [x] **Step 1: Stand up the endpoint** — DONE
+- [ ] **Step 1: Stand up the endpoint**
 
-`WebStandardStreamableHTTPServerTransport` (Web-standards, so it drops straight into a Next route handler) with `sessionIdGenerator: undefined` for stateless operation and `enableJsonResponse: true`. `GET`/`DELETE` return JSON-RPC 405. Unauthenticated requests get a JSON-RPC 401 with `WWW-Authenticate: Bearer` — not a redirect.
+Streamable HTTP, stateless — a fresh server and transport per request, no session state, so it scales and survives serverless recycling.
 
-- [x] **Step 2: Build `McpCtx`** — DONE
+```ts
+export const maxDuration = 120;
+export const dynamic = "force-dynamic";
+```
 
-`createMcpCtx(user)` in `src/mcp/context.ts`. `resolveProject()` throws a structured `McpToolError` rather than returning a `NextResponse`, so a tool cannot leak an HTTP object into an MCP result. A test asserts every project-scoped tool takes a `projectId`.
+`GET`/`DELETE` return 405. Authenticate with `resolveMcpActor` before handling anything.
 
-- [x] **Step 3: Implement the freshness guard — the highest-value correctness rule** — DONE
+- [ ] **Step 2: Build `McpCtx`**
 
-`src/mcp/freshness.ts`. `ensureFresh()` short-circuits when `engineVersion === ENGINE_VERSION`; otherwise it replays the recalculate logic from `POST /api/buildings/[id]/recalculate` (whole-project residential unit count for the diversity factor, undersized manual breakers cleared, 0.1 voltage-drop placeholders reset) and stamps the engine. All three export tools call it before rendering. Also exports `loadProjectForDesign()` and `summariseRiser()`.
+Bind the resolved actor to the project so every tool resolves access the same way:
 
-- [x] **Step 4: Register the tools** — DONE, **13 not 14**
+```ts
+resolveProject(projectId, { pageKey, requiredAction }) // → verifyProjectAccessAsUser
+```
 
-`procal_create_project` was folded into `procal_create_project_from_spec` rather than shipped as a thin wrapper, since the spec form subsumes it.
+- [ ] **Step 3: Implement the freshness guard — the highest-value correctness rule**
 
-- [x] **Step 5: Add artifact delivery** — DONE
+Most report schedules (cable, MDB, BOM, voltage drop) read **stored** `FloorItem` columns, not live math, so they go stale until `recalculate` runs. Without this guard the agent will confidently export a wrong submittal. Every export tool calls it first:
 
-`McpArtifact` holds the bytes; `GET /api/mcp/artifacts/[id]` accepts **either** the bearer token or the session cookie, so the agent can fetch the file and the user can click the link. Ownership and expiry are both enforced; an expired row is deleted on access. 24-hour default TTL.
+```ts
+export async function ensureFresh(projectId) {
+  const p = await db.project.findUnique({ where: { id: projectId }, select: { engineVersion: true } });
+  if (p?.engineVersion !== ENGINE_VERSION) await recalculate(projectId);
+}
+```
 
-- [x] **Step 6: Stamp the audit log** — DONE
+- [ ] **Step 4: Register the tools**
 
-Mutating tools call `logProjectActivity` with `details: { source: "mcp" }`.
+*Discover and pay* — `procal_list_projects`, `procal_get_project_brief` (compact state, what is missing, engine staleness), `procal_create_checkout`
+
+*Build* — `procal_create_project_from_spec` (one-shot declarative: buildings, floors, templates, rooms, mechanical loads, then auto-recalculate) plus the granular set for editing an existing project: `procal_upsert_building`, `procal_define_apartment_template`, `procal_assign_floor_template`, `procal_set_building_loads`
+
+*Derive* — `procal_recalculate_project`, `procal_get_design_summary` (transformer kVA, MDB main, per-floor kW/kVA/ΔV, warnings)
+
+*Export* — `procal_export_report_pdf`, `procal_export_excel`, `procal_export_drawings_pdf`
+
+`create_project` returns a structured `{ status: "payment_required", checkoutUrl, creditsRequired }` rather than an error, so the agent can hand the user a link and resume once the webhook fires.
+
+- [ ] **Step 5: Add artifact delivery**
+
+MCP results are text/JSON, so binaries cannot come back inline. Add `McpArtifact` (bytes in Postgres `Bytes` — PDFs are 1-3 MB, Excel ~200 KB) and `GET /api/mcp/artifacts/[id]` guarded by an expiring signed token. Disk is not durable on Vercel serverless, so `Bytes` is the correct choice. Tools return a URL.
+
+- [ ] **Step 6: Stamp the audit log**
+
+Every mutation calls `logProjectActivity` with `source: "mcp"`. Cheap now, painful to retrofit.
 
 ---
 

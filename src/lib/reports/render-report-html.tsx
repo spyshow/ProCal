@@ -1,18 +1,132 @@
+import React from 'react';
+import { createRequire } from 'module';
+const requireModule = createRequire(import.meta.url);
+const ReactDOMServer = requireModule('react-dom/server');
+import type { Project, ProjectRevision } from '@/types';
+import { createFindBreaker, type EquipmentItem, type FindBreaker } from '@/lib/calculations/feeders';
+import type { BreakerSettingItem } from './aggregates';
 import { REPORT_COMPILED_CSS } from './report-css';
+import CoverPage from '@/components/report/CoverPage';
+import LoadSchedule from '@/components/report/LoadSchedule';
+import MDBSchedule from '@/components/report/MDBSchedule';
+import CableSchedule from '@/components/report/CableSchedule';
+import BreakerSchedule from '@/components/report/BreakerSchedule';
+import VDSchedule from '@/components/report/VDSchedule';
+import ShortCircuitSchedule from '@/components/report/ShortCircuitSchedule';
+import BOMSchedule from '@/components/report/BOMSchedule';
+import ReportHeader from '@/components/report/ReportHeader';
 
-/**
- * Wraps already-rendered report markup in a standalone print document.
- *
- * The report schedules themselves are client components — `TraceableCell` owns the
- * "Show Your Work" trace popover — so they cannot be rendered to a string on the
- * server: Next's RSC transform hands a server module a client-reference proxy and
- * `renderToStaticMarkup` throws. The schedules are therefore rendered in a real
- * browser (see `print-report-pdf.ts`), and this function only supplies the
- * stylesheet and print rules around the resulting DOM.
- *
- * Both export paths share this wrapper, so the browser-POST export and the
- * headless-Chromium export produce the same document.
- */
+export interface RenderReportHtmlOptions {
+  project: Project;
+  buildingId?: string;
+  manufacturer?: string;
+  equipment?: EquipmentItem[];
+  breakerSettings?: BreakerSettingItem[];
+  revisions?: ProjectRevision[];
+  companyName?: string;
+  companyLogoUrl?: string;
+}
+
+export function renderReportHtml(options: RenderReportHtmlOptions): string {
+  const {
+    project,
+    buildingId,
+    manufacturer,
+    equipment = [],
+    breakerSettings = [],
+    revisions = options.revisions ?? (project as unknown as { revisions?: ProjectRevision[] }).revisions ?? [],
+    companyName = 'ProCal — Low-voltage Electrical design, Solved',
+    companyLogoUrl,
+  } = options;
+
+  const prefManufacturer = manufacturer || project.preferredManufacturer;
+
+  const findBreaker: FindBreaker = createFindBreaker(
+    equipment,
+    {
+      ACB: project.defaultAcbFamilyId ?? undefined,
+      MCCB: project.defaultMccbFamilyId ?? undefined,
+      MCB: project.defaultMcbFamilyId ?? undefined,
+    },
+    prefManufacturer
+  );
+
+  const reportMarkup = ReactDOMServer.renderToStaticMarkup(
+    <div className="report-root w-full bg-white text-slate-900">
+      {/* Page 1: Cover Page */}
+      <div className="w-full bg-white text-slate-900 p-2">
+        <CoverPage
+          project={project}
+          companyName={companyName}
+          companyLogoUrl={companyLogoUrl}
+          revisions={revisions}
+          findBreaker={findBreaker}
+          breakerSettings={breakerSettings}
+        />
+      </div>
+
+      {/* Page 2: Load Analysis & Balancing */}
+      <div style={{ pageBreakBefore: 'always', breakBefore: 'page' }} className="print-page-container w-full p-2 bg-white text-slate-900">
+        <ReportHeader project={project} companyName={companyName} companyLogoUrl={companyLogoUrl} title={project.name} subtitle="LOAD ANALYSIS & PHASE BALANCING SCHEDULE" />
+        <LoadSchedule project={project} buildingId={buildingId} showHeader={false} />
+      </div>
+
+      {/* Page 3: Main Distribution Board Schedule */}
+      <div style={{ pageBreakBefore: 'always', breakBefore: 'page' }} className="print-page-container w-full p-2 bg-white text-slate-900">
+        <ReportHeader project={project} companyName={companyName} companyLogoUrl={companyLogoUrl} title={project.name} subtitle="MAIN DISTRIBUTION BOARD (MDB) FEEDER SCHEDULE" />
+        <MDBSchedule project={project} buildingId={buildingId} equipment={equipment} findBreaker={findBreaker} showHeader={false} />
+      </div>
+
+      {/* Page 4: Cable Sizing & Installation Schedule */}
+      <div style={{ pageBreakBefore: 'always', breakBefore: 'page' }} className="print-page-container w-full p-2 bg-white text-slate-900">
+        <ReportHeader project={project} companyName={companyName} companyLogoUrl={companyLogoUrl} title={project.name} subtitle="CABLE SIZING & INSTALLATION SCHEDULE" />
+        <CableSchedule project={project} buildingId={buildingId} equipment={equipment} findBreaker={findBreaker} showHeader={false} />
+      </div>
+
+      {/* Page 5: Breakers & Selectivity Protection Schedule */}
+      <div style={{ pageBreakBefore: 'always', breakBefore: 'page' }} className="print-page-container w-full p-2 bg-white text-slate-900">
+        <ReportHeader project={project} companyName={companyName} companyLogoUrl={companyLogoUrl} title={project.name} subtitle="CIRCUIT BREAKERS & SELECTIVITY PROTECTION SCHEDULE" />
+        <BreakerSchedule
+          project={project}
+          buildingId={buildingId}
+          manufacturer={prefManufacturer}
+          equipment={equipment}
+          breakerSettings={breakerSettings}
+          findBreaker={findBreaker}
+          showHeader={false}
+        />
+      </div>
+
+      {/* Page 6: Voltage Drop & Compliance Analysis */}
+      <div style={{ pageBreakBefore: 'always', breakBefore: 'page' }} className="print-page-container w-full p-2 bg-white text-slate-900">
+        <ReportHeader project={project} companyName={companyName} companyLogoUrl={companyLogoUrl} title={project.name} subtitle="VOLTAGE DROP & COMPLIANCE ANALYSIS SCHEDULE" />
+        <VDSchedule project={project} buildingId={buildingId} equipment={equipment} findBreaker={findBreaker} showHeader={false} />
+      </div>
+
+      {/* Page 7: Short-Circuit Fault Analysis */}
+      <div style={{ pageBreakBefore: 'always', breakBefore: 'page' }} className="print-page-container w-full p-2 bg-white text-slate-900">
+        <ReportHeader project={project} companyName={companyName} companyLogoUrl={companyLogoUrl} title={project.name} subtitle="SHORT-CIRCUIT FAULT ANALYSIS SCHEDULE" />
+        <ShortCircuitSchedule project={project} buildingId={buildingId} equipment={equipment} findBreaker={findBreaker} showHeader={false} />
+      </div>
+
+      {/* Page 8: Bill of Materials & Equipment Procurement */}
+      <div style={{ pageBreakBefore: 'always', breakBefore: 'page' }} className="print-page-container w-full p-2 bg-white text-slate-900">
+        <ReportHeader project={project} companyName={companyName} companyLogoUrl={companyLogoUrl} title={project.name} subtitle="BILL OF MATERIALS & PROCUREMENT SCHEDULE" />
+        <BOMSchedule
+          project={project}
+          buildingId={buildingId}
+          equipment={equipment}
+          breakerSettings={breakerSettings}
+          findBreaker={findBreaker}
+          showHeader={false}
+        />
+      </div>
+    </div>
+  );
+
+  return wrapReportMarkup(reportMarkup, `${project.name} - Engineering Package`);
+}
+
 export function wrapReportMarkup(markup: string, title = 'Engineering Package'): string {
   return `<!DOCTYPE html>
 <html lang="en">

@@ -33,10 +33,6 @@ you're trying to *do*:
   read leads, grant credits, close, the loop's human-fulfillment half.
 - [Import the breaker catalog from CSV (admin)](./how-to-import-breaker-catalog.md) —
   bulk upsert, the CSV format, the per-row summary, family auto-creation.
-- [Connect an AI client to ProCal (MCP)](./how-to-connect-ai-client.md) — mint a
-  Personal Access Token, then wire up Claude Code, Codex, or any MCP client.
-- [Verify a deployed MCP server](./how-to-verify-mcp-server.md) — smoke-test a
-  live deployment end-to-end, probe it with curl, and debug auth failures.
 
 ## Reference
 
@@ -54,9 +50,6 @@ you're trying to *do*:
 - [SLD & reports](./reference-sld-reports.md) — the Schematex-DSL generator,
   the in-browser SVG post-processing, the schedule components, multi-tab Excel workbooks,
   and how printed output stays consistent with the calculator.
-- [MCP server](./reference-mcp.md) — the 13 `procal_*` tools, the declarative
-  project spec, quota and payment outcomes, export freshness guards, permissions,
-  and error shapes.
 
 ## Explanation
 

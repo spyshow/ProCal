@@ -10,6 +10,8 @@ const mocks = {
   getCompanySettings: vi.fn(),
   getLogoAsset: vi.fn(),
   generateServerPdf: vi.fn(),
+  generateReportPdfFromPrintRoute: vi.fn(),
+  createPrintTicket: vi.fn(),
   verifyProjectAccess: vi.fn(),
 };
 
@@ -37,6 +39,18 @@ vi.mock("@/lib/app-settings", () => ({
 
 vi.mock("@/lib/reports/server-pdf", () => ({
   generateServerPdf: vi.fn(async (html: string) => mocks.generateServerPdf(html)),
+}));
+
+// The GET path renders the report in headless Chromium, because the report
+// schedules are client components and cannot be server-rendered to a string.
+vi.mock("@/lib/reports/print-report-pdf", () => ({
+  generateReportPdfFromPrintRoute: vi.fn(async (url: string, title: string) =>
+    mocks.generateReportPdfFromPrintRoute(url, title)
+  ),
+}));
+
+vi.mock("@/lib/reports/print-ticket", () => ({
+  createPrintTicket: vi.fn((input: unknown) => mocks.createPrintTicket(input)),
 }));
 
 async function get(id: string, searchParams = "") {
@@ -74,6 +88,8 @@ beforeEach(() => {
   mocks.breakerSettingsFindMany.mockResolvedValue([]);
   mocks.getLogoAsset.mockResolvedValue(null);
   mocks.generateServerPdf.mockResolvedValue(Buffer.from("%PDF-1.4 mock-pdf-content"));
+  mocks.generateReportPdfFromPrintRoute.mockResolvedValue(Buffer.from("%PDF-1.4 mock-pdf-content"));
+  mocks.createPrintTicket.mockReturnValue("test-ticket");
 });
 
 describe("GET /api/projects/[id]/pdf", () => {
@@ -127,6 +143,32 @@ describe("GET /api/projects/[id]/pdf", () => {
 
     const buffer = await res.arrayBuffer();
     expect(buffer.byteLength).toBeGreaterThan(0);
+  });
+
+  it("renders via a short-lived print ticket instead of server-rendering the schedules", async () => {
+    mocks.projectFindUnique.mockResolvedValue({
+      id: "p1",
+      name: "Residential Complex",
+      buildings: [],
+      apartmentTemplates: [],
+      loadLibraryItems: [],
+    });
+
+    await get("p1", "?buildingId=b1&manufacturer=Schneider");
+
+    // The ticket is scoped to this project and user, and is the only thing that
+    // lets Chromium - which has no session cookie - read the report.
+    expect(mocks.createPrintTicket).toHaveBeenCalledWith({
+      projectId: "p1",
+      userId: "u1",
+      buildingId: "b1",
+      manufacturer: "Schneider",
+    });
+
+    const [printUrl, title] = mocks.generateReportPdfFromPrintRoute.mock.calls[0];
+    expect(printUrl).toContain("/print/report?ticket=");
+    expect(printUrl).toContain("ticket=test-ticket");
+    expect(title).toContain("Residential Complex");
   });
 });
 

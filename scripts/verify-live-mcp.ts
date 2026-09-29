@@ -27,14 +27,26 @@ const check = (label: string, ok: boolean, detail = '') => {
 };
 
 async function main() {
-  // A clearly disposable auto-generated QA account, never a real user.
-  const user = await db.user.findFirst({
-    where: { OR: [{ username: { startsWith: 'qa_' } }, { username: { startsWith: 'engineer_1' } }] },
-    orderBy: { createdAt: 'asc' },
-    select: { id: true, username: true, role: true, credits: true },
-  });
+  // Prefer a clearly disposable auto-generated QA account, never a real user. Set
+  // PROCAL_MCP_TEST_USER to target a specific account when you need an export to
+  // actually run — a disposable account has no projects, so the PDF check skips.
+  const target = process.env.PROCAL_MCP_TEST_USER;
+  const user = target
+    ? await db.user.findUnique({
+        where: { username: target },
+        select: { id: true, username: true, role: true, credits: true },
+      })
+    : await db.user.findFirst({
+        where: { OR: [{ username: { startsWith: 'qa_' } }, { username: { startsWith: 'engineer_1' } }] },
+        orderBy: { createdAt: 'asc' },
+        select: { id: true, username: true, role: true, credits: true },
+      });
   if (!user) {
-    console.error('No disposable QA account found to test with.');
+    console.error(
+      target
+        ? `No user named "${target}".`
+        : 'No disposable QA account found to test with.'
+    );
     process.exit(1);
   }
   console.log(`Using disposable account: ${user.username} (${user.role}, ${user.credits} credits)\n`);
@@ -73,7 +85,52 @@ async function main() {
     }
     check('returns parseable JSON', parsed.count !== undefined, `count=${parsed.count}`);
 
-    console.log('\n=== 4. input validation is enforced remotely ===');
+    console.log('\n=== 4. the engineering report PDF actually renders ===');
+    // Regression guard for the v1.6.0 defect: procal_export_report_pdf threw a
+    // React Server Component error in production while every unit test passed,
+    // because the report schedules are client components. This drives the real
+    // tool and inspects the bytes, so the failure cannot hide again.
+    let targetId: string | undefined;
+    try {
+      const listed = await client.callTool({ name: 'procal_list_projects', arguments: {} });
+      const list = JSON.parse(
+        (listed.content as Array<{ text: string }>)[0].text
+      ) as { projects?: Array<{ id: string }> };
+      targetId = list.projects?.[0]?.id;
+    } catch {
+      /* handled below */
+    }
+
+    if (!targetId) {
+      console.log('  SKIP  no visible project for this account — cannot exercise the export');
+    } else {
+      const pdf = await client.callTool({
+        name: 'procal_export_report_pdf',
+        arguments: { projectId: targetId },
+      });
+      check('procal_export_report_pdf returns without error', pdf.isError !== true,
+        pdf.isError ? String((pdf.content as Array<{ text: string }>)[0]?.text).slice(0, 160) : '');
+
+      if (pdf.isError !== true) {
+        const meta = JSON.parse(
+          (pdf.content as Array<{ text: string }>)[0].text
+        ) as { downloadUrl?: string; sizeBytes?: number };
+        check('returns a download URL', Boolean(meta.downloadUrl));
+
+        if (meta.downloadUrl) {
+          const got = await fetch(meta.downloadUrl, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          const bytes = Buffer.from(await got.arrayBuffer());
+          check('artifact downloads', got.ok, `status ${got.status}`);
+          check('artifact is a real PDF', bytes.subarray(0, 5).toString() === '%PDF-',
+            `${(bytes.byteLength / 1024).toFixed(0)} KB`);
+          check('artifact has content', bytes.byteLength > 20000, `${bytes.byteLength} bytes`);
+        }
+      }
+    }
+
+    console.log('\n=== 5. input validation is enforced remotely ===');
     const bad = await client.callTool({
       name: 'procal_get_project_brief',
       arguments: { projectId: 'not-a-uuid' },

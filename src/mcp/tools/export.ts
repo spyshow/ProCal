@@ -2,8 +2,8 @@ import { z } from 'zod';
 import { db } from '@/lib/db';
 import { logProjectActivity } from '@/lib/audit-logger';
 import { getCompanySettings, getLogoAsset } from '@/lib/app-settings';
-import { renderReportHtml } from '@/lib/reports/render-report-html';
-import { generateServerPdf } from '@/lib/reports/server-pdf';
+import { generateReportPdfFromPrintRoute } from '@/lib/reports/print-report-pdf';
+import { createPrintTicket } from '@/lib/reports/print-ticket';
 import { buildReportWorkbook } from '@/lib/reports/excel';
 import { createFindBreaker } from '@/lib/calculations/feeders';
 import { generateDrawingsPdf } from '@/lib/drawings/drawings-pdf';
@@ -120,24 +120,24 @@ export function registerExportTools(server: McpServer, deps: ExportDeps) {
       await ctx.resolveProject(projectId, { pageKey: 'reports', requiredAction: 'VIEW' });
 
       const fresh = await ensureFresh(projectId);
-      const { project, company, equipment, breakerSettings, revisions } =
-        await loadExportInputs(projectId);
+      const { project } = await loadExportInputs(projectId);
 
-      const html = renderReportHtml({
-        project: project as never,
-        buildingId,
+      // The report schedules are client components (the "Show Your Work" trace
+      // popover), so rendering them with renderToStaticMarkup throws on a real
+      // Next build. Drive the print route in headless Chromium instead; it renders
+      // the same components and reuses the browser-POST export's wrapping.
+      const ticket = createPrintTicket({
+        projectId,
+        userId: ctx.user.id,
+        ...(buildingId ? { buildingId } : {}),
         manufacturer: project.preferredManufacturer,
-        equipment: equipment as never,
-        breakerSettings,
-        revisions: revisions.map((r) => ({
-          ...r,
-          createdByUsername: r.createdBy?.username,
-        })) as never,
-        companyName: company?.companyName,
-        companyLogoUrl: company?.logoUrl,
       });
+      const printUrl = `${deps.origin}/print/report?ticket=${encodeURIComponent(ticket)}`;
 
-      const pdf = await generateServerPdf(await inlineLogo(html));
+      const pdf = await generateReportPdfFromPrintRoute(
+        printUrl,
+        `${project.name} - Engineering Package`
+      );
       const filename = `${safeFilename(project.name)}_Engineering_Package.pdf`;
       const artifact = await storeArtifact({
         ctx,

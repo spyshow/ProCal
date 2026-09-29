@@ -2,6 +2,7 @@ import type { DesignGraph, VisibleProject } from '@/lib/services/projects';
 import type { Project, ProjectRevision } from '@/types';
 import type { EquipmentItem } from '@/lib/calculations/feeders';
 import type { BreakerSettingItem } from '@/lib/reports/aggregates';
+import type { BuildingFieldInput, FloorSpecInput } from '@/lib/services/design-writes';
 import { AGENT_ROUTES, buildAgentUrl, type HttpMethod } from './agent-routes';
 
 /**
@@ -105,6 +106,30 @@ export interface AppliedLoad {
   powerKw: number;
 }
 
+/**
+ * Building fields, as the tools and the HTTP route both present them: flattened,
+ * not nested under a `fields` key. The service takes the nested form, so the
+ * in-process transport maps between them rather than making callers care.
+ */
+export interface UpsertBuildingInput {
+  projectId: string;
+  buildingId?: string;
+  name?: string;
+  serviceFloors?: number;
+  apartmentsPerFloor?: number;
+  earthingSystem?: string;
+  lightningProtection?: boolean;
+  transformer?: number | null;
+  generator?: number | null;
+  floors?: Array<{
+    floorNumber: number;
+    hasFloorSubPanels?: boolean;
+    riserCableSize?: string | null;
+    riserCableLength?: number | null;
+    riserBreakerSize?: string | null;
+  }>;
+}
+
 export interface DesignSummary {
   buildingId: string;
   buildingName: string;
@@ -147,7 +172,12 @@ interface InProcessDeps {
   createProjectRow: (input: never) => Promise<{ id: string; [key: string]: unknown }>;
   createBuildingsForSpec: (projectId: string, buildings: never) => Promise<unknown[]>;
   createApartmentTemplateRow: (input: never) => Promise<CreatedTemplate>;
-  upsertBuildingRow: (input: never) => Promise<CreatedBuildingResult>;
+  upsertBuildingRow: (input: {
+    projectId: string;
+    buildingId?: string;
+    fields: BuildingFieldInput;
+    floors?: FloorSpecInput[];
+  }) => Promise<CreatedBuildingResult>;
   assignFloorTemplateRow: (input: never) => Promise<{ floorNumber: number; apartmentCount: number }>;
   replaceBuildingLoads: (input: never) => Promise<AppliedLoad[]>;
   loadReportData: (projectId: string) => Promise<ExportBundle | null>;
@@ -243,8 +273,37 @@ function createInProcessApi(actor: AgentApiActor): AgentApi {
       }),
 
     createProjectFromSpec: (input) => wrap((s) => s.createProjectRow(input as never)),
-    defineApartmentTemplate: (input) => wrap((s) => s.createApartmentTemplateRow(input as never)),
-    upsertBuilding: (input) => wrap((s) => s.upsertBuildingRow(input as never)),
+
+    // Narrowed to the same fields the HTTP route returns. The service hands back
+    // the whole row, so without this a tool reading a field that only exists
+    // in-process would break the moment the transport changed.
+    defineApartmentTemplate: async (input) => {
+      const row = await wrap((s) => s.createApartmentTemplateRow(input as never));
+      return { id: row.id, name: row.name, phases: row.phases, rooms: row.rooms };
+    },
+
+    // Accepts the flattened tool shape, not the service's nested `fields`. The
+    // route takes the flattened form, so accepting a different shape in-process
+    // would make the two transports disagree about the request, not just the reply.
+    // The result is narrowed to what the route returns: the service hands back the
+    // whole Building row, and a tool reading a column the route omits would work
+    // in-process and fail over HTTP.
+    upsertBuilding: async (input) => {
+      const { projectId, buildingId, floors, ...fields } = (input ?? {}) as UpsertBuildingInput;
+      const result = await wrap((s) =>
+        s.upsertBuildingRow({
+          projectId: projectId as string,
+          buildingId: buildingId as string | undefined,
+          fields: fields as BuildingFieldInput,
+          floors: floors as FloorSpecInput[] | undefined,
+        })
+      );
+      return {
+        building: { id: result.building.id, name: result.building.name },
+        updatedFloors: result.updatedFloors,
+      };
+    },
+
     assignFloorTemplate: (input) => wrap((s) => s.assignFloorTemplateRow(input as never)),
     setBuildingLoads: (input) => wrap((s) => s.replaceBuildingLoads(input as never)),
     createBuildingsForSpec: (projectId, buildings) =>
@@ -298,35 +357,88 @@ function createHttpApi(options: AgentApiClientOptions): AgentApi {
     return parsed as T;
   };
 
+  /**
+   * The routes return an explicit public envelope — `{ project: … }`,
+   * `{ templateId: … }` — which is right for a documented HTTP contract. The
+   * client is the adapter, so each method unwraps to exactly what the in-process
+   * transport returns. Both surfaces must be indistinguishable to a tool, or
+   * switching transport silently changes behaviour.
+   */
   return {
     listProjects: () =>
       call<{ projects: VisibleProject[] }>('procal_list_projects', 'GET', {}).then((r) => r.projects),
-    getProjectBrief: (projectId) => call('procal_get_project_brief', 'GET', { projectId }),
+
+    getProjectBrief: (projectId) =>
+      call<{ project: DesignGraph }>('procal_get_project_brief', 'GET', { projectId }).then(
+        (r) => r.project
+      ),
+
     getDesignSummary: (projectId) =>
       call<{ summary: DesignSummary[] }>('procal_get_design_summary', 'GET', { projectId }).then(
         (r) => r.summary
       ),
+
     recalculateProject: (projectId) => call('procal_recalculate_project', 'POST', { projectId }),
+
     createCheckout: (input) => call('procal_create_checkout', 'POST', {}, input),
-    createProjectFromSpec: (input) => call('procal_create_project_from_spec', 'POST', {}, input),
-    defineApartmentTemplate: (input) => call('procal_define_apartment_template', 'POST', {}, input),
-    upsertBuilding: (input) => call('procal_upsert_building', 'POST', {}, input),
+
+    createProjectFromSpec: (input) =>
+      call<{ projectId: string; name: string }>('procal_create_project_from_spec', 'POST', {}, input).then(
+        (r) => ({ id: r.projectId, name: r.name })
+      ),
+
+    defineApartmentTemplate: (input) =>
+      call<{ templateId: string; name: string; phases: number; rooms: TemplateRoom[] }>(
+        'procal_define_apartment_template',
+        'POST',
+        {},
+        input
+      ).then((r) => ({ id: r.templateId, name: r.name, phases: r.phases, rooms: r.rooms })),
+
+    upsertBuilding: (input) =>
+      call<{ buildingId: string; name: string; updatedFloors: CreatedBuildingResult['updatedFloors'] }>(
+        'procal_upsert_building',
+        'POST',
+        {},
+        input
+      ).then((r) => ({ building: { id: r.buildingId, name: r.name }, updatedFloors: r.updatedFloors })),
+
     assignFloorTemplate: (input) =>
-      call('procal_assign_floor_template', 'POST', { projectId: (input as { projectId: string }).projectId }, input),
+      call<{ floorNumber: number; apartmentCount: number }>(
+        'procal_assign_floor_template',
+        'POST',
+        { projectId: (input as { projectId: string }).projectId },
+        input
+      ),
+
     setBuildingLoads: (input) =>
-      call('procal_set_building_loads', 'PUT', {
-        projectId: (input as { projectId: string }).projectId,
-        buildingId: (input as { buildingId: string }).buildingId,
-      }, input),
+      call<{ buildingId: string; applied: AppliedLoad[] }>(
+        'procal_set_building_loads',
+        'PUT',
+        {
+          projectId: (input as { projectId: string }).projectId,
+          buildingId: (input as { buildingId: string }).buildingId,
+        },
+        input
+      ).then((r) => r.applied),
+
     // Composed from the building endpoint rather than a batch route of its own, so
     // the one-shot project creation works identically over both transports.
     createBuildingsForSpec: async (projectId, buildings) => {
       const out: CreatedBuildingResult[] = [];
       for (const b of buildings) {
-        out.push(await call<CreatedBuildingResult>('procal_upsert_building', 'POST', {}, { projectId, ...(b as object) }));
+        out.push(
+          await call<{ buildingId: string; name: string; updatedFloors: CreatedBuildingResult['updatedFloors'] }>(
+            'procal_upsert_building',
+            'POST',
+            {},
+            { projectId, ...(b as object) }
+          ).then((r) => ({ building: { id: r.buildingId, name: r.name }, updatedFloors: r.updatedFloors }))
+        );
       }
       return out;
     },
+
     loadReportBundle: (projectId) => call('procal_export_report_pdf', 'GET', { projectId }),
   };
 }

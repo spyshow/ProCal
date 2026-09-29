@@ -692,7 +692,7 @@ export default function ProjectDetailPage() {
                 {t('team.readOnlyActionDisabled', 'Action disabled in QA / Reviewer read-only mode')}
               </span>
             )}
-            <button onClick={() => setEditingProject(false)} className="px-4 py-2 rounded-lg bg-gray-800 text-gray-300 text-sm hover:bg-gray-700">
+            <button onClick={() => setEditingProject(false)} className="px-4 py-2 rounded-lg bg-[var(--card-bg-subtle,rgba(17,24,39,0.5))] hover:bg-[var(--card-bg,#0b0f19)] border border-[var(--border-color,#1f2937)] text-[var(--foreground-color,#f8fafc)] text-sm font-medium cursor-pointer transition-colors">
               {isReadOnly ? t('common.close', 'Close') : t('common.cancel', 'Cancel')}
             </button>
           </div>
@@ -771,7 +771,7 @@ export default function ProjectDetailPage() {
                 <button type="submit" className="px-4 py-2 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-sm font-semibold">
                   {t('projects.createBuilding', 'Create Building')}
                 </button>
-                <button type="button" onClick={() => setShowNewBuilding(false)} className="px-4 py-2 rounded-lg bg-gray-800 text-gray-300 text-sm">
+                <button type="button" onClick={() => setShowNewBuilding(false)} className="px-4 py-2 rounded-lg bg-[var(--card-bg-subtle,rgba(17,24,39,0.5))] hover:bg-[var(--card-bg,#0b0f19)] border border-[var(--border-color,#1f2937)] text-[var(--foreground-color,#f8fafc)] text-sm font-medium cursor-pointer transition-colors">
                   {t('common.cancel', 'Cancel')}
                 </button>
               </div>
@@ -1025,17 +1025,19 @@ export default function ProjectDetailPage() {
                         )}
 
                         {showAddBuildingLoad === bldg.id && (
-                          <div className="rounded-lg border border-gray-700 bg-gray-800/50 p-3 space-y-2">
+                          <div className="rounded-lg border border-[var(--border-color,#1f2937)] bg-[var(--card-bg,#0b0f19)] p-3 space-y-2 shadow-xs">
                             <div className="flex gap-2 items-end">
                               <div className="flex-1">
-                                <label className="block text-[10px] text-gray-500 mb-1">From Library</label>
+                                <label className="block text-[10px] text-[var(--table-header-color,#9ca3af)] mb-1 font-medium">
+                                  {t('calculator.fromLibrary', 'From Library')}
+                                </label>
                                 <select
                                   value={buildingLoadForm.loadLibraryItemId}
                                   onChange={(e) => setBuildingLoadForm({ ...buildingLoadForm, loadLibraryItemId: e.target.value })}
-                                  className="dense-input w-full rounded"
+                                  className="dense-input w-full rounded border border-[var(--border-color,#1f2937)] bg-[var(--input-bg,rgba(17,24,39,0.8))] text-[var(--input-color,#ffffff)] text-xs"
                                 >
                                   <option value="">Select load…</option>
-                                  <optgroup label="From Library">
+                                  <optgroup label={t('calculator.fromLibrary', 'From Library')}>
                                     {(project?.loadLibraryItems || []).map((l: any) => (
                                       <option key={l.id} value={l.id}>
                                         {l.name} — {l.power}kW ({l.category})
@@ -1045,26 +1047,26 @@ export default function ProjectDetailPage() {
                                 </select>
                               </div>
                               <div>
-                                <label className="block text-[10px] text-gray-500 mb-1">Qty</label>
+                                <label className="block text-[10px] text-[var(--table-header-color,#9ca3af)] mb-1 font-medium">Qty</label>
                                 <input
                                   type="number"
                                   min="1"
                                   value={buildingLoadForm.quantity}
                                   onChange={(e) => setBuildingLoadForm({ ...buildingLoadForm, quantity: parseInt(e.target.value) || 1 })}
-                                  className="dense-input w-16 rounded"
+                                  className="dense-input w-16 rounded border border-[var(--border-color,#1f2937)] bg-[var(--input-bg,rgba(17,24,39,0.8))] text-[var(--input-color,#ffffff)] text-xs"
                                 />
                               </div>
                               <button
                                 onClick={() => handleAddBuildingLoad(bldg.id)}
-                                className="px-3 py-1.5 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-xs font-semibold"
+                                className="px-3.5 py-1.5 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-xs font-semibold shadow-xs shadow-orange-600/20 transition-all text-white-force cursor-pointer shrink-0 border border-transparent"
                               >
-                                Add
+                                {t('common.add', 'Add')}
                               </button>
                               <button
                                 onClick={() => setShowAddBuildingLoad(null)}
-                                className="px-3 py-1.5 rounded-lg bg-gray-700 text-gray-300 text-xs"
+                                className="px-3.5 py-1.5 rounded-lg bg-[var(--card-bg-subtle,rgba(17,24,39,0.5))] hover:bg-[var(--card-bg,#0b0f19)] border border-[var(--border-color,#1f2937)] text-[var(--foreground-color,#f8fafc)] text-xs font-semibold transition-all cursor-pointer shrink-0"
                               >
-                                Cancel
+                                {t('common.cancel', 'Cancel')}
                               </button>
                             </div>
                           </div>
@@ -1198,9 +1200,9 @@ export default function ProjectDetailPage() {
                 <button
                   type="button"
                   onClick={() => setEditingBuilding(null)}
-                  className="px-4 py-2 rounded-lg bg-gray-800 text-gray-300 text-sm"
+                  className="px-4 py-2 rounded-lg bg-[var(--card-bg-subtle,rgba(17,24,39,0.5))] hover:bg-[var(--card-bg,#0b0f19)] border border-[var(--border-color,#1f2937)] text-[var(--foreground-color,#f8fafc)] text-sm font-medium cursor-pointer transition-colors"
                 >
-                  Cancel
+                  {t('common.cancel', 'Cancel')}
                 </button>
               </div>
             </form>
@@ -1275,9 +1277,9 @@ export default function ProjectDetailPage() {
                     setTemplatePhases('1');
                     setTemplateRooms([]);
                   }}
-                  className="px-4 py-2 rounded-lg bg-gray-800 text-gray-300 text-sm"
+                  className="px-4 py-2 rounded-lg bg-[var(--card-bg-subtle,rgba(17,24,39,0.5))] hover:bg-[var(--card-bg,#0b0f19)] border border-[var(--border-color,#1f2937)] text-[var(--foreground-color,#f8fafc)] text-sm font-medium cursor-pointer transition-colors"
                 >
-                  Cancel
+                  {t('common.cancel', 'Cancel')}
                 </button>
               </div>
             </form>
@@ -1374,9 +1376,9 @@ export default function ProjectDetailPage() {
                           <button
                             type="button"
                             onClick={() => setEditingTemplateId(null)}
-                            className="px-4 py-2 rounded-lg bg-gray-800 text-gray-300 text-sm"
+                            className="px-4 py-2 rounded-lg bg-[var(--card-bg-subtle,rgba(17,24,39,0.5))] hover:bg-[var(--card-bg,#0b0f19)] border border-[var(--border-color,#1f2937)] text-[var(--foreground-color,#f8fafc)] text-sm font-medium cursor-pointer transition-colors"
                           >
-                            Cancel
+                            {t('common.cancel', 'Cancel')}
                           </button>
                         </div>
                       </form>

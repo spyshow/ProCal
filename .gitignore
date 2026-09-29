@@ -82,3 +82,8 @@ graphify-out/20*/
 intro-video/
 .agents/skills/remotion-*/
 *remotion*
+
+# AI client MCP configs — these embed a ProCal bearer token in plaintext
+.mcp.json
+cline_mcp_settings.json
+mcp_config.json

@@ -11,11 +11,31 @@ report PDF and Excel workbook.
 
 ## 1. Create a token
 
+The token page is the **AI Agent Access (MCP)** tab on your **user** settings page —
+not Project Settings.
+
 1. Sign in to ProCal.
-2. Go to **Settings → AI Agent Access (MCP)**.
-3. Give the token a name you'll recognise later — e.g. `Codex — work laptop`.
-4. Click **Create token**.
-5. **Copy it now.** It is shown exactly once and is not recoverable.
+2. Open **`/settings`** — the user-level settings page, at the root of your app:
+
+   ```
+   https://procal-mu.vercel.app/settings
+   ```
+
+3. Click the **AI Agent Access (MCP)** tab (the one with the bot icon). It sits
+   between **Account & Security** and **Voltage Drop & Standards**.
+4. Give the token a name you'll recognise later — e.g. `Codex — work laptop`.
+5. Click **Create token**.
+6. **Copy it now.** It is shown exactly once and is not recoverable.
+
+The tab is available to every signed-in role, user and admin alike, and is never
+hidden by a permission check.
+
+> ⚠️ **Don't use the sidebar's "Project Settings" button.** When a project is
+> selected — the usual case while you are working — that button links to
+> `/projects/<id>?tab=settings`, which is a *different* page and has no MCP tab.
+> It only points at `/settings` when no project is selected. If you cannot see the
+> MCP tab, you are almost certainly on Project Settings; go to `/settings`
+> directly.
 
 Each client should get its own token, so you can revoke them independently. Tokens
 can be revoked at any time from the same screen; revoking takes effect immediately.
@@ -325,6 +345,7 @@ spec never costs the user a credit. Current allowance is shown on **/billing**.
 
 | Symptom | Cause |
 |---|---|
+| No **AI Agent Access (MCP)** tab | You're on Project Settings. The tab is only on `/settings` — see step 1 |
 | `401` / "Unauthorized" | Missing, malformed, revoked, or wrong token. `Authorization: Bearer <token>` — not `Basic` |
 | `401` only in Codex | `PROCAL_MCP_TOKEN` isn't in the environment Codex inherited |
 | `405` on GET | Expected. The server is stateless and POST-only |

@@ -151,8 +151,9 @@ curl -i -X POST https://procal-mu.vercel.app/api/mcp \
 
 A `401` here is the **correct** result. An empty token is still rejected.
 
-A full authenticated `initialize` needs a Personal Access Token, minted from
-**Settings → AI Agent Access (MCP)** in the app.
+A full authenticated `initialize` needs a Personal Access Token, minted from the
+**AI Agent Access (MCP)** tab on `/settings` (user settings — *not* Project
+Settings, which has no such tab).
 
 ---
 

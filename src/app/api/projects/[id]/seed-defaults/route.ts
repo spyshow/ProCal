@@ -1,6 +1,6 @@
-import { NextResponse } from "next/server";
-import { db } from "@/lib/db";
-import { verifyProjectAccess } from "@/lib/project-auth";
+  import { NextResponse } from "next/server";
+  import { loadDesignGraph, loadProjectSeedInputs } from "@/lib/services/projects";
+  import { verifyProjectAccess } from "@/lib/project-auth";
 import { seedDefaultProjectTemplates, seedDefaultLoadLibrary } from "@/lib/project-defaults";
 import { logProjectActivity } from "@/lib/audit-logger";
 
@@ -16,13 +16,7 @@ export async function POST(
     });
     if (auth instanceof NextResponse) return auth;
 
-    const project = await db.project.findUnique({
-      where: { id: projectId },
-      include: {
-        apartmentTemplates: { include: { rooms: true } },
-        loadLibraryItems: true,
-      },
-    });
+    const project = await loadProjectSeedInputs(projectId);
 
     if (!project) {
       return NextResponse.json({ error: "Project not found" }, { status: 404 });
@@ -52,32 +46,7 @@ export async function POST(
     });
 
     // Return the updated project with all relations
-    const updated = await db.project.findUnique({
-      where: { id: projectId },
-      include: {
-        buildings: {
-          include: {
-            floorDesigns: {
-              include: {
-                items: {
-                  include: {
-                    apartmentTemplate: { include: { rooms: true } },
-                    loadLibraryItem: true,
-                  },
-                },
-              },
-            },
-            buildingLoads: {
-              include: { loadLibraryItem: true },
-            },
-          },
-        },
-        apartmentTemplates: {
-          include: { rooms: true },
-        },
-        loadLibraryItems: true,
-      },
-    });
+    const updated = await loadDesignGraph(projectId);
 
     return NextResponse.json(updated);
   } catch (error) {

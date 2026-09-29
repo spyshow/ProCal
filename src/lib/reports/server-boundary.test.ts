@@ -42,7 +42,7 @@ const SERVER_ENTRY_POINTS = [
   'lib/reports/render-report-html.tsx',
   'lib/reports/print-report-pdf.ts',
   'lib/reports/print-ticket.ts',
-  'lib/reports/load-report-data.ts',
+  'lib/services/report-data.ts',
   'lib/reports/inline-images.ts',
   'lib/reports/server-pdf.ts',
   'app/api/projects/[id]/pdf/route.ts',

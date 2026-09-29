@@ -1,4 +1,4 @@
-﻿import { NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { verifyProjectAccess } from "@/lib/project-auth";
 import { getLogoAsset } from "@/lib/app-settings";
@@ -6,7 +6,7 @@ import { wrapReportMarkup } from "@/lib/reports/render-report-html";
 import { generateServerPdf } from "@/lib/reports/server-pdf";
 import { generateReportPdfFromPrintRoute } from "@/lib/reports/print-report-pdf";
 import { createPrintTicket } from "@/lib/reports/print-ticket";
-import { loadReportData } from "@/lib/reports/load-report-data";
+import { loadReportData } from "@/lib/services/report-data";
 import { inlineImagesInHtml } from "@/lib/reports/inline-images";
 
 export const maxDuration = 60;

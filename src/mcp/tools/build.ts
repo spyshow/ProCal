@@ -1,9 +1,14 @@
 import { z } from 'zod';
-import { db } from '@/lib/db';
 import { logProjectActivity } from '@/lib/audit-logger';
-import { seedDefaultProjectTemplates, seedDefaultLoadLibrary } from '@/lib/project-defaults';
-import { validateProjectSettings } from '@/lib/calculations/validate';
-import { canStartProject, spendProjectCredit } from '@/lib/billing/entitlement';
+import { canStartProject, refundProjectCredit, spendProjectCredit } from '@/lib/billing/entitlement';
+import {
+  assignFloorTemplateRow,
+  createApartmentTemplateRow,
+  createBuildingsForSpec,
+  createProjectRow,
+  replaceBuildingLoads,
+  upsertBuildingRow,
+} from '@/lib/services/design-writes';
 import { ensureFresh } from '../freshness';
 import { McpToolError, type McpCtx } from '../context';
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
@@ -113,139 +118,50 @@ type ProjectSpec = z.infer<typeof specSchema>;
 
 /** Create the Project row and its creator membership + default seed data. */
 async function materializeProject(ctx: McpCtx, spec: ProjectSpec) {
-  validateProjectSettings({
+  return createProjectRow({
+    name: spec.name,
+    client: spec.client,
+    consultant: spec.consultant,
+    contractor: spec.contractor,
+    location: spec.location,
+    engineer: spec.engineer || ctx.user.name,
     voltage: spec.voltage,
     frequency: spec.frequency,
     powerFactor: spec.powerFactor,
     maxDemandFactor: spec.maxDemandFactor,
     maxVoltageDropLighting: spec.maxVoltageDropLighting,
     maxVoltageDropPower: spec.maxVoltageDropPower,
+    calculationStandard: spec.calculationStandard,
+    preferredManufacturer: spec.preferredManufacturer,
+    ownerId: ctx.user.id,
   });
-
-  const project = await db.project.create({
-    data: {
-      name: spec.name,
-      client: spec.client,
-      consultant: spec.consultant,
-      contractor: spec.contractor,
-      location: spec.location,
-      engineer: spec.engineer || ctx.user.name,
-      date: new Date().toISOString().split('T')[0],
-      voltage: spec.voltage,
-      frequency: spec.frequency,
-      powerFactor: spec.powerFactor,
-      maxDemandFactor: spec.maxDemandFactor,
-      maxVoltageDropLighting: spec.maxVoltageDropLighting,
-      maxVoltageDropPower: spec.maxVoltageDropPower,
-      calculationStandard: spec.calculationStandard,
-      preferredManufacturer: spec.preferredManufacturer,
-      userId: ctx.user.id,
-    },
-  });
-
-  await db.projectMember.create({
-    data: { projectId: project.id, userId: ctx.user.id, role: 'PROJECT_MANAGER' },
-  });
-
-  // Standard templates + load library power the recalculate engine.
-  try {
-    await seedDefaultProjectTemplates(project.id, project.country);
-    await seedDefaultLoadLibrary(project.id);
-  } catch (seedErr) {
-    console.warn('MCP: failed to seed project defaults:', seedErr);
-  }
-
-  return project;
 }
 
 /** Create the building, its floors, the apartment templates, and the circuits. */
 async function materializeBuildings(ctx: McpCtx, projectId: string, spec: ProjectSpec) {
-  const created: Array<{ buildingId: string; name: string; floors: number; circuits: number }> = [];
-
-  for (const bSpec of spec.buildings) {
-    const building = await db.building.create({
-      data: {
-        name: bSpec.name,
-        floors: bSpec.floors.length,
-        serviceFloors: bSpec.serviceFloors,
-        apartmentsPerFloor: bSpec.apartmentsPerFloor,
-        supplyVoltage: bSpec.supplyVoltage,
-        earthingSystem: bSpec.earthingSystem,
-        lightningProtection: bSpec.lightningProtection,
-        generator: bSpec.generator,
-        transformer: bSpec.transformer,
-        projectId,
-      },
-    });
-
-    let circuitCount = 0;
-
-    for (let i = 0; i < bSpec.floors.length; i++) {
-      const fSpec = bSpec.floors[i];
-      const floor = await db.floorDesign.create({
-        data: {
-          floorNumber: i + 1,
-          buildingId: building.id,
-          hasFloorSubPanels: fSpec.hasFloorSubPanels,
-          riserCableSize: fSpec.riserCableSize,
-          riserCableLength: fSpec.riserCableLength,
-          riserBreakerSize: fSpec.riserBreakerSize,
-        },
-      });
-
-      // Apartment template lookup for this floor
-      if (fSpec.templateName && fSpec.apartmentCount > 0) {
-        const template = await db.apartmentTemplate.findFirst({
-          where: { projectId, name: fSpec.templateName },
-        });
-        if (!template) {
-          throw new McpToolError(
-            `Apartment template "${fSpec.templateName}" is not defined for this project. Define it in apartmentTemplates first.`,
-            400
-          );
-        }
-        await db.floorItem.createMany({
-          data: Array.from({ length: fSpec.apartmentCount }, () => ({
-            type: 'APARTMENT' as const,
-            name: 'Apartment',
-            floorDesignId: floor.id,
-            apartmentTemplateId: template.id,
-            installMethod: 'C' as const,
-            cableInsulation: 'XLPE' as const,
-            cableMaterial: 'copper' as const,
-          })),
-        });
-        circuitCount += fSpec.apartmentCount;
-      }
-
-      // Mechanical / building loads on this floor
-      for (let k = 0; k < fSpec.buildingLoadNames.length; k++) {
-        const libName = fSpec.buildingLoadNames[k];
-        const qty = fSpec.buildingLoadQuantities[k] ?? 1;
-        const lib = await db.loadLibraryItem.findFirst({
-          where: { projectId, name: libName },
-        });
-        if (!lib) {
-          throw new McpToolError(
-            `Load library item "${libName}" not found. Check procal_get_project_brief for available items, or use a known name.`,
-            400
-          );
-        }
-        await db.buildingLoad.create({
-          data: { loadLibraryItemId: lib.id, quantity: qty, buildingId: building.id },
-        });
-      }
-    }
-
-    created.push({
-      buildingId: building.id,
-      name: building.name,
-      floors: bSpec.floors.length,
-      circuits: circuitCount,
-    });
-  }
-
-  return created;
+  return createBuildingsForSpec(
+    projectId,
+    spec.buildings.map((bSpec) => ({
+      name: bSpec.name,
+      serviceFloors: bSpec.serviceFloors,
+      apartmentsPerFloor: bSpec.apartmentsPerFloor,
+      supplyVoltage: bSpec.supplyVoltage,
+      earthingSystem: bSpec.earthingSystem,
+      lightningProtection: bSpec.lightningProtection,
+      generator: bSpec.generator,
+      transformer: bSpec.transformer,
+      floors: bSpec.floors.map((fSpec) => ({
+        hasFloorSubPanels: fSpec.hasFloorSubPanels,
+        riserCableSize: fSpec.riserCableSize,
+        riserCableLength: fSpec.riserCableLength,
+        riserBreakerSize: fSpec.riserBreakerSize,
+        templateName: fSpec.templateName,
+        apartmentCount: fSpec.apartmentCount,
+        buildingLoadNames: fSpec.buildingLoadNames,
+        buildingLoadQuantities: fSpec.buildingLoadQuantities,
+      })),
+    }))
+  );
 }
 
 export function registerBuildTools(server: McpServer, makeCtx: () => McpCtx) {
@@ -268,24 +184,7 @@ export function registerBuildTools(server: McpServer, makeCtx: () => McpCtx) {
       const ctx = makeCtx();
       await ctx.resolveProject(projectId, { pageKey: 'calculator', requiredAction: 'EDIT' });
 
-      const existing = await db.apartmentTemplate.findFirst({ where: { projectId, name } });
-      if (existing) {
-        throw new McpToolError(
-          `A template named "${name}" already exists. Use a different name, or edit the project through the UI.`
-        );
-      }
-
-      const withLoad = rooms.map((r) => ({ ...r, connectedLoad: r.area * r.loadDensity }));
-      const template = await db.apartmentTemplate.create({
-        data: {
-          name,
-          phases,
-          projectId,
-          rooms: { create: withLoad },
-        },
-        include: { rooms: true },
-      });
-
+      const template = await createApartmentTemplateRow({ projectId, name, phases, rooms });
       const connectedLoadVA = template.rooms.reduce((s, r) => s + r.connectedLoad, 0);
       return ok({
         templateId: template.id,
@@ -345,6 +244,7 @@ export function registerBuildTools(server: McpServer, makeCtx: () => McpCtx) {
       await ctx.resolveProject(projectId, { pageKey: 'calculator', requiredAction: 'EDIT' });
 
       let building;
+      let updatedFloors: Array<{ floorNumber: number; hasFloorSubPanels: boolean }>;
       if (buildingId) {
         const auth = await ctx.resolveProject(projectId, {
           pageKey: 'calculator',
@@ -353,61 +253,13 @@ export function registerBuildTools(server: McpServer, makeCtx: () => McpCtx) {
         if (auth.project.userId !== ctx.user.id && auth.member.role !== 'PROJECT_MANAGER') {
           throw new McpToolError('Only the project owner or a Project Manager can edit buildings.', 403);
         }
-        building = await db.building.update({
-          where: { id: buildingId },
-          data: buildingFields,
-        });
-      } else {
-        if (!buildingFields.name) throw new McpToolError('name is required to create a building.');
-        const createData = {
-          name: buildingFields.name,
-          // `Building.floors` is required and is the count of FloorDesign rows,
-          // which are created (or updated) in the loop below.
-          floors: floors?.length ?? 0,
-          serviceFloors: buildingFields.serviceFloors ?? 0,
-          apartmentsPerFloor: buildingFields.apartmentsPerFloor ?? 0,
-          supplyVoltage: '400V 3-Phase',
-          earthingSystem: buildingFields.earthingSystem ?? 'TN-S',
-          lightningProtection: buildingFields.lightningProtection ?? false,
-          transformer: buildingFields.transformer ?? null,
-          generator: buildingFields.generator ?? null,
-          projectId,
-        };
-        building = await db.building.create({ data: createData });
       }
-
-      const updatedFloors: Array<{ floorNumber: number; hasFloorSubPanels: boolean }> = [];
-      for (const f of floors ?? []) {
-        const existing = await db.floorDesign.findFirst({
-          where: { buildingId: building.id, floorNumber: f.floorNumber },
-        });
-        if (existing) {
-          await db.floorDesign.update({
-            where: { id: existing.id },
-            data: {
-              hasFloorSubPanels: f.hasFloorSubPanels ?? existing.hasFloorSubPanels,
-              riserCableSize: f.riserCableSize ?? undefined,
-              riserCableLength: f.riserCableLength ?? undefined,
-              riserBreakerSize: f.riserBreakerSize ?? undefined,
-            },
-          });
-        } else {
-          await db.floorDesign.create({
-            data: {
-              floorNumber: f.floorNumber,
-              buildingId: building.id,
-              hasFloorSubPanels: f.hasFloorSubPanels ?? true,
-              riserCableSize: f.riserCableSize ?? null,
-              riserCableLength: f.riserCableLength ?? null,
-              riserBreakerSize: f.riserBreakerSize ?? null,
-            },
-          });
-        }
-        updatedFloors.push({
-          floorNumber: f.floorNumber,
-          hasFloorSubPanels: f.hasFloorSubPanels ?? true,
-        });
-      }
+      ({ building, updatedFloors } = await upsertBuildingRow({
+        projectId,
+        buildingId,
+        fields: buildingFields,
+        floors,
+      }));
 
       await logProjectActivity({
         projectId,
@@ -443,32 +295,9 @@ export function registerBuildTools(server: McpServer, makeCtx: () => McpCtx) {
       const ctx = makeCtx();
       await ctx.resolveProject(projectId, { pageKey: 'calculator', requiredAction: 'EDIT' });
 
-      const floor = await db.floorDesign.findFirst({
-        where: { id: floorDesignId, building: { projectId } },
-      });
-      if (!floor) throw new McpToolError('Floor not found in this project.', 404);
-
-      const template = await db.apartmentTemplate.findFirst({
-        where: { projectId, name: templateName },
-      });
-      if (!template) throw new McpToolError(`Template "${templateName}" not found.`, 404);
-
-      await db.floorItem.deleteMany({ where: { floorDesignId } });
-      if (apartmentCount > 0) {
-        await db.floorItem.createMany({
-          data: Array.from({ length: apartmentCount }, (_, i) => ({
-            type: 'APARTMENT' as const,
-            name: `Apt ${floor.floorNumber}-${i + 1}`,
-            floorDesignId,
-            apartmentTemplateId: template.id,
-            installMethod: 'C' as const,
-            cableInsulation: 'XLPE' as const,
-            cableMaterial: 'copper' as const,
-          })),
-        });
-      }
+      const result = await assignFloorTemplateRow({ projectId, floorDesignId, templateName, apartmentCount });
       const fresh = await ensureFresh(projectId);
-      return ok({ floorDesignId, floorNumber: floor.floorNumber, apartmentCount, fresh });
+      return ok({ floorDesignId, floorNumber: result.floorNumber, apartmentCount, fresh });
     }
   );
 
@@ -496,36 +325,7 @@ export function registerBuildTools(server: McpServer, makeCtx: () => McpCtx) {
       const ctx = makeCtx();
       await ctx.resolveProject(projectId, { pageKey: 'calculator', requiredAction: 'EDIT' });
 
-      const building = await db.building.findFirst({
-        where: { id: buildingId, projectId },
-      });
-      if (!building) throw new McpToolError('Building not found in this project.', 404);
-
-      const library = await db.loadLibraryItem.findMany({ where: { projectId } });
-      const byName = new Map(library.map((l) => [l.name.toLowerCase(), l]));
-
-      await db.buildingLoad.deleteMany({ where: { buildingId } });
-      const applied: Array<{ name: string; quantity: number; powerKw: number }> = [];
-      for (const l of loads) {
-        const item = byName.get(l.name.toLowerCase());
-        if (!item) {
-          throw new McpToolError(
-            `Load library item "${l.name}" not found. Available: ${library
-              .slice(0, 25)
-              .map((x) => x.name)
-              .join(', ')}${library.length > 25 ? ', …' : ''}`
-          );
-        }
-        await db.buildingLoad.create({
-          data: { loadLibraryItemId: item.id, quantity: l.quantity, buildingId },
-        });
-        applied.push({
-          name: item.name,
-          quantity: l.quantity,
-          powerKw: Number((item.power * l.quantity).toFixed(2)),
-        });
-      }
-
+      const applied = await replaceBuildingLoads({ projectId, buildingId, loads });
       const fresh = await ensureFresh(projectId);
       return ok({ buildingId, applied, fresh });
     }
@@ -590,14 +390,11 @@ export function registerBuildTools(server: McpServer, makeCtx: () => McpCtx) {
 
         // Apartment templates referenced by floors
         for (const t of spec.apartmentTemplates) {
-          const withLoad = t.rooms.map((r) => ({ ...r, connectedLoad: r.area * r.loadDensity }));
-          await db.apartmentTemplate.create({
-            data: {
-              name: t.name,
-              phases: t.phases,
-              projectId: project.id,
-              rooms: { create: withLoad },
-            },
+          await createApartmentTemplateRow({
+            projectId: project.id,
+            name: t.name,
+            phases: t.phases,
+            rooms: t.rooms,
           });
         }
 
@@ -636,9 +433,7 @@ export function registerBuildTools(server: McpServer, makeCtx: () => McpCtx) {
         });
       } catch (err) {
         // Refund the credit if materialization failed — the user got nothing.
-        await db.user
-          .update({ where: { id: ctx.user.id }, data: { credits: { increment: 1 } } })
-          .catch(() => undefined);
+    await refundProjectCredit(ctx.user.id);
         throw err instanceof McpToolError
           ? err
           : new McpToolError(

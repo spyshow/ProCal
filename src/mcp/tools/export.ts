@@ -1,9 +1,9 @@
 import { z } from 'zod';
-import { db } from '@/lib/db';
 import { logProjectActivity } from '@/lib/audit-logger';
-import { getCompanySettings, getLogoAsset } from '@/lib/app-settings';
+import { getCompanySettings } from '@/lib/app-settings';
 import { generateReportPdfFromPrintRoute } from '@/lib/reports/print-report-pdf';
 import { createPrintTicket } from '@/lib/reports/print-ticket';
+import { loadReportData } from '@/lib/services/report-data';
 import { buildReportWorkbook } from '@/lib/reports/excel';
 import { createFindBreaker } from '@/lib/calculations/feeders';
 import { generateDrawingsPdf } from '@/lib/drawings/drawings-pdf';
@@ -40,65 +40,17 @@ interface ExportDeps {
   origin: string;
 }
 
-/** Everything the report renderer and Excel builder need, loaded once. */
+/** Load the deliverable inputs, or fail the tool with a clear message. */
 async function loadExportInputs(projectId: string) {
-  const [project, company, equipment, breakerSettings, revisions] = await Promise.all([
-    db.project.findUnique({
-      where: { id: projectId },
-      include: {
-        buildings: {
-          include: {
-            floorDesigns: {
-              include: {
-                items: {
-                  include: {
-                    apartmentTemplate: { include: { rooms: true } },
-                    loadLibraryItem: true,
-                  },
-                },
-              },
-            },
-            buildingLoads: { include: { loadLibraryItem: true } },
-          },
-        },
-        apartmentTemplates: { include: { rooms: true } },
-        loadLibraryItems: true,
-      },
-    }),
-    getCompanySettings().catch(() => null),
-    db.equipmentCatalog.findMany({
-      include: { family: true },
-      orderBy: [
-        { manufacturer: 'asc' },
-        { category: 'asc' },
-        { ratedCurrent: 'asc' },
-      ],
-    }),
-    db.breakerSettings.findMany({ orderBy: { model: 'asc' } }),
-    db.projectRevision.findMany({
-      where: { projectId },
-      include: { createdBy: { select: { username: true } } },
-      orderBy: { createdAt: 'desc' },
-    }),
-  ]);
-  if (!project) throw new McpToolError('Project not found.', 404);
-
-  return { project, company, equipment, breakerSettings, revisions };
-}
-
-/** Inline the company logo so headless Chromium (on about:blank) can render it. */
-async function inlineLogo(html: string): Promise<string> {
-  const company = await getCompanySettings().catch(() => null);
-  if (!company?.logoUrl?.includes('/api/assets/')) return html;
-  const rawKey = company.logoUrl.split('/api/assets/')[1]?.split('?')[0]?.split('#')[0] || '';
-  const asset = await getLogoAsset(decodeURIComponent(rawKey));
-  if (!asset?.mime || !asset?.data) return html;
-  const dataUri = `data:${asset.mime};base64,${asset.data}`;
-  return html
-    .split(company.logoUrl)
-    .join(dataUri)
-    .split(encodeURI(company.logoUrl))
-    .join(dataUri);
+  const data = await loadReportData(projectId);
+  if (!data) throw new McpToolError('Project not found.', 404);
+  return {
+    project: data.project,
+    company: { companyName: data.companyName, logoUrl: data.companyLogoUrl },
+    equipment: data.equipment,
+    breakerSettings: data.breakerSettings,
+    revisions: data.revisions,
+  };
 }
 
 export function registerExportTools(server: McpServer, deps: ExportDeps) {

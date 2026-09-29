@@ -1,7 +1,8 @@
-import { db } from '@/lib/db';
 import { ENGINE_VERSION } from '@/lib/calculations/version';
 import { computeFloorRiserVd } from '@/lib/calculations/riser';
 import { getBuildingDiversityFactor } from '@/lib/calculations/loads';
+import { applyApartmentSizing, isCommercialBuilding } from '@/lib/services/recalculate';
+import { findProjectRow, loadDesignGraphOrThrow } from '@/lib/services/projects';
 
 /**
  * Freshness guard for exported deliverables (Task 5 Step 3).
@@ -26,26 +27,13 @@ export interface FreshnessResult {
 /**
  * Recalculate a project if its stored numbers predate the current engine.
  *
- * Mirrors the logic in `POST /api/buildings/[id]/recalculate` so an MCP-driven
- * export is identical to one made through the UI.
+ * Delegates to `src/lib/services/recalculate`, which is the same implementation
+ * `POST /api/buildings/[id]/recalculate` uses. This previously carried its own
+ * copy of that rule and described the other as one it "mirrors" — two
+ * implementations of an overload-safety check, kept in sync by hand.
  */
 export async function ensureFresh(projectId: string): Promise<FreshnessResult> {
-  const project = await db.project.findUnique({
-    where: { id: projectId },
-    select: {
-      id: true,
-      voltage: true,
-      powerFactor: true,
-      engineVersion: true,
-      buildings: {
-        select: {
-          id: true,
-          name: true,
-          floorDesigns: { select: { id: true } },
-        },
-      },
-    },
-  });
+  const project = await findProjectRow(projectId);
 
   if (!project) {
     throw new Error(`Project ${projectId} not found`);
@@ -59,106 +47,13 @@ export async function ensureFresh(projectId: string): Promise<FreshnessResult> {
     };
   }
 
-  const voltageKv = project.voltage / 1000;
-  const powerFactor = project.powerFactor;
+  const result = await applyApartmentSizing(projectId);
 
-  const isCommercial = (name: string) => {
-    const upper = (name || '').toUpperCase();
-    return (
-      upper.includes('OFFICE') ||
-      upper.includes('COMMERCIAL') ||
-      upper.includes('RETAIL') ||
-      upper.includes('MALL')
-    );
+  return {
+    wasStale: true,
+    engineVersion: ENGINE_VERSION,
+    itemsRecalculated: result?.itemsRecalculated ?? 0,
   };
-
-  // Count residential units across the WHOLE project, not just this building, so
-  // identical templates get a consistent diversity policy across towers
-  // (IEC 61439-2 Clause 10.10).
-  const totalResidentialApts = project.buildings
-    .filter((b) => !isCommercial(b.name))
-    .reduce((sum, b) => sum + b.floorDesigns.length, 0);
-
-  let itemsRecalculated = 0;
-  // Mixed write types, hence the explicit union.
-  const updates: Array<
-    ReturnType<typeof db.floorItem.update> | ReturnType<typeof db.project.update>
-  > = [];
-
-  for (const building of project.buildings) {
-    const items = await db.floorItem.findMany({
-      where: { floorDesign: { buildingId: building.id }, type: 'APARTMENT' },
-      include: { apartmentTemplate: { include: { rooms: true } } },
-    });
-    if (items.length === 0) continue;
-
-    const apartmentCount =
-      !isCommercial(building.name) && totalResidentialApts > 0
-        ? totalResidentialApts
-        : items.length;
-    const diversityFactor = getBuildingDiversityFactor(apartmentCount, building.name);
-
-    for (const item of items) {
-      if (!item.apartmentTemplate) continue;
-
-      const connectedLoadVA = item.apartmentTemplate.rooms.reduce(
-        (sum, room) => sum + room.connectedLoad,
-        0
-      );
-      const calculatedConnectedLoad = connectedLoadVA / 1000;
-      const calculatedMaxDemand = calculatedConnectedLoad * diversityFactor;
-
-      const isThreePhase = item.apartmentTemplate.phases === 3;
-      const calculatedCurrent = isThreePhase
-        ? calculatedMaxDemand / (Math.sqrt(3) * voltageKv * powerFactor)
-        : calculatedMaxDemand / ((voltageKv / Math.sqrt(3)) * powerFactor);
-
-      const data: Record<string, unknown> = {
-        calculatedConnectedLoad,
-        calculatedMaxDemand,
-        calculatedCurrent: parseFloat(calculatedCurrent.toFixed(2)),
-      };
-
-      // A 0.1 placeholder means "never sized"; clear it so the engine re-sizes.
-      if (item.voltageDrop === 0.1) {
-        data.voltageDrop = null;
-      }
-
-      // A manual breaker below the design current is an overload risk — clear it
-      // and let the cable/breaker engine size it properly.
-      const manualBreaker = item.breakerSize
-        ? parseInt(item.breakerSize.replace(/[^\d.]/g, ''), 10)
-        : null;
-      const connectedDesignCurrent = isThreePhase
-        ? calculatedConnectedLoad / (Math.sqrt(3) * voltageKv * powerFactor)
-        : calculatedConnectedLoad / ((voltageKv / Math.sqrt(3)) * powerFactor);
-      const itemDesignCurrent =
-        calculatedCurrent > 0 ? calculatedCurrent : connectedDesignCurrent;
-      const isUndersizedForLoad =
-        manualBreaker != null &&
-        !isNaN(manualBreaker) &&
-        manualBreaker < itemDesignCurrent - 0.1;
-
-      if (isUndersizedForLoad) {
-        data.breakerSize = null;
-        data.cableSize = null;
-      }
-
-      updates.push(db.floorItem.update({ where: { id: item.id }, data }));
-      itemsRecalculated++;
-    }
-  }
-
-  // Stamp the engine so the next export is a no-op and the UI stops flagging it.
-  updates.push(
-    db.project.update({
-      where: { id: projectId },
-      data: { engineVersion: ENGINE_VERSION },
-    })
-  );
-  await db.$transaction(updates);
-
-  return { wasStale: true, engineVersion: ENGINE_VERSION, itemsRecalculated };
 }
 
 /**
@@ -169,30 +64,7 @@ export async function ensureFresh(projectId: string): Promise<FreshnessResult> {
  * numbers the report will.
  */
 export async function loadProjectForDesign(projectId: string) {
-  const project = await db.project.findUnique({
-    where: { id: projectId },
-    include: {
-      buildings: {
-        include: {
-          floorDesigns: {
-            include: {
-              items: {
-                include: {
-                  apartmentTemplate: { include: { rooms: true } },
-                  loadLibraryItem: true,
-                },
-              },
-            },
-          },
-          buildingLoads: { include: { loadLibraryItem: true } },
-        },
-      },
-      apartmentTemplates: { include: { rooms: true } },
-      loadLibraryItems: true,
-    },
-  });
-  if (!project) throw new Error(`Project ${projectId} not found`);
-  return project;
+  return loadDesignGraphOrThrow(projectId);
 }
 
 /**

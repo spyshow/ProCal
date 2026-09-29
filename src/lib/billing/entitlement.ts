@@ -279,3 +279,16 @@ export async function grantCredits(params: {
     }),
   ]);
 }
+
+/**
+ * Return a project credit when creation fails part-way.
+ *
+ * Best-effort by design: this runs on an error path, so a failure here must never
+ * mask the original error. The ledger is not written to, because a refunded
+ * project was never issued — recording it would overstate purchases.
+ */
+export async function refundProjectCredit(userId: string): Promise<void> {
+  await db.user
+    .update({ where: { id: userId }, data: { credits: { increment: 1 } } })
+    .catch(() => undefined);
+}

@@ -1,5 +1,6 @@
 import { db } from '@/lib/db';
 import { getCompanySettings } from '@/lib/app-settings';
+import { loadDesignGraph } from './projects';
 import type { Project, ProjectRevision } from '@/types';
 import type { EquipmentItem } from '@/lib/calculations/feeders';
 import type { BreakerSettingItem } from '@/lib/reports/aggregates';
@@ -14,44 +15,15 @@ export interface LoadedReportData {
 }
 
 /**
- * Loads everything the engineering package needs, in one round trip.
+ * Loads everything a printable engineering deliverable needs, in one round trip.
  *
- * Shared by the print route and the PDF route so the two cannot drift — the
- * browser-POST path and the headless-Chromium path must render the same
- * document from the same data.
+ * Shared by the headless print route, the PDF download route and the MCP export
+ * tools, so the three cannot drift and produce different documents from the same
+ * project. The MCP layer previously carried its own copy of this loader.
  */
 export async function loadReportData(projectId: string): Promise<LoadedReportData | null> {
   const [project, company, rawRevisions, rawEquipment, breakerSettings] = await Promise.all([
-    db.project.findUnique({
-      where: { id: projectId },
-      include: {
-        buildings: {
-          include: {
-            floorDesigns: {
-              include: {
-                items: {
-                  include: {
-                    apartmentTemplate: {
-                      include: { rooms: true },
-                    },
-                    loadLibraryItem: true,
-                  },
-                },
-              },
-            },
-            buildingLoads: {
-              include: {
-                loadLibraryItem: true,
-              },
-            },
-          },
-        },
-        apartmentTemplates: {
-          include: { rooms: true },
-        },
-        loadLibraryItems: true,
-      },
-    }),
+    loadDesignGraph(projectId),
 
     getCompanySettings().catch(() => null),
     db.projectRevision.findMany({

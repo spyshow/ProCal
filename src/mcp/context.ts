@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { db } from '@/lib/db';
+import { listVisibleProjects } from '@/lib/services/projects';
 import {
   verifyProjectAccessAsUser,
   type AuthedUser,
@@ -62,29 +62,7 @@ export function createMcpCtx(user: AuthedUser): McpCtx {
     },
 
     async listVisibleProjects() {
-      const rows = await db.project.findMany({
-        where: {
-          OR: [{ userId: user.id }, { members: { some: { userId: user.id } } }],
-        },
-        select: {
-          id: true,
-          name: true,
-          client: true,
-          location: true,
-          updatedAt: true,
-          userId: true,
-        },
-        orderBy: { updatedAt: 'desc' },
-        take: 100,
-      });
-      return rows.map((r) => ({
-        id: r.id,
-        name: r.name,
-        client: r.client,
-        location: r.location,
-        updatedAt: r.updatedAt,
-        isOwner: r.userId === user.id,
-      }));
+      return listVisibleProjects(user.id);
     },
   };
 }

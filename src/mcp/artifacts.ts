@@ -1,4 +1,8 @@
-import { db } from '@/lib/db';
+import {
+  createArtifact,
+  deleteArtifactQuietly,
+  findArtifactForUser,
+} from '@/lib/mcp-store';
 import type { McpCtx } from './context';
 
 /**
@@ -36,18 +40,15 @@ export async function storeArtifact(params: {
   const ttl = params.ttlHours ?? DEFAULT_TTL_HOURS;
   const expiresAt = new Date(Date.now() + ttl * 60 * 60 * 1000);
 
-  const row = await db.mcpArtifact.create({
-    data: {
-      userId: params.ctx.user.id,
-      projectId: params.projectId ?? null,
-      kind: params.kind,
-      filename: params.filename,
-      mime: params.mime,
-      bytes: new Uint8Array(params.data),
-      sizeBytes: params.data.length,
-      expiresAt,
-    },
-    select: { id: true, filename: true, mime: true, sizeBytes: true, kind: true, expiresAt: true },
+  const row = await createArtifact({
+    userId: params.ctx.user.id,
+    projectId: params.projectId ?? null,
+    kind: params.kind,
+    filename: params.filename,
+    mime: params.mime,
+    data: new Uint8Array(params.data),
+    sizeBytes: params.data.length,
+    expiresAt,
   });
 
   return {
@@ -63,14 +64,11 @@ export async function storeArtifact(params: {
 
 /** Load an artifact, enforcing ownership and expiry. */
 export async function readArtifact(userId: string, id: string) {
-  const row = await db.mcpArtifact.findFirst({
-    where: { id, userId },
-    select: { id: true, filename: true, mime: true, bytes: true, expiresAt: true },
-  });
+  const row = await findArtifactForUser(userId, id);
   if (!row) return null;
   if (row.expiresAt.getTime() < Date.now()) {
     // Best-effort cleanup of a row the caller can no longer use.
-    void db.mcpArtifact.delete({ where: { id } }).catch(() => undefined);
+    void deleteArtifactQuietly(id);
     return null;
   }
   return row;

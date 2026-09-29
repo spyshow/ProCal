@@ -1,5 +1,12 @@
 import { createHash, randomBytes } from 'node:crypto';
-import { db } from './db';
+import {
+  createTokenRecord,
+  findLiveTokenByHash,
+  findTokenRecordsForUser,
+  revokeTokenRecord,
+  touchTokenLastUsed,
+  type McpActorRow,
+} from './mcp-store';
 import type { AuthedUser } from './project-auth';
 
 /**
@@ -33,21 +40,11 @@ export async function mintMcpToken(
 ): Promise<{ token: string; prefix: string; record: McpTokenRecord }> {
   // 32 bytes of entropy, URL-safe so it survives a JSON config file.
   const secret = `procal_mcp_${randomBytes(32).toString('base64url')}`;
-  const record = await db.mcpToken.create({
-    data: {
-      userId,
-      name,
-      tokenHash: hashMcpToken(secret),
-      prefix: tokenPrefix(secret),
-    },
-    select: {
-      id: true,
-      name: true,
-      prefix: true,
-      lastUsedAt: true,
-      revokedAt: true,
-      createdAt: true,
-    },
+  const record = await createTokenRecord({
+    userId,
+    name,
+    tokenHash: hashMcpToken(secret),
+    prefix: tokenPrefix(secret),
   });
   return { token: secret, prefix: record.prefix, record };
 }
@@ -62,30 +59,14 @@ export interface McpTokenRecord {
 }
 
 export async function listMcpTokens(userId: string): Promise<McpTokenRecord[]> {
-  return db.mcpToken.findMany({
-    where: { userId },
-    select: {
-      id: true,
-      name: true,
-      prefix: true,
-      lastUsedAt: true,
-      revokedAt: true,
-      createdAt: true,
-    },
-    orderBy: { createdAt: "desc" },
-  });
+  return findTokenRecordsForUser(userId);
 }
 
 export async function revokeMcpToken(
   userId: string,
   tokenId: string
 ): Promise<boolean> {
-  // Scoped to the caller's own tokens, so one user cannot revoke another's.
-  const result = await db.mcpToken.updateMany({
-    where: { id: tokenId, userId, revokedAt: null },
-    data: { revokedAt: new Date() },
-  });
-  return result.count > 0;
+  return revokeTokenRecord(userId, tokenId);
 }
 
 /**
@@ -110,33 +91,12 @@ export async function resolveMcpActor(request: Request): Promise<McpUser | null>
 
   // Revoked tokens and disabled users are filtered out in the query rather than
   // after it, so the selected shape is already exactly `McpUser`.
-  const row = await db.mcpToken.findFirst({
-    where: {
-      tokenHash: hashMcpToken(secret),
-      revokedAt: null,
-      user: { disabled: false },
-    },
-    select: {
-      id: true,
-      user: {
-        select: {
-          id: true,
-          username: true,
-          name: true,
-          role: true,
-          credits: true,
-          email: true,
-          theme: true,
-        },
-      },
-    },
-  });
+  const row: McpActorRow | null = await findLiveTokenByHash(hashMcpToken(secret));
 
   if (!row) return null;
 
-  void db.mcpToken
-    .update({ where: { id: row.id }, data: { lastUsedAt: new Date() } })
-    .catch(() => undefined);
+  // Best-effort audit stamp: a failure here must not fail the request.
+  void touchTokenLastUsed(row.id).catch(() => undefined);
 
   return row.user;
 }

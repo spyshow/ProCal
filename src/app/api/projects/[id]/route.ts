@@ -1,6 +1,7 @@
-import { NextResponse } from "next/server";
-import { db } from "@/lib/db";
-import { verifyProjectAccess } from "@/lib/project-auth";
+﻿  import { NextResponse } from "next/server";
+  import { db } from "@/lib/db";
+  import { loadProjectWithMembers } from "@/lib/services/projects";
+  import { verifyProjectAccess } from "@/lib/project-auth";
 import { logProjectActivity } from "@/lib/audit-logger";
 import { computeProjectDiff } from "@/lib/audit-diff";
 import { errorResponse } from "@/lib/api-errors";
@@ -19,41 +20,7 @@ export async function GET(
     const auth = await verifyProjectAccess(id);
     if (auth instanceof NextResponse) return auth;
 
-    const project = await db.project.findUnique({
-      where: { id },
-      include: {
-        buildings: {
-          include: {
-            floorDesigns: {
-              include: {
-                items: {
-                  include: {
-                    apartmentTemplate: {
-                      include: { rooms: true },
-                    },
-                    loadLibraryItem: true,
-                  },
-                },
-              },
-            },
-            buildingLoads: {
-              include: {
-                loadLibraryItem: true,
-              },
-            },
-          },
-        },
-        apartmentTemplates: {
-          include: { rooms: true },
-        },
-        loadLibraryItems: true,
-        members: {
-          include: {
-            user: { select: { id: true, name: true, email: true, username: true } },
-          },
-        },
-      },
-    });
+    const project = await loadProjectWithMembers(id);
 
     if (!project) {
       return NextResponse.json({ error: "Project not found" }, { status: 404 });
@@ -113,7 +80,7 @@ type UpdateProjectPayload = {
     const data = (await request.json()) as UpdateProjectPayload;
     const existingProject = auth.project;
 
-    // Numeric settings feed the calc engine directly — reject out-of-range
+    // Numeric settings feed the calc engine directly â€” reject out-of-range
     // values at this trust boundary instead of persisting NaN/garbage that
     // later poisons every downstream calculation.
     const num = (key: keyof UpdateProjectPayload) =>
@@ -224,4 +191,5 @@ export async function DELETE(
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
+
 

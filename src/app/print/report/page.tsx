@@ -1,6 +1,6 @@
 import { db } from '@/lib/db';
 import { verifyPrintTicket } from '@/lib/reports/print-ticket';
-import { loadReportData } from '@/lib/reports/load-report-data';
+import { loadReportData } from '@/lib/services/report-data';
 import PrintReportClient from './PrintReportClient';
 
 /**

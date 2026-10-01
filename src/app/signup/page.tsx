@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useTranslation } from '@/i18n';
 import { LanguageSelector } from '@/components/LanguageSelector';
+import { ThemeSelector } from '@/components/ThemeSelector';
 
 export default function SignupPage() {
   const router = useRouter();
@@ -68,16 +69,11 @@ export default function SignupPage() {
 
   return (
     <div
-      className="min-h-screen flex flex-col items-center justify-center px-4 py-12"
-      style={{
-        background:
-          'radial-gradient(ellipse at center, #111827 0%, #030712 100%)',
-      }}
+      className="min-h-screen flex flex-col items-center justify-center px-4 py-12 relative bg-[var(--background-color,#030712)] text-[var(--foreground-color,#f8fafc)] bg-grid-pattern transition-colors duration-200"
     >
       <div className="w-full max-w-md">
         <div
-          className="rounded-xl border border-gray-800 shadow-2xl backdrop-blur-sm px-8 py-10"
-          style={{ backgroundColor: 'rgba(17,24,39,0.80)' }}
+          className="rounded-2xl border border-[var(--border-color,#1f2937)] bg-[var(--card-bg,#0b0f19)]/90 shadow-2xl backdrop-blur-md px-8 py-10 transition-colors duration-200"
         >
           {/* Brand Header */}
           <div className="flex flex-col items-center mb-8 select-none">
@@ -98,23 +94,23 @@ export default function SignupPage() {
                 />
               </svg>
             </div>
-            <h1 className="text-4xl font-extrabold tracking-tight text-white leading-none">
+            <h1 className="text-4xl font-extrabold tracking-tight text-[var(--foreground-color,#fff)] leading-none">
               {t('common.appName', 'ProCal')}
             </h1>
-            <p className="mt-2 text-sm font-medium tracking-normal text-gray-300 text-center">
-              Low-voltage Electrical design, <span className="text-orange-400 font-bold">Solved</span>
+            <p className="mt-2 text-sm font-medium tracking-normal text-[var(--table-header-color,#9ca3af)] text-center">
+              Low-voltage Electrical design, <span className="text-orange-500 dark:text-orange-400 font-bold">Solved</span>
             </p>
-            <p className="mt-1 text-xs font-medium tracking-widest text-gray-400 uppercase text-center">
+            <p className="mt-1 text-xs font-medium tracking-widest text-[var(--table-header-color,#9ca3af)] uppercase text-center">
               {t('auth.signupTitle', 'Create Your Account')}
             </p>
-            <div className="mt-6 w-full border-t border-gray-700/60" />
+            <div className="mt-6 w-full border-t border-[var(--border-color,#374151)]/60" />
           </div>
 
           {/* Form */}
           <form onSubmit={handleSubmit} noValidate className="space-y-5">
             {/* Name */}
             <div>
-              <label htmlFor="name" className="block mb-1.5 text-xs font-semibold uppercase tracking-wider text-gray-400">
+              <label htmlFor="name" className="block mb-1.5 text-xs font-semibold uppercase tracking-wider text-[var(--table-header-color,#9ca3af)]">
                 {t('auth.name', 'Full Name')}
               </label>
               <div className="relative">
@@ -125,14 +121,14 @@ export default function SignupPage() {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder={t('auth.name', 'Enter your full name')}
-                  className="w-full rounded-lg border border-gray-700 bg-gray-800 px-4 py-3 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-shadow"
+                  className="w-full rounded-lg border border-[var(--input-border,#374151)] bg-[var(--input-bg,rgba(17,24,39,0.8))] px-4 py-3 text-sm text-[var(--input-color,#ffffff)] placeholder-[var(--table-header-color,#6b7280)] focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all shadow-sm"
                 />
               </div>
             </div>
 
             {/* Email */}
             <div>
-              <label htmlFor="email" className="block mb-1.5 text-xs font-semibold uppercase tracking-wider text-gray-400">
+              <label htmlFor="email" className="block mb-1.5 text-xs font-semibold uppercase tracking-wider text-[var(--table-header-color,#9ca3af)]">
                 {t('auth.email', 'Email Address')}
               </label>
               <div className="relative">
@@ -143,14 +139,14 @@ export default function SignupPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="you@example.com"
-                  className="w-full rounded-lg border border-gray-700 bg-gray-800 px-4 py-3 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-shadow"
+                  className="w-full rounded-lg border border-[var(--input-border,#374151)] bg-[var(--input-bg,rgba(17,24,39,0.8))] px-4 py-3 text-sm text-[var(--input-color,#ffffff)] placeholder-[var(--table-header-color,#6b7280)] focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all shadow-sm"
                 />
               </div>
             </div>
 
             {/* Username */}
             <div>
-              <label htmlFor="username" className="block mb-1.5 text-xs font-semibold uppercase tracking-wider text-gray-400">
+              <label htmlFor="username" className="block mb-1.5 text-xs font-semibold uppercase tracking-wider text-[var(--table-header-color,#9ca3af)]">
                 {t('auth.username', 'Username')}
               </label>
               <div className="relative">
@@ -161,14 +157,14 @@ export default function SignupPage() {
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   placeholder={t('auth.username', 'Choose a username')}
-                  className="w-full rounded-lg border border-gray-700 bg-gray-800 px-4 py-3 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-shadow"
+                  className="w-full rounded-lg border border-[var(--input-border,#374151)] bg-[var(--input-bg,rgba(17,24,39,0.8))] px-4 py-3 text-sm text-[var(--input-color,#ffffff)] placeholder-[var(--table-header-color,#6b7280)] focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all shadow-sm"
                 />
               </div>
             </div>
 
             {/* Password */}
             <div>
-              <label htmlFor="password" className="block mb-1.5 text-xs font-semibold uppercase tracking-wider text-gray-400">
+              <label htmlFor="password" className="block mb-1.5 text-xs font-semibold uppercase tracking-wider text-[var(--table-header-color,#9ca3af)]">
                 {t('auth.password', 'Password')}
               </label>
               <div className="relative">
@@ -179,22 +175,22 @@ export default function SignupPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder={t('auth.password', 'Create a password')}
-                  className="w-full rounded-lg border border-gray-700 bg-gray-800 px-4 py-3 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-shadow"
+                  className="w-full rounded-lg border border-[var(--input-border,#374151)] bg-[var(--input-bg,rgba(17,24,39,0.8))] px-4 py-3 text-sm text-[var(--input-color,#ffffff)] placeholder-[var(--table-header-color,#6b7280)] focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all shadow-sm"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword((prev) => !prev)}
-                  className={isRtl ? "absolute inset-y-0 left-0 flex items-center pl-3.5 text-gray-400 hover:text-orange-400 transition-colors" : "absolute inset-y-0 right-0 flex items-center pr-3.5 text-gray-400 hover:text-orange-400 transition-colors"}
+                  className={isRtl ? "absolute inset-y-0 left-0 flex items-center pl-3.5 text-[var(--table-header-color,#9ca3af)] hover:text-orange-500 transition-colors" : "absolute inset-y-0 right-0 flex items-center pr-3.5 text-[var(--table-header-color,#9ca3af)] hover:text-orange-500 transition-colors"}
                   aria-label={showPassword ? 'Hide password' : 'Show password'}
                 >
-                  <span className="text-xs text-slate-400">{showPassword ? '●●●' : '👁'}</span>
+                  <span className="text-xs text-[var(--table-header-color,#9ca3af)]">{showPassword ? '●●●' : '👁'}</span>
                 </button>
               </div>
             </div>
 
             {/* Confirm Password */}
             <div>
-              <label htmlFor="confirmPassword" className="block mb-1.5 text-xs font-semibold uppercase tracking-wider text-gray-400">
+              <label htmlFor="confirmPassword" className="block mb-1.5 text-xs font-semibold uppercase tracking-wider text-[var(--table-header-color,#9ca3af)]">
                 {t('auth.password', 'Confirm Password')}
               </label>
               <div className="relative">
@@ -205,7 +201,7 @@ export default function SignupPage() {
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   placeholder={t('auth.password', 'Confirm your password')}
-                  className="w-full rounded-lg border border-gray-700 bg-gray-800 px-4 py-3 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-shadow"
+                  className="w-full rounded-lg border border-[var(--input-border,#374151)] bg-[var(--input-bg,rgba(17,24,39,0.8))] px-4 py-3 text-sm text-[var(--input-color,#ffffff)] placeholder-[var(--table-header-color,#6b7280)] focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all shadow-sm"
                 />
               </div>
             </div>
@@ -221,7 +217,7 @@ export default function SignupPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="relative w-full rounded-lg bg-orange-600 hover:bg-orange-500 disabled:bg-orange-800 disabled:cursor-not-allowed text-white font-semibold py-3 px-6 text-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 focus:ring-offset-gray-900 flex items-center justify-center gap-2"
+              className="relative w-full rounded-lg bg-orange-600 hover:bg-orange-500 disabled:bg-orange-800 disabled:cursor-not-allowed text-white font-semibold py-3 px-6 text-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 flex items-center justify-center gap-2 shadow-md"
             >
               {isLoading ? (
                 <span>{t('common.loading', 'Creating account...')}</span>
@@ -232,23 +228,24 @@ export default function SignupPage() {
           </form>
 
           {/* Login link */}
-          <div className="mt-6 text-center text-sm text-gray-400">
+          <div className="mt-6 text-center text-sm text-[var(--table-header-color,#9ca3af)]">
             {t('auth.haveAccount', 'Already have an account?')}{' '}
-            <Link href="/login" className="font-medium text-orange-500 hover:text-orange-400 transition-colors">
+            <Link href="/login" className="font-medium text-orange-500 dark:text-orange-400 hover:text-orange-600 dark:hover:text-orange-300 transition-colors">
               {t('auth.signInBtn', 'Sign in')}
             </Link>
           </div>
         </div>
 
-        {/* ── Language Selector in Bottom Section ── */}
-        <div className="mt-6 flex justify-center">
+        {/* ── Theme & Language Selector in Bottom Section ── */}
+        <div className="mt-6 flex items-center justify-center gap-3">
+          <ThemeSelector variant="footer" />
           <LanguageSelector variant="footer" />
         </div>
 
-        <p className="mt-4 text-center text-xs text-gray-600 select-none">
+        <p className="mt-4 text-center text-xs text-[var(--table-header-color,#6b7280)] select-none">
           &copy; 2026&nbsp;
-          <span className="text-gray-500 font-medium">ProCal</span>
-          &nbsp;&mdash;&nbsp;Low-voltage Electrical design, <span className="text-orange-400 font-medium">Solved</span>
+          <span className="text-[var(--foreground-color,#9ca3af)] font-medium">ProCal</span>
+          &nbsp;&mdash;&nbsp;Low-voltage Electrical design, <span className="text-orange-500 dark:text-orange-400 font-medium">Solved</span>
         </p>
       </div>
     </div>

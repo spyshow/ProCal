@@ -17,7 +17,7 @@ export function SimpleElectricPanel({ children }: SimpleElectricPanelProps) {
           TOP PG-48 CABLE GLAND ASSEMBLY (MOUNTED BEHIND / UNDER TOP PANEL LIP)
       ========================================================================= */}
       <div className="relative z-0 flex items-center justify-center -mb-4">
-        <div className="flex items-center gap-3 sm:gap-6 px-5 sm:px-8 py-2 rounded-t-2xl bg-gradient-to-b from-[#b8b5a0] to-[#a3a08c] border-t-2 border-x-2 border-[#d5d2bf] shadow-[0_-6px_25px_rgba(0,0,0,0.6)]">
+        <div className="flex items-center gap-3 sm:gap-6 px-5 sm:px-8 py-2 rounded-t-2xl bg-gradient-to-b from-[#b8b5a0] to-[#a3a08c] border-t-2 border-x-2 border-[#d5d2bf] gland-shadow-top">
           {/* Left Specification Tag */}
           <div className="hidden sm:flex flex-col text-end font-mono text-[10px] text-slate-900 leading-tight">
             <span className="font-bold">INCOMER FEEDER</span>
@@ -82,7 +82,7 @@ export function SimpleElectricPanel({ children }: SimpleElectricPanelProps) {
       {/* =========================================================================
           MAIN ENCLOSURE FRAME: RAL 7032 (PEBBLE GREY / KIESELGRAU) - OVERLAPS GLANDS
       ========================================================================= */}
-      <div className="relative z-20 rounded-3xl p-3 sm:p-5 bg-gradient-to-b from-[#b8b5a0] via-[#aba792] to-[#999580] border-4 border-[#d5d2bf] shadow-[0_30px_90px_rgba(0,0,0,0.9),inset_0_2px_4px_rgba(255,255,255,0.4)]">
+      <div className="relative z-20 rounded-3xl p-3 sm:p-5 bg-gradient-to-b from-[#b8b5a0] via-[#aba792] to-[#999580] border-4 border-[#d5d2bf] panel-enclosure-shadow">
         {/* Left Side Industrial Heavy Door Hinges */}
         <div className="pointer-events-none absolute top-20 -left-2 w-3.5 h-12 bg-gradient-to-r from-slate-700 to-slate-900 rounded-l border-y border-l border-slate-600 shadow-md" />
         <div className="pointer-events-none absolute bottom-20 -left-2 w-3.5 h-12 bg-gradient-to-r from-slate-700 to-slate-900 rounded-l border-y border-l border-slate-600 shadow-md" />
@@ -91,7 +91,7 @@ export function SimpleElectricPanel({ children }: SimpleElectricPanelProps) {
             LEFT-SIDE PG-36 OUTLET ASSEMBLY (MOUNTED ON LEFT FLANK / RED AREA)
         ========================================================================= */}
         <div className="absolute -left-12 sm:-left-20 md:-left-24 bottom-24 sm:bottom-32 z-0 flex items-center">
-          <div className="flex flex-col items-center gap-1.5 px-3 sm:px-4 py-2.5 rounded-l-2xl bg-gradient-to-r from-[#8f8b78] via-[#9e9a85] to-[#aba792] border-y-2 border-l-2 border-[#d5d2bf] shadow-[-12px_12px_30px_rgba(0,0,0,0.7)]">
+          <div className="flex flex-col items-center gap-1.5 px-3 sm:px-4 py-2.5 rounded-l-2xl bg-gradient-to-r from-[#8f8b78] via-[#9e9a85] to-[#aba792] border-y-2 border-l-2 border-[#d5d2bf] gland-shadow-side">
             {/* Specification Header Tag */}
             <div className="flex flex-col items-center text-center font-mono text-[9px] sm:text-[10px] text-slate-950 font-bold leading-tight">
               <span className="tracking-wider">FEEDER OUT</span>
@@ -156,38 +156,38 @@ export function SimpleElectricPanel({ children }: SimpleElectricPanelProps) {
         </div>
 
         {/* Top Fascia Tag & Phase Pilot Indicator Lights */}
-        <div className="relative z-20 flex flex-wrap items-center justify-between gap-3 px-4 py-2.5 mb-3 rounded-xl bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950 border border-slate-800 text-xs">
+        <div className="relative z-20 flex flex-wrap items-center justify-between gap-3 px-4 py-2.5 mb-3 rounded-xl bg-[var(--card-bg)] border border-[var(--border-color)] shadow-sm text-xs">
           <div className="flex items-center gap-2.5">
-            <div className="w-7 h-7 rounded-lg bg-orange-500/20 border border-orange-500/40 flex items-center justify-center text-orange-400">
+            <div className="w-7 h-7 rounded-lg bg-orange-500/10 dark:bg-orange-500/20 border border-orange-500/30 flex items-center justify-center text-orange-600 dark:text-orange-400">
               <Zap className="w-4 h-4" />
             </div>
             <div>
-              <span className="font-mono font-bold text-white tracking-wide text-xs">
+              <span className="font-mono font-bold text-[var(--foreground-color)] tracking-wide text-xs">
                 MAIN DISTRIBUTION BOARD (MDB)
               </span>
-              <span className="ms-2 px-2 py-0.5 rounded bg-slate-800 text-[10px] font-mono text-[#c4c1ae] border border-[#8a8775]">
+              <span className="ms-2 px-2 py-0.5 rounded bg-[var(--card-bg-subtle)] text-[10px] font-mono text-[var(--table-header-color)] border border-[var(--border-color)]">
                 RAL-7032 ENCLOSURE
               </span>
             </div>
           </div>
 
           {/* Phase Pilot Lamps (L1, L2, L3) with subtle electrical glow */}
-          <div className="flex items-center gap-3 bg-slate-950 px-3 py-1.5 rounded-lg border border-slate-800">
-            <span className="text-[11px] font-mono text-slate-400">Phase:</span>
+          <div className="flex items-center gap-3 bg-[var(--card-bg-subtle)] px-3 py-1.5 rounded-lg border border-[var(--border-color)]">
+            <span className="text-[11px] font-mono text-[var(--table-header-color)]">Phase:</span>
             {/* L1 */}
             <div className="flex items-center gap-1">
               <span className="w-2 h-2 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.9)] animate-pulse" />
-              <span className="text-[10px] font-mono font-bold text-red-400">L1</span>
+              <span className="text-[10px] font-mono font-bold text-red-600 dark:text-red-400">L1</span>
             </div>
             {/* L2 */}
             <div className="flex items-center gap-1">
               <span className="w-2 h-2 rounded-full bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.9)] animate-pulse" />
-              <span className="text-[10px] font-mono font-bold text-amber-400">L2</span>
+              <span className="text-[10px] font-mono font-bold text-amber-600 dark:text-amber-400">L2</span>
             </div>
             {/* L3 */}
             <div className="flex items-center gap-1">
               <span className="w-2 h-2 rounded-full bg-sky-500 shadow-[0_0_8px_rgba(14,165,233,0.9)] animate-pulse" />
-              <span className="text-[10px] font-mono font-bold text-sky-400">L3</span>
+              <span className="text-[10px] font-mono font-bold text-sky-600 dark:text-sky-400">L3</span>
             </div>
           </div>
         </div>
@@ -196,7 +196,7 @@ export function SimpleElectricPanel({ children }: SimpleElectricPanelProps) {
             TEMPERED GLASS VIEWING DOOR (SICHTFENSTER)
             - Transparent smoked glass pane through which the user sees the section!
         ========================================================================= */}
-        <div className="relative rounded-2xl border-2 border-slate-700/80 bg-slate-950/85 backdrop-blur-xl p-5 sm:p-8 shadow-[inset_0_4px_25px_rgba(0,0,0,0.8)] overflow-hidden">
+        <div className="relative rounded-2xl border-2 border-[var(--border-color,#334155)] bg-[var(--card-bg-subtle,#030712)]/90 backdrop-blur-xl p-5 sm:p-8 inner-panel-shadow overflow-hidden transition-colors duration-200">
           {/* Specular Diagonal Glass Reflection Sheen */}
           <div
             className="pointer-events-none absolute inset-0 z-20 opacity-35"
@@ -206,7 +206,7 @@ export function SimpleElectricPanel({ children }: SimpleElectricPanelProps) {
           />
 
           {/* Rubber Gasket Seal Inner Border */}
-          <div className="pointer-events-none absolute inset-1 rounded-xl border border-slate-800/60 z-20" />
+          <div className="pointer-events-none absolute inset-1 rounded-xl border border-[var(--border-color,#1e293b)]/60 z-20" />
 
           {/* Content inside the Glass Door (Precision Electrical Engineering Section) */}
           <div className="relative z-10">

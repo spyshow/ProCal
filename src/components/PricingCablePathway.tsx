@@ -39,20 +39,24 @@ export function PricingCablePathway() {
     const dy = y2 - y1;
     const dx = x2 - x1;
 
-    // Cable emerges vertically downward from left-side flank outlet, sweeps across, and enters pricing inlet:
+    // Cable emerges vertically downward from left-side flank outlet, clears the panel corner, sweeps across, and enters pricing inlet:
     const cp1x = x1;
     const cp1y = y1 + dy * 0.35;
 
-    const cp2x = Math.max(25, x1 - 25);
-    const cp2y = y1 + dy * 0.58;
+    const cp2x = Math.max(25, x1 - 15);
+    const cp2y = y1 + dy * 0.55;
 
-    const midX = x1 + dx * 0.45;
+    const midX = x1 + dx * 0.42;
     const midY = y1 + dy * 0.65;
 
-    const cp3x = x2;
-    const cp3y = y2 - dy * 0.22;
+    // Continuous slope at mid: (dx*0.25, dy*0.06)
+    const cp3x = midX + dx * 0.25;
+    const cp3y = midY + dy * 0.06;
 
-    const d = `M ${x1} ${y1} C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${midX} ${midY} C ${midX + dx * 0.25} ${midY + dy * 0.15}, ${cp3x} ${cp3y}, ${x2} ${y2}`;
+    const cp4x = x2;
+    const cp4y = y2 - dy * 0.18;
+
+    const d = `M ${x1} ${y1} C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${midX} ${midY} C ${cp3x} ${cp3y}, ${cp4x} ${cp4y}, ${x2} ${y2}`;
 
     setPathStr(d);
 
@@ -65,10 +69,11 @@ export function PricingCablePathway() {
   }, []);
 
   useEffect(() => {
-    // Initial calculation after DOM paint
-    const initTimer = setTimeout(() => {
-      updateCoordinates();
-    }, 150);
+    // Initial calculations across DOM layout phases
+    const t1 = setTimeout(updateCoordinates, 50);
+    const t2 = setTimeout(updateCoordinates, 200);
+    const t3 = setTimeout(updateCoordinates, 600);
+    const t4 = setTimeout(updateCoordinates, 1200);
 
     const handleScrollOrResize = () => {
       if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
@@ -78,8 +83,20 @@ export function PricingCablePathway() {
     window.addEventListener('resize', handleScrollOrResize, { passive: true });
     window.addEventListener('scroll', handleScrollOrResize, { passive: true });
 
+    let ro: ResizeObserver | null = null;
+    if (typeof ResizeObserver !== 'undefined' && document.body) {
+      ro = new ResizeObserver(() => {
+        handleScrollOrResize();
+      });
+      ro.observe(document.body);
+    }
+
     return () => {
-      clearTimeout(initTimer);
+      clearTimeout(t1);
+      clearTimeout(t2);
+      clearTimeout(t3);
+      clearTimeout(t4);
+      if (ro) ro.disconnect();
       window.removeEventListener('resize', handleScrollOrResize);
       window.removeEventListener('scroll', handleScrollOrResize);
       if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
@@ -89,7 +106,7 @@ export function PricingCablePathway() {
   if (!pathStr) return null;
 
   return (
-    <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden select-none">
+    <div className="pointer-events-none absolute inset-0 z-10 overflow-hidden select-none">
       <svg
         className="w-full h-full"
         style={{ minHeight: `${svgDimensions.height}px` }}
@@ -125,17 +142,25 @@ export function PricingCablePathway() {
               <feMergeNode in="SourceGraphic" />
             </feMerge>
           </filter>
+
+          {/* Pure Soft Gaussian Diffusion for Cable Ambient / Drop Shadow */}
+          <filter id="nyyPricingSoftShadowFilter" x="-40%" y="-40%" width="180%" height="180%">
+            <feGaussianBlur in="SourceGraphic" stdDeviation="4.5" />
+          </filter>
         </defs>
 
         {/* 1. Ambient Drop Shadow */}
         <path
           d={pathStr}
-          stroke="#000000"
-          strokeWidth="15"
+          transform="translate(2, 4)"
+          style={{
+            stroke: 'var(--cable-shadow-color)',
+            opacity: 'var(--cable-shadow-opacity)',
+          }}
+          strokeWidth="18"
           strokeLinecap="round"
           fill="none"
-          opacity="0.75"
-          filter="url(#nyyPricingNeonGlow)"
+          filter="url(#nyyPricingSoftShadowFilter)"
         />
 
         {/* 2. Primary NYY-F Matte PVC Cable Body */}

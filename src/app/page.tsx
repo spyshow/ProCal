@@ -27,6 +27,7 @@ import { SimpleElectricPanel } from "@/components/SimpleElectricPanel";
 import { PricingSection } from "@/components/PricingSection";
 import { useTranslation } from "@/i18n";
 import { LanguageSelector } from "@/components/LanguageSelector";
+import { ThemeSelector } from "@/components/ThemeSelector";
 
 const heroContainerVariants: Variants = {
   hidden: { opacity: 0 },
@@ -77,11 +78,11 @@ export default function Home() {
   const { t, isRtl } = useTranslation();
 
   return (
-    <div className="relative min-h-screen bg-slate-950 text-slate-100 overflow-hidden bg-grid-pattern selection:bg-orange-500 selection:text-white">
+    <div className="relative min-h-screen bg-[var(--background-color,#030712)] text-[var(--foreground-color,#f8fafc)] overflow-hidden bg-grid-pattern selection:bg-orange-500 selection:text-white transition-colors duration-200">
       {/* Background Radial Glow Beams */}
-      <div className="pointer-events-none absolute left-1/2 top-0 -translate-x-1/2 w-[800px] h-[500px] bg-orange-600/15 blur-[120px] rounded-full" />
+      <div className="pointer-events-none absolute left-1/2 top-0 -translate-x-1/2 w-[800px] h-[500px] bg-orange-600/10 dark:bg-orange-600/15 blur-[120px] rounded-full" />
       <div className="pointer-events-none absolute right-10 top-1/3 w-[400px] h-[400px] bg-amber-500/10 blur-[100px] rounded-full" />
-      <div className="pointer-events-none absolute left-10 bottom-10 w-[500px] h-[400px] bg-slate-800/20 blur-[100px] rounded-full" />
+      <div className="pointer-events-none absolute left-10 bottom-10 w-[500px] h-[400px] bg-orange-500/5 dark:bg-slate-800/20 blur-[100px] rounded-full" />
 
       {/* NYY-F 4-Core Armored Power Cable Pathway (Spans behind Hero & Explore sections into PG-48 Gland) */}
       <NyyCablePathway />
@@ -90,7 +91,7 @@ export default function Home() {
       <PricingCablePathway />
 
       {/* Top Header / Navigation Bar */}
-      <header className="sticky top-0 z-50 border-b border-white/10 bg-slate-950/80 backdrop-blur-xl">
+      <header className="sticky top-0 z-50 border-b border-[var(--border-color,rgba(255,255,255,0.1))] bg-[var(--card-bg,#030712)]/85 backdrop-blur-xl transition-colors duration-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           {/* Logo Mark */}
           <Link href="/dashboard" className="flex items-center gap-3 group">
@@ -106,35 +107,36 @@ export default function Home() {
               </svg>
             </div>
             <div>
-              <span className="text-xl font-bold tracking-tight text-white flex items-center gap-1.5">
+              <span className="text-xl font-bold tracking-tight text-[var(--foreground-color,#fff)] flex items-center gap-1.5">
                 {t('common.appName', 'ProCal')}
-                <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-orange-500/20 text-orange-400 border border-orange-500/30">
+                <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-orange-500/20 text-orange-600 dark:text-orange-400 border border-orange-500/30">
                   PRO
                 </span>
               </span>
-              <p className="text-[10.5px] text-slate-300 tracking-tight font-medium flex items-center gap-1">
+              <p className="text-[10.5px] text-[var(--table-header-color,#94a3b8)] tracking-tight font-medium flex items-center gap-1">
                 <span>Low-voltage Electrical design,</span>
-                <span className="text-orange-400 font-bold">Solved</span>
+                <span className="text-orange-500 dark:text-orange-400 font-bold">Solved</span>
               </p>
             </div>
           </Link>
 
-          {/* Action Navigation & Top Language Switcher */}
+          {/* Action Navigation & Top Language/Theme Switcher */}
           <div className="flex items-center gap-3">
             <Link
               href="/tools"
-              className="text-xs font-semibold text-slate-300 hover:text-orange-400 transition-colors hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-slate-900 border border-transparent hover:border-slate-800"
+              className="text-xs font-semibold text-[var(--table-header-color,#94a3b8)] hover:text-orange-500 transition-colors hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-[var(--card-bg-subtle,#111827)] border border-transparent hover:border-[var(--border-color,#1f2937)]"
             >
               <Zap className="w-3.5 h-3.5 text-orange-500" />
               <span>Free Tools</span>
             </Link>
             <a
               href="#pricing"
-              className="text-xs font-semibold text-slate-300 hover:text-orange-400 transition-colors hidden sm:inline-flex items-center gap-1 px-3 py-1.5 rounded-lg hover:bg-slate-900 border border-transparent hover:border-slate-800"
+              className="text-xs font-semibold text-[var(--table-header-color,#94a3b8)] hover:text-orange-500 transition-colors hidden sm:inline-flex items-center gap-1 px-3 py-1.5 rounded-lg hover:bg-[var(--card-bg-subtle,#111827)] border border-transparent hover:border-[var(--border-color,#1f2937)]"
             >
               <span>{t('nav.pricing', 'Pricing')}</span>
-              <span className="px-1.5 py-0.2 rounded bg-orange-500/20 text-orange-400 text-[10px] font-mono">$20 Deal</span>
+              <span className="px-1.5 py-0.2 rounded bg-orange-500/20 text-orange-600 dark:text-orange-400 text-[10px] font-mono">$20 Deal</span>
             </a>
+            <ThemeSelector variant="dropdown" />
             <LanguageSelector variant="dropdown" />
             <Link href="/login">
               <Button variant="ghost" size="sm" className="hidden sm:inline-flex">
@@ -165,24 +167,27 @@ export default function Home() {
           initial="hidden"
           animate="visible"
         >
-          <motion.div variants={heroItemVariants} className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-orange-500/10 border border-orange-500/30 text-orange-300 text-xs font-medium mb-8 shadow-[0_0_15px_rgba(234,88,12,0.2)]">
-            <Sparkles className="w-3.5 h-3.5 text-orange-400 animate-pulse" />
-            <span>Low-voltage Electrical design, <span className="text-orange-400 font-bold">Solved</span> &mdash; {t('landing.heroBadge', 'Next-Generation Load Calculation & Electrical Design System')}</span>
+          <motion.div variants={heroItemVariants} className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-orange-500/10 border border-orange-500/30 text-orange-600 dark:text-orange-300 text-xs font-medium mb-8 shadow-[0_0_15px_rgba(234,88,12,0.15)]">
+            <Sparkles className="w-3.5 h-3.5 text-orange-500 dark:text-orange-400 animate-pulse" />
+            <span>Low-voltage Electrical design, <span className="text-orange-500 dark:text-orange-400 font-bold">Solved</span> &mdash; {t('landing.heroBadge', 'Next-Generation Load Calculation & Electrical Design System')}</span>
           </motion.div>
 
           <motion.h1
             variants={heroItemVariants}
-            className="text-4xl sm:text-6xl md:text-7xl font-extrabold tracking-tight text-white max-w-5xl mx-auto leading-[1.1]"
+            className="text-4xl sm:text-6xl md:text-7xl font-extrabold tracking-tight text-[var(--foreground-color,#fff)] max-w-5xl mx-auto leading-[1.1]"
           >
             {t('landing.heroTitlePrefix', 'Precision Electrical Engineering')}{" "}
-            <span className="bg-gradient-to-r from-orange-400 via-amber-300 to-orange-500 bg-clip-text text-transparent">
+            <span
+              className="bg-gradient-to-r from-orange-500 via-amber-500 to-orange-600 dark:from-orange-400 dark:via-amber-300 dark:to-orange-500 bg-clip-text text-transparent"
+              style={{ WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}
+            >
               {t('landing.heroTitleSuffix', 'Automated & Simplified')}
             </span>
           </motion.h1>
 
           <motion.p
             variants={heroItemVariants}
-            className="mt-6 text-lg sm:text-xl text-slate-300 max-w-3xl mx-auto font-normal leading-relaxed"
+            className="mt-6 text-lg sm:text-xl text-[var(--foreground-color)]/80 max-w-3xl mx-auto font-normal leading-relaxed"
           >
             {t('landing.heroDesc', 'Streamline building load calculations, cable schedule sizing, breaker coordination, single-line diagrams (SLD), and professional printable PDF reports for industrial projects.')}
           </motion.p>
@@ -209,19 +214,19 @@ export default function Home() {
           {/* Feature Pill Highlights */}
           <motion.div
             variants={heroItemVariants}
-            className="mt-12 flex flex-wrap items-center justify-center gap-3 text-xs sm:text-sm text-slate-400"
+            className="mt-12 flex flex-wrap items-center justify-center gap-3 text-xs sm:text-sm text-[var(--table-header-color,#64748b)]"
           >
-            <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-900/80 border border-slate-800 shadow-sm">
-              <CheckCircle2 className="w-4 h-4 text-emerald-400" /> {t('landing.standards', 'IEC & NEC Standard Calculations')}
+            <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[var(--card-bg,#0b0f19)]/90 border border-[var(--border-color,#1f2937)] shadow-sm">
+              <CheckCircle2 className="w-4 h-4 text-emerald-500 dark:text-emerald-400" /> {t('landing.standards', 'IEC & NEC Standard Calculations')}
             </span>
-            <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-900/80 border border-slate-800 shadow-sm">
-              <CheckCircle2 className="w-4 h-4 text-emerald-400" /> {t('landing.smartSwitchgear', 'Smart Switchgear & Protection Catalog')}
+            <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[var(--card-bg,#0b0f19)]/90 border border-[var(--border-color,#1f2937)] shadow-sm">
+              <CheckCircle2 className="w-4 h-4 text-emerald-500 dark:text-emerald-400" /> {t('landing.smartSwitchgear', 'Smart Switchgear & Protection Catalog')}
             </span>
-            <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-900/80 border border-slate-800 shadow-sm">
-              <CheckCircle2 className="w-4 h-4 text-emerald-400" /> {t('landing.automatedRiser', 'Automated Riser & SLD Generation')}
+            <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[var(--card-bg,#0b0f19)]/90 border border-[var(--border-color,#1f2937)] shadow-sm">
+              <CheckCircle2 className="w-4 h-4 text-emerald-500 dark:text-emerald-400" /> {t('landing.automatedRiser', 'Automated Riser & SLD Generation')}
             </span>
-            <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-900/80 border border-slate-800 shadow-sm">
-              <CheckCircle2 className="w-4 h-4 text-emerald-400" /> {t('landing.printablePdf', 'Printable PDF Schedules')}
+            <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[var(--card-bg,#0b0f19)]/90 border border-[var(--border-color,#1f2937)] shadow-sm">
+              <CheckCircle2 className="w-4 h-4 text-emerald-500 dark:text-emerald-400" /> {t('landing.printablePdf', 'Printable PDF Schedules')}
             </span>
           </motion.div>
         </motion.div>
@@ -238,10 +243,10 @@ export default function Home() {
             <Badge variant="glow" className="mb-3">
               {t('common.appName', 'ProCal')} PRO
             </Badge>
-            <h2 className="text-3xl sm:text-4xl font-bold text-white tracking-tight">
+            <h2 className="text-3xl sm:text-4xl font-bold text-[var(--foreground-color,#fff)] tracking-tight">
               {t('landing.heroTitlePrefix', 'Precision Electrical Engineering')}
             </h2>
-            <p className="text-slate-400 mt-2 max-w-2xl mx-auto text-sm sm:text-base">
+            <p className="text-[var(--table-header-color,#94a3b8)] mt-2 max-w-2xl mx-auto text-sm sm:text-base">
               {t('landing.heroDesc', 'Everything you need from preliminary load sizing to final switchboard single-line diagram output.')}
             </p>
           </div>
@@ -255,7 +260,7 @@ export default function Home() {
             viewport={{ once: true, margin: "-50px" }}
           >
             <motion.div variants={cardItemVariants} whileHover={{ y: -4, transition: { duration: 0.2 } }}>
-              <Card className="glow-card border-white/10 bg-slate-900/60 h-full flex flex-col justify-between">
+              <Card className="glow-card border-[var(--border-color,#1f2937)] bg-[var(--card-bg,#0b0f19)] h-full flex flex-col justify-between shadow-lg">
                 <CardHeader>
                   <div className="w-12 h-12 rounded-lg bg-orange-600/15 border border-orange-500/30 flex items-center justify-center text-orange-400 mb-2">
                     <Zap className="w-6 h-6" />
@@ -266,7 +271,7 @@ export default function Home() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="pt-0">
-                  <Link href="/calculator" className="inline-flex items-center gap-1.5 text-xs font-semibold text-orange-400 hover:text-orange-300">
+                  <Link href="/calculator" className="inline-flex items-center gap-1.5 text-xs font-semibold text-orange-500 dark:text-orange-400 hover:text-orange-600 dark:hover:text-orange-300">
                     <span>{t('dashboard.openCalculator', 'Launch Calculator')}</span>
                     {isRtl ? <ArrowLeft className="w-3.5 h-3.5" /> : <ArrowRight className="w-3.5 h-3.5" />}
                   </Link>
@@ -275,7 +280,7 @@ export default function Home() {
             </motion.div>
 
             <motion.div variants={cardItemVariants} whileHover={{ y: -4, transition: { duration: 0.2 } }}>
-              <Card className="glow-card border-white/10 bg-slate-900/60 h-full flex flex-col justify-between">
+              <Card className="glow-card border-[var(--border-color,#1f2937)] bg-[var(--card-bg,#0b0f19)] h-full flex flex-col justify-between shadow-lg">
                 <CardHeader>
                   <div className="w-12 h-12 rounded-lg bg-amber-600/15 border border-amber-500/30 flex items-center justify-center text-amber-400 mb-2">
                     <Cable className="w-6 h-6" />
@@ -286,7 +291,7 @@ export default function Home() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="pt-0">
-                  <Link href="/cable-schedule" className="inline-flex items-center gap-1.5 text-xs font-semibold text-amber-400 hover:text-amber-300">
+                  <Link href="/cable-schedule" className="inline-flex items-center gap-1.5 text-xs font-semibold text-amber-500 dark:text-amber-400 hover:text-amber-600 dark:hover:text-amber-300">
                     <span>{t('nav.cableSchedule', 'Open Cable Schedule')}</span>
                     {isRtl ? <ArrowLeft className="w-3.5 h-3.5" /> : <ArrowRight className="w-3.5 h-3.5" />}
                   </Link>
@@ -295,7 +300,7 @@ export default function Home() {
             </motion.div>
 
             <motion.div variants={cardItemVariants} whileHover={{ y: -4, transition: { duration: 0.2 } }}>
-              <Card className="glow-card border-white/10 bg-slate-900/60 h-full flex flex-col justify-between">
+              <Card className="glow-card border-[var(--border-color,#1f2937)] bg-[var(--card-bg,#0b0f19)] h-full flex flex-col justify-between shadow-lg">
                 <CardHeader>
                   <div className="w-12 h-12 rounded-lg bg-emerald-600/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400 mb-2">
                     <CircuitBoard className="w-6 h-6" />
@@ -306,7 +311,7 @@ export default function Home() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="pt-0">
-                  <Link href="/breaker-schedule" className="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-400 hover:text-emerald-300">
+                  <Link href="/breaker-schedule" className="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-500 dark:text-emerald-400 hover:text-emerald-600 dark:hover:text-emerald-300">
                     <span>{t('nav.breakerSchedule', 'View Breakers')}</span>
                     {isRtl ? <ArrowLeft className="w-3.5 h-3.5" /> : <ArrowRight className="w-3.5 h-3.5" />}
                   </Link>
@@ -315,7 +320,7 @@ export default function Home() {
             </motion.div>
 
             <motion.div variants={cardItemVariants} whileHover={{ y: -4, transition: { duration: 0.2 } }}>
-              <Card className="glow-card border-white/10 bg-slate-900/60 h-full flex flex-col justify-between">
+              <Card className="glow-card border-[var(--border-color,#1f2937)] bg-[var(--card-bg,#0b0f19)] h-full flex flex-col justify-between shadow-lg">
                 <CardHeader>
                   <div className="w-12 h-12 rounded-lg bg-sky-600/15 border border-sky-500/30 flex items-center justify-center text-sky-400 mb-2">
                     <Cpu className="w-6 h-6" />
@@ -326,7 +331,7 @@ export default function Home() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="pt-0">
-                  <Link href="/panel" className="inline-flex items-center gap-1.5 text-xs font-semibold text-sky-400 hover:text-sky-300">
+                  <Link href="/panel" className="inline-flex items-center gap-1.5 text-xs font-semibold text-sky-500 dark:text-sky-400 hover:text-sky-600 dark:hover:text-sky-300">
                     <span>{t('landing.configurePanels', 'Configure Panels')}</span>
                     {isRtl ? <ArrowLeft className="w-3.5 h-3.5" /> : <ArrowRight className="w-3.5 h-3.5" />}
                   </Link>
@@ -335,7 +340,7 @@ export default function Home() {
             </motion.div>
 
             <motion.div variants={cardItemVariants} whileHover={{ y: -4, transition: { duration: 0.2 } }}>
-              <Card className="glow-card border-white/10 bg-slate-900/60 h-full flex flex-col justify-between">
+              <Card className="glow-card border-[var(--border-color,#1f2937)] bg-[var(--card-bg,#0b0f19)] h-full flex flex-col justify-between shadow-lg">
                 <CardHeader>
                   <div className="w-12 h-12 rounded-lg bg-indigo-600/15 border border-indigo-500/30 flex items-center justify-center text-indigo-400 mb-2">
                     <GitBranch className="w-6 h-6" />
@@ -346,7 +351,7 @@ export default function Home() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="pt-0">
-                  <Link href="/sld" className="inline-flex items-center gap-1.5 text-xs font-semibold text-indigo-400 hover:text-indigo-300">
+                  <Link href="/sld" className="inline-flex items-center gap-1.5 text-xs font-semibold text-indigo-500 dark:text-indigo-400 hover:text-indigo-600 dark:hover:text-indigo-300">
                     <span>{t('landing.openSld', 'Open SLD Designer')}</span>
                     {isRtl ? <ArrowLeft className="w-3.5 h-3.5" /> : <ArrowRight className="w-3.5 h-3.5" />}
                   </Link>
@@ -355,7 +360,7 @@ export default function Home() {
             </motion.div>
 
             <motion.div variants={cardItemVariants} whileHover={{ y: -4, transition: { duration: 0.2 } }}>
-              <Card className="glow-card border-white/10 bg-slate-900/60 h-full flex flex-col justify-between">
+              <Card className="glow-card border-[var(--border-color,#1f2937)] bg-[var(--card-bg,#0b0f19)] h-full flex flex-col justify-between shadow-lg">
                 <CardHeader>
                   <div className="w-12 h-12 rounded-lg bg-rose-600/15 border border-rose-500/30 flex items-center justify-center text-rose-400 mb-2">
                     <FileText className="w-6 h-6" />
@@ -366,7 +371,7 @@ export default function Home() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="pt-0">
-                  <Link href="/reports" className="inline-flex items-center gap-1.5 text-xs font-semibold text-rose-400 hover:text-rose-300">
+                  <Link href="/reports" className="inline-flex items-center gap-1.5 text-xs font-semibold text-rose-500 dark:text-rose-400 hover:text-rose-600 dark:hover:text-rose-300">
                     <span>{t('landing.generateReports', 'Generate Reports')}</span>
                     {isRtl ? <ArrowLeft className="w-3.5 h-3.5" /> : <ArrowRight className="w-3.5 h-3.5" />}
                   </Link>
@@ -381,30 +386,31 @@ export default function Home() {
       <PricingSection />
 
       {/* Footer */}
-      <footer className="border-t border-slate-800 bg-slate-950 py-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-400">
+      <footer className="border-t border-[var(--border-color,#1f2937)] bg-[var(--card-bg,#030712)] py-10 transition-colors duration-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[var(--table-header-color,#64748b)]">
           <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded bg-orange-600/20 border border-orange-500/40 flex items-center justify-center text-orange-400 font-bold">
+            <div className="w-6 h-6 rounded bg-orange-600/20 border border-orange-500/40 flex items-center justify-center text-orange-500 dark:text-orange-400 font-bold">
               ⚡
             </div>
-            <span>{t('common.appName', 'ProCal')} &copy; {new Date().getFullYear()} &mdash; Low-voltage Electrical design, <span className="text-orange-400 font-medium">Solved</span></span>
+            <span>{t('common.appName', 'ProCal')} &copy; {new Date().getFullYear()} &mdash; Low-voltage Electrical design, <span className="text-orange-500 dark:text-orange-400 font-medium">Solved</span></span>
           </div>
 
-          <div className="flex items-center gap-6">
+          <div className="flex flex-wrap items-center gap-4 sm:gap-6">
+            <ThemeSelector variant="footer" />
             <LanguageSelector variant="footer" />
-            <Link href="/tools" className="hover:text-white transition-colors">
+            <Link href="/tools" className="hover:text-[var(--foreground-color,#fff)] transition-colors">
               Free Tools
             </Link>
-            <a href="#pricing" className="hover:text-white transition-colors">
+            <a href="#pricing" className="hover:text-[var(--foreground-color,#fff)] transition-colors">
               {t('nav.pricing', 'Pricing')}
             </a>
-            <Link href="/dashboard" className="hover:text-white transition-colors">
+            <Link href="/dashboard" className="hover:text-[var(--foreground-color,#fff)] transition-colors">
               {t('nav.dashboard', 'Dashboard')}
             </Link>
-            <Link href="/projects" className="hover:text-white transition-colors">
+            <Link href="/projects" className="hover:text-[var(--foreground-color,#fff)] transition-colors">
               {t('nav.projects', 'Projects')}
             </Link>
-            <Link href="/settings" className="hover:text-white transition-colors">
+            <Link href="/settings" className="hover:text-[var(--foreground-color,#fff)] transition-colors">
               {t('nav.settings', 'Settings')}
             </Link>
           </div>

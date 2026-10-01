@@ -126,17 +126,25 @@ export function NyyCablePathway() {
               <feMergeNode in="SourceGraphic" />
             </feMerge>
           </filter>
+
+          {/* Pure Soft Gaussian Diffusion for Cable Ambient / Drop Shadow */}
+          <filter id="nyySoftShadowFilter" x="-40%" y="-40%" width="180%" height="180%">
+            <feGaussianBlur in="SourceGraphic" stdDeviation="4.5" />
+          </filter>
         </defs>
 
         {/* 1. Ambient Drop Shadow (Full length from high behind building to PG-48) */}
         <path
           d={pathStr}
-          stroke="#000000"
-          strokeWidth="16"
+          transform="translate(2, 4)"
+          style={{
+            stroke: 'var(--cable-shadow-color)',
+            opacity: 'var(--cable-shadow-opacity)',
+          }}
+          strokeWidth="18"
           strokeLinecap="round"
           fill="none"
-          opacity="0.75"
-          filter="url(#nyyNeonGlow)"
+          filter="url(#nyySoftShadowFilter)"
         />
 
         {/* 2. Primary NYY-F Matte PVC Cable Body (Full length from high behind building to PG-48) */}

@@ -215,10 +215,10 @@ export function HeroSlideshow() {
           <Sparkles className="w-3.5 h-3.5 text-orange-400 inline animate-spin" />
           {t("slideshow.badge", "Interactive Feature Showcase")}
         </Badge>
-        <h2 className="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">
+        <h2 className="text-2xl sm:text-4xl font-extrabold text-[var(--foreground-color)] tracking-tight">
           {t("slideshow.heading", "Explore ProCal in Action")}
         </h2>
-        <p className="text-slate-400 mt-2 text-sm sm:text-base max-w-2xl mx-auto">
+        <p className="text-[var(--table-header-color,#64748b)] mt-2 text-sm sm:text-base max-w-2xl mx-auto">
           {t(
             "slideshow.subheading",
             "Click through the core functions below to see how ProCal streamlines complex electrical design tasks."
@@ -237,23 +237,23 @@ export function HeroSlideshow() {
               onClick={() => setActiveIndex(idx)}
               className={`relative flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-medium transition-colors duration-200 whitespace-nowrap cursor-pointer ${
                 isActive
-                  ? "text-white"
-                  : "bg-slate-950/60 border border-slate-800/80 text-slate-400 hover:text-slate-200 hover:border-slate-700"
+                  ? "text-[var(--foreground-color)]"
+                  : "bg-[var(--card-bg-subtle)] border border-[var(--border-color)] text-[var(--table-header-color,#64748b)] hover:text-[var(--foreground-color)] hover:border-orange-500/40"
               }`}
             >
               {isActive && (
                 <motion.div
                   layoutId="activeHeroTab"
-                  className={`absolute inset-0 rounded-xl bg-slate-900 border ${slide.accentBorder} shadow-[0_0_20px_rgba(234,88,12,0.2)]`}
+                  className={`absolute inset-0 rounded-xl bg-[var(--card-bg)] border ${slide.accentBorder} shadow-[0_0_20px_rgba(234,88,12,0.2)]`}
                   transition={{ type: "spring", stiffness: 450, damping: 35 }}
                 />
               )}
               <div
                 className={`relative z-10 w-6 h-6 rounded-lg flex items-center justify-center ${
-                  isActive ? slide.accentBg : "bg-slate-900"
+                  isActive ? slide.accentBg : "bg-[var(--card-bg-subtle)]"
                 }`}
               >
-                <Icon className={`w-3.5 h-3.5 ${isActive ? slide.accentColor : "text-slate-400"}`} />
+                <Icon className={`w-3.5 h-3.5 ${isActive ? slide.accentColor : "text-[var(--table-header-color,#64748b)]"}`} />
               </div>
               <span className="relative z-10">{slide.tabLabel}</span>
             </button>
@@ -263,7 +263,7 @@ export function HeroSlideshow() {
 
       {/* Main Slideshow Container */}
       <div
-        className="relative bg-slate-900/60 backdrop-blur-xl border border-white/10 rounded-2xl md:rounded-3xl p-4 sm:p-6 lg:p-8 shadow-[0_0_50px_rgba(0,0,0,0.5)] overflow-hidden"
+        className="relative bg-[var(--card-bg)]/85 backdrop-blur-xl border border-[var(--border-color)] rounded-2xl md:rounded-3xl p-4 sm:p-6 lg:p-8 shadow-[0_0_50px_rgba(0,0,0,0.2)] overflow-hidden"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
@@ -354,21 +354,21 @@ export function HeroSlideshow() {
                   >
                     <activeSlide.icon className={`w-5 h-5 ${activeSlide.accentColor}`} />
                   </div>
-                  <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">
+                  <span className="text-xs font-semibold uppercase tracking-wider text-[var(--table-header-color,#64748b)]">
                     {activeSlide.tagline}
                   </span>
                 </div>
 
-                <h3 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight leading-snug">
+                <h3 className="text-2xl sm:text-3xl font-extrabold text-[var(--foreground-color)] tracking-tight leading-snug">
                   {activeSlide.title}
                 </h3>
 
-                <p className="text-sm sm:text-base text-slate-300 leading-relaxed">{activeSlide.description}</p>
+                <p className="text-sm sm:text-base text-[var(--table-header-color,#64748b)] leading-relaxed">{activeSlide.description}</p>
 
                 {/* Key Bullet Highlights */}
                 <ul className="space-y-2.5 pt-2">
                   {activeSlide.highlights.map((item, idx) => (
-                    <li key={idx} className="flex items-start gap-2.5 text-xs sm:text-sm text-slate-300">
+                    <li key={idx} className="flex items-start gap-2.5 text-xs sm:text-sm text-[var(--foreground-color)]">
                       <CheckCircle2 className={`w-4 h-4 mt-0.5 shrink-0 ${activeSlide.accentColor}`} />
                       <span>{item}</span>
                     </li>
@@ -378,7 +378,7 @@ export function HeroSlideshow() {
             </AnimatePresence>
 
             {/* Slide Action Button & Controls */}
-            <div className="pt-4 border-t border-slate-800/80 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="pt-4 border-t border-[var(--border-color)] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <Link href={activeSlide.href}>
                 <Button variant="glow" size="lg" className="w-full sm:w-auto gap-2 text-sm font-semibold">
                   {activeSlide.ctaText}
@@ -387,13 +387,13 @@ export function HeroSlideshow() {
               </Link>
 
               {/* Carousel Navigation Toolbar */}
-              <div className="flex items-center justify-between sm:justify-end gap-3 text-slate-400">
+              <div className="flex items-center justify-between sm:justify-end gap-3 text-[var(--table-header-color,#64748b)]">
                 <div className="flex items-center gap-1">
                   <Button
                     variant="ghost"
                     size="icon"
                     onClick={isRtl ? handleNext : handlePrev}
-                    className="w-8 h-8 rounded-lg hover:bg-slate-800 hover:text-white"
+                    className="w-8 h-8 rounded-lg hover:bg-[var(--card-bg-subtle)] hover:text-[var(--foreground-color)]"
                   >
                     {isRtl ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
                   </Button>
@@ -401,7 +401,7 @@ export function HeroSlideshow() {
                     variant="ghost"
                     size="icon"
                     onClick={() => setIsPlaying(!isPlaying)}
-                    className="w-8 h-8 rounded-lg hover:bg-slate-800 hover:text-white"
+                    className="w-8 h-8 rounded-lg hover:bg-[var(--card-bg-subtle)] hover:text-[var(--foreground-color)]"
                     title={isPlaying ? t("slideshow.pause", "Pause Slideshow") : t("slideshow.play", "Play Slideshow")}
                   >
                     {isPlaying ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
@@ -410,14 +410,14 @@ export function HeroSlideshow() {
                     variant="ghost"
                     size="icon"
                     onClick={isRtl ? handlePrev : handleNext}
-                    className="w-8 h-8 rounded-lg hover:bg-slate-800 hover:text-white"
+                    className="w-8 h-8 rounded-lg hover:bg-[var(--card-bg-subtle)] hover:text-[var(--foreground-color)]"
                   >
                     {isRtl ? <ChevronLeft className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
                   </Button>
                 </div>
 
-                <span className="text-xs font-mono text-slate-500" dir="ltr">
-                  <span className="text-white font-bold">{String(activeIndex + 1).padStart(2, "0")}</span> /{" "}
+                <span className="text-xs font-mono text-[var(--table-header-color,#64748b)]" dir="ltr">
+                  <span className="text-[var(--foreground-color)] font-bold">{String(activeIndex + 1).padStart(2, "0")}</span> /{" "}
                   {String(slides.length).padStart(2, "0")}
                 </span>
               </div>

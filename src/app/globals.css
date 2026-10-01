@@ -70,6 +70,15 @@
     --sidebar-active-border: #f97316;
     --table-zebra-bg: rgba(255, 255, 255, 0.028);
     --table-row-hover: rgba(255, 255, 255, 0.065);
+
+    /* Enclosure & Hardware Shadows - Light Luminous Ambient in Dark Mode */
+    --enclosure-shadow: 0 22px 60px rgba(255, 255, 255, 0.16), 0 0 45px rgba(251, 146, 60, 0.28), 0 4px 15px rgba(255, 255, 255, 0.12), inset 0 2px 4px rgba(255, 255, 255, 0.4);
+    --gland-shadow-top: 0 -6px 22px rgba(255, 255, 255, 0.18), 0 0 20px rgba(251, 146, 60, 0.25);
+    --gland-shadow-side: -10px 8px 25px rgba(255, 255, 255, 0.18), 0 0 20px rgba(251, 146, 60, 0.25);
+    --gland-shadow-pricing: 0 8px 25px rgba(255, 255, 255, 0.18), 0 0 20px rgba(251, 146, 60, 0.25);
+    --inner-panel-shadow: inset 0 3px 18px rgba(255, 255, 255, 0.10);
+    --cable-shadow-color: #fed7aa;
+    --cable-shadow-opacity: 0.16;
   }
 
   [data-theme="blueprint"] {
@@ -137,6 +146,15 @@
     --sidebar-active-border: #ea580c;
     --table-zebra-bg: rgba(241, 245, 249, 0.75);
     --table-row-hover: rgba(226, 232, 240, 0.85);
+
+    /* Enclosure & Hardware Shadows - Cool Crisp Slate */
+    --enclosure-shadow: 0 20px 50px rgba(100, 116, 139, 0.32), 0 6px 18px rgba(100, 116, 139, 0.18), inset 0 2px 4px rgba(255, 255, 255, 0.8);
+    --gland-shadow-top: 0 -6px 20px rgba(100, 116, 139, 0.28);
+    --gland-shadow-side: -10px 8px 24px rgba(100, 116, 139, 0.30);
+    --gland-shadow-pricing: 0 8px 22px rgba(100, 116, 139, 0.28), 0 2px 6px rgba(100, 116, 139, 0.14);
+    --inner-panel-shadow: inset 0 3px 18px rgba(100, 116, 139, 0.12);
+    --cable-shadow-color: #64748b;
+    --cable-shadow-opacity: 0.14;
   }
 
   [data-theme="warm"] {
@@ -204,7 +222,37 @@
     --sidebar-active-border: #c66928;
     --table-zebra-bg: rgba(223, 211, 192, 0.35);
     --table-row-hover: rgba(223, 211, 192, 0.75);
+
+    /* Enclosure & Hardware Shadows - Warm Architectural Caramel / Sepia */
+    --enclosure-shadow: 0 20px 50px rgba(140, 105, 72, 0.34), 0 6px 18px rgba(140, 105, 72, 0.18), inset 0 2px 4px rgba(255, 255, 255, 0.7);
+    --gland-shadow-top: 0 -6px 20px rgba(140, 105, 72, 0.30);
+    --gland-shadow-side: -10px 8px 24px rgba(140, 105, 72, 0.32);
+    --gland-shadow-pricing: 0 8px 22px rgba(140, 105, 72, 0.30), 0 2px 6px rgba(140, 105, 72, 0.14);
+    --inner-panel-shadow: inset 0 3px 18px rgba(140, 105, 72, 0.14);
+    --cable-shadow-color: #8c6948;
+    --cable-shadow-opacity: 0.15;
   }
+}
+
+/* Dedicated Enclosure & Gland Theme-Adaptive Shadows */
+.panel-enclosure-shadow {
+  box-shadow: var(--enclosure-shadow) !important;
+}
+
+.gland-shadow-top {
+  box-shadow: var(--gland-shadow-top) !important;
+}
+
+.gland-shadow-side {
+  box-shadow: var(--gland-shadow-side) !important;
+}
+
+.gland-shadow-pricing {
+  box-shadow: var(--gland-shadow-pricing) !important;
+}
+
+.inner-panel-shadow {
+  box-shadow: var(--inner-panel-shadow) !important;
 }
 
 /* Dedicated High-Contrast Sidebar Active Rules across all themes */
@@ -720,17 +768,43 @@ html[dir="rtl"] .font-mono {
    Aceternity & 21st.dev Visual Utility Classes
    --------------------------------------------------------------------------- */
 
-/* Ambient Grid Pattern */
+/* Ambient Grid Pattern with Adaptive Theme Gridlines */
 .bg-grid-pattern {
   background-size: 32px 32px;
   background-image: 
-    linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    linear-gradient(to right, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+}
+
+[data-theme="blueprint"] .bg-grid-pattern,
+html[data-theme="blueprint"] .bg-grid-pattern,
+html[data-theme="blueprint"] .bg-grid-pattern-root {
+  background-image: 
+    linear-gradient(to right, rgba(15, 23, 42, 0.06) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(15, 23, 42, 0.06) 1px, transparent 1px);
+}
+
+[data-theme="warm"] .bg-grid-pattern,
+html[data-theme="warm"] .bg-grid-pattern,
+html[data-theme="warm"] .bg-grid-pattern-root {
+  background-image: 
+    linear-gradient(to right, rgba(38, 30, 22, 0.07) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(38, 30, 22, 0.07) 1px, transparent 1px);
 }
 
 .bg-dot-pattern {
   background-size: 20px 20px;
   background-image: radial-gradient(circle, rgba(255, 255, 255, 0.07) 1px, transparent 1px);
+}
+
+[data-theme="blueprint"] .bg-dot-pattern,
+html[data-theme="blueprint"] .bg-dot-pattern {
+  background-image: radial-gradient(circle, rgba(15, 23, 42, 0.08) 1px, transparent 1px);
+}
+
+[data-theme="warm"] .bg-dot-pattern,
+html[data-theme="warm"] .bg-dot-pattern {
+  background-image: radial-gradient(circle, rgba(38, 30, 22, 0.09) 1px, transparent 1px);
 }
 
 /* Glowing card highlight on hover */

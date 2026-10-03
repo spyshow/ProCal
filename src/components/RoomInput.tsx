@@ -21,7 +21,7 @@ export interface RoomData {
 interface RoomInputProps {
   room: RoomData;
   acRules: AcSizingRule[];
-  roomDensities?: Record<string, number>;
+  roomDensities?: Record<string, number | undefined>;
   onChange: (id: string, updates: Partial<RoomData>) => void;
   onRemove: (id: string) => void;
   canRemove: boolean;

@@ -19,7 +19,7 @@ interface RoomListProps {
   onChange: (rooms: RoomData[]) => void;
   country?: string;
   acRules?: AcSizingRule[];
-  roomDensities?: Record<string, number>;
+  roomDensities?: Record<string, number | undefined>;
 }
 
 function generateId() {
@@ -30,7 +30,7 @@ export function RoomList({ rooms, onChange, country = 'Syria', acRules, roomDens
   const { t } = useTranslation();
   const countryDefaults = COUNTRY_DEFAULTS[country] || DEFAULT_COUNTRY_CONFIG;
 
-  const [effectiveDensities, setEffectiveDensities] = useState<Record<string, number>>(() => {
+  const [effectiveDensities, setEffectiveDensities] = useState<Record<string, number | undefined>>(() => {
     return roomDensities || countryDefaults?.roomDensities || DEFAULT_DENSITIES;
   });
   const [effectiveAcRules, setEffectiveAcRules] = useState<AcSizingRule[]>(() => {

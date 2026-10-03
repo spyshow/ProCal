@@ -26,6 +26,7 @@ import { RoomList } from '@/components/RoomList';
 import InfoTooltip from '@/components/InfoTooltip';
 import { PageSkeleton } from '@/components/ui/skeleton';
 import type { RoomData } from '@/components/RoomInput';
+import type { CountryConfig } from '@/lib/country-defaults';
 import { ProjectTeamTab } from '@/components/settings/ProjectTeamTab';
 import { QAReviewTab } from '@/components/settings/QAReviewTab';
 import { ActivityLogTab } from '@/components/settings/ActivityLogTab';
@@ -86,6 +87,7 @@ interface Project {
   maxVoltageDropPower: number;
   preferredManufacturer: string;
   country: string;
+  countryDefaults?: CountryConfig;
   logoUrl: string | null;
   calculationStandard?: string;
   buildings: Building[];

@@ -17,6 +17,8 @@ import {
   Sparkles,
 } from "lucide-react";
 import { useProject } from "@/context/ProjectContext";
+import { useTranslation } from "@/i18n";
+import InfoTooltip from "@/components/InfoTooltip";
 import {
   COUNTRY_DEFAULTS,
   ROOM_TYPES,

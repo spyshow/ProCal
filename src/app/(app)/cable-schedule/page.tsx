@@ -1461,7 +1461,7 @@ export default function CableSchedulePage() {
               <table className="cable-schedule-table">
                 <thead>
                   <tr>
-                    <th className="text-center sticky start-0 z-20" title={t('cableSchedule.load', 'Circuit & Tag identifier')}>
+                    <th className="text-center sticky start-0 z-20" title="Circuit &amp; Tag identifier">
                       {t('cableSchedule.circuitTag', 'CIRCUIT & TAG')}
                     </th>
                     <th className="text-center" title="Design Load Current (Ib)">{t('cableSchedule.thCurrent', 'LOAD (A)')}</th>

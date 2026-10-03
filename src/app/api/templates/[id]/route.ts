@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { verifyProjectAccess } from "@/lib/project-auth";
 import { assertOneOf } from "@/lib/calculations/validate";
 import { calculateRoomLoad, getCountryDefaults } from "@/lib/country-defaults";
+import { getEffectiveCountrySettings } from "@/lib/country-overrides";
 import { getApartmentDiversityFactor } from "@/lib/calculations/loads";
 
 interface RoomInput {
@@ -70,7 +71,8 @@ export async function PUT(
     if (auth instanceof NextResponse) return auth;
 
     // Get country defaults for AC sizing
-    const countryDefaults = getCountryDefaults(template.project.country);
+    const effectiveSettings = await getEffectiveCountrySettings();
+    const countryDefaults = effectiveSettings[template.project.country] || getCountryDefaults(template.project.country);
     if (!countryDefaults) {
       return NextResponse.json({ error: "Invalid country configuration" }, { status: 400 });
     }

@@ -1257,6 +1257,8 @@ export default function ProjectDetailPage() {
                 rooms={templateRooms}
                 onChange={setTemplateRooms}
                 country={project.country}
+                roomDensities={project.countryDefaults?.roomDensities}
+                acRules={project.countryDefaults?.acSizingRules}
               />
 
               <div className="flex gap-2">
@@ -1362,6 +1364,8 @@ export default function ProjectDetailPage() {
                           rooms={editTemplateRooms}
                           onChange={setEditTemplateRooms}
                           country={project.country}
+                          roomDensities={project.countryDefaults?.roomDensities}
+                          acRules={project.countryDefaults?.acSizingRules}
                         />
                         <div className="flex gap-2">
                           <button

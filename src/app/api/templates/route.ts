@@ -5,6 +5,7 @@ import { verifyProjectAccess } from "@/lib/project-auth";
 import { sizeCableAndBreaker } from "@/lib/calculations/cables";
 import { assertOneOf } from "@/lib/calculations/validate";
 import { calculateRoomLoad, getCountryDefaults } from "@/lib/country-defaults";
+import { getEffectiveCountrySettings } from "@/lib/country-overrides";
 
 interface RoomInput {
   type: string;
@@ -37,7 +38,8 @@ export async function POST(request: Request) {
     const project = auth.project;
 
     // Get country defaults for AC sizing
-    const countryDefaults = getCountryDefaults(project.country);
+    const effectiveSettings = await getEffectiveCountrySettings();
+    const countryDefaults = effectiveSettings[project.country] || getCountryDefaults(project.country);
     if (!countryDefaults) {
       return NextResponse.json({ error: "Invalid country configuration" }, { status: 400 });
     }

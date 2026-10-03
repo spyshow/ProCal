@@ -9,6 +9,8 @@ import {
   assertInRange,
   clampPowerFactor,
 } from "@/lib/calculations/validate";
+import { getEffectiveCountrySettings } from "@/lib/country-overrides";
+import { getCountryDefaults } from "@/lib/country-defaults";
 
 export async function GET(
   request: Request,
@@ -59,8 +61,12 @@ export async function GET(
       return NextResponse.json({ error: "Project not found" }, { status: 404 });
     }
 
+    const effectiveSettings = await getEffectiveCountrySettings();
+    const countryDefaults = effectiveSettings[project.country] || getCountryDefaults(project.country);
+
     return NextResponse.json({
       ...project,
+      countryDefaults,
       currentMemberRole: auth.member.role,
       currentMemberPermissions: auth.member.permissions,
       isOwner: auth.project.userId === auth.user.id,

@@ -1,8 +1,10 @@
 import { db } from "@/lib/db";
 import { getCountryDefaults, calculateRoomLoad } from "@/lib/country-defaults";
+import { getEffectiveCountrySettings } from "@/lib/country-overrides";
 
 export async function seedDefaultProjectTemplates(projectId: string, country: string = "Syria") {
-  const defaults = getCountryDefaults(country);
+  const effectiveSettings = await getEffectiveCountrySettings();
+  const defaults = effectiveSettings[country] || getCountryDefaults(country);
   const densities = defaults.roomDensities;
   const acRules = defaults.acSizingRules;
 

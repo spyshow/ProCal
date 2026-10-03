@@ -1,8 +1,7 @@
 'use client';
 
 import { Trash2 } from 'lucide-react';
-import { ROOM_TYPES } from '@/lib/country-defaults';
-import { calculateRoomLoad } from '@/lib/country-defaults';
+import { ROOM_TYPES, calculateRoomLoad, getRoomDensity } from '@/lib/country-defaults';
 import type { AcSizingRule } from '@/lib/country-defaults';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -22,16 +21,23 @@ export interface RoomData {
 interface RoomInputProps {
   room: RoomData;
   acRules: AcSizingRule[];
+  roomDensities?: Record<string, number>;
   onChange: (id: string, updates: Partial<RoomData>) => void;
   onRemove: (id: string) => void;
   canRemove: boolean;
 }
 
-export function RoomInput({ room, acRules, onChange, onRemove, canRemove }: RoomInputProps) {
+export function RoomInput({ room, acRules, roomDensities, onChange, onRemove, canRemove }: RoomInputProps) {
   const { t } = useTranslation();
 
   const handleTypeChange = (type: string) => {
-    onChange(room.id, { type });
+    const newDensity = getRoomDensity(roomDensities, type, room.loadDensity || 70);
+    const connectedLoad = calculateRoomLoad(room.area, newDensity, room.hasAc, acRules);
+    onChange(room.id, {
+      type,
+      loadDensity: newDensity,
+      connectedLoad,
+    });
   };
 
   const handleAreaChange = (area: number) => {

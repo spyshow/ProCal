@@ -5,6 +5,8 @@ import {
   calculateAcWatts,
   calculateRoomLoad,
   getCountryDefaults,
+  getDensityKeyForRoomType,
+  getRoomDensity,
 } from './country-defaults';
 
 describe('ROOM_TYPES', () => {
@@ -123,5 +125,64 @@ describe('getCountryDefaults', () => {
     expect(defaults).toBeDefined();
     expect(defaults.voltage).toBe(400);
     expect(defaults.frequency).toBe(50);
+  });
+});
+
+describe('getDensityKeyForRoomType', () => {
+  it('maps all standard room types to canonical keys', () => {
+    expect(getDensityKeyForRoomType('KITCHEN')).toBe('kitchen');
+    expect(getDensityKeyForRoomType('BEDROOM')).toBe('bedroom');
+    expect(getDensityKeyForRoomType('LIVING_ROOM')).toBe('livingRoom');
+    expect(getDensityKeyForRoomType('DINING_ROOM')).toBe('diningRoom');
+    expect(getDensityKeyForRoomType('BATHROOM')).toBe('bathroom');
+    expect(getDensityKeyForRoomType('HALL')).toBe('hall');
+    expect(getDensityKeyForRoomType('OTHER')).toBe('other');
+  });
+
+  it('handles lowercase and mixed variations', () => {
+    expect(getDensityKeyForRoomType('living_room')).toBe('livingRoom');
+    expect(getDensityKeyForRoomType('dining_room')).toBe('diningRoom');
+    expect(getDensityKeyForRoomType('Living Room')).toBe('livingRoom');
+    expect(getDensityKeyForRoomType('Dining Room')).toBe('diningRoom');
+    expect(getDensityKeyForRoomType('corridor')).toBe('hall');
+    expect(getDensityKeyForRoomType('wc')).toBe('bathroom');
+    expect(getDensityKeyForRoomType('unknown_type')).toBe('other');
+  });
+});
+
+describe('getRoomDensity', () => {
+  const customDensities = {
+    kitchen: 160,
+    bedroom: 90,
+    livingRoom: 110,
+    diningRoom: 95,
+    bathroom: 65,
+    hall: 55,
+    other: 75,
+  };
+
+  it('retrieves correct density for uppercase room types', () => {
+    expect(getRoomDensity(customDensities, 'KITCHEN')).toBe(160);
+    expect(getRoomDensity(customDensities, 'BEDROOM')).toBe(90);
+    expect(getRoomDensity(customDensities, 'LIVING_ROOM')).toBe(110);
+    expect(getRoomDensity(customDensities, 'DINING_ROOM')).toBe(95);
+    expect(getRoomDensity(customDensities, 'BATHROOM')).toBe(65);
+    expect(getRoomDensity(customDensities, 'HALL')).toBe(55);
+    expect(getRoomDensity(customDensities, 'OTHER')).toBe(75);
+  });
+
+  it('supports legacy snake_case keys stored in settings', () => {
+    const legacyDensities = {
+      kitchen: 140,
+      living_room: 105,
+      dining_room: 88,
+    };
+    expect(getRoomDensity(legacyDensities, 'LIVING_ROOM')).toBe(105);
+    expect(getRoomDensity(legacyDensities, 'DINING_ROOM')).toBe(88);
+  });
+
+  it('falls back to provided fallback or 70 if not found', () => {
+    expect(getRoomDensity({}, 'KITCHEN', 120)).toBe(120);
+    expect(getRoomDensity(undefined, 'BEDROOM')).toBe(70);
   });
 });

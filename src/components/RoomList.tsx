@@ -1,8 +1,15 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { Plus } from 'lucide-react';
 import { RoomInput, RoomData } from './RoomInput';
-import { ROOM_TYPES, COUNTRY_DEFAULTS } from '@/lib/country-defaults';
+import {
+  ROOM_TYPES,
+  COUNTRY_DEFAULTS,
+  DEFAULT_COUNTRY_CONFIG,
+  DEFAULT_DENSITIES,
+  getRoomDensity,
+} from '@/lib/country-defaults';
 import type { AcSizingRule } from '@/lib/country-defaults';
 import { Button } from '@/components/ui/button';
 import { useTranslation } from '@/i18n';
@@ -12,16 +19,64 @@ interface RoomListProps {
   onChange: (rooms: RoomData[]) => void;
   country?: string;
   acRules?: AcSizingRule[];
+  roomDensities?: Record<string, number>;
 }
 
 function generateId() {
   return Math.random().toString(36).substring(2, 9);
 }
 
-export function RoomList({ rooms, onChange, country = 'Syria', acRules }: RoomListProps) {
+export function RoomList({ rooms, onChange, country = 'Syria', acRules, roomDensities }: RoomListProps) {
   const { t } = useTranslation();
-  const defaults = COUNTRY_DEFAULTS[country];
-  const rules = acRules || defaults?.acSizingRules || [];
+  const countryDefaults = COUNTRY_DEFAULTS[country] || DEFAULT_COUNTRY_CONFIG;
+
+  const [effectiveDensities, setEffectiveDensities] = useState<Record<string, number>>(() => {
+    return roomDensities || countryDefaults?.roomDensities || DEFAULT_DENSITIES;
+  });
+  const [effectiveAcRules, setEffectiveAcRules] = useState<AcSizingRule[]>(() => {
+    return acRules || countryDefaults?.acSizingRules || [];
+  });
+
+  useEffect(() => {
+    if (roomDensities) {
+      setEffectiveDensities(roomDensities);
+    } else {
+      const fallback = COUNTRY_DEFAULTS[country] || DEFAULT_COUNTRY_CONFIG;
+      setEffectiveDensities(fallback.roomDensities || DEFAULT_DENSITIES);
+    }
+    if (acRules) {
+      setEffectiveAcRules(acRules);
+    } else {
+      const fallback = COUNTRY_DEFAULTS[country] || DEFAULT_COUNTRY_CONFIG;
+      setEffectiveAcRules(fallback.acSizingRules || []);
+    }
+  }, [country, roomDensities, acRules]);
+
+  useEffect(() => {
+    if (roomDensities && acRules) return;
+    if (typeof window === 'undefined') return;
+
+    let isMounted = true;
+    fetch('/api/settings')
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (!isMounted || !data?.countrySettings) return;
+        const countryConf = data.countrySettings[country];
+        if (!roomDensities && countryConf?.roomDensities) {
+          setEffectiveDensities(countryConf.roomDensities);
+        }
+        if (!acRules && countryConf?.acSizingRules) {
+          setEffectiveAcRules(countryConf.acSizingRules);
+        }
+      })
+      .catch(() => {
+        // Degrade softly to countryDefaults if /api/settings is not reachable (e.g. JSDOM/offline)
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [country, roomDensities, acRules]);
 
   const handleAddRoom = () => {
     const lastRoom = rooms[rooms.length - 1];
@@ -29,7 +84,7 @@ export function RoomList({ rooms, onChange, country = 'Syria', acRules }: RoomLi
     const typeIndex = ROOM_TYPES.findIndex((r) => r.value === lastType);
     const nextType = ROOM_TYPES[(typeIndex + 1) % ROOM_TYPES.length].value;
 
-    const defaultDensity = defaults?.roomDensities[nextType.toLowerCase() as keyof typeof defaults.roomDensities] || 70;
+    const defaultDensity = getRoomDensity(effectiveDensities, nextType, 70);
 
     const newRoom: RoomData = {
       id: generateId(),
@@ -85,7 +140,8 @@ export function RoomList({ rooms, onChange, country = 'Syria', acRules }: RoomLi
           <RoomInput
             key={room.id}
             room={room}
-            acRules={rules}
+            acRules={effectiveAcRules}
+            roomDensities={effectiveDensities}
             onChange={handleChange}
             onRemove={handleRemove}
             canRemove={rooms.length > 1}

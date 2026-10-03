@@ -17,9 +17,14 @@ import {
   Sparkles,
 } from "lucide-react";
 import { useProject } from "@/context/ProjectContext";
-import { useTranslation } from "@/i18n";
-import { COUNTRY_DEFAULTS, ROOM_TYPES, CountryConfig, AcSizingRule } from "@/lib/country-defaults";
-import InfoTooltip from "@/components/InfoTooltip";
+import {
+  COUNTRY_DEFAULTS,
+  ROOM_TYPES,
+  CountryConfig,
+  AcSizingRule,
+  getRoomDensity,
+  getDensityKeyForRoomType,
+} from "@/lib/country-defaults";
 
 export interface ProjectSettingsTabProps {
   projectId: string;
@@ -337,15 +342,17 @@ export function ProjectSettingsTab({
   };
 
   const updateRoomDensity = (roomType: string, value: number) => {
-    const current = settings[selectedCountry];
+    const current = settings[selectedCountry] || COUNTRY_DEFAULTS[selectedCountry] || COUNTRY_DEFAULTS["Syria"];
     if (!current) return;
+    const canonicalKey = getDensityKeyForRoomType(roomType);
     setSettings((prev) => ({
       ...prev,
       [selectedCountry]: {
         ...current,
         roomDensities: {
           ...current.roomDensities,
-          [roomType]: value,
+          [canonicalKey]: value,
+          [roomType.toLowerCase()]: value,
         },
       },
     }));
@@ -829,8 +836,8 @@ export function ProjectSettingsTab({
                     <div className="flex items-center gap-1.5">
                       <input
                         type="number"
-                        value={currentSettings.roomDensities[room.value.toLowerCase() as keyof typeof currentSettings.roomDensities] || 0}
-                        onChange={(e) => updateRoomDensity(room.value.toLowerCase(), parseFloat(e.target.value) || 0)}
+                        value={getRoomDensity(currentSettings.roomDensities, room.value)}
+                        onChange={(e) => updateRoomDensity(room.value, parseFloat(e.target.value) || 0)}
                         disabled={isReadOnly}
                         className="dense-input w-full rounded font-mono text-xs disabled:opacity-60"
                         min="0"

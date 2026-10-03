@@ -16,6 +16,7 @@ export interface CountryConfig {
     bathroom: number;
     hall: number;
     other: number;
+    [key: string]: number | undefined;
   };
   acSizingRules: AcSizingRule[];
 }
@@ -30,6 +31,57 @@ export const ROOM_TYPES = [
   { value: 'OTHER', label: 'Other' },
 ];
 
+export type RoomDensityKey = 'kitchen' | 'bedroom' | 'livingRoom' | 'diningRoom' | 'bathroom' | 'hall' | 'other';
+
+export function getDensityKeyForRoomType(type: string): RoomDensityKey {
+  const normalized = (type || '').trim().toUpperCase().replace(/[\s-]+/g, '_');
+  switch (normalized) {
+    case 'KITCHEN':
+      return 'kitchen';
+    case 'BEDROOM':
+      return 'bedroom';
+    case 'LIVING_ROOM':
+    case 'LIVING':
+    case 'LIVINGROOM':
+      return 'livingRoom';
+    case 'DINING_ROOM':
+    case 'DINING':
+    case 'DININGROOM':
+      return 'diningRoom';
+    case 'BATHROOM':
+    case 'BATH':
+    case 'WC':
+      return 'bathroom';
+    case 'HALL':
+    case 'HALLWAY':
+    case 'CORRIDOR':
+      return 'hall';
+    default:
+      return 'other';
+  }
+}
+
+export function getRoomDensity(
+  densities: Partial<Record<string, number>> | undefined,
+  roomType: string,
+  fallback = 70
+): number {
+  if (!densities) return fallback;
+  const canonicalKey = getDensityKeyForRoomType(roomType);
+  if (typeof densities[canonicalKey] === 'number') {
+    return densities[canonicalKey]!;
+  }
+  const snakeKey = (roomType || '').toLowerCase();
+  if (typeof densities[snakeKey] === 'number') {
+    return densities[snakeKey]!;
+  }
+  const cleanKey = snakeKey.replace(/_/g, '');
+  if (typeof densities[cleanKey] === 'number') {
+    return densities[cleanKey]!;
+  }
+  return fallback;
+}
+
 // Default AC sizing rules (used for all countries)
 const DEFAULT_AC_RULES: AcSizingRule[] = [
   { maxArea: 15, btu: 9000, watts: 2637 },
@@ -40,7 +92,7 @@ const DEFAULT_AC_RULES: AcSizingRule[] = [
 ];
 
 // Default room densities for new countries
-const DEFAULT_DENSITIES = {
+export const DEFAULT_DENSITIES = {
   kitchen: 150,
   bedroom: 80,
   livingRoom: 100,

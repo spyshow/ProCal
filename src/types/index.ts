@@ -1,3 +1,5 @@
+import type { CountryConfig } from '@/lib/country-defaults';
+
 export interface ApartmentRoom {
   id: string;
   type: string; // KITCHEN, BEDROOM, LIVING_ROOM, DINING_ROOM, BATHROOM, HALL, OTHER
@@ -178,6 +180,7 @@ export interface Project {
   transformerSize?: number | null; // kVA — sized transformer (Prisma: Float?)
   country: string;
   preferredManufacturer: string;
+  countryDefaults?: CountryConfig;
   defaultAcbFamilyId?: string | null;
   defaultMccbFamilyId?: string | null;
   defaultMcbFamilyId?: string | null;

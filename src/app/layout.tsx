@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
 import { Inter, Rubik } from "next/font/google";
 import { cookies } from "next/headers";
-import Script from "next/script";
 import "./globals.css";
 import { ProjectProvider } from "@/context/ProjectContext";
 import { ThemeProvider } from "@/context/ThemeContext";
 import { THEME_COOKIE_NAME, DEFAULT_THEME, isValidTheme } from "@/lib/theme";
 import { I18nProvider } from "@/i18n";
+import { ClarityAnalytics } from "@/components/ClarityAnalytics";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -52,19 +52,7 @@ export default async function RootLayout({
       suppressHydrationWarning
     >
       <head>
-        <Script
-          id="microsoft-clarity"
-          strategy="afterInteractive"
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function(c,l,a,r,i,t,y){
-                  c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
-                  t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
-                  y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
-              })(window, document, "clarity", "script", "ybvkz2mik9");
-            `,
-          }}
-        />
+        <ClarityAnalytics />
       </head>
       <body className="min-h-full bg-[var(--background-color,#030712)] text-[var(--foreground-color,#f8fafc)] antialiased font-sans" suppressHydrationWarning>
         <I18nProvider>

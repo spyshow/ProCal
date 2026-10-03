@@ -20,11 +20,18 @@ import itLocale from "./locales/it.json";
 // assertions pin the keys this fix depends on so the regression cannot return.
 const locales = { en, de, ar, it: itLocale } as const;
 
+// Locale bundles nest arbitrarily deep (e.g. workflow.short.reports), so a
+// Record<string, Record<string, string>> cast does not typecheck. Resolve
+// dotted paths through `unknown` instead.
+function lookup(bundle: unknown, key: string): unknown {
+  return key.split(".").reduce<unknown>((node, part) => (node == null ? undefined : (node as Record<string, unknown>)[part]), bundle);
+}
+
 describe("cableSchedule.buildingLoads (ISSUE-001)", () => {
   it("exists in every supported locale", () => {
     for (const [name, bundle] of Object.entries(locales)) {
       expect(
-        (bundle as Record<string, Record<string, string>>).cableSchedule?.buildingLoads,
+        lookup(bundle, "cableSchedule.buildingLoads"),
         `${name}.cableSchedule.buildingLoads is missing`,
       ).toBeTruthy();
     }
@@ -50,7 +57,7 @@ describe("cableSchedule.load (ISSUE-002)", () => {
   it("stays resolvable for breaker-schedule", () => {
     for (const [name, bundle] of Object.entries(locales)) {
       expect(
-        (bundle as Record<string, Record<string, string>>).cableSchedule?.load,
+        lookup(bundle, "cableSchedule.load"),
         `${name}.cableSchedule.load is missing but breaker-schedule depends on it`,
       ).toBeTruthy();
     }
@@ -72,9 +79,8 @@ describe("cableSchedule header keys (ISSUE-002)", () => {
 
   it("exist in every supported locale", () => {
     for (const [name, bundle] of Object.entries(locales)) {
-      const cs = (bundle as Record<string, Record<string, string>>).cableSchedule ?? {};
       for (const key of headerKeys) {
-        expect(cs[key], `${name}.cableSchedule.${key} is missing`).toBeTruthy();
+        expect(lookup(bundle, `cableSchedule.${key}`), `${name}.cableSchedule.${key} is missing`).toBeTruthy();
       }
     }
   });

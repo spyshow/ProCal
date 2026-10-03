@@ -26,6 +26,7 @@ import {
   History,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { APP_VERSION } from "@/lib/version";
 
 interface NavItem {
   id: string;
@@ -205,7 +206,7 @@ export default function Sidebar() {
                 "text-[10px] font-bold uppercase tracking-wider text-orange-400 bg-orange-500/10 border border-orange-500/20 px-1.5 py-0.5 rounded",
                 isRtl ? "mr-auto" : "ml-auto"
               )}>
-                v1.5.0
+                {APP_VERSION}
               </span>
             </div>
             <p

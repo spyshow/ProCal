@@ -806,7 +806,7 @@ export default function ProjectDetailPage() {
                     <div className="flex-1">
                       <p className="text-sm font-semibold text-[var(--foreground-color,#f8fafc)]">{bldg.name}</p>
                       <p className="text-xs text-gray-500">
-                        {bldg.floors} {t('projects.floorsCount', 'floors')} · {bldg.serviceFloors} {t('projects.serviceFloors', 'service')} · {totalApts} {t('projects.apartments', 'apartments')} · {bldg.buildingLoads?.length || 0} {t('common.buildingLoads', 'building loads')}
+                        {bldg.floors} {t('projects.floorsCount', 'floors')} · {bldg.serviceFloors} {t('projects.serviceFloors', 'service')} · {totalApts} {t('projects.apartments', 'apartments')} · {bldg.buildingLoads?.length || 0} {t('cableSchedule.buildingLoads', 'building loads')}
                       </p>
                     </div>
                     {!isReadOnly && (

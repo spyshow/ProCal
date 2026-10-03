@@ -2,8 +2,7 @@
 
 import Script from "next/script";
 
-const CLARITY_PROJECT_ID =
-  process.env.NEXT_PUBLIC_CLARITY_PROJECT_ID || "ybvkz2mik9";
+const CLARITY_PROJECT_ID = process.env.NEXT_PUBLIC_CLARITY_PROJECT_ID;
 
 export function ClarityAnalytics() {
   if (!CLARITY_PROJECT_ID) return null;

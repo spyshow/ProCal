@@ -25,7 +25,7 @@ import MethodSelector from '@/components/MethodSelector';
 import InfoTooltip from '@/components/InfoTooltip';
 import { useTranslation } from '@/i18n';
 import { PageSkeleton } from '@/components/ui/skeleton';
-import { Cable, RefreshCw, AlertTriangle, Check, Settings, SlidersHorizontal, Save, HelpCircle, Layers } from 'lucide-react';
+import { Cable, RefreshCw, AlertTriangle, Check, Settings, SlidersHorizontal, Save, HelpCircle } from 'lucide-react';
 import type { Project } from '@/types';
 import WorkflowStepper from '@/components/layout/WorkflowStepper';
 import { AccessRestricted } from '@/components/AccessRestricted';
@@ -177,7 +177,6 @@ export default function CableSchedulePage() {
   const [cables, setCables] = useState<CableEntry[]>([]);
   const [selectedBuilding, setSelectedBuilding] = useState<string | null>(null);
   const [showSettings, setShowSettings] = useState(false);
-  const [showPhaseDetails, setShowPhaseDetails] = useState(false);
   const [saving, setSaving] = useState(false);
   const [applyingDefaults, setApplyingDefaults] = useState(false);
   const [defaultMaxCableSize, setDefaultMaxCableSize] = useState<number>(() => {
@@ -1146,7 +1145,7 @@ export default function CableSchedulePage() {
   }
 
   return (
-    <div className="p-3 sm:p-5 space-y-4 w-full max-w-[1680px] mx-auto min-h-[80vh]">
+    <div className="p-3 sm:p-5 space-y-4 w-full max-w-none px-3 sm:px-6 2xl:px-8 mx-auto min-h-[80vh]">
       {/* Workflow Stepper: Step 4 */}
       <WorkflowStepper currentStep={4} />
 
@@ -1196,18 +1195,6 @@ export default function CableSchedulePage() {
         </div>
 
         <div className="flex items-center gap-2 flex-wrap">
-          <button
-            onClick={() => setShowPhaseDetails(!showPhaseDetails)}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-semibold transition-all cursor-pointer shadow-xs ${
-              showPhaseDetails
-                ? 'bg-orange-500/15 border-orange-500/40 text-orange-700 dark:text-orange-300'
-                : 'bg-[var(--card-bg-subtle)] border-[var(--border-color,#1f2937)] text-[var(--foreground-color,#f8fafc)] hover:border-orange-500/40'
-            }`}
-            title="Toggle per-phase current columns (L1, L2, L3, Neutral)"
-          >
-            <Layers size={14} className="text-orange-500" />
-            {showPhaseDetails ? t('cableSchedule.compactCurrents', 'Compact Currents') : t('cableSchedule.phaseDetails', 'Phase Details')}
-          </button>
           <button
             onClick={() => window.dispatchEvent(new CustomEvent('trigger-procal-cable-schedule-tour'))}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[var(--border-color,#1f2937)] bg-[var(--card-bg-subtle)] hover:bg-[var(--card-bg,#0b0f19)] hover:border-orange-500/50 text-[var(--foreground-color,#f8fafc)] text-xs font-semibold transition-all shadow-xs cursor-pointer"
@@ -1470,39 +1457,33 @@ export default function CableSchedulePage() {
               </div>
             </div>
 
-            <div className="w-full overflow-x-auto">
+            <div className="w-full overflow-x-auto custom-scrollbar">
               <table className="cable-schedule-table">
                 <thead>
                   <tr>
-                    <th className="text-center">{t('cableSchedule.load', 'CIRCUIT & TAG')}</th>
-                    {showPhaseDetails && (
-                      <>
-                        <th className="text-center">{t('cableSchedule.l1', 'L1 (A)')}</th>
-                        <th className="text-center">{t('cableSchedule.l2', 'L2 (A)')}</th>
-                        <th className="text-center">{t('cableSchedule.l3', 'L3 (A)')}</th>
-                        <th className="text-center">{t('cableSchedule.neutral', 'N (A)')}</th>
-                      </>
-                    )}
-                    <th className="text-center">{t('cableSchedule.current', 'LOAD (A)')}</th>
-                    <th className="text-center">{t('cableSchedule.runs', 'RUNS')}</th>
-                    <th className="text-center">{t('cableSchedule.size', 'SIZE')}</th>
-                    <th className="text-center">{t('cableSchedule.method', 'METHOD')}</th>
-                    <th className="text-center">{t('cableSchedule.insulation', 'INS')}</th>
-                    <th className="text-center">{t('cableSchedule.material', 'MAT')}</th>
-                    <th className="text-center">{t('cableSchedule.ambientTemp', 'TEMP')}</th>
-                    <th className="text-center">{t('cableSchedule.groupingCount', 'GRP')}</th>
-                    <th className="text-center">{t('cableSchedule.ampacity', 'AMPACITY (Iz)')}</th>
-                    <th className="text-center">{t('cableSchedule.length', 'LENGTH')}</th>
-                    <th className="text-center">{t('cableSchedule.newCable', 'NEW CABLE')}</th>
-                    <th className="text-center">{t('cableSchedule.vd', 'V.DROP')}</th>
-                    <th className="text-center">{t('cableSchedule.status', 'STATUS')}</th>
+                    <th className="text-center sticky start-0 z-20" title={t('cableSchedule.load', 'Circuit & Tag identifier')}>
+                      {t('cableSchedule.circuitTag', 'CIRCUIT & TAG')}
+                    </th>
+                    <th className="text-center" title="Design Load Current (Ib)">{t('cableSchedule.thCurrent', 'LOAD (A)')}</th>
+                    <th className="text-center" title="Parallel Runs">{t('cableSchedule.runs', 'RUNS')}</th>
+                    <th className="text-center" title="Conductor Cross Section">{t('cableSchedule.thSize', 'SIZE')}</th>
+                    <th className="text-center" title="Installation Reference Method">{t('cableSchedule.method', 'METHOD')}</th>
+                    <th className="text-center" title="Insulation Type">{t('cableSchedule.thInsulation', 'INS')}</th>
+                    <th className="text-center" title="Conductor Material">{t('cableSchedule.thMaterial', 'MAT')}</th>
+                    <th className="text-center" title="Ambient Temperature (°C)">{t('cableSchedule.thTemp', 'TEMP')}</th>
+                    <th className="text-center" title="Grouping Derating Factor (cables)">{t('cableSchedule.thGrouping', 'GRP')}</th>
+                    <th className="text-center" title="Continuous Derated Ampacity (Iz)">{t('cableSchedule.thAmpacity', 'AMP (Iz)')}</th>
+                    <th className="text-center" title="Route Length in Meters">{t('cableSchedule.thLength', 'LENGTH')}</th>
+                    <th className="text-center" title="Proposed Upsize Cable">{t('cableSchedule.newCable', 'NEW CABLE')}</th>
+                    <th className="text-center" title="Calculated Voltage Drop Percentage">{t('cableSchedule.vd', 'V.DROP')}</th>
+                    <th className="text-center" title="Compliance Status">{t('cableSchedule.status', 'STATUS')}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[var(--border-color,#1f2937)]">
                   {groupCables.map((c) => (
                     <tr key={c.id} className="hover:bg-[var(--card-bg-subtle)] transition-colors">
                       {/* Circuit Name & Tag combined */}
-                      <td className="text-center">
+                      <td className="text-center sticky start-0 z-10">
                         <div className="flex flex-col items-center justify-center">
                           <span className="font-semibold text-[var(--foreground-color,#f8fafc)] text-xs">{c.name}</span>
                           <div className="flex items-center justify-center gap-1.5 mt-0.5">
@@ -1515,15 +1496,6 @@ export default function CableSchedulePage() {
                           </div>
                         </div>
                       </td>
-
-                      {showPhaseDetails && (
-                        <>
-                          <td className="text-center font-mono text-orange-700 dark:text-orange-400 font-semibold">{c.phaseCurrent[0].toFixed(1)}</td>
-                          <td className="text-center font-mono text-orange-700 dark:text-orange-400 font-semibold">{c.phaseCurrent[1].toFixed(1)}</td>
-                          <td className="text-center font-mono text-orange-700 dark:text-orange-400 font-semibold">{c.phaseCurrent[2].toFixed(1)}</td>
-                          <td className="text-center font-mono text-amber-800 dark:text-amber-400 font-semibold">{c.neutralCurrent.toFixed(1)}</td>
-                        </>
-                      )}
 
                       {/* Load Current */}
                       <td className="text-center font-mono">

@@ -912,7 +912,7 @@ html[data-theme="warm"] .bg-dot-pattern {
   color: var(--foreground-color);
 }
 
-/* Modern Engineering Cable Schedule Table */
+/* Modern Engineering Cable Schedule Table - Screen Adaptive */
 .cable-schedule-table {
   width: 100%;
   table-layout: auto;
@@ -921,26 +921,77 @@ html[data-theme="warm"] .bg-dot-pattern {
 }
 
 .cable-schedule-table th {
-  padding: 10px 12px;
+  padding: 8px 6px;
   font-size: 0.6875rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.04em;
   color: var(--table-header-color, #94a3b8);
   border-bottom: 1px solid var(--table-border, #334155);
-  background-color: var(--table-header-bg, rgba(15, 23, 42, 0.9));
+  background-color: var(--table-header-bg, rgba(15, 23, 42, 0.95));
   white-space: nowrap;
   text-align: center;
   vertical-align: middle;
+  transition: padding 0.15s ease;
 }
 
 .cable-schedule-table td {
-  padding: 8px 12px;
+  padding: 6px 6px;
   font-size: 0.75rem;
   border-bottom: 1px solid var(--table-border, rgba(51, 65, 85, 0.4));
   color: var(--foreground-color, #f8fafc);
   text-align: center;
   vertical-align: middle;
+  transition: padding 0.15s ease;
+}
+
+@media (min-width: 1600px) {
+  .cable-schedule-table th {
+    padding: 9px 8px;
+  }
+  .cable-schedule-table td {
+    padding: 7px 8px;
+  }
+}
+
+@media (min-width: 1920px) {
+  .cable-schedule-table th {
+    padding: 10px 10px;
+  }
+  .cable-schedule-table td {
+    padding: 8px 10px;
+  }
+}
+
+/* Sticky first column for circuit identification when horizontally scrolling on narrower screens */
+.cable-schedule-table th:first-child,
+.cable-schedule-table td:first-child {
+  position: sticky;
+  left: 0;
+  z-index: 10;
+  background-color: var(--card-bg, #0b0f19);
+  box-shadow: 3px 0 8px -3px rgba(0, 0, 0, 0.45);
+}
+
+.cable-schedule-table th:first-child {
+  z-index: 20;
+  background-color: var(--table-header-bg, #0f172a);
+}
+
+.cable-schedule-table tbody tr:nth-child(even) td:first-child {
+  background-color: var(--card-bg-subtle, #111827);
+}
+
+.cable-schedule-table tbody tr:hover td:first-child {
+  background-color: var(--table-row-hover, #1e293b) !important;
+}
+
+/* RTL Sticky First Column Support */
+[dir="rtl"] .cable-schedule-table th:first-child,
+[dir="rtl"] .cable-schedule-table td:first-child {
+  left: auto;
+  right: 0;
+  box-shadow: -2px 0 6px -2px rgba(0, 0, 0, 0.35);
 }
 
 .dense-input {

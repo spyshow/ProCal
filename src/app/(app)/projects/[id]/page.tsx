@@ -704,7 +704,7 @@ export default function ProjectDetailPage() {
         {[
           { key: 'buildings' as const, label: t('projects.buildings', 'Buildings'), icon: Building2 },
           { key: 'templates' as const, label: t('projects.apartmentTemplates', 'Apartment Templates'), icon: Home },
-          { key: 'loads' as const, label: t('projects.loadLibrary', 'Load Library'), icon: Zap },
+          { key: 'loads' as const, label: t('projects.loadLibrary', 'Service Load library'), icon: Zap },
           { key: 'team' as const, label: t('settings.team', 'Project Team'), icon: Users },
           { key: 'qa' as const, label: t('settings.qa', 'QA & Compliance'), icon: ClipboardCheck },
           { key: 'activity' as const, label: t('settings.activity', 'Activity Log'), icon: History },
@@ -804,7 +804,7 @@ export default function ProjectDetailPage() {
                     <div className="flex-1">
                       <p className="text-sm font-semibold text-[var(--foreground-color,#f8fafc)]">{bldg.name}</p>
                       <p className="text-xs text-gray-500">
-                        {bldg.floors} {t('projects.floorsCount', 'floors')} · {bldg.serviceFloors} {t('projects.serviceFloors', 'service')} · {totalApts} {t('projects.apartments', 'apartments')} · {bldg.buildingLoads?.length || 0} {t('projects.loadLibrary', 'building loads')}
+                        {bldg.floors} {t('projects.floorsCount', 'floors')} · {bldg.serviceFloors} {t('projects.serviceFloors', 'service')} · {totalApts} {t('projects.apartments', 'apartments')} · {bldg.buildingLoads?.length || 0} {t('common.buildingLoads', 'building loads')}
                       </p>
                     </div>
                     {!isReadOnly && (
@@ -1443,7 +1443,7 @@ export default function ProjectDetailPage() {
         </div>
       )}
 
-      {/* Load Library Tab */}
+      {/* Service Load Library Tab */}
       {activeTab === 'loads' && (
         <div className="space-y-3">
           <LoadLibrary projectId={projectId} onRefresh={loadProject} loads={project.loadLibraryItems} isReadOnly={isReadOnly} />

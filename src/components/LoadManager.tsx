@@ -100,7 +100,7 @@ export default function LoadManager({ projectId, loads, onRefresh }: LoadManager
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-sm font-bold text-[var(--foreground-color)] uppercase tracking-wider">Load Library</h3>
+          <h3 className="text-sm font-bold text-[var(--foreground-color)] uppercase tracking-wider">Service Load library</h3>
           <p className="text-xs text-[var(--table-header-color)]">Manage electrical equipment, connected loads, and power factors</p>
         </div>
         {!isReadOnly && (

@@ -409,7 +409,7 @@ export default function MethodSelector({ value, onChange, compact, standard }: M
         className={cn(
           "inline-flex items-center justify-between bg-[var(--input-bg)] hover:bg-[var(--card-bg-subtle)] border border-[var(--border-color)] hover:border-orange-500/60 rounded-md transition-all duration-150 shadow-2xs cursor-pointer group focus:outline-none focus:ring-1 focus:ring-orange-500",
           compact
-            ? "gap-1.5 px-2 py-1 text-[11px] min-w-[110px]"
+            ? "gap-1 px-1.5 py-1 text-[11px] min-w-[76px] sm:min-w-[82px]"
             : "gap-2.5 px-3 py-2 text-xs rounded-lg min-w-[170px]"
         )}
         title={`${selectedMethod.name} — ${selectedMethod.description}`}

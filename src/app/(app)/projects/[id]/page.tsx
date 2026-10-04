@@ -116,24 +116,42 @@ export default function ProjectDetailPage() {
   type ProjectDetailTab = 'buildings' | 'templates' | 'loads' | 'team' | 'qa' | 'activity' | 'settings';
   const [activeTab, setActiveTab] = useState<ProjectDetailTab>(() => {
     const tabParam = searchParams?.get('tab');
+    const subtabParam = searchParams?.get('subtab');
     if (tabParam === 'team') return 'team';
     if (tabParam === 'qa' || tabParam === 'review') return 'qa';
     if (tabParam === 'activity' || tabParam === 'audit') return 'activity';
     if (tabParam === 'templates') return 'templates';
     if (tabParam === 'loads') return 'loads';
-    if (tabParam === 'settings' || tabParam === 'engineering' || tabParam === 'company') return 'settings';
+    if (
+      tabParam === 'settings' ||
+      tabParam === 'engineering' ||
+      tabParam === 'standards' ||
+      tabParam === 'company' ||
+      subtabParam === 'engineering' ||
+      subtabParam === 'standards' ||
+      subtabParam === 'company'
+    ) return 'settings';
     return 'buildings';
   });
 
   // Sync tab if URL query changes
   useEffect(() => {
     const tabParam = searchParams?.get('tab');
+    const subtabParam = searchParams?.get('subtab');
     if (tabParam === 'team') setActiveTab('team');
     else if (tabParam === 'qa' || tabParam === 'review') setActiveTab('qa');
     else if (tabParam === 'activity' || tabParam === 'audit') setActiveTab('activity');
     else if (tabParam === 'templates') setActiveTab('templates');
     else if (tabParam === 'loads') setActiveTab('loads');
-    else if (tabParam === 'settings' || tabParam === 'engineering' || tabParam === 'company') setActiveTab('settings');
+    else if (
+      tabParam === 'settings' ||
+      tabParam === 'engineering' ||
+      tabParam === 'standards' ||
+      tabParam === 'company' ||
+      subtabParam === 'engineering' ||
+      subtabParam === 'standards' ||
+      subtabParam === 'company'
+    ) setActiveTab('settings');
     else if (tabParam === 'buildings') setActiveTab('buildings');
   }, [searchParams]);
 
@@ -1479,9 +1497,12 @@ export default function ProjectDetailPage() {
           <ProjectSettingsTab
             projectId={projectId}
             initialSubtab={
-              searchParams?.get('tab') === 'engineering'
+              searchParams?.get('tab') === 'engineering' ||
+              searchParams?.get('tab') === 'standards' ||
+              searchParams?.get('subtab') === 'engineering' ||
+              searchParams?.get('subtab') === 'standards'
                 ? 'engineering'
-                : searchParams?.get('tab') === 'company'
+                : searchParams?.get('tab') === 'company' || searchParams?.get('subtab') === 'company'
                 ? 'company'
                 : 'general'
             }

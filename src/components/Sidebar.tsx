@@ -377,7 +377,7 @@ export default function Sidebar() {
                             label: t('projects.projectSettings', 'Project Settings'),
                             href: `/projects/${selectedProject.id}?tab=settings`,
                             icon: Settings,
-                            isActive: isSelectedProjectActive && (pathname.includes('tab=settings') || pathname.includes('tab=engineering') || pathname.includes('tab=company')),
+                            isActive: isSelectedProjectActive && (pathname.includes('tab=settings') || pathname.includes('tab=engineering') || pathname.includes('tab=standards') || pathname.includes('tab=company')),
                           },
                         ].map((sub) => {
                           const SubIcon = sub.icon;
@@ -557,7 +557,7 @@ export default function Sidebar() {
           className={cn(
             "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 outline-none",
             isCollapsed ? "justify-center px-0 py-2.5" : "",
-            pathname === "/settings" || pathname.startsWith("/settings/") || (isSelectedProjectActive && (pathname.includes('tab=settings') || pathname.includes('tab=engineering') || pathname.includes('tab=company')))
+            pathname === "/settings" || pathname.startsWith("/settings/") || (isSelectedProjectActive && (pathname.includes('tab=settings') || pathname.includes('tab=engineering') || pathname.includes('tab=standards') || pathname.includes('tab=company')))
               ? "sidebar-active-item border-l-2 font-bold"
               : "text-[var(--table-header-color,#9ca3af)] hover:text-[var(--foreground-color,#f8fafc)] hover:bg-[var(--card-bg-subtle,rgba(17,24,39,0.8))]"
           )}
@@ -566,11 +566,11 @@ export default function Sidebar() {
             size={18}
             className={cn(
               "flex-shrink-0 transition-colors duration-150",
-              pathname.startsWith("/settings") || (isSelectedProjectActive && (pathname.includes('tab=settings') || pathname.includes('tab=engineering') || pathname.includes('tab=company'))) ? "text-orange-500" : "text-[var(--table-header-color,#9ca3af)]"
+              pathname.startsWith("/settings") || (isSelectedProjectActive && (pathname.includes('tab=settings') || pathname.includes('tab=engineering') || pathname.includes('tab=standards') || pathname.includes('tab=company'))) ? "text-orange-500" : "text-[var(--table-header-color,#9ca3af)]"
             )}
           />
           {!isCollapsed && (
-            <span className={cn("text-sm sidebar-item-label", (pathname.startsWith("/settings") || (isSelectedProjectActive && (pathname.includes('tab=settings') || pathname.includes('tab=engineering') || pathname.includes('tab=company')))) && "font-bold")}>
+            <span className={cn("text-sm sidebar-item-label", (pathname.startsWith("/settings") || (isSelectedProjectActive && (pathname.includes('tab=settings') || pathname.includes('tab=engineering') || pathname.includes('tab=standards') || pathname.includes('tab=company')))) && "font-bold")}>
               {selectedProject ? t('projects.projectSettings', 'Project Settings') : t('nav.settings', 'Settings')}
             </span>
           )}

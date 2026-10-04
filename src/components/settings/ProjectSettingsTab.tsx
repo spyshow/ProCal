@@ -6,6 +6,7 @@ import {
   Settings,
   Building2,
   Sliders,
+  Zap,
   Save,
   RotateCcw,
   Shield,
@@ -19,6 +20,7 @@ import {
 import { useProject } from "@/context/ProjectContext";
 import { useTranslation } from "@/i18n";
 import InfoTooltip from "@/components/InfoTooltip";
+import type { CalculationStandard } from "@/types";
 import {
   COUNTRY_DEFAULTS,
   ROOM_TYPES,
@@ -30,7 +32,7 @@ import {
 
 export interface ProjectSettingsTabProps {
   projectId: string;
-  initialSubtab?: "general" | "engineering" | "company";
+  initialSubtab?: "general" | "engineering" | "standards" | "company";
   onProjectUpdated?: () => void;
 }
 
@@ -65,12 +67,20 @@ export function ProjectSettingsTab({
 
   const isReadOnly = isQA || !canEdit("calculator") || currentMemberRole === "QA";
 
-  const [activeSubtab, setActiveSubtab] = useState<"general" | "engineering" | "company">(initialSubtab);
+  const normalizeSubtab = (s?: string): "general" | "engineering" | "company" => {
+    if (s === "standards" || s === "engineering") return "engineering";
+    if (s === "company") return "company";
+    return "general";
+  };
+
+  const [activeSubtab, setActiveSubtab] = useState<"general" | "engineering" | "company">(() =>
+    normalizeSubtab(initialSubtab)
+  );
 
   // Sync initialSubtab if prop changes
   useEffect(() => {
     if (initialSubtab) {
-      setActiveSubtab(initialSubtab);
+      setActiveSubtab(normalizeSubtab(initialSubtab));
     }
   }, [initialSubtab]);
 
@@ -207,7 +217,7 @@ export function ProjectSettingsTab({
     }
   };
 
-  // --- SAVE ENGINEERING DEFAULTS ---
+  // --- SAVE ENGINEERING STANDARDS & DEFAULTS ---
   const handleSaveEngineeringDefaults = async () => {
     if (isReadOnly) return;
     setSaving(true);
@@ -224,11 +234,16 @@ export function ProjectSettingsTab({
         });
       }
 
-      // 2. Update project's country & voltage drop limits in project DB
+      // 2. Update project's country, calculation standard, system baseline, & voltage drop limits in project DB
       const projectPayload = {
         country: selectedCountry,
-        maxVoltageDropLighting: vdLimits.lighting,
-        maxVoltageDropPower: vdLimits.power,
+        calculationStandard: projectForm.calculationStandard || "IEC",
+        voltage: parseFloat(String(projectForm.voltage)) || 400,
+        frequency: parseFloat(String(projectForm.frequency)) || 50,
+        powerFactor: parseFloat(String(projectForm.powerFactor)) || 0.85,
+        maxDemandFactor: parseFloat(String(projectForm.maxDemandFactor)) || 0.8,
+        maxVoltageDropLighting: parseFloat(String(vdLimits.lighting)) || 3,
+        maxVoltageDropPower: parseFloat(String(vdLimits.power)) || 5,
       };
 
       const res = await fetch(`/api/projects/${projectId}`, {
@@ -242,18 +257,23 @@ export function ProjectSettingsTab({
         mutateProject((prev) => (prev ? { ...prev, ...updated } : null));
         setProjectForm((prev) => ({
           ...prev,
-          country: selectedCountry,
-          maxVoltageDropLighting: vdLimits.lighting,
-          maxVoltageDropPower: vdLimits.power,
+          ...projectPayload,
         }));
-        localStorage.setItem("procal-vd-limits", JSON.stringify(vdLimits));
+        localStorage.setItem(
+          "procal-vd-limits",
+          JSON.stringify({ lighting: projectPayload.maxVoltageDropLighting, power: projectPayload.maxVoltageDropPower })
+        );
         if (onProjectUpdated) onProjectUpdated();
-        setMessage({ type: "success", text: t("settings.saveSuccess", "Engineering defaults saved successfully") });
+        setMessage({
+          type: "success",
+          text: t("settings.vdSaveSuccess", "Voltage drop limits and engineering standards saved to project database."),
+        });
       } else {
-        setMessage({ type: "error", text: t("settings.saveError", "Failed to save engineering defaults") });
+        const err = await res.json().catch(() => ({}));
+        setMessage({ type: "error", text: err.error || t("settings.saveError", "Failed to save engineering standards") });
       }
     } catch {
-      setMessage({ type: "error", text: t("settings.saveError", "Failed to save engineering defaults") });
+      setMessage({ type: "error", text: t("settings.saveError", "Failed to save engineering standards") });
     } finally {
       setSaving(false);
     }
@@ -330,17 +350,27 @@ export function ProjectSettingsTab({
     }
   };
 
-  // --- ENGINEERING DEFAULTS MUTATIONS ---
+  // --- ENGINEERING DEFAULTS & STANDARDS MUTATIONS ---
   const handleResetEngineeringDefaults = () => {
-    const defaults = COUNTRY_DEFAULTS[selectedCountry];
+    const defaults = COUNTRY_DEFAULTS[selectedCountry] || COUNTRY_DEFAULTS["Syria"];
     if (defaults) {
       setSettings((prev) => ({
         ...prev,
         [selectedCountry]: { ...defaults },
       }));
-      setVdLimits({ lighting: 3, power: 5 });
-      setMessage({ type: "success", text: t("settings.resetSuccess", "Settings reset to defaults") });
     }
+    setVdLimits({ lighting: 3, power: 5 });
+    setProjectForm((prev) => ({
+      ...prev,
+      maxVoltageDropLighting: 3,
+      maxVoltageDropPower: 5,
+      voltage: 400,
+      frequency: 50,
+      powerFactor: 0.85,
+      maxDemandFactor: 0.8,
+      calculationStandard: "IEC",
+    }));
+    setMessage({ type: "success", text: t("settings.resetSuccess", "Settings reset to defaults") });
   };
 
   const updateRoomDensity = (roomType: string, value: number) => {
@@ -432,8 +462,8 @@ export function ProjectSettingsTab({
               : "bg-[var(--card-bg-subtle,rgba(17,24,39,0.5))] text-[var(--table-header-color,#9ca3af)] hover:text-[var(--foreground-color,#f8fafc)] border border-[var(--border-color,#1f2937)]"
           }`}
         >
-          <Settings size={14} />
-          {t("projects.generalSpecs", "General & Electrical Specs")}
+          <FileText size={14} />
+          {t("projects.generalSpecs", "General Specifications")}
         </button>
 
         <button
@@ -449,7 +479,7 @@ export function ProjectSettingsTab({
           }`}
         >
           <Sliders size={14} />
-          {t("settings.engineering", "Engineering Defaults")}
+          {t("settings.engineeringStandards", "Voltage Drop & Standards")}
         </button>
 
         <button
@@ -487,7 +517,7 @@ export function ProjectSettingsTab({
       )}
 
       {/* =========================================================================
-          SUBTAB 1: GENERAL & ELECTRICAL SPECS
+          SUBTAB 1: GENERAL SPECIFICATIONS
           ========================================================================= */}
       {activeSubtab === "general" && (
         <div className="space-y-4">
@@ -496,10 +526,10 @@ export function ProjectSettingsTab({
               <div>
                 <h3 className="text-sm font-bold text-[var(--foreground-color,#f8fafc)] flex items-center gap-2">
                   <FileText size={16} className="text-orange-500" />
-                  {t("projects.generalSpecs", "General & Electrical Specifications")}
+                  {t("projects.generalSpecs", "General Specifications")}
                 </h3>
                 <p className="text-xs text-[var(--table-header-color,#9ca3af)] mt-0.5">
-                  {t("projects.specsSubtitle", "Project metadata, system voltages, and electrical design constraints.")}
+                  {t("projects.specsSubtitle", "Project metadata, client info, contractor details, and general engineering notes.")}
                 </p>
               </div>
 
@@ -516,7 +546,7 @@ export function ProjectSettingsTab({
               )}
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               <div>
                 <label className="block text-xs font-medium text-[var(--table-header-color,#9ca3af)] mb-1">
                   {t("projects.projectName", "Project Name")} *
@@ -602,131 +632,6 @@ export function ProjectSettingsTab({
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-[var(--table-header-color,#9ca3af)] mb-1 flex items-center gap-1.5">
-                  {t("common.voltage", "Voltage (V)")}
-                  <InfoTooltip label="Voltage" helper="Nominal 3-phase line-to-line voltage (e.g. 400V)." />
-                </label>
-                <input
-                  type="number"
-                  value={projectForm.voltage}
-                  onChange={(e) => setProjectForm({ ...projectForm, voltage: e.target.value })}
-                  disabled={isReadOnly}
-                  className="dense-input w-full rounded font-mono disabled:opacity-60"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-medium text-[var(--table-header-color,#9ca3af)] mb-1 flex items-center gap-1.5">
-                  {t("common.frequency", "Frequency (Hz)")}
-                  <InfoTooltip label="Frequency" helper="Standard grid frequency (50 Hz or 60 Hz)." />
-                </label>
-                <input
-                  type="number"
-                  value={projectForm.frequency}
-                  onChange={(e) => setProjectForm({ ...projectForm, frequency: e.target.value })}
-                  disabled={isReadOnly}
-                  className="dense-input w-full rounded font-mono disabled:opacity-60"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-medium text-[var(--table-header-color,#9ca3af)] mb-1 flex items-center gap-1.5">
-                  {t("common.powerFactor", "Power Factor (cos φ)")}
-                  <InfoTooltip label="Power Factor" helper="Average design power factor (default 0.85)." />
-                </label>
-                <input
-                  type="number"
-                  step="0.01"
-                  min="0.5"
-                  max="1.0"
-                  value={projectForm.powerFactor}
-                  onChange={(e) => setProjectForm({ ...projectForm, powerFactor: e.target.value })}
-                  disabled={isReadOnly}
-                  className="dense-input w-full rounded font-mono disabled:opacity-60"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-medium text-[var(--table-header-color,#9ca3af)] mb-1 flex items-center gap-1.5">
-                  {t("projects.maxDemandFactor", "Max Demand Factor")}
-                  <InfoTooltip label="Demand Factor" helper="Overall coincident demand factor applied to total connected load." />
-                </label>
-                <input
-                  type="number"
-                  step="0.05"
-                  min="0.1"
-                  max="1.0"
-                  value={projectForm.maxDemandFactor}
-                  onChange={(e) => setProjectForm({ ...projectForm, maxDemandFactor: e.target.value })}
-                  disabled={isReadOnly}
-                  className="dense-input w-full rounded font-mono disabled:opacity-60"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-medium text-[var(--table-header-color,#9ca3af)] mb-1 flex items-center gap-1.5">
-                  {t("settings.lightingLimit", "Max Voltage Drop – Lighting (%)")}
-                  <InfoTooltip label="Lighting Voltage Drop" helper="Maximum allowable voltage drop percentage for lighting circuits (IEC 60364-5-52: 3%)." />
-                </label>
-                <div className="flex items-center gap-2">
-                  <input
-                    type="number"
-                    step="0.5"
-                    min="0.5"
-                    max="20"
-                    value={projectForm.maxVoltageDropLighting}
-                    onChange={(e) => {
-                      const val = parseFloat(e.target.value) || 3;
-                      setProjectForm({ ...projectForm, maxVoltageDropLighting: val });
-                      setVdLimits((prev) => ({ ...prev, lighting: val }));
-                    }}
-                    disabled={isReadOnly}
-                    className="dense-input w-full rounded font-mono disabled:opacity-60"
-                  />
-                  <span className="text-xs font-mono text-[var(--table-header-color,#9ca3af)]">%</span>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-medium text-[var(--table-header-color,#9ca3af)] mb-1 flex items-center gap-1.5">
-                  {t("settings.powerLimit", "Max Voltage Drop – Power (%)")}
-                  <InfoTooltip label="Power Voltage Drop" helper="Maximum allowable voltage drop percentage for power, HVAC, and motor circuits (IEC 60364-5-52: 5%)." />
-                </label>
-                <div className="flex items-center gap-2">
-                  <input
-                    type="number"
-                    step="0.5"
-                    min="0.5"
-                    max="20"
-                    value={projectForm.maxVoltageDropPower}
-                    onChange={(e) => {
-                      const val = parseFloat(e.target.value) || 5;
-                      setProjectForm({ ...projectForm, maxVoltageDropPower: val });
-                      setVdLimits((prev) => ({ ...prev, power: val }));
-                    }}
-                    disabled={isReadOnly}
-                    className="dense-input w-full rounded font-mono disabled:opacity-60"
-                  />
-                  <span className="text-xs font-mono text-[var(--table-header-color,#9ca3af)]">%</span>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-medium text-[var(--table-header-color,#9ca3af)] mb-1">
-                  {t("common.standard", "Calculation Standard")}
-                </label>
-                <select
-                  value={projectForm.calculationStandard || "IEC"}
-                  onChange={(e) => setProjectForm({ ...projectForm, calculationStandard: e.target.value })}
-                  disabled={isReadOnly}
-                  className="dense-input w-full rounded disabled:opacity-60"
-                >
-                  <option value="IEC">IEC 60364 (EN)</option>
-                  <option value="NEMA">NEC / NEMA (US)</option>
-                </select>
-              </div>
-
-              <div>
                 <label className="block text-xs font-medium text-[var(--table-header-color,#9ca3af)] mb-1">
                   {t("projects.preferredManufacturer", "Preferred Manufacturer")}
                 </label>
@@ -734,13 +639,31 @@ export function ProjectSettingsTab({
                   value={projectForm.preferredManufacturer || "MIXED"}
                   onChange={(e) => setProjectForm({ ...projectForm, preferredManufacturer: e.target.value })}
                   disabled={isReadOnly}
-                  className="dense-input w-full rounded disabled:opacity-60"
+                  className="dense-input w-full rounded disabled:opacity-60 cursor-pointer"
                 >
                   <option value="MIXED">Mixed / Any</option>
                   <option value="ABB">ABB</option>
                   <option value="SCHNEIDER">Schneider Electric</option>
                 </select>
               </div>
+            </div>
+
+            {/* Link to Voltage Drop & Standards tab */}
+            <div className="p-3 rounded-lg border border-[var(--border-color,#1f2937)] bg-[var(--card-bg-subtle,rgba(17,24,39,0.4))] text-xs text-[var(--table-header-color,#9ca3af)] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <span className="flex items-center gap-2">
+                <Zap size={15} className="text-orange-400 shrink-0" />
+                {t(
+                  "projects.electricalSpecsNotice",
+                  "Looking for Voltage Drop Limits, Calculation Standards, and System Parameters? They are configured in the Voltage Drop & Standards tab."
+                )}
+              </span>
+              <button
+                type="button"
+                onClick={() => setActiveSubtab("engineering")}
+                className="text-xs font-semibold text-orange-400 hover:text-orange-300 underline cursor-pointer shrink-0"
+              >
+                {t("settings.engineeringStandards", "Voltage Drop & Standards")} →
+              </button>
             </div>
 
             <div>
@@ -761,18 +684,18 @@ export function ProjectSettingsTab({
       )}
 
       {/* =========================================================================
-          SUBTAB 2: ENGINEERING DEFAULTS
+          SUBTAB 2: VOLTAGE DROP & STANDARDS
           ========================================================================= */}
       {activeSubtab === "engineering" && (
         <div className="space-y-4">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-[var(--border-color,#1f2937)] pb-3">
             <div>
               <h3 className="text-sm font-bold text-[var(--foreground-color,#f8fafc)] flex items-center gap-2">
                 <Sliders size={16} className="text-orange-500" />
-                {t("settings.engineering", "Engineering Defaults & Standards")}
+                {t("settings.engineeringStandards", "Voltage Drop & Standards")}
               </h3>
               <p className="text-xs text-[var(--table-header-color,#9ca3af)] mt-0.5">
-                {t("settings.engineeringSubtitle", "Regional standards, room power densities, and AC sizing rules.")}
+                {t("settings.engineeringSubtitle", "Voltage drop compliance limits, calculation standards, electrical system baseline, and regional sizing rules.")}
               </p>
             </div>
 
@@ -793,10 +716,213 @@ export function ProjectSettingsTab({
                   className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-xs font-semibold shadow-xs disabled:opacity-50 cursor-pointer transition-all"
                 >
                   <Save size={13} />
-                  {saving ? t("settings.saving", "Saving…") : t("settings.save", "Save Defaults")}
+                  {saving ? t("settings.saving", "Saving…") : t("settings.saveVdLimits", "Save Voltage Drop & Standards")}
                 </button>
               </div>
             )}
+          </div>
+
+          {/* Voltage Drop Limits Card */}
+          <div className="rounded-xl border border-[var(--border-color,#1f2937)] bg-[var(--card-bg,rgba(17,24,39,0.7))] p-4 sm:p-5 space-y-4 shadow-sm">
+            <div>
+              <h4 className="text-xs font-bold text-[var(--foreground-color,#f8fafc)] uppercase tracking-wider flex items-center gap-2 border-b border-[var(--border-color,#1f2937)] pb-2">
+                <Zap size={15} className="text-orange-400" />
+                {t("settings.vdLimitsTitle", "Voltage Drop Compliance Limits")}
+              </h4>
+              <p className="text-xs text-[var(--table-header-color,#9ca3af)] mt-1.5">
+                {t(
+                  "settings.vdLimitsSubtitle",
+                  "Configure maximum allowable voltage drop percentages. These values are saved directly to the database and govern calculations in Cable Sizing, Riser, SLD, and verification reports."
+                )}
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
+              <div>
+                <label className="block text-xs font-semibold text-[var(--foreground-color,#f8fafc)] uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+                  {t("settings.lightingLimit", "Max Voltage Drop – Lighting (%)")}
+                  <InfoTooltip
+                    label="Lighting Voltage Drop"
+                    helper="Maximum allowable percentage voltage drop for lighting circuits. Recommended standard: IEC 60364-5-52 Table G.52.1 specifies 3%."
+                  />
+                </label>
+                <div className="relative">
+                  <input
+                    type="number"
+                    step="0.1"
+                    min="0.1"
+                    max="20"
+                    value={vdLimits.lighting}
+                    onChange={(e) => {
+                      const val = parseFloat(e.target.value) || 0;
+                      setVdLimits({ ...vdLimits, lighting: val });
+                      setProjectForm((prev) => ({ ...prev, maxVoltageDropLighting: val }));
+                    }}
+                    disabled={isReadOnly}
+                    className="dense-input w-full rounded font-mono font-medium disabled:opacity-60 pe-10"
+                    required
+                  />
+                  <span className="absolute inset-y-0 end-0 pe-3.5 flex items-center text-xs font-mono text-[var(--table-header-color,#9ca3af)] pointer-events-none">
+                    %
+                  </span>
+                </div>
+                <p className="text-[11px] text-[var(--table-header-color,#9ca3af)] mt-1">
+                  {t("settings.iecLightingDefault", "IEC 60364-5-52 default: 3.0%")}
+                </p>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-[var(--foreground-color,#f8fafc)] uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+                  {t("settings.powerLimit", "Max Voltage Drop – Power & Other (%)")}
+                  <InfoTooltip
+                    label="Power Voltage Drop"
+                    helper="Maximum allowable percentage voltage drop for power, motor, and general circuits. Recommended standard: IEC 60364-5-52 specifies 5%; NEC 210.19 recommends 5% total."
+                  />
+                </label>
+                <div className="relative">
+                  <input
+                    type="number"
+                    step="0.1"
+                    min="0.1"
+                    max="20"
+                    value={vdLimits.power}
+                    onChange={(e) => {
+                      const val = parseFloat(e.target.value) || 0;
+                      setVdLimits({ ...vdLimits, power: val });
+                      setProjectForm((prev) => ({ ...prev, maxVoltageDropPower: val }));
+                    }}
+                    disabled={isReadOnly}
+                    className="dense-input w-full rounded font-mono font-medium disabled:opacity-60 pe-10"
+                    required
+                  />
+                  <span className="absolute inset-y-0 end-0 pe-3.5 flex items-center text-xs font-mono text-[var(--table-header-color,#9ca3af)] pointer-events-none">
+                    %
+                  </span>
+                </div>
+                <p className="text-[11px] text-[var(--table-header-color,#9ca3af)] mt-1">
+                  {t("settings.iecPowerDefault", "IEC 60364-5-52 default: 5.0%")}
+                </p>
+              </div>
+            </div>
+
+            <div className="p-3 rounded-lg border border-[var(--border-color,#1f2937)] bg-[var(--card-bg-subtle,rgba(17,24,39,0.4))] text-xs text-[var(--table-header-color,#9ca3af)] flex items-start gap-2">
+              <span className="text-orange-400 font-bold shrink-0">ℹ</span>
+              <span>
+                {t(
+                  "settings.vdNote",
+                  "Values updated here take immediate precedence across all calculators. A local browser fallback copy is kept in sync for offline resilience."
+                )}
+              </span>
+            </div>
+          </div>
+
+          {/* System Electrical Baseline & Standards Card */}
+          <div className="rounded-xl border border-[var(--border-color,#1f2937)] bg-[var(--card-bg,rgba(17,24,39,0.7))] p-4 sm:p-5 space-y-4 shadow-sm">
+            <div>
+              <h4 className="text-xs font-bold text-[var(--foreground-color,#f8fafc)] uppercase tracking-wider flex items-center gap-2 border-b border-[var(--border-color,#1f2937)] pb-2">
+                <Sliders size={15} className="text-orange-400" />
+                {t("settings.systemBaseline", "Electrical System Parameters & Standards")}
+              </h4>
+              <p className="text-xs text-[var(--table-header-color,#9ca3af)] mt-1.5">
+                {t(
+                  "settings.systemBaselineSubtitle",
+                  "Nominal project operating parameters and calculation standard used as baseline for load balancing and sizing."
+                )}
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 pt-1">
+              <div>
+                <label className="block text-xs font-semibold text-[var(--foreground-color,#f8fafc)] uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+                  {t("common.standard", "Calculation Standard")}
+                  <InfoTooltip
+                    label="Standard"
+                    helper="Electrical design code governing cable ampacity, temperature derating, and voltage drop formulas (IEC 60364 or NEC/NEMA)."
+                  />
+                </label>
+                <select
+                  value={projectForm.calculationStandard || "IEC"}
+                  onChange={(e) =>
+                    setProjectForm({ ...projectForm, calculationStandard: e.target.value as CalculationStandard })
+                  }
+                  disabled={isReadOnly}
+                  className="dense-input w-full rounded font-mono font-medium disabled:opacity-60 cursor-pointer"
+                >
+                  <option value="IEC">IEC 60364 (EN)</option>
+                  <option value="NEMA">NEC / NEMA (US)</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-[var(--foreground-color,#f8fafc)] uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+                  {t("projects.voltage", "Nominal Voltage (V)")}
+                  <InfoTooltip label="Voltage" helper="Nominal 3-phase line-to-line system operating voltage (e.g. 400V)." />
+                </label>
+                <input
+                  type="number"
+                  value={projectForm.voltage}
+                  onChange={(e) => setProjectForm({ ...projectForm, voltage: e.target.value })}
+                  disabled={isReadOnly}
+                  className="dense-input w-full rounded font-mono font-medium disabled:opacity-60"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-[var(--foreground-color,#f8fafc)] uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+                  {t("projects.frequency", "Frequency (Hz)")}
+                  <InfoTooltip label="Frequency" helper="Standard grid power frequency (50 Hz IEC/BS or 60 Hz NEC/UL)." />
+                </label>
+                <select
+                  value={projectForm.frequency}
+                  onChange={(e) => setProjectForm({ ...projectForm, frequency: parseFloat(e.target.value) || 50 })}
+                  disabled={isReadOnly}
+                  className="dense-input w-full rounded font-mono font-medium disabled:opacity-60 cursor-pointer"
+                >
+                  <option value={50}>50 Hz (IEC / BS)</option>
+                  <option value={60}>60 Hz (NEC / UL)</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-[var(--foreground-color,#f8fafc)] uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+                  {t("projects.powerFactor", "Power Factor (cos φ)")}
+                  <InfoTooltip label="Power Factor" helper="Baseline design power factor across general feeders (default 0.85)." />
+                </label>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0.5"
+                  max="1.0"
+                  value={projectForm.powerFactor}
+                  onChange={(e) => setProjectForm({ ...projectForm, powerFactor: e.target.value })}
+                  disabled={isReadOnly}
+                  className="dense-input w-full rounded font-mono font-medium disabled:opacity-60"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-[var(--foreground-color,#f8fafc)] uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+                  {t("projects.maxDemandFactor", "Max Demand Factor")}
+                  <InfoTooltip
+                    label="Demand Factor"
+                    helper="Overall coincident diversity factor applied to total connected installation load (0.1 to 1.0)."
+                  />
+                </label>
+                <input
+                  type="number"
+                  step="0.05"
+                  min="0.1"
+                  max="1.0"
+                  value={projectForm.maxDemandFactor}
+                  onChange={(e) => setProjectForm({ ...projectForm, maxDemandFactor: e.target.value })}
+                  disabled={isReadOnly}
+                  className="dense-input w-full rounded font-mono font-medium disabled:opacity-60"
+                  required
+                />
+              </div>
+            </div>
           </div>
 
           {/* Country Selection Card */}
@@ -812,7 +938,7 @@ export function ProjectSettingsTab({
                 value={selectedCountry}
                 onChange={(e) => setSelectedCountry(e.target.value)}
                 disabled={isReadOnly}
-                className="dense-input w-full max-w-sm rounded font-medium disabled:opacity-60"
+                className="dense-input w-full max-w-sm rounded font-medium disabled:opacity-60 cursor-pointer"
               >
                 {Object.keys(COUNTRY_DEFAULTS).map((c) => (
                   <option key={c} value={c}>
@@ -941,59 +1067,19 @@ export function ProjectSettingsTab({
             </div>
           )}
 
-          {/* Voltage Drop Limits Card */}
-          <div className="rounded-xl border border-[var(--border-color,#1f2937)] bg-[var(--card-bg,rgba(17,24,39,0.7))] p-4 sm:p-5 space-y-3">
-            <h4 className="text-xs font-bold text-[var(--foreground-color,#f8fafc)] uppercase tracking-wider border-b border-[var(--border-color,#1f2937)] pb-2">
-              {t("settings.voltageDropLimits", "Voltage Drop Compliance Limits (IEC 60364-5-52)")}
-            </h4>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-xs font-medium text-[var(--table-header-color,#9ca3af)] mb-1">
-                  {t("settings.lightingLimit", "Lighting Circuits Limit (%)")}
-                </label>
-                <div className="flex items-center gap-2">
-                  <input
-                    type="number"
-                    step="0.5"
-                    min="1"
-                    max="10"
-                    value={vdLimits.lighting}
-                    onChange={(e) => {
-                      const val = parseFloat(e.target.value) || 3;
-                      setVdLimits({ ...vdLimits, lighting: val });
-                      setProjectForm((prev) => ({ ...prev, maxVoltageDropLighting: val }));
-                    }}
-                    disabled={isReadOnly}
-                    className="dense-input w-full rounded font-mono text-xs disabled:opacity-60"
-                  />
-                  <span className="text-xs font-mono text-[var(--table-header-color,#9ca3af)]">%</span>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-medium text-[var(--table-header-color,#9ca3af)] mb-1">
-                  {t("settings.powerLimit", "Power & Motor Circuits Limit (%)")}
-                </label>
-                <div className="flex items-center gap-2">
-                  <input
-                    type="number"
-                    step="0.5"
-                    min="1"
-                    max="15"
-                    value={vdLimits.power}
-                    onChange={(e) => {
-                      const val = parseFloat(e.target.value) || 5;
-                      setVdLimits({ ...vdLimits, power: val });
-                      setProjectForm((prev) => ({ ...prev, maxVoltageDropPower: val }));
-                    }}
-                    disabled={isReadOnly}
-                    className="dense-input w-full rounded font-mono text-xs disabled:opacity-60"
-                  />
-                  <span className="text-xs font-mono text-[var(--table-header-color,#9ca3af)]">%</span>
-                </div>
-              </div>
+          {!isReadOnly && (
+            <div className="flex justify-end pt-2">
+              <button
+                type="button"
+                onClick={handleSaveEngineeringDefaults}
+                disabled={saving}
+                className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-orange-600 hover:bg-orange-500 active:scale-[0.99] text-white text-xs font-semibold shadow-lg shadow-orange-600/20 disabled:opacity-50 cursor-pointer transition-all"
+              >
+                <Save size={15} />
+                {saving ? t("settings.saving", "Saving to Database…") : t("settings.saveVdLimits", "Save Voltage Drop & Standards")}
+              </button>
             </div>
-          </div>
+          )}
         </div>
       )}
 

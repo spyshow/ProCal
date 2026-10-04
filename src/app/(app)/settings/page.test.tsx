@@ -4,46 +4,7 @@ import { render, screen, waitFor, fireEvent } from "@testing-library/react";
 
 const push = vi.fn();
 const replace = vi.fn();
-const mutateProject = vi.fn();
-const selectProject = vi.fn();
-
-const mockProject = {
-  id: "proj-123",
-  name: "Al-Noor Tower",
-  client: "Emaar",
-  location: "Dubai",
-  calculationStandard: "IEC",
-  voltage: 400,
-  frequency: 50,
-  powerFactor: 0.85,
-  maxDemandFactor: 0.8,
-  maxVoltageDropLighting: 3.0,
-  maxVoltageDropPower: 5.0,
-};
-
-const storage: Record<string, string> = {};
-const mockLocalStorage = {
-  getItem: vi.fn((key: string) => storage[key] ?? null),
-  setItem: vi.fn((key: string, val: string) => {
-    storage[key] = String(val);
-  }),
-  removeItem: vi.fn((key: string) => {
-    delete storage[key];
-  }),
-  clear: vi.fn(() => {
-    for (const key in storage) {
-      delete storage[key];
-    }
-  }),
-};
-Object.defineProperty(window, "localStorage", {
-  value: mockLocalStorage,
-  writable: true,
-});
-Object.defineProperty(globalThis, "localStorage", {
-  value: mockLocalStorage,
-  writable: true,
-});
+let mockSelectedProjectId: string | null = "proj-123";
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push, replace }),
@@ -72,29 +33,15 @@ vi.mock("@/context/UserContext", () => ({
 
 vi.mock("@/context/ProjectContext", () => ({
   useProject: () => ({
-    selectedProjectId: "proj-123",
-    selectedProject: mockProject,
-    selectProject,
-    mutateProject,
+    selectedProjectId: mockSelectedProjectId,
   }),
 }));
 
-const fetchMock = vi.fn();
-vi.stubGlobal("fetch", fetchMock);
-
-describe("SettingsPage - Voltage Drop Limits & Engineering Standards", () => {
+describe("SettingsPage - Account Settings and Standards Redirection", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mockLocalStorage.clear();
-    fetchMock.mockImplementation(async (url: string) => {
-      if (url.includes("/api/projects")) {
-        return new Response(JSON.stringify([mockProject]), {
-          status: 200,
-          headers: { "Content-Type": "application/json" },
-        });
-      }
-      return new Response(JSON.stringify({}), { status: 200 });
-    });
+    mockSelectedProjectId = "proj-123";
+    window.history.pushState({}, "", "/settings");
   });
 
   async function renderSettingsPage() {
@@ -102,64 +49,63 @@ describe("SettingsPage - Voltage Drop Limits & Engineering Standards", () => {
     return render(<SettingsPage />);
   }
 
-  it("renders the engineering tab and allows editing and saving DB voltage drop limits", async () => {
+  it("renders only personal account tabs and does NOT show Voltage Drop & Standards tab", async () => {
     await renderSettingsPage();
 
-    // Find tab button for Voltage Drop & Standards
-    const engineeringTabBtn = await screen.findByRole("button", {
-      name: /voltage drop & standards/i,
-    });
-    expect(engineeringTabBtn).toBeInTheDocument();
+    // Verify personal tabs are present
+    expect(screen.getByRole("button", { name: /appearance/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /language/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /account & security/i })).toBeInTheDocument();
 
-    // Switch to engineering tab
-    fireEvent.click(engineeringTabBtn);
+    // Voltage Drop & Standards tab should NOT be on the account settings page
+    expect(screen.queryByRole("button", { name: /voltage drop & standards/i })).not.toBeInTheDocument();
+  });
 
-    // Verify Voltage Drop Compliance Limits card appears
-    expect(await screen.findByText(/voltage drop compliance limits/i)).toBeInTheDocument();
-
-    // Verify project name badge
-    expect(screen.getByText("Al-Noor Tower")).toBeInTheDocument();
-
-    // Find inputs for lighting and power VD limits
-    const lightingInput = screen.getByDisplayValue("3");
-    const powerInput = screen.getByDisplayValue("5");
-    expect(lightingInput).toBeInTheDocument();
-    expect(powerInput).toBeInTheDocument();
-
-    // Edit the values
-    fireEvent.change(lightingInput, { target: { value: "2.5" } });
-    fireEvent.change(powerInput, { target: { value: "4.0" } });
-
-    // Mock PUT response
-    fetchMock.mockImplementationOnce(async (url: string, opts?: RequestInit) => {
-      expect(url).toBe("/api/projects/proj-123");
-      expect(opts?.method).toBe("PUT");
-      const parsedBody = JSON.parse(opts?.body as string);
-      expect(parsedBody.maxVoltageDropLighting).toBe(2.5);
-      expect(parsedBody.maxVoltageDropPower).toBe(4.0);
-      return new Response(
-        JSON.stringify({
-          ...mockProject,
-          maxVoltageDropLighting: 2.5,
-          maxVoltageDropPower: 4.0,
-        }),
-        { status: 200, headers: { "Content-Type": "application/json" } }
-      );
-    });
-
-    // Submit form
-    const saveButton = screen.getByRole("button", { name: /save engineering limits/i });
-    fireEvent.click(saveButton);
+  it("redirects ?tab=engineering to the active project settings page", async () => {
+    window.history.pushState({}, "", "/settings?tab=engineering");
+    await renderSettingsPage();
 
     await waitFor(() => {
-      expect(mutateProject).toHaveBeenCalled();
+      expect(replace).toHaveBeenCalledWith("/projects/proj-123?tab=engineering");
     });
+  });
 
-    // Check localStorage sync
-    const savedLocal = JSON.parse(mockLocalStorage.getItem("procal-vd-limits") || "{}");
-    expect(savedLocal).toEqual({ lighting: 2.5, power: 4.0 });
+  it("redirects ?tab=standards to the active project settings page", async () => {
+    window.history.pushState({}, "", "/settings?tab=standards");
+    await renderSettingsPage();
 
-    // Check success feedback message
-    expect(await screen.findByText(/saved to project database/i)).toBeInTheDocument();
+    await waitFor(() => {
+      expect(replace).toHaveBeenCalledWith("/projects/proj-123?tab=engineering");
+    });
+  });
+
+  it("redirects ?tab=company to the active project company tab", async () => {
+    window.history.pushState({}, "", "/settings?tab=company");
+    await renderSettingsPage();
+
+    await waitFor(() => {
+      expect(replace).toHaveBeenCalledWith("/projects/proj-123?tab=company");
+    });
+  });
+
+  it("redirects ?tab=engineering to /projects if no project is active", async () => {
+    mockSelectedProjectId = null;
+    window.history.pushState({}, "", "/settings?tab=engineering");
+    await renderSettingsPage();
+
+    await waitFor(() => {
+      expect(replace).toHaveBeenCalledWith("/projects");
+    });
+  });
+
+  it("allows switching between Appearance, Language, and Account tabs", async () => {
+    await renderSettingsPage();
+
+    const accountTab = screen.getByRole("button", { name: /account & security/i });
+    fireEvent.click(accountTab);
+
+    // Profile & Password settings should be visible
+    expect(await screen.findByText(/profile details/i)).toBeInTheDocument();
+    expect(screen.getByText(/change password/i)).toBeInTheDocument();
   });
 });

@@ -6,7 +6,7 @@ import { ProjectProvider } from "@/context/ProjectContext";
 import { ThemeProvider } from "@/context/ThemeContext";
 import { THEME_COOKIE_NAME, DEFAULT_THEME, isValidTheme } from "@/lib/theme";
 import { I18nProvider } from "@/i18n";
-import { ClarityAnalytics } from "@/components/ClarityAnalytics";
+import { LetsReplayAnalytics } from "@/components/LetsReplayAnalytics";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -52,7 +52,7 @@ export default async function RootLayout({
       suppressHydrationWarning
     >
       <head>
-        <ClarityAnalytics />
+        <LetsReplayAnalytics />
       </head>
       <body className="min-h-full bg-[var(--background-color,#030712)] text-[var(--foreground-color,#f8fafc)] antialiased font-sans" suppressHydrationWarning>
         <I18nProvider>

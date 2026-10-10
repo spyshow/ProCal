@@ -4,12 +4,14 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useTranslation } from '@/i18n';
+import { useTheme } from '@/context/ThemeContext';
 import { LanguageSelector } from '@/components/LanguageSelector';
 import { ThemeSelector } from '@/components/ThemeSelector';
 
 export default function SignupPage() {
   const router = useRouter();
   const { t, isRtl } = useTranslation();
+  const { theme } = useTheme();
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -50,6 +52,7 @@ export default function SignupPage() {
           email: email.trim(),
           username: username.trim(),
           password,
+          theme,
         }),
       });
 

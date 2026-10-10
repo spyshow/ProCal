@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import { db } from "@/lib/db";
 import { signJWT } from "@/lib/auth";
 import { rateLimit, clientKey } from "@/lib/rate-limit";
+import { isValidTheme, THEME_COOKIE_NAME, DEFAULT_THEME } from "@/lib/theme";
 
 export async function POST(request: Request) {
   // Signup-flood mitigation: 5 accounts / hour per IP.
@@ -14,7 +15,7 @@ export async function POST(request: Request) {
     );
   }
   try {
-    const { username, password, name, email } = await request.json();
+    const { username, password, name, email, theme } = await request.json();
 
     if (!username || !password || !name || !email) {
       return NextResponse.json(
@@ -58,6 +59,7 @@ export async function POST(request: Request) {
     }
 
     // Create user
+    const initialTheme = isValidTheme(theme) ? theme : DEFAULT_THEME;
     const passwordHash = await bcrypt.hash(password, 10);
     const user = await db.user.create({
       data: {
@@ -65,6 +67,7 @@ export async function POST(request: Request) {
         name,
         passwordHash,
         email: emailTrim,
+        theme: initialTheme,
       },
     });
 
@@ -77,7 +80,7 @@ export async function POST(request: Request) {
 
     const response = NextResponse.json({
       success: true,
-      user: { id: user.id, username: user.username, name: user.name },
+      user: { id: user.id, username: user.username, name: user.name, theme: initialTheme },
     });
 
     response.cookies.set("session_token", token, {
@@ -85,6 +88,12 @@ export async function POST(request: Request) {
       secure: process.env.NODE_ENV === "production",
       maxAge: 60 * 60 * 24,
       path: "/",
+    });
+
+    response.cookies.set(THEME_COOKIE_NAME, initialTheme, {
+      path: "/",
+      maxAge: 31536000,
+      sameSite: "lax",
     });
 
     return response;

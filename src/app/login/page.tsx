@@ -3,11 +3,13 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useTranslation } from '@/i18n';
+import { useTheme } from '@/context/ThemeContext';
 import { LanguageSelector } from '@/components/LanguageSelector';
 import { ThemeSelector } from '@/components/ThemeSelector';
 
 export default function LoginPage() {
   const { t, isRtl } = useTranslation();
+  const { theme } = useTheme();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -70,7 +72,7 @@ export default function LoginPage() {
     setError('');
 
     if (!username.trim() || !password.trim()) {
-      setError(t('auth.invalidCredentials', 'Please enter both username and password.'));
+      setError(t('auth.enterIdentifierAndPassword', 'Please enter your username or email and password.'));
       return;
     }
 
@@ -80,7 +82,7 @@ export default function LoginPage() {
       const res = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username: username.trim(), password }),
+        body: JSON.stringify({ identifier: username.trim(), username: username.trim(), password, theme }),
       });
 
       const data = await res.json().catch(() => ({}));
@@ -146,13 +148,13 @@ export default function LoginPage() {
 
           {/* ── Form ── */}
           <form onSubmit={handleSubmit} noValidate className="space-y-5">
-            {/* Username */}
+            {/* Username or Email */}
             <div>
               <label
                 htmlFor="username"
                 className="block mb-1.5 text-xs font-semibold uppercase tracking-wider text-[var(--table-header-color,#9ca3af)]"
               >
-                {t('auth.username', 'Username')}
+                {t('auth.usernameOrEmail', 'Username or Email')}
               </label>
               <div className="relative">
                 <input
@@ -162,7 +164,7 @@ export default function LoginPage() {
                   autoFocus
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  placeholder={t('auth.username', 'Enter username')}
+                  placeholder={t('auth.enterUsernameOrEmail', 'Enter username or email address')}
                   className="
                     w-full rounded-lg border border-[var(--input-border,#374151)] bg-[var(--input-bg,rgba(17,24,39,0.8))]
                     px-4 py-3 text-sm text-[var(--input-color,#ffffff)] placeholder-[var(--table-header-color,#6b7280)]

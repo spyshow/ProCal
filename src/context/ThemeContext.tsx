@@ -28,8 +28,22 @@ export function ThemeProvider({ children, initialTheme }: ThemeProviderProps) {
     return DEFAULT_THEME;
   }, [initialTheme]);
 
-  const [theme, setThemeState] = useState<ThemeMode>(validatedInitial);
-  const [systemPrefersDark, setSystemPrefersDark] = useState<boolean>(true);
+  const [theme, setThemeState] = useState<ThemeMode>(() => {
+    if (typeof window !== 'undefined') {
+      const savedLocal = localStorage.getItem(THEME_COOKIE_NAME);
+      if (isValidTheme(savedLocal)) {
+        return savedLocal;
+      }
+    }
+    return validatedInitial;
+  });
+
+  const [systemPrefersDark, setSystemPrefersDark] = useState<boolean>(() => {
+    if (typeof window !== 'undefined') {
+      return window.matchMedia('(prefers-color-scheme: dark)').matches;
+    }
+    return true;
+  });
 
   // Sync with system preference changes
   useEffect(() => {

@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 256" width="880" height="256" role="img" aria-labelledby="Concept-1-title">
+  <title id="Concept-1-title">ProCal Lockup - Concept-1</title>
+  <!-- Symbol scaled and optically positioned on left -->
+  <g transform="translate(36, 36) scale(0.72)">
+    <!-- Single compound path for boolean integrity and flawless reproduction -->
+  <path fill="#000000" fill-rule="evenodd" d="
+    M 44 28
+    H 152
+    C 185.1 28 212 54.9 212 88
+    C 212 121.1 185.1 148 152 148
+    H 108
+    L 92 164
+    V 204
+    L 68 228
+    H 44
+    Z
+    
+    M 92 64
+    H 146
+    C 159.3 64 170 74.7 170 88
+    C 170 101.3 159.3 112 146 112
+    H 92
+    Z
+  " />
+  </g>
+  <!-- Engineered Wordmark -->
+  <g fill="#000000">
+    <text x="248" y="150" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Inter, 'Helvetica Neue', sans-serif" font-size="104" font-weight="800" letter-spacing="-2" fill="#000000">Pro<tspan font-weight="500">Cal</tspan></text>
+    <text x="252" y="186" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Inter, sans-serif" font-size="17" font-weight="700" letter-spacing="4.5" fill="#64748b">LOW-VOLTAGE ELECTRICAL DESIGN</text>
+  </g>
+</svg>

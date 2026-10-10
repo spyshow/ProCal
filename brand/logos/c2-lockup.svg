@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 256" width="880" height="256" role="img" aria-labelledby="Concept-2-title">
+  <title id="Concept-2-title">ProCal Lockup - Concept-2</title>
+  <!-- Symbol scaled and optically positioned on left -->
+  <g transform="translate(36, 36) scale(0.72)">
+    <!-- Three calibrated phase busbars in 120° rotational equilibrium -->
+  <g fill="#000000">
+    <polygon points="128.0,26.0 175.5,108.2 144.3,126.2 128.0,98.0 111.7,126.2 80.5,108.2" /><polygon points="231.9,206.0 137.0,206.0 137.0,170.0 169.6,170.0 153.3,141.8 184.5,123.8" /><polygon points="24.1,206.0 71.5,123.8 102.7,141.8 86.4,170.0 119.0,170.0 119.0,206.0" />
+  </g>
+  </g>
+  <!-- Engineered Wordmark -->
+  <g fill="#000000">
+    <text x="248" y="150" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Inter, 'Helvetica Neue', sans-serif" font-size="104" font-weight="800" letter-spacing="-2" fill="#000000">Pro<tspan font-weight="500">Cal</tspan></text>
+    <text x="252" y="186" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Inter, sans-serif" font-size="17" font-weight="700" letter-spacing="4.5" fill="#64748b">LOW-VOLTAGE ELECTRICAL DESIGN</text>
+  </g>
+</svg>

@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256"><title>ProCal logo</title><g transform="translate(-19.94 -17.66) scale(1.138)">
+  <title id="procal-small-title">ProCal Symbol - Small Cut</title>
+  <!-- Thicker stem and outer loop with wider internal gap for 16px fidelity -->
+  <path d="M 36 20 H 92 V 204 L 64 236 H 36 Z" fill="#0f172a" />
+  <path fill="#ea580c" fill-rule="evenodd" d="
+    M 92 20
+    H 160
+    C 195 20 224 49 224 88
+    C 224 127 195 156 160 156
+    H 92
+    V 124
+    H 156
+    C 176 124 192 108 192 88
+    C 192 68 176 52 156 52
+    H 92
+    Z
+  " />
+  <path d="M 92 72 H 146 C 155 72 162 79 162 88 C 162 97 155 104 146 104 H 92 Z" fill="#f59e0b" />
+</g></svg>

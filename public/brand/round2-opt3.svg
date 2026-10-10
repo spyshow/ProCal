@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-labelledby="title-opt3">
+  <title id="title-opt3">ProCal Option 3 - The 3-Phase Phasor Hexagon</title>
+  <!-- Three-phase load calculation nexus in isometric 120° distribution -->
+  <g>
+    <!-- Phase L1 (Top Facet: ABB Industrial Orange #ea580c) -->
+    <polygon points="128,24 218,76 135,124 121,124 38,76" fill="#ea580c" />
+    
+    <!-- Phase L2 (Bottom-Right Facet: Electric Amber #f59e0b) -->
+    <polygon points="218,84 218,180 134,232 134,132" fill="#f59e0b" />
+    
+    <!-- Phase L3 (Bottom-Left Facet: Midnight Slate #0f172a) -->
+    <polygon points="38,84 122,132 122,232 38,180" fill="#0f172a" />
+    
+    <!-- Central Neutral Calculation Node -->
+    <circle cx="128" cy="128" r="14" fill="#ffffff" />
+    <circle cx="128" cy="128" r="7" fill="#ea580c" />
+  </g>
+</svg>

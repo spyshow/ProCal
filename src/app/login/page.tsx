@@ -6,6 +6,7 @@ import { useTranslation } from '@/i18n';
 import { useTheme } from '@/context/ThemeContext';
 import { LanguageSelector } from '@/components/LanguageSelector';
 import { ThemeSelector } from '@/components/ThemeSelector';
+import { ProCalLogo } from '@/components/brand/ProCalLogo';
 
 export default function LoginPage() {
   const { t, isRtl } = useTranslation();
@@ -112,24 +113,9 @@ export default function LoginPage() {
         >
           {/* ── Brand Header ── */}
           <div className="flex flex-col items-center mb-8 select-none">
-            {/* Lightning bolt SVG */}
-            <div className="mb-4 flex items-center justify-center w-16 h-16 rounded-full bg-orange-600/15 ring-1 ring-orange-500/30">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="none"
-                className="w-9 h-9"
-                aria-hidden="true"
-              >
-                {/* Electrical zap / lightning bolt */}
-                <path
-                  d="M13 2L4.5 13.5H11L10 22L19.5 10H13L13 2Z"
-                  fill="#ea580c"
-                  stroke="#fb923c"
-                  strokeWidth="0.6"
-                  strokeLinejoin="round"
-                />
-              </svg>
+            {/* ProCal Official Brand Mark */}
+            <div className="mb-4 flex items-center justify-center w-16 h-16 rounded-2xl bg-orange-500/10 border border-orange-500/20 shadow-inner">
+              <ProCalLogo size={42} />
             </div>
 
             {/* App name */}
@@ -139,7 +125,7 @@ export default function LoginPage() {
 
             {/* Slogan */}
             <p className="mt-2 text-sm font-medium tracking-normal text-[var(--table-header-color,#9ca3af)] text-center">
-              Low-voltage Electrical design, <span className="text-orange-500 dark:text-orange-400 font-bold">Solved</span>
+              Low Voltage Electrical Design , <span className="text-orange-500 dark:text-orange-400 font-bold">Solved</span>
             </p>
 
             {/* Divider */}
@@ -271,7 +257,7 @@ export default function LoginPage() {
         <p className="mt-4 text-center text-xs text-[var(--table-header-color,#6b7280)] select-none">
           &copy; 2026&nbsp;
           <span className="text-[var(--foreground-color,#9ca3af)] font-medium">ProCal</span>
-          &nbsp;&mdash;&nbsp;Low-voltage Electrical design, <span className="text-orange-500 dark:text-orange-400 font-medium">Solved</span>
+          &nbsp;&mdash;&nbsp;Low Voltage Electrical Design , <span className="text-orange-500 dark:text-orange-400 font-medium">Solved</span>
         </p>
       </div>
 

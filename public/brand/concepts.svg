@@ -1,0 +1,360 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1600" height="984" viewBox="0 0 1600 984"><rect width="1600" height="984" fill="#f7f7f4"/><text x="60" y="78" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="40" font-weight="700" fill="#161616">ProCal — Logo Concepts</text><text x="60" y="116" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="20" fill="#6b6b6b">Concepts for review — pick a direction (or tell me what you like in each).</text><rect x="60" y="150" width="474.667" height="774" rx="18" fill="#fff" stroke="#e4e4e0" stroke-width="1"/><g><svg xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title-p" viewBox="0 0 256 256" x="90" y="190" width="414.667" height="300" preserveAspectRatio="xMidYMid meet">
+  <title id="c0-title-p">ProCal Concept 1 - The Busbar Monogram</title>
+  <!-- Single compound path for boolean integrity and flawless reproduction -->
+  <path fill="#000000" fill-rule="evenodd" d="
+    M 44 28
+    H 152
+    C 185.1 28 212 54.9 212 88
+    C 212 121.1 185.1 148 152 148
+    H 108
+    L 92 164
+    V 204
+    L 68 228
+    H 44
+    Z
+    
+    M 92 64
+    H 146
+    C 159.3 64 170 74.7 170 88
+    C 170 101.3 159.3 112 146 112
+    H 92
+    Z
+  " />
+</svg></g><g><svg xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="Concept-1-title" viewBox="0 0 880 256" x="90" y="514" width="414.667" height="120" preserveAspectRatio="xMidYMid meet">
+  <title id="l0-Concept-1-title">ProCal Lockup - Concept-1</title>
+  <!-- Symbol scaled and optically positioned on left -->
+  <g transform="translate(36, 36) scale(0.72)">
+    <!-- Single compound path for boolean integrity and flawless reproduction -->
+  <path fill="#000000" fill-rule="evenodd" d="
+    M 44 28
+    H 152
+    C 185.1 28 212 54.9 212 88
+    C 212 121.1 185.1 148 152 148
+    H 108
+    L 92 164
+    V 204
+    L 68 228
+    H 44
+    Z
+    
+    M 92 64
+    H 146
+    C 159.3 64 170 74.7 170 88
+    C 170 101.3 159.3 112 146 112
+    H 92
+    Z
+  " />
+  </g>
+  <!-- Engineered Wordmark -->
+  <g fill="#000000">
+    <text x="248" y="150" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Inter, 'Helvetica Neue', sans-serif" font-size="104" font-weight="800" letter-spacing="-2" fill="#000000">Pro<tspan font-weight="500">Cal</tspan></text>
+    <text x="252" y="186" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Inter, sans-serif" font-size="17" font-weight="700" letter-spacing="4.5" fill="#64748b">LOW-VOLTAGE ELECTRICAL DESIGN</text>
+  </g>
+</svg></g><g><svg xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title-p" viewBox="0 0 256 256" x="90" y="660" width="64" height="64" preserveAspectRatio="xMidYMid meet">
+  <title id="s064-title-p">ProCal Concept 1 - The Busbar Monogram</title>
+  <!-- Single compound path for boolean integrity and flawless reproduction -->
+  <path fill="#000000" fill-rule="evenodd" d="
+    M 44 28
+    H 152
+    C 185.1 28 212 54.9 212 88
+    C 212 121.1 185.1 148 152 148
+    H 108
+    L 92 164
+    V 204
+    L 68 228
+    H 44
+    Z
+    
+    M 92 64
+    H 146
+    C 159.3 64 170 74.7 170 88
+    C 170 101.3 159.3 112 146 112
+    H 92
+    Z
+  " />
+</svg></g><text x="122" y="744" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="12" fill="#8a8a8a" text-anchor="middle">64px</text><g><svg xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title-p" viewBox="0 0 256 256" x="180" y="692" width="32" height="32" preserveAspectRatio="xMidYMid meet">
+  <title id="s032-title-p">ProCal Concept 1 - The Busbar Monogram</title>
+  <!-- Single compound path for boolean integrity and flawless reproduction -->
+  <path fill="#000000" fill-rule="evenodd" d="
+    M 44 28
+    H 152
+    C 185.1 28 212 54.9 212 88
+    C 212 121.1 185.1 148 152 148
+    H 108
+    L 92 164
+    V 204
+    L 68 228
+    H 44
+    Z
+    
+    M 92 64
+    H 146
+    C 159.3 64 170 74.7 170 88
+    C 170 101.3 159.3 112 146 112
+    H 92
+    Z
+  " />
+</svg></g><text x="196" y="744" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="12" fill="#8a8a8a" text-anchor="middle">32px</text><g><svg xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title-p" viewBox="0 0 256 256" x="238" y="708" width="16" height="16" preserveAspectRatio="xMidYMid meet">
+  <title id="s016-title-p">ProCal Concept 1 - The Busbar Monogram</title>
+  <!-- Single compound path for boolean integrity and flawless reproduction -->
+  <path fill="#000000" fill-rule="evenodd" d="
+    M 44 28
+    H 152
+    C 185.1 28 212 54.9 212 88
+    C 212 121.1 185.1 148 152 148
+    H 108
+    L 92 164
+    V 204
+    L 68 228
+    H 44
+    Z
+    
+    M 92 64
+    H 146
+    C 159.3 64 170 74.7 170 88
+    C 170 101.3 159.3 112 146 112
+    H 92
+    Z
+  " />
+</svg></g><text x="246" y="744" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="12" fill="#8a8a8a" text-anchor="middle">16px</text><text x="90.0" y="780" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="26" font-weight="700" fill="#161616">A · The Busbar Monogram</text><text x="90.0" y="814" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="19" fill="#555">An architectural P with 45° breaker shear</text><text x="90.0" y="840" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="19" fill="#555">and terminal lug, fusing distribution with</text><text x="90.0" y="866" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="19" fill="#555">calculation.</text><rect x="562.667" y="150" width="474.667" height="774" rx="18" fill="#fff" stroke="#161616" stroke-width="2"/><g><svg xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title-delta" viewBox="0 0 256 256" x="592.667" y="190" width="414.667" height="300" preserveAspectRatio="xMidYMid meet">
+  <title id="c1-title-delta">ProCal Concept 2 - The Phase Delta</title>
+  <!-- Three calibrated phase busbars in 120 rotational equilibrium -->
+  <g fill="#000000">
+    <polygon points="128.0,26.0 175.5,108.2 144.3,126.2 128.0,98.0 111.7,126.2 80.5,108.2" /><polygon points="231.9,206.0 137.0,206.0 137.0,170.0 169.6,170.0 153.3,141.8 184.5,123.8" /><polygon points="24.1,206.0 71.5,123.8 102.7,141.8 86.4,170.0 119.0,170.0 119.0,206.0" />
+  </g>
+</svg></g><g><svg xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="Concept-2-title" viewBox="0 0 880 256" x="592.667" y="514" width="414.667" height="120" preserveAspectRatio="xMidYMid meet">
+  <title id="l1-Concept-2-title">ProCal Lockup - Concept-2</title>
+  <!-- Symbol scaled and optically positioned on left -->
+  <g transform="translate(36, 36) scale(0.72)">
+    <!-- Three calibrated phase busbars in 120 rotational equilibrium -->
+  <g fill="#000000">
+    <polygon points="128.0,26.0 175.5,108.2 144.3,126.2 128.0,98.0 111.7,126.2 80.5,108.2" /><polygon points="231.9,206.0 137.0,206.0 137.0,170.0 169.6,170.0 153.3,141.8 184.5,123.8" /><polygon points="24.1,206.0 71.5,123.8 102.7,141.8 86.4,170.0 119.0,170.0 119.0,206.0" />
+  </g>
+  </g>
+  <!-- Engineered Wordmark -->
+  <g fill="#000000">
+    <text x="248" y="150" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Inter, 'Helvetica Neue', sans-serif" font-size="104" font-weight="800" letter-spacing="-2" fill="#000000">Pro<tspan font-weight="500">Cal</tspan></text>
+    <text x="252" y="186" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Inter, sans-serif" font-size="17" font-weight="700" letter-spacing="4.5" fill="#64748b">LOW-VOLTAGE ELECTRICAL DESIGN</text>
+  </g>
+</svg></g><g><svg xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title-delta" viewBox="0 0 256 256" x="592.667" y="660" width="64" height="64" preserveAspectRatio="xMidYMid meet">
+  <title id="s164-title-delta">ProCal Concept 2 - The Phase Delta</title>
+  <!-- Three calibrated phase busbars in 120 rotational equilibrium -->
+  <g fill="#000000">
+    <polygon points="128.0,26.0 175.5,108.2 144.3,126.2 128.0,98.0 111.7,126.2 80.5,108.2" /><polygon points="231.9,206.0 137.0,206.0 137.0,170.0 169.6,170.0 153.3,141.8 184.5,123.8" /><polygon points="24.1,206.0 71.5,123.8 102.7,141.8 86.4,170.0 119.0,170.0 119.0,206.0" />
+  </g>
+</svg></g><text x="624.667" y="744" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="12" fill="#8a8a8a" text-anchor="middle">64px</text><g><svg xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title-delta" viewBox="0 0 256 256" x="682.667" y="692" width="32" height="32" preserveAspectRatio="xMidYMid meet">
+  <title id="s132-title-delta">ProCal Concept 2 - The Phase Delta</title>
+  <!-- Three calibrated phase busbars in 120 rotational equilibrium -->
+  <g fill="#000000">
+    <polygon points="128.0,26.0 175.5,108.2 144.3,126.2 128.0,98.0 111.7,126.2 80.5,108.2" /><polygon points="231.9,206.0 137.0,206.0 137.0,170.0 169.6,170.0 153.3,141.8 184.5,123.8" /><polygon points="24.1,206.0 71.5,123.8 102.7,141.8 86.4,170.0 119.0,170.0 119.0,206.0" />
+  </g>
+</svg></g><text x="698.667" y="744" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="12" fill="#8a8a8a" text-anchor="middle">32px</text><g><svg xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title-delta" viewBox="0 0 256 256" x="740.667" y="708" width="16" height="16" preserveAspectRatio="xMidYMid meet">
+  <title id="s116-title-delta">ProCal Concept 2 - The Phase Delta</title>
+  <!-- Three calibrated phase busbars in 120 rotational equilibrium -->
+  <g fill="#000000">
+    <polygon points="128.0,26.0 175.5,108.2 144.3,126.2 128.0,98.0 111.7,126.2 80.5,108.2" /><polygon points="231.9,206.0 137.0,206.0 137.0,170.0 169.6,170.0 153.3,141.8 184.5,123.8" /><polygon points="24.1,206.0 71.5,123.8 102.7,141.8 86.4,170.0 119.0,170.0 119.0,206.0" />
+  </g>
+</svg></g><text x="748.667" y="744" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="12" fill="#8a8a8a" text-anchor="middle">16px</text><text x="592.6666666666667" y="780" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="26" font-weight="700" fill="#161616">B · The Phase Delta</text><text x="592.6666666666667" y="808" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="15" font-weight="700" fill="#161616" letter-spacing="1.5">RECOMMENDED</text><text x="592.6666666666667" y="842" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="19" fill="#555">Three calibrated phase busbars in 120°</text><text x="592.6666666666667" y="868" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="19" fill="#555">rotational equilibrium, embodying balanced</text><text x="592.6666666666667" y="894" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="19" fill="#555">loads and delta continuity.</text><rect x="1065.33" y="150" width="474.667" height="774" rx="18" fill="#fff" stroke="#e4e4e0" stroke-width="1"/><g><svg xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title-nexus" viewBox="0 0 256 256" x="1095.33" y="190" width="414.667" height="300" preserveAspectRatio="xMidYMid meet">
+  <title id="c2-title-nexus">ProCal Concept 3 - The Breaker Nexus</title>
+  <g fill="#000000" fill-rule="evenodd">
+    <!-- Heavy-Duty Switchgear Enclosure Profile (DIN / MDB Enclosure) -->
+    <path d="
+      M 72 28 H 184 L 228 72 V 184 L 184 228 H 72 L 28 184 V 72 Z
+      M 78 46 L 46 78 V 178 L 78 210 H 178 L 210 178 V 78 L 178 46 Z
+    " />
+    
+    <!-- Upper Incomer Conductor (Phase Feeder / P Contact) -->
+    <path d="
+      M 64 68
+      H 146
+      C 168 68 184 84 184 104
+      C 184 122 172 136 156 139
+      L 138 121
+      C 144 117 148 111 148 104
+      C 148 95 141 88 132 88
+      H 96
+      V 152
+      H 64
+      Z
+    " />
+    
+    <!-- Lower Return Conductor (Load Distribution / C Contact) -->
+    <path d="
+      M 192 188
+      H 110
+      C 88 188 72 172 72 152
+      C 72 134 84 120 100 117
+      L 118 135
+      C 112 139 108 145 108 152
+      C 108 161 115 168 124 168
+      H 160
+      V 104
+      H 192
+      Z
+    " />
+  </g>
+</svg></g><g><svg xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="Concept-3-title" viewBox="0 0 880 256" x="1095.33" y="514" width="414.667" height="120" preserveAspectRatio="xMidYMid meet">
+  <title id="l2-Concept-3-title">ProCal Lockup - Concept-3</title>
+  <!-- Symbol scaled and optically positioned on left -->
+  <g transform="translate(36, 36) scale(0.72)">
+    <g fill="#000000" fill-rule="evenodd">
+    <!-- Heavy-Duty Switchgear Enclosure Profile (DIN / MDB Enclosure) -->
+    <path d="
+      M 72 28 H 184 L 228 72 V 184 L 184 228 H 72 L 28 184 V 72 Z
+      M 78 46 L 46 78 V 178 L 78 210 H 178 L 210 178 V 78 L 178 46 Z
+    " />
+    
+    <!-- Upper Incomer Conductor (Phase Feeder / P Contact) -->
+    <path d="
+      M 64 68
+      H 146
+      C 168 68 184 84 184 104
+      C 184 122 172 136 156 139
+      L 138 121
+      C 144 117 148 111 148 104
+      C 148 95 141 88 132 88
+      H 96
+      V 152
+      H 64
+      Z
+    " />
+    
+    <!-- Lower Return Conductor (Load Distribution / C Contact) -->
+    <path d="
+      M 192 188
+      H 110
+      C 88 188 72 172 72 152
+      C 72 134 84 120 100 117
+      L 118 135
+      C 112 139 108 145 108 152
+      C 108 161 115 168 124 168
+      H 160
+      V 104
+      H 192
+      Z
+    " />
+  </g>
+  </g>
+  <!-- Engineered Wordmark -->
+  <g fill="#000000">
+    <text x="248" y="150" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Inter, 'Helvetica Neue', sans-serif" font-size="104" font-weight="800" letter-spacing="-2" fill="#000000">Pro<tspan font-weight="500">Cal</tspan></text>
+    <text x="252" y="186" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Inter, sans-serif" font-size="17" font-weight="700" letter-spacing="4.5" fill="#64748b">LOW-VOLTAGE ELECTRICAL DESIGN</text>
+  </g>
+</svg></g><g><svg xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title-nexus" viewBox="0 0 256 256" x="1095.33" y="660" width="64" height="64" preserveAspectRatio="xMidYMid meet">
+  <title id="s264-title-nexus">ProCal Concept 3 - The Breaker Nexus</title>
+  <g fill="#000000" fill-rule="evenodd">
+    <!-- Heavy-Duty Switchgear Enclosure Profile (DIN / MDB Enclosure) -->
+    <path d="
+      M 72 28 H 184 L 228 72 V 184 L 184 228 H 72 L 28 184 V 72 Z
+      M 78 46 L 46 78 V 178 L 78 210 H 178 L 210 178 V 78 L 178 46 Z
+    " />
+    
+    <!-- Upper Incomer Conductor (Phase Feeder / P Contact) -->
+    <path d="
+      M 64 68
+      H 146
+      C 168 68 184 84 184 104
+      C 184 122 172 136 156 139
+      L 138 121
+      C 144 117 148 111 148 104
+      C 148 95 141 88 132 88
+      H 96
+      V 152
+      H 64
+      Z
+    " />
+    
+    <!-- Lower Return Conductor (Load Distribution / C Contact) -->
+    <path d="
+      M 192 188
+      H 110
+      C 88 188 72 172 72 152
+      C 72 134 84 120 100 117
+      L 118 135
+      C 112 139 108 145 108 152
+      C 108 161 115 168 124 168
+      H 160
+      V 104
+      H 192
+      Z
+    " />
+  </g>
+</svg></g><text x="1127.33" y="744" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="12" fill="#8a8a8a" text-anchor="middle">64px</text><g><svg xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title-nexus" viewBox="0 0 256 256" x="1185.33" y="692" width="32" height="32" preserveAspectRatio="xMidYMid meet">
+  <title id="s232-title-nexus">ProCal Concept 3 - The Breaker Nexus</title>
+  <g fill="#000000" fill-rule="evenodd">
+    <!-- Heavy-Duty Switchgear Enclosure Profile (DIN / MDB Enclosure) -->
+    <path d="
+      M 72 28 H 184 L 228 72 V 184 L 184 228 H 72 L 28 184 V 72 Z
+      M 78 46 L 46 78 V 178 L 78 210 H 178 L 210 178 V 78 L 178 46 Z
+    " />
+    
+    <!-- Upper Incomer Conductor (Phase Feeder / P Contact) -->
+    <path d="
+      M 64 68
+      H 146
+      C 168 68 184 84 184 104
+      C 184 122 172 136 156 139
+      L 138 121
+      C 144 117 148 111 148 104
+      C 148 95 141 88 132 88
+      H 96
+      V 152
+      H 64
+      Z
+    " />
+    
+    <!-- Lower Return Conductor (Load Distribution / C Contact) -->
+    <path d="
+      M 192 188
+      H 110
+      C 88 188 72 172 72 152
+      C 72 134 84 120 100 117
+      L 118 135
+      C 112 139 108 145 108 152
+      C 108 161 115 168 124 168
+      H 160
+      V 104
+      H 192
+      Z
+    " />
+  </g>
+</svg></g><text x="1201.33" y="744" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="12" fill="#8a8a8a" text-anchor="middle">32px</text><g><svg xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title-nexus" viewBox="0 0 256 256" x="1243.33" y="708" width="16" height="16" preserveAspectRatio="xMidYMid meet">
+  <title id="s216-title-nexus">ProCal Concept 3 - The Breaker Nexus</title>
+  <g fill="#000000" fill-rule="evenodd">
+    <!-- Heavy-Duty Switchgear Enclosure Profile (DIN / MDB Enclosure) -->
+    <path d="
+      M 72 28 H 184 L 228 72 V 184 L 184 228 H 72 L 28 184 V 72 Z
+      M 78 46 L 46 78 V 178 L 78 210 H 178 L 210 178 V 78 L 178 46 Z
+    " />
+    
+    <!-- Upper Incomer Conductor (Phase Feeder / P Contact) -->
+    <path d="
+      M 64 68
+      H 146
+      C 168 68 184 84 184 104
+      C 184 122 172 136 156 139
+      L 138 121
+      C 144 117 148 111 148 104
+      C 148 95 141 88 132 88
+      H 96
+      V 152
+      H 64
+      Z
+    " />
+    
+    <!-- Lower Return Conductor (Load Distribution / C Contact) -->
+    <path d="
+      M 192 188
+      H 110
+      C 88 188 72 172 72 152
+      C 72 134 84 120 100 117
+      L 118 135
+      C 112 139 108 145 108 152
+      C 108 161 115 168 124 168
+      H 160
+      V 104
+      H 192
+      Z
+    " />
+  </g>
+</svg></g><text x="1251.33" y="744" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="12" fill="#8a8a8a" text-anchor="middle">16px</text><text x="1095.3333333333335" y="780" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="26" font-weight="700" fill="#161616">C · The Breaker Nexus</text><text x="1095.3333333333335" y="814" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="19" fill="#555">An engineered switchgear enclosure framing</text><text x="1095.3333333333335" y="840" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="19" fill="#555">an interlocking circuit breaker contact</text><text x="1095.3333333333335" y="866" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="19" fill="#555">bridge and dual P+C flow.</text></svg>

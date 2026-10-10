@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-labelledby="title-c6">
+  <title id="title-c6">ProCal Concept 3 - The 3-Phase Phasor Hexagon</title>
+  <g>
+    <!-- Phase L1 (Top Isometric Facet: ABB Orange #ea580c) -->
+    <polygon points="128,28 212,76 134,122 122,122 44,76" fill="#ea580c" />
+    
+    <!-- Phase L2 (Bottom-Right Facet: Electric Amber #f59e0b) -->
+    <polygon points="216,84 216,176 134,224 134,132" fill="#f59e0b" />
+    
+    <!-- Phase L3 (Bottom-Left Facet: Midnight Slate #0f172a) -->
+    <polygon points="40,84 122,132 122,224 40,176" fill="#0f172a" />
+    
+    <!-- Central Calculation / Neutral Node -->
+    <circle cx="128" cy="128" r="14" fill="#ffffff" />
+    <circle cx="128" cy="128" r="8" fill="#ea580c" />
+  </g>
+</svg>

@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-labelledby="title-c5">
+  <title id="title-c5">ProCal Concept 2 - The Circuit Monogram</title>
+  <g>
+    <!-- Circuit Terminal Pad 1 (Base of Stem) -->
+    <circle cx="68" cy="208" r="20" fill="#0f172a" />
+    <circle cx="68" cy="208" r="8" fill="#ffffff" />
+    
+    <!-- Circuit Stem & P-Loop (Industrial Orange #ea580c) -->
+    <path d="
+      M 68 188
+      V 76
+      C 68 50 88 32 114 32
+      H 142
+      C 174 32 198 54 198 86
+      C 198 118 174 140 142 140
+      H 96
+    " fill="none" stroke="#ea580c" stroke-width="24" stroke-linecap="round" stroke-linejoin="round" />
+    
+    <!-- C-Loop Return (Midnight Slate #0f172a) -->
+    <path d="
+      M 142 140
+      C 174 140 198 162 198 194
+      C 198 214 184 224 164 224
+      H 136
+    " fill="none" stroke="#0f172a" stroke-width="24" stroke-linecap="round" stroke-linejoin="round" />
+    
+    <!-- Circuit Terminal Pad 2 (End of C) -->
+    <circle cx="136" cy="224" r="16" fill="#0f172a" />
+    <circle cx="136" cy="224" r="6" fill="#ffffff" />
+  </g>
+</svg>

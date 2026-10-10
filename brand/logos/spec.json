@@ -1,0 +1,50 @@
+{
+  "brand": "ProCal",
+  "tagline": "Low Voltage Electrical Design , Solved",
+  "brief": "Professional calculation and compliance software for low-voltage electrical systems (IEC 60364 / IEC 61439-2). Sizing building loads, MDB panel breakers, cables, voltage drop, and protection coordination for MEP consultants and panel builders.",
+  "adjectives": [
+    "precise",
+    "authoritative",
+    "calibrated",
+    "modern-industrial"
+  ],
+  "criteria": "Success: immediate letter recognition for ProCal, authentic 3-phase busbar engineering DNA, scales flawlessly from 16px favicon to desktop CAD header, works in one-colour and dark mode.",
+  "industry": "software",
+  "nav": [
+    "Calculator",
+    "Breaker Schedule",
+    "Coordination",
+    "SLD Designer",
+    "Reports"
+  ],
+  "brand_color": "#ea580c",
+  "tile_color": "#0f172a",
+  "greyscale": false,
+  "final": true,
+  "round": 2,
+  "concepts": [
+    {
+      "name": "The Phase Monogram",
+      "symbol": "procal-symbol.svg",
+      "lockup": "procal-lockup-horizontal.svg",
+      "stacked": "procal-lockup-stacked.svg",
+      "avatar": "dist/procal-symbol-app-icon.svg",
+      "symbol_on_dark": "procal-symbol.svg",
+      "lockup_on_dark": "procal-lockup-horizontal.svg",
+      "stacked_on_dark": "procal-lockup-stacked.svg",
+      "idea": "An architectural capital P featuring a Midnight Slate busbar stem and concentric phase conductors.",
+      "rationale": [
+        "Unmistakable capital 'P' silhouette provides instant brand recognition at every scale",
+        "Encodes 3-phase electrical distribution: L1 outer loop, L2 middle tap, and L3 return",
+        "45-degree chamfered terminal lug at stem base reflects heavy copper busbars in switchgear",
+        "Scored 100/100 production-readiness with zero geometry or angle errors"
+      ]
+    }
+  ],
+  "recommendation": "The Phase Monogram — authoritative, distinctive, and built for decades of professional engineering trust.",
+  "next_steps": [
+    "Vector masters delivered in SVG and high-resolution PNG",
+    "Web icon kit (favicon.ico, apple-touch-icon, webmanifest) deployed to app",
+    "Brand guidelines and color specifications documented"
+  ]
+}

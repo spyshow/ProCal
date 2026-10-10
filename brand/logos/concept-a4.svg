@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <title>ProCal - Concept A: The Busbar Monogram</title>
+  <!-- Single compound path for flawless scaling & single-color rendering -->
+  <path fill="#000000" fill-rule="evenodd" d="
+    M 48 28
+    H 160
+    C 193.1 28 220 54.9 220 88
+    C 220 121.1 193.1 148 160 148
+    H 96
+    V 228
+    H 48
+    Z
+    
+    M 96 60
+    H 156
+    C 171.5 60 184 72.5 184 88
+    C 184 103.5 171.5 116 156 116
+    H 96
+    Z
+    
+    M 194 72
+    H 220
+    V 84
+    H 194
+    Z
+    
+    M 194 92
+    H 220
+    V 104
+    H 194
+    Z
+  " />
+</svg>

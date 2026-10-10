@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <title>ProCal - Concept B: The Phase Delta</title>
+  <g fill="#000000">
+    <!-- Arm 1 (Phase L1: Left to Apex) -->
+    <polygon points="128,32 152,74 86,188 54,188 34,154 98,44" />
+    <!-- Arm 2 (Phase L2: Apex to Bottom Right) -->
+    <polygon points="222,154 202,188 70,188 70,152 172,152 202,100" />
+    <!-- Arm 3 (Phase L3: Bottom to Apex Return) -->
+    <polygon points="128,212 108,178 174,64 206,64 226,98 162,208" />
+  </g>
+</svg>

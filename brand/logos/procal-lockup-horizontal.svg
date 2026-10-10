@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 256" width="880" height="256" role="img" aria-labelledby="procal-lockup-h-title">
+  <title id="procal-lockup-h-title">ProCal Horizontal Lockup</title>
+  <!-- Symbol placed on left at scale 0.74 -->
+  <g transform="translate(36, 34) scale(0.74)">
+    <path d="M 44 28 H 92 V 204 L 68 228 H 44 Z" fill="#0f172a" />
+    <path fill="#ea580c" fill-rule="evenodd" d="
+      M 92 28
+      H 156
+      C 189.1 28 216 54.9 216 88
+      C 216 121.1 189.1 148 156 148
+      H 92
+      V 122
+      H 152
+      C 170.8 122 186 106.8 186 88
+      C 186 69.2 170.8 54 152 54
+      H 92
+      Z
+    " />
+    <path d="M 92 74 H 144 C 151.7 74 158 80.3 158 88 C 158 95.7 151.7 102 144 102 H 92 Z" fill="#f59e0b" />
+  </g>
+  
+  <!-- Wordmark -->
+  <g fill="#0f172a">
+    <text x="248" y="150" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Inter, 'Helvetica Neue', sans-serif" font-size="104" font-weight="800" letter-spacing="-2">Pro<tspan fill="#ea580c" font-weight="500">Cal</tspan></text>
+    <text x="252" y="186" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Inter, sans-serif" font-size="16" font-weight="600" letter-spacing="1.5" fill="#64748b">Low Voltage Electrical Design , <tspan fill="#ea580c" font-weight="700">Solved</tspan></text>
+  </g>
+</svg>

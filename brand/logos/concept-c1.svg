@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <title>ProCal - Concept C1: The Breaker Enclosure</title>
+  <g fill="#000000" fill-rule="evenodd">
+    <!-- Outer Chamfered Switchgear Shield -->
+    <path d="
+      M 76 28 H 180 L 228 76 V 180 L 180 228 H 76 L 28 180 V 76 Z
+      M 84 48 L 48 84 V 172 L 84 208 H 172 L 208 172 V 84 L 172 48 Z
+    " />
+    
+    <!-- Central P Conductor (Top Left) -->
+    <path d="M 72 72 H 136 C 152 72 164 84 164 100 C 164 116 152 128 136 128 H 96 V 164 H 72 Z M 96 92 V 108 H 134 C 140 108 144 104 144 100 C 144 96 140 92 134 92 Z" />
+    
+    <!-- Central C Conductor (Bottom Right: Calibrated Load Return) -->
+    <path d="M 176 136 H 152 V 156 H 112 V 180 H 160 C 170 180 176 174 176 164 Z" />
+  </g>
+</svg>

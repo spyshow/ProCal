@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-labelledby="title-c4">
+  <title id="title-c4">ProCal Concept 1 - The Precision Energy Vector</title>
+  <g>
+    <!-- Upper High-Voltage Pulse (ABB Orange #ea580c) -->
+    <polygon points="152,24 72,140 122,140 106,168 152,98 126,98 168,24" fill="#ea580c" />
+    
+    <!-- Lower Grounded Return (Midnight Slate #0f172a) -->
+    <polygon points="104,232 184,116 134,116 150,88 104,158 130,158 88,232" fill="#0f172a" />
+  </g>
+</svg>

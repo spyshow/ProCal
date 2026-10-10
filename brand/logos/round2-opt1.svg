@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-labelledby="title-opt1">
+  <title id="title-opt1">ProCal Option 1 - The Precision Energy Vector</title>
+  <!-- Dual-segment CAD energy vector with calibrated parallel dielectric clearance -->
+  <g>
+    <!-- Upper High-Voltage Pulse (ABB Industrial Orange #ea580c) -->
+    <polygon points="152,24 76,138 132,138 152,106 116,106" fill="#ea580c" />
+    
+    <!-- Lower Ground Return (Midnight Slate #0f172a) -->
+    <polygon points="104,232 180,118 124,118 104,150 140,150" fill="#0f172a" />
+  </g>
+</svg>

@@ -56,8 +56,8 @@ export default function ProCalConversionBanner({
           <div className="w-7 h-7 rounded-lg bg-cyan-500/20 border border-cyan-400/40 flex items-center justify-center text-cyan-400 shadow-[0_0_12px_rgba(6,182,212,0.25)]">
             <Sparkles className="w-4 h-4" />
           </div>
-          <span className="text-xs font-bold text-cyan-400 tracking-wider">
-            ProCal : Low-Voltage Electrical Design, Solved
+          <span className="text-xs font-bold text-slate-300 tracking-wider">
+            ProCal : Low Voltage Electrical Design , <span className="text-orange-400 font-bold">Solved</span>
           </span>
         </div>
 

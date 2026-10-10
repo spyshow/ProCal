@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-labelledby="procal-sym-white-title">
+  <title id="procal-sym-white-title">ProCal Symbol - White</title>
+  <path fill="#ffffff" fill-rule="evenodd" d="
+    M 44 28
+    H 156
+    C 189.1 28 216 54.9 216 88
+    C 216 121.1 189.1 148 156 148
+    H 92
+    V 204
+    L 68 228
+    H 44
+    Z
+    
+    M 92 54
+    H 152
+    C 170.8 54 186 69.2 186 88
+    C 186 106.8 170.8 122 152 122
+    H 92
+    V 102
+    H 144
+    C 151.7 102 158 95.7 158 88
+    C 158 80.3 151.7 74 144 74
+    H 92
+    Z
+  " />
+</svg>

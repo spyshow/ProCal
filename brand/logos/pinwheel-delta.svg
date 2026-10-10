@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-labelledby="title-b">
+  <title id="title-b">ProCal Concept B - The Phase Delta</title>
+  <!-- Three calibrated 3-phase busbars in mathematical 120° rotational equilibrium -->
+  <g fill="#000000">
+    <polygon points="34.5,190.0 197.5,190.0 176.7,154.0 55.3,154.0" /><polygon points="128.0,28.0 46.5,169.2 88.1,169.2 148.8,64.0" /><polygon points="221.5,190.0 140.0,48.8 119.2,84.8 179.9,190.0" />
+  </g>
+</svg>

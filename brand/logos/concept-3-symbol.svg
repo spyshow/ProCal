@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-labelledby="title-c3">
+  <title id="title-c3">ProCal Concept 3 - The Breaker Nexus</title>
+  <g fill="#000000" fill-rule="evenodd">
+    <!-- Switchgear Industrial Enclosure Frame -->
+    <path d="
+      M 72 32 H 184 L 224 72 V 184 L 184 224 H 72 L 32 184 V 72 Z
+      M 78 48 L 48 78 V 178 L 78 208 H 178 L 208 178 V 78 L 178 48 Z
+    " />
+    
+    <!-- Upper Incomer Conductor (P-Loop Contact) -->
+    <path d="
+      M 64 68
+      H 146
+      C 168 68 184 84 184 104
+      C 184 122 172 136 156 139
+      L 138 121
+      C 144 117 148 111 148 104
+      C 148 95 141 88 132 88
+      H 96
+      V 152
+      H 64
+      Z
+    " />
+    
+    <!-- Lower Return Conductor (C-Loop Contact) -->
+    <path d="
+      M 192 188
+      H 110
+      C 88 188 72 172 72 152
+      C 72 134 84 120 100 117
+      L 118 135
+      C 112 139 108 145 108 152
+      C 108 161 115 168 124 168
+      H 160
+      V 104
+      H 192
+      Z
+    " />
+  </g>
+</svg>

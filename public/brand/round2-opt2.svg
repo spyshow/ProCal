@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-labelledby="title-opt2">
+  <title id="title-opt2">ProCal Option 2 - The 3-Phase Busbar Monogram</title>
+  <g>
+    <!-- Master Vertical Feeder Busbar (Midnight Slate #0f172a) -->
+    <path d="M 44 28 H 92 V 204 L 68 228 H 44 Z" fill="#0f172a" />
+    
+    <!-- Outer Phase Loop (ABB Industrial Orange #ea580c) -->
+    <path fill="#ea580c" fill-rule="evenodd" d="
+      M 92 28
+      H 156
+      C 189.1 28 216 54.9 216 88
+      C 216 121.1 189.1 148 156 148
+      H 92
+      V 122
+      H 152
+      C 170.8 122 186 106.8 186 88
+      C 186 69.2 170.8 54 152 54
+      H 92
+      Z
+    " />
+    
+    <!-- Middle Phase Conductor Tap (Electric Amber #f59e0b) -->
+    <path d="M 92 74 H 144 C 151.7 74 158 80.3 158 88 C 158 95.7 151.7 102 144 102 H 92 Z" fill="#f59e0b" />
+  </g>
+</svg>

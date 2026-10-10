@@ -28,6 +28,7 @@ import { PricingSection } from "@/components/PricingSection";
 import { useTranslation } from "@/i18n";
 import { LanguageSelector } from "@/components/LanguageSelector";
 import { ThemeSelector } from "@/components/ThemeSelector";
+import { ProCalLogo } from "@/components/brand/ProCalLogo";
 
 const heroContainerVariants: Variants = {
   hidden: { opacity: 0 },
@@ -95,16 +96,8 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           {/* Logo Mark */}
           <Link href="/dashboard" className="flex items-center gap-3 group">
-            <div className="w-10 h-10 rounded-xl bg-orange-600/20 border border-orange-500/40 flex items-center justify-center shadow-[0_0_15px_rgba(234,88,12,0.3)] group-hover:scale-105 transition-transform">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-                <path
-                  d="M13 2L4.5 13.5H11L10 22L19.5 10H13L13 2Z"
-                  fill="#ea580c"
-                  stroke="#f97316"
-                  strokeWidth="1.2"
-                  strokeLinejoin="round"
-                />
-              </svg>
+            <div className="w-10 h-10 rounded-xl bg-orange-600/15 border border-orange-500/30 flex items-center justify-center shadow-[0_0_15px_rgba(234,88,12,0.2)] group-hover:scale-105 transition-transform">
+              <ProCalLogo size={24} />
             </div>
             <div>
               <span className="text-xl font-bold tracking-tight text-[var(--foreground-color,#fff)] flex items-center gap-1.5">
@@ -114,7 +107,7 @@ export default function Home() {
                 </span>
               </span>
               <p className="text-[10.5px] text-[var(--table-header-color,#94a3b8)] tracking-tight font-medium flex items-center gap-1">
-                <span>Low-voltage Electrical design,</span>
+                <span>Low Voltage Electrical Design ,</span>
                 <span className="text-orange-500 dark:text-orange-400 font-bold">Solved</span>
               </p>
             </div>
@@ -169,7 +162,7 @@ export default function Home() {
         >
           <motion.div variants={heroItemVariants} className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-orange-500/10 border border-orange-500/30 text-orange-600 dark:text-orange-300 text-xs font-medium mb-8 shadow-[0_0_15px_rgba(234,88,12,0.15)]">
             <Sparkles className="w-3.5 h-3.5 text-orange-500 dark:text-orange-400 animate-pulse" />
-            <span>Low-voltage Electrical design, <span className="text-orange-500 dark:text-orange-400 font-bold">Solved</span> &mdash; {t('landing.heroBadge', 'Next-Generation Load Calculation & Electrical Design System')}</span>
+            <span>Low Voltage Electrical Design , <span className="text-orange-500 dark:text-orange-400 font-bold">Solved</span> &mdash; {t('landing.heroBadge', 'Next-Generation Load Calculation & Electrical Design System')}</span>
           </motion.div>
 
           <motion.h1
@@ -389,10 +382,10 @@ export default function Home() {
       <footer className="border-t border-[var(--border-color,#1f2937)] bg-[var(--card-bg,#030712)] py-10 transition-colors duration-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[var(--table-header-color,#64748b)]">
           <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded bg-orange-600/20 border border-orange-500/40 flex items-center justify-center text-orange-500 dark:text-orange-400 font-bold">
-              ⚡
+            <div className="w-6 h-6 rounded bg-orange-600/20 border border-orange-500/40 flex items-center justify-center">
+              <ProCalLogo size={14} />
             </div>
-            <span>{t('common.appName', 'ProCal')} &copy; {new Date().getFullYear()} &mdash; Low-voltage Electrical design, <span className="text-orange-500 dark:text-orange-400 font-medium">Solved</span></span>
+            <span>{t('common.appName', 'ProCal')} &copy; {new Date().getFullYear()} &mdash; Low Voltage Electrical Design , <span className="text-orange-500 dark:text-orange-400 font-medium">Solved</span></span>
           </div>
 
           <div className="flex flex-wrap items-center gap-4 sm:gap-6">

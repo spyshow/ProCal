@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-labelledby="title-p">
+  <title id="title-p">ProCal Concept 1 - The Busbar Monogram</title>
+  <!-- Single compound path for boolean integrity and flawless reproduction -->
+  <path fill="#000000" fill-rule="evenodd" d="
+    M 44 28
+    H 152
+    C 185.1 28 212 54.9 212 88
+    C 212 121.1 185.1 148 152 148
+    H 108
+    L 92 164
+    V 204
+    L 68 228
+    H 44
+    Z
+    
+    M 92 64
+    H 146
+    C 159.3 64 170 74.7 170 88
+    C 170 101.3 159.3 112 146 112
+    H 92
+    Z
+  " />
+</svg>

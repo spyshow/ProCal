@@ -222,7 +222,7 @@ export async function GET(
       equipment: equipment as unknown as EquipmentItem[],
       breakerSettings,
       revisions: revisions as unknown as ProjectRevision[],
-      companyName: company?.companyName || "ProCal — Low-voltage Electrical design, Solved",
+      companyName: company?.companyName || "ProCal — Low Voltage Electrical Design , Solved",
       companyLogoUrl: company?.logoUrl || undefined,
     });
 

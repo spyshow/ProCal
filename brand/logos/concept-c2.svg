@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <title>ProCal - Concept C2: The Protection Nexus</title>
+  <g fill="#000000">
+    <!-- Chamfered Industrial Shield Frame -->
+    <path fill-rule="evenodd" d="
+      M 128 24
+      L 224 80
+      V 176
+      L 128 232
+      L 32 176
+      V 80
+      Z
+      
+      M 128 48
+      L 52 92
+      V 164
+      L 128 208
+      L 204 164
+      V 92
+      Z
+    " />
+    
+    <!-- Central Calibrated Breaker / Delta Flow -->
+    <polygon points="128,70 168,114 140,114 152,166 100,122 124,122" />
+  </g>
+</svg>

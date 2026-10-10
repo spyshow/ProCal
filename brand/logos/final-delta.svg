@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-labelledby="title-delta">
+  <title id="title-delta">ProCal Concept B - The Phase Delta</title>
+  <!-- Three interlocking phase conductors in balanced 120° rotational equilibrium -->
+  <g fill="#000000">
+    <polygon points="110.0,188.5 218.9,188.5 100.8,110.2 137.1,110.2 164.4,157.0 91.8,157.0" /><polygon points="91.5,94.2 37.1,188.5 164.0,125.3 145.8,156.8 91.6,157.0 127.9,94.2" /><polygon points="182.5,125.3 128.0,31.0 119.2,172.5 101.0,141.0 128.0,94.0 164.3,156.8" />
+  </g>
+</svg>

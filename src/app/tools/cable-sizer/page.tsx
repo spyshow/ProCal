@@ -784,7 +784,7 @@ Generated with ProCal (https://procal.app/tools/cable-sizer)`;
         <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
             <Zap className="w-4 h-4 text-orange-500" />
-            <span className="text-slate-300 font-semibold">ProCal</span> — Low-Voltage Electrical Design, Solved.
+            <span className="text-slate-300 font-semibold">ProCal</span> — Low Voltage Electrical Design , <span className="text-orange-400 font-semibold">Solved</span>.
           </div>
           <div className="flex items-center gap-4 text-slate-400">
             <Link href="/" className="hover:text-white transition-colors">Home</Link>

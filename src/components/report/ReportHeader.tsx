@@ -25,26 +25,11 @@ export interface SectionHeaderProps {
 // Sub-components
 // ---------------------------------------------------------------------------
 
-/** ProCal orange lightning-bolt logo mark. */
+import { ProCalLogo } from "@/components/brand/ProCalLogo";
+
+/** ProCal official Phase Monogram logo mark. */
 function LogoMark({ className = "" }: { className?: string }) {
-  return (
-    <svg
-      width="32"
-      height="32"
-      viewBox="0 0 24 24"
-      fill="none"
-      aria-hidden="true"
-      className={className}
-    >
-      <path
-        d="M13 2L4.5 13.5H11L10 22L19.5 10H13L13 2Z"
-        fill="#ea580c"
-        stroke="#ea580c"
-        strokeWidth="1.2"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
+  return <ProCalLogo size={32} className={className} />;
 }
 
 /** Single piece of header metadata. */
@@ -129,7 +114,7 @@ export default function ReportHeader({
             {subtitle || "ELECTRICAL DESIGN & SCHEDULE PACKAGE"}
           </p>
           <p className="text-[9px] text-slate-400">
-            ProCal — Low-voltage Electrical design, Solved | IEC 60364 &amp; BS 7671 / NEC Compliant
+            ProCal — Low Voltage Electrical Design , Solved | IEC 60364 &amp; BS 7671 / NEC Compliant
           </p>
         </div>
         <div className="text-right text-[10px] space-y-0.5 font-mono text-slate-300 flex flex-col items-end">

@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 256" width="880" height="256" role="img" aria-labelledby="Round2-Option3-title">
+  <title id="Round2-Option3-title">ProCal Lockup - Round2-Option3</title>
+  <!-- Symbol scaled and optically positioned on left -->
+  <g transform="translate(36, 36) scale(0.72)">
+    <!-- Three-phase load calculation nexus in isometric 120° distribution -->
+  <g>
+    <!-- Phase L1 (Top Facet: ABB Industrial Orange #ea580c) -->
+    <polygon points="128,24 218,76 135,124 121,124 38,76" fill="#ea580c" />
+    
+    <!-- Phase L2 (Bottom-Right Facet: Electric Amber #f59e0b) -->
+    <polygon points="218,84 218,180 134,232 134,132" fill="#f59e0b" />
+    
+    <!-- Phase L3 (Bottom-Left Facet: Midnight Slate #0f172a) -->
+    <polygon points="38,84 122,132 122,232 38,180" fill="#0f172a" />
+    
+    <!-- Central Neutral Calculation Node -->
+    <circle cx="128" cy="128" r="14" fill="#ffffff" />
+    <circle cx="128" cy="128" r="7" fill="#ea580c" />
+  </g>
+  </g>
+  <!-- Engineered Wordmark with ABB Orange Accent -->
+  <g fill="#0f172a">
+    <text x="248" y="150" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Inter, 'Helvetica Neue', sans-serif" font-size="104" font-weight="800" letter-spacing="-2">Pro<tspan fill="#ea580c" font-weight="500">Cal</tspan></text>
+    <text x="252" y="186" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Inter, sans-serif" font-size="17" font-weight="700" letter-spacing="4.5" fill="#64748b">LOW-VOLTAGE ELECTRICAL DESIGN</text>
+  </g>
+</svg>

@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React from 'react';
 import { cn } from '@/lib/utils';
@@ -13,7 +13,7 @@ export interface BrandSloganProps {
 
 /**
  * ProCal official brand slogan:
- * Low-voltage Electrical design, Solved
+ * Low Voltage Electrical Design , Solved
  * Renders the prefix and the word Solved in an accent color.
  */
 export function BrandSlogan({
@@ -35,7 +35,7 @@ export function BrandSlogan({
 
   return (
     <span className={cn('inline-flex items-center gap-1 font-medium tracking-normal', className)}>
-      <span className={prefixClassName}>Low-voltage Electrical design,</span>
+      <span className={prefixClassName}>Low Voltage Electrical Design ,</span>
       <span className={solvedClassName}>Solved</span>
     </span>
   );

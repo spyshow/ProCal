@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <title>ProCal - Concept A3: Architectural Monogram P</title>
+  <g fill="#000000">
+    <!-- Solid Master Stem (Feeder Busbar) -->
+    <path d="M48 28 H96 V228 H48 Z" />
+    <!-- Engineered Bowl with 45° breaker isolation notch and delta-tuned aperture -->
+    <path fill-rule="evenodd" d="M96 28 H164 C195 28 220 53 220 84 C220 115 195 140 164 140 H116 L100 156 H96 V140 H96 Z M96 68 H160 C169 68 176 75 176 84 C176 93 169 100 160 100 H96 Z" />
+    <!-- 3 Phase Stagger Calibrator at base (L1, L2, L3 test taps) -->
+    <rect x="112" y="168" width="40" height="12" rx="2" />
+    <rect x="112" y="190" width="28" height="12" rx="2" />
+    <rect x="112" y="212" width="16" height="12" rx="2" />
+  </g>
+</svg>

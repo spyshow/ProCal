@@ -52,25 +52,10 @@ const WORKFLOW_STEPS: NavItem[] = [
   { id: "reports",         labelKey: "nav.reports",         href: "/reports",          icon: FileText,     stepNumber: 8 },
 ];
 
+import { ProCalLogo } from "@/components/brand/ProCalLogo";
+
 function LogoMark() {
-  return (
-    <svg
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      aria-hidden="true"
-      className="flex-shrink-0"
-    >
-      <path
-        d="M13 2L4.5 13.5H11L10 22L19.5 10H13L13 2Z"
-        fill="#ea580c"
-        stroke="#ea580c"
-        strokeWidth="1.2"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
+  return <ProCalLogo size={24} className="flex-shrink-0" />;
 }
 
 function MarqueeText({
@@ -210,13 +195,13 @@ export default function Sidebar() {
               </span>
             </div>
             <p
-              title={isRtl ? "تصميم كهربائي للجهد المنخفض، محلول" : "Low-voltage Electrical design, Solved"}
+              title={isRtl ? "تصميم كهربائي للجهد المنخفض، محلول" : "Low Voltage Electrical Design , Solved"}
               className="text-[10px] leading-tight text-[var(--table-header-color,#94a3b8)] tracking-tight font-medium mt-0.5"
             >
               {isRtl ? (
                 <>تصميم كهربائي للجهد المنخفض، <span className="text-orange-400 font-semibold whitespace-nowrap">محلول</span></>
               ) : (
-                <>Low-voltage Electrical design, <span className="text-orange-400 font-semibold whitespace-nowrap">Solved</span></>
+                <>Low Voltage Electrical Design , <span className="text-orange-400 font-semibold whitespace-nowrap">Solved</span></>
               )}
             </p>
           </div>

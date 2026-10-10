@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <title>ProCal - Concept A2: Triple Conductor P</title>
+  <!-- Outlined tracks converted to filled paths -->
+  <g fill="#000000" fill-rule="evenodd">
+    <!-- Common Stem Feeder on Left -->
+    <path d="M44 32 H88 V224 H44 Z" />
+    <!-- Phase 1: Top Bar & Outer Loop -->
+    <path d="M98 32 H170 C198 32 220 54 220 82 C220 110 198 132 170 132 H98 V114 H168 C186 114 200 100 200 82 C200 64 186 50 168 50 H98 Z" />
+    <!-- Phase 2: Middle Concentric Loop -->
+    <path d="M98 62 H156 C167 62 176 71 176 82 C176 93 167 102 156 102 H98 V86 H152 C154 86 156 84 156 82 C156 80 154 78 152 78 H98 Z" />
+    <!-- Phase 3: Lower Distribution Blade -->
+    <path d="M98 144 H180 V162 H98 Z" />
+  </g>
+</svg>

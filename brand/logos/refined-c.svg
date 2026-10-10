@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-labelledby="title-c">
+  <title id="title-c">ProCal Concept C - The Breaker Nexus</title>
+  <!-- Outer Switchboard Enclosure + Dual Calibrated Breaker Contacts -->
+  <g fill="#000000" fill-rule="evenodd">
+    <!-- Engineered Enclosure Frame (Chamfered Industrial Shield) -->
+    <path d="
+      M 72 24 H 184 L 232 72 V 184 L 184 232 H 72 L 24 184 V 72 Z
+      M 80 44 L 44 80 V 176 L 80 212 H 176 L 212 176 V 80 L 176 44 Z
+    " />
+    
+    <!-- Upper Breaker Conductor (Phase Incomer / Monogram P) -->
+    <path d="
+      M 72 68
+      H 148
+      C 168 68 184 84 184 104
+      C 184 124 168 140 148 140
+      H 116
+      L 96 160
+      H 72
+      Z
+      
+      M 100 92
+      V 116
+      H 144
+      C 150 116 156 110 156 104
+      C 156 98 150 92 144 92
+      Z
+    " />
+    
+    <!-- Lower Breaker Conductor (Load Distribution Contact / Return) -->
+    <path d="
+      M 184 156
+      L 156 184
+      H 104
+      V 160
+      H 144
+      L 160 144
+      L 184 144
+      Z
+    " />
+  </g>
+</svg>

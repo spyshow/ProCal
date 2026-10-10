@@ -1,0 +1,23 @@
+<svg fill="#000000" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-labelledby="procal-sym-title"><title>ProCal logo</title>
+  <title id="procal-sym-title">ProCal Symbol</title>
+  <!-- Master Vertical Feeder Busbar (Midnight Slate) -->
+  <path d="M 44 28 H 92 V 204 L 68 228 H 44 Z" fill="#000000" />
+  
+  <!-- Outer Phase Loop (ABB Industrial Orange) -->
+  <path fill="#000000" fill-rule="evenodd" d="
+    M 92 28
+    H 156
+    C 189.1 28 216 54.9 216 88
+    C 216 121.1 189.1 148 156 148
+    H 92
+    V 122
+    H 152
+    C 170.8 122 186 106.8 186 88
+    C 186 69.2 170.8 54 152 54
+    H 92
+    Z
+  " />
+  
+  <!-- Middle Phase Conductor Tap (Electric Amber) -->
+  <path d="M 92 74 H 144 C 151.7 74 158 80.3 158 88 C 158 95.7 151.7 102 144 102 H 92 Z" fill="#000000" />
+</svg>

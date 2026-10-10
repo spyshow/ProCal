@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <title>ProCal - Concept A1: The 3-Phase Busbar P</title>
+  <g fill="#000000">
+    <!-- Vertical Incomer Feeder Stem with 45° chamfered terminal lug at base -->
+    <path d="M48 32 H96 V200 L72 224 H48 Z" />
+    
+    <!-- Phase L1 (Top Busbar) -->
+    <path d="M108 32 H176 C198 32 216 50 216 72 V74 H172 C172 63 163 54 152 54 H108 Z" />
+    
+    <!-- Phase L2 (Middle Busbar) -->
+    <path d="M108 84 H154 C165 84 174 93 174 104 C174 115 165 124 154 124 H108 V146 H160 C183 146 202 127 202 104 C202 81 183 62 160 62 H108 Z" />
+    
+    <!-- Phase L3 (Bottom Return / Terminal) -->
+    <path d="M108 134 H140 C146 134 152 140 152 146 V158 H108 Z" />
+  </g>
+</svg>

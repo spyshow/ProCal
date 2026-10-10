@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-labelledby="title-c1">
+  <title id="title-c1">ProCal Concept 1 - The Busbar Monogram</title>
+  <path fill="#000000" fill-rule="evenodd" d="
+    M 48 28
+    H 156
+    C 189.1 28 216 54.9 216 88
+    C 216 121.1 189.1 148 156 148
+    H 112
+    L 96 164
+    V 204
+    L 72 228
+    H 48
+    Z
+    
+    M 96 64
+    H 150
+    C 163.3 64 174 74.7 174 88
+    C 174 101.3 163.3 112 150 112
+    H 96
+    Z
+  " />
+</svg>

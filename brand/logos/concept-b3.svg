@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <title>ProCal - Concept B3: The Interlocking Busbar Delta</title>
+  <g fill="#000000">
+    <!-- Bar 1 (Phase L1: Left slope) -->
+    <polygon points="128,32 108,66 64,142 46,174 72,174 110,108 128,76" />
+    <!-- Bar 2 (Phase L2: Right slope) -->
+    <polygon points="128,32 146,64 190,140 210,174 184,174 148,110 128,76" />
+    <!-- Bar 3 (Phase L3: Bottom bar) -->
+    <polygon points="56,194 200,194 182,162 74,162" />
+  </g>
+</svg>

@@ -35,7 +35,7 @@ export function renderReportHtml(options: RenderReportHtmlOptions): string {
     equipment = [],
     breakerSettings = [],
     revisions = options.revisions ?? (project as unknown as { revisions?: ProjectRevision[] }).revisions ?? [],
-    companyName = 'ProCal — Low-voltage Electrical design, Solved',
+    companyName = 'ProCal — Low Voltage Electrical Design , Solved',
     companyLogoUrl,
   } = options;
 

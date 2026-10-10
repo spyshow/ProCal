@@ -1246,7 +1246,7 @@ export function ProjectSettingsTab({
                         CABLE SIZING &amp; INSTALLATION SCHEDULE
                       </p>
                       <p className="text-[9px] text-slate-400">
-                        ProCal — Low-voltage Electrical design, Solved | IEC 60364 &amp; BS 7671 / NEC Compliant
+                        ProCal — Low Voltage Electrical Design , Solved | IEC 60364 &amp; BS 7671 / NEC Compliant
                       </p>
                     </div>
 

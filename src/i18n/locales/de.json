@@ -304,7 +304,10 @@
     "uploading": "Wird hochgeladen…",
     "logoConstraints": "PNG, JPG, SVG oder WebP. Max. 2 MB.",
     "noLogo": "Kein Logo hochgeladen",
-    "deleteBuildingConfirm": "Dieses Gebäude und alle zugehörigen Etagenentwürfe wirklich löschen?"
+    "deleteBuildingConfirm": "Dieses Gebäude und alle zugehörigen Etagenentwürfe wirklich löschen?",
+    "seedDefaults": "Standard-Wohnungsvorlagen und Standard-Dienstlasten einfügen",
+    "loadDefaultTemplates": "Standard-Wohnungsvorlagen laden",
+    "loadDefaultLoads": "Standard-Dienstlasten laden"
   },
   "calculator": {
     "title": "Lastberechnung & Phasen-Symmetrie",

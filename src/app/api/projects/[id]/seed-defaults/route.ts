@@ -28,14 +28,24 @@ export async function POST(
       return NextResponse.json({ error: "Project not found" }, { status: 404 });
     }
 
+    let seedType: "all" | "templates" | "loads" = "all";
+    try {
+      const body = await request.json();
+      if (body?.type === "templates" || body?.type === "loads" || body?.type === "all") {
+        seedType = body.type;
+      }
+    } catch {
+      // Body is optional
+    }
+
     let templatesAdded = 0;
-    if (project.apartmentTemplates.length === 0) {
+    if ((seedType === "all" || seedType === "templates") && project.apartmentTemplates.length === 0) {
       const created = await seedDefaultProjectTemplates(project.id, project.country);
       templatesAdded = created.length;
     }
 
     let loadsAdded = 0;
-    if (project.loadLibraryItems.length === 0) {
+    if ((seedType === "all" || seedType === "loads") && project.loadLibraryItems.length === 0) {
       await seedDefaultLoadLibrary(project.id);
       loadsAdded = 5;
     }
@@ -48,7 +58,7 @@ export async function POST(
       action: "CREATE",
       entityType: "PROJECT",
       entityId: project.id,
-      description: `Generated default apartment templates (${templatesAdded}) and standard loads (${loadsAdded})`,
+      description: `Generated defaults (templates: ${templatesAdded}, standard loads: ${loadsAdded})`,
     });
 
     // Return the updated project with all relations

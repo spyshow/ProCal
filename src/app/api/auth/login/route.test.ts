@@ -4,7 +4,7 @@ const mocks = {
   user: null as any,
   update: vi.fn(),
   compare: vi.fn(),
-  signJWT: vi.fn(async () => "mock-jwt-token"),
+  signJWT: vi.fn(async (_args?: any) => "mock-jwt-token"),
 };
 
 vi.mock("@/lib/auth", () => ({

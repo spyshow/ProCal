@@ -418,15 +418,17 @@ export default function ProjectDetailPage() {
   const [templateRooms, setTemplateRooms] = useState<RoomData[]>([]);
   const [isSeedingDefaults, setIsSeedingDefaults] = useState(false);
 
-  const handleSeedDefaults = async () => {
+  const handleSeedDefaults = async (type: 'all' | 'templates' | 'loads' = 'templates') => {
     setIsSeedingDefaults(true);
     try {
       const res = await fetch(`/api/projects/${projectId}/seed-defaults`, {
         method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type }),
       });
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
-        alert(err.error || 'Failed to generate default templates');
+        alert(err.error || (type === 'loads' ? 'Failed to generate default service loads' : 'Failed to generate default templates'));
         return;
       }
       await loadProject();
@@ -1232,10 +1234,25 @@ export default function ProjectDetailPage() {
       {activeTab === 'templates' && (
         <div className="space-y-3">
           {!isReadOnly && (
-            <div className="flex justify-end">
+            <div className="flex justify-end items-center gap-2">
+              {project.apartmentTemplates.length === 0 && (
+                <button
+                  type="button"
+                  disabled={isSeedingDefaults}
+                  onClick={() => handleSeedDefaults('templates')}
+                  className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-200 text-sm font-medium border border-gray-700 transition-colors cursor-pointer disabled:opacity-50"
+                >
+                  {isSeedingDefaults ? (
+                    <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                  ) : (
+                    <Sparkles className="w-3.5 h-3.5 text-orange-400" />
+                  )}
+                  {t('projects.loadDefaultTemplates', 'Load Default Templates')}
+                </button>
+              )}
               <button
                 onClick={() => setShowNewTemplate(!showNewTemplate)}
-                className="flex items-center gap-2 px-3 py-2 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-sm font-semibold"
+                className="flex items-center gap-2 px-3 py-2 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-sm font-semibold cursor-pointer"
               >
                 <Plus size={14} />
                 New Template
@@ -1319,8 +1336,8 @@ export default function ProjectDetailPage() {
                   <button
                     type="button"
                     disabled={isSeedingDefaults}
-                    onClick={handleSeedDefaults}
-                    className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-orange-600 hover:bg-orange-500 disabled:opacity-50 text-white text-xs font-semibold shadow transition-colors"
+                    onClick={() => handleSeedDefaults('templates')}
+                    className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-orange-600 hover:bg-orange-500 disabled:opacity-50 text-white text-xs font-semibold shadow transition-colors cursor-pointer"
                   >
                     {isSeedingDefaults ? (
                       <RefreshCw className="w-3.5 h-3.5 animate-spin" />
@@ -1515,7 +1532,31 @@ export default function ProjectDetailPage() {
 }
 
 function LoadLibrary({ projectId, onRefresh, loads, isReadOnly = false }: { projectId: string; onRefresh: () => void; loads: any[]; isReadOnly?: boolean }) {
+  const { t } = useTranslation();
   const [showNew, setShowNew] = useState(false);
+  const [isSeedingLoads, setIsSeedingLoads] = useState(false);
+
+  const handleSeedLoads = async () => {
+    setIsSeedingLoads(true);
+    try {
+      const res = await fetch(`/api/projects/${projectId}/seed-defaults`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'loads' }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        alert(err.error || 'Failed to generate default service loads');
+        return;
+      }
+      onRefresh();
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsSeedingLoads(false);
+    }
+  };
+
   const [form, setForm] = useState({
     name: '',
     category: 'Lighting',
@@ -1597,8 +1638,23 @@ function LoadLibrary({ projectId, onRefresh, loads, isReadOnly = false }: { proj
   return (
     <>
       {!isReadOnly && (
-        <div className="flex justify-end">
-          <button onClick={() => setShowNew(!showNew)} className="flex items-center gap-2 px-3 py-2 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-sm font-semibold">
+        <div className="flex justify-end items-center gap-2">
+          {loads.length === 0 && (
+            <button
+              type="button"
+              disabled={isSeedingLoads}
+              onClick={handleSeedLoads}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-200 text-sm font-medium border border-gray-700 transition-colors cursor-pointer disabled:opacity-50"
+            >
+              {isSeedingLoads ? (
+                <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+              ) : (
+                <Sparkles className="w-3.5 h-3.5 text-orange-400" />
+              )}
+              {t('projects.loadDefaultLoads', 'Load Default Service Loads')}
+            </button>
+          )}
+          <button onClick={() => setShowNew(!showNew)} className="flex items-center gap-2 px-3 py-2 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-sm font-semibold cursor-pointer">
             <Plus size={14} />
             Add Load
           </button>
@@ -1678,7 +1734,40 @@ function LoadLibrary({ projectId, onRefresh, loads, isReadOnly = false }: { proj
       )}
 
       {loads.length === 0 ? (
-        <div className="text-center py-12 text-[var(--table-header-color)] text-sm rounded-xl border border-[var(--border-color)] bg-[var(--card-bg-subtle)]/40">No load items yet</div>
+        <div className="text-center py-12 text-gray-400 text-sm rounded-xl border border-gray-800 bg-gray-900/40 p-6 flex flex-col items-center justify-center gap-3">
+          <Zap className="w-10 h-10 text-gray-600" />
+          <div>
+            <p className="font-semibold text-gray-200">No service loads yet</p>
+            <p className="text-xs text-gray-400 mt-1 max-w-sm">
+              Add custom service loads or populate standard library equipment (Elevators, Water Pumps, Fire Pumps, Lighting, HVAC).
+            </p>
+          </div>
+          {!isReadOnly && (
+            <div className="flex items-center gap-3 mt-2">
+              <button
+                type="button"
+                disabled={isSeedingLoads}
+                onClick={handleSeedLoads}
+                className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-orange-600 hover:bg-orange-500 disabled:opacity-50 text-white text-xs font-semibold shadow transition-colors cursor-pointer"
+              >
+                {isSeedingLoads ? (
+                  <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                ) : (
+                  <Sparkles className="w-3.5 h-3.5" />
+                )}
+                {t('projects.loadDefaultLoads', 'Load Default Service Loads')}
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowNew(true)}
+                className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-200 text-xs font-medium border border-gray-700 transition-colors cursor-pointer"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                Add Custom Load
+              </button>
+            </div>
+          )}
+        </div>
       ) : (
         <div className="overflow-x-auto rounded-xl border border-[var(--border-color)] bg-[var(--card-bg)]">
           <table className="w-full engineering-table text-center">

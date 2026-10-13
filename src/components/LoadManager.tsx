@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Plus, Pencil, Trash2 } from 'lucide-react';
+import { Plus, Pencil, Trash2, Sparkles, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -51,6 +51,27 @@ export default function LoadManager({ projectId, loads, onRefresh }: LoadManager
 
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState<LoadItem | null>(null);
+  const [isSeeding, setIsSeeding] = useState(false);
+
+  const handleSeedDefaults = async () => {
+    if (isReadOnly) return;
+    setIsSeeding(true);
+    try {
+      const res = await fetch(`/api/projects/${projectId}/seed-defaults`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'loads' }),
+      });
+      if (res.ok) {
+        onRefresh();
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsSeeding(false);
+    }
+  };
+
   const [form, setForm] = useState({
     name: '', category: 'Lighting', power: 0, voltage: 230, phase: 1,
     powerFactor: 0.85, demandFactor: 1.0, quantity: 1, startingCurrent: '', notes: '',
@@ -104,14 +125,28 @@ export default function LoadManager({ projectId, loads, onRefresh }: LoadManager
           <p className="text-xs text-[var(--table-header-color)]">Manage electrical equipment, connected loads, and power factors</p>
         </div>
         {!isReadOnly && (
-          <Button
-            onClick={() => { resetForm(); setShowForm(true); }}
-            variant="glow"
-            size="sm"
-            className="gap-1.5"
-          >
-            <Plus className="w-3.5 h-3.5" /> Add Load
-          </Button>
+          <div className="flex items-center gap-2">
+            {loads.length === 0 && (
+              <Button
+                onClick={handleSeedDefaults}
+                disabled={isSeeding}
+                variant="outline"
+                size="sm"
+                className="gap-1.5 cursor-pointer"
+              >
+                {isSeeding ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5 text-orange-400" />}
+                Load Defaults
+              </Button>
+            )}
+            <Button
+              onClick={() => { resetForm(); setShowForm(true); }}
+              variant="glow"
+              size="sm"
+              className="gap-1.5"
+            >
+              <Plus className="w-3.5 h-3.5" /> Add Load
+            </Button>
+          </div>
         )}
       </div>
 
@@ -202,8 +237,22 @@ export default function LoadManager({ projectId, loads, onRefresh }: LoadManager
         <TableBody>
           {loads.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={9} className="text-center py-6 text-[var(--table-header-color)]">
-                No load items defined yet
+              <TableCell colSpan={9} className="text-center py-8 text-[var(--table-header-color)]">
+                <div className="flex flex-col items-center justify-center gap-2">
+                  <p>No load items defined yet</p>
+                  {!isReadOnly && (
+                    <Button
+                      onClick={handleSeedDefaults}
+                      disabled={isSeeding}
+                      variant="outline"
+                      size="sm"
+                      className="gap-1.5 mt-1 cursor-pointer"
+                    >
+                      {isSeeding ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5 text-orange-400" />}
+                      Load Standard Equipment Defaults
+                    </Button>
+                  )}
+                </div>
               </TableCell>
             </TableRow>
           ) : (

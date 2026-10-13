@@ -153,6 +153,7 @@ export async function POST(request: Request) {
       maxVoltageDropLighting,
       maxVoltageDropPower,
       calculationStandard,
+      seedDefaults,
     } = data;
 
     if (!name) {
@@ -230,12 +231,14 @@ export async function POST(request: Request) {
       },
     });
 
-    // Auto-seed standard apartment templates and equipment loads
-    try {
-      await seedDefaultProjectTemplates(project.id, project.country);
-      await seedDefaultLoadLibrary(project.id);
-    } catch (seedErr) {
-      console.warn("Failed to auto-seed project defaults:", seedErr);
+    // Only seed standard apartment templates and equipment loads if explicitly requested
+    if (seedDefaults === true) {
+      try {
+        await seedDefaultProjectTemplates(project.id, project.country);
+        await seedDefaultLoadLibrary(project.id);
+      } catch (seedErr) {
+        console.warn("Failed to seed project defaults:", seedErr);
+      }
     }
 
     await logProjectActivity({

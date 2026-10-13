@@ -305,7 +305,10 @@
     "uploading": "Caricamento in corso…",
     "logoConstraints": "PNG, JPG, SVG o WebP. Max 2MB.",
     "noLogo": "Nessun logo caricato",
-    "deleteBuildingConfirm": "Eliminare questo edificio e tutti i relativi schemi di piano?"
+    "deleteBuildingConfirm": "Eliminare questo edificio e tutti i relativi schemi di piano?",
+    "seedDefaults": "Inserisci modelli di appartamento e carichi di servizio predefiniti",
+    "loadDefaultTemplates": "Carica modelli di appartamento predefiniti",
+    "loadDefaultLoads": "Carica carichi di servizio predefiniti"
   },
   "calculator": {
     "title": "Calcolo Carichi & Bilanciamento Fasi",

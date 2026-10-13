@@ -297,7 +297,10 @@
     "uploading": "Uploading…",
     "logoConstraints": "PNG, JPG, SVG, or WebP. Max 2MB.",
     "noLogo": "No logo uploaded",
-    "deleteBuildingConfirm": "Delete this building and all its floor designs?"
+    "deleteBuildingConfirm": "Delete this building and all its floor designs?",
+    "seedDefaults": "Populate default apartment templates and standard service loads",
+    "loadDefaultTemplates": "Load Default Templates",
+    "loadDefaultLoads": "Load Default Service Loads"
   },
   "calculator": {
     "title": "Load Calculator",

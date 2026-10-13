@@ -300,7 +300,10 @@
     "uploading": "جاري الرفع…",
     "logoConstraints": "PNG أو JPG أو SVG أو WebP. الحد الأقصى 2 ميجابايت.",
     "noLogo": "لم يتم رفع شعار",
-    "deleteBuildingConfirm": "هل أنت متأكد من حذف هذا المبنى وجميع تصاميم طوابقه؟"
+    "deleteBuildingConfirm": "هل أنت متأكد من حذف هذا المبنى وجميع تصاميم طوابقه؟",
+    "seedDefaults": "إضافة النماذج الافتراضية للشقق وأحمال الخدمات القياسية",
+    "loadDefaultTemplates": "تحميل نماذج الشقق الافتراضية",
+    "loadDefaultLoads": "تحميل أحمال الخدمات الافتراضية"
   },
   "calculator": {
     "title": "حاسبة الأحمال",

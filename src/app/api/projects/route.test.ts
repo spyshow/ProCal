@@ -9,6 +9,8 @@ const mocks = {
   userUpdate: vi.fn(),
   projectMemberCreate: vi.fn(),
   transaction: vi.fn(),
+  seedDefaultProjectTemplates: vi.fn(),
+  seedDefaultLoadLibrary: vi.fn(),
 };
 
 vi.mock("@/lib/auth", () => ({
@@ -38,8 +40,8 @@ vi.mock("@/lib/audit-logger", () => ({
 }));
 
 vi.mock("@/lib/project-defaults", () => ({
-  seedDefaultProjectTemplates: vi.fn(),
-  seedDefaultLoadLibrary: vi.fn(),
+  seedDefaultProjectTemplates: vi.fn((...args) => mocks.seedDefaultProjectTemplates(...args)),
+  seedDefaultLoadLibrary: vi.fn((...args) => mocks.seedDefaultLoadLibrary(...args)),
 }));
 
 async function get(url = "http://localhost/api/projects") {
@@ -143,6 +145,18 @@ describe("POST /api/projects - Electrical Input Validation (UI-CRIT-02)", () => 
         }),
       })
     );
+    expect(mocks.seedDefaultProjectTemplates).not.toHaveBeenCalled();
+    expect(mocks.seedDefaultLoadLibrary).not.toHaveBeenCalled();
+  });
+
+  it("seeds templates and service loads only when seedDefaults is true", async () => {
+    const res = await post({
+      name: "Project With Defaults",
+      seedDefaults: true,
+    });
+    expect(res.status).toBe(200);
+    expect(mocks.seedDefaultProjectTemplates).toHaveBeenCalledWith("p1", undefined);
+    expect(mocks.seedDefaultLoadLibrary).toHaveBeenCalledWith("p1");
   });
 });
 

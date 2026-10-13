@@ -36,6 +36,7 @@ const DEFAULT_PROJECT_FORM = {
   powerFactor: '0.85',
   maxDemandFactor: '0.8',
   calculationStandard: 'IEC',
+  seedDefaults: false,
 };
 
 export default function ProjectsPage() {
@@ -126,7 +127,7 @@ export default function ProjectsPage() {
         const project = await res.json();
         selectProject(project.id);
         setShowNew(false);
-        setForm({ name: '', client: '', consultant: '', contractor: '', location: '', engineer: '', country: 'Syria', voltage: '400', frequency: '50', powerFactor: '0.85', maxDemandFactor: '0.8', calculationStandard: 'IEC' });
+        setForm(DEFAULT_PROJECT_FORM);
         loadProjects();
       } else if (res.status === 402) {
         // CQ-A self-heal: credit gate tripped server-side (the proactive gate
@@ -316,6 +317,17 @@ export default function ProjectsPage() {
                 ))}
               </select>
             </div>
+          </div>
+          <div className="pt-1">
+            <label className="flex items-center gap-2 text-xs text-gray-300 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={form.seedDefaults}
+                onChange={(e) => setForm({ ...form, seedDefaults: e.target.checked })}
+                className="rounded border-gray-700 bg-gray-800 text-orange-600 focus:ring-orange-500 w-4 h-4 cursor-pointer"
+              />
+              <span>{t('projects.seedDefaults', 'Populate default apartment templates and standard service loads')}</span>
+            </label>
           </div>
           {formError && (
             <div role="alert" className="rounded-lg border border-red-800/60 bg-red-900/20 px-3 py-2 text-sm text-red-300">

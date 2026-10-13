@@ -1,37 +1,37 @@
-# Plan: Fix Default Breaker Families Resetting on Navigation / Page Change
+# Plan: Add Ability to Change Load Name in the Load Calculator Table
 
-## Root Cause Analysis
-1. **Context Stale State Clashing**: In `src/app/(app)/breaker-schedule/page.tsx`, `saveDefaults` persisted selected breaker families (`defaultAcbFamilyId`, `defaultMccbFamilyId`, `defaultMcbFamilyId`) to the database via `PUT /api/projects/${id}` and called local `setProject` / `setDefaults`. However, it **never called `mutateProject` from `ProjectContext`**.
-2. **Client-Side Route Memory Desync**: When navigating to another page and returning to the breaker schedule, Next.js performs client-side routing without reloading `ProjectContext`. The global `selectedProject` in `ProjectContext` still contained stale/null family IDs.
-3. **Stale Overwrite on Remount/Sync**: On remount (and whenever context re-renders), `BreakerSchedulePage` initialized and synced `defaults` from `selectedProject.default*FamilyId`. Because context was never updated, it reset `defaults` back to `undefined`, which displays `<option value="">Use preferred manufacturer fallback</option>`. (If the user hard-refreshed with F5 or hit a route that triggered `refreshProject()`, context pulled from DB, which is why it appeared "sometimes ok").
-4. **Navigating Mid-Save Loss**: If the user changed the dropdown and immediately navigated away, the fetch lacked `keepalive: true`, leaving the HTTP request vulnerable to cancellation by the browser.
+## Task Summary
+Add inline editing for load names in the load calculator table (`/calculator`), allowing engineers to rename floor items (apartments, service panels, elevator loads, custom equipment) directly from the circuit table with instant optimistic UI feedback, keyboard navigation, and database persistence.
 
 ---
 
 ## Proposed Steps
 
-### Step 1: Reproduce Bug via Test
-- **File**: `src/app/(app)/breaker-schedule/page.test.tsx`
-- **Actions**:
-  - Mock `useProject` with `selectedProject`, `mutateProject`, and `selectedProjectId`.
-  - Simulate selecting a family (e.g. ACB or MCCB).
-  - Assert that `mutateProject` is called so that context updates immediately and stays persistent.
-  - Assert that re-rendering or remounting with the updated project preserves the selected family instead of reverting to fallback.
-- **Proof**: Run test; verify failure prior to fix.
+### Step 1: Update API - Support `name` in `PATCH /api/floor-items/[id]`
+- **File**: `src/app/api/floor-items/[id]/route.ts`
+- **Changes**:
+  - Accept `name` in the PATCH request body.
+  - Validate that `name` is a non-empty string after trimming; return 400 if empty.
+  - Update `name` in `db.floorItem.update`.
+  - Track `name` in `computeCableCircuitDiff` in `src/lib/audit-diff.ts` to log audit activity when renamed.
+- **Proof**:
+  - Add unit test in `src/app/api/floor-items/[id]/route.test.ts` verifying updating `name` succeeds and empty `name` returns 400.
 
-### Step 2: Implement Fix in `src/app/(app)/breaker-schedule/page.tsx`
-- **Actions**:
-  - Destructure `mutateProject` from `useProject()`.
-  - Maintain a ref `defaultsRef` to prevent state stale closures during rapid changes.
-  - In `saveDefaults`:
-    - Optimistically call `mutateProject` to immediately sync context state.
-    - Add `keepalive: true` to `fetch(`/api/projects/${projId}`, ...)` so in-flight saves survive page navigation.
-    - On successful response, update `mutateProject` and local state with confirmed data.
-  - In `useEffect` syncing `selectedProject`:
-    - Do not overwrite `defaults` if `saving` is true or if `defaults` is already matching.
-- **Proof**: Run `page.test.tsx` and verify it passes.
+### Step 2: Implement Inline Name Editing in Load Calculator Table
+- **File**: `src/app/(app)/calculator/page.tsx`
+- **Changes**:
+  - Add `handleUpdateItemName(itemId: string, newName: string)`.
+  - Apply optimistic state mutation to both local `project` and `ProjectContext` (`mutateProject`).
+  - Create an inline editable name component or cell for the "Name" column in the floor items table:
+    - Display current load name with an edit pencil button on hover.
+    - Clicking the name or pencil enters edit mode with an auto-focused `<input>`.
+    - Supports `Enter` (save), `Escape` (cancel), and blur handling.
+    - Includes explicit Save (Check) and Cancel (X) buttons for clear touch/mouse affordance.
+    - Respects `isReadOnly` state (view-only mode for QA / read-only permissions).
+- **Proof**:
+  - Test editing in `src/app/(app)/calculator/page.test.tsx` (or new test suite) verifying name edit triggers optimistic update and API call.
 
 ### Step 3: Verify and Run Test Suite
-- Run `npm test` across the full test suite.
+- Run `npm test` across the full test suite to ensure zero regressions.
 - Run `npx tsc --noEmit` to verify type safety.
 - Update knowledge graph via `graphify update .`.

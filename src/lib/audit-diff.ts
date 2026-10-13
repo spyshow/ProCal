@@ -604,7 +604,7 @@ export function computeCableCircuitDiff(
   floorName?: string | null
 ): AuditDiffResult {
   const trackedFields = [
-    "cableSize", "cableLength", "breakerSize", "installMethod", "cableInsulation",
+    "name", "cableSize", "cableLength", "breakerSize", "installMethod", "cableInsulation",
     "cableMaterial", "ambientTemp", "groupingCount", "assignedPhase", "quantity"
   ];
 
@@ -632,12 +632,14 @@ export function computeCableCircuitDiff(
   const isOnlyBreaker = changes.length > 0 && changes.every((c) => c.field === "breakerSize");
   const isOnlyPhase = changes.length > 0 && changes.every((c) => c.field === "assignedPhase");
   const isOnlyQuantity = changes.length > 0 && changes.every((c) => c.field === "quantity");
+  const isOnlyName = changes.length > 0 && changes.every((c) => c.field === "name");
 
   let category: AuditDiffResult["category"] = "CABLE";
   if (isOnlyCable) category = "CABLE";
   else if (isOnlyBreaker) category = "BREAKER";
   else if (isOnlyPhase) category = "LOAD";
   else if (isOnlyQuantity) category = "BUILDING_LOAD";
+  else if (isOnlyName) category = "LOAD";
 
   const safeTargetName = (targetName && targetName !== "undefined" && targetName.trim() !== "") ? targetName.trim() : "Circuit";
 
@@ -696,6 +698,9 @@ export function computeCableCircuitDiff(
   } else if (isOnlyQuantity) {
     const ch = changes[0];
     description = `Updated Quantity to ${ch.newDisplay} for ${targetHeader}`;
+  } else if (isOnlyName) {
+    const ch = changes[0];
+    description = `Renamed ${targetHeader} to "${ch.newDisplay}"`;
   } else {
     const parts = changes.map((ch) => `${ch.label} (${ch.oldDisplay} → ${ch.newDisplay})`);
     description = `Updated ${changes.length} parameters on ${targetHeader}: ${parts.join(", ")}`;

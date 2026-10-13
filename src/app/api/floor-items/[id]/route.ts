@@ -40,6 +40,13 @@ export async function PATCH(
     if (auth instanceof NextResponse) return auth;
 
     const updateData: Record<string, string | number | null | undefined> = {};
+    if (body.name !== undefined) {
+      const trimmed = typeof body.name === 'string' ? body.name.trim() : '';
+      if (!trimmed) {
+        return NextResponse.json({ error: "Name cannot be empty" }, { status: 400 });
+      }
+      updateData.name = trimmed;
+    }
     if (body.cableLength !== undefined) updateData.cableLength = body.cableLength;
     if (body.cableSize !== undefined) {
       // Reject strings the engine's grammar can't parse — a stored garbage

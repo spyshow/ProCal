@@ -98,6 +98,44 @@ describe("Floor Items API /api/floor-items/[id]", () => {
         }),
       });
     });
+
+    it("updates item name successfully", async () => {
+      mocks.floorItemFindUnique.mockResolvedValue({
+        id: "item-1",
+        name: "Old Load Name",
+        floorDesign: {
+          floorNumber: 1,
+          building: { name: "Main Building", projectId: "proj-1", project: { id: "proj-1" } },
+        },
+      });
+      mocks.floorItemUpdate.mockResolvedValue({ id: "item-1", name: "Penthouse Apartment" });
+
+      const res = await patchFloorItem("item-1", { name: "  Penthouse Apartment  " });
+      expect(res.status).toBe(200);
+      expect(mocks.floorItemUpdate).toHaveBeenCalledWith({
+        where: { id: "item-1" },
+        data: expect.objectContaining({
+          name: "Penthouse Apartment",
+        }),
+      });
+    });
+
+    it("rejects empty name with status 400", async () => {
+      mocks.floorItemFindUnique.mockResolvedValue({
+        id: "item-1",
+        name: "Old Load Name",
+        floorDesign: {
+          floorNumber: 1,
+          building: { projectId: "proj-1", project: { id: "proj-1" } },
+        },
+      });
+
+      const res = await patchFloorItem("item-1", { name: "   " });
+      expect(res.status).toBe(400);
+      const json = await res.json();
+      expect(json.error).toBe("Name cannot be empty");
+      expect(mocks.floorItemUpdate).not.toHaveBeenCalled();
+    });
   });
 
   describe("DELETE /api/floor-items/[id] - Diversity Factor (Issue 6)", () => {

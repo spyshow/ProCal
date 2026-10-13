@@ -21,6 +21,9 @@ import {
   AlertTriangle,
   HelpCircle,
   Sparkles,
+  Pencil,
+  Check,
+  X,
 } from 'lucide-react';
 import InfoTooltip from '@/components/InfoTooltip';
 import { PageSkeleton } from '@/components/ui/skeleton';
@@ -39,6 +42,121 @@ export default function CalculatorPage() {
     <Suspense fallback={<div className="flex items-center justify-center h-full"><p className="text-gray-500 text-sm">Loading…</p></div>}>
       <CalculatorContent />
     </Suspense>
+  );
+}
+
+function EditableLoadName({
+  itemId,
+  initialName,
+  isReadOnly,
+  onSave,
+}: {
+  itemId: string;
+  initialName: string;
+  isReadOnly: boolean;
+  onSave: (itemId: string, newName: string) => Promise<void> | void;
+}) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [name, setName] = useState(initialName);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    setName(initialName);
+  }, [initialName]);
+
+  useEffect(() => {
+    if (isEditing) {
+      inputRef.current?.focus();
+      inputRef.current?.select();
+    }
+  }, [isEditing]);
+
+  const handleCommit = async () => {
+    const trimmed = name.trim();
+    if (!trimmed) {
+      setName(initialName);
+      setIsEditing(false);
+      return;
+    }
+    if (trimmed !== initialName) {
+      await onSave(itemId, trimmed);
+    }
+    setIsEditing(false);
+  };
+
+  const handleCancel = () => {
+    setName(initialName);
+    setIsEditing(false);
+  };
+
+  if (isReadOnly) {
+    return <span className="text-[var(--foreground-color,#f8fafc)] font-medium text-sm">{initialName}</span>;
+  }
+
+  if (isEditing) {
+    return (
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          handleCommit();
+        }}
+        onBlur={(e) => {
+          if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+            handleCommit();
+          }
+        }}
+        className="inline-flex items-center justify-center gap-1 max-w-full"
+      >
+        <input
+          ref={inputRef}
+          type="text"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Escape') {
+              e.preventDefault();
+              handleCancel();
+            }
+          }}
+          className="px-2 py-0.5 text-xs font-medium text-[var(--input-color,#ffffff)] bg-[var(--input-bg,#1f2937)] border border-orange-500 rounded focus:outline-none focus:ring-1 focus:ring-orange-500 min-w-[110px] max-w-[200px] text-center shadow-xs"
+        />
+        <button
+          type="submit"
+          className="p-1 rounded text-emerald-500 hover:text-emerald-400 hover:bg-emerald-500/10 transition-colors cursor-pointer"
+          title="Save"
+        >
+          <Check size={13} />
+        </button>
+        <button
+          type="button"
+          onClick={handleCancel}
+          className="p-1 rounded text-rose-500 hover:text-rose-400 hover:bg-rose-500/10 transition-colors cursor-pointer"
+          title="Cancel"
+        >
+          <X size={13} />
+        </button>
+      </form>
+    );
+  }
+
+  return (
+    <div className="group inline-flex items-center justify-center gap-1.5 max-w-full">
+      <span
+        onClick={() => setIsEditing(true)}
+        className="text-[var(--foreground-color,#f8fafc)] font-medium text-sm cursor-pointer hover:text-orange-500 transition-colors select-none"
+        title="Click to rename"
+      >
+        {initialName}
+      </span>
+      <button
+        type="button"
+        onClick={() => setIsEditing(true)}
+        className="opacity-0 group-hover:opacity-100 focus:opacity-100 p-0.5 rounded text-[var(--table-header-color,#64748b)] hover:text-orange-500 transition-opacity cursor-pointer"
+        title="Edit load name"
+      >
+        <Pencil size={12} />
+      </button>
+    </div>
   );
 }
 
@@ -175,6 +293,49 @@ function CalculatorContent() {
       }
     } catch (err) {
       console.error('Failed to update assigned phase:', err);
+      loadProject();
+    }
+  };
+
+  const handleUpdateItemName = async (itemId: string, name: string) => {
+    const trimmed = name.trim();
+    if (!trimmed) return;
+
+    const updateFn = (prev: Project | null) => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        buildings: prev.buildings.map((b) => ({
+          ...b,
+          floorDesigns: b.floorDesigns.map((fd) => ({
+            ...fd,
+            items: fd.items.map((item) =>
+              item.id === itemId ? { ...item, name: trimmed } : item
+            ),
+          })),
+        })),
+      };
+    };
+
+    // Immediate optimistic local & context update
+    setProject(updateFn);
+    if (mutateProject) {
+      mutateProject(updateFn);
+    }
+
+    try {
+      const res = await fetch(`/api/floor-items/${itemId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        keepalive: true,
+        body: JSON.stringify({ name: trimmed }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || 'Failed to update load name');
+      }
+    } catch (err) {
+      console.error('Failed to update load name:', err);
       loadProject();
     }
   };
@@ -641,7 +802,14 @@ function CalculatorContent() {
                                   <span className="text-[10px] text-[var(--table-header-color,#64748b)] ml-1">({item.loadLibraryItem.category})</span>
                                 )}
                               </td>
-                              <td className="text-center text-[var(--foreground-color,#f8fafc)] font-medium text-sm">{item.name}</td>
+                              <td className="text-center">
+                                <EditableLoadName
+                                  itemId={item.id}
+                                  initialName={item.name}
+                                  isReadOnly={isReadOnly}
+                                  onSave={handleUpdateItemName}
+                                />
+                              </td>
                               <td className="text-center font-mono text-xs text-[var(--table-header-color,#64748b)] font-semibold">
                                 {itemPhaseCount === 3 ? '3Φ' : '1Φ'}
                               </td>

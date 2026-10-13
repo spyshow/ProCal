@@ -245,6 +245,13 @@ export function createFindBreaker(
       cat: "ACB" | "MCCB" | "MCB",
       requiredIcu?: number
     ): EquipmentItem | null => {
+      // Several catalog entries can share a rating (e.g. ABB XT2 N/S/H/L/V).
+      // Among them prefer the lowest breaking capacity that still meets the
+      // required (or default minimum) Icu; if none does, the highest available.
+      const icuFloor = requiredIcu ?? (cat === "ACB" ? 50 : cat === "MCCB" ? 36 : 10);
+      const icuOf = (e: EquipmentItem) => e.breakingCapacity ?? 0;
+      const icuRank = (e: EquipmentItem) =>
+        icuOf(e) >= icuFloor ? icuOf(e) : 1e6 - icuOf(e);
       return (
         items
           .filter(
@@ -257,7 +264,7 @@ export function createFindBreaker(
               // the old `undefined >= n` comparison).
               (requiredIcu === undefined || (e.breakingCapacity ?? 0) >= requiredIcu)
           )
-          .sort((a, b) => a.ratedCurrent - b.ratedCurrent)[0] || null
+          .sort((a, b) => a.ratedCurrent - b.ratedCurrent || icuRank(a) - icuRank(b))[0] || null
       );
     };
 

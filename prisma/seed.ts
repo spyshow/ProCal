@@ -6,6 +6,7 @@ import { Pool } from "pg";
 import bcrypt from "bcryptjs";
 import { upsertBreakerFamilies, getFamilyKey } from "../src/lib/breaker-families";
 import { resolveDatabaseSsl } from "../src/lib/db-ssl";
+import { abbTmaxXtCatalog, abbTmaxXtLegacyModels } from "./data/abb-tmax-xt";
 
 const connectionString = process.env.DATABASE_URL;
 
@@ -1262,117 +1263,9 @@ async function seedEquipmentCatalog(): Promise<void> {
       }),
     },
 
-    // =========================================================================
-    // ABB MCCBs - Tmax XT Series (IEC 60947-2)
-    // =========================================================================
-    {
-      category: "MCCB",
-      manufacturer: "ABB",
-      series: "Tmax XT1",
-      model: "XT1B 160 TMD 40A",
-      ratedCurrent: 40,
-      poles: 3,
-      breakingCapacity: 18,
-      tripUnit: "TMD (Thermal Magnetic)",
-      datasheetUrl: "https://search.abb.com/library/Download.aspx?DocumentID=1SDC210100D0206&LanguageCode=en&DocumentPartId=&Action=Launch",
-      settingsJson: JSON.stringify({ Ics: 18, standard: "IEC 60947-2", category: "A", curveType: "TM", thermal: { range: "0.7..1.0xIn (28..40A)", defaultIr: 40 }, magnetic: { range: "10xIn fixed (400A)", defaultIm: 400 } }),
-    },
-    {
-      category: "MCCB",
-      manufacturer: "ABB",
-      series: "Tmax XT1",
-      model: "XT1N 160 TMD 63A",
-      ratedCurrent: 63,
-      poles: 3,
-      breakingCapacity: 36,
-      tripUnit: "TMD (Thermal Magnetic)",
-      datasheetUrl: "https://search.abb.com/library/Download.aspx?DocumentID=1SDC210100D0206&LanguageCode=en&DocumentPartId=&Action=Launch",
-      settingsJson: JSON.stringify({ Ics: 36, standard: "IEC 60947-2", category: "A", curveType: "TM", thermal: { range: "0.7..1.0xIn (44..63A)", defaultIr: 63 }, magnetic: { range: "10xIn fixed (630A)", defaultIm: 630 } }),
-    },
-    {
-      category: "MCCB",
-      manufacturer: "ABB",
-      series: "Tmax XT1",
-      model: "XT1N 160 TMD 100A",
-      ratedCurrent: 100,
-      poles: 3,
-      breakingCapacity: 36,
-      tripUnit: "TMD (Thermal Magnetic)",
-      datasheetUrl: "https://search.abb.com/library/Download.aspx?DocumentID=1SDC210100D0206&LanguageCode=en&DocumentPartId=&Action=Launch",
-      settingsJson: JSON.stringify({ Ics: 36, standard: "IEC 60947-2", category: "A", curveType: "TM", thermal: { range: "0.7..1.0xIn (70..100A)", defaultIr: 100 }, magnetic: { range: "10xIn fixed (1000A)", defaultIm: 1000 } }),
-    },
-    {
-      category: "MCCB",
-      manufacturer: "ABB",
-      series: "Tmax XT2",
-      model: "XT2N 160 Ekip LSI 160A",
-      ratedCurrent: 160,
-      poles: 3,
-      breakingCapacity: 36,
-      tripUnit: "Ekip LSI",
-      datasheetUrl: "https://search.abb.com/library/Download.aspx?DocumentID=1SDC210100D0206&LanguageCode=en&DocumentPartId=&Action=Launch",
-      settingsJson: JSON.stringify({ Ics: 36, standard: "IEC 60947-2", category: "A", curveType: "LSI", L: { range: "0.4..1.0xIn (64..160A)", delay: "3..12s", defaultIr: 160, defaultTr: 12 }, S: { range: "1.0..10xIn (160..1600A)", delay: "0.05..0.4s", i2t: true, defaultIsd: 800, defaultTsd: 0.1 }, I: { range: "1.5..15xIn (240..2400A)", defaultIi: 1600 } }),
-    },
-    {
-      category: "MCCB",
-      manufacturer: "ABB",
-      series: "Tmax XT4",
-      model: "XT4N 250 Ekip LSI 250A",
-      ratedCurrent: 250,
-      poles: 3,
-      breakingCapacity: 36,
-      tripUnit: "Ekip LSI",
-      datasheetUrl: "https://search.abb.com/library/Download.aspx?DocumentID=1SDC210100D0206&LanguageCode=en&DocumentPartId=&Action=Launch",
-      settingsJson: JSON.stringify({ Ics: 36, standard: "IEC 60947-2", category: "A", curveType: "LSI", L: { range: "0.4..1.0xIn (100..250A)", delay: "3..12s", defaultIr: 250, defaultTr: 12 }, S: { range: "1.0..10xIn (250..2500A)", delay: "0.05..0.4s", i2t: true, defaultIsd: 1250, defaultTsd: 0.1 }, I: { range: "1.5..15xIn (375..3750A)", defaultIi: 2500 } }),
-    },
-    {
-      category: "MCCB",
-      manufacturer: "ABB",
-      series: "Tmax XT5",
-      model: "XT5N 400 TMA 320A",
-      ratedCurrent: 320,
-      poles: 3,
-      breakingCapacity: 36,
-      tripUnit: "TMA (Thermal Magnetic)",
-      datasheetUrl: "https://search.abb.com/library/Download.aspx?DocumentID=1SDC210100D0206&LanguageCode=en&DocumentPartId=&Action=Launch",
-      settingsJson: JSON.stringify({ Ics: 36, standard: "IEC 60947-2", category: "A", curveType: "TM", thermal: { range: "0.7..1.0xIn (224..320A)", defaultIr: 320 }, magnetic: { range: "5..10xIn (1600..3200A)", defaultIm: 2500 } }),
-    },
-    {
-      category: "MCCB",
-      manufacturer: "ABB",
-      series: "Tmax XT5",
-      model: "XT5N 400 Ekip Dip LSI 320A",
-      ratedCurrent: 320,
-      poles: 3,
-      breakingCapacity: 36,
-      tripUnit: "Ekip Dip LSI",
-      datasheetUrl: "https://search.abb.com/library/Download.aspx?DocumentID=1SDC210100D0206&LanguageCode=en&DocumentPartId=&Action=Launch",
-      settingsJson: JSON.stringify({ Ics: 36, standard: "IEC 60947-2", category: "A", curveType: "LSI", L: { range: "0.4..1.0xIn (128..320A)", delay: "3..12s", defaultIr: 320, defaultTr: 12 }, S: { range: "1.0..10xIn (320..3200A)", delay: "0.05..0.4s", i2t: true, defaultIsd: 1600, defaultTsd: 0.1 }, I: { range: "1.5..15xIn (480..4800A)", defaultIi: 3200 } }),
-    },
-    {
-      category: "MCCB",
-      manufacturer: "ABB",
-      series: "Tmax XT5",
-      model: "XT5N 400 Ekip Dip LSI 400A",
-      ratedCurrent: 400,
-      poles: 3,
-      breakingCapacity: 36,
-      tripUnit: "Ekip Dip LSI",
-      datasheetUrl: "https://search.abb.com/library/Download.aspx?DocumentID=1SDC210100D0206&LanguageCode=en&DocumentPartId=&Action=Launch",
-      settingsJson: JSON.stringify({ Ics: 36, standard: "IEC 60947-2", category: "A", curveType: "LSI", L: { range: "0.4..1.0xIn (160..400A)", delay: "3..12s", defaultIr: 400, defaultTr: 12 }, S: { range: "1.0..10xIn (400..4000A)", delay: "0.05..0.4s", i2t: true, defaultIsd: 2000, defaultTsd: 0.1 }, I: { range: "1.5..15xIn (600..6000A)", defaultIi: 4000 } }),
-    },
-    {
-      category: "MCCB",
-      manufacturer: "ABB",
-      series: "Tmax XT5",
-      model: "XT5N 630 Ekip Dip LSI 630A",
-      ratedCurrent: 630,
-      poles: 3,
-      breakingCapacity: 36,
-      tripUnit: "Ekip Dip LSI",
-      datasheetUrl: "https://search.abb.com/library/Download.aspx?DocumentID=1SDC210100D0206&LanguageCode=en&DocumentPartId=&Action=Launch",
-      settingsJson: JSON.stringify({ Ics: 36, standard: "IEC 60947-2", category: "A", curveType: "LSI", L: { range: "0.4..1.0xIn (252..630A)", delay: "3..12s", defaultIr: 630, defaultTr: 12 }, S: { range: "1.0..10xIn (630..6300A)", delay: "0.05..0.4s", i2t: true, defaultIsd: 3150, defaultTsd: 0.1 }, I: { range: "1.5..15xIn (945..9450A)", defaultIi: 6300 } }),
-    },
+    // ABB MCCBs - Tmax XT1..XT7 (IEC 60947-2), generated in ./data/abb-tmax-xt.ts
+    ...abbTmaxXtCatalog,
+
 
     // =========================================================================
     // Schneider MCCBs - ComPacT NSX Series (IEC 60947-2)
@@ -3958,6 +3851,7 @@ async function seedEquipmentCatalog(): Promise<void> {
   await db.equipmentCatalog.deleteMany({
     where: {
       OR: [
+        ...abbTmaxXtLegacyModels.map((m) => ({ manufacturer: "ABB", series: m.series, model: m.model })),
         { manufacturer: "Iskra", category: "ACB" },
         { manufacturer: "Iskra", series: "RI60" },
         { manufacturer: "Iskra", series: "RI120" },

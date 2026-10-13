@@ -716,3 +716,29 @@ describe('regression: three-phase classification', () => {
 
 
 
+
+describe('createFindBreaker variant tie-break (same ratedCurrent, different Icu)', () => {
+  const mk = (id: string, icu: number): EquipmentItem => ({
+    id, category: 'MCCB', manufacturer: 'ABB', familyId: 'fx', familyName: 'Tmax XT2', series: 'Tmax XT2',
+    model: `XT2${id} 160 TMA 100A`, ratedCurrent: 100, poles: 3, breakingCapacity: icu, tripUnit: null, settingsJson: null,
+  });
+  // Deliberately shuffled so the result cannot depend on input order.
+  const variants = [mk('V', 150), mk('N', 36), mk('L', 120), mk('S', 50), mk('H', 70)];
+  const lowIcu = mk('B', 18);
+
+  it('defaults to the lowest variant meeting the 36 kA MCCB floor', () => {
+    const find = createFindBreaker([...variants, lowIcu], { MCCB: 'fx' }, 'ABB');
+    expect(find(100, 'MCCB', 3).breakingCapacity).toBe(36);
+  });
+
+  it('picks the lowest variant that covers a required Icu', () => {
+    const find = createFindBreaker(variants, { MCCB: 'fx' }, 'ABB');
+    expect(find(100, 'MCCB', 3, { requiredIcuKa: 65 }).breakingCapacity).toBe(70);
+    expect(find(100, 'MCCB', 3, { requiredIcuKa: 100 }).breakingCapacity).toBe(120);
+  });
+
+  it('falls back to the highest Icu when none meets the floor', () => {
+    const find = createFindBreaker([mk('B', 18), mk('C', 25)], { MCCB: 'fx' }, 'ABB');
+    expect(find(100, 'MCCB', 3).breakingCapacity).toBe(25);
+  });
+});

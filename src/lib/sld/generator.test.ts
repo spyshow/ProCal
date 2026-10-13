@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { generateSLD, generateSLDPages } from './generator';
+import { generateSLD, generateSLDPages, resolveBreakerRating } from './generator';
 
 describe('SLD Generator', () => {
   const mockProject = {
@@ -93,4 +93,75 @@ describe('SLD Generator', () => {
     // 3 apartments of 5kW = 15kW total demand / 0.85 * 1.2 = 21.2 kVA -> sizes to standard 100 kVA
     expect(dsl).toContain('rating: "100 kVA"');
   });
+
+  describe('resolveBreakerRating', () => {
+    it('preserves existing non-empty breaker size strings', () => {
+      expect(resolveBreakerRating('63A', 45)).toBe('63A');
+      expect(resolveBreakerRating('160', 120)).toBe('160A');
+      expect(resolveBreakerRating(' 32A ', 20)).toBe('32A');
+    });
+
+    it('sizes null/empty breaker sizes to next standard breaker rating', () => {
+      // IEC ratings: [6, 10, 13, 16, 20, 25, 32, 40, 50, 63, 80, 100, 125, 160, ...]
+      expect(resolveBreakerRating(null, 21.74, 'IEC')).toBe('25A');
+      expect(resolveBreakerRating(undefined, 43.48, 'IEC')).toBe('50A');
+      expect(resolveBreakerRating('', 135.8, 'IEC')).toBe('160A');
+      expect(resolveBreakerRating('null', 18, 'IEC')).toBe('20A');
+    });
+
+    it('sizes null/empty breaker sizes to NEC ratings when code is NEC', () => {
+      // NEC ratings: [..., 50, 60, 70, 80, 90, 100, ...]
+      expect(resolveBreakerRating(null, 56, 'NEC')).toBe('60A');
+    });
+  });
+
+  describe('SLD Breaker Amps vs Load Current', () => {
+    it('floor breaker displays standard CB rating instead of raw load current sum', () => {
+      // Floor 1 has 2 loads of 21.74A (43.48A total load current)
+      // The breaker rating should be standard CB amps (25A max phase or 50A), NOT raw 44A
+      const pages = generateSLDPages(mockProject as Parameters<typeof generateSLDPages>[0]);
+      expect(pages[0].dsl).not.toContain('rating: "44A"');
+      expect(pages[0].dsl).toMatch(/f1_bkr = breaker \[label: "F1", rating: "(25|50)A"\]/);
+    });
+
+    it('honors manual riserBreakerSize on the floor design', () => {
+      const projectWithCustomRiser = {
+        ...mockProject,
+        buildings: [{
+          ...mockProject.buildings[0],
+          floorDesigns: [
+            {
+              ...mockProject.buildings[0].floorDesigns[0],
+              riserBreakerSize: '160A',
+            },
+          ],
+        }],
+      };
+      const pages = generateSLDPages(projectWithCustomRiser as Parameters<typeof generateSLDPages>[0]);
+      expect(pages[0].dsl).toContain('rating: "160A"');
+
+      const fullDsl = generateSLD(projectWithCustomRiser as Parameters<typeof generateSLD>[0]);
+      expect(fullDsl).toContain('rating: "160A"');
+    });
+
+    it('branch MCBs with null breakerSize display standard CB rating instead of "null"', () => {
+      const projectWithNullItemBreakers = {
+        ...mockProject,
+        buildings: [{
+          ...mockProject.buildings[0],
+          floorDesigns: [{
+            floorNumber: 1,
+            hasFloorSubPanels: true,
+            items: [
+              { name: 'Load 1', type: 'APARTMENT', calculatedMaxDemand: 5, calculatedCurrent: 46.53, breakerSize: null, cableSize: null },
+            ],
+          }],
+        }],
+      };
+      const pages = generateSLDPages(projectWithNullItemBreakers as Parameters<typeof generateSLDPages>[0]);
+      expect(pages[0].dsl).not.toContain('rating: "null"');
+      expect(pages[0].dsl).toContain('rating: "50A"');
+    });
+  });
 });
+

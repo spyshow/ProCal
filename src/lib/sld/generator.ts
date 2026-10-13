@@ -1,6 +1,7 @@
 import { formatCableSizeFor } from "@/lib/calculations/cables";
 import { sizeTransformer } from "@/lib/calculations/loads";
 import { phaseBalance } from "@/lib/calculations/phaseBalance";
+import { nextBreakerRating, codeOf, type CodeStandard } from "@/lib/calculations/codes";
 import type { BuildingLoad, FloorItem, Project } from "@/types";
 
 interface SLDProject {
@@ -21,6 +22,7 @@ interface SLDProject {
       hasFloorSubPanels: boolean;
       riserCableSize?: string | null;
       riserCableLength?: number | null;
+      riserBreakerSize?: string | null;
       items: {
         id?: string;
         name: string;
@@ -34,9 +36,33 @@ interface SLDProject {
   }[];
 }
 
+/**
+ * Resolves a circuit breaker rating string (e.g. "63A") for SLD diagrams and inspection.
+ * - If storedBreakerSize is valid and non-empty, standardizes it with an 'A' suffix.
+ * - Otherwise, sizes against standard breaker ratings (IEC/NEC) using the load design current.
+ */
+export function resolveBreakerRating(
+  storedBreakerSize: string | number | null | undefined,
+  current: number,
+  code: CodeStandard = 'IEC'
+): string {
+  if (storedBreakerSize != null) {
+    const s = String(storedBreakerSize).trim();
+    if (s !== '' && s !== 'null' && s !== 'undefined') {
+      const numeric = parseFloat(s.replace(/[^\d.]/g, ''));
+      if (!isNaN(numeric) && numeric > 0) {
+        return `${numeric}A`;
+      }
+    }
+  }
+  const rating = nextBreakerRating(Math.max(current || 0, 0), code);
+  return `${rating}A`;
+}
+
 export function generateSLD(project: Project | SLDProject): string {
   const lines: string[] = [];
   let mdbBreakerIdx = 0;
+  const code = codeOf(project.calculationStandard);
 
   lines.push(`sld "${project.name} — Single Line Diagram"`);
   lines.push('');
@@ -87,16 +113,18 @@ export function generateSLD(project: Project | SLDProject): string {
       // Every floor gets its own bus — this groups MCBs vertically per floor
       const floorBusId = `floor_bus_${bldgPrefix}_${fd.floorNumber}`;
       const floorBreakerId = `floor_bkr_${bldgPrefix}_${fd.floorNumber}`;
-      const floorCurrent = fd.items.reduce((s, i) => s + i.calculatedCurrent, 0);
+      const floorBalance = phaseBalance(fd.items as unknown as FloorItem[], project as unknown as Project);
+      const floorDesignCurrent = floorBalance.maxPhaseCurrent || fd.items.reduce((s, i) => s + (i.calculatedCurrent || 0), 0);
+      const floorCbRating = resolveBreakerRating(fd.riserBreakerSize, floorDesignCurrent, code);
 
       if (fd.hasFloorSubPanels) {
         // Sub-panel floor: MDB → floor breaker → floor bus (distribution_board)
         lines.push(`${floorBusId} = distribution_board [label: "${bldg.name} F${fd.floorNumber} Sub-Panel", voltage: "${project.voltage}V"]`);
-        lines.push(`${floorBreakerId} = breaker [label: "${bldg.name} F${fd.floorNumber} Main", rating: "${Math.ceil(floorCurrent)}A"]`);
+        lines.push(`${floorBreakerId} = breaker [label: "${bldg.name} F${fd.floorNumber} Main", rating: "${floorCbRating}"]`);
       } else {
         // Direct floor: MDB → floor breaker → floor bus
         lines.push(`${floorBusId} = bus [label: "${bldg.name} F${fd.floorNumber}", voltage: "${project.voltage}V"]`);
-        lines.push(`${floorBreakerId} = breaker [label: "${bldg.name} F${fd.floorNumber}", rating: "${Math.ceil(floorCurrent)}A"]`);
+        lines.push(`${floorBreakerId} = breaker [label: "${bldg.name} F${fd.floorNumber}", rating: "${floorCbRating}"]`);
       }
 
       lines.push(`mdb_bus -> ${floorBreakerId} [label: "${bldg.name} F${fd.floorNumber}"]`);
@@ -110,8 +138,9 @@ export function generateSLD(project: Project | SLDProject): string {
         const cableTag = `Wf${fd.floorNumber}${letter}`;
         const bkrId = `bkr_${bldgPrefix}_${fd.floorNumber}_${mdbBreakerIdx++}`;
         const loadId = `load_${bldgPrefix}_${fd.floorNumber}_${letter}`;
+        const itemCbRating = resolveBreakerRating(item.breakerSize, item.calculatedCurrent || 0, code);
 
-        lines.push(`${bkrId} = mcb [label: "${item.breakerSize}", rating: "${item.breakerSize}"]`);
+        lines.push(`${bkrId} = mcb [label: "${itemCbRating}", rating: "${itemCbRating}"]`);
         lines.push(`${loadId} = load [label: "${loadTag}"]`);
         lines.push(`${floorBusId} -> ${bkrId} [cable: "${cableTag}", label: "${formatCableSizeFor(item.cableSize, project.calculationStandard)}"]`);
         lines.push(`${bkrId} -> ${loadId}`);
@@ -151,10 +180,13 @@ export function generateSLDPages(project: Project | SLDProject): SLDPage[] {
   if (allFloors.length === 0) return pages;
 
   const hasMultipleBuildings = project.buildings.length > 1;
+  const code = codeOf(project.calculationStandard);
 
   for (let i = 0; i < allFloors.length; i++) {
     const { building, fd } = allFloors[i];
-    const floorCurrent = fd.items.reduce((s, item) => s + item.calculatedCurrent, 0);
+    const floorBalance = phaseBalance(fd.items as unknown as FloorItem[], project as unknown as Project);
+    const floorDesignCurrent = floorBalance.maxPhaseCurrent || fd.items.reduce((s, item) => s + (item.calculatedCurrent || 0), 0);
+    const floorCbRating = resolveBreakerRating(fd.riserBreakerSize, floorDesignCurrent, code);
     const lines: string[] = [];
 
     lines.push(`sld "${project.name} — ${building} F${fd.floorNumber} (${i + 1}/${allFloors.length})"`);
@@ -166,7 +198,7 @@ export function generateSLDPages(project: Project | SLDProject): SLDPage[] {
 
     if (fd.hasFloorSubPanels) {
       // Sub-panel floor: MDB → Floor Breaker → Sub-Panel Bus → MCBs
-      lines.push(`f${fd.floorNumber}_bkr = breaker [label: "F${fd.floorNumber}", rating: "${Math.ceil(floorCurrent)}A"]`);
+      lines.push(`f${fd.floorNumber}_bkr = breaker [label: "F${fd.floorNumber}", rating: "${floorCbRating}"]`);
       lines.push(`mdb -> f${fd.floorNumber}_bkr`);
       lines.push('');
 
@@ -181,15 +213,16 @@ export function generateSLDPages(project: Project | SLDProject): SLDPage[] {
         const cableTag = `Wf${fd.floorNumber}${letter}`;
         const mcbId = `fm${fd.floorNumber}_${letter}`;
         const loadId = `fl${fd.floorNumber}_${letter}`;
+        const itemCbRating = resolveBreakerRating(item.breakerSize, item.calculatedCurrent || 0, code);
 
-        lines.push(`${mcbId} = mcb [label: "${item.breakerSize}", rating: "${item.breakerSize}"]`);
+        lines.push(`${mcbId} = mcb [label: "${itemCbRating}", rating: "${itemCbRating}"]`);
         lines.push(`${loadId} = load [label: "${loadTag}"]`);
         lines.push(`f${fd.floorNumber}_bus -> ${mcbId} [cable: "${cableTag}", label: "${formatCableSizeFor(item.cableSize, project.calculationStandard)}"]`);
         lines.push(`${mcbId} -> ${loadId}`);
       });
     } else {
       // Direct floor: MDB → Floor Breaker → Floor Bus → MCBs
-      lines.push(`f${fd.floorNumber}_bkr = breaker [label: "F${fd.floorNumber}", rating: "${Math.ceil(floorCurrent)}A"]`);
+      lines.push(`f${fd.floorNumber}_bkr = breaker [label: "F${fd.floorNumber}", rating: "${floorCbRating}"]`);
       lines.push(`mdb -> f${fd.floorNumber}_bkr`);
       lines.push('');
 
@@ -204,8 +237,9 @@ export function generateSLDPages(project: Project | SLDProject): SLDPage[] {
         const cableTag = `Wf${fd.floorNumber}${letter}`;
         const mcbId = `fm${fd.floorNumber}_${letter}`;
         const loadId = `fl${fd.floorNumber}_${letter}`;
+        const itemCbRating = resolveBreakerRating(item.breakerSize, item.calculatedCurrent || 0, code);
 
-        lines.push(`${mcbId} = mcb [label: "${item.breakerSize}", rating: "${item.breakerSize}"]`);
+        lines.push(`${mcbId} = mcb [label: "${itemCbRating}", rating: "${itemCbRating}"]`);
         lines.push(`${loadId} = load [label: "${loadTag}"]`);
         lines.push(`f${fd.floorNumber}_bus -> ${mcbId} [cable: "${cableTag}", label: "${formatCableSizeFor(item.cableSize, project.calculationStandard)}"]`);
         lines.push(`${mcbId} -> ${loadId}`);

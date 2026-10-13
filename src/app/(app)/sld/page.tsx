@@ -5,9 +5,10 @@ import { useEffect, useState, useCallback, useRef, useMemo } from 'react';
 import { useProject } from '@/context/ProjectContext';
 import { useTranslation } from '@/i18n';
 import { SchematexDiagram } from 'schematex/react';
-import { generateSLDPages, generateSLD, type SLDPage as SLDPageType } from '@/lib/sld/generator';
+import { generateSLDPages, generateSLD, resolveBreakerRating, type SLDPage as SLDPageType } from '@/lib/sld/generator';
 import { sizeTransformer } from '@/lib/calculations/loads';
 import { phaseBalance } from '@/lib/calculations/phaseBalance';
+import { codeOf } from '@/lib/calculations/codes';
 import {
   GitBranch,
   ZoomIn,
@@ -315,11 +316,15 @@ export default function SLDPage() {
           const sortedFloors = [...bldg.floorDesigns].sort(
             (a, b) => a.floorNumber - b.floorNumber
           );
+          const code = codeOf(project.calculationStandard);
 
           sortedFloors.forEach((fd) => {
             if (!fd.items || fd.items.length === 0) return;
+            const floorBalance = phaseBalance(fd.items as unknown as Parameters<typeof phaseBalance>[0], project);
+            const floorDesignCurrent = floorBalance.maxPhaseCurrent || fd.items.reduce((s, i) => s + (i.calculatedCurrent || 0), 0);
             const floorCurrent = fd.items.reduce((s, i) => s + (i.calculatedCurrent || 0), 0);
             const floorPower = fd.items.reduce((s, i) => s + (i.calculatedMaxDemand || 0), 0);
+            const floorCbRating = resolveBreakerRating(fd.riserBreakerSize, floorDesignCurrent, code);
 
             const itemChildren: HierarchyItem[] = fd.items.map((item, idx) => {
               const itemId = `item-${bldg.id}-${fd.floorNumber}-${idx}`;
@@ -328,19 +333,20 @@ export default function SLDPage() {
                 (item.calculatedCurrent && item.calculatedCurrent > 20
                   ? '3x4mm² Cu/PVC'
                   : '3x2.5mm² Cu/PVC');
+              const itemCbRating = resolveBreakerRating(item.breakerSize, item.calculatedCurrent || 0, code);
 
               return {
                 id: itemId,
-                name: `${item.name} (${item.breakerSize || 'MCB'})`,
+                name: `${item.name} (${itemCbRating})`,
                 type: item.type || 'Electrical Load',
                 icon: 'plug' as const,
-                badge: item.breakerSize,
+                badge: itemCbRating,
                 floorNumber: fd.floorNumber,
                 data: {
                   id: itemId,
                   name: item.name,
                   type: `${item.type || 'Branch Load'} Circuit`,
-                  rating: item.breakerSize || '16A MCB',
+                  rating: `${itemCbRating} MCB`,
                   voltage: `${project.voltage}V`,
                   current: `${item.calculatedCurrent?.toFixed(1) || '0.0'} A`,
                   power: `${item.calculatedMaxDemand?.toFixed(1) || '0.0'} kVA`,
@@ -356,17 +362,17 @@ export default function SLDPage() {
 
             const feederCable =
               fd.riserCableSize ||
-              (floorCurrent > 200
+              (floorDesignCurrent > 200
                 ? '4x120mm² Cu/XLPE'
-                : floorCurrent > 100
+                : floorDesignCurrent > 100
                 ? '4x50mm² Cu/XLPE'
-                : floorCurrent > 63
+                : floorDesignCurrent > 63
                 ? '4x25mm² Cu/XLPE'
                 : '4x16mm² Cu/XLPE');
 
             const floorTitle = fd.hasFloorSubPanels
-              ? `Floor ${fd.floorNumber} Sub-Panel (${Math.ceil(floorCurrent)}A Main)`
-              : `Floor ${fd.floorNumber} (${Math.ceil(floorCurrent)}A Main)`;
+              ? `Floor ${fd.floorNumber} Sub-Panel (${floorCbRating} Main)`
+              : `Floor ${fd.floorNumber} (${floorCbRating} Main)`;
 
             const floorPanelName = fd.hasFloorSubPanels
               ? `Floor ${fd.floorNumber} Sub-Panel (SDB)`
@@ -379,14 +385,14 @@ export default function SLDPage() {
               name: floorTitle,
               type: fd.hasFloorSubPanels ? 'Sub-Distribution Board (SDB)' : 'Distribution Board (DB)',
               icon: 'layers',
-              badge: `${Math.ceil(floorCurrent)}A`,
+              badge: floorCbRating,
               floorNumber: fd.floorNumber,
               children: itemChildren,
               data: {
                 id: floorId,
                 name: floorPanelName,
                 type: fd.hasFloorSubPanels ? 'Sub-Distribution Board (TP&N SDB)' : 'Distribution Board (DB)',
-                rating: `${Math.ceil(floorCurrent)}A Main Breaker`,
+                rating: `${floorCbRating} Main Breaker`,
                 voltage: `${project.voltage}V`,
                 current: `${floorCurrent.toFixed(1)} A`,
                 power: `${floorPower.toFixed(1)} kVA`,

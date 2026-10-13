@@ -1,7 +1,7 @@
 'use client';
 /* eslint-disable react-hooks/set-state-in-effect */
 
-import { useEffect, useState, useCallback, useMemo } from 'react';
+import { useEffect, useState, useCallback, useMemo, useRef } from 'react';
 import { useProject } from '@/context/ProjectContext';
 import { useTranslation } from '@/i18n';
 import { PageSkeleton } from '@/components/ui/skeleton';
@@ -86,7 +86,7 @@ interface BreakerEntry {
 }
 
 export default function BreakerSchedulePage() {
-  const { selectedProjectId, selectedProject, loading: contextLoading, preferredManufacturer, refreshProject, canView, canEdit } = useProject();
+  const { selectedProjectId, selectedProject, loading: contextLoading, preferredManufacturer, refreshProject, mutateProject, canView, canEdit } = useProject();
   const { t } = useTranslation();
   const [project, setProject] = useState<Project | null>(selectedProject);
   const [loading, setLoading] = useState(!selectedProject);
@@ -107,18 +107,31 @@ export default function BreakerSchedulePage() {
     MCCB: selectedProject?.defaultMccbFamilyId ?? undefined,
     MCB: selectedProject?.defaultMcbFamilyId ?? undefined,
   }));
+  const defaultsRef = useRef<DefaultFamilies>(defaults);
+
+  useEffect(() => {
+    defaultsRef.current = defaults;
+  }, [defaults]);
 
   useEffect(() => {
     if (selectedProject && selectedProject.id === selectedProjectId) {
       setProject(selectedProject);
-      setDefaults({
-        ACB: selectedProject.defaultAcbFamilyId ?? undefined,
-        MCCB: selectedProject.defaultMccbFamilyId ?? undefined,
-        MCB: selectedProject.defaultMcbFamilyId ?? undefined,
-      });
+      if (!saving) {
+        setDefaults((prev) => {
+          const nextACB = selectedProject.defaultAcbFamilyId ?? undefined;
+          const nextMCCB = selectedProject.defaultMccbFamilyId ?? undefined;
+          const nextMCB = selectedProject.defaultMcbFamilyId ?? undefined;
+          if (prev.ACB === nextACB && prev.MCCB === nextMCCB && prev.MCB === nextMCB) {
+            return prev;
+          }
+          const updated = { ACB: nextACB, MCCB: nextMCCB, MCB: nextMCB };
+          defaultsRef.current = updated;
+          return updated;
+        });
+      }
       setLoading(false);
     }
-  }, [selectedProject, selectedProjectId]);
+  }, [selectedProject, selectedProjectId, saving]);
 
   const loadProject = useCallback(async () => {
     if (!selectedProjectId) { setLoading(false); return; }
@@ -178,33 +191,57 @@ export default function BreakerSchedulePage() {
     };
   }, [loadEquipment, loadFamilies, loadBreakerSettings]);
 
-  const saveDefaults = useCallback(async (next: DefaultFamilies) => {
-    if (!project) return;
-    setSaving(true);
-    try {
-      const res = await fetch(`/api/projects/${project.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          defaultAcbFamilyId: next.ACB ?? null,
-          defaultMccbFamilyId: next.MCCB ?? null,
-          defaultMcbFamilyId: next.MCB ?? null,
-        }),
-      });
-      if (res.ok) {
-        const updated = await res.json();
-        setProject((prev) => (prev ? { ...prev, ...updated } : prev));
-        setDefaults(next);
+  const saveDefaults = useCallback(
+    async (next: DefaultFamilies) => {
+      const projId = project?.id || selectedProjectId;
+      if (!projId) return;
+      setSaving(true);
+
+      // Optimistically mutate context so all pages / navigation see the user's choice immediately
+      mutateProject((prev) =>
+        prev
+          ? {
+              ...prev,
+              defaultAcbFamilyId: next.ACB ?? null,
+              defaultMccbFamilyId: next.MCCB ?? null,
+              defaultMcbFamilyId: next.MCB ?? null,
+            }
+          : null
+      );
+
+      try {
+        const res = await fetch(`/api/projects/${projId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          keepalive: true,
+          body: JSON.stringify({
+            defaultAcbFamilyId: next.ACB ?? null,
+            defaultMccbFamilyId: next.MCCB ?? null,
+            defaultMcbFamilyId: next.MCB ?? null,
+          }),
+        });
+        if (res.ok) {
+          const updated = await res.json();
+          mutateProject((prev) => (prev ? { ...prev, ...updated } : prev));
+          setProject((prev) => (prev ? { ...prev, ...updated } : prev));
+          setDefaults(next);
+          defaultsRef.current = next;
+        }
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setSaving(false);
       }
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setSaving(false);
-    }
-  }, [project]);
+    },
+    [project?.id, selectedProjectId, mutateProject]
+  );
 
   const handleFamilyChange = (category: keyof DefaultFamilies, familyId: string) => {
-    const next = { ...defaults, [category]: familyId || undefined };
+    const next: DefaultFamilies = {
+      ...defaultsRef.current,
+      [category]: familyId || undefined,
+    };
+    defaultsRef.current = next;
     setDefaults(next);
     saveDefaults(next);
   };

@@ -335,11 +335,11 @@ describe('Parallel multi-conductor sizing in sizeCableAndBreaker', () => {
   });
 
   it('emits warnings for clamped breakers and catalog-exhausted fallbacks', () => {
-    // Beyond-range design current: breaker clamps to the largest frame.
-    const clamped = sizeCableAndBreaker(2600, true, {
+    // Beyond-range design current: breaker clamps to the largest frame (6300A).
+    const clamped = sizeCableAndBreaker(7000, true, {
       material: 'copper', insulation: 'XLPE', ambientTemp: 30, groupingCount: 1,
     });
-    expect(clamped.breakerSize).toBe(2500);
+    expect(clamped.breakerSize).toBe(6300);
     expect(clamped.warnings.some((w) => w.includes('largest standard breaker'))).toBe(true);
 
     // Catalog exhausted: even 6 runs cannot reach an unsatisfiable target.

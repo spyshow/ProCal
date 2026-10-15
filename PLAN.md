@@ -1,36 +1,44 @@
-# Plan: Fix SLD Displaying Load Current Instead of Circuit Breaker Amps
+# Plan: Fix Cable Schedule Upsize Failing to Apply for Large Incomers & ACB Ratings
 
 ## Task Summary
-In the Single Line Diagram (SLD) DSL generator and viewer, circuit breaker ratings currently display raw load current ($I_b$) rounded up (`rating: "${Math.ceil(floorCurrent)}A"`) instead of the standardized Circuit Breaker Amps rating ($I_n$, e.g., 50A, 63A, 100A, 160A) or configured manual `riserBreakerSize`. Additionally, branch circuit MCBs with unset/null breaker sizes output `"null"` instead of resolving the standard breaker rating. We will update the generator and SLD explorer to determine and display standardized CB amp ratings.
+When clicking "Apply" on the Cable Schedule page for an overloaded main incomer (e.g. Mall MDB Main Incomer with $I_b = 3904.9\text{ A}$), nothing changes because:
+1. `IEC_BREAKER_RATINGS` in `codes.ts` capped at 2500 A (standard IEC 60947-2 ACB ratings go up to 6300 A), causing 3904.9 A to map down to 2500 A.
+2. `sizeCableAndBreaker` in `cables.ts` sized cables against `breakerSize` rather than $\max(I_b, \text{breakerSize})$, picking $6 \times 300\text{ mm}^2$ ($I_z = 2832\text{ A}$) which is still overloaded ($2832\text{ A} < 3904.9\text{ A}$).
+3. In `cable-editor.ts`, numeric `existingCableSize` caused `parseCableSize` to discard `existingRuns`, causing false changes or re-proposing identical overloaded cables.
+4. The Runs dropdown in `cable-schedule/page.tsx` was limited to `[1..6]`, preventing proper display/selection of multi-run arrangements like 8x or 9x runs.
 
 ---
 
 ## Proposed Steps
 
-### Step 1: Create Breaker Rating Resolution Helper in `src/lib/sld/generator.ts`
-- **File**: `src/lib/sld/generator.ts`
-- **Changes**:
-  - Add `riserBreakerSize?: string | null` to `SLDProject['buildings'][0]['floorDesigns'][0]`.
-  - Implement `resolveBreakerRating(storedBreakerSize: string | number | null | undefined, current: number, code?: CodeStandard): string`:
-    - If `storedBreakerSize` is provided and non-empty, format cleanly as e.g. `"63A"`.
-    - If `storedBreakerSize` is null/empty/undefined, compute standard CB size via `nextBreakerRating(current, code)` (e.g. 43.5A load -> 50A breaker, 21.7A load -> 25A breaker).
-  - Update `generateSLD` and `generateSLDPages` to use `resolveBreakerRating` for:
-    - Floor main breakers: use `fd.riserBreakerSize` or floor design current (from phase balance / item current) to output standard CB amps (e.g., `50A` or `63A` instead of raw load current `44A`).
-    - Branch MCBs: use `item.breakerSize` or `item.calculatedCurrent` to output standard CB amps (e.g., `25A`, `32A`) instead of `"null"` or load current.
+### Step 1: Update Breaker Catalog in `src/lib/calculations/codes.ts` & `src/lib/calculations/codes.test.ts`
+- **File**: `src/lib/calculations/codes.ts`
+  - Add standard IEC ACB ratings to `IEC_BREAKER_RATINGS`: `3200, 4000, 5000, 6300`.
+  - Add standard NEC ratings to `NEC_BREAKER_RATINGS`: `5000, 6000`.
 - **Proof**:
-  - Add unit tests in `src/lib/sld/generator.test.ts` asserting that floor breakers and MCBs output standard CB ratings and honor `riserBreakerSize`.
+  - Update `codes.test.ts` to verify `nextBreakerRating(3904.9, 'IEC')` returns 4000 and boundary 9999 returns 6300. Run `npm test -- src/lib/calculations/codes.test.ts`.
 
-### Step 2: Update SLD Explorer Component in `src/app/(app)/sld/page.tsx`
-- **File**: `src/app/(app)/sld/page.tsx`
-- **Changes**:
-  - Import `resolveBreakerRating` from `@/lib/sld/generator`.
-  - In `dynamicTree`:
-    - Floor switchboard nodes: use `resolveBreakerRating` for the floor's title, badge, and `data.rating` (e.g. `"Floor 1 (50A Main)"` and `"50A Main Breaker"`), while retaining the exact load current in `data.current` (e.g. `"43.5 A"`).
-    - Branch load circuit nodes: resolve `itemCbRating` for badge and `data.rating` (e.g. `"25A MCB"`), while keeping load current in `data.current`.
+### Step 2: Enforce Continuous Ampacity $\ge I_b$ in `src/lib/calculations/cables.ts`
+- **File**: `src/lib/calculations/cables.ts`
+  - In `sizeCableAndBreaker`, define `const targetCurrent = Math.max(ib, breakerSize);`.
+  - Enforce `totalIz >= targetCurrent` across single-run, parallel-run search, and fallback calculations so $I_z \ge I_b$ is guaranteed.
 - **Proof**:
-  - Run component tests / Vitest to verify the SLD page loads without errors and displays CB ratings in badges/inspectors.
+  - Run `npm test -- src/lib/calculations/cables.test.ts`.
 
-### Step 3: Verification & Test Suite
-- Run `npx tsc --noEmit` to verify type safety.
-- Run `npm test` across all 75 test suites.
+### Step 3: Fix Existing Runs Parsing & Breaker Forwarding in `src/lib/sld/cable-editor.ts`
+- **File**: `src/lib/sld/cable-editor.ts`
+  - Parse `existingRuns` preserving `input.existingRuns`:
+    `const existingRuns = input.existingRuns ?? rawParsed?.runs ?? 1;`
+  - Pass `manualBreakerRating: input.assignedBreakerSize` into `sizeCableAndBreaker`.
+- **Proof**:
+  - Add unit test for 3904.9A incomer in `cable-editor.test.ts` verifying it proposes $9 \times 300\text{ mm}^2$ ($I_z = 4248\text{ A}$), not overloaded $6 \times 300\text{ mm}^2$. Run `npm test -- src/lib/sld/cable-editor.test.ts`.
+
+### Step 4: Expand Parallel Runs Options in `src/app/(app)/cable-schedule/page.tsx`
+- **File**: `src/app/(app)/cable-schedule/page.tsx`
+  - Update the runs selector options to support up to 12 runs: `[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12]`, including `c.parallelRuns` if dynamically higher.
+- **Proof**:
+  - Verify component renders and runs dropdown displays up to 12x.
+
+### Step 5: Full Test Suite & Verification
+- Run `npm test` across all suites to ensure no regressions.
 - Run `graphify update .`.

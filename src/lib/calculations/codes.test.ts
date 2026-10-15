@@ -32,7 +32,7 @@ describe("BREAKER_RATINGS catalogs", () => {
     expect(BREAKER_RATINGS.NEC).toEqual([
       15, 20, 25, 30, 35, 40, 45, 50, 60, 70, 80, 90, 100, 110, 125, 150, 175,
       200, 225, 250, 300, 350, 400, 450, 500, 600, 700, 800, 1000, 1200, 1600,
-      2000, 2500, 3000, 4000,
+      2000, 2500, 3000, 4000, 5000, 6000,
     ]);
   });
 
@@ -59,8 +59,13 @@ describe("nextBreakerRating", () => {
   });
 
   it("above the top rating, clamps to each catalog's frame limit", () => {
-    expect(nextBreakerRating(9999, "IEC")).toBe(2500);
-    expect(nextBreakerRating(9999, "NEC")).toBe(4000);
+    expect(nextBreakerRating(9999, "IEC")).toBe(6300);
+    expect(nextBreakerRating(9999, "NEC")).toBe(6000);
+  });
+
+  it("3904.9 A lands on 4000 A under IEC and NEC", () => {
+    expect(nextBreakerRating(3904.9, "IEC")).toBe(4000);
+    expect(nextBreakerRating(3904.9, "NEC")).toBe(4000);
   });
 
   it("defaults to IEC when no code is given", () => {

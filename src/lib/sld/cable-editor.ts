@@ -77,13 +77,18 @@ export function recalculateCable(input: CableEditorInput): CableEditorResult {
   } = input;
 
   const calcStandard = code === 'NEC' ? 'NEMA' : 'IEC';
-  const existingParsed = parseCableSize(existingCableSize) ?? {
-    size: typeof existingCableSize === 'number' ? existingCableSize : 16,
-    runs: input.existingRuns ?? 1,
-    formatted: typeof existingCableSize === 'number' ? `${existingCableSize} mm²` : String(existingCableSize),
+  const rawParsed = parseCableSize(existingCableSize);
+  const existingRuns = input.existingRuns ?? rawParsed?.runs ?? 1;
+  const existingSize = rawParsed?.size ?? (typeof existingCableSize === 'number' ? existingCableSize : 16);
+  const existingParsed = {
+    size: existingSize,
+    runs: existingRuns,
+    formatted: rawParsed?.runs && rawParsed.runs > 1 && !input.existingRuns
+      ? rawParsed.formatted
+      : formatCableSize(existingSize, existingRuns),
   };
 
-  const currentRuns = targetRuns ?? input.existingRuns ?? existingParsed.runs ?? 1;
+  const currentRuns = targetRuns ?? existingRuns;
   const effGroupFactor = groupingDeratingFactor(groupingCount, calcStandard);
   const totalDerating =
     temperatureDeratingFactor(insulation, ambientTemp, calcStandard) * effGroupFactor;
@@ -131,6 +136,7 @@ export function recalculateCable(input: CableEditorInput): CableEditorResult {
     groupingCount,
     installMethod: method,
     maxCableSize,
+    manualBreakerRating: input.assignedBreakerSize,
     code,
     ...(targetRuns && targetRuns > 1 ? { targetRuns } : {}),
     voltageDrop: { lengthMeters, powerFactor, systemVoltage, maxPercent: maxVoltageDropPercent },

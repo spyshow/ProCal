@@ -285,6 +285,8 @@ export function sizeCableAndBreaker(
       `Design current ${ib.toFixed(1)} A exceeds the largest standard breaker (${breakerSize} A); sized to the frame limit — split the load across multiple feeders.`
     );
   }
+  // Fundamental protection & thermal rule (IEC 60364-4-43 / 60364-5-52): Iz >= max(Ib, In)
+  const targetCurrent = Math.max(ib, breakerSize);
 
   // 2. Derating factors. Ground methods (D1/D2/NEC-10/11) are tabulated against 20 °C
   // soil, not 30 °C air, so they use their own correction table.
@@ -327,7 +329,7 @@ export function sizeCableAndBreaker(
     for (const cable of catalogToUse) {
       const singleNominal = nominalFor(cable.size);
       const totalIz = selectedRuns * singleNominal * totalDerating;
-      if (totalIz >= breakerSize && vdOk(cable.size, selectedRuns)) {
+      if (totalIz >= targetCurrent && vdOk(cable.size, selectedRuns)) {
         selectedCable = cable;
         nominalAmpacity = selectedRuns * singleNominal;
         deratedAmpacity = totalIz;
@@ -340,7 +342,7 @@ export function sizeCableAndBreaker(
       nominalAmpacity = selectedRuns * singleNominal;
       deratedAmpacity = selectedRuns * singleNominal * totalDerating;
       warnings.push(
-        `${selectedRuns} × ${selectedCable.size} mm² still cannot carry ${breakerSize} A under ${tempFactor.toFixed(2)}×${effGroupFactor.toFixed(2)} derating — increase runs or improve the installation.`
+        `${selectedRuns} × ${selectedCable.size} mm² still cannot carry ${targetCurrent} A under ${tempFactor.toFixed(2)}×${effGroupFactor.toFixed(2)} derating — increase runs or improve the installation.`
       );
     }
   } else {
@@ -349,7 +351,7 @@ export function sizeCableAndBreaker(
     for (const cable of catalogToUse) {
       const singleNominal = nominalFor(cable.size);
       const testIz = singleNominal * tempFactor * groupFactor;
-      if (testIz >= breakerSize && vdOk(cable.size, 1)) {
+      if (testIz >= targetCurrent && vdOk(cable.size, 1)) {
         selectedCable = cable;
         selectedRuns = 1;
         nominalAmpacity = singleNominal;
@@ -368,7 +370,7 @@ export function sizeCableAndBreaker(
         for (const cable of catalogToUse) {
           const singleNominal = nominalFor(cable.size);
           const totalIz = runs * singleNominal * runDerating;
-          if (totalIz >= breakerSize && vdOk(cable.size, runs)) {
+          if (totalIz >= targetCurrent && vdOk(cable.size, runs)) {
             selectedCable = cable;
             selectedRuns = runs;
             nominalAmpacity = runs * singleNominal;
@@ -385,13 +387,13 @@ export function sizeCableAndBreaker(
         const largest = catalogToUse[catalogToUse.length - 1];
         const largestNominal = nominalFor(largest.size);
         const largestIz = largestNominal * tempFactor * groupFactor;
-        selectedRuns = Math.max(2, Math.ceil(breakerSize / (largestIz > 0 ? largestIz : 1)));
+        selectedRuns = Math.max(2, Math.ceil(targetCurrent / (largestIz > 0 ? largestIz : 1)));
         selectedCable = largest;
         nominalAmpacity = selectedRuns * largestNominal;
         const fallbackGroupFactor = groupingDeratingFactor(groupingCount, calcStandard);
         deratedAmpacity = selectedRuns * largestNominal * tempFactor * fallbackGroupFactor;
         warnings.push(
-          `Catalog exhausted: even 6 parallel ${largest.size} mm² runs fall short of ${breakerSize} A after derating — showing best-available ${selectedRuns}-run arrangement (${Math.round(deratedAmpacity)} A Iz).`
+          `Catalog exhausted: even 6 parallel ${largest.size} mm² runs fall short of ${targetCurrent} A after derating — showing best-available ${selectedRuns}-run arrangement (${Math.round(deratedAmpacity)} A Iz).`
         );
       }
     }

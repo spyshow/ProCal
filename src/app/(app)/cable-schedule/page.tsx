@@ -1533,9 +1533,11 @@ export default function CableSchedulePage() {
                           className="bg-[var(--input-bg)] hover:bg-[var(--card-bg-subtle)] border border-[var(--border-color,#1f2937)] hover:border-orange-500/40 rounded-md px-2 py-1 text-xs text-[var(--foreground-color,#f8fafc)] font-mono font-bold transition-colors cursor-pointer focus:outline-none focus:ring-1 focus:ring-orange-500 shadow-2xs"
                           title="Runs per phase"
                         >
-                          {[1, 2, 3, 4, 5, 6].map((num) => (
-                            <option key={num} value={num}>{num}x</option>
-                          ))}
+                          {Array.from(new Set([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, c.parallelRuns || 1]))
+                            .sort((a, b) => a - b)
+                            .map((num) => (
+                              <option key={num} value={num}>{num}x</option>
+                            ))}
                         </select>
                       </td>
 

@@ -256,4 +256,63 @@ describe('Cable recalculation', () => {
     const pvc = run('PVC');
     expect(pvc.voltageDropPercent).toBeLessThan(xlpe.voltageDropPercent);
   });
+
+  it('correctly upsizes large overloaded incomer (3904.9A) from 6x to 9x 300mm² and settles once applied', () => {
+    // 1. Initially installed: 6 × 300 mm² PVC in Method F -> Iz = 2832 A < 3904.9 A (Overload)
+    const proposed = recalculateCable({
+      current: 3904.9,
+      isThreePhase: true,
+      lengthMeters: 15,
+      existingCableSize: 300,
+      existingRuns: 6,
+      assignedBreakerSize: 4000,
+      powerFactor: 0.85,
+      systemVoltage: 400,
+      maxVoltageDropPercent: 5,
+      method: 'F',
+      insulation: 'PVC',
+      material: 'copper',
+      ambientTemp: 30,
+      groupingCount: 1,
+      maxCableSize: 300,
+      code: 'IEC',
+    });
+
+    expect(proposed.changed).toBe(true);
+    expect(proposed.cableSize).toBe(300);
+    expect(proposed.parallelRuns).toBe(9);
+    expect(proposed.formattedCableSize).toBe('9 × 300 mm²');
+    expect(proposed.ampacity).toBe(4248);
+    expect(proposed.ampacity).toBeGreaterThanOrEqual(3904.9);
+    expect(proposed.ampacity).toBeGreaterThanOrEqual(4000);
+    expect(proposed.isOverloaded).toBe(false);
+
+    // 2. Once the proposed 9 × 300 mm² is applied (saved) to the database:
+    const afterApply = recalculateCable({
+      current: 3904.9,
+      isThreePhase: true,
+      lengthMeters: 15,
+      existingCableSize: 300,
+      existingRuns: 9,
+      assignedBreakerSize: 4000,
+      powerFactor: 0.85,
+      systemVoltage: 400,
+      maxVoltageDropPercent: 5,
+      method: 'F',
+      insulation: 'PVC',
+      material: 'copper',
+      ambientTemp: 30,
+      groupingCount: 1,
+      maxCableSize: 300,
+      code: 'IEC',
+    });
+
+    expect(afterApply.changed).toBe(false);
+    expect(afterApply.parallelRuns).toBe(9);
+    expect(afterApply.formattedCableSize).toBe('9 × 300 mm²');
+    expect(afterApply.ampacity).toBe(4248);
+    expect(afterApply.isOverloaded).toBe(false);
+  });
 });
+
+

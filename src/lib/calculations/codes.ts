@@ -21,13 +21,16 @@ export function codeOf(calculationStandard?: string | null): CodeStandard {
 }
 
 /** Standard breaker ratings (Amperes) — IEC 60898/60947 preferred values. */
-export const IEC_BREAKER_RATINGS = [6, 10, 13, 16, 20, 25, 32, 40, 50, 63, 80, 100, 125, 160, 200, 250, 320, 400, 500, 630, 800, 1000, 1250, 1600, 2000, 2500];
+export const IEC_BREAKER_RATINGS = [
+  6, 10, 13, 16, 20, 25, 32, 40, 50, 63, 80, 100, 125, 160, 200, 250, 320, 400, 500, 630,
+  800, 1000, 1250, 1600, 2000, 2500, 3200, 4000, 5000, 6300,
+];
 
 /** Standard breaker ratings (Amperes) — NEC 240.6(A). */
 export const NEC_BREAKER_RATINGS = [
   15, 20, 25, 30, 35, 40, 45, 50, 60, 70, 80, 90, 100, 110, 125, 150, 175, 200,
   225, 250, 300, 350, 400, 450, 500, 600, 700, 800, 1000, 1200, 1600, 2000,
-  2500, 3000, 4000,
+  2500, 3000, 4000, 5000, 6000,
 ];
 
 export const BREAKER_RATINGS: Record<CodeStandard, number[]> = {

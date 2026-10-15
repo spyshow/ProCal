@@ -279,7 +279,7 @@ export function TopHeader() {
 
         {/* Theme Selector */}
         <div data-tour="theme-toggle" className="shrink-0">
-          <ThemeSelector className="w-28 sm:w-32" />
+          <ThemeSelector variant="select" />
         </div>
 
         {/* User Profile Avatar & Dropdown */}

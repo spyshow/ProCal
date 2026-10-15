@@ -1,7 +1,7 @@
 'use client';
 /* eslint-disable react-hooks/set-state-in-effect */
 
-import React, { createContext, useContext, useEffect, useState, useCallback, useMemo } from 'react';
+import React, { createContext, useContext, useEffect, useState, useCallback, useMemo, useRef } from 'react';
 import { ThemeMode, ResolvedTheme, THEME_COOKIE_NAME, DEFAULT_THEME, resolveTheme, isValidTheme } from '@/lib/theme';
 import { useOptionalUser } from '@/context/UserContext';
 
@@ -39,7 +39,7 @@ export function ThemeProvider({ children, initialTheme }: ThemeProviderProps) {
   });
 
   const [systemPrefersDark, setSystemPrefersDark] = useState<boolean>(() => {
-    if (typeof window !== 'undefined') {
+    if (typeof window !== 'undefined' && typeof window.matchMedia === 'function') {
       return window.matchMedia('(prefers-color-scheme: dark)').matches;
     }
     return true;
@@ -47,7 +47,7 @@ export function ThemeProvider({ children, initialTheme }: ThemeProviderProps) {
 
   // Sync with system preference changes
   useEffect(() => {
-    if (typeof window === 'undefined') return;
+    if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return;
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
     setSystemPrefersDark(mediaQuery.matches);
 
@@ -81,12 +81,42 @@ export function ThemeProvider({ children, initialTheme }: ThemeProviderProps) {
     applyThemeToDom(resolvedTheme);
   }, [resolvedTheme, applyThemeToDom]);
 
-  // If user profile has a saved theme different from initial, adopt it once loaded
+  // Sync theme changes across browser tabs/windows
   useEffect(() => {
-    if (user?.theme && isValidTheme(user.theme) && user.theme !== theme) {
-      setThemeState(user.theme);
+    if (typeof window === 'undefined') return;
+    const handleStorage = (e: StorageEvent) => {
+      if (e.key === THEME_COOKIE_NAME && e.newValue && isValidTheme(e.newValue)) {
+        setThemeState(e.newValue);
+      }
+    };
+    window.addEventListener('storage', handleStorage);
+    return () => window.removeEventListener('storage', handleStorage);
+  }, []);
+
+  // Track the user id whose saved profile theme has already been adopted
+  const syncedUserIdRef = useRef<string | null>(null);
+
+  // If user profile has a saved theme, adopt it on initial user load or when user account switches
+  useEffect(() => {
+    if (!user) {
+      syncedUserIdRef.current = null;
+      return;
     }
-  }, [user?.theme, theme]);
+    if (syncedUserIdRef.current === user.id) return;
+    syncedUserIdRef.current = user.id;
+
+    if (user.theme && isValidTheme(user.theme)) {
+      setThemeState(user.theme);
+      if (typeof document !== 'undefined') {
+        document.cookie = `${THEME_COOKIE_NAME}=${user.theme}; path=/; max-age=31536000; SameSite=Lax`;
+        try {
+          localStorage.setItem(THEME_COOKIE_NAME, user.theme);
+        } catch {
+          // ignore localStorage quota errors
+        }
+      }
+    }
+  }, [user]);
 
   const setTheme = useCallback((newTheme: ThemeMode) => {
     if (!isValidTheme(newTheme)) return;
@@ -108,10 +138,16 @@ export function ThemeProvider({ children, initialTheme }: ThemeProviderProps) {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ theme: newTheme }),
-    }).catch(() => {
-      // background sync silently ignores offline or unauthorized states
-    });
-  }, []);
+    })
+      .then(async (res) => {
+        if (res.ok && userContext?.refreshUser) {
+          await userContext.refreshUser();
+        }
+      })
+      .catch(() => {
+        // background sync silently ignores offline or unauthorized states
+      });
+  }, [userContext]);
 
   const value = useMemo(
     () => ({

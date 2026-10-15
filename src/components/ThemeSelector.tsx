@@ -14,7 +14,7 @@ interface ThemeSelectorProps {
 }
 
 export function ThemeSelector({
-  variant = 'compact',
+  variant = 'select',
   className,
   isCollapsed = false,
 }: ThemeSelectorProps) {
@@ -134,8 +134,8 @@ export function ThemeSelector({
     );
   }
 
-  // Footer or Dropdown Variant with interactive popup
-  if (variant === 'footer' || variant === 'dropdown') {
+  // Footer, Dropdown or Select Variant with interactive popup
+  if (variant === 'footer' || variant === 'dropdown' || variant === 'select') {
     const isFooter = variant === 'footer';
     return (
       <div ref={containerRef} className={cn('relative inline-flex items-center', className)}>

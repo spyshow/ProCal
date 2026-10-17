@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useTranslation } from '@/i18n';
 import { LanguageSelector } from '@/components/LanguageSelector';
+import { ThemeSelector } from '@/components/ThemeSelector';
 import { ArrowLeft, CheckCircle2, Mail, AlertCircle, Sparkles } from 'lucide-react';
 
 export default function ForgotPasswordPage() {
@@ -19,7 +20,7 @@ export default function ForgotPasswordPage() {
     setError('');
 
     if (!identifier.trim()) {
-      setError(t('auth.username', 'Please enter your username or email address.'));
+      setError(t('auth.enterUsernameOrEmail', 'Please enter your username or email address.'));
       return;
     }
 
@@ -52,15 +53,11 @@ export default function ForgotPasswordPage() {
 
   return (
     <div
-      className="min-h-screen flex flex-col items-center justify-center px-4 py-12"
-      style={{
-        background: 'radial-gradient(ellipse at center, #111827 0%, #030712 100%)',
-      }}
+      className="min-h-screen flex flex-col items-center justify-center px-4 py-12 bg-[var(--background-color,#030712)] text-[var(--foreground-color,#f8fafc)] bg-grid-pattern transition-colors duration-200"
     >
       <div className="w-full max-w-md">
         <div
-          className="rounded-xl border border-gray-800 shadow-2xl backdrop-blur-sm px-8 py-10"
-          style={{ backgroundColor: 'rgba(17,24,39,0.80)' }}
+          className="rounded-xl border border-[var(--border-color,#1f2937)] bg-[var(--card-bg,#0b0f19)]/90 shadow-2xl backdrop-blur-sm px-8 py-10 transition-colors duration-200"
         >
           {/* Brand Header */}
           <div className="flex flex-col items-center mb-6 select-none">
@@ -68,15 +65,15 @@ export default function ForgotPasswordPage() {
               <Mail className="w-7 h-7 text-orange-500" />
             </div>
 
-            <h1 className="text-2xl font-bold tracking-tight text-white text-center">
+            <h1 className="text-2xl font-bold tracking-tight text-[var(--foreground-color,#fff)] text-center">
               {t('auth.forgotPasswordTitle', 'Reset Your Password')}
             </h1>
 
-            <p className="mt-2 text-xs text-gray-400 text-center leading-relaxed">
+            <p className="mt-2 text-xs text-[var(--table-header-color,#9ca3af)] text-center leading-relaxed">
               {t('auth.forgotPasswordDesc', "Enter your username or email address and we'll send you a link to reset your password.")}
             </p>
 
-            <div className="mt-6 w-full border-t border-gray-700/60" />
+            <div className="mt-6 w-full border-t border-[var(--border-color,#374151)]/60" />
           </div>
 
           {/* Success State */}
@@ -128,9 +125,9 @@ export default function ForgotPasswordPage() {
               <div>
                 <label
                   htmlFor="identifier"
-                  className="block mb-1.5 text-xs font-semibold uppercase tracking-wider text-gray-400"
+                  className="block mb-1.5 text-xs font-semibold uppercase tracking-wider text-[var(--table-header-color,#9ca3af)]"
                 >
-                  {t('auth.username', 'Username or Email')}
+                  {t('auth.usernameOrEmail', 'Username or Email')}
                 </label>
                 <input
                   id="identifier"
@@ -141,8 +138,8 @@ export default function ForgotPasswordPage() {
                   onChange={(e) => setIdentifier(e.target.value)}
                   placeholder="john@example.com or engineer_john"
                   className="
-                    w-full rounded-lg border border-gray-700 bg-gray-800
-                    px-4 py-3 text-sm text-white placeholder-gray-500
+                    w-full rounded-lg border border-[var(--input-border,#374151)] bg-[var(--input-bg,rgba(17,24,39,0.8))]
+                    px-4 py-3 text-sm text-[var(--input-color,#ffffff)] placeholder-[var(--table-header-color,#6b7280)]
                     focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent
                     transition-shadow
                   "
@@ -181,7 +178,7 @@ export default function ForgotPasswordPage() {
               <div className="text-center pt-2">
                 <Link
                   href="/login"
-                  className="inline-flex items-center gap-1.5 text-xs font-medium text-gray-400 hover:text-orange-400 transition-colors"
+                  className="inline-flex items-center gap-1.5 text-xs font-medium text-[var(--table-header-color,#9ca3af)] hover:text-orange-400 transition-colors"
                 >
                   <ArrowLeft className={`w-3.5 h-3.5 ${isRtl ? 'rotate-180' : ''}`} />
                   <span>{t('auth.backToSignIn', 'Back to Sign In')}</span>
@@ -191,16 +188,17 @@ export default function ForgotPasswordPage() {
           )}
         </div>
 
-        {/* Language Selector */}
-        <div className="mt-6 flex justify-center">
+        {/* Theme & Language Selector */}
+        <div className="mt-6 flex items-center justify-center gap-3">
+          <ThemeSelector variant="footer" />
           <LanguageSelector variant="footer" />
         </div>
 
         {/* Copyright */}
-        <p className="mt-4 text-center text-xs text-gray-600 select-none">
+        <p className="mt-4 text-center text-xs text-[var(--table-header-color,#6b7280)] select-none">
           &copy; 2026&nbsp;
-          <span className="text-gray-500 font-medium">ProCal</span>
-          &nbsp;&mdash;&nbsp;Low Voltage Electrical Design , <span className="text-orange-400 font-medium">Solved</span>
+          <span className="text-[var(--foreground-color,#9ca3af)] font-medium">ProCal</span>
+          &nbsp;&mdash;&nbsp;Low Voltage Electrical Design, <span className="text-orange-400 font-medium">Solved</span>
         </p>
       </div>
     </div>

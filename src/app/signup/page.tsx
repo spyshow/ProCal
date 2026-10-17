@@ -88,7 +88,7 @@ export default function SignupPage() {
               {t('common.appName', 'ProCal')}
             </h1>
             <p className="mt-2 text-sm font-medium tracking-normal text-[var(--table-header-color,#9ca3af)] text-center">
-              Low Voltage Electrical Design , <span className="text-orange-500 dark:text-orange-400 font-bold">Solved</span>
+              Low Voltage Electrical Design, <span className="text-orange-500 dark:text-orange-400 font-bold">Solved</span>
             </p>
             <p className="mt-1 text-xs font-medium tracking-widest text-[var(--table-header-color,#9ca3af)] uppercase text-center">
               {t('auth.signupTitle', 'Create Your Account')}
@@ -110,7 +110,7 @@ export default function SignupPage() {
                   autoFocus
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder={t('auth.name', 'Enter your full name')}
+                  placeholder={t('auth.namePlaceholder', 'Enter your full name')}
                   className="w-full rounded-lg border border-[var(--input-border,#374151)] bg-[var(--input-bg,rgba(17,24,39,0.8))] px-4 py-3 text-sm text-[var(--input-color,#ffffff)] placeholder-[var(--table-header-color,#6b7280)] focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all shadow-sm"
                 />
               </div>
@@ -146,7 +146,7 @@ export default function SignupPage() {
                   autoComplete="username"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  placeholder={t('auth.username', 'Choose a username')}
+                  placeholder={t('auth.usernamePlaceholder', 'Choose a username')}
                   className="w-full rounded-lg border border-[var(--input-border,#374151)] bg-[var(--input-bg,rgba(17,24,39,0.8))] px-4 py-3 text-sm text-[var(--input-color,#ffffff)] placeholder-[var(--table-header-color,#6b7280)] focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all shadow-sm"
                 />
               </div>
@@ -164,7 +164,7 @@ export default function SignupPage() {
                   autoComplete="new-password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder={t('auth.password', 'Create a password')}
+                  placeholder={t('auth.passwordPlaceholder', 'Create a password')}
                   className="w-full rounded-lg border border-[var(--input-border,#374151)] bg-[var(--input-bg,rgba(17,24,39,0.8))] px-4 py-3 text-sm text-[var(--input-color,#ffffff)] placeholder-[var(--table-header-color,#6b7280)] focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all shadow-sm"
                 />
                 <button
@@ -181,7 +181,7 @@ export default function SignupPage() {
             {/* Confirm Password */}
             <div>
               <label htmlFor="confirmPassword" className="block mb-1.5 text-xs font-semibold uppercase tracking-wider text-[var(--table-header-color,#9ca3af)]">
-                {t('auth.password', 'Confirm Password')}
+                {t('auth.confirmPassword', 'Confirm Password')}
               </label>
               <div className="relative">
                 <input
@@ -190,9 +190,17 @@ export default function SignupPage() {
                   autoComplete="new-password"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  placeholder={t('auth.password', 'Confirm your password')}
+                  placeholder={t('auth.confirmPasswordPlaceholder', 'Confirm your password')}
                   className="w-full rounded-lg border border-[var(--input-border,#374151)] bg-[var(--input-bg,rgba(17,24,39,0.8))] px-4 py-3 text-sm text-[var(--input-color,#ffffff)] placeholder-[var(--table-header-color,#6b7280)] focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all shadow-sm"
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((prev) => !prev)}
+                  className={isRtl ? "absolute inset-y-0 left-0 flex items-center pl-3.5 text-[var(--table-header-color,#9ca3af)] hover:text-orange-500 transition-colors" : "absolute inset-y-0 right-0 flex items-center pr-3.5 text-[var(--table-header-color,#9ca3af)] hover:text-orange-500 transition-colors"}
+                  aria-label={showPassword ? 'Hide confirm password' : 'Show confirm password'}
+                >
+                  <span className="text-xs text-[var(--table-header-color,#9ca3af)]">{showPassword ? '●●●' : '👁'}</span>
+                </button>
               </div>
             </div>
 
@@ -235,7 +243,7 @@ export default function SignupPage() {
         <p className="mt-4 text-center text-xs text-[var(--table-header-color,#6b7280)] select-none">
           &copy; 2026&nbsp;
           <span className="text-[var(--foreground-color,#9ca3af)] font-medium">ProCal</span>
-          &nbsp;&mdash;&nbsp;Low Voltage Electrical Design , <span className="text-orange-500 dark:text-orange-400 font-medium">Solved</span>
+          &nbsp;&mdash;&nbsp;Low Voltage Electrical Design, <span className="text-orange-500 dark:text-orange-400 font-medium">Solved</span>
         </p>
       </div>
     </div>

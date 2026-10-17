@@ -256,7 +256,7 @@ export default function DashboardPage() {
                 0
               );
               return (
-                <Link key={proj.id} href={`/projects`}>
+                <Link key={proj.id} href={`/projects/${proj.id}`}>
                   <Card className="glow-card border border-[var(--border-color,#1f2937)] hover:border-orange-500/40 p-4 group flex items-center justify-between gap-4">
                     <div className="flex items-center gap-3.5 min-w-0">
                       <div className="w-10 h-10 rounded-lg bg-orange-500/10 border border-orange-500/30 flex items-center justify-center flex-shrink-0">

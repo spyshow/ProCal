@@ -75,7 +75,10 @@ export async function GET(request?: Request) {
           updatedAt: true,
           userId: true,
           buildings: {
-            select: { id: true, name: true, floors: true },
+            select: { id: true, name: true, floors: true, apartmentsPerFloor: true },
+          },
+          loadLibraryItems: {
+            select: { id: true },
           },
           members: {
             where: { userId: user.id },

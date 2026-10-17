@@ -303,5 +303,36 @@ describe("GET /api/projects - Pagination & Filtering", () => {
     expect(data.projects[1].currentMemberRole).toBe("ENGINEER");
     expect(data.projects[1].currentMemberPermissions).toBeDefined();
   });
+
+  // Regression: ISSUE-009 — Engineering Dashboard always displayed 0 Apartments and 0 Load Items
+  // Found by /qa on 2026-10-17
+  // Report: .gstack/qa-reports/qa-report-localhost-3000-2026-10-17.md
+  it("selects buildings.apartmentsPerFloor and loadLibraryItems so dashboard KPIs are non-zero", async () => {
+    mocks.projectCount.mockResolvedValue(1);
+    mocks.projectFindMany.mockResolvedValue([
+      {
+        id: "p1",
+        name: "Test Project - Mixed Use Complex",
+        userId: "u1",
+        buildings: [
+          { id: "b1", name: "Tower A", floors: 19, apartmentsPerFloor: 4 },
+          { id: "b2", name: "Tower B", floors: 9, apartmentsPerFloor: 4 },
+        ],
+        loadLibraryItems: [{ id: "l1" }, { id: "l2" }],
+        members: [],
+      },
+    ]);
+
+    const res = await get("http://localhost/api/projects?all=true");
+    expect(res.status).toBe(200);
+    const data = await res.json();
+
+    const callSelect = mocks.projectFindMany.mock.calls[0][0].select;
+    expect(callSelect.buildings.select.apartmentsPerFloor).toBe(true);
+    expect(callSelect.loadLibraryItems).toEqual({ select: { id: true } });
+    expect(data.projects[0].buildings[0].apartmentsPerFloor).toBe(4);
+    expect(data.projects[0].loadLibraryItems).toHaveLength(2);
+  });
 });
+
 

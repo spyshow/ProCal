@@ -459,6 +459,7 @@ export default function ReportsPage() {
         return (
           <CoverPage
             project={project}
+            buildingId={selectedBuilding ?? undefined}
             companyName={company.companyName}
             companyLogoUrl={company.logoUrl}
             revisions={revisions}
@@ -644,6 +645,7 @@ export default function ReportsPage() {
         {/* Page 1: Executive Cover Page */}
           <CoverPage
             project={project}
+            buildingId={selectedBuilding ?? undefined}
             companyName={company.companyName}
             companyLogoUrl={company.logoUrl}
             revisions={revisions}

@@ -158,7 +158,24 @@ function buildProjectRows(project: Project): Record<string, string | number>[] {
     overallBalance.phaseKw[1] / pf,
     overallBalance.phaseKw[2] / pf,
   ];
-  const transformerKva = project.transformerSize ?? sizeTransformer(demandKva, 1.2, perPhaseKva);
+  const perBuildingTxSum = project.buildings.reduce((sum, b) => {
+    const bItems = [...b.floorDesigns.flatMap((fd) => fd.items), ...(b.buildingLoads ?? [])];
+    const bBal = phaseBalance(bItems as never, project as never);
+    const bDemandKva = bBal.totalKw / pf;
+    const bPerPhase: [number, number, number] = [
+      bBal.phaseKw[0] / pf,
+      bBal.phaseKw[1] / pf,
+      bBal.phaseKw[2] / pf,
+    ];
+    const sized = bDemandKva > 0 ? sizeTransformer(bDemandKva, 1.2, bPerPhase) : 500;
+    return sum + (b.transformer && b.transformer >= bDemandKva ? b.transformer : sized);
+  }, 0);
+  const transformerKva =
+    project.transformerSize && project.transformerSize >= demandKva
+      ? project.transformerSize
+      : project.buildings.length > 0
+        ? perBuildingTxSum
+        : sizeTransformer(demandKva, 1.2, perPhaseKva);
 
   const rows: Record<string, string | number>[] = [
     { Field: "Project", Value: project.name },

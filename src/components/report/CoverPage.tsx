@@ -9,6 +9,7 @@ import type { Project, ProjectRevision } from '@/types';
 
 export interface CoverPageProps {
   project: Project;
+  buildingId?: string;
   companyName?: string;
   companyLogoUrl?: string;
   revisions?: ProjectRevision[];
@@ -18,6 +19,7 @@ export interface CoverPageProps {
 
 export default function CoverPage({
   project,
+  buildingId,
   companyName,
   companyLogoUrl,
   revisions = [],
@@ -25,11 +27,15 @@ export default function CoverPage({
   breakerSettings,
 }: CoverPageProps) {
   const displayLogo = project.logoUrl || companyLogoUrl;
-  const displayCompany = companyName || 'ProCal — Low Voltage Electrical Design , Solved';
+  const displayCompany = companyName || 'ProCal — Low Voltage Electrical Design, Solved';
   const reportDate = project.date || new Date().toLocaleDateString();
 
-  // Aggregate project-wide load & current balance
-  const allProjectItems = project.buildings.flatMap((b) => [
+  const activeBuildings = buildingId
+    ? project.buildings.filter((b) => b.id === buildingId)
+    : project.buildings;
+
+  // Aggregate project-wide (or selected building) load & current balance
+  const allProjectItems = activeBuildings.flatMap((b) => [
     ...b.floorDesigns.flatMap((fd) => fd.items),
     ...(b.buildingLoads ?? []),
   ]);
@@ -43,7 +49,39 @@ export default function CoverPage({
     totalBalance.phaseKw[1] / pf,
     totalBalance.phaseKw[2] / pf,
   ];
-  const transformerKva = project.transformerSize || sizeTransformer(demandKva, 1.2, perPhaseKva);
+
+  const getBuildingTransformerKva = (bldg: Project['buildings'][number]) => {
+    const bItems = [
+      ...bldg.floorDesigns.flatMap((fd) => fd.items),
+      ...(bldg.buildingLoads ?? []),
+    ];
+    const bBal = phaseBalance(bItems as any, project as any);
+    const bDemandKva = bBal.totalKw / pf;
+    const bPerPhaseKva: [number, number, number] = [
+      bBal.phaseKw[0] / pf,
+      bBal.phaseKw[1] / pf,
+      bBal.phaseKw[2] / pf,
+    ];
+    const sized = bDemandKva > 0 ? sizeTransformer(bDemandKva, 1.2, bPerPhaseKva) : 500;
+    if (bldg.transformer && bldg.transformer >= bDemandKva) {
+      return bldg.transformer;
+    }
+    return sized;
+  };
+
+  const perBuildingTransformKvaSum = activeBuildings.reduce(
+    (sum, b) => sum + getBuildingTransformerKva(b),
+    0
+  );
+  const validProjectTx =
+    !buildingId && project.transformerSize && project.transformerSize >= demandKva
+      ? project.transformerSize
+      : null;
+  const transformerKva =
+    validProjectTx ||
+    (activeBuildings.length > 0
+      ? perBuildingTransformKvaSum
+      : sizeTransformer(demandKva, 1.2, perPhaseKva));
 
   return (
     <section
@@ -159,7 +197,7 @@ export default function CoverPage({
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-200 text-slate-800">
-              {project.buildings?.map((bldg, idx) => {
+              {activeBuildings?.map((bldg, idx) => {
                 const bldgItems = [
                   ...bldg.floorDesigns.flatMap((fd) => fd.items),
                   ...(bldg.buildingLoads ?? []),
@@ -208,12 +246,12 @@ export default function CoverPage({
                 );
               })}
             </tbody>
-            {project.buildings && project.buildings.length > 1 && (
+            {activeBuildings && activeBuildings.length > 1 && (
               <tfoot>
                 <tr className="bg-amber-100/70 border-t border-amber-300 font-bold text-slate-900 text-[9px]">
                   <td className="p-1.5 border-r border-amber-200 font-black whitespace-nowrap">Total Project</td>
                   <td className="p-1.5 border-r border-amber-200 text-center font-mono whitespace-nowrap">
-                    {project.buildings.reduce((sum, b) => sum + b.floors, 0)} Floors
+                    {activeBuildings.reduce((sum, b) => sum + b.floors, 0)} Floors
                   </td>
                   <td className="p-1.5 border-r border-amber-200 text-center font-mono text-[8.5px] text-amber-900 whitespace-nowrap">
                     MDB Main Incomer
@@ -222,7 +260,7 @@ export default function CoverPage({
                     Main Feeder
                   </td>
                   <td className="p-1.5 border-r border-amber-200 text-center font-mono text-[8.5px] text-slate-600 whitespace-nowrap">
-                    {project.buildings.reduce((sum, b) => sum + (b.floorDesigns?.length || 0), 0)} Sub-Panels
+                    {activeBuildings.reduce((sum, b) => sum + (b.floorDesigns?.length || 0), 0)} Sub-Panels
                   </td>
                   <td className="p-1.5 text-right font-black font-mono text-amber-950 whitespace-nowrap">
                     {demandKva.toFixed(1)} kVA{' '}

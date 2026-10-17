@@ -53,9 +53,11 @@
     "total": "الإجمالي",
     "open": "فتح",
     "totalLoad": "إجمالي الحمل",
-    "apartments": "شقق"
+    "apartments": "شقق",
+    "overview": "نظرة عامة"
   },
   "workflow": {
+    "pipeline": "مسار العمل الهندسي",
     "step": "الخطوة",
     "loadsDemand": "الأحمال والطلب",
     "circuitBreakers": "قواطع الدارة",

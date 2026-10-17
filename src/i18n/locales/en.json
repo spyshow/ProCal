@@ -53,9 +53,11 @@
     "total": "TOTAL",
     "open": "Open",
     "totalLoad": "Total Load",
-    "apartments": "Apartments"
+    "apartments": "Apartments",
+    "overview": "Overview"
   },
   "workflow": {
+    "pipeline": "Engineering Workflow",
     "step": "Step",
     "loadsDemand": "Loads & Demand",
     "circuitBreakers": "Circuit Breakers",

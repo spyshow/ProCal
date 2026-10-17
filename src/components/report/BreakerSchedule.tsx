@@ -12,7 +12,7 @@ import {
   buildShortCircuitTrace,
 } from '@/lib/calculations/trace-engine';
 import type { Project } from '@/types';
-import type { BreakerSettingItem } from '@/lib/reports/aggregates';
+import { type BreakerSettingItem, resolveBreakerDisplayName } from '@/lib/reports/aggregates';
 
 export interface BreakerScheduleProps {
   project: Project;
@@ -82,16 +82,6 @@ export default function BreakerSchedule({
 
   const breakerSettings = preloadedBreakerSettings || internalBreakerSettings;
 
-  const resolveBreakerDisplayName = (savedModel: string | undefined | null, feederModel: string | undefined | null): string => {
-    const defaultModel = feederModel || 'Standard Circuit Breaker';
-    if (!savedModel) return defaultModel;
-    if (savedModel.includes(defaultModel)) return savedModel;
-    const parts = savedModel.split(/\s+/);
-    if (parts.length > 1 && defaultModel.startsWith(parts[0])) {
-      return savedModel;
-    }
-    return `${defaultModel} (${savedModel})`;
-  };
 
   const query = useMemo(() => {
     const params = new URLSearchParams();
@@ -151,12 +141,13 @@ export default function BreakerSchedule({
             s.breakerId === 'main-incomer'
           ))
       );
-      const effectiveIncomerModel = resolveBreakerDisplayName(
-        incomerSaved?.model,
-        mainIncomerSettings.model || 'Main Incomer ACB'
-      );
       const savedIncomerFrame = incomerSaved?.frameSize ? parseInt(incomerSaved.frameSize, 10) : NaN;
       const effectiveIncomerIn = !isNaN(savedIncomerFrame) && savedIncomerFrame > 0 ? savedIncomerFrame : mainBreakerIn;
+      const effectiveIncomerModel = resolveBreakerDisplayName(
+        incomerSaved?.model,
+        mainIncomerSettings.model || 'Main Incomer ACB',
+        effectiveIncomerIn
+      );
       const isUnderProtected = effectiveIncomerIn > mainCableIz || mainCableUnderProtected;
 
       const normalizeBreakerId = (id?: string | null) => (id || '').replace(/[–—]/g, '-').trim();
@@ -211,7 +202,7 @@ export default function BreakerSchedule({
 
       for (const f of mdbFeeders) {
         const saved = findSaved(f.name, f.itemId, f.buildingLoadId);
-        const effectiveModel = resolveBreakerDisplayName(saved?.model, f.breakerModel);
+        const effectiveModel = resolveBreakerDisplayName(saved?.model, f.breakerModel, f.breakerSize);
         const isElectronic = f.isThreePhase && f.breakerSize >= 100;
 
         list.push({
@@ -247,7 +238,7 @@ export default function BreakerSchedule({
       for (const floorNumber of smdbFloorNumbers) {
         for (const f of smdbFeeders(floorNumber)) {
           const saved = findSaved(f.name, f.itemId, f.buildingLoadId);
-          const effectiveModel = resolveBreakerDisplayName(saved?.model, f.breakerModel);
+          const effectiveModel = resolveBreakerDisplayName(saved?.model, f.breakerModel, f.breakerSize);
           const isElectronic = f.isThreePhase && f.breakerSize >= 100;
 
           list.push({

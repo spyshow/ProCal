@@ -199,18 +199,32 @@ export type FindBreaker = (
     /** Prospective fault current (kA) at the device location; catalog
      *  candidates with Icu below it are skipped when a compliant one exists. */
     requiredIcuKa?: number;
+    /** True only when the user explicitly set an override/manual rating plug on an adjustable MCCB. */
+    manualRating?: boolean;
   }
 ) => FoundBreaker;
 
 /**
  * Build a model display string from matched equipment.
  */
-function formatBreakerModel(item: EquipmentItem, targetRating?: number): string {
-  if (targetRating && targetRating !== item.ratedCurrent) {
-    const replaced = item.model.replace(new RegExp(`\\b${item.ratedCurrent}A?\\b`, 'i'), `${targetRating}A`);
-    return `${item.manufacturer} ${item.series} ${replaced}`;
+function formatBreakerModel(item: EquipmentItem, targetRating?: number, isManualRating?: boolean): string {
+  let modelStr = item.model;
+  if (isManualRating && item.category === 'MCCB' && targetRating && targetRating !== item.ratedCurrent) {
+    modelStr = item.model.replace(new RegExp(`\\b${item.ratedCurrent}A?\\b`, 'i'), `${targetRating}A`);
   }
-  return `${item.manufacturer} ${item.series} ${item.model}`;
+  const parts: string[] = [];
+  if (item.manufacturer && !modelStr.startsWith(item.manufacturer)) {
+    parts.push(item.manufacturer);
+  }
+  if (
+    item.series &&
+    !modelStr.toLowerCase().includes(item.series.toLowerCase()) &&
+    (!parts.length || !parts[parts.length - 1].toLowerCase().includes(item.series.toLowerCase()))
+  ) {
+    parts.push(item.series);
+  }
+  parts.push(modelStr);
+  return parts.join(' ').trim();
 }
 
 /**
@@ -317,7 +331,7 @@ export function createFindBreaker(
 
       if (tier1Match && tier1Match.ratedCurrent === currentRating) {
         return {
-          model: formatBreakerModel(tier1Match, currentRating),
+          model: formatBreakerModel(tier1Match, currentRating, options.manualRating),
           manufacturer: tier1Match.manufacturer,
           familyName: tier1Match.familyName,
           ratedCurrent: tier1Match.ratedCurrent,
@@ -353,7 +367,7 @@ export function createFindBreaker(
         // If Tier 2 has a significantly closer rating to what was requested (e.g. 50A vs 100A), prefer Tier 2
         if (tier2Match && tier2Match.ratedCurrent < tier1Match.ratedCurrent) {
           return {
-            model: formatBreakerModel(tier2Match, currentRating),
+            model: formatBreakerModel(tier2Match, currentRating, options.manualRating),
             manufacturer: tier2Match.manufacturer,
             familyName: tier2Match.familyName,
             ratedCurrent: tier2Match.ratedCurrent,
@@ -363,7 +377,7 @@ export function createFindBreaker(
           };
         }
         return {
-          model: formatBreakerModel(tier1Match, currentRating),
+          model: formatBreakerModel(tier1Match, currentRating, options.manualRating),
           manufacturer: tier1Match.manufacturer,
           familyName: tier1Match.familyName,
           ratedCurrent: tier1Match.ratedCurrent,
@@ -375,7 +389,7 @@ export function createFindBreaker(
 
       if (tier2Match) {
         return {
-          model: formatBreakerModel(tier2Match, currentRating),
+          model: formatBreakerModel(tier2Match, currentRating, options.manualRating),
           manufacturer: tier2Match.manufacturer,
           familyName: tier2Match.familyName,
           ratedCurrent: tier2Match.ratedCurrent,
@@ -398,7 +412,7 @@ export function createFindBreaker(
         );
         if (match) {
           return {
-            model: formatBreakerModel(match, currentRating),
+            model: formatBreakerModel(match, currentRating, options.manualRating),
             manufacturer: match.manufacturer,
             familyName: match.familyName,
             ratedCurrent: match.ratedCurrent,
@@ -555,7 +569,7 @@ function feederFromItem(
   const targetBreaker = manualBreaker && !isNaN(manualBreaker) ? manualBreaker : sizing.breakerSize;
   const category = categoryForFloorItem(item, targetBreaker, isInsideSubPanel);
   const poles: 1 | 3 = isThreePhase ? 3 : 1;
-  const match = findBreaker(targetBreaker, category, poles);
+  const match = findBreaker(targetBreaker, category, poles, { manualRating: !!manualBreaker });
   // If the user specified an explicit breaker rating (e.g. 200A), honor that rating.
   // Otherwise if auto-sizing, use the catalog frame if larger than the calculated breaker size.
   const actualBreakerSize = manualBreaker && !isNaN(manualBreaker)
@@ -692,7 +706,7 @@ function feederFromBuildingLoad(
   const targetBreaker = manualBreaker && !isNaN(manualBreaker) ? manualBreaker : sizing.breakerSize;
   const category: "ACB" | "MCCB" | "MCB" = targetBreaker >= 630 ? "ACB" : targetBreaker > 63 ? "MCCB" : "MCB";
   const poles: 1 | 3 = isThreePhase ? 3 : 1;
-  const match = findBreaker(targetBreaker, category, poles);
+  const match = findBreaker(targetBreaker, category, poles, { manualRating: !!manualBreaker });
   const actualBreakerSize = manualBreaker && !isNaN(manualBreaker)
     ? manualBreaker
     : Math.max(targetBreaker, match.ratedCurrent ?? 0);
@@ -878,7 +892,7 @@ export function computeFeeders(
       const manualRiserBreaker = fd.riserBreakerSize ? parseInt(fd.riserBreakerSize.replace(/[^\d.]/g, ''), 10) : null;
       const targetRiserBreaker = manualRiserBreaker && !isNaN(manualRiserBreaker) ? manualRiserBreaker : sizing.breakerSize;
       const riserCategory = targetRiserBreaker >= 630 ? "ACB" : "MCCB";
-      const match = findBreaker(targetRiserBreaker, riserCategory, riserPoles);
+      const match = findBreaker(targetRiserBreaker, riserCategory, riserPoles, { manualRating: !!manualRiserBreaker });
       const actualBreakerSize = manualRiserBreaker && !isNaN(manualRiserBreaker)
         ? manualRiserBreaker
         : Math.max(targetRiserBreaker, match.ratedCurrent ?? 0);

@@ -145,16 +145,122 @@ export function aggregateBOM(project: Project): BOMResult {
 
 export function resolveBreakerDisplayName(
   savedModel: string | undefined | null,
-  feederModel: string | undefined | null
+  feederModel: string | undefined | null,
+  currentFrameSize?: number | string | null
 ): string {
   const defaultModel = feederModel || 'Standard Circuit Breaker';
   if (!savedModel) return defaultModel;
-  if (savedModel.includes(defaultModel)) return savedModel;
-  const parts = savedModel.split(/\s+/);
-  if (parts.length > 1 && defaultModel.startsWith(parts[0])) {
-    return savedModel;
+
+  const trimmedSaved = savedModel.trim();
+  if (!trimmedSaved) return defaultModel;
+
+  // Generic placeholder check: "ACB 2500A", "MCCB 400A", "MCB 32A"
+  if (/^(?:ACB|MCCB|MCB)\s+\d+A?$/i.test(trimmedSaved)) {
+    return defaultModel;
   }
-  return `${defaultModel} (${savedModel})`;
+
+  // Bare trip unit pattern: "ACB 2500A Ekip Touch", "MCCB 250A MicroLogic 2.2"
+  const bareTripUnitMatch = trimmedSaved.match(/^(?:ACB|MCCB|MCB)\s+\d+A?\s+(.+)$/i);
+  if (bareTripUnitMatch && feederModel) {
+    const tripUnit = bareTripUnitMatch[1];
+    if (/MicroLogic\s*[\d.]+\s*[a-zA-Z]*/i.test(feederModel)) {
+      return feederModel.replace(/MicroLogic\s*[\d.]+\s*[a-zA-Z]*/i, tripUnit);
+    }
+    if (/Ekip\s*[\w\s]+/i.test(feederModel)) {
+      return feederModel.replace(/Ekip\s*[\w\s]+/i, tripUnit);
+    }
+    return `${feederModel} ${tripUnit}`.trim();
+  }
+
+  // Check for frame rating consistency or chassis violation if currentFrameSize is provided
+  if (currentFrameSize != null) {
+    const frameNum = typeof currentFrameSize === 'number'
+      ? currentFrameSize
+      : parseInt(String(currentFrameSize).replace(/[^\d]/g, ''), 10);
+
+    if (!isNaN(frameNum) && frameNum > 0) {
+      // Find rating tokens in savedModel (numbers optionally followed by A/a)
+      // Exclude decimal numbers like 6.2 or 2.3 or 5.2
+      const ratingTokens = trimmedSaved.match(/(?<![.\d])(\d{2,5})\s*A?(?![.\d])/gi);
+      let mismatchedRating: number | undefined;
+      if (ratingTokens && ratingTokens.length > 0) {
+        const parsedRatings = ratingTokens.map((t) => parseInt(t.replace(/[^\d]/g, ''), 10));
+        mismatchedRating = parsedRatings.find((r) => r !== frameNum && r >= 16 && r <= 6300);
+      }
+
+      // Detect impossible chassis series for the given frameNum
+      const isChassisMismatch =
+        (trimmedSaved.includes('E2.2') && (frameNum < 1600 || frameNum > 2500)) ||
+        (trimmedSaved.includes('E1.2') && frameNum > 1600) ||
+        (trimmedSaved.includes('E4.2') && (frameNum < 3200 || frameNum > 4000)) ||
+        (trimmedSaved.includes('E6.2') && frameNum < 5000) ||
+        (trimmedSaved.includes('MTZ1') && frameNum > 1600) ||
+        (trimmedSaved.includes('MTZ3') && frameNum < 4000) ||
+        (trimmedSaved.includes('XT4') && frameNum > 250) ||
+        (trimmedSaved.includes('XT5') && frameNum > 630) ||
+        (trimmedSaved.includes('NSX100') && frameNum > 100) ||
+        (trimmedSaved.includes('NSX160') && (frameNum < 125 || frameNum > 160)) ||
+        (trimmedSaved.includes('NSX250') && (frameNum < 200 || frameNum > 250));
+
+      if (mismatchedRating || isChassisMismatch) {
+        // If feederModel already has the correct frame, prefer feederModel
+        const feederHasFrame =
+          feederModel &&
+          (new RegExp(`(?:^|[^\\d])${frameNum}(?:A?\\b|\\b|[a-zA-Z])`, 'i').test(feederModel) ||
+            (frameNum >= 125 && frameNum <= 160 && feederModel.includes('NSX160')) ||
+            (frameNum >= 200 && frameNum <= 250 && feederModel.includes('NSX250')) ||
+            (frameNum >= 320 && frameNum <= 400 && feederModel.includes('NSX400')) ||
+            (frameNum >= 500 && frameNum <= 630 && feederModel.includes('NSX630')));
+
+        if (feederModel && feederHasFrame) {
+          // Check if savedModel has a custom trip unit to preserve onto feederModel
+          const tripUnitMatch = trimmedSaved.match(/(?:MicroLogic\s*[\d.]+\s*[a-zA-Z]*|Ekip\s*[\w\s]+|TMD\b|TMA\b)/i);
+          if (tripUnitMatch) {
+            const customTrip = tripUnitMatch[0];
+            if (/MicroLogic\s*[\d.]+\s*[a-zA-Z]*/i.test(feederModel)) {
+              return feederModel.replace(/MicroLogic\s*[\d.]+\s*[a-zA-Z]*/i, customTrip);
+            }
+            if (/Ekip\s*[\w\s]+/i.test(feederModel)) {
+              return feederModel.replace(/Ekip\s*[\w\s]+/i, customTrip);
+            }
+            if (!feederModel.toLowerCase().includes(customTrip.toLowerCase())) {
+              return `${feederModel} ${customTrip}`.trim();
+            }
+          }
+          return feederModel;
+        }
+
+        // If mismatched rating is found, update the rating inside savedModel
+        if (mismatchedRating) {
+          let updated = trimmedSaved.replace(
+            new RegExp(`(?<![.\\d])${mismatchedRating}\\s*A?(?![.\\d])`, 'i'),
+            `${frameNum}A`
+          );
+          if (updated.includes('E2.2') && frameNum >= 5000) updated = updated.replace('E2.2', 'E6.2');
+          if (updated.includes('E6.2') && frameNum <= 2500) updated = updated.replace('E6.2', 'E2.2');
+          if (updated.includes('E2.2') && frameNum <= 1250) updated = updated.replace('E2.2N', 'E1.2B').replace('E2.2', 'E1.2');
+          return updated;
+        }
+
+        // If chassis is mismatched, align chassis
+        let updated = trimmedSaved;
+        if (updated.includes('E2.2') && frameNum <= 1250) updated = updated.replace('E2.2N', 'E1.2B').replace('E2.2', 'E1.2');
+        if (updated.includes('E1.2') && frameNum >= 1600 && frameNum <= 2500) updated = updated.replace('E1.2B', 'E2.2N').replace('E1.2', 'E2.2');
+        if (updated.includes('E2.2') && frameNum >= 5000) updated = updated.replace('E2.2N', 'E6.2H').replace('E2.2', 'E6.2');
+        return updated;
+      }
+    }
+  }
+
+  // If savedModel already contains defaultModel, return savedModel
+  if (trimmedSaved.includes(defaultModel)) return trimmedSaved;
+
+  const parts = trimmedSaved.split(/\s+/);
+  if (parts.length > 1 && defaultModel.startsWith(parts[0])) {
+    return trimmedSaved;
+  }
+
+  return trimmedSaved;
 }
 
 export interface DetailedCableBOMItem {
@@ -379,13 +485,16 @@ export function aggregateDetailedBOM(
           s.breakerId === 'Main Incomer'
         ))
     );
+    const savedIncomerFrame = incomerSaved?.frameSize ? parseInt(String(incomerSaved.frameSize), 10) : NaN;
+    const effectiveIncomerIn = !isNaN(savedIncomerFrame) && savedIncomerFrame > 0 ? savedIncomerFrame : mainBreakerIn;
     const effectiveIncomerModel = resolveBreakerDisplayName(
       incomerSaved?.model,
-      mainIncomerSettings.model || `${mainIncomerSettings.manufacturer || 'Standard'} Incomer ACB`
+      mainIncomerSettings.model || `${mainIncomerSettings.manufacturer || 'Standard'} Incomer ACB`,
+      effectiveIncomerIn
     );
 
     processFeeder({
-      breakerSize: mainBreakerIn,
+      breakerSize: effectiveIncomerIn,
       isThreePhase: true,
       type: 'INCOMER',
       breakerModel: effectiveIncomerModel,
@@ -407,7 +516,7 @@ export function aggregateDetailedBOM(
     for (const f of mdbFeeders) {
       const stableId = `${project.id}-${f.name}`;
       const saved = breakerSettings?.find((s) => s.breakerId === stableId);
-      const effectiveModel = resolveBreakerDisplayName(saved?.model, f.breakerModel);
+      const effectiveModel = resolveBreakerDisplayName(saved?.model, f.breakerModel, f.breakerSize);
       processFeeder({ ...f, breakerModel: effectiveModel });
 
       // Add to Cable BOM
@@ -433,7 +542,7 @@ export function aggregateDetailedBOM(
       for (const f of smdbFeeders(fl)) {
         const stableId = `${project.id}-${f.name}`;
         const saved = breakerSettings?.find((s) => s.breakerId === stableId);
-        const effectiveModel = resolveBreakerDisplayName(saved?.model, f.breakerModel);
+        const effectiveModel = resolveBreakerDisplayName(saved?.model, f.breakerModel, f.breakerSize);
         processFeeder({ ...f, breakerModel: effectiveModel });
 
         const matchItem = matchFd?.items.find((it) => it.id === f.itemId || f.name.includes(it.name));

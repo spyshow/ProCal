@@ -7,6 +7,7 @@ import {
   aggregateVoltageDropRows,
   aggregateShortCircuitRows,
   resolveBuildingIncomer,
+  resolveBreakerDisplayName,
   type EquipmentItem,
 } from './aggregates';
 import type { Building, FloorItem, Project } from '@/types';
@@ -713,6 +714,68 @@ describe('resolveBuildingIncomer (Breaker Schedule as Source of Truth)', () => {
     expect(() => aggregateBOM(proj)).not.toThrow();
     const bom = aggregateBOM(proj);
     expect(bom.breakers.length).toBeGreaterThan(0);
+  });
+});
+
+describe('resolveBreakerDisplayName', () => {
+  it('corrects a 5000A breaker display name when saved model had corrupted 2500A rating', () => {
+    // If feederModel has authentic catalog name "ABB Emax 2 E6.2H 5000", prefer it
+    const result1 = resolveBreakerDisplayName(
+      'ABB Emax 2 E6.2H 2500A',
+      'ABB Emax 2 E6.2H 5000',
+      5000
+    );
+    expect(result1).toBe('ABB Emax 2 E6.2H 5000');
+
+    // If feederModel is generic, align rating in savedModel
+    const result2 = resolveBreakerDisplayName(
+      'ABB Emax 2 E6.2H 2500A',
+      'Main Incomer ACB',
+      5000
+    );
+    expect(result2).toBe('ABB Emax 2 E6.2H 5000A');
+  });
+
+  it('corrects mismatched ratings across frame sizes (2500A, 1000A, 800A)', () => {
+    // 2500A frame with 1250A in savedModel
+    const res2500 = resolveBreakerDisplayName(
+      'ABB Emax 2 E2.2N 1250A',
+      'ABB Emax 2 E2.2N 2500',
+      2500
+    );
+    expect(res2500).toBe('ABB Emax 2 E2.2N 2500');
+
+    // 1000A frame with E2.2 chassis mismatch
+    const res1000 = resolveBreakerDisplayName(
+      'ABB Emax 2 E2.2N 1000A',
+      'ABB Emax 2 E1.2B 1000',
+      1000
+    );
+    expect(res1000).toBe('ABB Emax 2 E1.2B 1000');
+
+    // 800A frame with E2.2 chassis mismatch
+    const res800 = resolveBreakerDisplayName(
+      'ABB Emax 2 E2.2N 800A',
+      'ABB Emax 2 E1.2B 800',
+      800
+    );
+    expect(res800).toBe('ABB Emax 2 E1.2B 800');
+  });
+
+  it('preserves custom trip units when aligning with feederModel', () => {
+    const res = resolveBreakerDisplayName(
+      'Schneider ComPacT NSX100 NSX100N 100A TM100D MicroLogic 5.2 E',
+      'Schneider ComPacT NSX160 NSX160F MicroLogic 2.2',
+      160
+    );
+    expect(res).toBe('Schneider ComPacT NSX160 NSX160F MicroLogic 5.2 E');
+  });
+
+  it('replaces bare placeholder strings (ACB 2500A, MCCB 400A) with feederModel', () => {
+    expect(resolveBreakerDisplayName('ACB 2500A', 'ABB Emax 2 E6.2H 5000', 5000)).toBe('ABB Emax 2 E6.2H 5000');
+    expect(resolveBreakerDisplayName('MCCB 400A', 'Schneider ComPacT NSX400 400A', 400)).toBe('Schneider ComPacT NSX400 400A');
+    expect(resolveBreakerDisplayName(null, 'ABB Emax 2 E6.2H 5000', 5000)).toBe('ABB Emax 2 E6.2H 5000');
+    expect(resolveBreakerDisplayName('', 'ABB Emax 2 E6.2H 5000', 5000)).toBe('ABB Emax 2 E6.2H 5000');
   });
 });
 

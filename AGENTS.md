@@ -38,4 +38,5 @@ Shared by Codex, Antigravity and Claude Code. Every line here should change what
 - Ask me before changing anything above Lessons
 
 ## Lessons
-<!- Newest on top. Delete what no longer applies. -- >
+<!-- Newest on top. Delete what no longer applies. -->
+- When matching or formatting circuit breaker catalog models, preserve authentic manufacturer model designations (e.g. ABB Emax 2, Schneider Masterpact) rather than mutating model strings with target load ratings.

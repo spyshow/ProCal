@@ -36,6 +36,7 @@ import {
   type BreakerAlternativeSuggestion,
 } from '@/lib/calculations/selectivity';
 import { computeFeeders, createFindBreaker, type EquipmentItem, type DefaultFamilies } from '@/lib/calculations/feeders';
+import { resolveBreakerDisplayName } from '@/lib/reports/aggregates';
 import type { Project, PanelFeeder } from '@/types';
 
 type SelectivityStatus = 'FULL' | 'PARTIAL' | 'NONE';
@@ -173,26 +174,6 @@ export default function CoordinationPage() {
     [equipment, defaults, project?.preferredManufacturer]
   );
 
-  const resolveBreakerDisplayName = (savedModel: string | undefined | null, feederModel: string | undefined | null): string => {
-    const defaultModel = feederModel || 'Standard Circuit Breaker';
-    if (!savedModel) return defaultModel;
-    const trimmedSaved = savedModel.trim();
-    if (/^(?:ACB|MCCB|MCB)\s+\d+A?$/i.test(trimmedSaved)) {
-      return defaultModel;
-    }
-    const bareTripUnitMatch = trimmedSaved.match(/^(?:ACB|MCCB|MCB)\s+\d+A?\s+(.+)$/i);
-    if (bareTripUnitMatch && feederModel) {
-      const tripUnit = bareTripUnitMatch[1];
-      if (/MicroLogic\s*[\d.]+\s*[a-zA-Z]*/i.test(feederModel)) {
-        return feederModel.replace(/MicroLogic\s*[\d.]+\s*[a-zA-Z]*/i, tripUnit);
-      }
-      if (/Ekip\s*[\w\s]+/i.test(feederModel)) {
-        return feederModel.replace(/Ekip\s*[\w\s]+/i, tripUnit);
-      }
-      return `${feederModel} ${tripUnit}`.trim();
-    }
-    return savedModel;
-  };
 
   // Compute all real project feeders
   const allProjectFeeders = useMemo(() => {
@@ -239,7 +220,7 @@ export default function CoordinationPage() {
 
       for (const f of mdbFeeders) {
         const saved = findSavedBreakerSetting(f);
-        const effectiveModel = resolveBreakerDisplayName(saved?.model, f.breakerModel);
+        const effectiveModel = resolveBreakerDisplayName(saved?.model, f.breakerModel, f.breakerSize);
         let effectiveStatus = f.selectivityStatus;
         let effectiveLimitKa = f.selectivityLimitKa;
         let effectiveReason = f.selectivityReason;
@@ -351,7 +332,7 @@ export default function CoordinationPage() {
       for (const floorNumber of smdbFloorNumbers) {
         for (const f of smdbFeeders(floorNumber)) {
           const saved = findSavedBreakerSetting(f);
-          const effectiveModel = resolveBreakerDisplayName(saved?.model, f.breakerModel);
+          const effectiveModel = resolveBreakerDisplayName(saved?.model, f.breakerModel, f.breakerSize);
           let effectiveStatus = f.selectivityStatus;
           let effectiveLimitKa = f.selectivityLimitKa;
           let effectiveReason = f.selectivityReason;
@@ -950,7 +931,8 @@ export default function CoordinationPage() {
           : `${project.id}-${selectedFeeder.name}`;
         const fullModel = resolveBreakerDisplayName(
           sug.suggestedModel || selectedFeeder.breakerModel,
-          selectedFeeder.breakerModel
+          selectedFeeder.breakerModel,
+          selectedFeeder.breakerSize
         );
         await fetch('/api/breaker-settings', {
           method: 'POST',

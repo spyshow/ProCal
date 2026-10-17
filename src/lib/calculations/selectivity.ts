@@ -738,7 +738,7 @@ export type { BreakerAlternativeSuggestion, FallbackType, GenericBreakerSpec } f
 import type { BreakerAlternativeSuggestion, FallbackType, GenericBreakerSpec } from "@/types";
 
 const STANDARD_BREAKER_SIZES = [
-  16, 20, 25, 32, 40, 50, 63, 80, 100, 125, 160, 200, 250, 320, 400, 630, 800, 1000, 1250, 1600, 2000, 2500, 3200, 4000
+  16, 20, 25, 32, 40, 50, 63, 80, 100, 125, 160, 200, 250, 320, 400, 630, 800, 1000, 1250, 1600, 2000, 2500, 3200, 4000, 5000, 6300
 ];
 
 /**
@@ -805,8 +805,12 @@ export function suggestAlternativeBreaker(
         suggestedUpstreamModel = targetUpstreamSize === 320
           ? `Schneider ComPacT NSX400 NSX400N 400A MicroLogic 2.3`
           : `Schneider ComPacT NSX${frame} ${targetUpstreamSize}A MicroLogic 2.3`;
-      } else {
+      } else if (physicalFrameSize <= 1600) {
         suggestedUpstreamModel = `Schneider MasterPact MTZ1 ${targetUpstreamSize}A MicroLogic 5.0 X`;
+      } else if (physicalFrameSize <= 4000) {
+        suggestedUpstreamModel = `Schneider MasterPact MTZ2 ${targetUpstreamSize}A MicroLogic 5.0 X`;
+      } else {
+        suggestedUpstreamModel = `Schneider MasterPact MTZ3 ${targetUpstreamSize}A MicroLogic 5.0 X`;
       }
     } else if (isAbb) {
       upstreamFallbackType = 'SAME_FAMILY';
@@ -816,8 +820,14 @@ export function suggestAlternativeBreaker(
         suggestedUpstreamModel = targetUpstreamSize === 320
           ? `ABB Tmax XT5 XT5N 400 Ekip Dip LSI 320A`
           : `ABB Tmax XT5 ${physicalFrameSize}A Ekip Dip LSI`;
-      } else {
+      } else if (physicalFrameSize <= 1600) {
         suggestedUpstreamModel = `ABB Emax 2 E1.2 ${targetUpstreamSize}A Ekip Touch`;
+      } else if (physicalFrameSize <= 2500) {
+        suggestedUpstreamModel = `ABB Emax 2 E2.2 ${targetUpstreamSize}A Ekip Touch`;
+      } else if (physicalFrameSize <= 4000) {
+        suggestedUpstreamModel = `ABB Emax 2 E4.2 ${targetUpstreamSize}A Ekip Touch`;
+      } else {
+        suggestedUpstreamModel = `ABB Emax 2 E6.2 ${targetUpstreamSize}A Ekip Touch`;
       }
     } else {
       upstreamGenericSpec = {
@@ -966,16 +976,32 @@ export function suggestAlternativeBreaker(
       downFallbackType = 'SAME_FAMILY';
       if (optimalDownstreamSize <= 63) {
         suggestedDownstreamModel = `Schneider Acti9 iC60N ${optimalDownstreamSize}A 3P Curve C`;
-      } else {
+      } else if (optimalDownstreamSize <= 630) {
         const frame = optimalDownstreamSize <= 100 ? '100' : optimalDownstreamSize <= 160 ? '160' : optimalDownstreamSize <= 250 ? '250' : optimalDownstreamSize <= 400 ? '400' : '630';
         suggestedDownstreamModel = `Schneider ComPacT NSX${frame} ${optimalDownstreamSize}A MicroLogic 2.2`;
+      } else if (optimalDownstreamSize <= 1600) {
+        suggestedDownstreamModel = `Schneider MasterPact MTZ1 ${optimalDownstreamSize}A MicroLogic 2.0 X`;
+      } else if (optimalDownstreamSize <= 4000) {
+        suggestedDownstreamModel = `Schneider MasterPact MTZ2 ${optimalDownstreamSize}A MicroLogic 2.0 X`;
+      } else {
+        suggestedDownstreamModel = `Schneider MasterPact MTZ3 ${optimalDownstreamSize}A MicroLogic 2.0 X`;
       }
     } else if (isAbb) {
       downFallbackType = 'SAME_FAMILY';
       if (optimalDownstreamSize <= 63) {
         suggestedDownstreamModel = `ABB System pro M compact S203-C${optimalDownstreamSize}`;
+      } else if (optimalDownstreamSize <= 250) {
+        suggestedDownstreamModel = `ABB Tmax XT4 ${optimalDownstreamSize}A Ekip Dip`;
+      } else if (optimalDownstreamSize <= 630) {
+        suggestedDownstreamModel = `ABB Tmax XT5 ${optimalDownstreamSize}A Ekip Dip`;
+      } else if (optimalDownstreamSize <= 1600) {
+        suggestedDownstreamModel = `ABB Emax 2 E1.2 ${optimalDownstreamSize}A Ekip Dip`;
+      } else if (optimalDownstreamSize <= 2500) {
+        suggestedDownstreamModel = `ABB Emax 2 E2.2 ${optimalDownstreamSize}A Ekip Dip`;
+      } else if (optimalDownstreamSize <= 4000) {
+        suggestedDownstreamModel = `ABB Emax 2 E4.2 ${optimalDownstreamSize}A Ekip Dip`;
       } else {
-        suggestedDownstreamModel = `ABB Tmax XT${optimalDownstreamSize <= 250 ? '4' : '5'} ${optimalDownstreamSize}A Ekip Dip`;
+        suggestedDownstreamModel = `ABB Emax 2 E6.2 ${optimalDownstreamSize}A Ekip Dip`;
       }
     } else {
       downGenericSpec = {

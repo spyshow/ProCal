@@ -23,7 +23,7 @@ import { verifyCoordination, suggestAlternativeBreaker, resolveCatalogBreakerOrA
 import TccPlotModal from '@/components/coordination/TccPlotModal';
 import { BreakerSizingGuideModal } from '@/components/breaker/BreakerSizingGuideModal';
 import InfoTooltip from '@/components/InfoTooltip';
-import type { BreakerSettingItem } from '@/lib/reports/aggregates';
+import { type BreakerSettingItem, resolveBreakerDisplayName } from '@/lib/reports/aggregates';
 import type { Project, PanelFeeder, BreakerAlternativeSuggestion, FallbackType, GenericBreakerSpec } from '@/types';
 import WorkflowStepper from '@/components/layout/WorkflowStepper';
 import { AccessRestricted } from '@/components/AccessRestricted';
@@ -251,27 +251,6 @@ export default function BreakerSchedulePage() {
     [equipment, defaults, preferredManufacturer]
   );
 
-  const resolveBreakerDisplayName = (savedModel: string | undefined | null, feederModel: string | undefined | null): string => {
-    const defaultModel = feederModel || 'Standard Circuit Breaker';
-    if (!savedModel) return defaultModel;
-    const trimmedSaved = savedModel.trim();
-    if (/^(?:ACB|MCCB|MCB)\s+\d+A?$/i.test(trimmedSaved)) {
-      return defaultModel;
-    }
-    const bareTripUnitMatch = trimmedSaved.match(/^(?:ACB|MCCB|MCB)\s+\d+A?\s+(.+)$/i);
-    if (bareTripUnitMatch && feederModel) {
-      const tripUnit = bareTripUnitMatch[1];
-      if (/MicroLogic\s*[\d.]+\s*[a-zA-Z]*/i.test(feederModel)) {
-        return feederModel.replace(/MicroLogic\s*[\d.]+\s*[a-zA-Z]*/i, tripUnit);
-      }
-      if (/Ekip\s*[\w\s]+/i.test(feederModel)) {
-        return feederModel.replace(/Ekip\s*[\w\s]+/i, tripUnit);
-      }
-      return `${feederModel} ${tripUnit}`.trim();
-    }
-    return savedModel;
-  };
-
   const normalizeBreakerId = (id?: string | null) => (id || '').replace(/[–—]/g, '-').trim();
 
   const findSavedBreakerSetting = useCallback(
@@ -326,12 +305,13 @@ export default function BreakerSchedulePage() {
             s.breakerId === 'Main Incomer'
           ))
       );
-      const effectiveIncomerModel = resolveBreakerDisplayName(
-        incomerSaved?.model,
-        mainIncomerSettings.model || 'Main Incomer ACB'
-      );
       const savedIncomerFrame = incomerSaved?.frameSize ? parseInt(String(incomerSaved.frameSize), 10) : NaN;
       const effectiveIncomerIn = !isNaN(savedIncomerFrame) && savedIncomerFrame > 0 ? savedIncomerFrame : mainBreakerIn;
+      const effectiveIncomerModel = resolveBreakerDisplayName(
+        incomerSaved?.model,
+        mainIncomerSettings.model || 'Main Incomer ACB',
+        effectiveIncomerIn
+      );
       const isUnderProtected = effectiveIncomerIn > mainCableIz || mainCableUnderProtected;
 
       list.push({
@@ -380,7 +360,7 @@ export default function BreakerSchedulePage() {
 
       for (const f of mdbFeeders) {
         const saved = findSavedBreakerSetting(f);
-        const effectiveModel = resolveBreakerDisplayName(saved?.model, f.breakerModel);
+        const effectiveModel = resolveBreakerDisplayName(saved?.model, f.breakerModel, f.breakerSize);
         let effectiveStatus = f.selectivityStatus;
         let effectiveLimitKa = f.selectivityLimitKa;
         let effectiveReason = f.selectivityReason;
@@ -519,7 +499,7 @@ export default function BreakerSchedulePage() {
       for (const floorNumber of smdbFloorNumbers) {
         for (const f of smdbFeeders(floorNumber)) {
           const saved = findSavedBreakerSetting(f);
-          const effectiveModel = resolveBreakerDisplayName(saved?.model, f.breakerModel);
+          const effectiveModel = resolveBreakerDisplayName(saved?.model, f.breakerModel, f.breakerSize);
           let effectiveStatus = f.selectivityStatus;
           let effectiveLimitKa = f.selectivityLimitKa;
           let effectiveReason = f.selectivityReason;
@@ -861,7 +841,8 @@ export default function BreakerSchedulePage() {
           : `${project.id}-${selectedFeederForModal.name}`;
         const fullModel = resolveBreakerDisplayName(
           sug.suggestedModel || selectedFeederForModal.breakerModel,
-          selectedFeederForModal.breakerModel
+          selectedFeederForModal.breakerModel,
+          selectedFeederForModal.breakerSize
         );
         await fetch('/api/breaker-settings', {
           method: 'POST',

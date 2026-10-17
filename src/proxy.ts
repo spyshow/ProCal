@@ -20,6 +20,8 @@ export async function proxy(request: NextRequest) {
   if (
     pathname === "/" ||
     pathname.startsWith("/tools") ||
+    pathname.startsWith("/slides") ||
+    /\.(?:webp|png|jpg|jpeg|gif|svg|ico|woff2?|ttf)$/i.test(pathname) ||
     pathname.startsWith("/login") ||
     pathname.startsWith("/signup") ||
     pathname.startsWith("/invite") ||
@@ -59,7 +61,7 @@ export const config = {
      * - API routes that are NOT auth API routes
      * - static files, images, favicon
      */
-    "/((?!api/projects|api/buildings|api/cables|api/equipment|api/contact|api/admin|api/invites|_next/static|_next/image|favicon.ico).*)",
+    "/((?!api/projects|api/buildings|api/cables|api/equipment|api/contact|api/admin|api/invites|_next/static|_next/image|slides/|favicon.ico).*)",
   ],
 };
 

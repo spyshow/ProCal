@@ -1,0 +1,438 @@
+⚠ The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+⚠ Fast Refresh had to perform a full reload when ./src/context/ProjectContext.tsx changed. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+⚠ Fast Refresh had to perform a full reload when ./src/context/ProjectContext.tsx changed. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+[browser] Uncaught Error: Hydration failed because the server rendered text didn't match the client. As a result this tree will be regenerated on the client. This can happen if a SSR-ed Client Component used:
+
+- A server/client branch `if (typeof window !== 'undefined')`.
+- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+- Date formatting in a user's locale which doesn't match the server.
+- External changing data without sending a snapshot of it along with the HTML.
+- Invalid HTML tag nesting.
+
+It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+
+https://react.dev/link/hydration-mismatch
+
+  ...
+    <LoadingBoundary name="/" loading={null}>
+      <HTTPAccessFallbackBoundary notFound={{...}} forbidden={undefined} unauthorized={undefined}>
+        <HTTPAccessFallbackErrorBoundary pathname="/admin/fee..." notFound={{...}} forbidden={undefined} ...>
+          <RedirectBoundary>
+            <RedirectErrorBoundary router={{...}}>
+              <InnerLayoutRouter url="/admin/fee..." tree={[...]} params={{}} cacheNode={{rsc:{...}, ...}} ...>
+                <SegmentViewNode type="layout" pagePath="(admin)/la...">
+                  <SegmentTrieNode>
+                  <script>
+                  <script>
+                  <script>
+                  <AdminLayout>
+                    <div className="flex h-scr...">
+                      <div className="print:hidd...">
+                        <AdminSidebar>
+                          <aside style={{width:"240px"}} className="fixed top-...">
+                            <div className="flex items...">
+                              <div>
+                              <span className="text-xl font-bold tracking-tight text-white">
++                               Admin Dashboard
+-                               Admin Portal
+                            ...
+                      ...
+              ...
+
+    at <unknown> (https://react.dev/link/hydration-mismatch)
+    at span (<anonymous>)
+    at AdminSidebar (src/components/AdminSidebar.tsx:52:9)
+    at AdminLayout (src\app\(admin)\layout.tsx:13:9)
+  50 |           <Shield size={18} />
+  51 |         </div>
+> 52 |         <span className="text-xl font-bold tracking-tight text-white">{t('nav.adminDashboa...
+     |         ^
+  53 |       </div>
+  54 |
+  55 |       {/* Navigation */}
+⚠ Fast Refresh had to perform a full reload when ./src/context/ProjectContext.tsx changed. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+⚠ Fast Refresh had to perform a full reload when ./src/context/ProjectContext.tsx changed. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+Recalculate Building Error: Error [PrismaClientKnownRequestError]: 
+Invalid `updates.push(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["db"].floorItem.update()` invocation in
+D:\BackUp\programing_projects\ProCal\.next\dev\server\chunks\[root-of-the-server]__0s6eq6f._.js:847:157
+
+  844     // 1-phase: use V_LN = V_LL / √3 (e.g. 230V for a 400V system)
+  845     calculatedCurrent = calculatedMaxDemand / (voltageKv / Math.sqrt(3) * powerFactor);
+  846 }
+→ 847 updates.push(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["db"].floorItem.update(
+Transaction API error: A rollback cannot be executed on an expired transaction. The timeout for this transaction was 5000 ms, however 5226 ms passed since the start of the transaction. Consider increasing the interactive transaction timeout or doing less work in the transaction.
+    at <unknown> (src\app\api\buildings\[id]\recalculate\route.ts:57:22)
+  55 |
+  56 |       updates.push(
+> 57 |         db.floorItem.update({
+     |                      ^
+  58 |           where: { id: item.id },
+  59 |           data: {
+  60 |             calculatedConnectedLoad, {
+  code: 'P2028',
+  meta: {
+    modelName: 'FloorItem',
+    operation: 'rollback',
+    timeout: 5000,
+    timeTaken: 5226
+  },
+  clientVersion: '7.8.0'
+}
+Recalculate Building Error: Error [PrismaClientKnownRequestError]: 
+Invalid `updates.push(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["db"].floorItem.update()` invocation in
+D:\BackUp\programing_projects\ProCal\.next\dev\server\chunks\[root-of-the-server]__0s6eq6f._.js:847:157
+
+  844     // 1-phase: use V_LN = V_LL / √3 (e.g. 230V for a 400V system)
+  845     calculatedCurrent = calculatedMaxDemand / (voltageKv / Math.sqrt(3) * powerFactor);
+  846 }
+→ 847 updates.push(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["db"].floorItem.update(
+Transaction API error: A rollback cannot be executed on an expired transaction. The timeout for this transaction was 5000 ms, however 5160 ms passed since the start of the transaction. Consider increasing the interactive transaction timeout or doing less work in the transaction.
+    at <unknown> (src\app\api\buildings\[id]\recalculate\route.ts:57:22)
+  55 |
+  56 |       updates.push(
+> 57 |         db.floorItem.update({
+     |                      ^
+  58 |           where: { id: item.id },
+  59 |           data: {
+  60 |             calculatedConnectedLoad, {
+  code: 'P2028',
+  meta: {
+    modelName: 'FloorItem',
+    operation: 'rollback',
+    timeout: 5000,
+    timeTaken: 5160
+  },
+  clientVersion: '7.8.0'
+}
+[browser] Uncaught Error: ./src/app/(app)/breaker-schedule/page.tsx:399:5
+Expected ',', got 'return'
+  397 |       }
+  398 |     }
+> 399 |     return list;
+      |     ^^^^^^
+  400 |   }, [project, findBreaker, breakerSettings]);
+  401 |
+  402 |   const filteredBreakers = selectedBuilding === 'all'
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./src/app/(app)/breaker-schedule/page.tsx [Client Component Browser]
+    ./src/app/(app)/breaker-schedule/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/(app)/breaker-schedule/page.tsx [Client Component SSR]
+    ./src/app/(app)/breaker-schedule/page.tsx [Server Component]
+
+
+    at <unknown> (Error: ./src/app/(app)/breaker-schedule/page.tsx:399:5)
+    at <unknown> (Error: (./src/app/(app)/breaker-schedule/page.tsx:399:5)
+[browser] Uncaught Error: ./src/app/(app)/breaker-schedule/page.tsx:399:5
+Expected ',', got 'return'
+  397 |       }
+  398 |     }
+> 399 |     return list;
+      |     ^^^^^^
+  400 |   }, [project, findBreaker, breakerSettings]);
+  401 |
+  402 |   const filteredBreakers = selectedBuilding === 'all'
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./src/app/(app)/breaker-schedule/page.tsx [Client Component Browser]
+    ./src/app/(app)/breaker-schedule/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/(app)/breaker-schedule/page.tsx [Client Component SSR]
+    ./src/app/(app)/breaker-schedule/page.tsx [Server Component]
+
+
+    at <unknown> (Error: ./src/app/(app)/breaker-schedule/page.tsx:399:5)
+    at <unknown> (Error: (./src/app/(app)/breaker-schedule/page.tsx:399:5)
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+[browser] Uncaught TypeError: Cannot read properties of undefined (reading 'toFixed')
+    at LoadSchedule (src/components/report/LoadSchedule.tsx:74:37)
+    at ReportsPage (src/app/(app)/reports/page.tsx:466:11)
+  72 |           <span className="text-[10px] font-bold uppercase text-emerald-800 block">Phase B...
+  73 |           <span className="text-xs font-mono font-bold text-emerald-950">
+> 74 |             {summary.phaseL1Current.toFixed(0)}A / {summary.phaseL2Current.toFixed(0)}A / ...
+     |                                     ^
+  75 |           </span>
+  76 |         </div>
+  77 |         <div className="border border-purple-200 rounded-xl p-2.5 text-center bg-purple-50...
+[browser] Uncaught TypeError: Cannot read properties of undefined (reading 'toFixed')
+    at LoadSchedule (src/components/report/LoadSchedule.tsx:74:37)
+    at ReportsPage (src/app/(app)/reports/page.tsx:466:11)
+  72 |           <span className="text-[10px] font-bold uppercase text-emerald-800 block">Phase B...
+  73 |           <span className="text-xs font-mono font-bold text-emerald-950">
+> 74 |             {summary.phaseL1Current.toFixed(0)}A / {summary.phaseL2Current.toFixed(0)}A / ...
+     |                                     ^
+  75 |           </span>
+  76 |         </div>
+  77 |         <div className="border border-purple-200 rounded-xl p-2.5 text-center bg-purple-50...
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+[browser] Uncaught ReferenceError: cu is not defined
+    at BOMSchedule (src/components/report/BOMSchedule.tsx:290:46)
+    at ReportsPage (src/app/(app)/reports/page.tsx:502:11)
+  288 | ...        <div className="p-3.5 space-y-3 text-xs">
+  289 | ...          <p className="text-slate-600 text-[11px] leading-relaxed">
+> 290 | ...            Minimum breaking capacity ($I_{cu}$), trip unit specifications, and IEC st...
+      |                                               ^
+  291 | ...          </p>
+  292 | ...          <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
+  293 | ...            {breakerRows.map((b, idx) => {
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+[browser] Uncaught ReferenceError: useEffect is not defined
+    at BOMSchedule (src/components/report/BOMSchedule.tsx:48:3)
+    at ReportsPage (src/app/(app)/reports/page.tsx:481:98)
+  46 |   const [breakerSettings, setBreakerSettings] = useState<any[]>([]);
+  47 |
+> 48 |   useEffect(() => {
+     |   ^
+  49 |     fetch(`/api/breaker-settings?t=${Date.now()}`, { cache: 'no-store' })
+  50 |       .then((res) => (res.ok ? res.json() : []))
+  51 |       .then((data) => setBreakerSettings(data))
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+[browser] Uncaught ReferenceError: useEffect is not defined
+    at BOMSchedule (src/components/report/BOMSchedule.tsx:48:3)
+  46 |   const [breakerSettings, setBreakerSettings] = useState<any[]>([]);
+  47 |
+> 48 |   useEffect(() => {
+     |   ^
+  49 |     fetch(`/api/breaker-settings?t=${Date.now()}`, { cache: 'no-store' })
+  50 |       .then((res) => (res.ok ? res.json() : []))
+  51 |       .then((data) => setBreakerSettings(data))
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+[browser] Uncaught ReferenceError: useEffect is not defined
+    at BOMSchedule (src/components/report/BOMSchedule.tsx:48:3)
+  46 |   const [breakerSettings, setBreakerSettings] = useState<any[]>([]);
+  47 |
+> 48 |   useEffect(() => {
+     |   ^
+  49 |     fetch(`/api/breaker-settings?t=${Date.now()}`, { cache: 'no-store' })
+  50 |       .then((res) => (res.ok ? res.json() : []))
+  51 |       .then((data) => setBreakerSettings(data))
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+[browser] Uncaught ReferenceError: useEffect is not defined
+    at BOMSchedule (src/components/report/BOMSchedule.tsx:48:3)
+  46 |   const [breakerSettings, setBreakerSettings] = useState<any[]>([]);
+  47 |
+> 48 |   useEffect(() => {
+     |   ^
+  49 |     fetch(`/api/breaker-settings?t=${Date.now()}`, { cache: 'no-store' })
+  50 |       .then((res) => (res.ok ? res.json() : []))
+  51 |       .then((data) => setBreakerSettings(data))
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+[browser] Uncaught ReferenceError: ShortCircuitSchedule is not defined
+    at ReportsPage (src/app/(app)/reports/page.tsx:510:12)
+  508 |         <div style={{ pageBreakBefore: 'always', breakBefore: 'page' }} className="p-6 bg...
+  509 |           <ReportHeader project={project} companyName={company.companyName} companyLogoUr...
+> 510 |           <ShortCircuitSchedule project={project} buildingId={selectedBuilding ?? undefin...
+      |            ^
+  511 |         </div>
+  512 |
+  513 |         {/* Page 8: Bill of Materials & Equipment Procurement */}
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+[browser] Uncaught ReferenceError: useEffect is not defined
+    at BOMSchedule (src/components/report/BOMSchedule.tsx:48:3)
+  46 |   const [breakerSettings, setBreakerSettings] = useState<any[]>([]);
+  47 |
+> 48 |   useEffect(() => {
+     |   ^
+  49 |     fetch(`/api/breaker-settings?t=${Date.now()}`, { cache: 'no-store' })
+  50 |       .then((res) => (res.ok ? res.json() : []))
+  51 |       .then((data) => setBreakerSettings(data))
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+[browser] Uncaught ReferenceError: useEffect is not defined
+    at BOMSchedule (src/components/report/BOMSchedule.tsx:48:3)
+  46 |   const [breakerSettings, setBreakerSettings] = useState<any[]>([]);
+  47 |
+> 48 |   useEffect(() => {
+     |   ^
+  49 |     fetch(`/api/breaker-settings?t=${Date.now()}`, { cache: 'no-store' })
+  50 |       .then((res) => (res.ok ? res.json() : []))
+  51 |       .then((data) => setBreakerSettings(data))
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+⨯ ./src/components/report/CoverPage.tsx:258:3
+Expression expected
+  [90m256 |[0m   );
+  [90m257 |[0m }
+[31m[1m>[0m [90m258 |[0m   );
+  [90m    |[0m   [31m[1m^[0m
+  [90m259 |[0m }
+  [90m260 |[0m
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./src/components/report/CoverPage.tsx [Client Component Browser]
+    ./src/app/(app)/reports/page.tsx [Client Component Browser]
+    ./src/app/(app)/reports/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/components/report/CoverPage.tsx [Client Component SSR]
+    ./src/app/(app)/reports/page.tsx [Client Component SSR]
+    ./src/app/(app)/reports/page.tsx [Server Component]
+
+
+[browser] ./src/components/report/CoverPage.tsx:258:3
+Expression expected
+  256 |   );
+  257 | }
+> 258 |   );
+      |   ^
+  259 | }
+  260 |
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./src/components/report/CoverPage.tsx [Client Component Browser]
+    ./src/app/(app)/reports/page.tsx [Client Component Browser]
+    ./src/app/(app)/reports/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/components/report/CoverPage.tsx [Client Component SSR]
+    ./src/app/(app)/reports/page.tsx [Client Component SSR]
+    ./src/app/(app)/reports/page.tsx [Server Component] 
+[browser] ./src/components/report/CoverPage.tsx:258:3
+Expression expected
+  256 |   );
+  257 | }
+> 258 |   );
+      |   ^
+  259 | }
+  260 |
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./src/components/report/CoverPage.tsx [Client Component Browser]
+    ./src/app/(app)/reports/page.tsx [Client Component Browser]
+    ./src/app/(app)/reports/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/components/report/CoverPage.tsx [Client Component SSR]
+    ./src/app/(app)/reports/page.tsx [Client Component SSR]
+    ./src/app/(app)/reports/page.tsx [Server Component] 
+⨯ ./src/components/report/CoverPage.tsx:258:3
+Expression expected
+  [90m256 |[0m   );
+  [90m257 |[0m }
+[31m[1m>[0m [90m258 |[0m   );
+  [90m    |[0m   [31m[1m^[0m
+  [90m259 |[0m }
+  [90m260 |[0m
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./src/components/report/CoverPage.tsx [Client Component Browser]
+    ./src/app/(app)/reports/page.tsx [Client Component Browser]
+    ./src/app/(app)/reports/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/components/report/CoverPage.tsx [Client Component SSR]
+    ./src/app/(app)/reports/page.tsx [Client Component SSR]
+    ./src/app/(app)/reports/page.tsx [Server Component]
+
+
+[browser] Uncaught Error: ./src/components/report/CoverPage.tsx:258:3
+Expression expected
+  256 |   );
+  257 | }
+> 258 |   );
+      |   ^
+  259 | }
+  260 |
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./src/components/report/CoverPage.tsx [Client Component Browser]
+    ./src/app/(app)/reports/page.tsx [Client Component Browser]
+    ./src/app/(app)/reports/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/components/report/CoverPage.tsx [Client Component SSR]
+    ./src/app/(app)/reports/page.tsx [Client Component SSR]
+    ./src/app/(app)/reports/page.tsx [Server Component]
+
+
+    at <unknown> (Error: ./src/components/report/CoverPage.tsx:258:3)
+    at <unknown> (Error: (./src/components/report/CoverPage.tsx:258:3)
+[browser] ./src/components/report/CoverPage.tsx:258:3
+Expression expected
+  256 |   );
+  257 | }
+> 258 |   );
+      |   ^
+  259 | }
+  260 |
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./src/components/report/CoverPage.tsx [Client Component Browser]
+    ./src/app/(app)/reports/page.tsx [Client Component Browser]
+    ./src/app/(app)/reports/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/components/report/CoverPage.tsx [Client Component SSR]
+    ./src/app/(app)/reports/page.tsx [Client Component SSR]
+    ./src/app/(app)/reports/page.tsx [Server Component] 
+[browser] ./src/components/report/CoverPage.tsx:258:3
+Expression expected
+  256 |   );
+  257 | }
+> 258 |   );
+      |   ^
+  259 | }
+  260 |
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./src/components/report/CoverPage.tsx [Client Component Browser]
+    ./src/app/(app)/reports/page.tsx [Client Component Browser]
+    ./src/app/(app)/reports/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/components/report/CoverPage.tsx [Client Component SSR]
+    ./src/app/(app)/reports/page.tsx [Client Component SSR]
+    ./src/app/(app)/reports/page.tsx [Server Component] 
+[browser] ./src/components/report/CoverPage.tsx:258:3
+Expression expected
+  256 |   );
+  257 | }
+> 258 |   );
+      |   ^
+  259 | }
+  260 |
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./src/components/report/CoverPage.tsx [Client Component Browser]
+    ./src/app/(app)/reports/page.tsx [Client Component Browser]
+    ./src/app/(app)/reports/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/components/report/CoverPage.tsx [Client Component SSR]
+    ./src/app/(app)/reports/page.tsx [Client Component SSR]
+    ./src/app/(app)/reports/page.tsx [Server Component] 

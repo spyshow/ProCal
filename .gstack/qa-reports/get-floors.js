@@ -1,0 +1,1 @@
+fetch('/api/projects/a2abb0ca-8920-47ba-9ac8-1e515c921988').then(r => r.json()).then(d => { window.__proj = JSON.stringify({ name: d.name, buildings: (d.buildings || []).map(b => ({ id: b.id, name: b.name, floors: (b.floorDesigns || []).map(f => ({ id: f.id, n: f.floorNumber })) })) }); }); null

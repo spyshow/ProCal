@@ -341,6 +341,41 @@ html[data-theme="warm"] .bg-gray-900\/20 {
   background-color: #f8f4ec !important;
 }
 
+/* 2.1 Dark Gradients Adaptations for Non-Dark Themes */
+html[data-theme="blueprint"] .from-slate-900\/80,
+html[data-theme="blueprint"] .from-slate-900,
+html[data-theme="blueprint"] .from-slate-950,
+html[data-theme="blueprint"] .via-slate-900,
+html[data-theme="blueprint"] .to-slate-950,
+html[data-theme="blueprint"] .to-slate-900 {
+  --tw-gradient-from: #ffffff !important;
+  --tw-gradient-to: #f1f5f9 !important;
+  --tw-gradient-stops: var(--tw-gradient-from), #ffffff, var(--tw-gradient-to) !important;
+  background-color: #ffffff !important;
+}
+
+html[data-theme="warm"] .from-slate-900\/80,
+html[data-theme="warm"] .from-slate-900,
+html[data-theme="warm"] .from-slate-950,
+html[data-theme="warm"] .via-slate-900,
+html[data-theme="warm"] .to-slate-950,
+html[data-theme="warm"] .to-slate-900 {
+  --tw-gradient-from: #f8f4ec !important;
+  --tw-gradient-to: #ede4d4 !important;
+  --tw-gradient-stops: var(--tw-gradient-from), #f8f4ec, var(--tw-gradient-to) !important;
+  background-color: #f8f4ec !important;
+}
+
+html[data-theme="blueprint"] [class*="bg-gradient-to-"][class*="slate-9"] {
+  background-image: none !important;
+  background-color: #ffffff !important;
+}
+
+html[data-theme="warm"] [class*="bg-gradient-to-"][class*="slate-9"] {
+  background-image: none !important;
+  background-color: #f8f4ec !important;
+}
+
 /* 3. Borders */
 html[data-theme="blueprint"] .border-gray-800,
 html[data-theme="blueprint"] .border-gray-700,

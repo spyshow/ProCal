@@ -127,7 +127,7 @@ export default function Home() {
               className="text-xs font-semibold text-[var(--table-header-color,#94a3b8)] hover:text-orange-500 transition-colors hidden md:inline-flex items-center gap-1 px-3 py-1.5 rounded-lg hover:bg-[var(--card-bg-subtle,#111827)] border border-transparent hover:border-[var(--border-color,#1f2937)]"
             >
               <span>{t('nav.pricing', 'Pricing')}</span>
-              <span className="px-1.5 py-0.2 rounded bg-orange-500/20 text-orange-600 dark:text-orange-400 text-[10px] font-mono">$29 Starter</span>
+              <span className="px-1.5 py-0.2 rounded bg-orange-500/20 text-orange-600 dark:text-orange-400 text-[10px] font-mono">$49 / Project</span>
             </a>
             <ThemeSelector variant="dropdown" />
             <LanguageSelector variant="dropdown" />

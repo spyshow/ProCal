@@ -25,6 +25,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import ProCalConversionBanner from '@/components/ProCalConversionBanner';
+import ToolsHeader from '@/components/tools/ToolsHeader';
 
 export default function MaxCableLengthPage() {
   // Inputs
@@ -212,41 +213,9 @@ Generated with ProCal (https://procal.app/tools/max-cable-length)`;
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 selection:bg-orange-500 selection:text-white">
+    <div className="min-h-screen bg-[var(--background-color,#030712)] text-[var(--foreground-color,#f8fafc)] selection:bg-orange-500 selection:text-white">
       {/* Header */}
-      <header className="sticky top-0 z-50 border-b border-white/10 bg-slate-950/80 backdrop-blur-xl">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-3 group">
-            <div className="w-9 h-9 rounded-xl bg-orange-600/20 border border-orange-500/40 flex items-center justify-center shadow-[0_0_15px_rgba(234,88,12,0.3)] group-hover:scale-105 transition-transform">
-              <Zap className="w-5 h-5 text-orange-500" />
-            </div>
-            <div className="flex flex-col">
-              <span className="font-bold text-lg tracking-tight bg-gradient-to-r from-white via-slate-100 to-slate-400 bg-clip-text text-transparent">
-                ProCal
-              </span>
-              <span className="text-[10px] text-orange-400 font-mono tracking-wider uppercase -mt-1">
-                Engineering Tools
-              </span>
-            </div>
-          </Link>
-
-          <div className="flex items-center gap-3">
-            <Link href="/tools" className="text-xs text-slate-400 hover:text-slate-200 transition-colors hidden sm:inline-block">
-              All Tools
-            </Link>
-            <Link href="/login">
-              <Button variant="ghost" size="sm" className="text-slate-300 hover:text-white text-xs">
-                Sign In
-              </Button>
-            </Link>
-            <Link href="/signup">
-              <Button size="sm" className="bg-orange-600 hover:bg-orange-500 text-white font-medium text-xs shadow-lg shadow-orange-600/20">
-                Create Free Account
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </header>
+      <ToolsHeader currentPath="/tools/max-cable-length" />
 
       {/* Hero */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
@@ -254,10 +223,10 @@ Generated with ProCal (https://procal.app/tools/max-cable-length)`;
           <Badge className="bg-orange-500/10 text-orange-400 border border-orange-500/20 px-3 py-1 mb-3 text-xs">
             IEC 60364-5-52 §525 Voltage Drop Matrix
           </Badge>
-          <h1 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight mb-3">
+          <h1 className="text-3xl sm:text-4xl font-extrabold text-[var(--foreground-color,#f8fafc)] tracking-tight mb-3">
             Maximum Cable Run Length Calculator
           </h1>
-          <p className="text-slate-400 text-sm sm:text-base leading-relaxed">
+          <p className="text-[var(--table-header-color,#9ca3af)] text-sm sm:text-base leading-relaxed">
             Find the maximum permissible distance for every cable cross-section before exceeding voltage drop limits,
             or enter your target run length to identify the minimum compliant cable size.
           </p>
@@ -267,26 +236,26 @@ Generated with ProCal (https://procal.app/tools/max-cable-length)`;
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           {/* Left Column: Inputs */}
           <div className="lg:col-span-5 space-y-6">
-            <Card className="border-slate-800 bg-slate-900/70 backdrop-blur shadow-xl">
-              <CardHeader className="pb-3 border-b border-slate-800">
-                <CardTitle className="text-base text-white flex items-center gap-2">
+            <Card className="border-[var(--border-color,#1f2937)] bg-[var(--card-bg,#0b0f19)] backdrop-blur shadow-xl">
+              <CardHeader className="pb-3 border-b border-[var(--border-color,#1f2937)]">
+                <CardTitle className="text-base text-[var(--foreground-color,#f8fafc)] flex items-center gap-2">
                   <Gauge className="w-4 h-4 text-orange-500" />
                   Circuit Load & Specifications
                 </CardTitle>
-                <CardDescription className="text-xs text-slate-400">
+                <CardDescription className="text-xs text-[var(--table-header-color,#9ca3af)]">
                   Define load current, voltage, and permissible drop
                 </CardDescription>
               </CardHeader>
               <CardContent className="pt-4 space-y-4">
                 {/* Mode toggle */}
-                <div className="flex items-center justify-between p-1 bg-slate-950 rounded-lg border border-slate-800 text-xs">
+                <div className="flex items-center justify-between p-1 bg-[var(--background-color,#030712)] rounded-lg border border-[var(--border-color,#1f2937)] text-xs">
                   <button
                     type="button"
                     onClick={() => setLoadType('kW')}
                     className={`flex-1 py-1.5 px-3 rounded-md font-medium transition-all ${
                       loadType === 'kW'
                         ? 'bg-orange-600 text-white shadow'
-                        : 'text-slate-400 hover:text-white'
+                        : 'text-[var(--table-header-color,#9ca3af)] hover:text-[var(--foreground-color,#f8fafc)]'
                     }`}
                   >
                     Power (kW)
@@ -297,7 +266,7 @@ Generated with ProCal (https://procal.app/tools/max-cable-length)`;
                     className={`flex-1 py-1.5 px-3 rounded-md font-medium transition-all ${
                       loadType === 'A'
                         ? 'bg-orange-600 text-white shadow'
-                        : 'text-slate-400 hover:text-white'
+                        : 'text-[var(--table-header-color,#9ca3af)] hover:text-[var(--foreground-color,#f8fafc)]'
                     }`}
                   >
                     Current (A)
@@ -307,7 +276,7 @@ Generated with ProCal (https://procal.app/tools/max-cable-length)`;
                 <div className="grid grid-cols-2 gap-4">
                   {loadType === 'kW' ? (
                     <div>
-                      <Label className="text-xs text-slate-300">Active Power (kW)</Label>
+                      <Label className="text-xs text-[var(--foreground-color,#f8fafc)]">Active Power (kW)</Label>
                       <Input
                         type="number"
                         min="0.1"
@@ -319,7 +288,7 @@ Generated with ProCal (https://procal.app/tools/max-cable-length)`;
                     </div>
                   ) : (
                     <div>
-                      <Label className="text-xs text-slate-300">Current Ib (A)</Label>
+                      <Label className="text-xs text-[var(--foreground-color,#f8fafc)]">Current Ib (A)</Label>
                       <Input
                         type="number"
                         min="0.1"
@@ -332,7 +301,7 @@ Generated with ProCal (https://procal.app/tools/max-cable-length)`;
                   )}
 
                   <div>
-                    <Label className="text-xs text-slate-300">System Phase</Label>
+                    <Label className="text-xs text-[var(--foreground-color,#f8fafc)]">System Phase</Label>
                     <div className="grid grid-cols-2 gap-1 mt-1">
                       <button
                         type="button"
@@ -340,7 +309,7 @@ Generated with ProCal (https://procal.app/tools/max-cable-length)`;
                         className={`py-1.5 px-2 text-xs rounded border transition-all ${
                           isThreePhase
                             ? 'bg-orange-950/60 border-orange-500/80 text-orange-300 font-semibold'
-                            : 'bg-slate-900 border-slate-700 text-slate-400'
+                            : 'bg-[var(--background-color,#030712)] border-[var(--border-color,#1f2937)] text-[var(--table-header-color,#9ca3af)]'
                         }`}
                       >
                         3-Ph
@@ -351,7 +320,7 @@ Generated with ProCal (https://procal.app/tools/max-cable-length)`;
                         className={`py-1.5 px-2 text-xs rounded border transition-all ${
                           !isThreePhase
                             ? 'bg-orange-950/60 border-orange-500/80 text-orange-300 font-semibold'
-                            : 'bg-slate-900 border-slate-700 text-slate-400'
+                            : 'bg-[var(--background-color,#030712)] border-[var(--border-color,#1f2937)] text-[var(--table-header-color,#9ca3af)]'
                         }`}
                       >
                         1-Ph
@@ -360,7 +329,7 @@ Generated with ProCal (https://procal.app/tools/max-cable-length)`;
                   </div>
 
                   <div>
-                    <Label className="text-xs text-slate-300">Power Factor</Label>
+                    <Label className="text-xs text-[var(--foreground-color,#f8fafc)]">Power Factor</Label>
                     <Input
                       type="number"
                       min="0.5"
@@ -373,7 +342,7 @@ Generated with ProCal (https://procal.app/tools/max-cable-length)`;
                   </div>
 
                   <div>
-                    <Label className="text-xs text-slate-300">Voltage (V)</Label>
+                    <Label className="text-xs text-[var(--foreground-color,#f8fafc)]">Voltage (V)</Label>
                     <Input
                       type="number"
                       value={voltage || ''}
@@ -383,14 +352,14 @@ Generated with ProCal (https://procal.app/tools/max-cable-length)`;
                   </div>
                 </div>
 
-                <div className="p-2.5 rounded-lg bg-slate-950/80 border border-slate-800 flex items-center justify-between text-xs">
-                  <span className="text-slate-400">Design Current (Ib):</span>
+                <div className="p-2.5 rounded-lg bg-[var(--background-color,#030712)] border border-[var(--border-color,#1f2937)] flex items-center justify-between text-xs">
+                  <span className="text-[var(--table-header-color,#9ca3af)]">Design Current (Ib):</span>
                   <span className="font-mono font-bold text-orange-400 text-sm">{ib.toFixed(1)} A</span>
                 </div>
 
                 {/* Voltage Drop Limit */}
                 <div>
-                  <Label className="text-xs text-slate-300">Max Permissible Drop (ΔV %)</Label>
+                  <Label className="text-xs text-[var(--foreground-color,#f8fafc)]">Max Permissible Drop (ΔV %)</Label>
                   <div className="flex gap-1.5 mt-1">
                     {[3, 4, 5].map((val) => (
                       <button
@@ -400,7 +369,7 @@ Generated with ProCal (https://procal.app/tools/max-cable-length)`;
                         className={`flex-1 py-1.5 text-xs rounded border transition-all ${
                           maxVdPercent === val
                             ? 'bg-orange-600 border-orange-500 text-white font-semibold'
-                            : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-slate-200'
+                            : 'bg-[var(--background-color,#030712)] border-[var(--border-color,#1f2937)] text-[var(--table-header-color,#9ca3af)] hover:text-[var(--foreground-color,#f8fafc)]'
                         }`}
                       >
                         {val}%
@@ -421,7 +390,7 @@ Generated with ProCal (https://procal.app/tools/max-cable-length)`;
                 {/* Conductor & Insulation */}
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <Label className="text-xs text-slate-300">Conductor</Label>
+                    <Label className="text-xs text-[var(--foreground-color,#f8fafc)]">Conductor</Label>
                     <div className="grid grid-cols-2 gap-1 mt-1">
                       <button
                         type="button"
@@ -429,7 +398,7 @@ Generated with ProCal (https://procal.app/tools/max-cable-length)`;
                         className={`py-1.5 text-xs rounded border transition-all ${
                           material === 'copper'
                             ? 'bg-orange-950/60 border-orange-500/80 text-orange-300 font-semibold'
-                            : 'bg-slate-900 border-slate-700 text-slate-400'
+                            : 'bg-[var(--background-color,#030712)] border-[var(--border-color,#1f2937)] text-[var(--table-header-color,#9ca3af)]'
                         }`}
                       >
                         Copper
@@ -440,7 +409,7 @@ Generated with ProCal (https://procal.app/tools/max-cable-length)`;
                         className={`py-1.5 text-xs rounded border transition-all ${
                           material === 'aluminum'
                             ? 'bg-orange-950/60 border-orange-500/80 text-orange-300 font-semibold'
-                            : 'bg-slate-900 border-slate-700 text-slate-400'
+                            : 'bg-[var(--background-color,#030712)] border-[var(--border-color,#1f2937)] text-[var(--table-header-color,#9ca3af)]'
                         }`}
                       >
                         Alum
@@ -449,7 +418,7 @@ Generated with ProCal (https://procal.app/tools/max-cable-length)`;
                   </div>
 
                   <div>
-                    <Label className="text-xs text-slate-300">Insulation</Label>
+                    <Label className="text-xs text-[var(--foreground-color,#f8fafc)]">Insulation</Label>
                     <div className="grid grid-cols-2 gap-1 mt-1">
                       <button
                         type="button"
@@ -457,7 +426,7 @@ Generated with ProCal (https://procal.app/tools/max-cable-length)`;
                         className={`py-1.5 text-xs rounded border transition-all ${
                           insulation === 'XLPE'
                             ? 'bg-orange-950/60 border-orange-500/80 text-orange-300 font-semibold'
-                            : 'bg-slate-900 border-slate-700 text-slate-400'
+                            : 'bg-[var(--background-color,#030712)] border-[var(--border-color,#1f2937)] text-[var(--table-header-color,#9ca3af)]'
                         }`}
                       >
                         XLPE
@@ -468,7 +437,7 @@ Generated with ProCal (https://procal.app/tools/max-cable-length)`;
                         className={`py-1.5 text-xs rounded border transition-all ${
                           insulation === 'PVC'
                             ? 'bg-orange-950/60 border-orange-500/80 text-orange-300 font-semibold'
-                            : 'bg-slate-900 border-slate-700 text-slate-400'
+                            : 'bg-[var(--background-color,#030712)] border-[var(--border-color,#1f2937)] text-[var(--table-header-color,#9ca3af)]'
                         }`}
                       >
                         PVC
@@ -478,9 +447,9 @@ Generated with ProCal (https://procal.app/tools/max-cable-length)`;
                 </div>
 
                 {/* Target Distance Finder */}
-                <div className="pt-2 border-t border-slate-800">
+                <div className="pt-2 border-t border-[var(--border-color,#1f2937)]">
                   <div className="flex justify-between items-center mb-1">
-                    <Label className="text-xs text-slate-300">Target Run Distance (meters)</Label>
+                    <Label className="text-xs text-[var(--foreground-color,#f8fafc)]">Target Run Distance (meters)</Label>
                     <span className="text-xs font-mono text-orange-400">{targetDistanceM} m</span>
                   </div>
                   <Input
@@ -504,12 +473,12 @@ Generated with ProCal (https://procal.app/tools/max-cable-length)`;
                     Full Riser Distribution
                   </span>
                 </div>
-                <CardTitle className="text-base text-white">
+                <CardTitle className="text-base text-[var(--foreground-color,#f8fafc)]">
                   Multi-Floor Riser Voltage Drop
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-3 text-xs text-slate-300">
-                <p className="leading-relaxed text-slate-400">
+              <CardContent className="space-y-3 text-xs text-[var(--table-header-color,#9ca3af)]">
+                <p className="leading-relaxed text-[var(--table-header-color,#9ca3af)]">
                   ProCal calculates cumulative voltage drop across building risers, tap-off boxes,
                   and apartment sub-panels with diversity factors.
                 </p>
@@ -527,10 +496,10 @@ Generated with ProCal (https://procal.app/tools/max-cable-length)`;
 
           {/* Right Column: Matrix Table */}
           <div className="lg:col-span-7 space-y-6">
-            <Card className="border-slate-800 bg-slate-900/70 backdrop-blur shadow-2xl">
-              <CardHeader className="pb-3 border-b border-slate-800">
+            <Card className="border-[var(--border-color,#1f2937)] bg-[var(--card-bg,#0b0f19)] backdrop-blur shadow-2xl">
+              <CardHeader className="pb-3 border-b border-[var(--border-color,#1f2937)]">
                 <div className="flex items-center justify-between">
-                  <CardTitle className="text-base text-white flex items-center gap-2">
+                  <CardTitle className="text-base text-[var(--foreground-color,#f8fafc)] flex items-center gap-2">
                     <Cable className="w-4 h-4 text-orange-500" />
                     Maximum Permissible Length Matrix
                   </CardTitle>
@@ -538,7 +507,7 @@ Generated with ProCal (https://procal.app/tools/max-cable-length)`;
                     variant="outline"
                     size="sm"
                     onClick={handleCopy}
-                    className="h-7 text-xs border-slate-700 bg-slate-800/80 hover:bg-slate-700 text-slate-200 gap-1.5"
+                    className="h-7 text-xs border-[var(--border-color,#1f2937)] bg-[var(--background-color,#030712)] hover:bg-[var(--card-bg,#0b0f19)] text-[var(--foreground-color,#f8fafc)] gap-1.5"
                   >
                     {copied ? (
                       <>
@@ -553,7 +522,7 @@ Generated with ProCal (https://procal.app/tools/max-cable-length)`;
                     )}
                   </Button>
                 </div>
-                <CardDescription className="text-xs text-slate-400">
+                <CardDescription className="text-xs text-[var(--table-header-color,#9ca3af)]">
                   Distance limit before exceeding {maxVdPercent}% ({maxVdVolts.toFixed(1)} V) voltage drop at {ib.toFixed(1)} A
                 </CardDescription>
 
@@ -564,7 +533,7 @@ Generated with ProCal (https://procal.app/tools/max-cable-length)`;
                       <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
                       <span>
                         For <strong>{targetDistanceM} meters</strong>, minimum size is:{' '}
-                        <strong className="text-white text-sm">{recommendedForTarget.size} mm²</strong>
+                        <strong className="text-emerald-300 text-sm">{recommendedForTarget.size} mm²</strong>
                       </span>
                     </div>
                     <span className="font-mono text-[11px] text-emerald-400">
@@ -578,7 +547,7 @@ Generated with ProCal (https://procal.app/tools/max-cable-length)`;
                 <div className="overflow-x-auto">
                   <table className="w-full text-left text-xs border-collapse">
                     <thead>
-                      <tr className="border-b border-slate-800 bg-slate-950/60 text-slate-400 text-[11px]">
+                      <tr className="border-b border-[var(--border-color,#1f2937)] bg-[var(--background-color,#030712)] text-[var(--table-header-color,#9ca3af)] text-[11px]">
                         <th className="py-2.5 px-4">Size (mm²)</th>
                         <th className="py-2.5 px-3">Base Iz (A)</th>
                         <th className="py-2.5 px-3">Max Run (m)</th>
@@ -586,7 +555,7 @@ Generated with ProCal (https://procal.app/tools/max-cable-length)`;
                         <th className="py-2.5 px-4 text-right">Status</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-800/60 font-mono">
+                    <tbody className="divide-y divide-[var(--border-color,#1f2937)]/60 font-mono">
                       {matrixResults.map((row) => {
                         const isSelected = recommendedForTarget?.size === row.size;
                         return (
@@ -597,19 +566,19 @@ Generated with ProCal (https://procal.app/tools/max-cable-length)`;
                                 ? 'bg-orange-950/40 border-l-2 border-orange-500 font-semibold'
                                 : row.isThermalOverload
                                 ? 'opacity-40 hover:opacity-70'
-                                : 'hover:bg-slate-800/40'
+                                : 'hover:bg-orange-500/5'
                             }`}
                           >
-                            <td className="py-2.5 px-4 text-slate-200">
+                            <td className="py-2.5 px-4 text-[var(--foreground-color,#f8fafc)]">
                               {row.size} mm²
                             </td>
-                            <td className="py-2.5 px-3 text-slate-400">
+                            <td className="py-2.5 px-3 text-[var(--table-header-color,#9ca3af)]">
                               {row.baseAmp} A
                             </td>
                             <td className="py-2.5 px-3 font-bold text-orange-400">
                               {row.maxDistance} m
                             </td>
-                            <td className="py-2.5 px-3 text-slate-300">
+                            <td className="py-2.5 px-3 text-[var(--foreground-color,#f8fafc)]">
                               {row.targetVdPercent.toFixed(2)}% ({row.targetVdVolts.toFixed(1)} V)
                             </td>
                             <td className="py-2.5 px-4 text-right">
@@ -663,17 +632,17 @@ Generated with ProCal (https://procal.app/tools/max-cable-length)`;
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-slate-800/80 bg-slate-950 py-8 text-center text-xs text-slate-500 mt-16">
+      <footer className="border-t border-[var(--border-color,#1f2937)] bg-[var(--background-color,#030712)] py-8 text-center text-xs text-[var(--table-header-color,#9ca3af)] mt-16">
         <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
             <Zap className="w-4 h-4 text-orange-500" />
-            <span className="text-slate-300 font-semibold">ProCal</span> — Low Voltage Electrical Design , <span className="text-orange-400 font-semibold">Solved</span>.
+            <span className="text-[var(--foreground-color,#f8fafc)] font-semibold">ProCal</span> — Low Voltage Electrical Design , <span className="text-orange-400 font-semibold">Solved</span>.
           </div>
-          <div className="flex items-center gap-4 text-slate-400">
-            <Link href="/" className="hover:text-white transition-colors">Home</Link>
-            <Link href="/tools" className="hover:text-white transition-colors">Tools</Link>
-            <Link href="/tools/cable-sizer" className="hover:text-white transition-colors">Cable Sizer</Link>
-            <Link href="/tools/short-circuit-calculator" className="hover:text-white transition-colors">Short Circuit</Link>
+          <div className="flex items-center gap-4 text-[var(--table-header-color,#9ca3af)]">
+            <Link href="/" className="hover:text-[var(--foreground-color,#f8fafc)] transition-colors">Home</Link>
+            <Link href="/tools" className="hover:text-[var(--foreground-color,#f8fafc)] transition-colors">Tools</Link>
+            <Link href="/tools/cable-sizer" className="hover:text-[var(--foreground-color,#f8fafc)] transition-colors">Cable Sizer</Link>
+            <Link href="/tools/short-circuit-calculator" className="hover:text-[var(--foreground-color,#f8fafc)] transition-colors">Short Circuit</Link>
           </div>
         </div>
       </footer>

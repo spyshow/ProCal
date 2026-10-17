@@ -48,51 +48,51 @@ export default function ProCalConversionBanner({
   };
 
   return (
-    <Card className="border-orange-500/30 bg-gradient-to-br from-orange-950/30 via-slate-900 to-slate-950 shadow-2xl relative overflow-hidden">
+    <Card className="border border-orange-500/30 bg-[var(--card-bg,#0b0f19)] shadow-2xl relative overflow-hidden">
       <div className="absolute top-0 right-0 w-48 h-48 bg-orange-600/10 rounded-full blur-3xl pointer-events-none" />
 
       <CardContent className="p-6 space-y-4">
         <div className="flex items-center gap-2">
-          <div className="w-7 h-7 rounded-lg bg-cyan-500/20 border border-cyan-400/40 flex items-center justify-center text-cyan-400 shadow-[0_0_12px_rgba(6,182,212,0.25)]">
+          <div className="w-7 h-7 rounded-lg bg-cyan-500/15 border border-cyan-400/40 flex items-center justify-center text-cyan-500 dark:text-cyan-400 shadow-[0_0_12px_rgba(6,182,212,0.2)]">
             <Sparkles className="w-4 h-4" />
           </div>
-          <span className="text-xs font-bold text-slate-300 tracking-wider">
-            ProCal : Low Voltage Electrical Design , <span className="text-orange-400 font-bold">Solved</span>
+          <span className="text-xs font-bold text-[var(--foreground-color,#f8fafc)] tracking-wider">
+            ProCal : Low Voltage Electrical Design, <span className="text-orange-500 dark:text-orange-400 font-bold">Solved</span>
           </span>
         </div>
 
         <div>
-          <h3 className="text-lg font-bold text-white tracking-tight">
+          <h3 className="text-lg font-bold text-[var(--foreground-color,#f8fafc)] tracking-tight">
             {headline}
           </h3>
-          <p className="text-xs sm:text-sm text-slate-300 mt-1 leading-relaxed">
+          <p className="text-xs sm:text-sm text-[var(--table-header-color,#9ca3af)] mt-1 leading-relaxed">
             {description}
           </p>
         </div>
 
         {/* Feature comparison highlights */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-1 text-xs">
-          <div className="p-2.5 rounded-lg bg-slate-950/60 border border-slate-800 flex items-start gap-2">
-            <Layers className="w-4 h-4 text-orange-400 shrink-0 mt-0.5" />
+          <div className="p-2.5 rounded-lg bg-[var(--card-bg-subtle,#111827)] border border-[var(--border-color,#1f2937)] flex items-start gap-2">
+            <Layers className="w-4 h-4 text-orange-500 dark:text-orange-400 shrink-0 mt-0.5" />
             <div>
-              <span className="font-semibold text-white block text-[11px]">Multi-Floor Risers</span>
-              <span className="text-[10px] text-slate-400">IEC 61439-2 automated diversity across towers</span>
+              <span className="font-semibold text-[var(--foreground-color,#f8fafc)] block text-[11px]">Multi-Floor Risers</span>
+              <span className="text-[10px] text-[var(--table-header-color,#9ca3af)]">IEC 61439-2 automated diversity across towers</span>
             </div>
           </div>
 
-          <div className="p-2.5 rounded-lg bg-slate-950/60 border border-slate-800 flex items-start gap-2">
-            <GitBranch className="w-4 h-4 text-orange-400 shrink-0 mt-0.5" />
+          <div className="p-2.5 rounded-lg bg-[var(--card-bg-subtle,#111827)] border border-[var(--border-color,#1f2937)] flex items-start gap-2">
+            <GitBranch className="w-4 h-4 text-orange-500 dark:text-orange-400 shrink-0 mt-0.5" />
             <div>
-              <span className="font-semibold text-white block text-[11px]">Dynamic SLD Generation</span>
-              <span className="text-[10px] text-slate-400">Interactive Single Line Diagram with live breaker sync</span>
+              <span className="font-semibold text-[var(--foreground-color,#f8fafc)] block text-[11px]">Dynamic SLD Generation</span>
+              <span className="text-[10px] text-[var(--table-header-color,#9ca3af)]">Interactive Single Line Diagram with live breaker sync</span>
             </div>
           </div>
 
-          <div className="p-2.5 rounded-lg bg-slate-950/60 border border-slate-800 flex items-start gap-2">
-            <FileSpreadsheet className="w-4 h-4 text-orange-400 shrink-0 mt-0.5" />
+          <div className="p-2.5 rounded-lg bg-[var(--card-bg-subtle,#111827)] border border-[var(--border-color,#1f2937)] flex items-start gap-2">
+            <FileSpreadsheet className="w-4 h-4 text-orange-500 dark:text-orange-400 shrink-0 mt-0.5" />
             <div>
-              <span className="font-semibold text-white block text-[11px]">1-Click Export</span>
-              <span className="text-[10px] text-slate-400">Compliant PDF & Excel calculation schedules</span>
+              <span className="font-semibold text-[var(--foreground-color,#f8fafc)] block text-[11px]">1-Click Export</span>
+              <span className="text-[10px] text-[var(--table-header-color,#9ca3af)]">Compliant PDF & Excel calculation schedules</span>
             </div>
           </div>
         </div>
@@ -110,7 +110,7 @@ export default function ProCalConversionBanner({
           <Link href="/signup" className="w-full sm:w-auto">
             <Button
               variant="outline"
-              className="w-full sm:w-auto text-xs border-slate-700 hover:bg-slate-800 text-slate-300 h-9"
+              className="w-full sm:w-auto text-xs border-[var(--border-color,#1f2937)] bg-[var(--card-bg-subtle,#111827)] hover:bg-[var(--card-bg,#0b0f19)] text-[var(--foreground-color,#f8fafc)] h-9"
             >
               Sign Up Free
             </Button>

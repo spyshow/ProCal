@@ -3,10 +3,52 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { Sparkles, CheckCircle2, Clock, ShieldCheck } from 'lucide-react';
 import { useUser } from '@/context/UserContext';
 import { useTranslation } from '@/i18n';
 
 const INPUT = 'rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 text-sm text-gray-200 placeholder-gray-500 focus:outline-none focus:border-orange-500 w-full';
+
+interface BillingPackOption {
+  credits: 1 | 3 | 10;
+  title: string;
+  price: number;
+  perProject: number;
+  saving?: string;
+  popular?: boolean;
+  desc: string;
+}
+
+const CREDIT_PACKS: BillingPackOption[] = [
+  {
+    credits: 1,
+    title: 'Single Project',
+    price: 49,
+    perProject: 49,
+    desc: '1 project credit • Valid 24 months • No renewal',
+  },
+  {
+    credits: 3,
+    title: '3 Projects Pack',
+    price: 99,
+    perProject: 33,
+    saving: 'Save 33%',
+    popular: true,
+    desc: '3 project credits • $33/project • Valid 24 months',
+  },
+  {
+    credits: 10,
+    title: '10 Projects Pack',
+    price: 249,
+    perProject: 25,
+    saving: 'Save 49%',
+    desc: '10 project credits • $25/project • Valid 24 months',
+  },
+];
+
+function buildPackMessage(pack: BillingPackOption): string {
+  return `I would like to purchase the ${pack.title} (${pack.credits} project credit${pack.credits > 1 ? 's' : ''} — $${pack.price} one-off).`;
+}
 
 /**
  * /billing — the captured-lead "buy" destination (Approach B).
@@ -28,6 +70,21 @@ export default function BillingPage() {
   const [done, setDone] = useState(false);
 
   useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const creditsParam = Number(params.get('credits'));
+      const matchedPack = CREDIT_PACKS.find((p) => p.credits === creditsParam);
+      if (matchedPack) {
+        setForm((f) => ({
+          ...f,
+          requestedCredits: String(matchedPack.credits),
+          message: f.message || buildPackMessage(matchedPack),
+        }));
+      }
+    }
+  }, []);
+
+  useEffect(() => {
     if (!user) return;
     setForm((f) => ({ ...f, email: user.email ?? '' }));
     // Whether the user already has an OPEN lead. Uses the same envelope as the
@@ -44,6 +101,20 @@ export default function BillingPage() {
   }
 
   const isAdmin = user?.role === 'ADMIN';
+  const locked = hasOpen || done;
+
+  const selectPack = (pack: BillingPackOption) => {
+    if (locked) return;
+    setForm((f) => {
+      const isDefaultOrEmpty =
+        !f.message.trim() || CREDIT_PACKS.some((p) => f.message.trim() === buildPackMessage(p));
+      return {
+        ...f,
+        requestedCredits: String(pack.credits),
+        message: isDefaultOrEmpty ? buildPackMessage(pack) : f.message,
+      };
+    });
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -86,15 +157,21 @@ export default function BillingPage() {
     }
   };
 
-  const locked = hasOpen || done;
+  const selectedCreditsNum = Number(form.requestedCredits);
 
   return (
-    <div className="p-6 max-w-3xl mx-auto space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-white">{t('billing.title', 'Get project credits')}</h1>
-        <p className="text-sm text-gray-400 mt-1">
-          {t('billing.creditsCount', 'You have {{count}} project credit(s). Request more and our team will reach out.', { count: user?.credits ?? 0 })}
-        </p>
+    <div className="p-6 max-w-4xl mx-auto space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-bold text-white">{t('billing.title', 'Get project credits')}</h1>
+          <p className="text-sm text-gray-400 mt-1">
+            {t('billing.creditsCount', 'You have {{count}} project credit(s). Request more and our team will reach out.', { count: user?.credits ?? 0 })}
+          </p>
+        </div>
+        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-gray-800 bg-gray-900/80 text-xs font-mono text-gray-300">
+          <Clock className="w-3.5 h-3.5 text-orange-400" />
+          <span>Valid 24 months • One-off • No auto-renewal</span>
+        </div>
       </div>
 
       {isAdmin && (
@@ -130,6 +207,57 @@ export default function BillingPage() {
         </div>
       )}
 
+      {/* Credit Pack Selector Cards */}
+      <div>
+        <div className="text-xs font-mono uppercase tracking-wider text-gray-400 mb-2.5">
+          Select a credit pack (or enter a custom amount below)
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+          {CREDIT_PACKS.map((pack) => {
+            const isSelected = selectedCreditsNum === pack.credits;
+            return (
+              <button
+                key={pack.credits}
+                type="button"
+                disabled={locked}
+                onClick={() => selectPack(pack)}
+                className={`relative text-start rounded-xl p-4 border transition-all ${
+                  isSelected
+                    ? 'border-2 border-orange-500 bg-orange-500/10 shadow-[0_0_20px_rgba(234,88,12,0.15)]'
+                    : 'border-gray-800 bg-gray-900/60 hover:border-gray-700'
+                } ${locked ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'}`}
+              >
+                {pack.popular && (
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-orange-600 text-white text-[10px] font-mono font-bold uppercase tracking-wider mb-2">
+                    <Sparkles className="w-2.5 h-2.5" />
+                    Most popular
+                  </span>
+                )}
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-sm font-bold text-white">{pack.title}</span>
+                  {pack.saving && (
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+                      {pack.saving}
+                    </span>
+                  )}
+                </div>
+                <div className="mt-2 flex items-baseline gap-1">
+                  <span className="text-2xl font-black font-mono text-white">${pack.price}</span>
+                  <span className="text-xs font-mono text-gray-400">one-off</span>
+                </div>
+                <p className="mt-1.5 text-[11px] font-mono text-gray-400">{pack.desc}</p>
+                {isSelected && (
+                  <div className="mt-2.5 inline-flex items-center gap-1 text-[11px] font-semibold text-orange-400">
+                    <CheckCircle2 className="w-3.5 h-3.5" />
+                    <span>Selected ({pack.credits} {pack.credits === 1 ? 'credit' : 'credits'})</span>
+                  </div>
+                )}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
       <form onSubmit={handleSubmit} className="space-y-4 rounded-xl border border-gray-800 bg-gray-900/60 p-5">
         <div className="flex flex-col gap-1">
           <label htmlFor="email" className="text-xs font-medium text-gray-400">{t('billing.emailReply', 'Email (we reply here)')}</label>
@@ -155,7 +283,7 @@ export default function BillingPage() {
             value={form.requestedCredits}
             onChange={(e) => setForm({ ...form, requestedCredits: e.target.value })}
             disabled={locked}
-            placeholder="e.g. 5"
+            placeholder="e.g. 3"
             className={INPUT + (locked ? ' opacity-60 cursor-not-allowed' : '')}
           />
         </div>
@@ -179,19 +307,27 @@ export default function BillingPage() {
           </div>
         )}
 
-        <div className="flex items-center gap-3">
-          <button
-            type="submit"
-            disabled={submitting || locked}
-            className="px-4 py-2 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-sm font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {submitting ? t('billing.sending', 'Sending…') : t('billing.requestCredits', 'Request credits')}
-          </button>
-          <Link href="/projects" className="text-sm text-gray-400 hover:text-orange-300 transition-colors">
-            {t('billing.backToProjects', 'Back to projects')}
-          </Link>
+        <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
+          <div className="flex items-center gap-3">
+            <button
+              type="submit"
+              disabled={submitting || locked}
+              className="px-4 py-2 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-sm font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {submitting ? t('billing.sending', 'Sending…') : t('billing.requestCredits', 'Request credits')}
+            </button>
+            <Link href="/projects" className="text-sm text-gray-400 hover:text-orange-300 transition-colors">
+              {t('billing.backToProjects', 'Back to projects')}
+            </Link>
+          </div>
+
+          <div className="flex items-center gap-1.5 text-xs text-gray-500 font-mono">
+            <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
+            <span>Every credit unlocks all IEC &amp; NEC features + PDF/SLD/BOM exports</span>
+          </div>
         </div>
       </form>
     </div>
   );
 }
+

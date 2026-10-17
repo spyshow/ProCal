@@ -31,6 +31,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import MethodSelector from '@/components/MethodSelector';
 import ProCalConversionBanner from '@/components/ProCalConversionBanner';
+import { ToolsHeader } from '@/components/tools/ToolsHeader';
 
 export default function CableSizerPage() {
   // Input states
@@ -177,41 +178,9 @@ Generated with ProCal (https://procal.app/tools/cable-sizer)`;
     calculationResult && (calculationResult.dropPercent ?? 0) <= maxVdPercent;
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 selection:bg-orange-500 selection:text-white">
-      {/* Top Header */}
-      <header className="sticky top-0 z-50 border-b border-white/10 bg-slate-950/80 backdrop-blur-xl">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-3 group">
-            <div className="w-9 h-9 rounded-xl bg-orange-600/20 border border-orange-500/40 flex items-center justify-center shadow-[0_0_15px_rgba(234,88,12,0.3)] group-hover:scale-105 transition-transform">
-              <Zap className="w-5 h-5 text-orange-500" />
-            </div>
-            <div className="flex flex-col">
-              <span className="font-bold text-lg tracking-tight bg-gradient-to-r from-white via-slate-100 to-slate-400 bg-clip-text text-transparent">
-                ProCal
-              </span>
-              <span className="text-[10px] text-orange-400 font-mono tracking-wider uppercase -mt-1">
-                Engineering Tools
-              </span>
-            </div>
-          </Link>
-
-          <div className="flex items-center gap-3">
-            <Link href="/tools" className="text-xs text-slate-400 hover:text-slate-200 transition-colors hidden sm:inline-block">
-              All Tools
-            </Link>
-            <Link href="/login">
-              <Button variant="ghost" size="sm" className="text-slate-300 hover:text-white text-xs">
-                Sign In
-              </Button>
-            </Link>
-            <Link href="/signup">
-              <Button size="sm" className="bg-orange-600 hover:bg-orange-500 text-white font-medium text-xs shadow-lg shadow-orange-600/20">
-                Create Free Account
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </header>
+    <div className="min-h-screen bg-[var(--background-color,#030712)] text-[var(--foreground-color,#f8fafc)] selection:bg-orange-500 selection:text-white transition-colors duration-200">
+      {/* Top Header with Logo, Tool Switcher Select Input, Theme & Language Selectors */}
+      <ToolsHeader currentPath="/tools/cable-sizer" />
 
       {/* Hero Title */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
@@ -347,16 +316,29 @@ Generated with ProCal (https://procal.app/tools/cable-sizer)`;
                   )}
 
                   <div>
-                    <Label className="text-xs text-slate-300">Operating Voltage (V)</Label>
-                    <Input
-                      type="number"
-                      min="100"
-                      max="1000"
-                      step="5"
-                      value={voltage || ''}
-                      onChange={(e) => setVoltage(parseFloat(e.target.value) || 400)}
-                      className="mt-1 font-mono text-xs"
-                    />
+                    <Label className="text-xs text-[var(--table-header-color,#9ca3af)]">Operating Voltage (V)</Label>
+                    <select
+                      value={voltage}
+                      onChange={(e) => setVoltage(parseFloat(e.target.value) || (isThreePhase ? 400 : 230))}
+                      className="mt-1 w-full rounded-md border border-[var(--border-color,#1f2937)] bg-[var(--card-bg-subtle,#111827)] py-2 px-2.5 text-xs font-mono text-[var(--foreground-color,#f8fafc)] focus:outline-none focus:border-orange-500 cursor-pointer shadow-xs"
+                    >
+                      {isThreePhase ? (
+                        <>
+                          <option value="400">400 V (3-Phase IEC Standard)</option>
+                          <option value="415">415 V (3-Phase UK / Gulf)</option>
+                          <option value="380">380 V (3-Phase Legacy)</option>
+                          <option value="480">480 V (3-Phase North America)</option>
+                          <option value="690">690 V (3-Phase Marine / Industry)</option>
+                        </>
+                      ) : (
+                        <>
+                          <option value="230">230 V (1-Phase IEC Standard)</option>
+                          <option value="240">240 V (1-Phase UK / Aus)</option>
+                          <option value="220">220 V (1-Phase Legacy)</option>
+                          <option value="120">120 V (1-Phase North America)</option>
+                        </>
+                      )}
+                    </select>
                   </div>
                 </div>
 
@@ -780,17 +762,17 @@ Generated with ProCal (https://procal.app/tools/cable-sizer)`;
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-slate-800/80 bg-slate-950 py-8 text-center text-xs text-slate-500 mt-16">
+      <footer className="border-t border-[var(--border-color,#1f2937)] bg-[var(--card-bg,#0b0f19)] py-8 text-center text-xs text-[var(--table-header-color,#9ca3af)] mt-16">
         <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
             <Zap className="w-4 h-4 text-orange-500" />
-            <span className="text-slate-300 font-semibold">ProCal</span> — Low Voltage Electrical Design, <span className="text-orange-400 font-semibold">Solved</span>.
+            <span className="text-[var(--foreground-color,#f8fafc)] font-semibold">ProCal</span> — Low Voltage Electrical Design, <span className="text-orange-500 font-semibold">Solved</span>.
           </div>
-          <div className="flex items-center gap-4 text-slate-400">
-            <Link href="/" className="hover:text-white transition-colors">Home</Link>
-            <Link href="/tools" className="hover:text-white transition-colors">Tools</Link>
-            <Link href="/signup" className="hover:text-white transition-colors">Sign Up</Link>
-            <Link href="/login" className="hover:text-white transition-colors">Login</Link>
+          <div className="flex items-center gap-4 text-[var(--table-header-color,#9ca3af)]">
+            <Link href="/" className="hover:text-[var(--foreground-color,#f8fafc)] transition-colors">Home</Link>
+            <Link href="/tools" className="hover:text-[var(--foreground-color,#f8fafc)] transition-colors">All Tools</Link>
+            <Link href="/signup" className="hover:text-[var(--foreground-color,#f8fafc)] transition-colors">Sign Up</Link>
+            <Link href="/login" className="hover:text-[var(--foreground-color,#f8fafc)] transition-colors">Login</Link>
           </div>
         </div>
       </footer>

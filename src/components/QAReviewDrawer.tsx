@@ -225,17 +225,17 @@ export function QAReviewDrawer({ pageKey, pageTitle }: QAReviewDrawerProps) {
       {/* Floating Trigger Button */}
       <div
         data-qa-ignore="true"
-        className={`qa-floating-trigger fixed bottom-[66px] z-40 ${
-          isRtl ? "left-5" : "right-5"
+        className={`qa-floating-trigger fixed bottom-3 z-40 ${
+          isRtl ? "left-[160px]" : "right-[124px]"
         } print:hidden`}
       >
         <button
           onClick={() => setIsOpen(true)}
-          className="group flex items-center justify-center gap-2 w-[142px] h-[40px] px-3.5 py-2 rounded-full bg-[var(--card-bg)] hover:bg-[var(--card-bg-subtle)] text-[var(--foreground-color)] border border-[var(--border-color)] shadow-lg shadow-black/20 hover:shadow-orange-500/10 hover:border-orange-500/50 transition-all duration-200 transform hover:scale-105 active:scale-95 text-xs font-semibold backdrop-blur-md focus:outline-none focus:ring-2 focus:ring-orange-400 cursor-pointer"
+          className="group flex items-center justify-center gap-1.5 h-8 px-3 rounded-full bg-[var(--card-bg)]/95 hover:bg-[var(--card-bg-subtle)] text-[var(--foreground-color)] border border-[var(--border-color)] shadow-md shadow-black/20 hover:shadow-orange-500/10 hover:border-orange-500/50 transition-all duration-200 text-[11px] font-semibold backdrop-blur-md focus:outline-none focus:ring-2 focus:ring-orange-400 cursor-pointer"
           title={t("qa.qaReviewNotes", "QA Review Notes")}
         >
-          <ClipboardCheck size={17} className="text-orange-600 dark:text-orange-400 group-hover:scale-110 transition-transform shrink-0" />
-          <span className="whitespace-nowrap font-medium text-xs">{t("qa.qaNotes", "QA Notes")}</span>
+          <ClipboardCheck size={14} className="text-orange-600 dark:text-orange-400 group-hover:scale-110 transition-transform shrink-0" />
+          <span className="whitespace-nowrap font-medium text-[11px]">{t("qa.qaNotes", "QA Notes")}</span>
           {openCount > 0 && (
             <span className="w-4 h-4 rounded-full bg-orange-600 text-white text-[10px] font-bold flex items-center justify-center animate-pulse shrink-0 ml-0.5">
               {openCount}

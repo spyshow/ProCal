@@ -268,15 +268,15 @@ export function FeedbackFloatingButton() {
       <aside
         data-qa-ignore="true"
         aria-label={t('feedback.title', 'Send Feedback to Admin')}
-        className={`qa-feedback-trigger fixed bottom-5 ${isRtl ? 'left-5' : 'right-5'} z-40 print:hidden`}
+        className={`qa-feedback-trigger fixed bottom-3 ${isRtl ? 'left-14' : 'right-4'} z-40 print:hidden`}
       >
         <button
           onClick={handleOpen}
-          className="group flex items-center justify-center gap-2 w-[142px] h-[40px] px-3.5 py-2 rounded-full bg-slate-900/95 hover:bg-slate-800 text-slate-200 border border-slate-700/80 shadow-lg shadow-black/40 hover:shadow-orange-500/10 hover:border-orange-500/50 transition-all duration-200 transform hover:scale-105 active:scale-95 text-xs font-semibold backdrop-blur-md focus:outline-none focus:ring-2 focus:ring-orange-400"
+          className="group flex items-center justify-center gap-1.5 h-8 px-3 rounded-full bg-slate-900/95 hover:bg-slate-800 text-slate-200 border border-slate-700/80 shadow-md shadow-black/40 hover:shadow-orange-500/10 hover:border-orange-500/50 transition-all duration-200 text-[11px] font-semibold backdrop-blur-md focus:outline-none focus:ring-2 focus:ring-orange-400 cursor-pointer"
           title={t('feedback.tooltip', 'Report an Error or Send Feedback to Admin')}
         >
-          <MessageSquareWarning size={17} className="text-orange-400 group-hover:scale-110 transition-transform shrink-0" />
-          <span className="whitespace-nowrap font-medium text-xs">{t('feedback.buttonLabel', 'Feedback')}</span>
+          <MessageSquareWarning size={14} className="text-orange-400 group-hover:scale-110 transition-transform shrink-0" />
+          <span className="whitespace-nowrap font-medium text-[11px]">{t('feedback.buttonLabel', 'Feedback')}</span>
         </button>
       </aside>
 

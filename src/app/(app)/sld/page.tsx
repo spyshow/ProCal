@@ -1242,7 +1242,7 @@ export default function SLDPage() {
 
           {/* MODE 1: ANALYZE DRAWER */}
           {activeMode === 'analyze' && (
-            <div className="p-4 space-y-4 flex-1 overflow-y-auto no-scrollbar text-xs">
+            <div className="p-4 pb-16 space-y-4 flex-1 overflow-y-auto no-scrollbar text-xs">
               <div className="p-3 rounded-xl bg-orange-500/10 border border-orange-500/30 space-y-1">
                 <span className="text-[10px] font-mono uppercase tracking-wider text-orange-400 block font-semibold">
                   {t('sld.diagReport', 'IEC 60364 Diagnostic Report')}
@@ -1288,7 +1288,7 @@ export default function SLDPage() {
 
           {/* MODE 2: SIMULATE / PROPERTIES DRAWER */}
           {activeMode === 'simulate' && selectedComponent && (
-            <div className="p-4 space-y-4 flex-1 overflow-y-auto no-scrollbar text-xs">
+            <div className="p-4 pb-16 space-y-4 flex-1 overflow-y-auto no-scrollbar text-xs">
               {/* Header Badge & Name */}
               <div className="p-3 rounded-xl bg-[var(--card-bg)] border border-[var(--border-color)] space-y-1">
                 <div className="flex items-center justify-between">

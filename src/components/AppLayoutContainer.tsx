@@ -39,7 +39,7 @@ function LayoutInner({ children }: { children: React.ReactNode }) {
         <TopHeader />
         <main
           id="procal-main-content"
-          className="flex-1 overflow-y-auto bg-[var(--background-color,#030712)] text-[var(--foreground-color,#f8fafc)] transition-colors duration-200 print:overflow-visible print:w-full print:h-auto print:m-0 custom-scrollbar"
+          className="flex-1 overflow-y-auto pb-14 bg-[var(--background-color,#030712)] text-[var(--foreground-color,#f8fafc)] transition-colors duration-200 print:overflow-visible print:w-full print:h-auto print:m-0 print:pb-0 custom-scrollbar"
         >
           {children}
         </main>

@@ -2,7 +2,6 @@
 /* eslint-disable react-hooks/set-state-in-effect */
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useUser } from '@/context/UserContext';
 import { useTranslation } from '@/i18n';
@@ -12,15 +11,12 @@ const INPUT = 'rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 text-sm t
 /**
  * /billing — the captured-lead "buy" destination (Approach B).
  *
- * Admins redirect to /admin/users (they grant credits, not request them). A
- * non-admin with an OPEN lead sees a notice and the form is locked (one OPEN
+ * Non-admins with an OPEN lead see a notice and the form is locked (one OPEN
  * per user — the CQ-C invariant enforced server-side; the button self-disables
- * so the submit can't even fire). The email field is pre-filled from user.email
- * (collected at signup — Track 2) and stays editable so a legacy null-email
- * user can still submit a replyable address.
+ * so the submit can't even fire). Admins see an admin banner with quick links
+ * to /admin/users and /admin/leads while still being able to inspect the page.
  */
 export default function BillingPage() {
-  const router = useRouter();
   const { user } = useUser();
   const { t } = useTranslation();
 
@@ -43,19 +39,11 @@ export default function BillingPage() {
       .finally(() => setChecking(false));
   }, [user]);
 
-  // Admin special-case: grants happen in /admin/users, not here. Kept in an
-  // effect (not during render) so it's not a render-phase side effect.
-  useEffect(() => {
-    if (user?.role === 'ADMIN') router.push('/admin/users');
-  }, [user, router]);
-
   if (checking) {
     return <div className="p-6 text-gray-500">{t('common.loading', 'Loading…')}</div>;
   }
 
-  if (user?.role === 'ADMIN') {
-    return <div className="p-6 text-gray-500">Redirecting…</div>;
-  }
+  const isAdmin = user?.role === 'ADMIN';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -108,6 +96,28 @@ export default function BillingPage() {
           {t('billing.creditsCount', 'You have {{count}} project credit(s). Request more and our team will reach out.', { count: user?.credits ?? 0 })}
         </p>
       </div>
+
+      {isAdmin && (
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-xl border border-orange-500/40 bg-orange-950/20 px-4 py-3 text-sm">
+          <div className="text-orange-200">
+            <span className="font-semibold text-orange-400">Admin Account:</span> You can grant project credits directly in User Management or review incoming requests in Billing Leads.
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            <Link
+              href="/admin/users"
+              className="px-3 py-1.5 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-xs font-semibold transition-colors"
+            >
+              Manage Users
+            </Link>
+            <Link
+              href="/admin/leads"
+              className="px-3 py-1.5 rounded-lg border border-orange-500/40 hover:bg-orange-500/10 text-orange-300 text-xs font-semibold transition-colors"
+            >
+              Billing Leads
+            </Link>
+          </div>
+        </div>
+      )}
 
       {locked && (
         <div className="flex items-start gap-3 rounded-xl border border-orange-800/60 bg-orange-900/15 px-4 py-3 text-sm">

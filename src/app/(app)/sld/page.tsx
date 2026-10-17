@@ -650,7 +650,10 @@ export default function SLDPage() {
     });
 
     const bbox = svg.getBBox();
-    svg.setAttribute('viewBox', `0 0 ${bbox.width} ${bbox.height + EXTRA * 2}`);
+    const padX = 28;
+    const minX = Math.min(0, bbox.x) - padX;
+    const minY = Math.min(0, bbox.y) - 12;
+    svg.setAttribute('viewBox', `${minX} ${minY} ${bbox.width + padX * 2 + Math.abs(Math.min(0, bbox.x))} ${bbox.height + EXTRA * 2}`);
     svg.style.height = 'auto';
   };
 
@@ -658,12 +661,16 @@ export default function SLDPage() {
     const texts = svg.querySelectorAll('text');
     if (texts.length === 0) return;
 
+    const busLines: number[] = [];
     const mcbSymbols: { cx: number; cy: number; topY: number; botY: number; rightX: number }[] = [];
     svg.querySelectorAll('line').forEach((line) => {
       const x1 = parseFloat(line.getAttribute('x1') || '0');
       const y1 = parseFloat(line.getAttribute('y1') || '0');
       const x2 = parseFloat(line.getAttribute('x2') || '0');
       const y2 = parseFloat(line.getAttribute('y2') || '0');
+      if (y1 === y2 && Math.abs(x2 - x1) > 200) {
+        busLines.push(y1);
+      }
       if (x1 !== x2 && y1 !== y2 && Math.abs(y2 - y1) > 5 && Math.abs(x2 - x1) > 5) {
         mcbSymbols.push({
           cx: (x1 + x2) / 2,
@@ -692,6 +699,17 @@ export default function SLDPage() {
         content === 'DB'
       )
         return;
+
+      // Prevent cable tags (e.g. Wf1a, Wf1b) and their dash placeholders from overlapping horizontal feeder paths (y≈281)
+      if (/^Wf\d+[a-z]$/i.test(content)) {
+        const currentY = parseFloat(text.getAttribute('y') || String(ty));
+        text.setAttribute('y', String(currentY - 10));
+        return;
+      }
+      if (content === '—') {
+        text.setAttribute('opacity', '0');
+        return;
+      }
 
       let nearestMCB: (typeof mcbSymbols)[0] | null = null;
       let minDist = Infinity;
@@ -779,20 +797,20 @@ export default function SLDPage() {
       <QAReviewDrawer pageKey="sldDesigner" pageTitle="Single Line Diagram (SLD)" />
 
       {/* Top Workstation Window Bar & Header */}
-      <header data-tour="sld-header" className="h-14 border-b border-[var(--border-color)] bg-[var(--card-bg)] backdrop-blur-xl px-4 flex items-center justify-between z-30 shrink-0 print:hidden shadow-xs">
+      <header data-tour="sld-header" className="min-h-14 py-1.5 border-b border-[var(--border-color)] bg-[var(--card-bg)] backdrop-blur-xl px-3 flex flex-wrap items-center justify-between gap-2 z-30 shrink-0 print:hidden shadow-xs">
         {/* Left: App Title & Breadcrumbs */}
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-orange-600/20 border border-orange-500/40 flex items-center justify-center shadow-[0_0_12px_rgba(234,88,12,0.25)]">
+        <div className="flex items-center gap-2 min-w-0">
+          <div className="w-8 h-8 rounded-lg bg-orange-600/20 border border-orange-500/40 flex items-center justify-center shadow-[0_0_12px_rgba(234,88,12,0.25)] shrink-0">
             <GitBranch className="w-4 h-4 text-orange-600 dark:text-orange-400" />
           </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-bold text-[var(--foreground-color)] tracking-tight">{t('sld.title', 'Single Line Diagram')}</span>
-              <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-orange-500/15 text-orange-700 dark:text-orange-300 border border-orange-500/30 font-semibold">
+          <div className="min-w-0">
+            <div className="flex items-center gap-1.5 min-w-0">
+              <span className="text-sm font-bold text-[var(--foreground-color)] tracking-tight whitespace-nowrap">{t('sld.title', 'Single Line Diagram')}</span>
+              <span className="hidden xl:inline-flex text-[10px] font-mono px-1.5 py-0.5 rounded bg-orange-500/15 text-orange-700 dark:text-orange-300 border border-orange-500/30 font-semibold whitespace-nowrap">
                 V4.2 Dynamic
               </span>
-              <span className="text-[var(--border-color)]">|</span>
-              <span className="text-xs text-[var(--text-secondary)] font-medium truncate max-w-[200px]">
+              <span className="text-[var(--border-color)] hidden lg:inline">|</span>
+              <span className="hidden lg:inline text-xs text-[var(--text-secondary)] font-medium truncate max-w-[140px] xl:max-w-[200px]">
                 {project.name}
               </span>
             </div>
@@ -800,10 +818,10 @@ export default function SLDPage() {
         </div>
 
         {/* Center: Mode Toggles */}
-        <div className="hidden md:flex items-center gap-1 p-1 rounded-xl bg-[var(--card-bg-subtle)] border border-[var(--border-color)] text-xs shadow-inner">
+        <div className="hidden md:flex items-center gap-1 p-1 rounded-xl bg-[var(--card-bg-subtle)] border border-[var(--border-color)] text-xs shadow-inner shrink-0">
           <button
             onClick={() => setActiveMode('analyze')}
-            className={`px-3 py-1.5 rounded-lg font-semibold transition-all cursor-pointer ${
+            className={`px-2.5 py-1 rounded-lg font-semibold transition-all cursor-pointer whitespace-nowrap ${
               activeMode === 'analyze'
                 ? 'bg-[var(--card-bg)] text-[var(--foreground-color)] border border-[var(--border-color)] shadow-xs'
                 : 'text-[var(--text-secondary)] hover:text-[var(--foreground-color)]'
@@ -813,7 +831,7 @@ export default function SLDPage() {
           </button>
           <button
             onClick={() => setActiveMode('simulate')}
-            className={`px-3 py-1.5 rounded-lg font-semibold transition-all flex items-center gap-1.5 cursor-pointer ${
+            className={`px-2.5 py-1 rounded-lg font-semibold transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap ${
               activeMode === 'simulate'
                 ? 'bg-orange-600 text-white shadow-xs shadow-orange-600/25 text-white-force'
                 : 'text-[var(--text-secondary)] hover:text-[var(--foreground-color)]'
@@ -824,7 +842,7 @@ export default function SLDPage() {
           </button>
           <button
             onClick={() => setActiveMode('library')}
-            className={`px-3 py-1.5 rounded-lg font-semibold transition-all flex items-center gap-1.5 cursor-pointer ${
+            className={`px-2.5 py-1 rounded-lg font-semibold transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap ${
               activeMode === 'library'
                 ? 'bg-[var(--card-bg)] text-[var(--foreground-color)] border border-[var(--border-color)] shadow-xs'
                 : 'text-[var(--text-secondary)] hover:text-[var(--foreground-color)]'
@@ -836,21 +854,21 @@ export default function SLDPage() {
         </div>
 
         {/* Right: Actions & Zoom Controls */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 shrink-0">
           {/* Page Tour Button */}
           <button
             onClick={() => {
               window.dispatchEvent(new CustomEvent('trigger-procal-sld-tour'));
             }}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[var(--card-bg-subtle)] border border-[var(--border-color)] hover:border-orange-500/50 text-[var(--foreground-color)] hover:text-orange-600 dark:hover:text-orange-400 text-xs font-semibold shadow-xs transition-all cursor-pointer"
+            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-[var(--card-bg-subtle)] border border-[var(--border-color)] hover:border-orange-500/50 text-[var(--foreground-color)] hover:text-orange-600 dark:hover:text-orange-400 text-xs font-semibold shadow-xs transition-all cursor-pointer whitespace-nowrap"
             title="Interactive SLD Workstation Tour"
           >
             <HelpCircle className="w-3.5 h-3.5 text-orange-600 dark:text-orange-400" />
-            {t('cableSchedule.pageTour', 'Page Tour')}
+            <span className="hidden xl:inline">{t('cableSchedule.pageTour', 'Page Tour')}</span>
           </button>
 
           {/* Zoom Toolbar */}
-          <div className="flex items-center gap-1 bg-[var(--card-bg-subtle)] border border-[var(--border-color)] rounded-lg p-1 shadow-xs">
+          <div className="flex items-center gap-0.5 bg-[var(--card-bg-subtle)] border border-[var(--border-color)] rounded-lg p-1 shadow-xs">
             <button
               onClick={() => setZoom((z) => Math.max(50, z - 10))}
               className="p-1 rounded text-[var(--text-secondary)] hover:text-[var(--foreground-color)] hover:bg-[var(--card-bg)] transition-colors cursor-pointer"
@@ -858,7 +876,7 @@ export default function SLDPage() {
             >
               <ZoomOut size={14} />
             </button>
-            <span className="text-[11px] font-mono text-[var(--foreground-color)] font-semibold w-10 text-center" dir="ltr">{zoom}%</span>
+            <span className="text-[11px] font-mono text-[var(--foreground-color)] font-semibold w-9 text-center" dir="ltr">{zoom}%</span>
             <button
               onClick={() => setZoom((z) => Math.min(200, z + 10))}
               className="p-1 rounded text-[var(--text-secondary)] hover:text-[var(--foreground-color)] hover:bg-[var(--card-bg)] transition-colors cursor-pointer"
@@ -879,29 +897,29 @@ export default function SLDPage() {
 
           <button
             onClick={exportPNG}
-            className="p-1.5 rounded-lg bg-[var(--card-bg-subtle)] border border-[var(--border-color)] hover:border-orange-500/50 text-[var(--foreground-color)] text-xs flex items-center gap-1.5 font-semibold shadow-xs transition-all cursor-pointer"
+            className="p-1.5 rounded-lg bg-[var(--card-bg-subtle)] border border-[var(--border-color)] hover:border-orange-500/50 text-[var(--foreground-color)] text-xs flex items-center gap-1 font-semibold shadow-xs transition-all cursor-pointer whitespace-nowrap"
             title="Export PNG Diagram"
           >
             <FileImage size={14} className="text-emerald-600 dark:text-emerald-400" />
-            <span className="hidden sm:inline">{t('sld.exportPng', 'Export PNG')}</span>
+            <span className="hidden lg:inline">{t('sld.exportPng', 'Export PNG')}</span>
           </button>
 
           <button
             onClick={exportPDF}
-            className="p-1.5 rounded-lg bg-[var(--card-bg-subtle)] border border-[var(--border-color)] hover:border-orange-500/50 text-[var(--foreground-color)] text-xs flex items-center gap-1.5 font-semibold shadow-xs transition-all cursor-pointer"
+            className="p-1.5 rounded-lg bg-[var(--card-bg-subtle)] border border-[var(--border-color)] hover:border-orange-500/50 text-[var(--foreground-color)] text-xs flex items-center gap-1 font-semibold shadow-xs transition-all cursor-pointer whitespace-nowrap"
             title="Export Current Page to PDF/Print"
           >
             <Download size={14} className="text-sky-600 dark:text-sky-400" />
-            <span className="hidden sm:inline">{t('sld.printPage', 'Print Page')}</span>
+            <span className="hidden lg:inline">{t('sld.printPage', 'Print Page')}</span>
           </button>
 
           <button
             onClick={exportPrintAll}
-            className="p-1.5 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-white-force text-xs flex items-center gap-1.5 font-semibold shadow-sm shadow-orange-600/25 transition-all cursor-pointer"
+            className="px-2.5 py-1.5 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-white-force text-xs flex items-center gap-1.5 font-semibold shadow-sm shadow-orange-600/25 transition-all cursor-pointer whitespace-nowrap"
             title="Print Complete Project Package (Executive Summary + All Single Line Diagrams)"
           >
-            <Printer size={14} className="text-white" />
-            <span className="hidden sm:inline">{t('sld.printAll', 'Print All (Full Package)')}</span>
+            <Printer size={14} className="text-white shrink-0" />
+            <span>{t('sld.printAllShort', 'Print All')}</span>
           </button>
         </div>
       </header>
@@ -912,7 +930,7 @@ export default function SLDPage() {
         <aside
           data-tour="sld-tree"
           className={`${
-            isSidebarCollapsed ? 'w-12' : 'w-72'
+            isSidebarCollapsed ? 'w-12' : 'w-64 xl:w-72'
           } border-r border-[var(--border-color)] bg-[var(--card-bg-subtle)] flex flex-col shrink-0 transition-all duration-200 print:hidden relative`}
         >
           {isSidebarCollapsed ? (
@@ -1093,42 +1111,42 @@ export default function SLDPage() {
         {/* CENTER PANEL: Canvas Workstation Viewport */}
         <main
           data-tour="sld-canvas"
-          className={`sld-main-viewport flex-1 flex flex-col bg-[var(--background-color)] overflow-hidden relative ${
+          className={`sld-main-viewport flex-1 min-w-0 flex flex-col bg-[var(--background-color)] overflow-hidden relative ${
             isPrintingAll ? 'print:hidden' : 'print:bg-white print:overflow-visible print:w-full print:block'
           }`}
         >
           {/* Document View Header */}
-          <div className="h-9 border-b border-[var(--border-color)] bg-[var(--card-bg-subtle)] flex items-center px-4 justify-between shrink-0 print:hidden font-sans">
-            <div className="flex items-center gap-2 text-xs font-semibold text-[var(--foreground-color)]">
+          <div className="h-9 border-b border-[var(--border-color)] bg-[var(--card-bg-subtle)] flex items-center px-3 justify-between gap-2 shrink-0 print:hidden font-sans">
+            <div className="flex items-center gap-2 text-xs font-semibold text-[var(--foreground-color)] min-w-0 flex-1">
               {isSidebarCollapsed && (
                 <button
                   onClick={() => setIsSidebarCollapsed(false)}
-                  className="p-1 rounded bg-[var(--card-bg)] border border-[var(--border-color)] text-orange-400 hover:text-[var(--foreground-color)] transition-colors mr-1 cursor-pointer"
+                  className="p-1 rounded bg-[var(--card-bg)] border border-[var(--border-color)] text-orange-400 hover:text-[var(--foreground-color)] transition-colors mr-1 cursor-pointer shrink-0"
                   title="Expand Project Explorer Menu"
                 >
                   <PanelLeftOpen size={14} />
                 </button>
               )}
-              <GitBranch className="w-4 h-4 text-orange-400" />
-              <span>Single Line Diagram — {pages[activePage]?.floors || pages[activePage]?.title || 'Floor View'}</span>
+              <GitBranch className="w-4 h-4 text-orange-400 shrink-0" />
+              <span className="truncate">Single Line Diagram — {pages[activePage]?.floors || pages[activePage]?.title || 'Floor View'}</span>
             </div>
 
             {pages.length > 1 && (
-              <div className="flex items-center gap-2 text-xs">
+              <div className="flex items-center gap-1.5 text-xs shrink-0 whitespace-nowrap">
                 <button
                   onClick={() => selectPageFloor(Math.max(0, activePage - 1))}
                   disabled={activePage === 0}
-                  className="px-2.5 py-1 rounded bg-[var(--card-bg)] border border-[var(--border-color)] text-[var(--foreground-color)] hover:border-orange-500/50 disabled:opacity-30 transition-colors cursor-pointer"
+                  className="px-2 py-0.5 rounded bg-[var(--card-bg)] border border-[var(--border-color)] text-[var(--foreground-color)] hover:border-orange-500/50 disabled:opacity-30 transition-colors cursor-pointer whitespace-nowrap"
                 >
                   ← Prev
                 </button>
-                <span className="text-[var(--text-muted)] font-mono text-[11px]">
+                <span className="text-[var(--text-muted)] font-mono text-[11px] whitespace-nowrap px-1">
                   {activePage + 1} / {pages.length}
                 </span>
                 <button
                   onClick={() => selectPageFloor(Math.min(pages.length - 1, activePage + 1))}
                   disabled={activePage === pages.length - 1}
-                  className="px-2.5 py-1 rounded bg-[var(--card-bg)] border border-[var(--border-color)] text-[var(--foreground-color)] hover:border-orange-500/50 disabled:opacity-30 transition-colors cursor-pointer"
+                  className="px-2 py-0.5 rounded bg-[var(--card-bg)] border border-[var(--border-color)] text-[var(--foreground-color)] hover:border-orange-500/50 disabled:opacity-30 transition-colors cursor-pointer whitespace-nowrap"
                 >
                   Next →
                 </button>
@@ -1137,7 +1155,21 @@ export default function SLDPage() {
           </div>
 
           {/* Canvas Area with Theme Grid Background */}
-          <div className="sld-canvas-container-outer flex-1 overflow-auto p-6 bg-[radial-gradient(var(--border-color)_1px,transparent_1px)] [background-size:16px_16px] relative flex items-center justify-center print:bg-white print:p-0 print:m-0 print:block print:w-full">
+          <div className="sld-canvas-container-outer flex-1 overflow-auto p-4 sm:p-6 bg-[radial-gradient(var(--border-color)_1px,transparent_1px)] [background-size:16px_16px] relative flex flex-col items-start gap-3 print:bg-white print:p-0 print:m-0 print:block print:w-full">
+            {/* Floating Live Simulation Banner */}
+            <div className="z-10 inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[var(--card-bg)]/95 backdrop-blur-md border border-[var(--border-color)] text-xs text-[var(--foreground-color)] shadow-sm print:hidden">
+              <span
+                className={`w-2 h-2 rounded-full shrink-0 ${
+                  activeStatus === 'Closed' ? 'bg-emerald-400 animate-ping' : 'bg-rose-400'
+                }`}
+              />
+              <span className="whitespace-nowrap">Simulation Status: {activeStatus}</span>
+              <span className="text-[var(--border-color)]">|</span>
+              <span className="text-orange-400 font-mono truncate">
+                {pages[activePage]?.floors}
+              </span>
+            </div>
+
             {/* Professional Engineering Print Header (Visible ONLY when printing) */}
             <div className="hidden print:flex flex-col border-b-2 border-black pb-2 mb-4 font-sans text-black w-full max-w-full box-border">
               <div className="flex items-start justify-between gap-4">
@@ -1164,23 +1196,9 @@ export default function SLDPage() {
             {/* SVG Canvas Container */}
             <div
               ref={svgContainerRef}
-              className="sld-canvas-wrapper relative bg-[var(--card-bg)] backdrop-blur-md rounded-2xl border border-[var(--border-color)] p-6 sm:p-8 shadow-lg min-w-[750px] transition-all duration-300 print:bg-white print:border-none print:shadow-none print:p-0 print:m-0 print:min-w-0 print:w-full"
+              className="sld-canvas-wrapper relative bg-[var(--card-bg)] backdrop-blur-md rounded-2xl border border-[var(--border-color)] p-4 sm:p-6 shadow-lg w-full min-w-[480px] my-auto transition-all duration-300 print:bg-white print:border-none print:shadow-none print:p-0 print:m-0 print:min-w-0 print:w-full"
             >
               {pages[activePage] && <SchematexDiagram dsl={pages[activePage].dsl} />}
-            </div>
-
-            {/* Floating Live Simulation Banner */}
-            <div className="absolute top-4 left-4 z-10 flex items-center gap-2 px-3 py-1.5 rounded-full bg-[var(--card-bg)]/90 backdrop-blur-md border border-[var(--border-color)] text-xs text-[var(--foreground-color)] shadow-lg print:hidden">
-              <span
-                className={`w-2 h-2 rounded-full ${
-                  activeStatus === 'Closed' ? 'bg-emerald-400 animate-ping' : 'bg-rose-400'
-                }`}
-              />
-              <span>Simulation Status: {activeStatus}</span>
-              <span className="text-[var(--border-color)]">|</span>
-              <span className="text-orange-400 font-mono">
-                {pages[activePage]?.floors}
-              </span>
             </div>
           </div>
 

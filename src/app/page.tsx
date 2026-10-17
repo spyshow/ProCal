@@ -93,56 +93,78 @@ export default function Home() {
 
       {/* Top Header / Navigation Bar */}
       <header className="sticky top-0 z-50 border-b border-[var(--border-color,rgba(255,255,255,0.1))] bg-[var(--card-bg,#030712)]/85 backdrop-blur-xl transition-colors duration-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-2">
           {/* Logo Mark */}
-          <Link href="/dashboard" className="flex items-center gap-3 group">
-            <div className="w-10 h-10 rounded-xl bg-orange-600/15 border border-orange-500/30 flex items-center justify-center shadow-[0_0_15px_rgba(234,88,12,0.2)] group-hover:scale-105 transition-transform">
-              <ProCalLogo size={24} />
+          <Link href="/dashboard" className="flex items-center gap-2 sm:gap-3 group shrink-0">
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-orange-600/15 border border-orange-500/30 flex items-center justify-center shadow-[0_0_15px_rgba(234,88,12,0.2)] group-hover:scale-105 transition-transform">
+              <ProCalLogo size={22} />
             </div>
             <div>
-              <span className="text-xl font-bold tracking-tight text-[var(--foreground-color,#fff)] flex items-center gap-1.5">
+              <span className="text-lg sm:text-xl font-bold tracking-tight text-[var(--foreground-color,#fff)] flex items-center gap-1.5">
                 {t('common.appName', 'ProCal')}
-                <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-orange-500/20 text-orange-600 dark:text-orange-400 border border-orange-500/30">
+                <span className="text-[10px] sm:text-xs font-semibold px-1.5 sm:px-2 py-0.5 rounded-full bg-orange-500/20 text-orange-600 dark:text-orange-400 border border-orange-500/30">
                   PRO
                 </span>
               </span>
-              <p className="text-[10.5px] text-[var(--table-header-color,#94a3b8)] tracking-tight font-medium flex items-center gap-1">
-                <span>Low Voltage Electrical Design ,</span>
+              <p className="hidden sm:flex text-[10.5px] text-[var(--table-header-color,#94a3b8)] tracking-tight font-medium items-center gap-1 whitespace-nowrap">
+                <span>Low Voltage Electrical Design,</span>
                 <span className="text-orange-500 dark:text-orange-400 font-bold">Solved</span>
               </p>
             </div>
           </Link>
 
           {/* Action Navigation & Top Language/Theme Switcher */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
             <Link
               href="/tools"
-              className="text-xs font-semibold text-[var(--table-header-color,#94a3b8)] hover:text-orange-500 transition-colors hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-[var(--card-bg-subtle,#111827)] border border-transparent hover:border-[var(--border-color,#1f2937)]"
+              className="text-xs font-semibold text-[var(--table-header-color,#94a3b8)] hover:text-orange-500 transition-colors hidden md:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-[var(--card-bg-subtle,#111827)] border border-transparent hover:border-[var(--border-color,#1f2937)]"
             >
               <Zap className="w-3.5 h-3.5 text-orange-500" />
               <span>Free Tools</span>
             </Link>
             <a
               href="#pricing"
-              className="text-xs font-semibold text-[var(--table-header-color,#94a3b8)] hover:text-orange-500 transition-colors hidden sm:inline-flex items-center gap-1 px-3 py-1.5 rounded-lg hover:bg-[var(--card-bg-subtle,#111827)] border border-transparent hover:border-[var(--border-color,#1f2937)]"
+              className="text-xs font-semibold text-[var(--table-header-color,#94a3b8)] hover:text-orange-500 transition-colors hidden md:inline-flex items-center gap-1 px-3 py-1.5 rounded-lg hover:bg-[var(--card-bg-subtle,#111827)] border border-transparent hover:border-[var(--border-color,#1f2937)]"
             >
               <span>{t('nav.pricing', 'Pricing')}</span>
               <span className="px-1.5 py-0.2 rounded bg-orange-500/20 text-orange-600 dark:text-orange-400 text-[10px] font-mono">$20 Deal</span>
             </a>
             <ThemeSelector variant="dropdown" />
             <LanguageSelector variant="dropdown" />
-            <Link href="/login">
-              <Button variant="ghost" size="sm" className="hidden sm:inline-flex">
+            <Link href="/login" className="hidden sm:inline-flex">
+              <Button variant="ghost" size="sm">
                 {t('auth.signInBtn', 'Sign In')}
               </Button>
             </Link>
-            <Link href="/dashboard">
+            <Link href="/dashboard" className="hidden sm:inline-flex">
               <Button variant="glow" size="sm" className="gap-2">
                 <span>{t('dashboard.title', 'Launch App')}</span>
                 {isRtl ? <ArrowLeft className="w-4 h-4" /> : <ArrowRight className="w-4 h-4" />}
               </Button>
             </Link>
           </div>
+        </div>
+
+        {/* Mobile Quick Navigation Bar (< 640px) */}
+        <div className="flex sm:hidden items-center justify-between gap-2 px-3 py-2 border-t border-[var(--border-color,rgba(255,255,255,0.08))] bg-[var(--card-bg,#030712)]/95 text-xs">
+          <div className="flex items-center gap-3">
+            <Link href="/tools" className="font-semibold text-[var(--table-header-color,#94a3b8)] hover:text-orange-500 flex items-center gap-1">
+              <Zap className="w-3 h-3 text-orange-500" />
+              <span>Free Tools</span>
+            </Link>
+            <a href="#pricing" className="font-semibold text-[var(--table-header-color,#94a3b8)] hover:text-orange-500">
+              {t('nav.pricing', 'Pricing')}
+            </a>
+            <Link href="/login" className="font-semibold text-[var(--table-header-color,#94a3b8)] hover:text-orange-500">
+              {t('auth.signInBtn', 'Sign In')}
+            </Link>
+          </div>
+          <Link href="/dashboard">
+            <Button variant="glow" size="sm" className="h-7 px-2.5 text-[11px] gap-1">
+              <span>{t('nav.dashboard', 'Dashboard')}</span>
+              {isRtl ? <ArrowLeft className="w-3 h-3" /> : <ArrowRight className="w-3 h-3" />}
+            </Button>
+          </Link>
         </div>
       </header>
 

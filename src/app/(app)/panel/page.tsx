@@ -160,7 +160,7 @@ export default function PanelDesignerPage() {
     }
   }, [selectedProject, selectedProjectId, selectedBuilding]);
 
-  const loadProject = useCallback(async () => {
+  const loadProject = useCallback(async (signal?: AbortSignal) => {
     if (!selectedProjectId) { setLoading(false); return; }
     if (selectedProject?.id === selectedProjectId) {
       setProject(selectedProject);
@@ -171,37 +171,51 @@ export default function PanelDesignerPage() {
       return;
     }
     try {
-      const res = await fetch(`/api/projects/${selectedProjectId}`);
-      if (res.ok) {
+      const res = await fetch(`/api/projects/${selectedProjectId}`, { signal });
+      if (res.ok && !signal?.aborted) {
         const data = await res.json();
-        setProject(data);
-        if (!selectedBuilding && data.buildings.length > 0) setSelectedBuilding(data.buildings[0].id);
+        if (!signal?.aborted) {
+          setProject(data);
+          if (!selectedBuilding && data.buildings.length > 0) setSelectedBuilding(data.buildings[0].id);
+        }
       }
-    } catch (err) { console.error(err); } finally { setLoading(false); }
+    } catch (err) {
+      if ((err as Error)?.name !== 'AbortError' && !(err instanceof TypeError)) {
+        console.error(err);
+      }
+    } finally {
+      if (!signal?.aborted) setLoading(false);
+    }
   }, [selectedProjectId, selectedProject, selectedBuilding]);
 
-  const loadEquipment = useCallback(async () => {
+  const loadEquipment = useCallback(async (signal?: AbortSignal) => {
     try {
-      const res = await fetch(`/api/equipment?category=ACB,MCCB,MCB`);
-      if (res.ok) {
+      const res = await fetch(`/api/equipment?category=ACB,MCCB,MCB`, { signal });
+      if (res.ok && !signal?.aborted) {
         const data = await res.json();
-        setEquipment(data);
+        if (!signal?.aborted) setEquipment(data);
       }
-    } catch (err) { console.error(err); }
+    } catch (err) {
+      if ((err as Error)?.name !== 'AbortError' && !(err instanceof TypeError)) {
+        console.error(err);
+      }
+    }
   }, []);
 
   useEffect(() => {
     if (!selectedProject || selectedProject.id !== selectedProjectId) {
-      loadProject();
+      const controller = new AbortController();
+      loadProject(controller.signal);
+      return () => controller.abort();
     }
   }, [loadProject, selectedProject, selectedProjectId]);
   useEffect(() => {
-    let cancelled = false;
-    loadEquipment().finally(() => {
-      if (!cancelled) setCatalogLoaded(true);
+    const controller = new AbortController();
+    loadEquipment(controller.signal).finally(() => {
+      if (!controller.signal.aborted) setCatalogLoaded(true);
     });
     return () => {
-      cancelled = true;
+      controller.abort();
     };
   }, [loadEquipment]);
 

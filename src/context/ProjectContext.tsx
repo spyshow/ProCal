@@ -81,7 +81,9 @@ export function ProjectProvider({ children }: { children: React.ReactNode }) {
           }
         }
       } catch (error) {
-        console.error("Error fetching project:", error);
+        if ((error as Error)?.name !== "AbortError" && !(error instanceof TypeError)) {
+          console.error("Error fetching project:", error);
+        }
         if (selectedProjectIdRef.current === projectId) {
           setSelectedProject(null);
         }

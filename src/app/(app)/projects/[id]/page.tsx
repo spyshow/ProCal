@@ -165,6 +165,7 @@ export default function ProjectDetailPage() {
         url.searchParams.set('tab', key);
       }
       window.history.replaceState(null, '', url.toString());
+      window.dispatchEvent(new CustomEvent('procal-tab-change', { detail: key }));
     }
   };
   const [expandedBuilding, setExpandedBuilding] = useState<string | null>(null);
@@ -726,7 +727,7 @@ export default function ProjectDetailPage() {
         {[
           { key: 'buildings' as const, label: t('projects.buildings', 'Buildings'), icon: Building2 },
           { key: 'templates' as const, label: t('projects.apartmentTemplates', 'Apartment Templates'), icon: Home },
-          { key: 'loads' as const, label: t('projects.loadLibrary', 'Service Load library'), icon: Zap },
+          { key: 'loads' as const, label: t('projects.loadLibrary', 'Service Load Library'), icon: Zap },
           { key: 'team' as const, label: t('settings.team', 'Project Team'), icon: Users },
           { key: 'qa' as const, label: t('settings.qa', 'QA & Compliance'), icon: ClipboardCheck },
           { key: 'activity' as const, label: t('settings.activity', 'Activity Log'), icon: History },

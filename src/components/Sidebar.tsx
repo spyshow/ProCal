@@ -125,6 +125,7 @@ export default function Sidebar() {
 
   // Active Project Collapsible Sub-Navigation State
   const [projectSubnavOpen, setProjectSubnavOpen] = useState(true);
+  const [activeQueryTab, setActiveQueryTab] = useState<string>('buildings');
 
   useEffect(() => {
     try {
@@ -134,6 +135,28 @@ export default function Sidebar() {
       }
     } catch {}
   }, []);
+
+  useEffect(() => {
+    const readTabFromUrl = () => {
+      if (typeof window === 'undefined') return;
+      const params = new URLSearchParams(window.location.search);
+      const tab = params.get('tab') || params.get('subtab') || 'buildings';
+      setActiveQueryTab(tab);
+    };
+    readTabFromUrl();
+
+    const handleCustomTab = (e: Event) => {
+      const detail = (e as CustomEvent<string>).detail;
+      if (detail) setActiveQueryTab(detail);
+      else readTabFromUrl();
+    };
+    window.addEventListener('procal-tab-change', handleCustomTab);
+    window.addEventListener('popstate', readTabFromUrl);
+    return () => {
+      window.removeEventListener('procal-tab-change', handleCustomTab);
+      window.removeEventListener('popstate', readTabFromUrl);
+    };
+  }, [pathname]);
 
   // Auto-expand subnav when user navigates to the active project page
   useEffect(() => {
@@ -334,35 +357,35 @@ export default function Sidebar() {
                             label: t('projects.buildings', 'Buildings & Specs'),
                             href: `/projects/${selectedProject.id}`,
                             icon: Building2,
-                            isActive: isSelectedProjectActive && (!pathname.includes('?') || pathname.endsWith(selectedProject.id)),
+                            isActive: isSelectedProjectActive && (activeQueryTab === 'buildings' || activeQueryTab === 'templates' || activeQueryTab === 'loads'),
                           },
                           {
                             id: 'team',
                             label: t('settings.team', 'Project Team'),
                             href: `/projects/${selectedProject.id}?tab=team`,
                             icon: Users,
-                            isActive: isSelectedProjectActive && pathname.includes('tab=team'),
+                            isActive: isSelectedProjectActive && activeQueryTab === 'team',
                           },
                           {
                             id: 'qa',
                             label: t('settings.qa', 'QA & Compliance'),
                             href: `/projects/${selectedProject.id}?tab=qa`,
                             icon: ClipboardCheck,
-                            isActive: isSelectedProjectActive && (pathname.includes('tab=qa') || pathname.includes('tab=review')),
+                            isActive: isSelectedProjectActive && (activeQueryTab === 'qa' || activeQueryTab === 'review'),
                           },
                           {
                             id: 'activity',
                             label: t('settings.activity', 'Activity Log'),
                             href: `/projects/${selectedProject.id}?tab=activity`,
                             icon: History,
-                            isActive: isSelectedProjectActive && (pathname.includes('tab=activity') || pathname.includes('tab=audit')),
+                            isActive: isSelectedProjectActive && (activeQueryTab === 'activity' || activeQueryTab === 'audit'),
                           },
                           {
                             id: 'settings',
                             label: t('projects.projectSettings', 'Project Settings'),
                             href: `/projects/${selectedProject.id}?tab=settings`,
                             icon: Settings,
-                            isActive: isSelectedProjectActive && (pathname.includes('tab=settings') || pathname.includes('tab=engineering') || pathname.includes('tab=standards') || pathname.includes('tab=company')),
+                            isActive: isSelectedProjectActive && (activeQueryTab === 'settings' || activeQueryTab === 'engineering' || activeQueryTab === 'standards' || activeQueryTab === 'company'),
                           },
                         ].map((sub) => {
                           const SubIcon = sub.icon;
@@ -370,6 +393,7 @@ export default function Sidebar() {
                             <Link
                               key={sub.id}
                               href={sub.href}
+                              onClick={() => setActiveQueryTab(sub.id)}
                               className={cn(
                                 "flex items-center gap-2.5 px-2.5 py-2 rounded-md text-xs font-medium transition-all duration-150 group/sub",
                                 sub.isActive
@@ -536,13 +560,13 @@ export default function Sidebar() {
       <div className="border-t border-[var(--sidebar-border,rgba(31,41,55,0.8))] p-2.5 space-y-1.5 shrink-0 bg-[var(--sidebar-bg,rgba(3,7,18,0.98))]">
         {/* Settings Button */}
         <Link
-          href={selectedProject ? `/projects/${selectedProject.id}?tab=settings` : "/settings"}
+          href="/settings"
           data-tour="tour-settings"
-          title={isCollapsed ? (selectedProject ? `${selectedProject.name} — ${t('projects.projectSettings', 'Project Settings')}` : t('nav.settings', 'Settings')) : undefined}
+          title={isCollapsed ? t('nav.settings', 'Settings') : undefined}
           className={cn(
             "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 outline-none",
             isCollapsed ? "justify-center px-0 py-2.5" : "",
-            pathname === "/settings" || pathname.startsWith("/settings/") || (isSelectedProjectActive && (pathname.includes('tab=settings') || pathname.includes('tab=engineering') || pathname.includes('tab=standards') || pathname.includes('tab=company')))
+            pathname === "/settings" || pathname.startsWith("/settings/")
               ? "sidebar-active-item border-l-2 font-bold"
               : "text-[var(--table-header-color,#9ca3af)] hover:text-[var(--foreground-color,#f8fafc)] hover:bg-[var(--card-bg-subtle,rgba(17,24,39,0.8))]"
           )}
@@ -551,12 +575,12 @@ export default function Sidebar() {
             size={18}
             className={cn(
               "flex-shrink-0 transition-colors duration-150",
-              pathname.startsWith("/settings") || (isSelectedProjectActive && (pathname.includes('tab=settings') || pathname.includes('tab=engineering') || pathname.includes('tab=standards') || pathname.includes('tab=company'))) ? "text-orange-500" : "text-[var(--table-header-color,#9ca3af)]"
+              pathname.startsWith("/settings") ? "text-orange-500" : "text-[var(--table-header-color,#9ca3af)]"
             )}
           />
           {!isCollapsed && (
-            <span className={cn("text-sm sidebar-item-label", (pathname.startsWith("/settings") || (isSelectedProjectActive && (pathname.includes('tab=settings') || pathname.includes('tab=engineering') || pathname.includes('tab=standards') || pathname.includes('tab=company')))) && "font-bold")}>
-              {selectedProject ? t('projects.projectSettings', 'Project Settings') : t('nav.settings', 'Settings')}
+            <span className={cn("text-sm sidebar-item-label", pathname.startsWith("/settings") && "font-bold")}>
+              {t('nav.settings', 'Settings')}
             </span>
           )}
         </Link>

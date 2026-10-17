@@ -271,7 +271,7 @@
     "apartments": "Apartments",
     "buildings": "Buildings",
     "apartmentTemplates": "Apartment Templates",
-    "loadLibrary": "Service Load library",
+    "loadLibrary": "Service Load Library",
     "projectSettings": "Project Settings",
     "electricalSpecsNotice": "Looking for Voltage Drop Limits, Calculation Standards, and System Parameters? They are configured in the Voltage Drop & Standards tab.",
     "addBuilding": "Add Building",

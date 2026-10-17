@@ -549,7 +549,7 @@ export function ProjectSettingsTab({
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               <div>
                 <label className="block text-xs font-medium text-[var(--table-header-color,#9ca3af)] mb-1">
-                  {t("projects.projectName", "Project Name")} *
+                  {t("projects.projectName", "Project Name").replace(/\s*\*$/, "")} *
                 </label>
                 <input
                   type="text"

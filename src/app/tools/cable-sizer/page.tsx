@@ -224,8 +224,8 @@ Generated with ProCal (https://procal.app/tools/cable-sizer)`;
           </h1>
           <p className="text-slate-400 text-sm sm:text-base leading-relaxed">
             Free online electrical calculator for low-voltage power cables. Automatically sizes cross-section,
-            calculates derating factors ($k_t, k_g$), coordinates overcurrent protection ($I_b \le I_n \le I_z$),
-            and verifies voltage drop ($\Delta V$).
+            calculates derating factors (k<sub>t</sub>, k<sub>g</sub>), coordinates overcurrent protection (I<sub>b</sub> ≤ I<sub>n</sub> ≤ I<sub>z</sub>),
+            and verifies voltage drop (ΔV).
           </p>
         </div>
 
@@ -745,8 +745,8 @@ Generated with ProCal (https://procal.app/tools/cable-sizer)`;
                 1. Overload Protection (IEC 60364-4-43)
               </h3>
               <p className="text-xs text-slate-400 leading-relaxed">
-                The continuous current rating of the protective device ($I_n$) and the cable&apos;s derated current-carrying
-                capacity ($I_z$) must satisfy the fundamental coordination chain:
+                The continuous current rating of the protective device (I<sub>n</sub>) and the cable&apos;s derated current-carrying
+                capacity (I<sub>z</sub>) must satisfy the fundamental coordination chain:
               </p>
               <div className="my-2 p-2 rounded bg-slate-950 font-mono text-xs text-orange-300 text-center">
                 I_b ≤ I_n ≤ I_z
@@ -771,7 +771,7 @@ Generated with ProCal (https://procal.app/tools/cable-sizer)`;
                 <li><strong>5%</strong> for general power and heating</li>
               </ul>
               <p className="text-[11px] text-slate-400">
-                For long runs, the cable cross-section must often be upsized beyond the thermal $I_z$ requirement
+                For long runs, the cable cross-section must often be upsized beyond the thermal I<sub>z</sub> requirement
                 to prevent equipment malfunction and excessive line losses.
               </p>
             </div>
@@ -784,7 +784,7 @@ Generated with ProCal (https://procal.app/tools/cable-sizer)`;
         <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
             <Zap className="w-4 h-4 text-orange-500" />
-            <span className="text-slate-300 font-semibold">ProCal</span> — Low Voltage Electrical Design , <span className="text-orange-400 font-semibold">Solved</span>.
+            <span className="text-slate-300 font-semibold">ProCal</span> — Low Voltage Electrical Design, <span className="text-orange-400 font-semibold">Solved</span>.
           </div>
           <div className="flex items-center gap-4 text-slate-400">
             <Link href="/" className="hover:text-white transition-colors">Home</Link>

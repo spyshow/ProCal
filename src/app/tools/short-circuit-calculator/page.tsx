@@ -626,8 +626,8 @@ Generated with ProCal (https://procal.app/tools/short-circuit-calculator)`;
                 Z_t = (u_k% / 100) × (U_n² / S_r)
               </div>
               <p className="text-xs text-slate-400">
-                Where $u_k\%$ is the percentage short-circuit impedance voltage, $U_n$ is secondary nominal voltage,
-                and $S_r$ is transformer rated apparent power.
+                Where u<sub>k</sub>% is the percentage short-circuit impedance voltage, U<sub>n</sub> is secondary nominal voltage,
+                and S<sub>r</sub> is transformer rated apparent power.
               </p>
             </div>
 
@@ -651,7 +651,7 @@ Generated with ProCal (https://procal.app/tools/short-circuit-calculator)`;
         <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
             <Zap className="w-4 h-4 text-orange-500" />
-            <span className="text-slate-300 font-semibold">ProCal</span> — Low Voltage Electrical Design , <span className="text-orange-400 font-semibold">Solved</span>.
+            <span className="text-slate-300 font-semibold">ProCal</span> — Low Voltage Electrical Design, <span className="text-orange-400 font-semibold">Solved</span>.
           </div>
           <div className="flex items-center gap-4 text-slate-400">
             <Link href="/" className="hover:text-white transition-colors">Home</Link>

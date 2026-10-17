@@ -163,7 +163,7 @@ Generated with ProCal (https://procal.app/tools/max-demand-calculator)`;
             Maximum Demand & Coincidence Factor Calculator
           </h1>
           <p className="text-slate-400 text-sm sm:text-base leading-relaxed">
-            Calculate diversified peak power and main incomer design current ($I_b$) for residential towers,
+            Calculate diversified peak power and main incomer design current (I<sub>b</sub>) for residential towers,
             commercial offices, and retail complexes per international electrical diversity standards.
           </p>
         </div>

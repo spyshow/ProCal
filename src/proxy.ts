@@ -20,6 +20,7 @@ export async function proxy(request: NextRequest) {
   if (
     pathname === "/" ||
     pathname.startsWith("/tools") ||
+    pathname.startsWith("/contact") ||
     pathname.startsWith("/slides") ||
     /\.(?:webp|png|jpg|jpeg|gif|svg|ico|woff2?|ttf)$/i.test(pathname) ||
     pathname.startsWith("/login") ||

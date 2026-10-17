@@ -127,7 +127,7 @@ export default function Home() {
               className="text-xs font-semibold text-[var(--table-header-color,#94a3b8)] hover:text-orange-500 transition-colors hidden md:inline-flex items-center gap-1 px-3 py-1.5 rounded-lg hover:bg-[var(--card-bg-subtle,#111827)] border border-transparent hover:border-[var(--border-color,#1f2937)]"
             >
               <span>{t('nav.pricing', 'Pricing')}</span>
-              <span className="px-1.5 py-0.2 rounded bg-orange-500/20 text-orange-600 dark:text-orange-400 text-[10px] font-mono">$20 Deal</span>
+              <span className="px-1.5 py-0.2 rounded bg-orange-500/20 text-orange-600 dark:text-orange-400 text-[10px] font-mono">$29 Starter</span>
             </a>
             <ThemeSelector variant="dropdown" />
             <LanguageSelector variant="dropdown" />
@@ -184,7 +184,7 @@ export default function Home() {
         >
           <motion.div variants={heroItemVariants} className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-orange-500/10 border border-orange-500/30 text-orange-600 dark:text-orange-300 text-xs font-medium mb-8 shadow-[0_0_15px_rgba(234,88,12,0.15)]">
             <Sparkles className="w-3.5 h-3.5 text-orange-500 dark:text-orange-400 animate-pulse" />
-            <span>Low Voltage Electrical Design , <span className="text-orange-500 dark:text-orange-400 font-bold">Solved</span> &mdash; {t('landing.heroBadge', 'Next-Generation Load Calculation & Electrical Design System')}</span>
+            <span>Low Voltage Electrical Design, <span className="text-orange-500 dark:text-orange-400 font-bold">Solved</span> &mdash; {t('landing.heroBadge', 'Next-Generation Load Calculation & Electrical Design System')}</span>
           </motion.div>
 
           <motion.h1
@@ -407,7 +407,7 @@ export default function Home() {
             <div className="w-6 h-6 rounded bg-orange-600/20 border border-orange-500/40 flex items-center justify-center">
               <ProCalLogo size={14} />
             </div>
-            <span>{t('common.appName', 'ProCal')} &copy; {new Date().getFullYear()} &mdash; Low Voltage Electrical Design , <span className="text-orange-500 dark:text-orange-400 font-medium">Solved</span></span>
+            <span>{t('common.appName', 'ProCal')} &copy; {new Date().getFullYear()} &mdash; Low Voltage Electrical Design, <span className="text-orange-500 dark:text-orange-400 font-medium">Solved</span></span>
           </div>
 
           <div className="flex flex-wrap items-center gap-4 sm:gap-6">

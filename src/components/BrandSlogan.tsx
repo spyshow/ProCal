@@ -35,7 +35,7 @@ export function BrandSlogan({
 
   return (
     <span className={cn('inline-flex items-center gap-1 font-medium tracking-normal', className)}>
-      <span className={prefixClassName}>Low Voltage Electrical Design ,</span>
+      <span className={prefixClassName}>Low Voltage Electrical Design,</span>
       <span className={solvedClassName}>Solved</span>
     </span>
   );

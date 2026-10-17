@@ -63,7 +63,7 @@ export function ProCalLogo({
             letterSpacing="1.5"
             fill={monoColor ? 'currentColor' : '#64748b'}
           >
-            Low Voltage Electrical Design ,{' '}
+            Low Voltage Electrical Design,{' '}
             <tspan fill={monoColor || '#ea580c'} fontWeight="700">
               Solved
             </tspan>

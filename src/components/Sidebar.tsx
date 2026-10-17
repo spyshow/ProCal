@@ -195,13 +195,13 @@ export default function Sidebar() {
               </span>
             </div>
             <p
-              title={isRtl ? "تصميم كهربائي للجهد المنخفض، محلول" : "Low Voltage Electrical Design , Solved"}
+              title={isRtl ? "تصميم كهربائي للجهد المنخفض، محلول" : "Low Voltage Electrical Design, Solved"}
               className="text-[10px] leading-tight text-[var(--table-header-color,#94a3b8)] tracking-tight font-medium mt-0.5"
             >
               {isRtl ? (
                 <>تصميم كهربائي للجهد المنخفض، <span className="text-orange-400 font-semibold whitespace-nowrap">محلول</span></>
               ) : (
-                <>Low Voltage Electrical Design , <span className="text-orange-400 font-semibold whitespace-nowrap">Solved</span></>
+                <>Low Voltage Electrical Design, <span className="text-orange-400 font-semibold whitespace-nowrap">Solved</span></>
               )}
             </p>
           </div>

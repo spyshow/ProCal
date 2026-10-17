@@ -161,9 +161,18 @@ describe('ThemeContext', () => {
     }
   });
 
-  it('persists theme to cookie, localStorage, and /api/auth/me PATCH', async () => {
+  it('persists theme to cookie, localStorage, and /api/auth/me PATCH when authenticated', async () => {
+    const dummyUser: CurrentUser = {
+      id: 'user-1',
+      username: 'admin',
+      name: 'Admin User',
+      role: 'ADMIN',
+      credits: 100,
+      email: 'admin@example.com',
+      theme: 'dark',
+    };
     const wrapper = ({ children }: { children: React.ReactNode }) => (
-      <UserProvider user={null}>
+      <UserProvider user={dummyUser}>
         <ThemeProvider initialTheme="dark">{children}</ThemeProvider>
       </UserProvider>
     );
@@ -182,6 +191,24 @@ describe('ThemeContext', () => {
         body: JSON.stringify({ theme: 'blueprint' }),
       })
     );
+  });
+
+  it('persists theme locally without calling /api/auth/me PATCH when unauthenticated', async () => {
+    const wrapper = ({ children }: { children: React.ReactNode }) => (
+      <UserProvider user={null}>
+        <ThemeProvider initialTheme="dark">{children}</ThemeProvider>
+      </UserProvider>
+    );
+
+    const { result } = renderHook(() => useTheme(), { wrapper });
+
+    await act(async () => {
+      result.current.setTheme('blueprint');
+    });
+
+    expect(result.current.theme).toBe('blueprint');
+    expect(window.localStorage.getItem(THEME_COOKIE_NAME)).toBe('blueprint');
+    expect(global.fetch).not.toHaveBeenCalled();
   });
 
   it('synchronizes theme from storage event across multiple browser tabs', async () => {

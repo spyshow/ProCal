@@ -134,6 +134,7 @@ export function ThemeProvider({ children, initialTheme }: ThemeProviderProps) {
     }
 
     // Persist to user profile in database in background if logged in
+    if (!user) return;
     fetch('/api/auth/me', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
@@ -147,7 +148,7 @@ export function ThemeProvider({ children, initialTheme }: ThemeProviderProps) {
       .catch(() => {
         // background sync silently ignores offline or unauthorized states
       });
-  }, [userContext]);
+  }, [user, userContext]);
 
   const value = useMemo(
     () => ({

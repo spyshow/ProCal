@@ -189,7 +189,7 @@ export function ApiKeysModal({ isOpen, onClose }: ApiKeysModalProps) {
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="max-w-2xl bg-[var(--card-bg,#0b0f19)] border-[var(--border-color,#1f2937)] text-[var(--foreground-color,#f8fafc)] shadow-2xl p-6 max-h-[90vh] overflow-y-auto custom-scrollbar">
         <DialogHeader className="space-y-1">
-          <DialogTitle className="text-lg font-bold flex items-center gap-2 text-white">
+          <DialogTitle className="text-lg font-bold flex items-center gap-2 text-[var(--foreground-color,#f8fafc)]">
             <Bot className="w-5 h-5 text-orange-500" />
             AI Agent & Model Context Protocol (MCP) Keys
           </DialogTitle>
@@ -199,7 +199,7 @@ export function ApiKeysModal({ isOpen, onClose }: ApiKeysModalProps) {
         </DialogHeader>
 
         {error && (
-          <div className="p-3 rounded-lg bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs flex items-center gap-2">
+          <div className="p-3 rounded-lg bg-rose-500/10 border border-rose-500/30 text-rose-500 dark:text-rose-400 text-xs flex items-center gap-2">
             <AlertTriangle className="w-4 h-4 shrink-0" />
             <span>{error}</span>
           </div>
@@ -207,27 +207,27 @@ export function ApiKeysModal({ isOpen, onClose }: ApiKeysModalProps) {
 
         {/* Newly Created Key Alert Box */}
         {createdRawKey && (
-          <div className="p-4 rounded-xl bg-orange-500/10 border border-orange-500/40 space-y-2.5 animate-in fade-in zoom-in-95 duration-200">
+          <div className="p-4 rounded-xl bg-orange-500/10 border border-orange-500/30 space-y-2.5 animate-in fade-in zoom-in-95 duration-200">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-orange-400 flex items-center gap-1.5">
+              <span className="text-xs font-semibold text-orange-600 dark:text-orange-400 flex items-center gap-1.5">
                 <ShieldCheck className="w-4 h-4" />
                 New Secret API Key Generated
               </span>
-              <span className="text-[10px] text-orange-300/80 font-medium uppercase tracking-wider">
+              <span className="text-[10px] text-orange-600/80 dark:text-orange-300/80 font-medium uppercase tracking-wider">
                 Copy now — will never be shown again
               </span>
             </div>
             <div className="flex items-center gap-2">
-              <code className="flex-1 bg-black/60 px-3 py-2 rounded-lg text-xs font-mono text-orange-200 border border-orange-500/30 break-all select-all">
+              <code className="flex-1 bg-[var(--card-bg-subtle,#111827)] px-3 py-2 rounded-lg text-xs font-mono text-[var(--foreground-color,#f8fafc)] border border-[var(--border-color,#1f2937)] break-all select-all">
                 {createdRawKey}
               </code>
               <Button
                 size="sm"
                 variant="outline"
                 onClick={() => copyToClipboard(createdRawKey, 'key')}
-                className="bg-orange-500/20 hover:bg-orange-500/30 text-orange-300 border-orange-500/40 shrink-0 h-9"
+                className="bg-orange-500/15 hover:bg-orange-500/25 text-orange-600 dark:text-orange-300 border-orange-500/30 shrink-0 h-9"
               >
-                {copiedKey ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
+                {copiedKey ? <Check className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
                 <span className="ml-1 text-xs">{copiedKey ? 'Copied' : 'Copy'}</span>
               </Button>
             </div>
@@ -240,14 +240,14 @@ export function ApiKeysModal({ isOpen, onClose }: ApiKeysModalProps) {
             placeholder="Key name (e.g. Claude Desktop, Cursor, CI/CD)"
             value={newKeyName}
             onChange={(e) => setNewKeyName(e.target.value)}
-            className="text-xs bg-slate-900/60 border-slate-800 text-white placeholder:text-slate-500 focus:border-orange-500"
+            className="text-xs"
             maxLength={50}
           />
           <Button
             type="submit"
             size="sm"
             disabled={creating || !newKeyName.trim()}
-            className="bg-orange-600 hover:bg-orange-500 text-white font-medium text-xs shrink-0 h-9 px-4"
+            className="bg-orange-600 hover:bg-orange-500 text-white font-medium text-xs shrink-0 h-9 px-4 cursor-pointer"
           >
             {creating ? (
               <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
@@ -265,31 +265,31 @@ export function ApiKeysModal({ isOpen, onClose }: ApiKeysModalProps) {
           <h4 className="text-xs font-semibold uppercase tracking-wider text-[var(--table-header-color,#9ca3af)]">
             Active & Revoked Keys
           </h4>
-          <div className="border border-[var(--border-color,#1f2937)] rounded-xl overflow-hidden bg-slate-950/40">
+          <div className="border border-[var(--border-color,#1f2937)] rounded-xl overflow-hidden bg-[var(--card-bg-subtle,#111827)]">
             {loading ? (
-              <div className="p-8 text-center text-xs text-slate-400">Loading API keys...</div>
+              <div className="p-8 text-center text-xs text-[var(--table-header-color,#9ca3af)]">Loading API keys...</div>
             ) : keys.length === 0 ? (
-              <div className="p-8 text-center text-xs text-slate-500">
+              <div className="p-8 text-center text-xs text-[var(--table-header-color,#9ca3af)]">
                 No API keys generated yet. Create one above to connect your AI agent.
               </div>
             ) : (
               <div className="divide-y divide-[var(--border-color,#1f2937)] text-xs">
                 {keys.map((k) => (
-                  <div key={k.id} className="p-3 flex items-center justify-between gap-3 hover:bg-slate-900/40 transition-colors">
+                  <div key={k.id} className="p-3 flex items-center justify-between gap-3 hover:bg-[var(--table-row-hover,rgba(255,255,255,0.05))] transition-colors">
                     <div className="min-w-0 space-y-0.5">
                       <div className="flex items-center gap-2">
-                        <span className="font-semibold text-white truncate">{k.name}</span>
+                        <span className="font-semibold text-[var(--foreground-color,#f8fafc)] truncate">{k.name}</span>
                         {k.revokedAt ? (
-                          <span className="text-[10px] px-1.5 py-0.5 rounded bg-rose-500/10 text-rose-400 border border-rose-500/20">
+                          <span className="text-[10px] px-1.5 py-0.5 rounded bg-rose-500/10 text-rose-500 dark:text-rose-400 border border-rose-500/20 font-medium">
                             Revoked
                           </span>
                         ) : (
-                          <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                          <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 font-medium">
                             Active
                           </span>
                         )}
                       </div>
-                      <div className="flex items-center gap-2 text-[11px] text-slate-400 font-mono">
+                      <div className="flex items-center gap-2 text-[11px] text-[var(--table-header-color,#9ca3af)] font-mono">
                         <span>{k.keyPrefix}</span>
                         <span>•</span>
                         <span>Created {new Date(k.createdAt).toLocaleDateString()}</span>
@@ -308,7 +308,7 @@ export function ApiKeysModal({ isOpen, onClose }: ApiKeysModalProps) {
                         variant="ghost"
                         onClick={() => handleRevokeKey(k.id)}
                         disabled={revokingId === k.id}
-                        className="text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 h-8 px-2.5 text-xs"
+                        className="text-rose-500 hover:text-rose-600 dark:text-rose-400 dark:hover:text-rose-300 hover:bg-rose-500/10 h-8 px-2.5 text-xs cursor-pointer"
                       >
                         {revokingId === k.id ? (
                           <div className="w-3.5 h-3.5 border-2 border-rose-400 border-t-transparent rounded-full animate-spin" />
@@ -330,16 +330,18 @@ export function ApiKeysModal({ isOpen, onClose }: ApiKeysModalProps) {
         {/* 1-Click Client Configuration Snippet */}
         <div className="space-y-2 pt-2 border-t border-[var(--border-color,#1f2937)]">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-white flex items-center gap-1.5">
-              <Terminal className="w-4 h-4 text-orange-400" />
+            <span className="text-xs font-semibold text-[var(--foreground-color,#f8fafc)] flex items-center gap-1.5">
+              <Terminal className="w-4 h-4 text-orange-500" />
               1-Click MCP Client Configuration
             </span>
-            <div className="flex rounded-lg bg-slate-900/80 p-0.5 border border-slate-800 text-[11px]">
+            <div className="flex rounded-lg bg-[var(--card-bg-subtle,#111827)] p-0.5 border border-[var(--border-color,#1f2937)] text-[11px]">
               <button
                 type="button"
                 onClick={() => setConfigFormat('claude')}
-                className={`px-2 py-1 rounded-md transition-colors ${
-                  configFormat === 'claude' ? 'bg-orange-600 text-white font-medium' : 'text-slate-400 hover:text-white'
+                className={`px-2.5 py-1 rounded-md transition-colors cursor-pointer ${
+                  configFormat === 'claude'
+                    ? 'bg-orange-600 text-white font-medium shadow-xs'
+                    : 'text-[var(--table-header-color,#9ca3af)] hover:text-[var(--foreground-color,#f8fafc)]'
                 }`}
               >
                 Claude Desktop
@@ -347,8 +349,10 @@ export function ApiKeysModal({ isOpen, onClose }: ApiKeysModalProps) {
               <button
                 type="button"
                 onClick={() => setConfigFormat('cursor')}
-                className={`px-2 py-1 rounded-md transition-colors ${
-                  configFormat === 'cursor' ? 'bg-orange-600 text-white font-medium' : 'text-slate-400 hover:text-white'
+                className={`px-2.5 py-1 rounded-md transition-colors cursor-pointer ${
+                  configFormat === 'cursor'
+                    ? 'bg-orange-600 text-white font-medium shadow-xs'
+                    : 'text-[var(--table-header-color,#9ca3af)] hover:text-[var(--foreground-color,#f8fafc)]'
                 }`}
               >
                 Cursor
@@ -356,8 +360,10 @@ export function ApiKeysModal({ isOpen, onClose }: ApiKeysModalProps) {
               <button
                 type="button"
                 onClick={() => setConfigFormat('http')}
-                className={`px-2 py-1 rounded-md transition-colors ${
-                  configFormat === 'http' ? 'bg-orange-600 text-white font-medium' : 'text-slate-400 hover:text-white'
+                className={`px-2.5 py-1 rounded-md transition-colors cursor-pointer ${
+                  configFormat === 'http'
+                    ? 'bg-orange-600 text-white font-medium shadow-xs'
+                    : 'text-[var(--table-header-color,#9ca3af)] hover:text-[var(--foreground-color,#f8fafc)]'
                 }`}
               >
                 HTTP
@@ -366,20 +372,20 @@ export function ApiKeysModal({ isOpen, onClose }: ApiKeysModalProps) {
           </div>
 
           <div className="relative">
-            <pre className="p-3 rounded-xl bg-black/80 border border-slate-800 text-[11px] font-mono text-slate-300 overflow-x-auto">
+            <pre className="p-3 rounded-xl bg-[var(--card-bg-subtle,#111827)] border border-[var(--border-color,#1f2937)] text-[11px] font-mono text-[var(--foreground-color,#f8fafc)] overflow-x-auto selection:bg-orange-500/30">
               <code>{generateConfigSnippet()}</code>
             </pre>
             <Button
               size="sm"
               variant="outline"
               onClick={() => copyToClipboard(generateConfigSnippet(), 'config')}
-              className="absolute top-2 right-2 bg-slate-900/90 hover:bg-slate-800 text-slate-200 border-slate-700 h-7 px-2 text-[10px]"
+              className="absolute top-2 right-2 bg-[var(--card-bg)]/90 hover:bg-[var(--card-bg-subtle)] text-[var(--foreground-color)] border-[var(--border-color)] h-7 px-2 text-[10px] shadow-xs cursor-pointer"
             >
-              {copiedConfig ? <Check className="w-3.5 h-3.5 text-emerald-400 mr-1" /> : <Copy className="w-3.5 h-3.5 mr-1" />}
+              {copiedConfig ? <Check className="w-3.5 h-3.5 text-emerald-500 mr-1" /> : <Copy className="w-3.5 h-3.5 mr-1" />}
               {copiedConfig ? 'Copied' : 'Copy Config'}
             </Button>
           </div>
-          <p className="text-[11px] text-slate-500">
+          <p className="text-[11px] text-[var(--table-header-color,#9ca3af)]">
             {configFormat === 'claude'
               ? 'Paste into your claude_desktop_config.json (%APPDATA%\\Claude\\claude_desktop_config.json or ~/Library/Application Support/Claude/claude_desktop_config.json).'
               : configFormat === 'cursor'

@@ -106,4 +106,18 @@ describe('ApiKeysModal Component', () => {
 
     expect(screen.getByText(/\.cursor\/mcp\.json/i)).toBeInTheDocument();
   });
+
+  it('uses theme CSS variables and avoids hardcoded text-white on title', async () => {
+    (global.fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ keys: [] }),
+    });
+
+    render(<ApiKeysModal isOpen={true} onClose={vi.fn()} />);
+
+    const title = screen.getByText(/AI Agent & Model Context Protocol/i);
+    expect(title.className).toContain('text-[var(--foreground-color,#f8fafc)]');
+    expect(title.className).not.toContain('text-white');
+  });
 });
+

@@ -169,3 +169,24 @@ Test Plan: `~/.gstack/projects/spyshow-ProCal/Jihad.Kherfan-master-eng-review-te
 | DX Review | `/plan-devex-review` | Developer experience gaps | 0 | — | — |
 
 **VERDICT:** CLEARED — Eng Review & Outside Voice passed with 0 unresolved decisions and 0 critical gaps.
+
+---
+
+### Step 6: Multi-Agent MCP Configuration Hub in ApiKeysModal
+- **Goal:** Provide instant 1-click configurations in `src/components/ApiKeysModal.tsx` for all prominent AI developer agents:
+  1. **Claude Desktop** (JSON - `claude_desktop_config.json`)
+  2. **Cursor** (JSON - `.cursor/mcp.json`)
+  3. **Antigravity** (JSON - `mcp_config.json` / `.gemini/antigravity/mcp_config.json` with stdio & remote HTTP endpoints)
+  4. **Codex** (TOML - `~/.codex/config.toml` with `[mcp_servers.procal]`)
+  5. **Hermes** (YAML - `~/.hermes/config.yaml` with `mcp_servers: procal:`)
+  6. **Windsurf** (JSON - `~/.codeium/windsurf/mcp_config.json`)
+  7. **cURL / HTTP** (Shell command with Authorization Bearer header)
+- **UI Details:**
+  - Responsive segmented bar wrapping smoothly across desktop/mobile.
+  - Active tab styling maintaining theme tokens (`bg-orange-600 text-white font-medium shadow-xs`).
+  - Code block rendered in theme container (`bg-[var(--card-bg-subtle)] border border-[var(--border-color)] text-[var(--foreground-color)] font-mono`).
+  - Filepath helper text explicitly stating where on Windows and macOS to place each config file.
+- **How we prove it works:**
+  - Update `src/components/__tests__/ApiKeysModal.test.tsx` to verify switching between Claude, Cursor, Antigravity, Codex, Hermes, Windsurf, and HTTP formats, and asserting their respective keywords and file paths appear.
+  - Run `npx tsc --noEmit` and `npm test`.
+

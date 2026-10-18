@@ -91,7 +91,7 @@ describe('ApiKeysModal Component', () => {
     });
   });
 
-  it('switches between Claude Desktop and Cursor config formats', async () => {
+  it('switches between Antigravity, Codex, Hermes, Claude, Cursor, Windsurf, and HTTP formats', async () => {
     (global.fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
       ok: true,
       json: async () => ({ keys: [] }),
@@ -99,12 +99,40 @@ describe('ApiKeysModal Component', () => {
 
     render(<ApiKeysModal isOpen={true} onClose={vi.fn()} />);
 
-    expect(screen.getByText(/claude_desktop_config.json/i)).toBeInTheDocument();
+    // Default is Antigravity
+    expect(screen.getByText(/antigravity\\mcp_config\.json/i)).toBeInTheDocument();
 
+    // Switch to Codex (TOML format)
+    const codexBtn = screen.getByRole('button', { name: /^Codex$/i });
+    fireEvent.click(codexBtn);
+    expect(screen.getByText(/\[mcp_servers\.procal\]/i)).toBeInTheDocument();
+    expect(screen.getByText(/\.codex\\config\.toml/i)).toBeInTheDocument();
+
+    // Switch to Hermes (YAML format)
+    const hermesBtn = screen.getByRole('button', { name: /^Hermes$/i });
+    fireEvent.click(hermesBtn);
+    expect(screen.getAllByText(/mcp_servers:/i).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getByText(/\.hermes\\config\.yaml/i)).toBeInTheDocument();
+
+    // Switch to Claude Desktop
+    const claudeBtn = screen.getByRole('button', { name: /^Claude Desktop$/i });
+    fireEvent.click(claudeBtn);
+    expect(screen.getByText(/claude_desktop_config\.json/i)).toBeInTheDocument();
+
+    // Switch to Cursor
     const cursorBtn = screen.getByRole('button', { name: /^Cursor$/i });
     fireEvent.click(cursorBtn);
-
     expect(screen.getByText(/\.cursor\/mcp\.json/i)).toBeInTheDocument();
+
+    // Switch to Windsurf
+    const windsurfBtn = screen.getByRole('button', { name: /^Windsurf$/i });
+    fireEvent.click(windsurfBtn);
+    expect(screen.getByText(/windsurf\\mcp_config\.json/i)).toBeInTheDocument();
+
+    // Switch to cURL / HTTP
+    const httpBtn = screen.getByRole('button', { name: /^cURL \/ HTTP$/i });
+    fireEvent.click(httpBtn);
+    expect(screen.getByText(/curl -X POST/i)).toBeInTheDocument();
   });
 
   it('uses theme CSS variables and avoids hardcoded text-white on title', async () => {

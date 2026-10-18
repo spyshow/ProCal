@@ -37,19 +37,31 @@ interface ApiKeysModalProps {
   onClose: () => void;
 }
 
+type AgentFormat = 'antigravity' | 'codex' | 'hermes' | 'claude' | 'cursor' | 'windsurf' | 'http';
+
+const AGENT_CONFIGS: { id: AgentFormat; label: string }[] = [
+  { id: 'antigravity', label: 'Antigravity' },
+  { id: 'codex', label: 'Codex' },
+  { id: 'hermes', label: 'Hermes' },
+  { id: 'claude', label: 'Claude Desktop' },
+  { id: 'cursor', label: 'Cursor' },
+  { id: 'windsurf', label: 'Windsurf' },
+  { id: 'http', label: 'cURL / HTTP' },
+];
+
 export function ApiKeysModal({ isOpen, onClose }: ApiKeysModalProps) {
   const [keys, setKeys] = useState<ApiKeyItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   // Creation form state
-  const [newKeyName, setNewKeyName] = useState('Claude Desktop');
+  const [newKeyName, setNewKeyName] = useState('Antigravity Agent');
   const [creating, setCreating] = useState(false);
   const [createdRawKey, setCreatedRawKey] = useState<string | null>(null);
   const [copiedKey, setCopiedKey] = useState(false);
 
   // Config tab state
-  const [configFormat, setConfigFormat] = useState<'claude' | 'cursor' | 'http'>('claude');
+  const [configFormat, setConfigFormat] = useState<AgentFormat>('antigravity');
   const [copiedConfig, setCopiedConfig] = useState(false);
 
   // Revocation state
@@ -146,6 +158,33 @@ export function ApiKeysModal({ isOpen, onClose }: ApiKeysModalProps) {
   const origin = typeof window !== 'undefined' ? window.location.origin : 'https://procal.example.com';
 
   const generateConfigSnippet = () => {
+    if (configFormat === 'antigravity') {
+      return JSON.stringify(
+        {
+          mcpServers: {
+            procal: {
+              command: 'npx',
+              args: ['-y', 'tsx', 'scripts/procal-mcp-stdio.ts'],
+              env: {
+                PROCAL_API_KEY: activeKeyForConfig,
+                PROCAL_URL: origin,
+              },
+            },
+          },
+        },
+        null,
+        2
+      );
+    }
+
+    if (configFormat === 'codex') {
+      return `[mcp_servers.procal]\ncommand = "npx"\nargs = ["-y", "tsx", "scripts/procal-mcp-stdio.ts"]\n\n[mcp_servers.procal.env]\nPROCAL_API_KEY = "${activeKeyForConfig}"\nPROCAL_URL = "${origin}"`;
+    }
+
+    if (configFormat === 'hermes') {
+      return `mcp_servers:\n  procal:\n    command: npx\n    args:\n      - -y\n      - tsx\n      - scripts/procal-mcp-stdio.ts\n    env:\n      PROCAL_API_KEY: "${activeKeyForConfig}"\n      PROCAL_URL: "${origin}"`;
+    }
+
     if (configFormat === 'claude') {
       return JSON.stringify(
         {
@@ -182,7 +221,45 @@ export function ApiKeysModal({ isOpen, onClose }: ApiKeysModalProps) {
       );
     }
 
-    return `# Remote Streamable HTTP Endpoint\nPOST ${origin}/api/mcp\nAuthorization: Bearer ${activeKeyForConfig}\nContent-Type: application/json`;
+    if (configFormat === 'windsurf') {
+      return JSON.stringify(
+        {
+          mcpServers: {
+            procal: {
+              command: 'npx',
+              args: ['-y', 'tsx', 'scripts/procal-mcp-stdio.ts'],
+              env: {
+                PROCAL_API_KEY: activeKeyForConfig,
+                PROCAL_URL: origin,
+              },
+            },
+          },
+        },
+        null,
+        2
+      );
+    }
+
+    return `curl -X POST "${origin}/api/mcp" \\\n  -H "Authorization: Bearer ${activeKeyForConfig}" \\\n  -H "Content-Type: application/json" \\\n  -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}'`;
+  };
+
+  const getFilepathDescription = () => {
+    switch (configFormat) {
+      case 'antigravity':
+        return 'Paste into %USERPROFILE%\\.gemini\\antigravity\\mcp_config.json (or ~/.gemini/antigravity/mcp_config.json on macOS/Linux, or .antigravity/mcp.json in workspace root).';
+      case 'codex':
+        return 'Paste into %USERPROFILE%\\.codex\\config.toml (or ~/.codex/config.toml on macOS/Linux).';
+      case 'hermes':
+        return 'Paste under mcp_servers: in %USERPROFILE%\\.hermes\\config.yaml (or ~/.hermes/config.yaml on macOS/Linux).';
+      case 'claude':
+        return 'Paste into %APPDATA%\\Claude\\claude_desktop_config.json (or ~/Library/Application Support/Claude/claude_desktop_config.json on macOS).';
+      case 'cursor':
+        return 'Paste into your project’s .cursor/mcp.json file for direct Streamable HTTP connection.';
+      case 'windsurf':
+        return 'Paste into %USERPROFILE%\\.codeium\\windsurf\\mcp_config.json (or ~/.codeium/windsurf/mcp_config.json on macOS/Linux).';
+      case 'http':
+        return 'Direct Streamable HTTP / SSE endpoint for custom MCP clients or terminal testing.';
+    }
   };
 
   return (
@@ -328,46 +405,27 @@ export function ApiKeysModal({ isOpen, onClose }: ApiKeysModalProps) {
         </div>
 
         {/* 1-Click Client Configuration Snippet */}
-        <div className="space-y-2 pt-2 border-t border-[var(--border-color,#1f2937)]">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-[var(--foreground-color,#f8fafc)] flex items-center gap-1.5">
+        <div className="space-y-2.5 pt-2 border-t border-[var(--border-color,#1f2937)]">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <span className="text-xs font-semibold text-[var(--foreground-color,#f8fafc)] flex items-center gap-1.5 shrink-0">
               <Terminal className="w-4 h-4 text-orange-500" />
               1-Click MCP Client Configuration
             </span>
-            <div className="flex rounded-lg bg-[var(--card-bg-subtle,#111827)] p-0.5 border border-[var(--border-color,#1f2937)] text-[11px]">
-              <button
-                type="button"
-                onClick={() => setConfigFormat('claude')}
-                className={`px-2.5 py-1 rounded-md transition-colors cursor-pointer ${
-                  configFormat === 'claude'
-                    ? 'bg-orange-600 text-white font-medium shadow-xs'
-                    : 'text-[var(--table-header-color,#9ca3af)] hover:text-[var(--foreground-color,#f8fafc)]'
-                }`}
-              >
-                Claude Desktop
-              </button>
-              <button
-                type="button"
-                onClick={() => setConfigFormat('cursor')}
-                className={`px-2.5 py-1 rounded-md transition-colors cursor-pointer ${
-                  configFormat === 'cursor'
-                    ? 'bg-orange-600 text-white font-medium shadow-xs'
-                    : 'text-[var(--table-header-color,#9ca3af)] hover:text-[var(--foreground-color,#f8fafc)]'
-                }`}
-              >
-                Cursor
-              </button>
-              <button
-                type="button"
-                onClick={() => setConfigFormat('http')}
-                className={`px-2.5 py-1 rounded-md transition-colors cursor-pointer ${
-                  configFormat === 'http'
-                    ? 'bg-orange-600 text-white font-medium shadow-xs'
-                    : 'text-[var(--table-header-color,#9ca3af)] hover:text-[var(--foreground-color,#f8fafc)]'
-                }`}
-              >
-                HTTP
-              </button>
+            <div className="flex flex-wrap items-center gap-1 rounded-lg bg-[var(--card-bg-subtle,#111827)] p-1 border border-[var(--border-color,#1f2937)] text-[11px]">
+              {AGENT_CONFIGS.map((agent) => (
+                <button
+                  key={agent.id}
+                  type="button"
+                  onClick={() => setConfigFormat(agent.id)}
+                  className={`px-2 py-0.5 rounded-md transition-colors cursor-pointer ${
+                    configFormat === agent.id
+                      ? 'bg-orange-600 text-white font-medium shadow-xs'
+                      : 'text-[var(--table-header-color,#9ca3af)] hover:text-[var(--foreground-color,#f8fafc)]'
+                  }`}
+                >
+                  {agent.label}
+                </button>
+              ))}
             </div>
           </div>
 
@@ -385,12 +443,8 @@ export function ApiKeysModal({ isOpen, onClose }: ApiKeysModalProps) {
               {copiedConfig ? 'Copied' : 'Copy Config'}
             </Button>
           </div>
-          <p className="text-[11px] text-[var(--table-header-color,#9ca3af)]">
-            {configFormat === 'claude'
-              ? 'Paste into your claude_desktop_config.json (%APPDATA%\\Claude\\claude_desktop_config.json or ~/Library/Application Support/Claude/claude_desktop_config.json).'
-              : configFormat === 'cursor'
-              ? 'Paste into your project’s .cursor/mcp.json file.'
-              : 'Direct endpoint for custom MCP clients or Streamable HTTP POST calls.'}
+          <p className="text-[11px] text-[var(--table-header-color,#9ca3af)] leading-relaxed">
+            {getFilepathDescription()}
           </p>
         </div>
       </DialogContent>

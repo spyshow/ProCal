@@ -15,6 +15,12 @@ const mocks = {
 
 vi.mock("@/lib/auth", () => ({
   getSessionUser: vi.fn(async () => mocks.user),
+  verifyReportDownloadToken: vi.fn(async (token: string, projectId: string) => {
+    if (token === "valid-token" && projectId === "project-123") {
+      return { projectId, userId: "user-1", purpose: "report-pdf" };
+    }
+    return null;
+  }),
 }));
 
 vi.mock("@/lib/project-auth", () => ({
@@ -127,6 +133,32 @@ describe("GET /api/projects/[id]/pdf", () => {
 
     const buffer = await res.arrayBuffer();
     expect(buffer.byteLength).toBeGreaterThan(0);
+  });
+
+  it("authorizes request with valid signed ?token= parameter and bypasses verifyProjectAccess", async () => {
+    mocks.verifyProjectAccess.mockClear();
+    mocks.projectFindUnique.mockResolvedValue({
+      id: "project-123",
+      name: "Signed Token Project",
+      voltage: 400,
+      frequency: 50,
+      powerFactor: 0.85,
+      calculationStandard: "IEC",
+      buildings: [],
+      apartmentTemplates: [],
+      loadLibraryItems: [],
+    });
+
+    const res = await get("project-123", "?token=valid-token");
+    expect(res.status).toBe(200);
+    expect(mocks.verifyProjectAccess).not.toHaveBeenCalled();
+  });
+
+  it("returns 401 when ?token= is invalid or expired", async () => {
+    const res = await get("project-123", "?token=bad-or-expired-token");
+    expect(res.status).toBe(401);
+    const data = await res.json();
+    expect(data.error).toContain("Invalid or expired report download token");
   });
 });
 

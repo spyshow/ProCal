@@ -163,5 +163,96 @@ describe('SLD Generator', () => {
       expect(pages[0].dsl).toContain('rating: "50A"');
     });
   });
+
+  describe('BuildingLoad Common Services Feeders', () => {
+    const projectWithBuildingLoads = {
+      name: 'Commercial Plaza',
+      voltage: 400,
+      frequency: 50,
+      powerFactor: 0.85,
+      calculationStandard: 'IEC',
+      buildings: [
+        {
+          name: 'Main Tower',
+          floors: 1,
+          buildingLoads: [
+            {
+              id: 'load-elevator-1',
+              quantity: 1,
+              breakerSize: '63A',
+              cableSize: '16 mm²',
+              loadLibraryItem: {
+                name: 'Passenger Elevator',
+                power: 15,
+                voltage: 400,
+                phase: 3,
+                powerFactor: 0.85,
+              },
+            },
+            {
+              id: 'load-firepump-1',
+              quantity: 1,
+              breakerSize: '160A',
+              cableSize: '70 mm²',
+              loadLibraryItem: {
+                name: 'Fire Pump',
+                power: 45,
+                voltage: 400,
+                phase: 3,
+                powerFactor: 0.85,
+              },
+            },
+          ],
+          floorDesigns: [
+            {
+              floorNumber: 1,
+              hasFloorSubPanels: false,
+              items: [
+                { name: 'Office 1', type: 'APARTMENT', calculatedMaxDemand: 10, calculatedCurrent: 17.0, breakerSize: '25A', cableSize: '4 mm²' },
+              ],
+            },
+          ],
+        },
+      ],
+    };
+
+    it('emits MDB feeders for buildingLoads in generateSLD', () => {
+      const dsl = generateSLD(projectWithBuildingLoads as Parameters<typeof generateSLD>[0]);
+      expect(dsl).toContain('mdb_bus -> bkr_bload_load_elevator_1 [label: "Passenger Elevator"]');
+      expect(dsl).toContain('mdb_bus -> bkr_bload_load_firepump_1 [label: "Fire Pump"]');
+      expect(dsl).toContain('bkr_bload_load_elevator_1 = breaker [label: "63A", rating: "63A"]');
+      expect(dsl).toContain('bkr_bload_load_firepump_1 = breaker [label: "160A", rating: "160A"]');
+    });
+
+    it('generates a dedicated Common Services page in generateSLDPages', () => {
+      const pages = generateSLDPages(projectWithBuildingLoads as Parameters<typeof generateSLDPages>[0]);
+      // 1 floor page + 1 common services page = 2 pages
+      expect(pages.length).toBe(2);
+
+      const servicesPage = pages.find((p) => p.title.includes('Services'));
+      expect(servicesPage).toBeDefined();
+      expect(servicesPage?.floors).toContain('Common Services (2 loads)');
+      expect(servicesPage?.dsl).toContain('mdb -> bload_bkr_1 [label: "Passenger Elevator"]');
+      expect(servicesPage?.dsl).toContain('mdb -> bload_bkr_2 [label: "Fire Pump"]');
+    });
+
+    it('generates an SLD page for a building with only building loads and no floor items', () => {
+      const buildingOnlyServices = {
+        ...projectWithBuildingLoads,
+        buildings: [
+          {
+            name: 'Utility Plant',
+            floors: 0,
+            buildingLoads: projectWithBuildingLoads.buildings[0].buildingLoads,
+            floorDesigns: [],
+          },
+        ],
+      };
+
+      const pages = generateSLDPages(buildingOnlyServices as Parameters<typeof generateSLDPages>[0]);
+      expect(pages.length).toBe(1);
+      expect(pages[0].title).toBe('Utility Plant - Services');
+    });
+  });
 });
 

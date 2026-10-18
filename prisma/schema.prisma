@@ -25,6 +25,7 @@ model User {
   sentInvites     ProjectInvite[]     @relation("SentInvites")
   reviewItems     ProjectReviewItem[]
   auditLogs       ProjectAuditLog[]
+  apiKeys         ApiKey[]
 }
 
 // Captured-lead billing loop (Approach B). One OPEN per user is enforced in-app
@@ -387,3 +388,19 @@ model AppSetting {
   value     String // JSON-encoded payload
   updatedAt DateTime @updatedAt
 }
+
+model ApiKey {
+  id         String    @id @default(uuid())
+  userId     String
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name       String    // e.g. "Claude Desktop", "Cursor", "Automation"
+  keyPrefix  String    // e.g. "procal_sk_xxxx..." (first 16 chars for display)
+  keyHash    String    @unique // SHA-256 hash of the full secret key
+  lastUsedAt DateTime?
+  revokedAt  DateTime?
+  createdAt  DateTime  @default(now())
+
+  @@index([userId])
+  @@index([keyHash])
+}
+

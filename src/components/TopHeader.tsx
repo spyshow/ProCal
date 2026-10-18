@@ -8,6 +8,7 @@ import { useUser } from '@/context/UserContext';
 import { useTranslation } from '@/i18n';
 import { LanguageSelector } from '@/components/LanguageSelector';
 import { ThemeSelector } from '@/components/ThemeSelector';
+import { ApiKeysModal } from '@/components/ApiKeysModal';
 import {
   Building2,
   ChevronDown,
@@ -19,6 +20,7 @@ import {
   Shield,
   Check,
   SlidersHorizontal,
+  Bot,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -46,6 +48,7 @@ export function TopHeader() {
 
   // User Profile Dropdown State
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [apiKeysModalOpen, setApiKeysModalOpen] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
 
@@ -388,6 +391,18 @@ export function TopHeader() {
                   <span>{t('settings.account', 'Account & Security')}</span>
                 </Link>
 
+                <button
+                  type="button"
+                  onClick={() => {
+                    setUserMenuOpen(false);
+                    setApiKeysModalOpen(true);
+                  }}
+                  className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs text-[var(--foreground-color,#f8fafc)] hover:bg-[var(--card-bg-subtle,rgba(17,24,39,0.8))] hover:text-orange-500 transition-colors text-left"
+                >
+                  <Bot size={14} className="text-orange-400" />
+                  <span>{t('settings.apiKeys', 'AI & MCP API Keys')}</span>
+                </button>
+
                 {currentUser?.role === "ADMIN" && (
                   <Link
                     href="/admin"
@@ -420,6 +435,11 @@ export function TopHeader() {
           )}
         </div>
       </div>
+
+      <ApiKeysModal
+        isOpen={apiKeysModalOpen}
+        onClose={() => setApiKeysModalOpen(false)}
+      />
     </header>
   );
 }

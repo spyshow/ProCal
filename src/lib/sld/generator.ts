@@ -147,6 +147,34 @@ export function generateSLD(project: Project | SLDProject): string {
       });
       lines.push('');
     }
+
+    // Common Building Loads (Elevators, Fire Pumps, Booster Pumps, HVAC)
+    const rawLoads = (bldg.buildingLoads || []) as (BuildingLoad & { name?: string; calculatedCurrent?: number; connectedLoad?: number })[];
+    if (rawLoads.length > 0) {
+      rawLoads.forEach((bload, bloadIdx) => {
+        const lib = bload.loadLibraryItem;
+        const totalKw = (lib?.power ?? (bload.connectedLoad ? bload.connectedLoad / 1000 : 0)) * (bload.quantity ?? 1);
+        const voltageKv = (lib?.voltage ?? project.voltage) / 1000;
+        const pf = lib?.powerFactor ?? project.powerFactor ?? 0.85;
+        const is3Ph = (lib?.phase ?? 3) === 3;
+        const derivedCurrent = is3Ph
+          ? totalKw / (Math.sqrt(3) * voltageKv * pf)
+          : totalKw / (voltageKv * pf);
+        const current = bload.calculatedCurrent || derivedCurrent || 0;
+        const loadName = bload.name || lib?.name || `Common Load ${bloadIdx + 1}`;
+        const loadTag = `${bldg.name} ${loadName}`;
+        const bkrRating = resolveBreakerRating(bload.breakerSize, current, code);
+        const safeId = bload.id ? bload.id.replace(/[^a-zA-Z0-9]/g, '_') : `bload_${bldgPrefix}_${bloadIdx + 1}`;
+        const bkrId = `bkr_bload_${safeId}`;
+        const loadId = `load_bload_${safeId}`;
+
+        lines.push(`${bkrId} = breaker [label: "${bkrRating}", rating: "${bkrRating}"]`);
+        lines.push(`${loadId} = load [label: "${loadTag}"]`);
+        lines.push(`mdb_bus -> ${bkrId} [label: "${loadName}"]`);
+        lines.push(`${bkrId} -> ${loadId} [label: "${formatCableSizeFor(bload.cableSize, project.calculationStandard)}"]`);
+      });
+      lines.push('');
+    }
   });
 
   return lines.join('\n');
@@ -176,8 +204,6 @@ export function generateSLDPages(project: Project | SLDProject): SLDPage[] {
       }
     }
   }
-
-  if (allFloors.length === 0) return pages;
 
   const hasMultipleBuildings = project.buildings.length > 1;
   const code = codeOf(project.calculationStandard);
@@ -253,6 +279,46 @@ export function generateSLDPages(project: Project | SLDProject): SLDPage[] {
       floorNumber: fd.floorNumber,
       dsl: lines.join('\n'),
     });
+  }
+
+  // Common Services Pages for building loads
+  for (const bldg of project.buildings) {
+    const rawLoads = (bldg.buildingLoads || []) as (BuildingLoad & { name?: string; calculatedCurrent?: number; connectedLoad?: number })[];
+    if (rawLoads.length > 0) {
+      const lines: string[] = [];
+      lines.push(`sld "${project.name} — ${bldg.name} Common Services"`);
+      lines.push('');
+      lines.push(`mdb = bus [label: "MDB Bus", voltage: "${project.voltage}V"]`);
+      lines.push('');
+
+      rawLoads.forEach((bload, idx) => {
+        const lib = bload.loadLibraryItem;
+        const totalKw = (lib?.power ?? (bload.connectedLoad ? bload.connectedLoad / 1000 : 0)) * (bload.quantity ?? 1);
+        const voltageKv = (lib?.voltage ?? project.voltage) / 1000;
+        const pf = lib?.powerFactor ?? project.powerFactor ?? 0.85;
+        const is3Ph = (lib?.phase ?? 3) === 3;
+        const derivedCurrent = is3Ph
+          ? totalKw / (Math.sqrt(3) * voltageKv * pf)
+          : totalKw / (voltageKv * pf);
+        const current = bload.calculatedCurrent || derivedCurrent || 0;
+        const loadName = bload.name || lib?.name || `Common Load ${idx + 1}`;
+        const bkrRating = resolveBreakerRating(bload.breakerSize, current, code);
+        const mcbId = `bload_bkr_${idx + 1}`;
+        const loadId = `bload_load_${idx + 1}`;
+
+        lines.push(`${mcbId} = breaker [label: "${bkrRating}", rating: "${bkrRating}"]`);
+        lines.push(`${loadId} = load [label: "${loadName}"]`);
+        lines.push(`mdb -> ${mcbId} [label: "${loadName}"]`);
+        lines.push(`${mcbId} -> ${loadId} [label: "${formatCableSizeFor(bload.cableSize, project.calculationStandard)}"]`);
+      });
+
+      pages.push({
+        title: `${bldg.name} - Services`,
+        floors: `${bldg.name} — Common Services (${rawLoads.length} loads)`,
+        buildingName: bldg.name,
+        dsl: lines.join('\n'),
+      });
+    }
   }
 
   return pages;

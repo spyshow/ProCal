@@ -3,6 +3,7 @@ import fs from "fs";
 import path from "path";
 import { db } from "@/lib/db";
 import { verifyProjectAccess } from "@/lib/project-auth";
+import { verifyReportDownloadToken } from "@/lib/auth";
 import { getCompanySettings, getLogoAsset } from "@/lib/app-settings";
 import { renderReportHtml, wrapReportMarkup } from "@/lib/reports/render-report-html";
 import { generateServerPdf } from "@/lib/reports/server-pdf";
@@ -135,10 +136,21 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    const auth = await verifyProjectAccess(id);
-    if (auth instanceof NextResponse) return auth;
-
     const { searchParams } = new URL(request.url);
+    const token = searchParams.get("token");
+
+    if (token) {
+      const verified = await verifyReportDownloadToken(token, id);
+      if (!verified) {
+        return NextResponse.json(
+          { error: "Invalid or expired report download token" },
+          { status: 401 }
+        );
+      }
+    } else {
+      const auth = await verifyProjectAccess(id);
+      if (auth instanceof NextResponse) return auth;
+    }
     const buildingId = searchParams.get("buildingId") || undefined;
     const manufacturer = searchParams.get("manufacturer") || undefined;
 

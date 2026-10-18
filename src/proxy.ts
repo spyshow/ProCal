@@ -15,7 +15,7 @@ const JWT_SECRET = new TextEncoder().encode(
 );
 
 export async function proxy(request: NextRequest) {
-  // Allow-list landing page, auth pages, invite acceptance, and auth/invite API calls
+  // Allow-list landing page, public tools, static assets, auth pages, and all API routes
   const { pathname } = request.nextUrl;
   if (
     pathname === "/" ||
@@ -28,9 +28,14 @@ export async function proxy(request: NextRequest) {
     pathname.startsWith("/invite") ||
     pathname.startsWith("/forgot-password") ||
     pathname.startsWith("/reset-password") ||
-    pathname.startsWith("/api/auth") ||
-    pathname.startsWith("/api/invites")
+    pathname.startsWith("/api/")
   ) {
+    return NextResponse.next();
+  }
+
+  // Pass-through requests carrying API key in headers
+  const authHeader = request.headers.get("authorization") || request.headers.get("x-api-key");
+  if (authHeader && (authHeader.includes("procal_sk_") || authHeader.startsWith("Bearer "))) {
     return NextResponse.next();
   }
 
@@ -59,10 +64,10 @@ export const config = {
   matcher: [
     /*
      * Match all request paths except:
-     * - API routes that are NOT auth API routes
-     * - static files, images, favicon
+     * - All /api/* routes (API routes perform own auth and return JSON 401, never HTML 307)
+     * - static files, images, favicon, slides
      */
-    "/((?!api/projects|api/buildings|api/cables|api/equipment|api/contact|api/admin|api/invites|_next/static|_next/image|slides/|favicon.ico).*)",
+    "/((?!api/|_next/static|_next/image|slides/|favicon.ico).*)",
   ],
 };
 

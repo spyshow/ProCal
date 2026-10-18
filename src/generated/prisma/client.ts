@@ -139,3 +139,8 @@ export type BreakerSettings = Prisma.BreakerSettingsModel
  * 
  */
 export type AppSetting = Prisma.AppSettingModel
+/**
+ * Model ApiKey
+ * 
+ */
+export type ApiKey = Prisma.ApiKeyModel

@@ -45,6 +45,10 @@ vi.mock("@/lib/db", () => ({
   db: mockDb,
 }));
 
+vi.mock("@/lib/reports/server-pdf", () => ({
+  generateServerPdf: vi.fn().mockResolvedValue(Buffer.from("mock-pdf-bytes")),
+}));
+
 describe("Zero-Dependency JSON-RPC 2.0 MCP Server", () => {
   const testUser: McpUser = {
     id: "user-mcp-1",
@@ -265,6 +269,34 @@ describe("Zero-Dependency JSON-RPC 2.0 MCP Server", () => {
     expect(data.deepLinks.overview).toBe("https://procal.example.com/projects/proj-rep-1");
     expect(data.deepLinks.calculator).toBe("https://procal.example.com/calculator?projectId=proj-rep-1");
     expect(data.downloadTokenExpiresIn).toBe("1 hour");
+  });
+
+  it("generates base64Pdf when outputFilePath is specified in 'get_project_report'", async () => {
+    mockDb.project.findUnique.mockResolvedValue({
+      id: "proj-rep-2",
+      name: "Crown Plaza",
+      voltage: 400,
+      powerFactor: 0.85,
+      calculationStandard: "IEC",
+      buildings: [],
+      apartmentTemplates: [],
+    });
+
+    const req: JsonRpcRequest = {
+      jsonrpc: "2.0",
+      id: 9,
+      method: "tools/call",
+      params: {
+        name: "get_project_report",
+        arguments: { projectId: "proj-rep-2", outputFilePath: "report.pdf" },
+      },
+    };
+
+    const res = await handleMcpRequest(req, testUser, baseUrl);
+    const content = (res.result as { content: { text: string }[] }).content[0].text;
+    const data = JSON.parse(content);
+
+    expect(data.base64Pdf).toBe(Buffer.from("mock-pdf-bytes").toString("base64"));
   });
 
   it("returns error -32601 on unknown RPC method", async () => {

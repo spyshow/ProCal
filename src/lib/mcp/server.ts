@@ -153,19 +153,21 @@ const MCP_TOOLS = [
         projectId: { type: "string", description: "Project ID" },
         buildingId: { type: "string", description: "Optional building ID filter" },
         floorNumber: { type: "number", description: "Optional floor number filter" },
+        outputFilePath: { type: "string", description: "Optional local file path to save SVG when using stdio bridge (e.g. sld.svg)" },
       },
     },
   },
   {
     name: "get_project_report",
     description:
-      "Generates an executive engineering compliance summary with targeted deep links and a 1-hour signed PDF report download URL. Optionally returns base64 PDF bytes if includeBase64 is true.",
+      "Generates an executive engineering compliance summary with targeted deep links and a 1-hour signed PDF report download URL. Optionally returns base64 PDF bytes if includeBase64 is true or outputFilePath is specified.",
     inputSchema: {
       type: "object",
       required: ["projectId"],
       properties: {
         projectId: { type: "string", description: "Project ID" },
         includeBase64: { type: "boolean", description: "Set to true to embed base64 PDF bytes (default: false)" },
+        outputFilePath: { type: "string", description: "Optional local file path to save PDF when using stdio bridge (e.g. report.pdf)" },
       },
     },
   },
@@ -426,7 +428,7 @@ async function executeTool(
     case "get_project_report": {
       const projectId = args.projectId as string;
       if (!projectId) throw new Error("projectId is required");
-      const includeBase64 = args.includeBase64 === true;
+      const includeBase64 = args.includeBase64 === true || Boolean(args.outputFilePath);
 
       const project = await db.project.findUnique({
         where: { id: projectId },

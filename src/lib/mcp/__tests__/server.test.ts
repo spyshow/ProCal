@@ -77,7 +77,7 @@ describe("Zero-Dependency JSON-RPC 2.0 MCP Server", () => {
     expect(res.result).toEqual({
       protocolVersion: "2024-11-05",
       capabilities: { tools: {}, prompts: {} },
-      serverInfo: { name: "procal-mcp-server", version: "1.5.6" },
+      serverInfo: { name: "procal-mcp-server", version: "1.6.0" },
     });
   });
 

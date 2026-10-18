@@ -209,7 +209,7 @@ export async function handleMcpRequest(
             },
             serverInfo: {
               name: "procal-mcp-server",
-              version: "1.5.6",
+              version: "1.6.0",
             },
           },
         };

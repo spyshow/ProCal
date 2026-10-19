@@ -5,6 +5,7 @@ import {
   signReportDownloadToken,
   verifyReportDownloadToken,
   getSessionUser,
+  getUserByApiKey,
 } from "../auth";
 
 const { mockDb, mockCookiesStore, mockHeadersStore } = vi.hoisted(() => {
@@ -183,5 +184,66 @@ describe("getSessionUser() with API Key and Cookie Auth", () => {
 
     const user = await getSessionUser();
     expect(user).toBeNull();
+  });
+});
+
+describe("getUserByApiKey() direct resolution", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("returns null immediately for invalid or missing key prefix", async () => {
+    expect(await getUserByApiKey("")).toBeNull();
+    expect(await getUserByApiKey("sk_invalid_prefix_12345")).toBeNull();
+    expect(mockDb.apiKey.findUnique).not.toHaveBeenCalled();
+  });
+
+  it("resolves user and returns user object for valid active key", async () => {
+    const { rawKey, keyHash } = generateApiKey();
+    const activeUser = {
+      id: "u-direct-1",
+      username: "gemini_user",
+      name: "Gemini User",
+      role: "USER",
+      credits: 50,
+      email: "gemini@example.com",
+      theme: "dark",
+      disabled: false,
+    };
+
+    mockDb.apiKey.findUnique.mockResolvedValueOnce({
+      id: "key-direct-1",
+      keyHash,
+      revokedAt: null,
+      lastUsedAt: null,
+      user: activeUser,
+    });
+
+    const user = await getUserByApiKey(rawKey);
+    expect(user).toEqual(activeUser);
+  });
+
+  it("returns null for revoked key or disabled user", async () => {
+    const { rawKey, keyHash } = generateApiKey();
+
+    mockDb.apiKey.findUnique.mockResolvedValueOnce({
+      id: "key-revoked",
+      keyHash,
+      revokedAt: new Date(),
+      lastUsedAt: null,
+      user: { id: "u-revoked", disabled: false },
+    });
+
+    expect(await getUserByApiKey(rawKey)).toBeNull();
+
+    mockDb.apiKey.findUnique.mockResolvedValueOnce({
+      id: "key-disabled",
+      keyHash,
+      revokedAt: null,
+      lastUsedAt: null,
+      user: { id: "u-disabled", disabled: true },
+    });
+
+    expect(await getUserByApiKey(rawKey)).toBeNull();
   });
 });

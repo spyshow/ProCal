@@ -133,7 +133,7 @@ describe('ApiKeysModal Component', () => {
     const geminiBtn = screen.getByRole('button', { name: /^Gemini Apps$/i });
     fireEvent.click(geminiBtn);
     expect(screen.getByText(/gemini\.google\.com -> Settings -> Connected Apps/i)).toBeInTheDocument();
-    expect(screen.getByText(/MCP Server URL:/i)).toBeInTheDocument();
+    expect(screen.getByText(/\/api\/mcp\?key=/i)).toBeInTheDocument();
 
     // Switch to cURL / HTTP
     const httpBtn = screen.getByRole('button', { name: /^cURL \/ HTTP$/i });

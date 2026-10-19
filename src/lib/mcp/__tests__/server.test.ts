@@ -77,7 +77,7 @@ describe("Zero-Dependency JSON-RPC 2.0 MCP Server", () => {
     expect(res.result).toEqual({
       protocolVersion: "2024-11-05",
       capabilities: { tools: {}, prompts: {} },
-      serverInfo: { name: "procal-mcp-server", version: "1.6.2" },
+      serverInfo: { name: "procal-mcp-server", version: "1.6.3" },
     });
   });
 
@@ -347,5 +347,72 @@ describe("Zero-Dependency JSON-RPC 2.0 MCP Server", () => {
 
     const res = await handleMcpRequest(req, testUser, baseUrl);
     expect(res.error?.code).toBe(-32601);
+  });
+
+  it("handles anonymous 'initialize' and 'tools/list' without error", async () => {
+    const initReq: JsonRpcRequest = {
+      jsonrpc: "2.0",
+      id: 101,
+      method: "initialize",
+      params: { protocolVersion: "2024-11-05" },
+    };
+    const initRes = await handleMcpRequest(initReq, null, baseUrl);
+    expect(initRes.id).toBe(101);
+    expect(initRes.error).toBeUndefined();
+    expect((initRes.result as { serverInfo: { name: string } }).serverInfo.name).toBe("procal-mcp-server");
+
+    const toolsReq: JsonRpcRequest = {
+      jsonrpc: "2.0",
+      id: 102,
+      method: "tools/list",
+    };
+    const toolsRes = await handleMcpRequest(toolsReq, null, baseUrl);
+    expect(toolsRes.id).toBe(102);
+    expect(toolsRes.error).toBeUndefined();
+    const tools = (toolsRes.result as { tools: unknown[] }).tools;
+    expect(tools.length).toBe(9);
+  });
+
+  it("allows anonymous execution of 'get_engineering_catalog'", async () => {
+    const req: JsonRpcRequest = {
+      jsonrpc: "2.0",
+      id: 103,
+      method: "tools/call",
+      params: {
+        name: "get_engineering_catalog",
+        arguments: { country: "Saudi Arabia" },
+      },
+    };
+
+    const res = await handleMcpRequest(req, null, baseUrl);
+    expect(res.error).toBeUndefined();
+    const content = (res.result as { content: { text: string }[] }).content[0].text;
+    const data = JSON.parse(content);
+    expect(data.country).toBe("Saudi Arabia");
+    expect(data.electricalDefaults.voltage).toBe(400);
+  });
+
+  it("returns authentication required error when an anonymous user calls 'create_project_from_spec'", async () => {
+    const req: JsonRpcRequest = {
+      jsonrpc: "2.0",
+      id: 104,
+      method: "tools/call",
+      params: {
+        name: "create_project_from_spec",
+        arguments: {
+          name: "Unauthorized Project",
+          isConfirmedByUser: true,
+          apartmentTemplates: [],
+          buildings: [],
+        },
+      },
+    };
+
+    const res = await handleMcpRequest(req, null, baseUrl);
+    expect(res.error).toBeUndefined();
+    const content = (res.result as { content: { text: string }[]; isError: boolean }).content[0].text;
+    expect(res.result).toHaveProperty("isError", true);
+    expect(content).toContain("Authentication required");
+    expect(content).toContain("procal_sk_");
   });
 });

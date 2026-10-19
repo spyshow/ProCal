@@ -241,7 +241,7 @@ export function ApiKeysModal({ isOpen, onClose }: ApiKeysModalProps) {
     }
 
     if (configFormat === 'gemini') {
-      return `MCP Server URL:\n${origin}/api/mcp\n\nHeader Name:\nAuthorization\n\nHeader Value:\nBearer ${activeKeyForConfig}\n\nAPI Key:\n${activeKeyForConfig}`;
+      return `${origin}/api/mcp?key=${activeKeyForConfig}`;
     }
 
     return `curl -X POST "${origin}/api/mcp" \\\n  -H "Authorization: Bearer ${activeKeyForConfig}" \\\n  -H "Content-Type: application/json" \\\n  -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}'`;
@@ -262,7 +262,7 @@ export function ApiKeysModal({ isOpen, onClose }: ApiKeysModalProps) {
       case 'windsurf':
         return 'Paste into %USERPROFILE%\\.codeium\\windsurf\\mcp_config.json (or ~/.codeium/windsurf/mcp_config.json on macOS/Linux).';
       case 'gemini':
-        return 'In gemini.google.com -> Settings -> Connected Apps -> Add a custom app. Enter the MCP Server URL and credentials above.';
+        return 'In gemini.google.com -> Settings -> Connected Apps -> Add a custom app. Paste this exact MCP Server URL, leave "Additional settings" (OAuth) blank, and click Next.';
       case 'http':
         return 'Direct Streamable HTTP / SSE endpoint for custom MCP clients or terminal testing.';
     }

@@ -75,6 +75,43 @@ export async function verifyPasswordResetToken(token: string) {
 }
 
 /**
+ * Resolves a user by raw API key (procal_sk_...).
+ * Handles hashing, revocation check, disabled user check, and throttled lastUsedAt update.
+ */
+export async function getUserByApiKey(rawKey: string) {
+  if (!rawKey || !rawKey.startsWith("procal_sk_")) {
+    return null;
+  }
+  try {
+    const keyHash = hashApiKey(rawKey);
+    const apiKey = await db.apiKey.findUnique({
+      where: { keyHash },
+      include: {
+        user: {
+          select: { id: true, username: true, name: true, role: true, credits: true, email: true, theme: true, disabled: true },
+        },
+      },
+    });
+
+    if (apiKey && !apiKey.revokedAt && apiKey.user && !apiKey.user.disabled) {
+      // Throttled update of lastUsedAt (>60s) to avoid write contention on row locks
+      const now = new Date();
+      if (!apiKey.lastUsedAt || now.getTime() - apiKey.lastUsedAt.getTime() > 60000) {
+        db.apiKey.update({
+          where: { id: apiKey.id },
+          data: { lastUsedAt: now },
+        }).catch((err) => console.warn("Failed to update apiKey lastUsedAt:", err));
+      }
+      return apiKey.user;
+    }
+  } catch (err) {
+    console.warn("getUserByApiKey error:", err);
+  }
+
+  return null;
+}
+
+/**
  * Returns the currently authenticated user from request cookies or Authorization Bearer API key.
  */
 export async function getSessionUser() {
@@ -104,28 +141,9 @@ export async function getSessionUser() {
     const authHeader = headerStore.get("authorization") || headerStore.get("x-api-key");
     if (authHeader) {
       const rawKey = authHeader.startsWith("Bearer ") ? authHeader.slice(7).trim() : authHeader.trim();
-      if (rawKey.startsWith("procal_sk_")) {
-        const keyHash = hashApiKey(rawKey);
-        const apiKey = await db.apiKey.findUnique({
-          where: { keyHash },
-          include: {
-            user: {
-              select: { id: true, username: true, name: true, role: true, credits: true, email: true, theme: true, disabled: true },
-            },
-          },
-        });
-
-        if (apiKey && !apiKey.revokedAt && apiKey.user && !apiKey.user.disabled) {
-          // Throttled update of lastUsedAt (>60s) to avoid write contention on row locks
-          const now = new Date();
-          if (!apiKey.lastUsedAt || now.getTime() - apiKey.lastUsedAt.getTime() > 60000) {
-            db.apiKey.update({
-              where: { id: apiKey.id },
-              data: { lastUsedAt: now },
-            }).catch((err) => console.warn("Failed to update apiKey lastUsedAt:", err));
-          }
-          return apiKey.user;
-        }
+      const user = await getUserByApiKey(rawKey);
+      if (user) {
+        return user;
       }
     }
   } catch {

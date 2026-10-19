@@ -213,7 +213,7 @@ const MCP_PROMPTS = [
 
 export async function handleMcpRequest(
   request: JsonRpcRequest,
-  user: McpUser,
+  user?: McpUser | null,
   baseUrl: string = "https://procal.example.com"
 ): Promise<JsonRpcResponse> {
   const { id = null, method, params = {} } = request;
@@ -232,7 +232,7 @@ export async function handleMcpRequest(
             },
             serverInfo: {
               name: "procal-mcp-server",
-              version: "1.6.2",
+              version: "1.6.3",
             },
           },
         };
@@ -348,10 +348,19 @@ export async function handleMcpRequest(
   }
 }
 
+function requireAuth(user: McpUser | null | undefined): McpUser {
+  if (!user) {
+    throw new Error(
+      "Authentication required: Please provide your ProCal API key in your MCP Server URL (e.g. https://procal-mu.vercel.app/api/mcp?key=procal_sk_...) or via Authorization: Bearer header. You can generate an API key in ProCal Settings > API Keys."
+    );
+  }
+  return user;
+}
+
 async function executeTool(
   name: string,
   args: Record<string, unknown>,
-  user: McpUser,
+  user: McpUser | null | undefined,
   baseUrl: string
 ): Promise<unknown> {
   switch (name) {
@@ -381,33 +390,39 @@ async function executeTool(
     }
 
     case "create_project_from_spec": {
+      const authUser = requireAuth(user);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      return await createProjectFromSpec(user, args as any);
+      return await createProjectFromSpec(authUser, args as any);
     }
 
     case "update_project_spec": {
+      const authUser = requireAuth(user);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      return await updateProjectSpec(user, args as any);
+      return await updateProjectSpec(authUser, args as any);
     }
 
     case "update_project_loads": {
+      const authUser = requireAuth(user);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      return await updateProjectLoads(user, args as any);
+      return await updateProjectLoads(authUser, args as any);
     }
 
     case "check_project_compliance": {
+      requireAuth(user);
       const projectId = args.projectId as string;
       if (!projectId) throw new Error("projectId is required");
       return await getProjectComplianceSummary(projectId);
     }
 
     case "get_project_bom": {
+      requireAuth(user);
       const projectId = args.projectId as string;
       if (!projectId) throw new Error("projectId is required");
       return await getProjectBOM(projectId);
     }
 
     case "get_project_sld": {
+      requireAuth(user);
       const projectId = args.projectId as string;
       if (!projectId) throw new Error("projectId is required");
 
@@ -455,6 +470,7 @@ async function executeTool(
     }
 
     case "get_project_report": {
+      const authUser = requireAuth(user);
       const projectId = args.projectId as string;
       if (!projectId) throw new Error("projectId is required");
       const includeBase64 = args.includeBase64 === true || Boolean(args.outputFilePath);
@@ -478,7 +494,7 @@ async function executeTool(
       if (!project) throw new Error(`Project not found: ${projectId}`);
 
       const compliance = await getProjectComplianceSummary(projectId);
-      const downloadToken = await signReportDownloadToken(projectId, user.id);
+      const downloadToken = await signReportDownloadToken(projectId, authUser.id);
       const signedDownloadUrl = `${baseUrl}/api/projects/${projectId}/pdf?token=${downloadToken}`;
 
       let base64Pdf: string | undefined;

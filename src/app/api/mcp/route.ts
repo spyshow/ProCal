@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getSessionUser } from "@/lib/auth";
+import { getSessionUser, getUserByApiKey } from "@/lib/auth";
 import { handleMcpRequest, type JsonRpcRequest } from "@/lib/mcp/server";
 
 const CORS_HEADERS = {
@@ -17,23 +17,14 @@ export async function OPTIONS() {
 
 export async function POST(request: Request) {
   try {
-    const user = await getSessionUser();
-    const body = (await request.json().catch(() => null)) as JsonRpcRequest | null;
-
+    const url = new URL(request.url);
+    const queryKey = url.searchParams.get("key") || url.searchParams.get("apiKey");
+    let user = queryKey ? await getUserByApiKey(queryKey) : null;
     if (!user) {
-      return NextResponse.json(
-        {
-          jsonrpc: "2.0",
-          id: body?.id ?? null,
-          error: {
-            code: -32000,
-            message:
-              "Unauthorized: Missing or invalid API key. Please provide Authorization: Bearer procal_sk_... or x-api-key header.",
-          },
-        },
-        { status: 401, headers: CORS_HEADERS }
-      );
+      user = await getSessionUser();
     }
+
+    const body = (await request.json().catch(() => null)) as JsonRpcRequest | null;
 
     if (!body || typeof body !== "object" || !body.method) {
       return NextResponse.json(
@@ -49,7 +40,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const origin = new URL(request.url).origin;
+    const origin = url.origin;
     const response = await handleMcpRequest(body, user, origin);
 
     return NextResponse.json(response, { headers: CORS_HEADERS });
@@ -76,7 +67,7 @@ export async function GET() {
       status: "active",
       protocolVersion: "2024-11-05",
       description:
-        "Send JSON-RPC 2.0 POST requests with 'Authorization: Bearer procal_sk_...' to interact with ProCal tools and prompts.",
+        "Send JSON-RPC 2.0 POST requests with 'Authorization: Bearer procal_sk_...' or '?key=procal_sk_...' to interact with ProCal tools and prompts.",
     },
     { headers: CORS_HEADERS }
   );

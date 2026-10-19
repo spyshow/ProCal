@@ -1,32 +1,37 @@
-# Implementation Plan - In-Place Project Correction & Update via MCP
+# Implementation Plan - Google Gemini Custom Connected Apps (MCP) Support
 
 ## Problem Statement
-When an external AI agent creates a project in ProCal via MCP and the user subsequently asks to correct an entry (e.g. adjust a room area, template load, floor assignment, or voltage), the agent currently creates a brand new project using `create_project_from_spec`. This occurs because:
-1. `update_project_loads` only accepts mechanical building loads and lacks support for apartment templates, rooms, floors, or project parameters.
-2. The MCP server lacks explicit instructions and tool descriptions preventing duplicate creation and guiding agents on in-place corrections.
+When connecting ProCal's remote MCP server to **Google Gemini Apps** (Custom Connected Apps via `https://gemini.google.com/apps`), users encounter connection failures or missing credential fields:
+1. Gemini does not offer custom HTTP header inputs (`Authorization: Bearer ...` or `x-api-key`). It only supports an MCP Server URL input and optional OAuth 2.0 fields.
+2. ProCal's `/api/mcp` currently rejects any request missing an `Authorization` or `x-api-key` header with `401 Unauthorized`, causing Gemini's initial probe to fail.
+3. ProCal does not check URL query parameters (`?key=...` or `?apiKey=...`), preventing Gemini from passing API keys via the server URL.
 
 ## Objective
-Provide a unified, robust `update_project_spec` MCP tool that modifies existing projects in-place (upserting templates, rooms, floor schedules, building loads, and project parameters) with automatic complex-wide recalculation, and enforce agent behavior through tool descriptions, prompts, and return instructions.
+Enable full compatibility between ProCal's remote MCP server and Google Gemini Custom Connected Apps by:
+1. Supporting URL query parameter API keys (`?key=procal_sk_...` or `?apiKey=...`).
+2. Allowing public handshake and discovery (`initialize`, `ping`, `notifications/initialized`, `tools/list`) and catalog queries (`get_engineering_catalog`) without pre-authentication.
+3. Providing clear, user-friendly error guidance when mutating tools are called without a configured key.
+4. Adding a dedicated **Google Gemini** configuration tab in `ApiKeysModal.tsx` with a one-click copyable server URL and setup instructions.
 
 ---
 
 ## Phases & Tasks
 
-### Phase 1: Schema Definition [COMPLETED]
-- **File**: `src/lib/agent/project-spec-schema.ts`
-- **Result**: `UpdateProjectSpecSchema`, `UpdateProjectSpec`, and `UpdateProjectSpecInput` defined, exported, and verified.
+### Phase 1: Authentication Helper & Query Parameter Support [COMPLETED]
+- **Files**: `src/lib/auth.ts`, `src/lib/__tests__/auth-api-key.test.ts`
+- **Result**: Exported `getUserByApiKey(rawKey: string): Promise<User | null>`. Added unit tests verifying valid keys return active users, while invalid, revoked, or disabled user keys return null.
 
-### Phase 2: In-Place Update Engine Implementation [COMPLETED]
-- **File**: `src/lib/agent/build-project.ts`
-- **Result**: `updateProjectSpec(user, rawSpec)` implemented with transactional upserts for electrical parameters, apartment templates, rooms, floor counts, floor items, and mechanical loads, with automated complex-wide recalculation (`recalculateProjectBuildings`). Added `instructionsForUpdates` to `createProjectFromSpec`.
+### Phase 2: MCP Server Anonymous Discovery & Tool Guard [COMPLETED]
+- **Files**: `src/lib/mcp/server.ts`, `src/lib/mcp/__tests__/server.test.ts`
+- **Result**: Made `user` optional in `handleMcpRequest`. Handled anonymous `initialize`, `ping`, `notifications/initialized`, `tools/list`, and `get_engineering_catalog`. Added `requireAuth` guard on mutating tools (`create_project_from_spec`, `update_project_spec`, etc.) returning clear instructions to configure `?key=procal_sk_...`.
 
-### Phase 3: MCP Server Integration & Anti-Duplication Guardrails [COMPLETED]
-- **File**: `src/lib/mcp/server.ts`
-- **Result**: Registered `update_project_spec` in `MCP_TOOLS` and `executeTool`. Added strict anti-duplication warnings in `create_project_from_spec` description and prompt `drawing-to-procal-workflow`.
+### Phase 3: Route Handler Query Parameter & Discovery Wiring [COMPLETED]
+- **Files**: `src/app/api/mcp/route.ts`, `src/app/api/mcp/__tests__/route.test.ts`
+- **Result**: Wired query parameter extraction (`key` and `apiKey`) through `getUserByApiKey`. Replaced premature 401 gate with protocol discovery pass-through. Updated GET description. Verified with comprehensive route tests.
 
-### Phase 4: Local MCP Definitions & Instructions [COMPLETED]
-- **Files**: `C:\Users\jihad.kherfan.MCGI\.gemini\antigravity\mcp\procal\` (`instructions.md`, `create_project_from_spec.json`, `update_project_spec.json`).
-- **Result**: Updated local Antigravity MCP tool schemas and instructions with anti-duplication warnings and `update_project_spec`.
+### Phase 4: UI Google Gemini Format Preset [COMPLETED]
+- **Files**: `src/components/ApiKeysModal.tsx`, `src/components/__tests__/ApiKeysModal.test.tsx`
+- **Result**: Configured Gemini tab to render the exact direct URL `${origin}/api/mcp?key=${activeKeyForConfig}` with clear instructions to leave "Additional settings" (OAuth) blank and click Next. Verified in UI tests.
 
-### Phase 5: Verification & Regression Testing [COMPLETED]
-- **Result**: 87 test files passed (929 tests total, 100% pass rate). Knowledge graph updated via `graphify update .`.
+### Phase 5: Verification & Knowledge Graph [COMPLETED]
+- **Result**: 87 test files passed (939 tests, 100% pass rate). Knowledge graph updated via `graphify update .`.

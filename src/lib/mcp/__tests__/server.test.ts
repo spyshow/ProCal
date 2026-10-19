@@ -77,7 +77,31 @@ describe("Zero-Dependency JSON-RPC 2.0 MCP Server", () => {
     expect(res.result).toEqual({
       protocolVersion: "2024-11-05",
       capabilities: { tools: {}, prompts: {} },
-      serverInfo: { name: "procal-mcp-server", version: "1.6.3" },
+      serverInfo: {
+        name: "procal-mcp-server",
+        title: "ProCal",
+        version: "1.6.4",
+        websiteUrl: baseUrl,
+        icons: [
+          {
+            src: `${baseUrl}/apple-touch-icon.png`,
+            mimeType: "image/png",
+            sizes: ["180x180"],
+          },
+          {
+            src: `${baseUrl}/icon.svg`,
+            mimeType: "image/svg+xml",
+            sizes: ["any"],
+          },
+          {
+            src: `${baseUrl}/favicon.ico`,
+            mimeType: "image/x-icon",
+            sizes: ["32x32"],
+          },
+        ],
+        icon: `${baseUrl}/apple-touch-icon.png`,
+        iconUrl: `${baseUrl}/apple-touch-icon.png`,
+      },
     });
   });
 

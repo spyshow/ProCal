@@ -1,37 +1,31 @@
-# Implementation Plan - Google Gemini Custom Connected Apps (MCP) Support
+# Implementation Plan - MCP App Icon & Branding for Google Gemini (v1.6.4)
 
 ## Problem Statement
-When connecting ProCal's remote MCP server to **Google Gemini Apps** (Custom Connected Apps via `https://gemini.google.com/apps`), users encounter connection failures or missing credential fields:
-1. Gemini does not offer custom HTTP header inputs (`Authorization: Bearer ...` or `x-api-key`). It only supports an MCP Server URL input and optional OAuth 2.0 fields.
-2. ProCal's `/api/mcp` currently rejects any request missing an `Authorization` or `x-api-key` header with `401 Unauthorized`, causing Gemini's initial probe to fail.
-3. ProCal does not check URL query parameters (`?key=...` or `?apiKey=...`), preventing Gemini from passing API keys via the server URL.
+In Google Gemini Connected Apps (`gemini.google.com/apps`), the ProCal MCP server connection displays a broken image icon (`broken_image_grey600_18dp.png`). This occurs because:
+1. `serverInfo` returned during the MCP `initialize` handshake does not include the official MCP `icons` metadata array or `iconUrl` fields.
+2. If Gemini attempts to resolve relative fallback icon paths (such as `/api/mcp/icon` or `/api/mcp/favicon.ico`), Next.js returns 404.
 
 ## Objective
-Enable full compatibility between ProCal's remote MCP server and Google Gemini Custom Connected Apps by:
-1. Supporting URL query parameter API keys (`?key=procal_sk_...` or `?apiKey=...`).
-2. Allowing public handshake and discovery (`initialize`, `ping`, `notifications/initialized`, `tools/list`) and catalog queries (`get_engineering_catalog`) without pre-authentication.
-3. Providing clear, user-friendly error guidance when mutating tools are called without a configured key.
-4. Adding a dedicated **Google Gemini** configuration tab in `ApiKeysModal.tsx` with a one-click copyable server URL and setup instructions.
+Provide full visual branding and icon support across all MCP client surfaces (specifically Google Gemini Connected Apps) by declaring official MCP `icons` in `serverInfo` and adding rewrite fallbacks for relative icon requests.
 
 ---
 
 ## Phases & Tasks
 
-### Phase 1: Authentication Helper & Query Parameter Support [COMPLETED]
-- **Files**: `src/lib/auth.ts`, `src/lib/__tests__/auth-api-key.test.ts`
-- **Result**: Exported `getUserByApiKey(rawKey: string): Promise<User | null>`. Added unit tests verifying valid keys return active users, while invalid, revoked, or disabled user keys return null.
-
-### Phase 2: MCP Server Anonymous Discovery & Tool Guard [COMPLETED]
+### Phase 1: MCP `serverInfo.icons` Specification Support
 - **Files**: `src/lib/mcp/server.ts`, `src/lib/mcp/__tests__/server.test.ts`
-- **Result**: Made `user` optional in `handleMcpRequest`. Handled anonymous `initialize`, `ping`, `notifications/initialized`, `tools/list`, and `get_engineering_catalog`. Added `requireAuth` guard on mutating tools (`create_project_from_spec`, `update_project_spec`, etc.) returning clear instructions to configure `?key=procal_sk_...`.
+- **Action**: Add `title: "ProCal"`, `websiteUrl`, `icons` array (with `apple-touch-icon.png`, `icon.svg`, and `favicon.ico`), and fallback `icon`/`iconUrl` properties to `serverInfo` in `initialize` response.
+- **Proof**: Unit tests asserting `serverInfo.icons` contains valid `src`, `mimeType`, and size declarations.
 
-### Phase 3: Route Handler Query Parameter & Discovery Wiring [COMPLETED]
-- **Files**: `src/app/api/mcp/route.ts`, `src/app/api/mcp/__tests__/route.test.ts`
-- **Result**: Wired query parameter extraction (`key` and `apiKey`) through `getUserByApiKey`. Replaced premature 401 gate with protocol discovery pass-through. Updated GET description. Verified with comprehensive route tests.
+### Phase 2: Next.js Relative Icon Rewrites
+- **Files**: `next.config.ts`
+- **Action**: Add `rewrites()` in `next.config.ts` routing `/api/mcp/icon`, `/api/mcp/icon.png`, `/api/mcp/favicon.ico`, and `/api/favicon.ico` to their respective static image assets.
+- **Proof**: Verify Next.js config parses and rewrites route properly.
 
-### Phase 4: UI Google Gemini Format Preset [COMPLETED]
-- **Files**: `src/components/ApiKeysModal.tsx`, `src/components/__tests__/ApiKeysModal.test.tsx`
-- **Result**: Configured Gemini tab to render the exact direct URL `${origin}/api/mcp?key=${activeKeyForConfig}` with clear instructions to leave "Additional settings" (OAuth) blank and click Next. Verified in UI tests.
+### Phase 3: Version Bump to 1.6.4
+- **Files**: `package.json`, `package-lock.json`, `src/lib/version.ts`, `src/lib/mcp/server.ts`, `src/lib/mcp/__tests__/server.test.ts`
+- **Action**: Synchronize version to `1.6.4`.
 
-### Phase 5: Verification & Knowledge Graph [COMPLETED]
-- **Result**: 87 test files passed (939 tests, 100% pass rate). Knowledge graph updated via `graphify update .`.
+### Phase 4: Verification, Git Push & Release v1.6.4
+- **Action**: Run `npm test` (all 87+ suites), update knowledge graph via `graphify update .`, commit, push `origin/master --tags`, and publish GitHub Release `v1.6.4`.
+- **Proof**: 100% test pass rate, verified GitHub release live.

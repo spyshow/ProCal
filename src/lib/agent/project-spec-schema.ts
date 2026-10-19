@@ -87,6 +87,20 @@ export const UpdateProjectLoadsSpecSchema = z.object({
   resetSizing: z.boolean().optional().default(false),
 });
 
+export const UpdateProjectSpecSchema = z.object({
+  projectId: z.string().min(1),
+  name: z.string().min(1).max(120).optional(),
+  country: z.string().optional(),
+  voltage: z.number().positive().optional().nullable(),
+  frequency: z.number().positive().optional().nullable(),
+  powerFactor: z.number().min(0.1).max(1.0).optional(),
+  calculationStandard: z.enum(["IEC", "NEMA"]).optional(),
+  apartmentTemplates: z.array(ApartmentTemplateSpecSchema).optional(),
+  buildings: z.array(BuildingSpecSchema).optional(),
+  buildingLoads: z.array(CommonBuildingLoadSpecSchema).optional(),
+  resetSizing: z.boolean().optional().default(true),
+});
+
 export type RoomSpec = z.infer<typeof RoomSpecSchema>;
 export type ApartmentTemplateSpec = z.infer<typeof ApartmentTemplateSpecSchema>;
 export type FloorAssignmentSpec = z.infer<typeof FloorAssignmentSpecSchema>;
@@ -94,6 +108,7 @@ export type CommonBuildingLoadSpec = z.infer<typeof CommonBuildingLoadSpecSchema
 export type BuildingSpec = z.infer<typeof BuildingSpecSchema>;
 export type ProjectDrawingSpec = z.infer<typeof ProjectDrawingSpecSchema>;
 export type UpdateProjectLoadsSpec = z.infer<typeof UpdateProjectLoadsSpecSchema>;
+export type UpdateProjectSpec = z.infer<typeof UpdateProjectSpecSchema>;
 
 export type RoomSpecInput = z.input<typeof RoomSpecSchema>;
 export type ApartmentTemplateSpecInput = z.input<typeof ApartmentTemplateSpecSchema>;
@@ -102,4 +117,5 @@ export type CommonBuildingLoadSpecInput = z.input<typeof CommonBuildingLoadSpecS
 export type BuildingSpecInput = z.input<typeof BuildingSpecSchema>;
 export type ProjectDrawingSpecInput = z.input<typeof ProjectDrawingSpecSchema>;
 export type UpdateProjectLoadsSpecInput = z.input<typeof UpdateProjectLoadsSpecSchema>;
+export type UpdateProjectSpecInput = z.input<typeof UpdateProjectSpecSchema>;
 

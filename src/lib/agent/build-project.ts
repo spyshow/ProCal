@@ -2,10 +2,16 @@ import { db, type Prisma } from "@/lib/db";
 import {
   ProjectDrawingSpecSchema,
   UpdateProjectLoadsSpecSchema,
+  UpdateProjectSpecSchema,
   type ProjectDrawingSpec,
   type ProjectDrawingSpecInput,
   type UpdateProjectLoadsSpec,
   type UpdateProjectLoadsSpecInput,
+  type UpdateProjectSpec,
+  type UpdateProjectSpecInput,
+  type RoomSpec,
+  type RoomSpecInput,
+  type CommonBuildingLoadSpec,
 } from "./project-spec-schema";
 import { validateProjectSpec } from "./validate-spec";
 import { getCountryDefaults, calculateRoomLoad, calculateAcWatts, getDensityKeyForRoomType } from "@/lib/country-defaults";
@@ -22,6 +28,7 @@ export interface ProjectCreatedResult {
   success: boolean;
   projectId: string;
   projectName: string;
+  instructionsForUpdates?: string;
   buildings: {
     id: string;
     name: string;
@@ -42,6 +49,86 @@ export interface ProjectCreatedResult {
     sld: string;
     pdfReport: string;
   };
+}
+
+function calculateRoomParameters(
+  room: RoomSpec | RoomSpecInput,
+  countryDefaults: ReturnType<typeof getCountryDefaults>,
+  powerFactor: number
+): { targetWatts: number; loadDensity: number } {
+  let targetWatts: number;
+  let loadDensity: number;
+
+  if (room.explicitLoadKw != null && room.explicitLoadKw > 0) {
+    targetWatts = room.explicitLoadKw * 1000;
+    const acWatts = (room.hasAc ?? true)
+      ? calculateAcWatts(room.areaM2, countryDefaults.acSizingRules)
+      : 0;
+    loadDensity = Math.max(0, parseFloat(((targetWatts - acWatts) / room.areaM2).toFixed(2)));
+  } else if (room.explicitLoadKva != null && room.explicitLoadKva > 0) {
+    targetWatts = room.explicitLoadKva * 1000 * powerFactor;
+    const acWatts = (room.hasAc ?? true)
+      ? calculateAcWatts(room.areaM2, countryDefaults.acSizingRules)
+      : 0;
+    loadDensity = Math.max(0, parseFloat(((targetWatts - acWatts) / room.areaM2).toFixed(2)));
+  } else {
+    const densityKey = getDensityKeyForRoomType(room.type || "OTHER");
+    loadDensity = room.loadDensityVaPerM2 ?? (countryDefaults.roomDensities[densityKey] || 50);
+    targetWatts = calculateRoomLoad(
+      room.areaM2,
+      loadDensity,
+      room.hasAc ?? true,
+      countryDefaults.acSizingRules
+    );
+  }
+
+  return { targetWatts, loadDensity };
+}
+
+async function attachBuildingLoadToDb(
+  tx: Prisma.TransactionClient | typeof db,
+  projectId: string,
+  buildingId: string,
+  bload: CommonBuildingLoadSpec,
+  voltage: number,
+  powerFactor: number,
+  calculationStandard: string
+) {
+  const loadCurrent =
+    (bload.powerKw * (bload.quantity || 1)) /
+    (Math.sqrt(3) * (voltage / 1000) * (bload.powerFactor || powerFactor));
+
+  const libItem = await tx.loadLibraryItem.create({
+    data: {
+      projectId,
+      name: bload.name,
+      category: bload.category || "OTHER",
+      power: bload.powerKw,
+      voltage: bload.voltage || voltage,
+      phase: bload.phases || 3,
+      powerFactor: bload.powerFactor || powerFactor,
+      quantity: bload.quantity || 1,
+      runningCurrent: parseFloat(loadCurrent.toFixed(2)),
+    },
+  });
+
+  const bloadSizing = sizeCableAndBreaker(loadCurrent, (bload.phases || 3) === 3, {
+    material: "copper",
+    insulation: "XLPE",
+    ambientTemp: 30,
+    groupingCount: 1,
+    code: codeOf(calculationStandard),
+  });
+
+  await tx.buildingLoad.create({
+    data: {
+      buildingId,
+      loadLibraryItemId: libItem.id,
+      quantity: bload.quantity || 1,
+      cableSize: bload.cableSize || bloadSizing.formattedCableSize,
+      cableLength: bload.cableLengthM || 30,
+    },
+  });
 }
 
 export async function createProjectFromSpec(
@@ -146,32 +233,7 @@ export async function createProjectFromSpec(
 
         let totalTplWatts = 0;
         for (const room of tpl.rooms) {
-          let targetWatts: number;
-          let loadDensity: number;
-
-          if (room.explicitLoadKw != null && room.explicitLoadKw > 0) {
-            targetWatts = room.explicitLoadKw * 1000;
-            const acWatts = (room.hasAc ?? true)
-              ? calculateAcWatts(room.areaM2, countryDefaults.acSizingRules)
-              : 0;
-            loadDensity = Math.max(0, parseFloat(((targetWatts - acWatts) / room.areaM2).toFixed(2)));
-          } else if (room.explicitLoadKva != null && room.explicitLoadKva > 0) {
-            targetWatts = room.explicitLoadKva * 1000 * powerFactor;
-            const acWatts = (room.hasAc ?? true)
-              ? calculateAcWatts(room.areaM2, countryDefaults.acSizingRules)
-              : 0;
-            loadDensity = Math.max(0, parseFloat(((targetWatts - acWatts) / room.areaM2).toFixed(2)));
-          } else {
-            const densityKey = getDensityKeyForRoomType(room.type);
-            loadDensity = room.loadDensityVaPerM2 ?? (countryDefaults.roomDensities[densityKey] || 50);
-            targetWatts = calculateRoomLoad(
-              room.areaM2,
-              loadDensity,
-              room.hasAc ?? true,
-              countryDefaults.acSizingRules
-            );
-          }
-
+          const { targetWatts, loadDensity } = calculateRoomParameters(room, countryDefaults, powerFactor);
           totalTplWatts += targetWatts;
 
           await tx.apartmentRoom.create({
@@ -300,41 +362,7 @@ export async function createProjectFromSpec(
 
         // Create Common Building Loads
         for (const bload of bldg.buildingLoads || []) {
-          const loadCurrent =
-            (bload.powerKw * (bload.quantity || 1)) /
-            (Math.sqrt(3) * (voltage / 1000) * (bload.powerFactor || powerFactor));
-
-          const libItem = await tx.loadLibraryItem.create({
-            data: {
-              projectId: project.id,
-              name: bload.name,
-              category: bload.category || "OTHER",
-              power: bload.powerKw,
-              voltage: bload.voltage || voltage,
-              phase: bload.phases || 3,
-              powerFactor: bload.powerFactor || powerFactor,
-              quantity: bload.quantity || 1,
-              runningCurrent: parseFloat(loadCurrent.toFixed(2)),
-            },
-          });
-
-          const bloadSizing = sizeCableAndBreaker(loadCurrent, (bload.phases || 3) === 3, {
-            material: "copper",
-            insulation: "XLPE",
-            ambientTemp: 30,
-            groupingCount: 1,
-            code: codeOf(calculationStandard),
-          });
-
-          await tx.buildingLoad.create({
-            data: {
-              buildingId: createdBldg.id,
-              loadLibraryItemId: libItem.id,
-              quantity: bload.quantity || 1,
-              cableSize: bload.cableSize || bloadSizing.formattedCableSize,
-              cableLength: bload.cableLengthM || 30,
-            },
-          });
+          await attachBuildingLoadToDb(tx, project.id, createdBldg.id, bload, voltage, powerFactor, calculationStandard);
         }
       }
 
@@ -369,6 +397,7 @@ export async function createProjectFromSpec(
     success: true,
     projectId: result.project.id,
     projectName: result.project.name,
+    instructionsForUpdates: `To modify, correct, or adjust any entry in this project (room areas, templates, floor schedules, loads, or voltage), call 'update_project_spec' with projectId: '${result.project.id}'. NEVER call 'create_project_from_spec' again for this project.`,
     buildings: result.createdBuildingsList.map((b) => ({
       id: b.id,
       name: b.name,
@@ -436,41 +465,15 @@ export async function updateProjectLoads(
     }
 
     for (const bload of spec.buildingLoads) {
-      const loadCurrent =
-        (bload.powerKw * (bload.quantity || 1)) /
-        (Math.sqrt(3) * (project.voltage / 1000) * (bload.powerFactor || project.powerFactor));
-
-      const libItem = await db.loadLibraryItem.create({
-        data: {
-          projectId: project.id,
-          name: bload.name,
-          category: bload.category || "OTHER",
-          power: bload.powerKw,
-          voltage: bload.voltage || project.voltage,
-          phase: bload.phases || 3,
-          powerFactor: bload.powerFactor || project.powerFactor,
-          quantity: bload.quantity || 1,
-          runningCurrent: parseFloat(loadCurrent.toFixed(2)),
-        },
-      });
-
-      const bloadSizing = sizeCableAndBreaker(loadCurrent, (bload.phases || 3) === 3, {
-        material: "copper",
-        insulation: "XLPE",
-        ambientTemp: 30,
-        groupingCount: 1,
-        code: codeOf(project.calculationStandard),
-      });
-
-      await db.buildingLoad.create({
-        data: {
-          buildingId: targetBuildingId,
-          loadLibraryItemId: libItem.id,
-          quantity: bload.quantity || 1,
-          cableSize: bload.cableSize || bloadSizing.formattedCableSize,
-          cableLength: bload.cableLengthM || 30,
-        },
-      });
+      await attachBuildingLoadToDb(
+        db,
+        project.id,
+        targetBuildingId,
+        bload,
+        project.voltage,
+        project.powerFactor,
+        project.calculationStandard
+      );
     }
   }
 
@@ -478,6 +481,283 @@ export async function updateProjectLoads(
   await recalculateProjectBuildings(project.id, { resetSizing: spec.resetSizing });
 
   return getProjectComplianceSummary(project.id);
+}
+
+export async function updateProjectSpec(
+  user: { id: string; role?: string; name?: string; username?: string },
+  rawSpec: UpdateProjectSpec | UpdateProjectSpecInput
+) {
+  const spec = UpdateProjectSpecSchema.parse(rawSpec);
+  const project = await db.project.findUnique({
+    where: { id: spec.projectId },
+    include: {
+      buildings: {
+        include: {
+          floorDesigns: {
+            include: { items: true },
+          },
+          buildingLoads: true,
+        },
+      },
+      apartmentTemplates: {
+        include: { rooms: true },
+      },
+    },
+  });
+
+  if (!project) {
+    throw new Error(`Project not found: ${spec.projectId}`);
+  }
+
+  if (project.userId && project.userId !== user.id && user.role !== "ADMIN") {
+    const error = new Error("Unauthorized to modify this project");
+    (error as unknown as { statusCode: number }).statusCode = 403;
+    throw error;
+  }
+
+  const country = spec.country || project.country || "United Arab Emirates";
+  const countryDefaults = getCountryDefaults(country);
+  const voltage = spec.voltage ?? project.voltage;
+  const frequency = spec.frequency ?? project.frequency;
+  const powerFactor = spec.powerFactor ?? project.powerFactor;
+  const calculationStandard = spec.calculationStandard || project.calculationStandard || "IEC";
+
+  await db.$transaction(
+    async (tx) => {
+      // 1. Update project-level parameters
+      await tx.project.update({
+        where: { id: project.id },
+        data: {
+          name: spec.name ?? project.name,
+          country,
+          voltage,
+          frequency,
+          powerFactor,
+          calculationStandard,
+        },
+      });
+
+      // 2. Map existing templates
+      const templateMap = new Map<string, { id: string; connectedKw: number; phases: number }>();
+      for (const tpl of project.apartmentTemplates) {
+        const totalTplWatts = (tpl.rooms || []).reduce((sum, r) => sum + (r.connectedLoad || 0), 0);
+        templateMap.set(tpl.name, {
+          id: tpl.id,
+          connectedKw: totalTplWatts / 1000,
+          phases: tpl.phases,
+        });
+      }
+
+      // Upsert apartment templates if specified
+      if (spec.apartmentTemplates && spec.apartmentTemplates.length > 0) {
+        for (const tplSpec of spec.apartmentTemplates) {
+          let tplId: string;
+          const existingTpl = project.apartmentTemplates.find((t) => t.name === tplSpec.name);
+
+          if (existingTpl) {
+            tplId = existingTpl.id;
+            await tx.apartmentTemplate.update({
+              where: { id: tplId },
+              data: {
+                phases: tplSpec.phases ?? existingTpl.phases,
+              },
+            });
+            await tx.apartmentRoom.deleteMany({
+              where: { templateId: tplId },
+            });
+          } else {
+            const created = await tx.apartmentTemplate.create({
+              data: {
+                name: tplSpec.name,
+                phases: tplSpec.phases ?? 1,
+                projectId: project.id,
+              },
+            });
+            tplId = created.id;
+          }
+
+          let totalWatts = 0;
+          for (const room of tplSpec.rooms) {
+            const { targetWatts, loadDensity } = calculateRoomParameters(room, countryDefaults, powerFactor);
+            totalWatts += targetWatts;
+
+            await tx.apartmentRoom.create({
+              data: {
+                templateId: tplId,
+                name: room.name,
+                type: room.type || "OTHER",
+                area: room.areaM2,
+                hasAc: room.hasAc ?? true,
+                acBtu: room.acBtu ?? null,
+                loadDensity,
+                connectedLoad: targetWatts,
+              },
+            });
+          }
+
+          templateMap.set(tplSpec.name, {
+            id: tplId,
+            connectedKw: totalWatts / 1000,
+            phases: tplSpec.phases ?? (existingTpl?.phases || 1),
+          });
+        }
+      }
+
+      // 3. Upsert buildings & floor schedules
+      if (spec.buildings && spec.buildings.length > 0) {
+        for (const bldgSpec of spec.buildings) {
+          let bldgId: string;
+          const existingBldg =
+            project.buildings.find((b) => b.name === bldgSpec.name) ||
+            (project.buildings.length === 1 ? project.buildings[0] : null);
+
+          if (existingBldg) {
+            bldgId = existingBldg.id;
+            await tx.building.update({
+              where: { id: bldgId },
+              data: {
+                name: bldgSpec.name,
+                floors: bldgSpec.floors,
+                supplyVoltage: `${voltage}V 3-Phase`,
+              },
+            });
+          } else {
+            const created = await tx.building.create({
+              data: {
+                name: bldgSpec.name,
+                floors: bldgSpec.floors,
+                serviceFloors: 0,
+                apartmentsPerFloor: 1,
+                projectId: project.id,
+                supplyVoltage: `${voltage}V 3-Phase`,
+              },
+            });
+            bldgId = created.id;
+          }
+
+          if (bldgSpec.floorAssignments && bldgSpec.floorAssignments.length > 0) {
+            for (const fa of bldgSpec.floorAssignments) {
+              const tpl = templateMap.get(fa.templateName);
+              if (!tpl) continue;
+
+              const riserLength = fa.riserCableLengthM ?? Math.max(10, fa.floorNumber * 3 + 5);
+
+              let floorDesignId: string;
+              const existingFd = existingBldg?.floorDesigns?.find((f) => f.floorNumber === fa.floorNumber);
+              if (existingFd) {
+                floorDesignId = existingFd.id;
+                await tx.floorDesign.update({
+                  where: { id: existingFd.id },
+                  data: {
+                    hasFloorSubPanels: fa.hasFloorSubPanels ?? existingFd.hasFloorSubPanels,
+                    riserCableLength: riserLength,
+                    riserCableSize: fa.riserCableSize ?? existingFd.riserCableSize,
+                    riserBreakerSize: fa.riserBreakerSize ?? existingFd.riserBreakerSize,
+                  },
+                });
+                await tx.floorItem.deleteMany({
+                  where: { floorDesignId: existingFd.id },
+                });
+              } else {
+                const createdFd = await tx.floorDesign.create({
+                  data: {
+                    buildingId: bldgId,
+                    floorNumber: fa.floorNumber,
+                    hasFloorSubPanels: fa.hasFloorSubPanels ?? false,
+                    riserCableLength: riserLength,
+                    riserCableSize: fa.riserCableSize ?? null,
+                    riserBreakerSize: fa.riserBreakerSize ?? null,
+                  },
+                });
+                floorDesignId = createdFd.id;
+              }
+
+              for (let u = 1; u <= fa.count; u++) {
+                await tx.floorItem.create({
+                  data: {
+                    floorDesignId,
+                    type: "APARTMENT",
+                    name: `${fa.templateName} - ${u}`,
+                    apartmentTemplateId: tpl.id,
+                    calculatedConnectedLoad: tpl.connectedKw,
+                    calculatedMaxDemand: tpl.connectedKw,
+                    calculatedCurrent: 0,
+                    cableLength: 20,
+                  },
+                });
+              }
+            }
+          }
+
+          if (bldgSpec.buildingLoads && bldgSpec.buildingLoads.length > 0) {
+            for (const bload of bldgSpec.buildingLoads) {
+              await attachBuildingLoadToDb(tx, project.id, bldgId, bload, voltage, powerFactor, calculationStandard);
+            }
+          }
+        }
+      }
+
+      // 4. Attach top-level buildingLoads
+      if (spec.buildingLoads && spec.buildingLoads.length > 0) {
+        const targetBldgId = project.buildings[0]?.id;
+        if (targetBldgId) {
+          for (const bload of spec.buildingLoads) {
+            await attachBuildingLoadToDb(tx, project.id, targetBldgId, bload, voltage, powerFactor, calculationStandard);
+          }
+        }
+      }
+
+      // 5. Audit Log
+      await tx.projectAuditLog.create({
+        data: {
+          projectId: project.id,
+          userId: user.id,
+          userName: user.name || user.username || "AI Agent",
+          userRole: user.role || "ENGINEER",
+          action: "UPDATE",
+          entityType: "PROJECT",
+          entityId: project.id,
+          description: `Project "${project.name}" spec updated via MCP update_project_spec`,
+          details: JSON.stringify({
+            via: "MCP Agent",
+            updatedFields: Object.keys(spec),
+          }),
+        },
+      });
+    },
+    { timeout: 20000 }
+  );
+
+  // 6. Recalculate
+  await recalculateProjectBuildings(project.id, { resetSizing: spec.resetSizing ?? true });
+
+  // 7. Result
+  const compliance = await getProjectComplianceSummary(project.id);
+  const updatedProject = await db.project.findUnique({
+    where: { id: project.id },
+    include: { buildings: true },
+  });
+
+  return {
+    success: true,
+    projectId: project.id,
+    projectName: updatedProject?.name || project.name,
+    message: `Project "${updatedProject?.name || project.name}" updated successfully in-place with recalculation.`,
+    buildings: (updatedProject?.buildings || []).map((b) => ({
+      id: b.id,
+      name: b.name,
+      floors: b.floors,
+      deepLink: `/calculator?projectId=${project.id}&buildingId=${b.id}`,
+    })),
+    totals: compliance.totals,
+    complianceSummary: compliance,
+    deepLinks: {
+      overview: `/projects/${project.id}`,
+      calculator: `/calculator?projectId=${project.id}`,
+      sld: `/projects/${project.id}?tab=sld`,
+      pdfReport: `/api/projects/${project.id}/pdf`,
+    },
+  };
 }
 
 export async function getProjectComplianceSummary(projectId: string) {

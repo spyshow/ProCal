@@ -154,7 +154,7 @@ export function ApiKeysModal({ isOpen, onClose }: ApiKeysModalProps) {
     }
   };
 
-  const activeKeyForConfig = createdRawKey || (keys.find((k) => !k.revokedAt)?.keyPrefix.replace(/\.\.\.$/, '') ?? 'YOUR_PROCAL_API_KEY');
+  const activeKeyForConfig = createdRawKey || 'YOUR_PROCAL_API_KEY';
   const origin = typeof window !== 'undefined' ? window.location.origin : 'https://procal.example.com';
 
   const generateConfigSnippet = () => {
@@ -163,11 +163,10 @@ export function ApiKeysModal({ isOpen, onClose }: ApiKeysModalProps) {
         {
           mcpServers: {
             procal: {
-              command: 'npx',
-              args: ['-y', 'tsx', 'scripts/procal-mcp-stdio.ts'],
-              env: {
-                PROCAL_API_KEY: activeKeyForConfig,
-                PROCAL_URL: origin,
+              url: `${origin}/api/mcp`,
+              headers: {
+                Authorization: `Bearer ${activeKeyForConfig}`,
+                'x-api-key': activeKeyForConfig,
               },
             },
           },

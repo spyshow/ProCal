@@ -19,7 +19,7 @@ const { mockDb } = vi.hoisted(() => ({
     },
     building: {
       create: vi.fn(),
-      findMany: vi.fn(),
+      findMany: vi.fn().mockResolvedValue([]),
     },
     floorDesign: {
       create: vi.fn(),
@@ -81,7 +81,7 @@ describe("Zero-Dependency JSON-RPC 2.0 MCP Server", () => {
     });
   });
 
-  it("lists all 8 official MCP tools under 'tools/list'", async () => {
+  it("lists all 9 official MCP tools under 'tools/list'", async () => {
     const req: JsonRpcRequest = {
       jsonrpc: "2.0",
       id: 2,
@@ -90,12 +90,13 @@ describe("Zero-Dependency JSON-RPC 2.0 MCP Server", () => {
 
     const res = await handleMcpRequest(req, testUser, baseUrl);
     const tools = (res.result as { tools: { name: string }[] }).tools;
-    expect(tools).toHaveLength(8);
+    expect(tools).toHaveLength(9);
 
     const names = tools.map((t) => t.name);
     expect(names).toContain("get_engineering_catalog");
     expect(names).toContain("validate_project_spec");
     expect(names).toContain("create_project_from_spec");
+    expect(names).toContain("update_project_spec");
     expect(names).toContain("update_project_loads");
     expect(names).toContain("check_project_compliance");
     expect(names).toContain("get_project_bom");
@@ -123,6 +124,7 @@ describe("Zero-Dependency JSON-RPC 2.0 MCP Server", () => {
     expect(text).toContain("get_engineering_catalog");
     expect(text).toContain("validate_project_spec");
     expect(text).toContain("create_project_from_spec");
+    expect(text).toContain("update_project_spec");
   });
 
   it("executes 'get_engineering_catalog' tool", async () => {
@@ -297,6 +299,43 @@ describe("Zero-Dependency JSON-RPC 2.0 MCP Server", () => {
     const data = JSON.parse(content);
 
     expect(data.base64Pdf).toBe(Buffer.from("mock-pdf-bytes").toString("base64"));
+  });
+
+  it("executes 'update_project_spec' tool and updates project in-place", async () => {
+    mockDb.project.findUnique.mockResolvedValue({
+      id: "proj-update-1",
+      userId: testUser.id,
+      name: "Sunrise Tower",
+      voltage: 400,
+      frequency: 50,
+      powerFactor: 0.85,
+      calculationStandard: "IEC",
+      buildings: [],
+      apartmentTemplates: [],
+    });
+
+    const req: JsonRpcRequest = {
+      jsonrpc: "2.0",
+      id: 10,
+      method: "tools/call",
+      params: {
+        name: "update_project_spec",
+        arguments: {
+          projectId: "proj-update-1",
+          voltage: 380,
+          resetSizing: false,
+        },
+      },
+    };
+
+    const res = await handleMcpRequest(req, testUser, baseUrl);
+    expect(res.error).toBeUndefined();
+    const content = (res.result as { content: { text: string }[] }).content[0].text;
+    const data = JSON.parse(content);
+
+    expect(data.success).toBe(true);
+    expect(data.projectId).toBe("proj-update-1");
+    expect(data.message).toContain("Sunrise Tower");
   });
 
   it("returns error -32601 on unknown RPC method", async () => {

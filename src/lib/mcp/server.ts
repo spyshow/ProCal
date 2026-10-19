@@ -9,6 +9,7 @@ import { validateProjectSpec } from "@/lib/agent/validate-spec";
 import {
   createProjectFromSpec,
   updateProjectLoads,
+  updateProjectSpec,
   getProjectComplianceSummary,
   getProjectBOM,
 } from "@/lib/agent/build-project";
@@ -85,7 +86,7 @@ const MCP_TOOLS = [
   {
     name: "create_project_from_spec",
     description:
-      "Atomically creates a project in ProCal from a confirmed drawing specification, sizing apartment loads, branch circuits, MDB incomers, and mechanical equipment under IEC/NEMA standards. Requires isConfirmedByUser: true and deducts 1 credit for non-admin users.",
+      "Atomically creates a new project in ProCal from a confirmed drawing specification, sizing apartment loads, branch circuits, MDB incomers, and mechanical equipment under IEC/NEMA standards. Requires isConfirmedByUser: true and deducts 1 credit for non-admin users. CRITICAL: Use ONLY to create a brand-new project. If a project has already been created (you have a projectId), NEVER call this tool to make changes, fixes, or adjustments — ALWAYS call 'update_project_spec' with the existing projectId instead.",
     inputSchema: {
       type: "object",
       required: ["name", "apartmentTemplates", "buildings", "isConfirmedByUser"],
@@ -100,6 +101,28 @@ const MCP_TOOLS = [
         buildings: { type: "array" },
         isConfirmedByUser: { type: "boolean", description: "Must be true" },
         idempotencyKey: { type: "string", description: "Optional deduplication key" },
+      },
+    },
+  },
+  {
+    name: "update_project_spec",
+    description:
+      "Updates an existing project in-place when an engineer requests changes or corrections. Modifies apartment templates, rooms, floor counts, floor item assignments, building mechanical loads, or electrical parameters, and triggers automatic complex-wide recalculation across all buildings. Preserves the projectId and does NOT charge additional creation credits.",
+    inputSchema: {
+      type: "object",
+      required: ["projectId"],
+      properties: {
+        projectId: { type: "string", description: "The ID of the existing project to update" },
+        name: { type: "string", description: "Updated project name" },
+        country: { type: "string", description: "Country for regional electrical codes" },
+        voltage: { type: "number", description: "3-phase supply voltage (e.g. 400, 380, 480)" },
+        frequency: { type: "number", description: "Grid frequency (50 or 60 Hz)" },
+        powerFactor: { type: "number", description: "Power factor (default 0.85)" },
+        calculationStandard: { type: "string", enum: ["IEC", "NEMA"], description: "Calculation standard" },
+        apartmentTemplates: { type: "array", description: "Apartment load templates and room schedules to create or update (matched by name)" },
+        buildings: { type: "array", description: "Buildings, floor counts, and assignments to update (matched by name)" },
+        buildingLoads: { type: "array", description: "Common building mechanical loads (elevators, chillers, pumps) to add or update" },
+        resetSizing: { type: "boolean", description: "Whether to re-run automated cable and breaker sizing across all buildings (default: true)" },
       },
     },
   },
@@ -267,7 +290,8 @@ export async function handleMcpRequest(
                     `2. Call 'get_engineering_catalog' to fetch country voltage and code conventions.\n` +
                     `3. Call 'validate_project_spec' with the extracted specification. If any parameters are assumed (e.g. standard densities, 400V 50Hz supply), present the structured confirmation table to the engineer.\n` +
                     `4. Once the engineer confirms, call 'create_project_from_spec' with isConfirmedByUser: true.\n` +
-                    `5. Call 'check_project_compliance' and 'get_project_sld' to present the verified Single Line Diagram and provide the engineer with the signed PDF report link.`,
+                    `5. Call 'check_project_compliance' and 'get_project_sld' to present the verified Single Line Diagram and provide the engineer with the signed PDF report link.\n` +
+                    `6. If the engineer requests modifications, additions, or corrections to any values afterwards (e.g. change room area, fix apartment count, adjust voltage, or add/modify mechanical loads), NEVER call 'create_project_from_spec' again! ALWAYS call 'update_project_spec' with the existing projectId to update the project in-place without duplicating loads or charging extra credits.`,
                 },
               },
             ],
@@ -359,6 +383,11 @@ async function executeTool(
     case "create_project_from_spec": {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       return await createProjectFromSpec(user, args as any);
+    }
+
+    case "update_project_spec": {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      return await updateProjectSpec(user, args as any);
     }
 
     case "update_project_loads": {

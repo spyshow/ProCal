@@ -37,7 +37,7 @@ interface ApiKeysModalProps {
   onClose: () => void;
 }
 
-type AgentFormat = 'antigravity' | 'codex' | 'hermes' | 'claude' | 'cursor' | 'windsurf' | 'http';
+type AgentFormat = 'antigravity' | 'codex' | 'hermes' | 'claude' | 'cursor' | 'windsurf' | 'gemini' | 'http';
 
 const AGENT_CONFIGS: { id: AgentFormat; label: string }[] = [
   { id: 'antigravity', label: 'Antigravity' },
@@ -46,6 +46,7 @@ const AGENT_CONFIGS: { id: AgentFormat; label: string }[] = [
   { id: 'claude', label: 'Claude Desktop' },
   { id: 'cursor', label: 'Cursor' },
   { id: 'windsurf', label: 'Windsurf' },
+  { id: 'gemini', label: 'Gemini Apps' },
   { id: 'http', label: 'cURL / HTTP' },
 ];
 
@@ -239,6 +240,10 @@ export function ApiKeysModal({ isOpen, onClose }: ApiKeysModalProps) {
       );
     }
 
+    if (configFormat === 'gemini') {
+      return `MCP Server URL:\n${origin}/api/mcp\n\nHeader Name:\nAuthorization\n\nHeader Value:\nBearer ${activeKeyForConfig}\n\nAPI Key:\n${activeKeyForConfig}`;
+    }
+
     return `curl -X POST "${origin}/api/mcp" \\\n  -H "Authorization: Bearer ${activeKeyForConfig}" \\\n  -H "Content-Type: application/json" \\\n  -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}'`;
   };
 
@@ -256,6 +261,8 @@ export function ApiKeysModal({ isOpen, onClose }: ApiKeysModalProps) {
         return 'Paste into your project’s .cursor/mcp.json file for direct Streamable HTTP connection.';
       case 'windsurf':
         return 'Paste into %USERPROFILE%\\.codeium\\windsurf\\mcp_config.json (or ~/.codeium/windsurf/mcp_config.json on macOS/Linux).';
+      case 'gemini':
+        return 'In gemini.google.com -> Settings -> Connected Apps -> Add a custom app. Enter the MCP Server URL and credentials above.';
       case 'http':
         return 'Direct Streamable HTTP / SSE endpoint for custom MCP clients or terminal testing.';
     }

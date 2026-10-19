@@ -446,7 +446,7 @@ export function ApiKeysModal({ isOpen, onClose }: ApiKeysModalProps) {
               className="absolute top-2 right-2 bg-[var(--card-bg)]/90 hover:bg-[var(--card-bg-subtle)] text-[var(--foreground-color)] border-[var(--border-color)] h-7 px-2 text-[10px] shadow-xs cursor-pointer"
             >
               {copiedConfig ? <Check className="w-3.5 h-3.5 text-emerald-500 mr-1" /> : <Copy className="w-3.5 h-3.5 mr-1" />}
-              {copiedConfig ? 'Copied' : 'Copy Config'}
+              {copiedConfig ? 'Copied' : configFormat === 'gemini' ? 'Copy URL' : 'Copy Config'}
             </Button>
           </div>
           <p className="text-[11px] text-[var(--table-header-color,#9ca3af)] leading-relaxed">

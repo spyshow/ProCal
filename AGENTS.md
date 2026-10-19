@@ -39,4 +39,5 @@ Shared by Codex, Antigravity and Claude Code. Every line here should change what
 
 ## Lessons
 <!-- Newest on top. Delete what no longer applies. -->
+- When interacting with or modifying projects, never call Supabase or database tools directly. Always route all project creation, updates, and inspections exclusively through the ProCal MCP tools (procal); only the ProCal backend connects to Supabase.
 - When matching or formatting circuit breaker catalog models, preserve authentic manufacturer model designations (e.g. ABB Emax 2, Schneider Masterpact) rather than mutating model strings with target load ratings.

@@ -10,6 +10,8 @@ import {
   createProjectFromSpec,
   updateProjectLoads,
   updateProjectSpec,
+  updateProjectCables,
+  checkProjectSelectivity,
   getProjectComplianceSummary,
   getProjectBOM,
 } from "@/lib/agent/build-project";
@@ -119,6 +121,7 @@ const MCP_TOOLS = [
         frequency: { type: "number", description: "Grid frequency (50 or 60 Hz)" },
         powerFactor: { type: "number", description: "Power factor (default 0.85)" },
         calculationStandard: { type: "string", enum: ["IEC", "NEMA"], description: "Calculation standard" },
+        preferredManufacturer: { type: "string", description: "Preferred circuit breaker manufacturer (e.g. ABB, Schneider, Siemens, Eaton)" },
         apartmentTemplates: { type: "array", description: "Apartment load templates and room schedules to create or update (matched by name)" },
         buildings: { type: "array", description: "Buildings, floor counts, and assignments to update (matched by name)" },
         buildingLoads: { type: "array", description: "Common building mechanical loads (elevators, chillers, pumps) to add or update" },
@@ -144,12 +147,68 @@ const MCP_TOOLS = [
   {
     name: "check_project_compliance",
     description:
-      "Instant electrical code audit of a ProCal project. Verifies the fundamental protection chain (Ib <= Ir <= In <= Iz), phase current unbalance %, neutral conductor loading, and voltage drop limits.",
+      "Instant electrical code audit of a ProCal project. Verifies the fundamental protection chain (Ib <= Ir <= In <= Iz), phase current unbalance %, neutral conductor loading, voltage drop limits, and breaker selectivity coordination.",
     inputSchema: {
       type: "object",
       required: ["projectId"],
       properties: {
         projectId: { type: "string", description: "Project ID to audit" },
+      },
+    },
+  },
+  {
+    name: "check_project_selectivity",
+    description:
+      "Evaluates Time-Current Characteristic (TCC) curve discrimination and manufacturer tested selectivity tables (IEC 60947-2 Annex A, ABB DOC / Schneider ECODIAL) between the main incomer and all downstream panel feeders. Automatically adjusts trip unit settings (Ir, Isd, tsd) to eliminate overlaps and reports any remaining coordination limits.",
+    inputSchema: {
+      type: "object",
+      required: ["projectId"],
+      properties: {
+        projectId: { type: "string", description: "Project ID to check selectivity for" },
+      },
+    },
+  },
+  {
+    name: "update_project_cables",
+    description:
+      "Updates project-wide cable defaults (conductor material, insulation type, installation method, ambient temperature, grouping count) and sets exact circuit lengths in meters for incomers, risers, apartment subfeeders, and mechanical equipment loads, automatically recalculating voltage drops and re-sizing cables across all buildings.",
+    inputSchema: {
+      type: "object",
+      required: ["projectId"],
+      properties: {
+        projectId: { type: "string", description: "Project ID" },
+        defaults: {
+          type: "object",
+          description: "Project-wide cable default parameters",
+          properties: {
+            cableMaterial: { type: "string", enum: ["copper", "aluminum"] },
+            cableInsulation: { type: "string", enum: ["XLPE", "PVC"] },
+            installationMethod: { type: "string", description: "IEC 60364-5-52 installation method (e.g. C, E, F, B1, B2)" },
+            ambientTemp: { type: "number", description: "Ambient temperature in °C" },
+            groupingCount: { type: "number", description: "Number of grouped circuits" },
+          },
+        },
+        circuitLengths: {
+          type: "array",
+          description: "List of circuit lengths to set or override",
+          items: {
+            type: "object",
+            required: ["type", "length"],
+            properties: {
+              type: { type: "string", enum: ["incomer", "riser", "floorItem", "buildingLoad"] },
+              id: { type: "string", description: "Optional UUID of the specific circuit" },
+              buildingName: { type: "string", description: "Optional building name to match" },
+              floorNumber: { type: "number", description: "Optional floor number for riser or apartment" },
+              circuitName: { type: "string", description: "Optional name of the apartment or mechanical load" },
+              length: { type: "number", description: "Cable run length in meters" },
+              cableMaterial: { type: "string", enum: ["copper", "aluminum"] },
+              cableInsulation: { type: "string", enum: ["XLPE", "PVC"] },
+              installationMethod: { type: "string" },
+              ambientTemp: { type: "number" },
+              groupingCount: { type: "number" },
+            },
+          },
+        },
       },
     },
   },
@@ -306,13 +365,35 @@ export async function handleMcpRequest(
                 content: {
                   type: "text",
                   text:
-                    `You are an expert electrical engineer connected to ProCal via MCP. Your goal is to process the drawing for ${projectName}:\n\n` +
-                    `1. Visually inspect the drawing schedules: extract room types, areas (m²), air conditioning requirements, apartment counts, and building mechanical loads (elevators, fire pumps, chillers).\n` +
-                    `2. Call 'get_engineering_catalog' to fetch country voltage and code conventions.\n` +
-                    `3. Call 'validate_project_spec' with the extracted specification. If any parameters are assumed (e.g. standard densities, 400V 50Hz supply), present the structured confirmation table to the engineer.\n` +
-                    `4. Once the engineer confirms, call 'create_project_from_spec' with isConfirmedByUser: true.\n` +
-                    `5. Call 'check_project_compliance' and 'get_project_sld' to present the verified Single Line Diagram and provide the engineer with the signed PDF report link.\n` +
-                    `6. If the engineer requests modifications, additions, or corrections to any values afterwards (e.g. change room area, fix apartment count, adjust voltage, or add/modify mechanical loads), NEVER call 'create_project_from_spec' again! ALWAYS call 'update_project_spec' with the existing projectId to update the project in-place without duplicating loads or charging extra credits.`,
+                    `You are an expert electrical engineer connected to ProCal via MCP. When creating or configuring a project for ${projectName}, you MUST strictly follow this interactive 5-stage conversational workflow:\n\n` +
+                    `### STAGE 1: COUNTRY & DEMAND DEFAULTS (CONFIRMATION GATE)\n` +
+                    `1. Ask the user for the project country (or detect from drawing if explicit).\n` +
+                    `2. Call 'get_engineering_catalog' for that country to retrieve regional electrical parameters (Voltage, Frequency, Power Factor, IEC/NEMA standard, Room VA/m² densities, and AC sizing rules) and call 'validate_project_spec' to pre-flight validate the extracted specification.\n` +
+                    `3. Present a clear, concise Markdown table of these regional defaults and demand figures to the user.\n` +
+                    `4. CRITICAL: STOP AND PAUSE. Ask the user to confirm the defaults or specify any modifications before creating the project.\n\n` +
+                    `### STAGE 2: PROJECT ARCHITECTURE & CREATION\n` +
+                    `1. Once the user confirms, call 'create_project_from_spec' with isConfirmedByUser: true.\n` +
+                    `2. Build the project structure: configure buildings, apartment templates (with calculated room loads), typical floor assignments, and common mechanical equipment (elevators, fire pumps, chillers, HVAC).\n\n` +
+                    `### STAGE 3: BREAKER MANUFACTURER & SELECTIVITY\n` +
+                    `1. Ask the user for their preferred circuit breaker manufacturer (e.g. Schneider Electric, ABB, Siemens, Eaton, Legrand).\n` +
+                    `2. Call 'update_project_spec' with preferredManufacturer.\n` +
+                    `3. Call 'check_project_selectivity' (or 'check_project_compliance'). ProCal's protection coordination engine will automatically adjust trip unit settings (Ir, Isd, tsd) to eliminate curve overlaps wherever feasible.\n` +
+                    `4. Only alert the user if physical frame sizing or fault levels prevent full selectivity, explaining the exact restriction and recommendation.\n\n` +
+                    `### STAGE 4: CABLE DEFAULTS & CIRCUIT LENGTHS (INPUT GATE)\n` +
+                    `1. Present standard cable defaults (Conductor: Copper, Insulation: XLPE, Ambient Temp: regional, Installation Method: C) alongside an estimated length table for all circuits (Main Incomer, Floor Risers, Apartment subfeeders, Mechanical equipment).\n` +
+                    `2. Prompt the user to confirm all defaults with a single word or supply custom overrides/exact meter lengths.\n` +
+                    `3. Call 'update_project_cables' with the confirmed cable parameters and circuit lengths. ProCal will automatically re-size all cables and recalculate voltage drops.\n\n` +
+                    `### STAGE 5: GLOBAL RECALCULATE & DELIVERABLES\n` +
+                    `1. Trigger complex-wide recalculation, call 'check_project_compliance', 'get_project_bom', 'get_project_sld', and 'get_project_report'.\n` +
+                    `2. Return the complete executive engineering package:\n` +
+                    `   - Electrical Load & Demand Summary (Total Connected kVA/kW, Demand kW/kVA, Power Factor, Main Incomer Breaker & Cable size).\n` +
+                    `   - Protection & Compliance Status (verifying Ib <= Ir <= In <= Iz, phase unbalance %, neutral sizing, voltage drop limits).\n` +
+                    `   - Selectivity & Coordination Status (confirming discrimination across levels).\n` +
+                    `   - Switchgear and Cable Bill of Materials (BOM) takeoff table.\n` +
+                    `   - Single Line Diagram (SLD) preview and deep links.\n` +
+                    `   - Signed PDF Report download link.\n\n` +
+                    `### IN-PLACE MODIFICATIONS RULE\n` +
+                    `If the user requests changes, additions, or corrections at any time after creation, NEVER call 'create_project_from_spec' again! ALWAYS call 'update_project_spec', 'update_project_cables', or 'update_project_loads' using the existing projectId to update in-place without duplicating records or consuming extra credits.`,
                 },
               },
             ],
@@ -433,6 +514,19 @@ async function executeTool(
       const projectId = args.projectId as string;
       if (!projectId) throw new Error("projectId is required");
       return await getProjectComplianceSummary(projectId);
+    }
+
+    case "check_project_selectivity": {
+      requireAuth(user);
+      const projectId = args.projectId as string;
+      if (!projectId) throw new Error("projectId is required");
+      return await checkProjectSelectivity(projectId);
+    }
+
+    case "update_project_cables": {
+      const authUser = requireAuth(user);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      return await updateProjectCables(authUser, args as any);
     }
 
     case "get_project_bom": {

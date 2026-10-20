@@ -3,12 +3,16 @@ import {
   ProjectDrawingSpecSchema,
   UpdateProjectLoadsSpecSchema,
   UpdateProjectSpecSchema,
+  UpdateProjectCablesSpecSchema,
   type ProjectDrawingSpec,
   type ProjectDrawingSpecInput,
   type UpdateProjectLoadsSpec,
   type UpdateProjectLoadsSpecInput,
   type UpdateProjectSpec,
   type UpdateProjectSpecInput,
+  type UpdateProjectCablesSpec,
+  type UpdateProjectCablesSpecInput,
+  type CableDefaultsSpec,
   type RoomSpec,
   type RoomSpecInput,
   type CommonBuildingLoadSpec,
@@ -22,7 +26,8 @@ import { codeOf, nextBreakerRating } from "@/lib/calculations/codes";
 import { ENGINE_VERSION } from "@/lib/calculations/version";
 import { recalculateProjectBuildings } from "@/lib/calculations/recalculate-project";
 import { resolveBreakerRating } from "@/lib/sld/generator";
-import type { FloorItem, BuildingLoad, Project as AppProject } from "@/types";
+import { computeFeeders, createFindBreaker, type EquipmentItem } from "@/lib/calculations/feeders";
+import type { Building, FloorItem, BuildingLoad, Project as AppProject } from "@/types";
 
 export interface ProjectCreatedResult {
   success: boolean;
@@ -215,6 +220,7 @@ export async function createProjectFromSpec(
           frequency,
           powerFactor,
           calculationStandard,
+          preferredManufacturer: spec.preferredManufacturer || "MIXED",
           engineVersion: ENGINE_VERSION,
         },
       });
@@ -540,6 +546,7 @@ export async function updateProjectSpec(
           frequency,
           powerFactor,
           calculationStandard,
+          preferredManufacturer: spec.preferredManufacturer ?? project.preferredManufacturer,
         },
       });
 
@@ -872,6 +879,17 @@ export async function getProjectComplianceSummary(projectId: string) {
     );
   }
 
+  // Protection Coordination & Selectivity Analysis (IEC 60947-2 / IEC 60364-4-43)
+  let selectivityResult: Awaited<ReturnType<typeof checkProjectSelectivity>> | null = null;
+  try {
+    selectivityResult = await checkProjectSelectivity(project);
+    for (const alert of selectivityResult.alerts) {
+      warnings.push(`[Selectivity Alert] ${alert}`);
+    }
+  } catch (err) {
+    console.warn("Selectivity evaluation failed in compliance check:", err);
+  }
+
   return {
     projectId: project.id,
     projectName: project.name,
@@ -896,6 +914,544 @@ export async function getProjectComplianceSummary(projectId: string) {
       unbalancePct: parseFloat(balance.unbalancePct.toFixed(1)),
       unbalanceLimitPct: balance.unbalanceLimitPct,
     },
+    selectivity: selectivityResult
+      ? {
+          preferredManufacturer: selectivityResult.preferredManufacturer,
+          status: selectivityResult.overallStatus,
+          automaticAdjustments: selectivityResult.automaticAdjustments,
+          alerts: selectivityResult.alerts,
+        }
+      : {
+          preferredManufacturer: project.preferredManufacturer || "MIXED",
+          status: "FULL" as const,
+          automaticAdjustments: [],
+          alerts: [],
+        },
+  };
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export async function checkProjectSelectivity(projectIdOrProject: string | any) {
+  const project =
+    typeof projectIdOrProject === "string"
+      ? await db.project.findUnique({
+          where: { id: projectIdOrProject },
+          include: {
+            buildings: {
+              include: {
+                floorDesigns: {
+                  include: {
+                    items: {
+                      include: {
+                        apartmentTemplate: { include: { rooms: true } },
+                        loadLibraryItem: true,
+                      },
+                    },
+                  },
+                },
+                buildingLoads: {
+                  include: {
+                    loadLibraryItem: true,
+                  },
+                },
+              },
+            },
+          },
+        })
+      : projectIdOrProject;
+
+  if (!project) {
+    throw new Error(`Project not found: ${projectIdOrProject}`);
+  }
+
+  const catalog = (await db.equipmentCatalog?.findMany?.().catch(() => [])) ?? [];
+  const findBreaker = createFindBreaker(catalog, project as unknown as AppProject, project.preferredManufacturer);
+
+  const buildingsSelectivity = [];
+  const overallAdjustments: string[] = [];
+  const overallAlerts: string[] = [];
+
+  for (const bldg of project.buildings) {
+    try {
+      const safeFloorDesigns = (bldg.floorDesigns || []).map((fd) => ({
+        ...fd,
+        items: (fd.items || []).map((item) => {
+          const is3P = item.apartmentTemplate?.phases === 3;
+          const pf = project.powerFactor || 0.85;
+          const fallbackKw = item.calculatedCurrent
+            ? parseFloat(((item.calculatedCurrent * (is3P ? Math.sqrt(3) * (project.voltage / 1000) : (project.voltage / Math.sqrt(3) / 1000)) * pf)).toFixed(2))
+            : 5;
+          return {
+            ...item,
+            type: item.type || "APARTMENT",
+            calculatedConnectedLoad: item.calculatedConnectedLoad ?? fallbackKw,
+            calculatedMaxDemand: item.calculatedMaxDemand ?? fallbackKw,
+          };
+        }),
+      }));
+      const safeBuildingLoads = (bldg.buildingLoads || []).map((bl) => ({
+        ...bl,
+        loadLibraryItem: bl.loadLibraryItem
+          ? {
+              ...bl.loadLibraryItem,
+              voltage:
+                bl.loadLibraryItem.voltage ||
+                (bl.loadLibraryItem.phase === 3 ? project.voltage || 400 : 230),
+              powerFactor: bl.loadLibraryItem.powerFactor || project.powerFactor || 0.85,
+            }
+          : bl.loadLibraryItem,
+      }));
+      const safeBldg = {
+        ...bldg,
+        floorDesigns: safeFloorDesigns,
+        buildingLoads: safeBuildingLoads,
+      };
+
+      const feederResult = computeFeeders(
+        safeBldg as unknown as Building,
+        project as unknown as AppProject,
+        findBreaker
+      );
+      const mainSettings = feederResult.mainIncomerSettings;
+      const incomerBreakerId = `${project.id}-main-incomer-${bldg.id}`;
+
+      const existingIncomerSetting = await db.breakerSettings?.findUnique?.({
+        where: { breakerId: incomerBreakerId },
+      }).catch(() => null);
+
+      let effectiveIncomerIr = existingIncomerSetting?.ir ?? mainSettings.ir;
+      const feederChecks = [];
+
+      for (const f of feederResult.mdbFeeders) {
+        const dsIr = f.current > 0 ? f.current : f.breakerSize;
+
+        // Auto-tuning check for current grading (Hermes Protection Chain & IEC 60947-2)
+        if (effectiveIncomerIr < dsIr * 1.59) {
+          const requiredIr = Math.ceil(dsIr * 1.6);
+          if (requiredIr <= mainSettings.inRating) {
+            effectiveIncomerIr = Math.max(effectiveIncomerIr, requiredIr);
+            overallAdjustments.push(
+              `Adjusted ${bldg.name} Main Incomer Ir from ${mainSettings.ir}A to ${effectiveIncomerIr}A (tsd=0.3s) for ${f.name} (Ir=${dsIr.toFixed(1)}A)`
+            );
+
+            if (db.breakerSettings?.upsert) {
+              await db.breakerSettings
+                .upsert({
+                  where: { breakerId: incomerBreakerId },
+                  create: {
+                    breakerId: incomerBreakerId,
+                    manufacturer: mainSettings.manufacturer || project.preferredManufacturer || "ABB",
+                    model: mainSettings.model || `Main ${mainSettings.category} ${mainSettings.inRating}A`,
+                    frameSize: `${mainSettings.inRating}A`,
+                    ir: effectiveIncomerIr,
+                    tr: mainSettings.tr || 12,
+                    isd: mainSettings.isd,
+                    tsd: 0.3,
+                    ii: mainSettings.ii,
+                  },
+                  update: {
+                    ir: effectiveIncomerIr,
+                    tsd: 0.3,
+                  },
+                })
+                .catch(() => null);
+            }
+          } else {
+            overallAlerts.push(
+              `${bldg.name}: Main Incomer frame (${mainSettings.inRating}A) cannot achieve 1.6× grading for ${f.name} (${dsIr.toFixed(1)}A). Recommend frame upgrade to ≥ ${requiredIr}A.`
+            );
+          }
+        }
+
+        feederChecks.push({
+          feederName: f.name,
+          category: f.category,
+          downstreamRatingIn: f.breakerSize,
+          downstreamIr: parseFloat(dsIr.toFixed(1)),
+          upstreamIr: parseFloat(effectiveIncomerIr.toFixed(1)),
+          selectivityStatus: f.selectivityStatus,
+          selectivityLimitKa: f.selectivityLimitKa,
+          reason: f.selectivityReason,
+          suggestedAlternative: f.suggestedAlternative,
+        });
+      }
+
+      buildingsSelectivity.push({
+        buildingId: bldg.id,
+        buildingName: bldg.name,
+        mainIncomer: {
+          manufacturer: mainSettings.manufacturer,
+          model: mainSettings.model,
+          frameIn: mainSettings.inRating,
+          overloadSettingIr: effectiveIncomerIr,
+        },
+        feeders: feederChecks,
+      });
+    } catch (err) {
+      console.warn("Selectivity check skipped for building:", bldg.name, err);
+    }
+  }
+
+  const isFull = overallAlerts.length === 0;
+
+  return {
+    projectId: project.id,
+    preferredManufacturer: project.preferredManufacturer,
+    overallStatus: isFull ? ("FULL" as const) : ("PARTIAL" as const),
+    automaticAdjustments: overallAdjustments,
+    alerts: overallAlerts,
+    buildings: buildingsSelectivity,
+  };
+}
+
+export async function updateProjectCables(
+  user: { id: string; role?: string; name?: string; username?: string },
+  rawSpec: UpdateProjectCablesSpec | UpdateProjectCablesSpecInput
+) {
+  const spec = UpdateProjectCablesSpecSchema.parse(rawSpec);
+  const project = await db.project.findUnique({
+    where: { id: spec.projectId },
+    include: {
+      buildings: {
+        include: {
+          floorDesigns: {
+            include: { items: { include: { loadLibraryItem: true, apartmentTemplate: true } } },
+          },
+          buildingLoads: { include: { loadLibraryItem: true } },
+        },
+      },
+    },
+  });
+
+  if (!project) {
+    throw new Error(`Project not found: ${spec.projectId}`);
+  }
+
+  if (project.userId && project.userId !== user.id && user.role !== "ADMIN") {
+    const error = new Error("Unauthorized to modify this project");
+    (error as unknown as { statusCode: number }).statusCode = 403;
+    throw error;
+  }
+
+  const code = codeOf(project.calculationStandard);
+  const voltage = project.voltage;
+  const powerFactor = project.powerFactor;
+
+  let updatedCircuitsCount = 0;
+  const updatedCircuitsList: Array<{
+    name: string;
+    type: string;
+    lengthM: number;
+    cableSize?: string | null;
+    voltageDropPct?: number | null;
+    material: string;
+    insulation: string;
+    installMethod: string;
+  }> = [];
+
+  await db.$transaction(async (tx) => {
+    // 1. If defaults provided, apply project-wide
+    if (spec.defaults) {
+      await tx.project.update({
+        where: { id: project.id },
+        data: {
+          ambientTemp: spec.defaults.ambientTemp,
+          groupingCount: spec.defaults.groupingCount,
+        },
+      });
+
+      for (const bldg of project.buildings) {
+        await tx.building.update({
+          where: { id: bldg.id },
+          data: {
+            incomerCableMaterial: spec.defaults.cableMaterial,
+            incomerCableInsulation: spec.defaults.cableInsulation,
+            incomerInstallMethod: spec.defaults.installationMethod,
+            incomerAmbientTemp: spec.defaults.ambientTemp,
+            incomerGroupingCount: spec.defaults.groupingCount,
+          },
+        });
+
+        for (const fd of bldg.floorDesigns) {
+          await tx.floorDesign.update({
+            where: { id: fd.id },
+            data: {
+              riserCableMaterial: spec.defaults.cableMaterial,
+              riserCableInsulation: spec.defaults.cableInsulation,
+              riserInstallMethod: spec.defaults.installationMethod,
+              riserAmbientTemp: spec.defaults.ambientTemp,
+              riserGroupingCount: spec.defaults.groupingCount,
+            },
+          });
+
+          for (const item of fd.items) {
+            await tx.floorItem.update({
+              where: { id: item.id },
+              data: {
+                cableMaterial: spec.defaults.cableMaterial,
+                cableInsulation: spec.defaults.cableInsulation,
+                installMethod: spec.defaults.installationMethod,
+                ambientTemp: spec.defaults.ambientTemp,
+                groupingCount: spec.defaults.groupingCount,
+              },
+            });
+          }
+        }
+
+        for (const bl of bldg.buildingLoads) {
+          await tx.buildingLoad.update({
+            where: { id: bl.id },
+            data: {
+              cableMaterial: spec.defaults.cableMaterial,
+              cableInsulation: spec.defaults.cableInsulation,
+              installMethod: spec.defaults.installationMethod,
+              ambientTemp: spec.defaults.ambientTemp,
+              groupingCount: spec.defaults.groupingCount,
+            },
+          });
+        }
+      }
+    }
+
+    // 2. Apply circuit lengths and individual overrides
+    for (const c of spec.circuitLengths) {
+      if (c.type === "incomer") {
+        const targetBldg = c.id
+          ? project.buildings.find((b) => b.id === c.id)
+          : c.buildingName
+          ? project.buildings.find((b) => b.name.toLowerCase() === c.buildingName!.toLowerCase())
+          : project.buildings[0];
+
+        if (targetBldg) {
+          await tx.building.update({
+            where: { id: targetBldg.id },
+            data: {
+              incomerCableLength: c.length,
+              ...(c.cableMaterial ? { incomerCableMaterial: c.cableMaterial } : {}),
+              ...(c.cableInsulation ? { incomerCableInsulation: c.cableInsulation } : {}),
+              ...(c.installationMethod ? { incomerInstallMethod: c.installationMethod } : {}),
+              ...(c.ambientTemp != null ? { incomerAmbientTemp: c.ambientTemp } : {}),
+              ...(c.groupingCount != null ? { incomerGroupingCount: c.groupingCount } : {}),
+            },
+          });
+          updatedCircuitsCount++;
+          updatedCircuitsList.push({
+            name: `${targetBldg.name} Main Incomer`,
+            type: "incomer",
+            lengthM: c.length,
+            material: c.cableMaterial || spec.defaults?.cableMaterial || targetBldg.incomerCableMaterial || "copper",
+            insulation: c.cableInsulation || spec.defaults?.cableInsulation || targetBldg.incomerCableInsulation || "XLPE",
+            installMethod: c.installationMethod || spec.defaults?.installationMethod || targetBldg.incomerInstallMethod || "C",
+          });
+        }
+      } else if (c.type === "riser") {
+        let targetFd: (typeof project.buildings)[0]["floorDesigns"][0] | undefined;
+        let bldgName = "";
+        for (const bldg of project.buildings) {
+          if (c.id) {
+            targetFd = bldg.floorDesigns.find((f) => f.id === c.id);
+          } else if (
+            (!c.buildingName || bldg.name.toLowerCase() === c.buildingName.toLowerCase()) &&
+            c.floorNumber != null
+          ) {
+            targetFd = bldg.floorDesigns.find((f) => f.floorNumber === c.floorNumber);
+          }
+          if (targetFd) {
+            bldgName = bldg.name;
+            break;
+          }
+        }
+
+        if (targetFd) {
+          await tx.floorDesign.update({
+            where: { id: targetFd.id },
+            data: {
+              riserCableLength: c.length,
+              ...(c.cableMaterial ? { riserCableMaterial: c.cableMaterial } : {}),
+              ...(c.cableInsulation ? { riserCableInsulation: c.cableInsulation } : {}),
+              ...(c.installationMethod ? { riserInstallMethod: c.installationMethod } : {}),
+              ...(c.ambientTemp != null ? { riserAmbientTemp: c.ambientTemp } : {}),
+              ...(c.groupingCount != null ? { riserGroupingCount: c.groupingCount } : {}),
+            },
+          });
+          updatedCircuitsCount++;
+          updatedCircuitsList.push({
+            name: `${bldgName} Floor ${targetFd.floorNumber} Riser`,
+            type: "riser",
+            lengthM: c.length,
+            material: c.cableMaterial || spec.defaults?.cableMaterial || targetFd.riserCableMaterial || "copper",
+            insulation: c.cableInsulation || spec.defaults?.cableInsulation || targetFd.riserCableInsulation || "XLPE",
+            installMethod: c.installationMethod || spec.defaults?.installationMethod || targetFd.riserInstallMethod || "C",
+          });
+        }
+      } else if (c.type === "floorItem") {
+        let targetItem: (typeof project.buildings)[0]["floorDesigns"][0]["items"][0] | undefined;
+        for (const bldg of project.buildings) {
+          if (c.buildingName && bldg.name.toLowerCase() !== c.buildingName.toLowerCase()) continue;
+          for (const fd of bldg.floorDesigns) {
+            if (c.floorNumber != null && fd.floorNumber !== c.floorNumber) continue;
+            for (const item of fd.items) {
+              if (c.id && item.id === c.id) {
+                targetItem = item;
+                break;
+              }
+              if (
+                c.circuitName &&
+                (item.name.toLowerCase() === c.circuitName.toLowerCase() ||
+                  item.name.toLowerCase().includes(c.circuitName.toLowerCase()))
+              ) {
+                targetItem = item;
+                break;
+              }
+            }
+            if (targetItem) break;
+          }
+          if (targetItem) break;
+        }
+
+        if (targetItem) {
+          const itemMaterial = (c.cableMaterial || spec.defaults?.cableMaterial || targetItem.cableMaterial || "copper") as "copper" | "aluminum";
+          const itemInsulation = (c.cableInsulation || spec.defaults?.cableInsulation || targetItem.cableInsulation || "XLPE") as "PVC" | "XLPE";
+          const itemAmbient = c.ambientTemp ?? spec.defaults?.ambientTemp ?? targetItem.ambientTemp ?? 30;
+          const itemGrouping = c.groupingCount ?? spec.defaults?.groupingCount ?? targetItem.groupingCount ?? 1;
+          const itemInstall = c.installationMethod ?? spec.defaults?.installationMethod ?? targetItem.installMethod ?? "C";
+
+          const isThreePhase = targetItem.apartmentTemplate ? targetItem.apartmentTemplate.phases === 3 : false;
+          const sysVoltage = isThreePhase ? voltage : voltage / Math.sqrt(3);
+
+          const sizing = sizeCableAndBreaker(targetItem.calculatedCurrent, isThreePhase, {
+            material: itemMaterial,
+            insulation: itemInsulation,
+            ambientTemp: itemAmbient,
+            groupingCount: itemGrouping,
+            installMethod: itemInstall,
+            code,
+            voltageDrop: {
+              lengthMeters: c.length,
+              powerFactor,
+              systemVoltage: sysVoltage,
+              maxPercent: project.maxVoltageDropPower || 5,
+            },
+          });
+
+          await tx.floorItem.update({
+            where: { id: targetItem.id },
+            data: {
+              cableLength: c.length,
+              cableSize: sizing.formattedCableSize,
+              breakerSize: `${sizing.breakerSize}A`,
+              voltageDrop: sizing.dropPercent != null ? parseFloat(sizing.dropPercent.toFixed(2)) : null,
+              cableMaterial: itemMaterial,
+              cableInsulation: itemInsulation,
+              installMethod: itemInstall,
+              ambientTemp: itemAmbient,
+              groupingCount: itemGrouping,
+            },
+          });
+          updatedCircuitsCount++;
+          updatedCircuitsList.push({
+            name: targetItem.name,
+            type: "floorItem",
+            lengthM: c.length,
+            cableSize: sizing.formattedCableSize,
+            voltageDropPct: sizing.dropPercent != null ? parseFloat(sizing.dropPercent.toFixed(2)) : null,
+            material: itemMaterial,
+            insulation: itemInsulation,
+            installMethod: itemInstall,
+          });
+        }
+      } else if (c.type === "buildingLoad") {
+        let targetBl: (typeof project.buildings)[0]["buildingLoads"][0] | undefined;
+        for (const bldg of project.buildings) {
+          if (c.buildingName && bldg.name.toLowerCase() !== c.buildingName.toLowerCase()) continue;
+          for (const bl of bldg.buildingLoads) {
+            if (c.id && bl.id === c.id) {
+              targetBl = bl;
+              break;
+            }
+            if (
+              c.circuitName &&
+              ((bl.loadLibraryItem?.name &&
+                bl.loadLibraryItem.name.toLowerCase().includes(c.circuitName.toLowerCase())) ||
+                bl.id === c.circuitName)
+            ) {
+              targetBl = bl;
+              break;
+            }
+          }
+          if (targetBl) break;
+        }
+
+        if (targetBl) {
+          const blMaterial = (c.cableMaterial || spec.defaults?.cableMaterial || targetBl.cableMaterial || "copper") as "copper" | "aluminum";
+          const blInsulation = (c.cableInsulation || spec.defaults?.cableInsulation || targetBl.cableInsulation || "XLPE") as "PVC" | "XLPE";
+          const blAmbient = c.ambientTemp ?? spec.defaults?.ambientTemp ?? targetBl.ambientTemp ?? 30;
+          const blGrouping = c.groupingCount ?? spec.defaults?.groupingCount ?? targetBl.groupingCount ?? 1;
+          const blInstall = c.installationMethod ?? spec.defaults?.installationMethod ?? targetBl.installMethod ?? "C";
+
+          const kw = (targetBl.loadLibraryItem?.power ?? 0) * (targetBl.quantity || 1);
+          const isThreePhase = (targetBl.loadLibraryItem?.phase ?? 3) === 3;
+          const sysVoltage = isThreePhase ? voltage : voltage / Math.sqrt(3);
+          const blCurrent = isThreePhase
+            ? (kw * 1000) / (Math.sqrt(3) * voltage * (targetBl.loadLibraryItem?.powerFactor || powerFactor))
+            : (kw * 1000) / (sysVoltage * (targetBl.loadLibraryItem?.powerFactor || powerFactor));
+
+          const sizing = sizeCableAndBreaker(blCurrent, isThreePhase, {
+            material: blMaterial,
+            insulation: blInsulation,
+            ambientTemp: blAmbient,
+            groupingCount: blGrouping,
+            installMethod: blInstall,
+            code,
+            voltageDrop: {
+              lengthMeters: c.length,
+              powerFactor: targetBl.loadLibraryItem?.powerFactor || powerFactor,
+              systemVoltage: sysVoltage,
+              maxPercent: project.maxVoltageDropPower || 5,
+            },
+          });
+
+          await tx.buildingLoad.update({
+            where: { id: targetBl.id },
+            data: {
+              cableLength: c.length,
+              cableSize: sizing.formattedCableSize,
+              cableMaterial: blMaterial,
+              cableInsulation: blInsulation,
+              installMethod: blInstall,
+              ambientTemp: blAmbient,
+              groupingCount: blGrouping,
+            },
+          });
+          updatedCircuitsCount++;
+          updatedCircuitsList.push({
+            name: targetBl.loadLibraryItem?.name || "Building Load",
+            type: "buildingLoad",
+            lengthM: c.length,
+            cableSize: sizing.formattedCableSize,
+            voltageDropPct: sizing.dropPercent != null ? parseFloat(sizing.dropPercent.toFixed(2)) : null,
+            material: blMaterial,
+            insulation: blInsulation,
+            installMethod: blInstall,
+          });
+        }
+      }
+    }
+  });
+
+  // Re-run global recalculate
+  await recalculateProjectBuildings(project.id, { resetSizing: false });
+
+  // Get refreshed compliance summary
+  const complianceSummary = await getProjectComplianceSummary(project.id);
+
+  return {
+    success: true,
+    projectId: project.id,
+    updatedCircuitsCount,
+    appliedDefaults: spec.defaults ?? null,
+    circuits: updatedCircuitsList,
+    complianceSummary,
   };
 }
 

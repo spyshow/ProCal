@@ -20,18 +20,29 @@ const { mockDb } = vi.hoisted(() => ({
     building: {
       create: vi.fn(),
       findMany: vi.fn().mockResolvedValue([]),
+      update: vi.fn().mockResolvedValue({}),
     },
     floorDesign: {
       create: vi.fn(),
+      update: vi.fn().mockResolvedValue({}),
     },
     floorItem: {
       create: vi.fn(),
+      update: vi.fn().mockResolvedValue({}),
     },
     loadLibraryItem: {
       create: vi.fn(),
     },
     buildingLoad: {
       create: vi.fn(),
+      update: vi.fn().mockResolvedValue({}),
+    },
+    breakerSettings: {
+      findUnique: vi.fn().mockResolvedValue(null),
+      upsert: vi.fn().mockResolvedValue({}),
+    },
+    equipmentCatalog: {
+      findMany: vi.fn().mockResolvedValue([]),
     },
     projectAuditLog: {
       findFirst: vi.fn(),
@@ -114,7 +125,7 @@ describe("Zero-Dependency JSON-RPC 2.0 MCP Server", () => {
 
     const res = await handleMcpRequest(req, testUser, baseUrl);
     const tools = (res.result as { tools: { name: string }[] }).tools;
-    expect(tools).toHaveLength(9);
+    expect(tools).toHaveLength(11);
 
     const names = tools.map((t) => t.name);
     expect(names).toContain("get_engineering_catalog");
@@ -123,6 +134,8 @@ describe("Zero-Dependency JSON-RPC 2.0 MCP Server", () => {
     expect(names).toContain("update_project_spec");
     expect(names).toContain("update_project_loads");
     expect(names).toContain("check_project_compliance");
+    expect(names).toContain("check_project_selectivity");
+    expect(names).toContain("update_project_cables");
     expect(names).toContain("get_project_bom");
     expect(names).toContain("get_project_sld");
     expect(names).toContain("get_project_report");
@@ -394,7 +407,147 @@ describe("Zero-Dependency JSON-RPC 2.0 MCP Server", () => {
     expect(toolsRes.id).toBe(102);
     expect(toolsRes.error).toBeUndefined();
     const tools = (toolsRes.result as { tools: unknown[] }).tools;
-    expect(tools.length).toBe(9);
+    expect(tools.length).toBe(11);
+  });
+
+  it("returns the 5-stage workflow prompt in 'prompts/get'", async () => {
+    const req: JsonRpcRequest = {
+      jsonrpc: "2.0",
+      id: 105,
+      method: "prompts/get",
+      params: {
+        name: "drawing-to-procal-workflow",
+        arguments: { projectName: "Al-Noor Tower" },
+      },
+    };
+
+    const res = await handleMcpRequest(req, testUser, baseUrl);
+    expect(res.error).toBeUndefined();
+    const prompt = (res.result as { messages: { content: { text: string } }[] }).messages[0].content.text;
+
+    expect(prompt).toContain("STAGE 1: COUNTRY & DEMAND DEFAULTS (CONFIRMATION GATE)");
+    expect(prompt).toContain("STAGE 2: PROJECT ARCHITECTURE & CREATION");
+    expect(prompt).toContain("STAGE 3: BREAKER MANUFACTURER & SELECTIVITY");
+    expect(prompt).toContain("STAGE 4: CABLE DEFAULTS & CIRCUIT LENGTHS (INPUT GATE)");
+    expect(prompt).toContain("STAGE 5: GLOBAL RECALCULATE & DELIVERABLES");
+    expect(prompt).toContain("update_project_cables");
+    expect(prompt).toContain("check_project_selectivity");
+  });
+
+  it("executes 'update_project_cables' tool atomically across circuits", async () => {
+    mockDb.project.findUnique.mockResolvedValue({
+      id: "proj-cable-1",
+      userId: testUser.id,
+      name: "Marina Heights",
+      voltage: 400,
+      powerFactor: 0.85,
+      calculationStandard: "IEC",
+      maxVoltageDropPower: 5,
+      buildings: [
+        {
+          id: "b-1",
+          name: "Main Tower",
+          incomerCableLength: 20,
+          floorDesigns: [
+            {
+              id: "fd-1",
+              floorNumber: 1,
+              riserCableLength: 15,
+              items: [
+                {
+                  id: "item-1",
+                  name: "Apartment 1A",
+                  type: "APARTMENT",
+                  calculatedCurrent: 25,
+                  cableLength: 20,
+                  apartmentTemplate: { phases: 1 },
+                },
+              ],
+            },
+          ],
+          buildingLoads: [],
+        },
+      ],
+      apartmentTemplates: [],
+    });
+
+    const req: JsonRpcRequest = {
+      jsonrpc: "2.0",
+      id: 106,
+      method: "tools/call",
+      params: {
+        name: "update_project_cables",
+        arguments: {
+          projectId: "proj-cable-1",
+          defaults: {
+            cableMaterial: "copper",
+            cableInsulation: "XLPE",
+            installationMethod: "C",
+            ambientTemp: 40,
+            groupingCount: 1,
+          },
+          circuitLengths: [
+            {
+              type: "incomer",
+              buildingName: "Main Tower",
+              length: 35,
+            },
+            {
+              type: "riser",
+              buildingName: "Main Tower",
+              floorNumber: 1,
+              length: 22,
+            },
+            {
+              type: "floorItem",
+              circuitName: "Apartment 1A",
+              length: 18,
+            },
+          ],
+        },
+      },
+    };
+
+    const res = await handleMcpRequest(req, testUser, baseUrl);
+    expect(res.error).toBeUndefined();
+    const content = (res.result as { content: { text: string }[] }).content[0].text;
+    const data = JSON.parse(content);
+
+    expect(data.success).toBe(true);
+    expect(data.projectId).toBe("proj-cable-1");
+    expect(data.updatedCircuitsCount).toBe(3);
+    expect(data.circuits).toHaveLength(3);
+  });
+
+  it("executes 'check_project_selectivity' tool", async () => {
+    mockDb.project.findUnique.mockResolvedValue({
+      id: "proj-sel-1",
+      name: "Selectivity Tower",
+      voltage: 400,
+      powerFactor: 0.85,
+      calculationStandard: "IEC",
+      preferredManufacturer: "ABB",
+      buildings: [],
+    });
+
+    const req: JsonRpcRequest = {
+      jsonrpc: "2.0",
+      id: 107,
+      method: "tools/call",
+      params: {
+        name: "check_project_selectivity",
+        arguments: { projectId: "proj-sel-1" },
+      },
+    };
+
+    const res = await handleMcpRequest(req, testUser, baseUrl);
+    expect(res.error).toBeUndefined();
+    const content = (res.result as { content: { text: string }[] }).content[0].text;
+    const data = JSON.parse(content);
+
+    expect(data.projectId).toBe("proj-sel-1");
+    expect(data.preferredManufacturer).toBe("ABB");
+    expect(data.overallStatus).toBeDefined();
   });
 
   it("allows anonymous execution of 'get_engineering_catalog'", async () => {

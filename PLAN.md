@@ -1,41 +1,41 @@
-# Implementation Plan - Multi-Apartment Single Floor Consolidation & SLD Generator Fix
+# Implementation Plan: 5-Stage Conversational AI Project Creation Workflow
 
-## Problem Statement
-When a project is created via MCP with multiple apartment templates assigned to the same floor (e.g., Floor 1 having both "Apartment 1 (Upper Unit)" and "Apartment 2 (Lower Unit)"):
-1. `src/lib/agent/build-project.ts` iterates over `bldg.floorAssignments` and executes `tx.floorDesign.create` for every entry. This creates multiple `FloorDesign` database records with the same `floorNumber: 1`. In the UI calculator table, this displays two separate "F1" cards (each with 1 circuit) instead of one unified "F1" card containing both apartment circuits.
-2. `src/lib/sld/generator.ts` generates floor buses keyed by `floor_bus_${bldgPrefix}_${fd.floorNumber}`. When multiple `FloorDesign` records share the same `floorNumber`, it outputs duplicate bus nodes (e.g. `floor_bus_..._1`), causing Mermaid/SLD parsers to crash with `Duplicate node id`.
-3. In existing project `264592a9-d23f-40da-8f1e-9e838be9ac60`, Floor 1 is currently split into two duplicate F1 records, causing both the UI duplicate cards and the SLD error.
-
-## Objective
-1. Consolidate `FloorDesign` creation in `build-project.ts` (in both `create_project_from_spec` and `update_project_spec`) so all apartment assignments for a given `floorNumber` in a building are mapped to a single `FloorDesign` record.
-2. Group floors by `floorNumber` in `src/lib/sld/generator.ts` so duplicate node IDs are physically impossible even if legacy data has duplicate floor designs.
-3. Update project `264592a9-d23f-40da-8f1e-9e838be9ac60` using ProCal MCP tools so Floor 1 contains both apartments under one single F1 panel with balanced phases.
-4. Verify with full unit test suite (`npm test`), verify SLD generation for `264592a9-d23f-40da-8f1e-9e838be9ac60`, and update knowledge graph.
+## Summary of User Goal
+Implement an interactive, 5-stage conversational workflow for AI agents creating projects in ProCal via the MCP server:
+1. **Stage 1 (Country & Load Demand Defaults)**: Prompt user for the country, display standard regional electrical parameters and load densities (voltage, frequency, power factor, IEC/NEMA, VA/m², AC sizing), and pause for user confirmation or adjustments.
+2. **Stage 2 (Project Architecture & Setup)**: Atomically create the project with confirmed parameters (`create_project_from_spec`), establishing buildings, apartment templates, floor assignments, and mechanical/service loads.
+3. **Stage 3 (Breaker Manufacturer & Selectivity)**: Prompt user for preferred circuit breaker manufacturer (Schneider, ABB, Siemens, etc.), apply authentic catalog models, and automatically grade trip settings ($I_r, I_{sd}, t_{sd}$) to eliminate curve overlaps, alerting only if physical coordination limits prevent full selectivity.
+4. **Stage 4 (Cable Defaults & Circuit Lengths)**: Present cable configuration defaults (Copper, XLPE, ambient temp, installation method) with an auto-estimated circuit length table; allow single-word confirmation or custom length/parameter overrides via a dedicated `update_project_cables` MCP tool.
+5. **Stage 5 (Global Recalculate & Deliverables)**: Trigger complex-wide recalculation across all buildings and return the complete engineering package (load & demand summary, compliance audit, selectivity status, BOM takeoff, SLD preview/links, and signed PDF report download link).
 
 ---
 
 ## Phases & Tasks
 
-### Phase 1: Consolidate FloorDesign in `build-project.ts`
-- **Files**: `src/lib/agent/build-project.ts`, `src/lib/agent/__tests__/build-project.test.ts`
+### Phase 1: New MCP Tool `update_project_cables`
+- **File**: `src/lib/mcp/server.ts`, `src/lib/agent/build-project.ts`
 - **Action**:
-  - In `create_project_from_spec`: Maintain a `floorDesignsMap = new Map<number, FloorDesign>()` per building. For each `fa` in `bldg.floorAssignments`, check if a `FloorDesign` for `fa.floorNumber` already exists. If not, create it. If it does, reuse it and append `FloorItem`s to that floor design.
-  - In `update_project_spec`: Similarly, ensure when creating or updating floors from `floorAssignments`, entries with the same `floorNumber` share the same `FloorDesign` and do not create duplicate floor records.
-- **Proof**: Unit tests with multiple apartment templates on the same floor verifying exactly 1 `FloorDesign` record is created per floor number.
+  - Add `update_project_cables` MCP tool schema and handler.
+  - Parameters: `projectId`, `defaults` (material, insulation, installationMethod, ambientTemp), and array `circuitLengths` (specifying circuit type: incomer, riser, apartment/floorItem, or buildingLoad with their respective lengths in meters).
+  - Atomically update database records for buildings, floors, floor items, and building loads, then invoke global complex-wide recalculation.
+- **Proof**: Unit tests in `src/lib/mcp/__tests__/server.test.ts` verifying cable lengths and parameters are persisted and reflected in recalculation and BOM.
 
-### Phase 2: SLD Generator Floor Grouping
-- **Files**: `src/lib/sld/generator.ts`, `src/lib/sld/__tests__/generator.test.ts` (or relevant SLD tests)
+### Phase 2: Breaker Manufacturer Setting & Automatic Selectivity Grading in MCP
+- **File**: `src/lib/mcp/server.ts`, `src/lib/agent/build-project.ts`, `src/lib/calculations/selectivity.ts`
 - **Action**:
-  - Group `bldg.floorDesigns` by `floorNumber` (combining items) before emitting Mermaid bus nodes.
-  - Ensure unique node IDs and consistent single bus per floor level.
-- **Proof**: Run SLD generator on project specs with multiple floor design entries; verify no duplicate IDs.
+  - Support setting/updating preferred breaker manufacturer in `update_project_spec`.
+  - Expose selectivity verification in `check_project_compliance` (or `check_project_selectivity`), checking upstream/downstream coordination curves using catalog curves and tested manufacturer matrices (ABB DOC / Schneider ECODIAL), and adjusting settings to resolve overlaps where feasible.
+- **Proof**: Unit test verifying manufacturer preference persistence and coordination checks returning status and limits.
 
-### Phase 3: Update Existing Project via MCP
+### Phase 3: Update `drawing-to-procal-workflow` System Prompt
+- **File**: `src/lib/mcp/server.ts`
 - **Action**:
-  - Use `procal` MCP tool `update_project_spec` on project `264592a9-d23f-40da-8f1e-9e838be9ac60` with consolidated floor assignments.
-  - Verify `check_project_compliance` and `get_project_sld` return 200 without duplicate node error.
-  - Check phase balance and report download.
+  - Rewrite `drawing-to-procal-workflow` prompt to strictly enforce the 5-stage conversational interview protocol for any AI agent interacting with ProCal via MCP.
+  - Ensure clear step-by-step gates where the agent must stop and await user input before proceeding to subsequent stages.
+- **Proof**: Verify prompt definition returns the structured 5-stage instructions.
 
-### Phase 4: Verification & Test Suite
-- **Action**: Run `npm test` across all 87 test files to ensure 100% pass rate with no regressions.
-- **Proof**: All 939+ tests pass.
+### Phase 4: Full Test Suite Verification & Quality Assurance
+- **Action**:
+  - Run all unit and integration tests (`npm test`).
+  - Verify all 87+ test suites pass with 0 errors.
+- **Proof**: Full test runner output clean.

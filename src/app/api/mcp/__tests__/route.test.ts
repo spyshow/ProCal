@@ -86,7 +86,7 @@ describe("/api/mcp Route Handlers", () => {
     const res = await POST(req);
     expect(res.status).toBe(200);
     const json = await res.json();
-    expect(json.result.tools).toHaveLength(9);
+    expect(json.result.tools).toHaveLength(11);
   });
 
   it("authenticates user from URL query parameter '?key=procal_sk_...'", async () => {

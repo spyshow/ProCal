@@ -74,6 +74,7 @@ export const ProjectDrawingSpecSchema = z.object({
   frequency: z.number().positive().optional().nullable(),
   powerFactor: z.number().min(0.1).max(1.0).optional().default(0.85),
   calculationStandard: z.enum(["IEC", "NEMA"]).optional().default("IEC"),
+  preferredManufacturer: z.string().optional().default("MIXED"),
   apartmentTemplates: z.array(ApartmentTemplateSpecSchema).min(1),
   buildings: z.array(BuildingSpecSchema).min(1),
   isConfirmedByUser: z.boolean().optional().default(false),
@@ -95,10 +96,39 @@ export const UpdateProjectSpecSchema = z.object({
   frequency: z.number().positive().optional().nullable(),
   powerFactor: z.number().min(0.1).max(1.0).optional(),
   calculationStandard: z.enum(["IEC", "NEMA"]).optional(),
+  preferredManufacturer: z.string().optional(),
   apartmentTemplates: z.array(ApartmentTemplateSpecSchema).optional(),
   buildings: z.array(BuildingSpecSchema).optional(),
   buildingLoads: z.array(CommonBuildingLoadSpecSchema).optional(),
   resetSizing: z.boolean().optional().default(true),
+});
+
+export const CircuitCableLengthSpecSchema = z.object({
+  type: z.enum(["incomer", "riser", "floorItem", "buildingLoad"]),
+  id: z.string().optional().nullable(),
+  buildingName: z.string().optional().nullable(),
+  floorNumber: z.number().int().optional().nullable(),
+  circuitName: z.string().optional().nullable(),
+  length: z.number().positive().max(10000),
+  cableMaterial: z.enum(["copper", "aluminum"]).optional().nullable(),
+  cableInsulation: z.enum(["XLPE", "PVC"]).optional().nullable(),
+  installationMethod: z.string().optional().nullable(),
+  ambientTemp: z.number().optional().nullable(),
+  groupingCount: z.number().int().positive().optional().nullable(),
+});
+
+export const CableDefaultsSpecSchema = z.object({
+  cableMaterial: z.enum(["copper", "aluminum"]).optional().default("copper"),
+  cableInsulation: z.enum(["XLPE", "PVC"]).optional().default("XLPE"),
+  installationMethod: z.string().optional().default("C"),
+  ambientTemp: z.number().optional().default(30),
+  groupingCount: z.number().int().positive().optional().default(1),
+});
+
+export const UpdateProjectCablesSpecSchema = z.object({
+  projectId: z.string().min(1),
+  defaults: CableDefaultsSpecSchema.optional().nullable(),
+  circuitLengths: z.array(CircuitCableLengthSpecSchema).optional().default([]),
 });
 
 export type RoomSpec = z.infer<typeof RoomSpecSchema>;
@@ -109,6 +139,9 @@ export type BuildingSpec = z.infer<typeof BuildingSpecSchema>;
 export type ProjectDrawingSpec = z.infer<typeof ProjectDrawingSpecSchema>;
 export type UpdateProjectLoadsSpec = z.infer<typeof UpdateProjectLoadsSpecSchema>;
 export type UpdateProjectSpec = z.infer<typeof UpdateProjectSpecSchema>;
+export type CircuitCableLengthSpec = z.infer<typeof CircuitCableLengthSpecSchema>;
+export type CableDefaultsSpec = z.infer<typeof CableDefaultsSpecSchema>;
+export type UpdateProjectCablesSpec = z.infer<typeof UpdateProjectCablesSpecSchema>;
 
 export type RoomSpecInput = z.input<typeof RoomSpecSchema>;
 export type ApartmentTemplateSpecInput = z.input<typeof ApartmentTemplateSpecSchema>;
@@ -118,4 +151,7 @@ export type BuildingSpecInput = z.input<typeof BuildingSpecSchema>;
 export type ProjectDrawingSpecInput = z.input<typeof ProjectDrawingSpecSchema>;
 export type UpdateProjectLoadsSpecInput = z.input<typeof UpdateProjectLoadsSpecSchema>;
 export type UpdateProjectSpecInput = z.input<typeof UpdateProjectSpecSchema>;
+export type CircuitCableLengthSpecInput = z.input<typeof CircuitCableLengthSpecSchema>;
+export type CableDefaultsSpecInput = z.input<typeof CableDefaultsSpecSchema>;
+export type UpdateProjectCablesSpecInput = z.input<typeof UpdateProjectCablesSpecSchema>;
 

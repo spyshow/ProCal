@@ -22,14 +22,17 @@ const { mockDb } = vi.hoisted(() => ({
       create: vi.fn(),
       findMany: vi.fn().mockResolvedValue([]),
       update: vi.fn().mockResolvedValue({}),
+      updateMany: vi.fn().mockResolvedValue({}),
     },
     floorDesign: {
       create: vi.fn(),
       update: vi.fn().mockResolvedValue({}),
+      updateMany: vi.fn().mockResolvedValue({}),
     },
     floorItem: {
       create: vi.fn(),
       update: vi.fn().mockResolvedValue({}),
+      updateMany: vi.fn().mockResolvedValue({}),
     },
     loadLibraryItem: {
       create: vi.fn(),
@@ -37,6 +40,7 @@ const { mockDb } = vi.hoisted(() => ({
     buildingLoad: {
       create: vi.fn(),
       update: vi.fn().mockResolvedValue({}),
+      updateMany: vi.fn().mockResolvedValue({}),
     },
     breakerSettings: {
       findUnique: vi.fn().mockResolvedValue(null),

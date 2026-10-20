@@ -1193,9 +1193,12 @@ export async function updateProjectCables(
         },
       });
 
-      for (const bldg of project.buildings) {
-        await tx.building.update({
-          where: { id: bldg.id },
+      const buildingIds = project.buildings.map((b) => b.id);
+      const floorDesignIds = project.buildings.flatMap((b) => (b.floorDesigns || []).map((fd) => fd.id));
+
+      if (buildingIds.length > 0) {
+        await tx.building.updateMany({
+          where: { id: { in: buildingIds } },
           data: {
             incomerCableMaterial: spec.defaults.cableMaterial,
             incomerCableInsulation: spec.defaults.cableInsulation,
@@ -1205,44 +1208,40 @@ export async function updateProjectCables(
           },
         });
 
-        for (const fd of bldg.floorDesigns) {
-          await tx.floorDesign.update({
-            where: { id: fd.id },
-            data: {
-              riserCableMaterial: spec.defaults.cableMaterial,
-              riserCableInsulation: spec.defaults.cableInsulation,
-              riserInstallMethod: spec.defaults.installationMethod,
-              riserAmbientTemp: spec.defaults.ambientTemp,
-              riserGroupingCount: spec.defaults.groupingCount,
-            },
-          });
+        await tx.buildingLoad.updateMany({
+          where: { buildingId: { in: buildingIds } },
+          data: {
+            cableMaterial: spec.defaults.cableMaterial,
+            cableInsulation: spec.defaults.cableInsulation,
+            installMethod: spec.defaults.installationMethod,
+            ambientTemp: spec.defaults.ambientTemp,
+            groupingCount: spec.defaults.groupingCount,
+          },
+        });
+      }
 
-          for (const item of fd.items) {
-            await tx.floorItem.update({
-              where: { id: item.id },
-              data: {
-                cableMaterial: spec.defaults.cableMaterial,
-                cableInsulation: spec.defaults.cableInsulation,
-                installMethod: spec.defaults.installationMethod,
-                ambientTemp: spec.defaults.ambientTemp,
-                groupingCount: spec.defaults.groupingCount,
-              },
-            });
-          }
-        }
+      if (floorDesignIds.length > 0) {
+        await tx.floorDesign.updateMany({
+          where: { id: { in: floorDesignIds } },
+          data: {
+            riserCableMaterial: spec.defaults.cableMaterial,
+            riserCableInsulation: spec.defaults.cableInsulation,
+            riserInstallMethod: spec.defaults.installationMethod,
+            riserAmbientTemp: spec.defaults.ambientTemp,
+            riserGroupingCount: spec.defaults.groupingCount,
+          },
+        });
 
-        for (const bl of bldg.buildingLoads) {
-          await tx.buildingLoad.update({
-            where: { id: bl.id },
-            data: {
-              cableMaterial: spec.defaults.cableMaterial,
-              cableInsulation: spec.defaults.cableInsulation,
-              installMethod: spec.defaults.installationMethod,
-              ambientTemp: spec.defaults.ambientTemp,
-              groupingCount: spec.defaults.groupingCount,
-            },
-          });
-        }
+        await tx.floorItem.updateMany({
+          where: { floorDesignId: { in: floorDesignIds } },
+          data: {
+            cableMaterial: spec.defaults.cableMaterial,
+            cableInsulation: spec.defaults.cableInsulation,
+            installMethod: spec.defaults.installationMethod,
+            ambientTemp: spec.defaults.ambientTemp,
+            groupingCount: spec.defaults.groupingCount,
+          },
+        });
       }
     }
 
@@ -1470,7 +1469,9 @@ export async function updateProjectCables(
         }
       }
     }
-  });
+  },
+  { timeout: 45000, maxWait: 15000 }
+);
 
   // Re-run global recalculate
   await recalculateProjectBuildings(project.id, { resetSizing: false });

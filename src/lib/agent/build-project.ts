@@ -965,7 +965,16 @@ export async function checkProjectSelectivity(projectIdOrProject: string | any) 
   }
 
   const catalog = (await db.equipmentCatalog?.findMany?.().catch(() => [])) ?? [];
-  const findBreaker = createFindBreaker(catalog, project as unknown as AppProject, project.preferredManufacturer);
+  const defaultFamilies = {
+    ACB: (project as any).defaultAcbFamilyId ?? null,
+    MCCB: (project as any).defaultMccbFamilyId ?? null,
+    MCB: (project as any).defaultMcbFamilyId ?? null,
+  };
+  const findBreaker = createFindBreaker(
+    catalog as unknown as EquipmentItem[],
+    defaultFamilies,
+    project.preferredManufacturer
+  );
 
   const buildingsSelectivity = [];
   const overallAdjustments: string[] = [];
@@ -973,9 +982,11 @@ export async function checkProjectSelectivity(projectIdOrProject: string | any) 
 
   for (const bldg of project.buildings) {
     try {
-      const safeFloorDesigns = (bldg.floorDesigns || []).map((fd) => ({
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const safeFloorDesigns = (bldg.floorDesigns || []).map((fd: any) => ({
         ...fd,
-        items: (fd.items || []).map((item) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        items: (fd.items || []).map((item: any) => {
           const is3P = item.apartmentTemplate?.phases === 3;
           const pf = project.powerFactor || 0.85;
           const fallbackKw = item.calculatedCurrent
@@ -989,7 +1000,8 @@ export async function checkProjectSelectivity(projectIdOrProject: string | any) 
           };
         }),
       }));
-      const safeBuildingLoads = (bldg.buildingLoads || []).map((bl) => ({
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const safeBuildingLoads = (bldg.buildingLoads || []).map((bl: any) => ({
         ...bl,
         loadLibraryItem: bl.loadLibraryItem
           ? {

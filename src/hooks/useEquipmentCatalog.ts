@@ -17,6 +17,9 @@ const cache = new Map<string, { data: EquipmentItem[]; at: number }>();
 const TTL_MS = 60_000;
 
 export function fetchEquipmentCatalog(query: string): Promise<EquipmentItem[]> {
+  if (typeof window === 'undefined') {
+    return Promise.resolve([]);
+  }
   const key = query || ''; // "/api/equipment?" → ""
   const cached = cache.get(key);
   if (cached && Date.now() - cached.at < TTL_MS) {
@@ -43,6 +46,7 @@ export function useEquipmentCatalog(query: string): { equipment: EquipmentItem[]
   const [catalogLoaded, setCatalogLoaded] = useState(false);
 
   useEffect(() => {
+    if (typeof window === 'undefined') return;
     let cancelled = false;
     fetchEquipmentCatalog(query).then((data) => {
       if (!cancelled) {

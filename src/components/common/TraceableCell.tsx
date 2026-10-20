@@ -1,9 +1,6 @@
-"use client";
-
-import React, { useState, useRef } from "react";
-import { TraceDefinition } from "@/lib/calculations/trace-engine";
-import { CalculationTracePopover } from "./CalculationTracePopover";
-import { useTranslation } from "@/i18n";
+import React from "react";
+import type { TraceDefinition } from "@/lib/calculations/trace-engine";
+import { TraceableCellClient } from "./TraceableCellClient";
 
 export interface TraceableCellProps {
   children: React.ReactNode;
@@ -13,68 +10,15 @@ export interface TraceableCellProps {
   title?: string;
 }
 
-export function TraceableCell({
-  children,
-  getTrace,
-  className = "",
-  badgePosition = "top-right",
-  title,
-}: TraceableCellProps) {
-  const { t } = useTranslation();
-  const [isOpen, setIsOpen] = useState(false);
-  const [currentTrace, setCurrentTrace] = useState<TraceDefinition | null>(null);
-  const [anchorRect, setAnchorRect] = useState<DOMRect | null>(null);
-  const cellRef = useRef<HTMLDivElement>(null);
-
-  const displayTitle = title ?? t("trace.inspectTraceTooltip", "Click to inspect calculation trace (Show Your Work)");
-
-  const handleClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (cellRef.current) {
-      setAnchorRect(cellRef.current.getBoundingClientRect());
-    }
-    const trace = getTrace();
-    setCurrentTrace(trace);
-    setIsOpen(true);
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" || e.key === " ") {
-      e.preventDefault();
-      e.stopPropagation();
-      if (cellRef.current) {
-        setAnchorRect(cellRef.current.getBoundingClientRect());
-      }
-      const trace = getTrace();
-      setCurrentTrace(trace);
-      setIsOpen(true);
-    }
-  };
-
-  return (
-    <>
-      <div
-        ref={cellRef}
-        onClick={handleClick}
-        onKeyDown={handleKeyDown}
-        tabIndex={0}
-        role="button"
-        title={displayTitle}
-        className={`traceable-cell group/cell relative cursor-pointer select-none rounded transition-all duration-150 outline-none focus-visible:ring-2 focus-visible:ring-orange-500/50 hover:bg-orange-500/10 hover:text-orange-600 dark:hover:text-orange-300 print:cursor-default print:select-text print:static print:inline-block print:p-0 print:m-0 print:border-none print:shadow-none print:after:hidden after:content-['fx'] after:absolute after:-top-1 after:-right-1 after:text-[8px] after:font-mono after:font-bold after:px-1 after:rounded after:bg-[var(--card-bg,#0b0f19)] after:text-orange-600 dark:after:text-orange-400 after:border after:border-orange-500/40 after:opacity-0 hover:after:opacity-100 after:transition-opacity after:pointer-events-none shadow-xs ${
-          isOpen ? "bg-orange-500/15 text-orange-800 dark:text-orange-200 ring-1 ring-orange-500/40" : ""
-        } ${className}`}
-      >
-        {children}
-      </div>
-
-      {isOpen && currentTrace && (
-        <CalculationTracePopover
-          trace={currentTrace}
-          isOpen={isOpen}
-          onClose={() => setIsOpen(false)}
-          anchorRect={anchorRect}
-        />
-      )}
-    </>
-  );
+/**
+ * Isomorphic TraceableCell component:
+ * - On the server (e.g. during static HTML generation for PDF via renderToStaticMarkup),
+ *   renders plain children inside a container without running client-side hooks.
+ * - In the browser, renders interactive TraceableCellClient with popover inspection.
+ */
+export function TraceableCell(props: TraceableCellProps) {
+  if (typeof window === "undefined") {
+    return <span className={`traceable-cell ${props.className || ""}`}>{props.children}</span>;
+  }
+  return <TraceableCellClient {...props} />;
 }

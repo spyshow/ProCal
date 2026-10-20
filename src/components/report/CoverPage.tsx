@@ -1,4 +1,3 @@
-'use client';
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { phaseBalance } from '@/lib/calculations/phaseBalance';

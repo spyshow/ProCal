@@ -1,0 +1,248 @@
+import type { Project } from '@/types';
+import { sizeTransformer } from '@/lib/calculations/loads';
+import { formatCableSizeFor } from '@/lib/calculations/cables';
+import { phaseBalance } from '@/lib/calculations/phaseBalance';
+import { calculateShortCircuitCurrent, getTypicalImpedance } from '@/lib/calculations/shortCircuit';
+import { aggregateShortCircuitRows } from '@/lib/reports/aggregates';
+import { createFindBreaker, type FindBreaker, type EquipmentItem } from '@/lib/calculations/feeders';
+import { ShieldCheck, Zap } from 'lucide-react';
+import { TraceableCell } from '@/components/common/TraceableCell';
+import { buildShortCircuitTrace } from '@/lib/calculations/trace-engine';
+
+export interface ShortCircuitScheduleTableProps {
+  project: Project;
+  buildingId?: string;
+  showHeader?: boolean;
+  equipment?: EquipmentItem[];
+  findBreaker?: FindBreaker;
+}
+
+export default function ShortCircuitScheduleTable({
+  project,
+  buildingId,
+  showHeader = true,
+  equipment = [],
+  findBreaker: preloadedFindBreaker,
+}: ShortCircuitScheduleTableProps) {
+  const findBreaker =
+    preloadedFindBreaker ||
+    createFindBreaker(
+      equipment,
+      {
+        ACB: project.defaultAcbFamilyId ?? undefined,
+        MCCB: project.defaultMccbFamilyId ?? undefined,
+        MCB: project.defaultMcbFamilyId ?? undefined,
+      },
+      project.preferredManufacturer
+    );
+
+  const allRows = aggregateShortCircuitRows(project, findBreaker);
+  const rows = buildingId ? allRows.filter((r) => r.buildingId === buildingId) : allRows;
+
+  // Overall transformer source short-circuit metrics
+  const relevantBuildings = buildingId
+    ? project.buildings.filter((b) => b.id === buildingId)
+    : project.buildings;
+  const allItems = relevantBuildings.flatMap((b) => [
+    ...b.floorDesigns.flatMap((fd) => fd.items),
+    ...(b.buildingLoads ?? []),
+  ]);
+  const balance = phaseBalance(allItems as unknown as Parameters<typeof phaseBalance>[0], project);
+  const pf = project.powerFactor || 0.85;
+  const demandKva = balance.totalKw / pf;
+  const perPhaseKva: [number, number, number] = [
+    balance.phaseKw[0] / pf,
+    balance.phaseKw[1] / pf,
+    balance.phaseKw[2] / pf,
+  ];
+  const bldgTx = buildingId ? relevantBuildings[0]?.transformer : undefined;
+  const transformerKva = bldgTx || project.transformerSize || (demandKva > 0 ? sizeTransformer(demandKva, 1.2, perPhaseKva) : 500);
+
+  const sc = calculateShortCircuitCurrent({
+    ratedPower: transformerKva,
+    voltagePrimary: 11000,
+    voltageSecondary: project.voltage,
+    impedancePercent: getTypicalImpedance(transformerKva),
+    earthingSystem: 'TN-S',
+  });
+  const scSummary = { ...sc, transformerKva };
+
+  return (
+    <div className="space-y-4 font-sans text-slate-900">
+      {showHeader && (
+        <div className="flex items-center justify-between text-xs text-slate-500 mb-1 font-mono">
+          <span className="font-semibold text-slate-900">{project.name}</span>
+          <span>{project.date || new Date().toLocaleDateString()}</span>
+        </div>
+      )}
+
+      <div className="flex items-center justify-between border-b pb-2">
+        <h2 className="text-xs font-bold uppercase tracking-wider text-slate-900 border-l-4 border-amber-500 pl-2.5">
+          Short-Circuit Fault Analysis Schedule
+        </h2>
+        <span className="text-[11px] font-mono text-slate-600">
+          Standard: <span className="font-bold text-slate-900">IEC 60909 / IEC 60076</span>
+        </span>
+      </div>
+
+      {/* Transformer Source Fault Level Cards */}
+      <div className="grid grid-cols-4 gap-2.5 my-3">
+        <div className="border border-rose-200 rounded-lg p-2 text-center bg-rose-50/60 shadow-xs">
+          <span className="text-[10px] font-bold uppercase text-rose-800 block">3Φ Symmetrical Isc</span>
+          <TraceableCell
+            getTrace={() =>
+              buildShortCircuitTrace({
+                locationName: "Main Transformer Secondary (3-Phase)",
+                transformerKva: scSummary.transformerKva,
+                transformerZPercent: getTypicalImpedance(scSummary.transformerKva),
+                voltageSecondaryV: project.voltage || 400,
+                threePhaseIscKa: scSummary.threePhaseIsc,
+                peakCurrentKa: scSummary.peakCurrent,
+                calculationStandard: project.calculationStandard,
+              })
+            }
+          >
+            <span className="text-sm font-black text-rose-950 font-mono">{scSummary.threePhaseIsc.toFixed(2)} kA</span>
+          </TraceableCell>
+        </div>
+        <div className="border border-amber-200 rounded-lg p-2 text-center bg-amber-50/60 shadow-xs">
+          <span className="text-[10px] font-bold uppercase text-amber-800 block">2Φ Phase-to-Phase Isc</span>
+          <TraceableCell
+            getTrace={() =>
+              buildShortCircuitTrace({
+                locationName: "Main Transformer Secondary (2-Phase)",
+                transformerKva: scSummary.transformerKva,
+                transformerZPercent: getTypicalImpedance(scSummary.transformerKva),
+                voltageSecondaryV: project.voltage || 400,
+                threePhaseIscKa: scSummary.twoPhaseIsc,
+                calculationStandard: project.calculationStandard,
+              })
+            }
+          >
+            <span className="text-sm font-black text-amber-950 font-mono">{scSummary.twoPhaseIsc.toFixed(2)} kA</span>
+          </TraceableCell>
+        </div>
+        <div className="border border-sky-200 rounded-lg p-2 text-center bg-sky-50/60 shadow-xs">
+          <span className="text-[10px] font-bold uppercase text-sky-800 block">Peak Dynamic Stress (Ip)</span>
+          <TraceableCell
+            getTrace={() =>
+              buildShortCircuitTrace({
+                locationName: "Peak Electrodynamic Stress",
+                transformerKva: scSummary.transformerKva,
+                transformerZPercent: getTypicalImpedance(scSummary.transformerKva),
+                voltageSecondaryV: project.voltage || 400,
+                threePhaseIscKa: scSummary.threePhaseIsc,
+                peakCurrentKa: scSummary.peakCurrent,
+                calculationStandard: project.calculationStandard,
+              })
+            }
+          >
+            <span className="text-sm font-black text-sky-950 font-mono">{scSummary.peakCurrent.toFixed(2)} kA</span>
+          </TraceableCell>
+        </div>
+        <div className="border border-purple-200 rounded-lg p-2 text-center bg-purple-50/60 shadow-xs">
+          <span className="text-[10px] font-bold uppercase text-purple-800 block">Secondary Fault Level</span>
+          <span className="text-sm font-black text-purple-950 font-mono">{scSummary.faultMVA.toFixed(2)} MVA</span>
+        </div>
+      </div>
+
+      {/* Downstream Distribution Short-Circuit Table */}
+      <table className="w-full text-center text-xs border border-slate-300 rounded-lg overflow-hidden shadow-xs">
+        <thead>
+          <tr className="bg-slate-900 text-white text-[10px] font-bold uppercase tracking-wider">
+            <th className="p-2 border-r border-slate-800 text-center">#</th>
+            <th className="p-2 border-r border-slate-800 text-center">Feeder / Panel Bus</th>
+            <th className="p-2 border-r border-slate-800 text-center">Building</th>
+            <th className="p-2 border-r border-slate-800 text-center">Floor</th>
+            <th className="p-2 border-r border-slate-800 text-center">Type</th>
+            <th className="p-2 border-r border-slate-800 text-center">Cable</th>
+            <th className="p-2 border-r border-slate-800 text-center">3Φ Isc (kA)</th>
+            <th className="p-2 border-r border-slate-800 text-center">2Φ Isc (kA)</th>
+            <th className="p-2 border-r border-slate-800 text-center">Breaker Icu</th>
+            <th className="p-2 text-center">Protection Margin</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-slate-200 text-slate-800">
+          {rows.map((row, idx) => (
+            <tr
+              key={`${row.buildingId}-${row.floor}-${idx}`}
+              className={idx % 2 === 0 ? 'bg-white' : 'bg-slate-100'}
+            >
+              <td className="p-2 border-r border-slate-200 font-mono text-slate-500 text-center">{idx + 1}</td>
+              <td className="p-2 border-r border-slate-200 font-bold text-slate-900 text-center">
+                <div className="flex items-center justify-center gap-1.5">
+                  <Zap size={12} className="text-amber-500 shrink-0" />
+                  <span>{row.feeder}</span>
+                </div>
+              </td>
+              <td className="p-2 border-r border-slate-200 text-center">{row.buildingName}</td>
+              <td className="p-2 border-r border-slate-200 text-center font-mono">
+                {row.floor === 0 ? 'MDB' : `F${row.floor}`}
+              </td>
+              <td className="p-2 border-r border-slate-200 text-center text-[10px] font-mono">
+                <span className="px-1.5 py-0.5 rounded bg-slate-100 border border-slate-200 text-slate-700">
+                  {row.type}
+                </span>
+              </td>
+              <td className="p-2 border-r border-slate-200 text-center font-mono text-slate-600">
+                {row.cableSizeMm2 > 0 ? formatCableSizeFor(row.cableSizeMm2, project.calculationStandard) : 'Busbar'}
+              </td>
+              <td className="p-2 border-r border-slate-200 text-center font-mono font-bold text-rose-700">
+                <TraceableCell
+                  getTrace={() => {
+                    const trafoKva = row.transformerKva || scSummary.transformerKva;
+                    return buildShortCircuitTrace({
+                      locationName: `${row.buildingName} - ${row.feeder} (3-Phase Fault)`,
+                      transformerKva: trafoKva,
+                      transformerZPercent: getTypicalImpedance(trafoKva),
+                      voltageSecondaryV: project.voltage || 400,
+                      threePhaseIscKa: row.threePhaseIscKa,
+                      peakCurrentKa: row.threePhaseIscKa * 2.1,
+                      calculationStandard: project.calculationStandard,
+                    });
+                  }}
+                >
+                  {row.threePhaseIscKa.toFixed(2)} kA
+                </TraceableCell>
+              </td>
+              <td className="p-2 border-r border-slate-200 text-center font-mono font-bold text-amber-700">
+                <TraceableCell
+                  getTrace={() => {
+                    const trafoKva = row.transformerKva || scSummary.transformerKva;
+                    return buildShortCircuitTrace({
+                      locationName: `${row.buildingName} - ${row.feeder} (2-Phase Fault)`,
+                      transformerKva: trafoKva,
+                      transformerZPercent: getTypicalImpedance(trafoKva),
+                      voltageSecondaryV: project.voltage || 400,
+                      threePhaseIscKa: row.twoPhaseIscKa,
+                      calculationStandard: project.calculationStandard,
+                    });
+                  }}
+                >
+                  {row.twoPhaseIscKa.toFixed(2)} kA
+                </TraceableCell>
+              </td>
+              <td className="p-2 border-r border-slate-200 text-center font-mono font-bold text-slate-900">
+                {row.breakerIcuKa ? `${row.breakerIcuKa} kA` : '—'}
+              </td>
+              <td className="p-2 text-center">
+                <span
+                  className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold font-mono border ${
+                    row.status === 'SAFE'
+                      ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
+                      : row.status === 'MARGINAL'
+                      ? 'bg-amber-50 text-amber-800 border-amber-200'
+                      : 'bg-rose-50 text-rose-800 border-rose-200'
+                  }`}
+                >
+                  <ShieldCheck size={10} />
+                  {row.status} (Icu &ge; Isc)
+                </span>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}

@@ -8,12 +8,12 @@ import type { BreakerSettingItem } from './aggregates';
 import { REPORT_COMPILED_CSS } from './report-css';
 import CoverPage from '@/components/report/CoverPage';
 import LoadSchedule from '@/components/report/LoadSchedule';
-import MDBSchedule from '@/components/report/MDBSchedule';
-import CableSchedule from '@/components/report/CableSchedule';
-import BreakerSchedule from '@/components/report/BreakerSchedule';
-import VDSchedule from '@/components/report/VDSchedule';
-import ShortCircuitSchedule from '@/components/report/ShortCircuitSchedule';
-import BOMSchedule from '@/components/report/BOMSchedule';
+import MDBScheduleTable from '@/components/report/MDBScheduleTable';
+import CableScheduleTable from '@/components/report/CableScheduleTable';
+import BreakerScheduleTable from '@/components/report/BreakerScheduleTable';
+import VDScheduleTable from '@/components/report/VDScheduleTable';
+import ShortCircuitScheduleTable from '@/components/report/ShortCircuitScheduleTable';
+import BOMScheduleTable from '@/components/report/BOMScheduleTable';
 import ReportHeader from '@/components/report/ReportHeader';
 
 export interface RenderReportHtmlOptions {
@@ -74,19 +74,19 @@ export function renderReportHtml(options: RenderReportHtmlOptions): string {
       {/* Page 3: Main Distribution Board Schedule */}
       <div style={{ pageBreakBefore: 'always', breakBefore: 'page' }} className="print-page-container w-full p-2 bg-white text-slate-900">
         <ReportHeader project={project} companyName={companyName} companyLogoUrl={companyLogoUrl} title={project.name} subtitle="MAIN DISTRIBUTION BOARD (MDB) FEEDER SCHEDULE" />
-        <MDBSchedule project={project} buildingId={buildingId} equipment={equipment} findBreaker={findBreaker} showHeader={false} />
+        <MDBScheduleTable project={project} buildingId={buildingId} equipment={equipment} findBreaker={findBreaker} showHeader={false} />
       </div>
 
       {/* Page 4: Cable Sizing & Installation Schedule */}
       <div style={{ pageBreakBefore: 'always', breakBefore: 'page' }} className="print-page-container w-full p-2 bg-white text-slate-900">
         <ReportHeader project={project} companyName={companyName} companyLogoUrl={companyLogoUrl} title={project.name} subtitle="CABLE SIZING & INSTALLATION SCHEDULE" />
-        <CableSchedule project={project} buildingId={buildingId} equipment={equipment} findBreaker={findBreaker} showHeader={false} />
+        <CableScheduleTable project={project} buildingId={buildingId} equipment={equipment} findBreaker={findBreaker} showHeader={false} />
       </div>
 
       {/* Page 5: Breakers & Selectivity Protection Schedule */}
       <div style={{ pageBreakBefore: 'always', breakBefore: 'page' }} className="print-page-container w-full p-2 bg-white text-slate-900">
         <ReportHeader project={project} companyName={companyName} companyLogoUrl={companyLogoUrl} title={project.name} subtitle="CIRCUIT BREAKERS & SELECTIVITY PROTECTION SCHEDULE" />
-        <BreakerSchedule
+        <BreakerScheduleTable
           project={project}
           buildingId={buildingId}
           manufacturer={prefManufacturer}
@@ -100,19 +100,19 @@ export function renderReportHtml(options: RenderReportHtmlOptions): string {
       {/* Page 6: Voltage Drop & Compliance Analysis */}
       <div style={{ pageBreakBefore: 'always', breakBefore: 'page' }} className="print-page-container w-full p-2 bg-white text-slate-900">
         <ReportHeader project={project} companyName={companyName} companyLogoUrl={companyLogoUrl} title={project.name} subtitle="VOLTAGE DROP & COMPLIANCE ANALYSIS SCHEDULE" />
-        <VDSchedule project={project} buildingId={buildingId} equipment={equipment} findBreaker={findBreaker} showHeader={false} />
+        <VDScheduleTable project={project} buildingId={buildingId} equipment={equipment} findBreaker={findBreaker} showHeader={false} />
       </div>
 
       {/* Page 7: Short-Circuit Fault Analysis */}
       <div style={{ pageBreakBefore: 'always', breakBefore: 'page' }} className="print-page-container w-full p-2 bg-white text-slate-900">
         <ReportHeader project={project} companyName={companyName} companyLogoUrl={companyLogoUrl} title={project.name} subtitle="SHORT-CIRCUIT FAULT ANALYSIS SCHEDULE" />
-        <ShortCircuitSchedule project={project} buildingId={buildingId} equipment={equipment} findBreaker={findBreaker} showHeader={false} />
+        <ShortCircuitScheduleTable project={project} buildingId={buildingId} equipment={equipment} findBreaker={findBreaker} showHeader={false} />
       </div>
 
       {/* Page 8: Bill of Materials & Equipment Procurement */}
       <div style={{ pageBreakBefore: 'always', breakBefore: 'page' }} className="print-page-container w-full p-2 bg-white text-slate-900">
         <ReportHeader project={project} companyName={companyName} companyLogoUrl={companyLogoUrl} title={project.name} subtitle="BILL OF MATERIALS & PROCUREMENT SCHEDULE" />
-        <BOMSchedule
+        <BOMScheduleTable
           project={project}
           buildingId={buildingId}
           equipment={equipment}

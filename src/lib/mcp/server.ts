@@ -22,6 +22,7 @@ import { signReportDownloadToken } from "@/lib/auth";
 import { generateServerPdf } from "@/lib/reports/server-pdf";
 import { renderReportHtml, wrapReportMarkup } from "@/lib/reports/render-report-html";
 import { getCompanySettings } from "@/lib/app-settings";
+import { APP_VERSION } from "@/lib/version";
 import type { Project as AppProject } from "@/types";
 
 export interface McpUser {
@@ -292,7 +293,7 @@ export async function handleMcpRequest(
             serverInfo: {
               name: "procal-mcp-server",
               title: "ProCal",
-              version: "1.6.9",
+              version: APP_VERSION.replace(/^v/, ""),
               websiteUrl: baseUrl,
               icons: [
                 {

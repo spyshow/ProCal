@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { handleMcpRequest, type JsonRpcRequest, type McpUser } from "../server";
+import { APP_VERSION } from "@/lib/version";
 
 const { mockDb } = vi.hoisted(() => ({
   mockDb: {
@@ -91,7 +92,7 @@ describe("Zero-Dependency JSON-RPC 2.0 MCP Server", () => {
       serverInfo: {
         name: "procal-mcp-server",
         title: "ProCal",
-        version: "1.6.9",
+        version: APP_VERSION.replace(/^v/, ""),
         websiteUrl: baseUrl,
         icons: [
           {

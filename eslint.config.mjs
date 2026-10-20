@@ -16,7 +16,6 @@ const eslintConfig = defineConfig([
     ".antigravity/**",
     ".auto-claude/**",
     "intro-video/**",
-    "graphify-out/**",
     ".gstack/**",
     "scripts/**",
   ]),

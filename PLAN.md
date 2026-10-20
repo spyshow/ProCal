@@ -37,5 +37,5 @@ When a project is created via MCP with multiple apartment templates assigned to 
   - Check phase balance and report download.
 
 ### Phase 4: Verification & Test Suite
-- **Action**: Run `npm test` across all 87 test files to ensure 100% pass rate with no regressions. Run `graphify update .`.
+- **Action**: Run `npm test` across all 87 test files to ensure 100% pass rate with no regressions.
 - **Proof**: All 939+ tests pass.

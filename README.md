@@ -82,11 +82,6 @@ New to the codebase? Start with the [tutorial](./docs/tutorial-getting-started.m
 - **90+ country presets** (`country-defaults.ts`): Automatic configuration of nominal voltages, frequency, standard power factor, room load densities (VA/m²), and climate-adapted A/C sizing rules.
 - **Multilingual UI**: Native support for **English (`en`)**, **Arabic (`ar` with RTL layout)**, **German (`de`)**, and **Italian (`it`)** with in-app language switching.
 
-### Architecture knowledge graph (`graphify`)
-- Built-in knowledge graph in `graphify-out/` indexing 6,000+ nodes and 8,800+ AST/semantic edges across components, calculation functions, and standards.
-- Navigable via `graphify query`, `graphify path`, and interactive HTML visualization (`graphify-out/graph.html`).
-
----
 
 ## Tech stack
 
@@ -104,7 +99,6 @@ New to the codebase? Start with the [tutorial](./docs/tutorial-getting-started.m
 | Internationalization | `i18next` + `react-i18next` (English, Arabic RTL, German, Italian) |
 | Observability | `@microsoft/clarity` (user session analytics & heatmaps) |
 | Testing | Vitest (56 test suites, 630+ unit & integration tests) |
-| Knowledge Graph | `graphify` (6,000+ nodes, persistent AST + semantic codebase map) |
 
 ---
 

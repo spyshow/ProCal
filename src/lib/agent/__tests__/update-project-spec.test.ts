@@ -28,6 +28,7 @@ const { mockDb } = vi.hoisted(() => ({
     floorDesign: {
       create: vi.fn(),
       update: vi.fn().mockResolvedValue({}),
+      delete: vi.fn().mockResolvedValue({}),
     },
     floorItem: {
       create: vi.fn(),

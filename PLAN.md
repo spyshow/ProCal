@@ -1,31 +1,41 @@
-# Implementation Plan - MCP App Icon & Branding for Google Gemini (v1.6.4)
+# Implementation Plan - Multi-Apartment Single Floor Consolidation & SLD Generator Fix
 
 ## Problem Statement
-In Google Gemini Connected Apps (`gemini.google.com/apps`), the ProCal MCP server connection displays a broken image icon (`broken_image_grey600_18dp.png`). This occurs because:
-1. `serverInfo` returned during the MCP `initialize` handshake does not include the official MCP `icons` metadata array or `iconUrl` fields.
-2. If Gemini attempts to resolve relative fallback icon paths (such as `/api/mcp/icon` or `/api/mcp/favicon.ico`), Next.js returns 404.
+When a project is created via MCP with multiple apartment templates assigned to the same floor (e.g., Floor 1 having both "Apartment 1 (Upper Unit)" and "Apartment 2 (Lower Unit)"):
+1. `src/lib/agent/build-project.ts` iterates over `bldg.floorAssignments` and executes `tx.floorDesign.create` for every entry. This creates multiple `FloorDesign` database records with the same `floorNumber: 1`. In the UI calculator table, this displays two separate "F1" cards (each with 1 circuit) instead of one unified "F1" card containing both apartment circuits.
+2. `src/lib/sld/generator.ts` generates floor buses keyed by `floor_bus_${bldgPrefix}_${fd.floorNumber}`. When multiple `FloorDesign` records share the same `floorNumber`, it outputs duplicate bus nodes (e.g. `floor_bus_..._1`), causing Mermaid/SLD parsers to crash with `Duplicate node id`.
+3. In existing project `264592a9-d23f-40da-8f1e-9e838be9ac60`, Floor 1 is currently split into two duplicate F1 records, causing both the UI duplicate cards and the SLD error.
 
 ## Objective
-Provide full visual branding and icon support across all MCP client surfaces (specifically Google Gemini Connected Apps) by declaring official MCP `icons` in `serverInfo` and adding rewrite fallbacks for relative icon requests.
+1. Consolidate `FloorDesign` creation in `build-project.ts` (in both `create_project_from_spec` and `update_project_spec`) so all apartment assignments for a given `floorNumber` in a building are mapped to a single `FloorDesign` record.
+2. Group floors by `floorNumber` in `src/lib/sld/generator.ts` so duplicate node IDs are physically impossible even if legacy data has duplicate floor designs.
+3. Update project `264592a9-d23f-40da-8f1e-9e838be9ac60` using ProCal MCP tools so Floor 1 contains both apartments under one single F1 panel with balanced phases.
+4. Verify with full unit test suite (`npm test`), verify SLD generation for `264592a9-d23f-40da-8f1e-9e838be9ac60`, and update knowledge graph.
 
 ---
 
 ## Phases & Tasks
 
-### Phase 1: MCP `serverInfo.icons` Specification Support
-- **Files**: `src/lib/mcp/server.ts`, `src/lib/mcp/__tests__/server.test.ts`
-- **Action**: Add `title: "ProCal"`, `websiteUrl`, `icons` array (with `apple-touch-icon.png`, `icon.svg`, and `favicon.ico`), and fallback `icon`/`iconUrl` properties to `serverInfo` in `initialize` response.
-- **Proof**: Unit tests asserting `serverInfo.icons` contains valid `src`, `mimeType`, and size declarations.
+### Phase 1: Consolidate FloorDesign in `build-project.ts`
+- **Files**: `src/lib/agent/build-project.ts`, `src/lib/agent/__tests__/build-project.test.ts`
+- **Action**:
+  - In `create_project_from_spec`: Maintain a `floorDesignsMap = new Map<number, FloorDesign>()` per building. For each `fa` in `bldg.floorAssignments`, check if a `FloorDesign` for `fa.floorNumber` already exists. If not, create it. If it does, reuse it and append `FloorItem`s to that floor design.
+  - In `update_project_spec`: Similarly, ensure when creating or updating floors from `floorAssignments`, entries with the same `floorNumber` share the same `FloorDesign` and do not create duplicate floor records.
+- **Proof**: Unit tests with multiple apartment templates on the same floor verifying exactly 1 `FloorDesign` record is created per floor number.
 
-### Phase 2: Next.js Relative Icon Rewrites
-- **Files**: `next.config.ts`
-- **Action**: Add `rewrites()` in `next.config.ts` routing `/api/mcp/icon`, `/api/mcp/icon.png`, `/api/mcp/favicon.ico`, and `/api/favicon.ico` to their respective static image assets.
-- **Proof**: Verify Next.js config parses and rewrites route properly.
+### Phase 2: SLD Generator Floor Grouping
+- **Files**: `src/lib/sld/generator.ts`, `src/lib/sld/__tests__/generator.test.ts` (or relevant SLD tests)
+- **Action**:
+  - Group `bldg.floorDesigns` by `floorNumber` (combining items) before emitting Mermaid bus nodes.
+  - Ensure unique node IDs and consistent single bus per floor level.
+- **Proof**: Run SLD generator on project specs with multiple floor design entries; verify no duplicate IDs.
 
-### Phase 3: Version Bump to 1.6.4
-- **Files**: `package.json`, `package-lock.json`, `src/lib/version.ts`, `src/lib/mcp/server.ts`, `src/lib/mcp/__tests__/server.test.ts`
-- **Action**: Synchronize version to `1.6.4`.
+### Phase 3: Update Existing Project via MCP
+- **Action**:
+  - Use `procal` MCP tool `update_project_spec` on project `264592a9-d23f-40da-8f1e-9e838be9ac60` with consolidated floor assignments.
+  - Verify `check_project_compliance` and `get_project_sld` return 200 without duplicate node error.
+  - Check phase balance and report download.
 
-### Phase 4: Verification, Git Push & Release v1.6.4
-- **Action**: Run `npm test` (all 87+ suites), update knowledge graph via `graphify update .`, commit, push `origin/master --tags`, and publish GitHub Release `v1.6.4`.
-- **Proof**: 100% test pass rate, verified GitHub release live.
+### Phase 4: Verification & Test Suite
+- **Action**: Run `npm test` across all 87 test files to ensure 100% pass rate with no regressions. Run `graphify update .`.
+- **Proof**: All 939+ tests pass.

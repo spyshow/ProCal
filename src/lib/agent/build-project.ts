@@ -304,23 +304,29 @@ export async function createProjectFromSpec(
           apartmentsCount: totalBldgApts,
         });
 
-        // Create Floors and Items
+        // Create Floors and Items (consolidated by floorNumber to prevent duplicate F1 cards and buses)
+        const floorDesignMap = new Map<number, { id: string }>();
+
         for (const fa of bldg.floorAssignments) {
           const tpl = createdTemplates.get(fa.templateName);
           if (!tpl) continue;
 
-          const riserLength = fa.riserCableLengthM ?? Math.max(10, fa.floorNumber * 3 + 5);
-
-          const createdFd = await tx.floorDesign.create({
-            data: {
-              buildingId: createdBldg.id,
-              floorNumber: fa.floorNumber,
-              hasFloorSubPanels: fa.hasFloorSubPanels ?? false,
-              riserCableLength: riserLength,
-              riserCableSize: fa.riserCableSize ?? null,
-              riserBreakerSize: fa.riserBreakerSize ?? null,
-            },
-          });
+          let fd = floorDesignMap.get(fa.floorNumber);
+          if (!fd) {
+            const riserLength = fa.riserCableLengthM ?? Math.max(10, fa.floorNumber * 3 + 5);
+            const createdFd = await tx.floorDesign.create({
+              data: {
+                buildingId: createdBldg.id,
+                floorNumber: fa.floorNumber,
+                hasFloorSubPanels: fa.hasFloorSubPanels ?? false,
+                riserCableLength: riserLength,
+                riserCableSize: fa.riserCableSize ?? null,
+                riserBreakerSize: fa.riserBreakerSize ?? null,
+              },
+            });
+            fd = { id: createdFd.id };
+            floorDesignMap.set(fa.floorNumber, fd);
+          }
 
           const isThreePhase = tpl.phases === 3;
           const connectedKw = tpl.connectedKw;
@@ -345,7 +351,7 @@ export async function createProjectFromSpec(
           for (let u = 1; u <= fa.count; u++) {
             await tx.floorItem.create({
               data: {
-                floorDesignId: createdFd.id,
+                floorDesignId: fd.id,
                 type: "APARTMENT",
                 name: `${fa.templateName} - ${u}`,
                 apartmentTemplateId: tpl.id,
@@ -636,6 +642,17 @@ export async function updateProjectSpec(
           }
 
           if (bldgSpec.floorAssignments && bldgSpec.floorAssignments.length > 0) {
+            const totalAptsInSpec = bldgSpec.floorAssignments.reduce((s, a) => s + a.count, 0);
+            await tx.building.update({
+              where: { id: bldgId },
+              data: {
+                apartmentsPerFloor: Math.round(totalAptsInSpec / Math.max(1, bldgSpec.floors)),
+              },
+            });
+
+            const floorDesignMap = new Map<number, { id: string }>();
+            const clearedFloors = new Set<number>();
+
             for (const fa of bldgSpec.floorAssignments) {
               const tpl = templateMap.get(fa.templateName);
               if (!tpl) continue;
@@ -643,33 +660,53 @@ export async function updateProjectSpec(
               const riserLength = fa.riserCableLengthM ?? Math.max(10, fa.floorNumber * 3 + 5);
 
               let floorDesignId: string;
-              const existingFd = existingBldg?.floorDesigns?.find((f) => f.floorNumber === fa.floorNumber);
-              if (existingFd) {
-                floorDesignId = existingFd.id;
-                await tx.floorDesign.update({
-                  where: { id: existingFd.id },
-                  data: {
-                    hasFloorSubPanels: fa.hasFloorSubPanels ?? existingFd.hasFloorSubPanels,
-                    riserCableLength: riserLength,
-                    riserCableSize: fa.riserCableSize ?? existingFd.riserCableSize,
-                    riserBreakerSize: fa.riserBreakerSize ?? existingFd.riserBreakerSize,
-                  },
-                });
-                await tx.floorItem.deleteMany({
-                  where: { floorDesignId: existingFd.id },
-                });
+              if (floorDesignMap.has(fa.floorNumber)) {
+                floorDesignId = floorDesignMap.get(fa.floorNumber)!.id;
               } else {
-                const createdFd = await tx.floorDesign.create({
-                  data: {
-                    buildingId: bldgId,
-                    floorNumber: fa.floorNumber,
-                    hasFloorSubPanels: fa.hasFloorSubPanels ?? false,
-                    riserCableLength: riserLength,
-                    riserCableSize: fa.riserCableSize ?? null,
-                    riserBreakerSize: fa.riserBreakerSize ?? null,
-                  },
-                });
-                floorDesignId = createdFd.id;
+                const matchingFds = existingBldg?.floorDesigns?.filter((f) => f.floorNumber === fa.floorNumber) || [];
+                if (matchingFds.length > 0) {
+                  const primaryFd = matchingFds[0];
+                  floorDesignId = primaryFd.id;
+                  await tx.floorDesign.update({
+                    where: { id: primaryFd.id },
+                    data: {
+                      hasFloorSubPanels: fa.hasFloorSubPanels ?? primaryFd.hasFloorSubPanels,
+                      riserCableLength: riserLength,
+                      riserCableSize: fa.riserCableSize ?? primaryFd.riserCableSize,
+                      riserBreakerSize: fa.riserBreakerSize ?? primaryFd.riserBreakerSize,
+                    },
+                  });
+
+                  // Clean up any historical duplicate FloorDesigns for this floorNumber
+                  for (let i = 1; i < matchingFds.length; i++) {
+                    await tx.floorItem.deleteMany({
+                      where: { floorDesignId: matchingFds[i].id },
+                    });
+                    await tx.floorDesign.delete({
+                      where: { id: matchingFds[i].id },
+                    });
+                  }
+
+                  if (!clearedFloors.has(fa.floorNumber)) {
+                    await tx.floorItem.deleteMany({
+                      where: { floorDesignId: primaryFd.id },
+                    });
+                    clearedFloors.add(fa.floorNumber);
+                  }
+                } else {
+                  const createdFd = await tx.floorDesign.create({
+                    data: {
+                      buildingId: bldgId,
+                      floorNumber: fa.floorNumber,
+                      hasFloorSubPanels: fa.hasFloorSubPanels ?? false,
+                      riserCableLength: riserLength,
+                      riserCableSize: fa.riserCableSize ?? null,
+                      riserBreakerSize: fa.riserBreakerSize ?? null,
+                    },
+                  });
+                  floorDesignId = createdFd.id;
+                }
+                floorDesignMap.set(fa.floorNumber, { id: floorDesignId });
               }
 
               for (let u = 1; u <= fa.count; u++) {

@@ -80,7 +80,7 @@ describe("Zero-Dependency JSON-RPC 2.0 MCP Server", () => {
       serverInfo: {
         name: "procal-mcp-server",
         title: "ProCal",
-        version: "1.6.4",
+        version: "1.6.5",
         websiteUrl: baseUrl,
         icons: [
           {

@@ -59,6 +59,43 @@ export function resolveBreakerRating(
   return `${rating}A`;
 }
 
+/**
+ * Consolidates multiple floor design entries sharing the same floorNumber
+ * into a single unified floor design entry, grouping all floor items together.
+ * This guarantees unique floor bus IDs and prevents duplicate node ID crashes in SLD.
+ */
+export function consolidateFloorDesigns<
+  T extends {
+    floorNumber: number;
+    hasFloorSubPanels: boolean;
+    riserBreakerSize?: string | null;
+    riserCableSize?: string | null;
+    riserCableLength?: number | null;
+    items?: unknown[];
+  }
+>(floorDesigns: T[]): (T & { items: NonNullable<T['items']> })[] {
+  const map = new Map<number, T & { items: NonNullable<T['items']> }>();
+  const sorted = [...(floorDesigns || [])].sort((a, b) => a.floorNumber - b.floorNumber);
+  for (const fd of sorted) {
+    const existing = map.get(fd.floorNumber);
+    if (existing) {
+      existing.hasFloorSubPanels = existing.hasFloorSubPanels || fd.hasFloorSubPanels;
+      existing.riserBreakerSize = existing.riserBreakerSize || fd.riserBreakerSize;
+      existing.riserCableSize = existing.riserCableSize || fd.riserCableSize;
+      existing.riserCableLength = existing.riserCableLength || fd.riserCableLength;
+      if (fd.items && Array.isArray(fd.items)) {
+        (existing.items as unknown[]).push(...(fd.items as unknown[]));
+      }
+    } else {
+      map.set(fd.floorNumber, {
+        ...fd,
+        items: [...(((fd.items as unknown[]) || []) as unknown[])] as NonNullable<T['items']>,
+      });
+    }
+  }
+  return Array.from(map.values()).sort((a, b) => a.floorNumber - b.floorNumber);
+}
+
 export function generateSLD(project: Project | SLDProject): string {
   const lines: string[] = [];
   let mdbBreakerIdx = 0;
@@ -106,7 +143,7 @@ export function generateSLD(project: Project | SLDProject): string {
 
   project.buildings.forEach((bldg, bldgIdx) => {
     const bldgPrefix = bldg.id ? bldg.id.replace(/[^a-zA-Z0-9]/g, '_') : `bldg_${bldgIdx + 1}`;
-    const sortedFloors = [...bldg.floorDesigns].sort((a, b) => a.floorNumber - b.floorNumber);
+    const sortedFloors = consolidateFloorDesigns(bldg.floorDesigns);
     for (const fd of sortedFloors) {
       if (fd.items.length === 0) continue;
 
@@ -197,7 +234,7 @@ export function generateSLDPages(project: Project | SLDProject): SLDPage[] {
 
   const allFloors: { building: string; fd: typeof project.buildings[0]['floorDesigns'][0] }[] = [];
   for (const bldg of project.buildings) {
-    const sortedFloors = [...bldg.floorDesigns].sort((a, b) => a.floorNumber - b.floorNumber);
+    const sortedFloors = consolidateFloorDesigns(bldg.floorDesigns);
     for (const fd of sortedFloors) {
       if (fd.items.length > 0) {
         allFloors.push({ building: bldg.name, fd });

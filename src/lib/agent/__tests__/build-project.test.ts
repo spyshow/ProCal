@@ -113,6 +113,92 @@ describe("build-project service", () => {
       expect(mockDb.project.create).not.toHaveBeenCalled();
     });
 
+    it("consolidates multiple apartment templates on the same floor into a single floorDesign", async () => {
+      const multiAptFloorSpec: ProjectDrawingSpecInput = {
+        name: "Twin Apartment Tower",
+        voltage: 400,
+        frequency: 50,
+        powerFactor: 0.85,
+        calculationStandard: "IEC",
+        isConfirmedByUser: true,
+        apartmentTemplates: [
+          {
+            name: "Apartment 1 (Upper Unit)",
+            rooms: [{ name: "Living", type: "LIVING_ROOM", areaM2: 25 }],
+          },
+          {
+            name: "Apartment 2 (Lower Unit)",
+            rooms: [{ name: "Living", type: "LIVING_ROOM", areaM2: 25 }],
+          },
+        ],
+        buildings: [
+          {
+            name: "Tower 1",
+            floors: 1,
+            floorAssignments: [
+              { floorNumber: 1, templateName: "Apartment 1 (Upper Unit)", count: 1 },
+              { floorNumber: 1, templateName: "Apartment 2 (Lower Unit)", count: 1 },
+            ],
+          },
+        ],
+      };
+
+      mockDb.project.create.mockResolvedValueOnce({
+        id: "proj-twin-1",
+        name: "Twin Apartment Tower",
+        voltage: 400,
+        frequency: 50,
+        powerFactor: 0.85,
+        calculationStandard: "IEC",
+      });
+
+      mockDb.apartmentTemplate.create
+        .mockResolvedValueOnce({ id: "tpl-1", name: "Apartment 1 (Upper Unit)" })
+        .mockResolvedValueOnce({ id: "tpl-2", name: "Apartment 2 (Lower Unit)" });
+
+      mockDb.building.create.mockResolvedValueOnce({
+        id: "bldg-twin-1",
+        name: "Tower 1",
+        floors: 1,
+      });
+
+      mockDb.floorDesign.create.mockResolvedValueOnce({
+        id: "fd-floor-1",
+        floorNumber: 1,
+      });
+
+      const res = await createProjectFromSpec(testUser, multiAptFloorSpec);
+
+      expect(res.success).toBe(true);
+      // Exactly ONE floorDesign created for Floor 1
+      expect(mockDb.floorDesign.create).toHaveBeenCalledTimes(1);
+      expect(mockDb.floorDesign.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            floorNumber: 1,
+          }),
+        })
+      );
+
+      // Both apartments created with the same floorDesignId
+      expect(mockDb.floorItem.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            floorDesignId: "fd-floor-1",
+            name: "Apartment 1 (Upper Unit) - 1",
+          }),
+        })
+      );
+      expect(mockDb.floorItem.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            floorDesignId: "fd-floor-1",
+            name: "Apartment 2 (Lower Unit) - 1",
+          }),
+        })
+      );
+    });
+
     it("decrements 1 credit and creates project, templates, rooms, buildings, and items in transaction", async () => {
       mockDb.project.create.mockResolvedValueOnce({
         id: "proj-emerald-1",

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { generateSLD, generateSLDPages, resolveBreakerRating } from './generator';
+import { generateSLD, generateSLDPages, resolveBreakerRating, consolidateFloorDesigns } from './generator';
 
 describe('SLD Generator', () => {
   const mockProject = {
@@ -254,5 +254,49 @@ describe('SLD Generator', () => {
       expect(pages[0].title).toBe('Utility Plant - Services');
     });
   });
-});
+  describe('consolidateFloorDesigns & duplicate floorNumber handling', () => {
+    it('consolidates multiple floorDesign records on the same floorNumber into one', () => {
+      const duplicateFloorsProject = {
+        name: 'Twin Apartment Floor',
+        voltage: 400,
+        frequency: 50,
+        powerFactor: 0.85,
+        buildings: [
+          {
+            id: 'bldg-1',
+            name: 'Tower 1',
+            floors: 1,
+            floorDesigns: [
+              {
+                floorNumber: 1,
+                hasFloorSubPanels: false,
+                items: [
+                  { name: 'Apartment 1', type: 'APARTMENT', calculatedMaxDemand: 23, calculatedCurrent: 100, breakerSize: '125A', cableSize: '25 mm²' },
+                ],
+              },
+              {
+                floorNumber: 1,
+                hasFloorSubPanels: false,
+                items: [
+                  { name: 'Apartment 2', type: 'APARTMENT', calculatedMaxDemand: 23, calculatedCurrent: 100, breakerSize: '125A', cableSize: '25 mm²' },
+                ],
+              },
+            ],
+          },
+        ],
+      };
 
+      const dsl = generateSLD(duplicateFloorsProject as Parameters<typeof generateSLD>[0]);
+      const busMatches = dsl.match(/floor_bus_bldg_1_1 = bus/g);
+      expect(busMatches).toHaveLength(1);
+      expect(dsl).toContain('F1-A');
+      expect(dsl).toContain('F1-B');
+
+      const pages = generateSLDPages(duplicateFloorsProject as Parameters<typeof generateSLDPages>[0]);
+      expect(pages).toHaveLength(1);
+      expect(pages[0].title).toBe('F1');
+      expect(pages[0].dsl).toContain('F1-A');
+      expect(pages[0].dsl).toContain('F1-B');
+    });
+  });
+});

@@ -57,30 +57,31 @@ export interface ProjectCreatedResult {
 }
 
 function calculateRoomParameters(
-  room: RoomSpec | RoomSpecInput,
+  room: RoomSpec,
   countryDefaults: ReturnType<typeof getCountryDefaults>,
   powerFactor: number
 ): { targetWatts: number; loadDensity: number } {
   let targetWatts: number;
   let loadDensity: number;
+  const area = room.areaM2;
 
   if (room.explicitLoadKw != null && room.explicitLoadKw > 0) {
     targetWatts = room.explicitLoadKw * 1000;
     const acWatts = (room.hasAc ?? true)
-      ? calculateAcWatts(room.areaM2, countryDefaults.acSizingRules)
+      ? calculateAcWatts(area, countryDefaults.acSizingRules)
       : 0;
-    loadDensity = Math.max(0, parseFloat(((targetWatts - acWatts) / room.areaM2).toFixed(2)));
+    loadDensity = Math.max(0, parseFloat(((targetWatts - acWatts) / area).toFixed(2)));
   } else if (room.explicitLoadKva != null && room.explicitLoadKva > 0) {
     targetWatts = room.explicitLoadKva * 1000 * powerFactor;
     const acWatts = (room.hasAc ?? true)
-      ? calculateAcWatts(room.areaM2, countryDefaults.acSizingRules)
+      ? calculateAcWatts(area, countryDefaults.acSizingRules)
       : 0;
-    loadDensity = Math.max(0, parseFloat(((targetWatts - acWatts) / room.areaM2).toFixed(2)));
+    loadDensity = Math.max(0, parseFloat(((targetWatts - acWatts) / area).toFixed(2)));
   } else {
     const densityKey = getDensityKeyForRoomType(room.type || "OTHER");
     loadDensity = room.loadDensityVaPerM2 ?? (countryDefaults.roomDensities[densityKey] || 50);
     targetWatts = calculateRoomLoad(
-      room.areaM2,
+      area,
       loadDensity,
       room.hasAc ?? true,
       countryDefaults.acSizingRules
@@ -964,28 +965,27 @@ export async function checkProjectSelectivity(projectIdOrProject: string | any) 
     throw new Error(`Project not found: ${projectIdOrProject}`);
   }
 
-  const catalog =
+  const rawCatalog =
     (await db.equipmentCatalog
       ?.findMany?.({
-        select: {
-          id: true,
-          name: true,
-          category: true,
-          manufacturer: true,
-          series: true,
-          frameCurrent: true,
-          ratedCurrent: true,
-          poles: true,
-          icu: true,
-          ics: true,
-          curve: true,
-          breakerFamilyId: true,
-          tripUnitType: true,
-          isElectronic: true,
-          isCurrentLimiting: true,
-        },
+        include: { family: true },
       })
       .catch(() => [])) ?? [];
+
+  const catalog: EquipmentItem[] = rawCatalog.map((e: any) => ({
+    id: e.id,
+    category: e.category,
+    manufacturer: e.manufacturer,
+    familyId: e.familyId ?? e.family?.id ?? null,
+    familyName: e.family?.name ?? null,
+    series: e.series,
+    model: e.model,
+    ratedCurrent: e.ratedCurrent,
+    poles: e.poles,
+    breakingCapacity: e.breakingCapacity ?? null,
+    tripUnit: e.tripUnit ?? null,
+    settingsJson: e.settingsJson ?? null,
+  }));
   const defaultFamilies = {
     ACB: (project as any).defaultAcbFamilyId ?? null,
     MCCB: (project as any).defaultMccbFamilyId ?? null,

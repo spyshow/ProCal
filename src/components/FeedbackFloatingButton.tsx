@@ -265,20 +265,17 @@ export function FeedbackFloatingButton() {
   return (
     <>
       {/* Floating Action Button (FAB) */}
-      <aside
+      <button
+        type="button"
         data-qa-ignore="true"
+        onClick={handleOpen}
         aria-label={t('feedback.title', 'Send Feedback to Admin')}
-        className={`qa-feedback-trigger fixed bottom-3 ${isRtl ? 'left-14' : 'right-4'} z-40 print:hidden`}
+        title={t('feedback.tooltip', 'Report an Error or Send Feedback to Admin')}
+        className="qa-feedback-trigger group flex items-center justify-center gap-1.5 h-8 px-3 rounded-full bg-[var(--card-bg,#0f172a)]/95 hover:bg-[var(--card-bg-subtle,#1e293b)] text-[var(--foreground-color,#f8fafc)] border border-[var(--border-color,#334155)] shadow-md shadow-black/10 hover:shadow-orange-500/10 hover:border-orange-500/50 transition-all duration-200 text-[11px] font-semibold backdrop-blur-md focus:outline-none focus:ring-2 focus:ring-orange-400 cursor-pointer"
       >
-        <button
-          onClick={handleOpen}
-          className="group flex items-center justify-center gap-1.5 h-8 px-3 rounded-full bg-slate-900/95 hover:bg-slate-800 text-slate-200 border border-slate-700/80 shadow-md shadow-black/40 hover:shadow-orange-500/10 hover:border-orange-500/50 transition-all duration-200 text-[11px] font-semibold backdrop-blur-md focus:outline-none focus:ring-2 focus:ring-orange-400 cursor-pointer"
-          title={t('feedback.tooltip', 'Report an Error or Send Feedback to Admin')}
-        >
-          <MessageSquareWarning size={14} className="text-orange-400 group-hover:scale-110 transition-transform shrink-0" />
-          <span className="whitespace-nowrap font-medium text-[11px]">{t('feedback.buttonLabel', 'Feedback')}</span>
-        </button>
-      </aside>
+        <MessageSquareWarning size={14} className="text-orange-600 dark:text-orange-400 group-hover:scale-110 transition-transform shrink-0" />
+        <span className="whitespace-nowrap font-medium text-[11px]">{t('feedback.buttonLabel', 'Feedback')}</span>
+      </button>
 
       {/* Feedback & Error Reporting Modal Dialog */}
       {isOpen && (

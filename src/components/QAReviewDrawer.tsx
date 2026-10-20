@@ -43,9 +43,19 @@ export function QAReviewDrawer({ pageKey, pageTitle }: QAReviewDrawerProps) {
   const [loading, setLoading] = useState(false);
   const [creating, setCreating] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [slot, setSlot] = useState<HTMLElement | null>(null);
 
   useEffect(() => {
     setMounted(true);
+    const target = document.getElementById("procal-qa-trigger-slot");
+    if (target) {
+      setSlot(target);
+    } else {
+      const timer = setTimeout(() => {
+        setSlot(document.getElementById("procal-qa-trigger-slot"));
+      }, 50);
+      return () => clearTimeout(timer);
+    }
   }, []);
 
   // Form State
@@ -222,27 +232,51 @@ export function QAReviewDrawer({ pageKey, pageTitle }: QAReviewDrawerProps) {
 
   return (
     <>
-      {/* Floating Trigger Button */}
-      <div
-        data-qa-ignore="true"
-        className={`qa-floating-trigger fixed bottom-3 z-40 ${
-          isRtl ? "left-[160px]" : "right-[124px]"
-        } print:hidden`}
-      >
-        <button
-          onClick={() => setIsOpen(true)}
-          className="group flex items-center justify-center gap-1.5 h-8 px-3 rounded-full bg-[var(--card-bg)]/95 hover:bg-[var(--card-bg-subtle)] text-[var(--foreground-color)] border border-[var(--border-color)] shadow-md shadow-black/20 hover:shadow-orange-500/10 hover:border-orange-500/50 transition-all duration-200 text-[11px] font-semibold backdrop-blur-md focus:outline-none focus:ring-2 focus:ring-orange-400 cursor-pointer"
-          title={t("qa.qaReviewNotes", "QA Review Notes")}
+      {/* Floating Trigger Button: Portaled into layout floating dock slot alongside Feedback */}
+      {mounted && (slot || (typeof document !== "undefined" && document.getElementById("procal-qa-trigger-slot"))) ? (
+        createPortal(
+          <button
+            type="button"
+            data-qa-ignore="true"
+            onClick={() => setIsOpen(true)}
+            className="qa-floating-trigger group flex items-center justify-center gap-1.5 h-8 px-3 rounded-full bg-[var(--card-bg,#0f172a)]/95 hover:bg-[var(--card-bg-subtle,#1e293b)] text-[var(--foreground-color,#f8fafc)] border border-[var(--border-color,#334155)] shadow-md shadow-black/10 hover:shadow-orange-500/10 hover:border-orange-500/50 transition-all duration-200 text-[11px] font-semibold backdrop-blur-md focus:outline-none focus:ring-2 focus:ring-orange-400 cursor-pointer"
+            title={t("qa.qaReviewNotes", "QA Review Notes")}
+            aria-label={t("qa.qaReviewNotes", "QA Review Notes")}
+          >
+            <ClipboardCheck size={14} className="text-orange-600 dark:text-orange-400 group-hover:scale-110 transition-transform shrink-0" />
+            <span className="whitespace-nowrap font-medium text-[11px]">{t("qa.qaNotes", "QA Notes")}</span>
+            {openCount > 0 && (
+              <span className="w-4 h-4 rounded-full bg-orange-600 text-white text-[10px] font-bold flex items-center justify-center animate-pulse shrink-0 ml-0.5">
+                {openCount}
+              </span>
+            )}
+          </button>,
+          slot || document.getElementById("procal-qa-trigger-slot")!
+        )
+      ) : mounted ? (
+        <div
+          data-qa-ignore="true"
+          className={`qa-floating-trigger fixed bottom-3.5 z-40 ${
+            isRtl ? "left-[120px]" : "right-[120px]"
+          } print:hidden`}
         >
-          <ClipboardCheck size={14} className="text-orange-600 dark:text-orange-400 group-hover:scale-110 transition-transform shrink-0" />
-          <span className="whitespace-nowrap font-medium text-[11px]">{t("qa.qaNotes", "QA Notes")}</span>
-          {openCount > 0 && (
-            <span className="w-4 h-4 rounded-full bg-orange-600 text-white text-[10px] font-bold flex items-center justify-center animate-pulse shrink-0 ml-0.5">
-              {openCount}
-            </span>
-          )}
-        </button>
-      </div>
+          <button
+            type="button"
+            onClick={() => setIsOpen(true)}
+            className="group flex items-center justify-center gap-1.5 h-8 px-3 rounded-full bg-[var(--card-bg,#0f172a)]/95 hover:bg-[var(--card-bg-subtle,#1e293b)] text-[var(--foreground-color,#f8fafc)] border border-[var(--border-color,#334155)] shadow-md shadow-black/10 hover:shadow-orange-500/10 hover:border-orange-500/50 transition-all duration-200 text-[11px] font-semibold backdrop-blur-md focus:outline-none focus:ring-2 focus:ring-orange-400 cursor-pointer"
+            title={t("qa.qaReviewNotes", "QA Review Notes")}
+            aria-label={t("qa.qaReviewNotes", "QA Review Notes")}
+          >
+            <ClipboardCheck size={14} className="text-orange-600 dark:text-orange-400 group-hover:scale-110 transition-transform shrink-0" />
+            <span className="whitespace-nowrap font-medium text-[11px]">{t("qa.qaNotes", "QA Notes")}</span>
+            {openCount > 0 && (
+              <span className="w-4 h-4 rounded-full bg-orange-600 text-white text-[10px] font-bold flex items-center justify-center animate-pulse shrink-0 ml-0.5">
+                {openCount}
+              </span>
+            )}
+          </button>
+        </div>
+      ) : null}
 
       {/* Slide-out Drawer */}
       {mounted && typeof document !== "undefined" && isOpen && createPortal(

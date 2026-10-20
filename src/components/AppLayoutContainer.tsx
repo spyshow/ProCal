@@ -45,7 +45,15 @@ function LayoutInner({ children }: { children: React.ReactNode }) {
         </main>
       </div>
       <OnboardingTour />
-      <FeedbackFloatingButton />
+      {/* Floating Action Dock: Perfectly aligned QA Notes & Feedback buttons */}
+      <div
+        id="procal-floating-dock"
+        data-qa-ignore="true"
+        className={`fixed bottom-3.5 ${isRtl ? 'left-4' : 'right-4'} z-40 flex items-center gap-2 print:hidden`}
+      >
+        <div id="procal-qa-trigger-slot" className="contents" />
+        <FeedbackFloatingButton />
+      </div>
     </div>
   );
 }

@@ -1,4 +1,3 @@
-import { useMemo } from 'react';
 import type { Project } from '@/types';
 import { aggregateLoadRows } from '@/lib/reports/aggregates';
 import { phaseBalance } from '@/lib/calculations/phaseBalance';
@@ -14,25 +13,20 @@ export default function LoadSchedule({
   buildingId,
   showHeader = true,
 }: LoadScheduleProps) {
-  const rows = useMemo(() => {
-    const all = aggregateLoadRows(project);
-    if (!buildingId) return all;
-    return all.filter((r) => r.buildingId === buildingId);
-  }, [project, buildingId]);
+  const allRows = aggregateLoadRows(project);
+  const rows = buildingId ? allRows.filter((r) => r.buildingId === buildingId) : allRows;
 
   // Project or Building-level balance summary
-  const summary = useMemo(() => {
-    const targetBuildings = buildingId
-      ? project.buildings.filter((b) => b.id === buildingId)
-      : project.buildings;
+  const targetBuildings = buildingId
+    ? project.buildings.filter((b) => b.id === buildingId)
+    : project.buildings;
 
-    const allItems = targetBuildings.flatMap((b) => [
-      ...b.floorDesigns.flatMap((fd) => fd.items),
-      ...(b.buildingLoads ?? []),
-    ]);
+  const allItems = targetBuildings.flatMap((b) => [
+    ...b.floorDesigns.flatMap((fd) => fd.items),
+    ...(b.buildingLoads ?? []),
+  ]);
 
-    return phaseBalance(allItems as never, project as never);
-  }, [project, buildingId]);
+  const summary = phaseBalance(allItems as never, project as never);
 
   const totalConnectedKw = rows.reduce((s, r) => s + r.connectedLoadKw, 0);
   const totalDemandKw = summary.totalKw ?? 0;

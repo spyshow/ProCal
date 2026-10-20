@@ -8140,7 +8140,7 @@
       "_origin": "ast",
       "id": "agents_skills_ui_ux_pro_max_scripts_tests_test_core_testdomaindetection",
       "community": 116,
-      "community_name": "detect_domain",
+      "community_name": "test_core.py",
       "norm_label": "testdomaindetection"
     },
     {
@@ -26048,7 +26048,7 @@
       "label": "LoadScheduleProps",
       "file_type": "code",
       "source_file": "src/components/report/LoadSchedule.tsx",
-      "source_location": "L6",
+      "source_location": "L5",
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
@@ -33610,18 +33610,6 @@
       "norm_label": "maxdemandcalculatorpage()"
     },
     {
-      "label": "attachBuildingLoadToDb()",
-      "file_type": "code",
-      "source_file": "src/lib/agent/build-project.ts",
-      "source_location": "L88",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_lib_agent_build_project_attachbuildingloadtodb",
-      "community": 100,
-      "community_name": "validate-spec.ts",
-      "norm_label": "attachbuildingloadtodb()"
-    },
-    {
       "label": "createProjectFromSpec()",
       "file_type": "code",
       "source_file": "src/lib/agent/build-project.ts",
@@ -33634,40 +33622,16 @@
       "norm_label": "createprojectfromspec()"
     },
     {
-      "label": "getProjectComplianceSummary()",
+      "label": "formatCreatedResult()",
       "file_type": "code",
       "source_file": "src/lib/agent/build-project.ts",
-      "source_location": "L800",
+      "source_location": "L424",
       "_callable": true,
       "_origin": "ast",
-      "id": "src_lib_agent_build_project_getprojectcompliancesummary",
+      "id": "src_lib_agent_build_project_formatcreatedresult",
       "community": 100,
       "community_name": "validate-spec.ts",
-      "norm_label": "getprojectcompliancesummary()"
-    },
-    {
-      "label": "updateProjectLoads()",
-      "file_type": "code",
-      "source_file": "src/lib/agent/build-project.ts",
-      "source_location": "L452",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_lib_agent_build_project_updateprojectloads",
-      "community": 100,
-      "community_name": "validate-spec.ts",
-      "norm_label": "updateprojectloads()"
-    },
-    {
-      "label": "updateProjectSpec()",
-      "file_type": "code",
-      "source_file": "src/lib/agent/build-project.ts",
-      "source_location": "L492",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_lib_agent_build_project_updateprojectspec",
-      "community": 100,
-      "community_name": "validate-spec.ts",
-      "norm_label": "updateprojectspec()"
+      "norm_label": "formatcreatedresult()"
     },
     {
       "label": "validateProjectSpec()",
@@ -33694,18 +33658,6 @@
       "norm_label": "getbuildingdiversityfactor()"
     },
     {
-      "label": "recalculateProjectBuildings()",
-      "file_type": "code",
-      "source_file": "src/lib/calculations/recalculate-project.ts",
-      "source_location": "L167",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_lib_calculations_recalculate_project_recalculateprojectbuildings",
-      "community": 100,
-      "community_name": "validate-spec.ts",
-      "norm_label": "recalculateprojectbuildings()"
-    },
-    {
       "label": "getCountryDefaults()",
       "file_type": "code",
       "source_file": "src/lib/country-defaults.ts",
@@ -33716,18 +33668,6 @@
       "community": 100,
       "community_name": "validate-spec.ts",
       "norm_label": "getcountrydefaults()"
-    },
-    {
-      "label": "executeTool()",
-      "file_type": "code",
-      "source_file": "src/lib/mcp/server.ts",
-      "source_location": "L381",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_lib_mcp_server_executetool",
-      "community": 100,
-      "community_name": "validate-spec.ts",
-      "norm_label": "executetool()"
     },
     {
       "label": "._base_config()",
@@ -34302,7 +34242,7 @@
       "_origin": "ast",
       "id": "agents_skills_ui_ux_pro_max_scripts_core_detect_domain",
       "community": 116,
-      "community_name": "detect_domain",
+      "community_name": "test_core.py",
       "norm_label": "detect_domain()"
     },
     {
@@ -34314,7 +34254,7 @@
       "_origin": "ast",
       "id": "agents_skills_ui_ux_pro_max_scripts_tests_test_core_testdomaindetection_test_accessibility_keywords_route_to_ux",
       "community": 116,
-      "community_name": "detect_domain",
+      "community_name": "test_core.py",
       "norm_label": ".test_accessibility_keywords_route_to_ux()"
     },
     {
@@ -34326,7 +34266,7 @@
       "_origin": "ast",
       "id": "agents_skills_ui_ux_pro_max_scripts_tests_test_core_testdomaindetection_test_ambiguous_query_returns_runner_up",
       "community": 116,
-      "community_name": "detect_domain",
+      "community_name": "test_core.py",
       "norm_label": ".test_ambiguous_query_returns_runner_up()"
     },
     {
@@ -34338,7 +34278,7 @@
       "_origin": "ast",
       "id": "agents_skills_ui_ux_pro_max_scripts_tests_test_core_testdomaindetection_test_empty_query_falls_back_to_style",
       "community": 116,
-      "community_name": "detect_domain",
+      "community_name": "test_core.py",
       "norm_label": ".test_empty_query_falls_back_to_style()"
     },
     {
@@ -34350,7 +34290,7 @@
       "_origin": "ast",
       "id": "agents_skills_ui_ux_pro_max_scripts_tests_test_core_testdomaindetection_test_style_keywords_route_to_style",
       "community": 116,
-      "community_name": "detect_domain",
+      "community_name": "test_core.py",
       "norm_label": ".test_style_keywords_route_to_style()"
     },
     {
@@ -36334,6 +36274,90 @@
       "norm_label": "post()"
     },
     {
+      "label": "attachBuildingLoadToDb()",
+      "file_type": "code",
+      "source_file": "src/lib/agent/build-project.ts",
+      "source_location": "L88",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_lib_agent_build_project_attachbuildingloadtodb",
+      "community": 154,
+      "community_name": "server.ts",
+      "norm_label": "attachbuildingloadtodb()"
+    },
+    {
+      "label": "getProjectBOM()",
+      "file_type": "code",
+      "source_file": "src/lib/agent/build-project.ts",
+      "source_location": "L902",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_lib_agent_build_project_getprojectbom",
+      "community": 154,
+      "community_name": "server.ts",
+      "norm_label": "getprojectbom()"
+    },
+    {
+      "label": "recordBreaker()",
+      "file_type": "code",
+      "source_file": "src/lib/agent/build-project.ts",
+      "source_location": "L930",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_lib_agent_build_project_getprojectbom_recordbreaker",
+      "community": 154,
+      "community_name": "server.ts",
+      "norm_label": "recordbreaker()"
+    },
+    {
+      "label": "recordCable()",
+      "file_type": "code",
+      "source_file": "src/lib/agent/build-project.ts",
+      "source_location": "L939",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_lib_agent_build_project_getprojectbom_recordcable",
+      "community": 154,
+      "community_name": "server.ts",
+      "norm_label": "recordcable()"
+    },
+    {
+      "label": "getProjectComplianceSummary()",
+      "file_type": "code",
+      "source_file": "src/lib/agent/build-project.ts",
+      "source_location": "L800",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_lib_agent_build_project_getprojectcompliancesummary",
+      "community": 154,
+      "community_name": "server.ts",
+      "norm_label": "getprojectcompliancesummary()"
+    },
+    {
+      "label": "updateProjectLoads()",
+      "file_type": "code",
+      "source_file": "src/lib/agent/build-project.ts",
+      "source_location": "L452",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_lib_agent_build_project_updateprojectloads",
+      "community": 154,
+      "community_name": "server.ts",
+      "norm_label": "updateprojectloads()"
+    },
+    {
+      "label": "updateProjectSpec()",
+      "file_type": "code",
+      "source_file": "src/lib/agent/build-project.ts",
+      "source_location": "L492",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_lib_agent_build_project_updateprojectspec",
+      "community": 154,
+      "community_name": "server.ts",
+      "norm_label": "updateprojectspec()"
+    },
+    {
       "label": "signReportDownloadToken()",
       "file_type": "code",
       "source_file": "src/lib/auth.ts",
@@ -36344,6 +36368,30 @@
       "community": 154,
       "community_name": "server.ts",
       "norm_label": "signreportdownloadtoken()"
+    },
+    {
+      "label": "recalculateProjectBuildings()",
+      "file_type": "code",
+      "source_file": "src/lib/calculations/recalculate-project.ts",
+      "source_location": "L167",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_lib_calculations_recalculate_project_recalculateprojectbuildings",
+      "community": 154,
+      "community_name": "server.ts",
+      "norm_label": "recalculateprojectbuildings()"
+    },
+    {
+      "label": "executeTool()",
+      "file_type": "code",
+      "source_file": "src/lib/mcp/server.ts",
+      "source_location": "L381",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_lib_mcp_server_executetool",
+      "community": 154,
+      "community_name": "server.ts",
+      "norm_label": "executetool()"
     },
     {
       "label": "handleMcpRequest()",
@@ -44122,18 +44170,6 @@
       "norm_label": "renderpage()"
     },
     {
-      "label": ".test_add_components_no_components()",
-      "file_type": "code",
-      "source_file": ".agents/skills/ui-styling/scripts/tests/test_shadcn_add.py",
-      "source_location": "L95",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "agents_skills_ui_styling_scripts_tests_test_shadcn_add_testshadcninstaller_test_add_components_no_components",
-      "community": 325,
-      "community_name": ".test_add_components_no_components",
-      "norm_label": ".test_add_components_no_components()"
-    },
-    {
       "label": "AdminDashboardRedirectPage()",
       "file_type": "code",
       "source_file": "src/app/(admin)/admin/dashboard/page.tsx",
@@ -44170,6 +44206,18 @@
       "norm_label": "rune2etests()"
     },
     {
+      "label": ".test_add_components_already_installed()",
+      "file_type": "code",
+      "source_file": ".agents/skills/ui-styling/scripts/tests/test_shadcn_add.py",
+      "source_location": "L111",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "agents_skills_ui_styling_scripts_tests_test_shadcn_add_testshadcninstaller_test_add_components_already_installed",
+      "community": 336,
+      "community_name": ".test_add_components_already_installed",
+      "norm_label": ".test_add_components_already_installed()"
+    },
+    {
       "label": ".test_get_installed_components_empty()",
       "file_type": "code",
       "source_file": ".agents/skills/ui-styling/scripts/tests/test_shadcn_add.py",
@@ -44192,42 +44240,6 @@
       "community": 343,
       "community_name": ".test_check_shadcn_config_exists",
       "norm_label": ".test_check_shadcn_config_exists()"
-    },
-    {
-      "label": "getProjectBOM()",
-      "file_type": "code",
-      "source_file": "src/lib/agent/build-project.ts",
-      "source_location": "L902",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_lib_agent_build_project_getprojectbom",
-      "community": 346,
-      "community_name": "getProjectBOM",
-      "norm_label": "getprojectbom()"
-    },
-    {
-      "label": "recordBreaker()",
-      "file_type": "code",
-      "source_file": "src/lib/agent/build-project.ts",
-      "source_location": "L930",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_lib_agent_build_project_getprojectbom_recordbreaker",
-      "community": 346,
-      "community_name": "getProjectBOM",
-      "norm_label": "recordbreaker()"
-    },
-    {
-      "label": "recordCable()",
-      "file_type": "code",
-      "source_file": "src/lib/agent/build-project.ts",
-      "source_location": "L939",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_lib_agent_build_project_getprojectbom_recordcable",
-      "community": 346,
-      "community_name": "getProjectBOM",
-      "norm_label": "recordcable()"
     },
     {
       "label": "CalculatorPage()",
@@ -44590,6 +44602,18 @@
       "norm_label": "section_header()"
     },
     {
+      "label": "format_output()",
+      "file_type": "code",
+      "source_file": ".agents/skills/ui-ux-pro-max/scripts/search.py",
+      "source_location": "L44",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "agents_skills_ui_ux_pro_max_scripts_search_format_output",
+      "community": 36,
+      "community_name": "design_system.py",
+      "norm_label": "format_output()"
+    },
+    {
       "label": ".test_persist_then_skip_then_force()",
       "file_type": "code",
       "source_file": ".agents/skills/ui-ux-pro-max/scripts/tests/test_core.py",
@@ -44941,7 +44965,7 @@
       "label": "LoadSchedule()",
       "file_type": "code",
       "source_file": "src/components/report/LoadSchedule.tsx",
-      "source_location": "L12",
+      "source_location": "L11",
       "_callable": true,
       "_origin": "ast",
       "id": "src_components_report_loadschedule_loadschedule",
@@ -45320,18 +45344,6 @@
       "community": 44,
       "community_name": "search",
       "norm_label": "_suggest_terms()"
-    },
-    {
-      "label": "format_output()",
-      "file_type": "code",
-      "source_file": ".agents/skills/ui-ux-pro-max/scripts/search.py",
-      "source_location": "L44",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "agents_skills_ui_ux_pro_max_scripts_search_format_output",
-      "community": 44,
-      "community_name": "search",
-      "norm_label": "format_output()"
     },
     {
       "label": ".test_accessibility_query_hits_ux()",
@@ -50554,16 +50566,16 @@
       "norm_label": "main()"
     },
     {
-      "label": ".test_add_components_already_installed()",
+      "label": ".test_add_components_no_components()",
       "file_type": "code",
       "source_file": ".agents/skills/ui-styling/scripts/tests/test_shadcn_add.py",
-      "source_location": "L111",
+      "source_location": "L95",
       "_callable": true,
       "_origin": "ast",
-      "id": "agents_skills_ui_styling_scripts_tests_test_shadcn_add_testshadcninstaller_test_add_components_already_installed",
+      "id": "agents_skills_ui_styling_scripts_tests_test_shadcn_add_testshadcninstaller_test_add_components_no_components",
       "community": 85,
       "community_name": "ShadcnInstaller",
-      "norm_label": ".test_add_components_already_installed()"
+      "norm_label": ".test_add_components_no_components()"
     },
     {
       "label": ".test_get_installed_components_no_config()",
@@ -51908,18 +51920,6 @@
       "community": 98,
       "community_name": "generate-tokens.cjs",
       "norm_label": "tocssvarname()"
-    },
-    {
-      "label": "formatCreatedResult()",
-      "file_type": "code",
-      "source_file": "src/lib/agent/build-project.ts",
-      "source_location": "L424",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_lib_agent_build_project_formatcreatedresult",
-      "community": 99,
-      "community_name": "build-project.ts",
-      "norm_label": "formatcreatedresult()"
     },
     {
       "label": "Project.ts",
@@ -53429,6 +53429,17 @@
       "norm_label": "website"
     },
     {
+      "label": "test_core.py",
+      "file_type": "code",
+      "source_file": ".agents/skills/ui-ux-pro-max/scripts/tests/test_core.py",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "agents_skills_ui_ux_pro_max_scripts_tests_test_core",
+      "community": 116,
+      "community_name": "test_core.py",
+      "norm_label": "test_core.py"
+    },
+    {
       "label": "Auto-detect the most relevant domain from query. Matches are weighted by\u2026",
       "file_type": "rationale",
       "source_file": ".agents/skills/ui-ux-pro-max/scripts/core.py",
@@ -53436,7 +53447,7 @@
       "_origin": "ast",
       "id": "agents_skills_ui_ux_pro_max_scripts_core_rationale_378",
       "community": 116,
-      "community_name": "detect_domain",
+      "community_name": "test_core.py",
       "norm_label": "auto-detect the most relevant domain from query. matches are weighted by..."
     },
     {
@@ -65914,9 +65925,9 @@
       "label": "$type",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L66",
+      "source_location": "L63",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_md_type",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_none_type",
       "community": 31,
       "community_name": "radius",
       "norm_label": "$type"
@@ -65925,9 +65936,9 @@
       "label": "$value",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L66",
+      "source_location": "L63",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_md_value",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_none_value",
       "community": 31,
       "community_name": "radius",
       "norm_label": "$value"
@@ -65988,15 +65999,15 @@
       "norm_label": "full"
     },
     {
-      "label": "md",
+      "label": "none",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L66",
+      "source_location": "L63",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_radius_md",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_radius_none",
       "community": 31,
       "community_name": "radius",
-      "norm_label": "md"
+      "norm_label": "none"
     },
     {
       "label": "default",
@@ -66010,15 +66021,15 @@
       "norm_label": "default"
     },
     {
-      "label": "md",
+      "label": "none",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L75",
+      "source_location": "L72",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_shadow_md",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_shadow_none",
       "community": 31,
       "community_name": "radius",
-      "norm_label": "md"
+      "norm_label": "none"
     },
     {
       "label": "@sparticuz/chromium",
@@ -66571,15 +66582,48 @@
       "norm_label": "mockrefreshproject"
     },
     {
-      "label": "Test adding components with empty list.",
-      "file_type": "rationale",
-      "source_file": ".agents/skills/ui-styling/scripts/tests/test_shadcn_add.py",
-      "source_location": "L96",
+      "label": "$type",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L66",
       "_origin": "ast",
-      "id": "agents_skills_ui_styling_scripts_tests_test_shadcn_add_rationale_96",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_md_type",
       "community": 325,
-      "community_name": ".test_add_components_no_components",
-      "norm_label": "test adding components with empty list."
+      "community_name": "md",
+      "norm_label": "$type"
+    },
+    {
+      "label": "$value",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L66",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_md_value",
+      "community": 325,
+      "community_name": "md",
+      "norm_label": "$value"
+    },
+    {
+      "label": "md",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L66",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_radius_md",
+      "community": 325,
+      "community_name": "md",
+      "norm_label": "md"
+    },
+    {
+      "label": "md",
+      "file_type": "code",
+      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L75",
+      "_origin": "ast",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_shadow_md",
+      "community": 325,
+      "community_name": "md",
+      "norm_label": "md"
     },
     {
       "label": "admin/dashboard/page.tsx",
@@ -67267,45 +67311,34 @@
       "label": "$type",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L63",
+      "source_location": "L49",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_none_type",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_12_type",
       "community": 333,
-      "community_name": "none",
+      "community_name": "12",
       "norm_label": "$type"
     },
     {
       "label": "$value",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L63",
+      "source_location": "L49",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_none_value",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_12_value",
       "community": 333,
-      "community_name": "none",
+      "community_name": "12",
       "norm_label": "$value"
     },
     {
-      "label": "none",
+      "label": "12",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L63",
+      "source_location": "L49",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_radius_none",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_spacing_12",
       "community": 333,
-      "community_name": "none",
-      "norm_label": "none"
-    },
-    {
-      "label": "none",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L72",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_shadow_none",
-      "community": 333,
-      "community_name": "none",
-      "norm_label": "none"
+      "community_name": "12",
+      "norm_label": "12"
     },
     {
       "label": "verify-multiuser-e2e.ts",
@@ -67363,37 +67396,15 @@
       "norm_label": "$value"
     },
     {
-      "label": "$type",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L50",
+      "label": "Test adding components that are already installed.",
+      "file_type": "rationale",
+      "source_file": ".agents/skills/ui-styling/scripts/tests/test_shadcn_add.py",
+      "source_location": "L112",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_16_type",
+      "id": "agents_skills_ui_styling_scripts_tests_test_shadcn_add_rationale_112",
       "community": 336,
-      "community_name": "16",
-      "norm_label": "$type"
-    },
-    {
-      "label": "$value",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L50",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_16_value",
-      "community": 336,
-      "community_name": "16",
-      "norm_label": "$value"
-    },
-    {
-      "label": "16",
-      "file_type": "code",
-      "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L50",
-      "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_spacing_16",
-      "community": 336,
-      "community_name": "16",
-      "norm_label": "16"
+      "community_name": ".test_add_components_already_installed",
+      "norm_label": "test adding components that are already installed."
     },
     {
       "label": "$type",
@@ -68452,15 +68463,15 @@
       "norm_label": "design_system.py"
     },
     {
-      "label": "test_core.py",
+      "label": "scripts/search.py",
       "file_type": "code",
-      "source_file": ".agents/skills/ui-ux-pro-max/scripts/tests/test_core.py",
+      "source_file": ".agents/skills/ui-ux-pro-max/scripts/search.py",
       "source_location": "L1",
       "_origin": "ast",
-      "id": "agents_skills_ui_ux_pro_max_scripts_tests_test_core",
+      "id": "agents_skills_ui_ux_pro_max_scripts_search",
       "community": 36,
       "community_name": "design_system.py",
-      "norm_label": "test_core.py"
+      "norm_label": "scripts/search.py"
     },
     {
       "label": "Format a page-specific override file with intelligent AI-generated content.",
@@ -68593,6 +68604,17 @@
       "community": 36,
       "community_name": "design_system.py",
       "norm_label": "format design system as master.md with hierarchical override logic."
+    },
+    {
+      "label": "Format results for Claude consumption (token-optimized)",
+      "file_type": "rationale",
+      "source_file": ".agents/skills/ui-ux-pro-max/scripts/search.py",
+      "source_location": "L45",
+      "_origin": "ast",
+      "id": "agents_skills_ui_ux_pro_max_scripts_search_rationale_45",
+      "community": 36,
+      "community_name": "design_system.py",
+      "norm_label": "format results for claude consumption (token-optimized)"
     },
     {
       "label": "tsconfig.json",
@@ -69849,17 +69871,6 @@
       "norm_label": "scripts/core.py"
     },
     {
-      "label": "scripts/search.py",
-      "file_type": "code",
-      "source_file": ".agents/skills/ui-ux-pro-max/scripts/search.py",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "agents_skills_ui_ux_pro_max_scripts_search",
-      "community": 44,
-      "community_name": "search",
-      "norm_label": "scripts/search.py"
-    },
-    {
       "label": "Load CSV and return list of dicts, with mtime-based caching.",
       "file_type": "rationale",
       "source_file": ".agents/skills/ui-ux-pro-max/scripts/core.py",
@@ -69924,17 +69935,6 @@
       "community": 44,
       "community_name": "search",
       "norm_label": "search stack-specific guidelines"
-    },
-    {
-      "label": "Format results for Claude consumption (token-optimized)",
-      "file_type": "rationale",
-      "source_file": ".agents/skills/ui-ux-pro-max/scripts/search.py",
-      "source_location": "L45",
-      "_origin": "ast",
-      "id": "agents_skills_ui_ux_pro_max_scripts_search_rationale_45",
-      "community": 44,
-      "community_name": "search",
-      "norm_label": "format results for claude consumption (token-optimized)"
     },
     {
       "label": "Known query -> expected top-domain sanity checks (not exact-row pinning, since\u2026",
@@ -70633,9 +70633,9 @@
       "label": "$type",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L49",
+      "source_location": "L50",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_12_type",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_16_type",
       "community": 47,
       "community_name": "spacing",
       "norm_label": "$type"
@@ -70644,9 +70644,9 @@
       "label": "$value",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L49",
+      "source_location": "L50",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_12_value",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_16_value",
       "community": 47,
       "community_name": "spacing",
       "norm_label": "$value"
@@ -70784,15 +70784,15 @@
       "norm_label": "10"
     },
     {
-      "label": "12",
+      "label": "16",
       "file_type": "code",
       "source_file": ".agents/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L49",
+      "source_location": "L50",
       "_origin": "ast",
-      "id": "agents_skills_design_system_templates_design_tokens_starter_spacing_12",
+      "id": "agents_skills_design_system_templates_design_tokens_starter_spacing_16",
       "community": 47,
       "community_name": "spacing",
-      "norm_label": "12"
+      "norm_label": "16"
     },
     {
       "label": "3",
@@ -73138,17 +73138,6 @@
       "norm_label": "tests for shadcn_add.py"
     },
     {
-      "label": "Test adding components that are already installed.",
-      "file_type": "rationale",
-      "source_file": ".agents/skills/ui-styling/scripts/tests/test_shadcn_add.py",
-      "source_location": "L112",
-      "_origin": "ast",
-      "id": "agents_skills_ui_styling_scripts_tests_test_shadcn_add_rationale_112",
-      "community": 85,
-      "community_name": "ShadcnInstaller",
-      "norm_label": "test adding components that are already installed."
-    },
-    {
       "label": "Test listing installed components when they exist.",
       "file_type": "rationale",
       "source_file": ".agents/skills/ui-styling/scripts/tests/test_shadcn_add.py",
@@ -73169,6 +73158,17 @@
       "community": 85,
       "community_name": "ShadcnInstaller",
       "norm_label": "test getting installed components without config."
+    },
+    {
+      "label": "Test adding components with empty list.",
+      "file_type": "rationale",
+      "source_file": ".agents/skills/ui-styling/scripts/tests/test_shadcn_add.py",
+      "source_location": "L96",
+      "_origin": "ast",
+      "id": "agents_skills_ui_styling_scripts_tests_test_shadcn_add_rationale_96",
+      "community": 85,
+      "community_name": "ShadcnInstaller",
+      "norm_label": "test adding components with empty list."
     },
     {
       "label": "Add all available shadcn/ui components. Args: overwrite: If True, overwrite\u2026",
@@ -87554,7 +87554,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/components/report/LoadSchedule.tsx",
-      "source_location": "L18",
+      "source_location": "L16",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_components_report_loadschedule_loadschedule",
@@ -87566,7 +87566,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/components/report/LoadSchedule.tsx",
-      "source_location": "L34",
+      "source_location": "L29",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_components_report_loadschedule_loadschedule",
@@ -95353,7 +95353,7 @@
       "context": "field",
       "confidence": "EXTRACTED",
       "source_file": "src/components/report/LoadSchedule.tsx",
-      "source_location": "L7",
+      "source_location": "L6",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_components_report_loadschedule_loadscheduleprops",
@@ -107881,7 +107881,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "src/components/report/LoadSchedule.tsx",
-      "source_location": "L2",
+      "source_location": "L1",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_components_report_loadschedule",
@@ -107893,7 +107893,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "src/components/report/LoadSchedule.tsx",
-      "source_location": "L3",
+      "source_location": "L2",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_components_report_loadschedule",
@@ -107905,7 +107905,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "src/components/report/LoadSchedule.tsx",
-      "source_location": "L4",
+      "source_location": "L3",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_components_report_loadschedule",
@@ -123961,7 +123961,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "src/components/report/LoadSchedule.tsx",
-      "source_location": "L2",
+      "source_location": "L1",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_components_report_loadschedule",
@@ -123973,7 +123973,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "src/components/report/LoadSchedule.tsx",
-      "source_location": "L3",
+      "source_location": "L2",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_components_report_loadschedule",
@@ -123985,7 +123985,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "src/components/report/LoadSchedule.tsx",
-      "source_location": "L4",
+      "source_location": "L3",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_components_report_loadschedule",
@@ -148085,7 +148085,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/components/report/LoadSchedule.tsx",
-      "source_location": "L12",
+      "source_location": "L11",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_components_report_loadschedule",
@@ -148096,7 +148096,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/components/report/LoadSchedule.tsx",
-      "source_location": "L6",
+      "source_location": "L5",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_components_report_loadschedule",
@@ -194769,5 +194769,5 @@
       "source_file": "public/slides/slide_load_calc.webp"
     }
   ],
-  "built_at_commit": "c9fd924de8ac2e1530c01edacead4f5211b77310"
+  "built_at_commit": "10835d9cb069c6c98171190f81af8b1d6a39bb29"
 }

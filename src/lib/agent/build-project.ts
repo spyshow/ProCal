@@ -402,7 +402,7 @@ export async function createProjectFromSpec(
         totals: validation.estimatedTotals,
       };
     },
-    { timeout: 15000 }
+    { timeout: 45000, maxWait: 15000 }
   );
 
   return {
@@ -964,7 +964,28 @@ export async function checkProjectSelectivity(projectIdOrProject: string | any) 
     throw new Error(`Project not found: ${projectIdOrProject}`);
   }
 
-  const catalog = (await db.equipmentCatalog?.findMany?.().catch(() => [])) ?? [];
+  const catalog =
+    (await db.equipmentCatalog
+      ?.findMany?.({
+        select: {
+          id: true,
+          name: true,
+          category: true,
+          manufacturer: true,
+          series: true,
+          frameCurrent: true,
+          ratedCurrent: true,
+          poles: true,
+          icu: true,
+          ics: true,
+          curve: true,
+          breakerFamilyId: true,
+          tripUnitType: true,
+          isElectronic: true,
+          isCurrentLimiting: true,
+        },
+      })
+      .catch(() => [])) ?? [];
   const defaultFamilies = {
     ACB: (project as any).defaultAcbFamilyId ?? null,
     MCCB: (project as any).defaultMccbFamilyId ?? null,

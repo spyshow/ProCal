@@ -107,4 +107,36 @@ describe("validateProjectSpec pre-flight validator", () => {
     expect(res.readyToCreate).toBe(false);
     expect(res.errors?.[0]).toContain('references unknown template "NonExistentTemplate"');
   });
+
+  it("normalizes shorthand agent spec with buildingCount, length/width, includeAC, and commonLoads", () => {
+    const shorthandSpec = {
+      name: "4-Building 5-Floor Residential Complex",
+      standard: "IEC",
+      voltage: 400,
+      frequency: 50,
+      powerFactor: 0.85,
+      buildingCount: 4,
+      floorsPerBuilding: 5,
+      apartmentTemplates: [
+        {
+          name: "Standard 3BR Floor Apartment",
+          countPerFloor: 2,
+          rooms: [
+            { name: "Master Bedroom", type: "BEDROOM", length: 4.8, width: 4.1, includeAC: true },
+            { name: "Kitchen", type: "KITCHEN", length: 4.0, width: 3.1, includeAC: false },
+          ],
+        },
+      ],
+      commonLoads: [
+        { name: "Passenger Elevator 1", powerKw: 7.5, quantity: 1 },
+      ],
+    };
+
+    const res = validateProjectSpec(shorthandSpec);
+    expect(res.valid).toBe(true);
+    // 4 buildings * 5 floors * 2 apts = 40 apartments
+    expect(res.estimatedTotals.totalApartments).toBe(40);
+    expect(res.estimatedTotals.totalConnectedKw).toBeGreaterThan(0);
+    expect(res.estimatedTotals.suggestedMainBreakerAmps).toBeGreaterThan(0);
+  });
 });

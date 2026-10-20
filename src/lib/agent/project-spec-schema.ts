@@ -10,7 +10,19 @@ export const RoomTypeEnum = z.enum([
   "OTHER",
 ]);
 
-export const RoomSpecSchema = z.object({
+export const RoomSpecSchema = z.preprocess((val: any) => {
+  if (val && typeof val === "object") {
+    const copy = { ...val };
+    if (copy.areaM2 === undefined && typeof copy.length === "number" && typeof copy.width === "number") {
+      copy.areaM2 = parseFloat((copy.length * copy.width).toFixed(2));
+    }
+    if (copy.hasAc === undefined && typeof copy.includeAC === "boolean") {
+      copy.hasAc = copy.includeAC;
+    }
+    return copy;
+  }
+  return val;
+}, z.object({
   name: z.string().min(1).max(100),
   type: RoomTypeEnum.optional().default("OTHER"),
   areaM2: z.number().positive().max(10000),
@@ -19,7 +31,7 @@ export const RoomSpecSchema = z.object({
   loadDensityVaPerM2: z.number().nonnegative().optional().nullable(),
   explicitLoadKw: z.number().nonnegative().optional().nullable(),
   explicitLoadKva: z.number().nonnegative().optional().nullable(),
-});
+}));
 
 export const ApartmentTemplateSpecSchema = z.object({
   name: z.string().min(1).max(100),
@@ -67,7 +79,52 @@ export const BuildingSpecSchema = z.object({
   buildingLoads: z.array(CommonBuildingLoadSpecSchema).optional().default([]),
 });
 
-export const ProjectDrawingSpecSchema = z.object({
+export const ProjectDrawingSpecSchema = z.preprocess((val: any) => {
+  if (val && typeof val === "object") {
+    const copy = { ...val };
+    // Map standard -> calculationStandard
+    if (!copy.calculationStandard && copy.standard) {
+      copy.calculationStandard = copy.standard;
+    }
+    // If buildings is missing or empty, but buildingCount is provided
+    if ((!copy.buildings || !Array.isArray(copy.buildings) || copy.buildings.length === 0) && typeof copy.buildingCount === "number" && copy.buildingCount > 0) {
+      const bCount = copy.buildingCount;
+      const fCount = typeof copy.floorsPerBuilding === "number" ? copy.floorsPerBuilding : 1;
+      const templates = Array.isArray(copy.apartmentTemplates) ? copy.apartmentTemplates : [];
+      const commonLoads = Array.isArray(copy.commonLoads)
+        ? copy.commonLoads.map((cl: any) => ({
+            ...cl,
+            category: cl.category || (cl.name && /lift|elevator/i.test(cl.name) ? "ELEVATOR" : "OTHER"),
+          }))
+        : Array.isArray(copy.buildingLoads)
+        ? copy.buildingLoads
+        : [];
+
+      copy.buildings = Array.from({ length: bCount }, (_, bIdx) => {
+        const bName = `Building ${bIdx + 1}`;
+        const floorAssignments: any[] = [];
+        for (let f = 1; f <= fCount; f++) {
+          for (const tpl of templates) {
+            const count = tpl.countPerFloor || 1;
+            floorAssignments.push({
+              floorNumber: f,
+              templateName: tpl.name,
+              count,
+            });
+          }
+        }
+        return {
+          name: bName,
+          floors: fCount,
+          floorAssignments,
+          buildingLoads: commonLoads,
+        };
+      });
+    }
+    return copy;
+  }
+  return val;
+}, z.object({
   name: z.string().min(1).max(120),
   country: z.string().optional().default("United Arab Emirates"),
   voltage: z.number().positive().optional().nullable(),
@@ -79,7 +136,7 @@ export const ProjectDrawingSpecSchema = z.object({
   buildings: z.array(BuildingSpecSchema).min(1),
   isConfirmedByUser: z.boolean().optional().default(false),
   idempotencyKey: z.string().optional().nullable(),
-});
+}));
 
 export const UpdateProjectLoadsSpecSchema = z.object({
   projectId: z.string().min(1),

@@ -270,7 +270,7 @@ export function ApiKeysModal({ isOpen, onClose }: ApiKeysModalProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-2xl bg-[var(--card-bg,#0b0f19)] border-[var(--border-color,#1f2937)] text-[var(--foreground-color,#f8fafc)] shadow-2xl p-6 max-h-[90vh] overflow-y-auto custom-scrollbar">
+      <DialogContent className="w-[95vw] sm:max-w-3xl md:max-w-4xl bg-[var(--card-bg,#0b0f19)] border-[var(--border-color,#1f2937)] text-[var(--foreground-color,#f8fafc)] shadow-2xl p-6 max-h-[90vh] overflow-y-auto overflow-x-hidden custom-scrollbar">
         <DialogHeader className="space-y-1">
           <DialogTitle className="text-lg font-bold flex items-center gap-2 text-[var(--foreground-color,#f8fafc)]">
             <Bot className="w-5 h-5 text-orange-500" />
@@ -291,8 +291,8 @@ export function ApiKeysModal({ isOpen, onClose }: ApiKeysModalProps) {
         {/* Newly Created Key Alert Box */}
         {createdRawKey && (
           <div className="p-4 rounded-xl bg-orange-500/10 border border-orange-500/30 space-y-2.5 animate-in fade-in zoom-in-95 duration-200">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-orange-600 dark:text-orange-400 flex items-center gap-1.5">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <span className="text-xs font-semibold text-orange-600 dark:text-orange-400 flex items-center gap-1.5 shrink-0">
                 <ShieldCheck className="w-4 h-4" />
                 New Secret API Key Generated
               </span>
@@ -301,7 +301,7 @@ export function ApiKeysModal({ isOpen, onClose }: ApiKeysModalProps) {
               </span>
             </div>
             <div className="flex items-center gap-2">
-              <code className="flex-1 bg-[var(--card-bg-subtle,#111827)] px-3 py-2 rounded-lg text-xs font-mono text-[var(--foreground-color,#f8fafc)] border border-[var(--border-color,#1f2937)] break-all select-all">
+              <code className="flex-1 min-w-0 bg-[var(--card-bg-subtle,#111827)] px-3 py-2 rounded-lg text-xs font-mono text-[var(--foreground-color,#f8fafc)] border border-[var(--border-color,#1f2937)] break-all select-all">
                 {createdRawKey}
               </code>
               <Button
@@ -323,7 +323,7 @@ export function ApiKeysModal({ isOpen, onClose }: ApiKeysModalProps) {
             placeholder="Key name (e.g. Claude Desktop, Cursor, CI/CD)"
             value={newKeyName}
             onChange={(e) => setNewKeyName(e.target.value)}
-            className="text-xs"
+            className="text-xs min-w-0"
             maxLength={50}
           />
           <Button
@@ -360,19 +360,19 @@ export function ApiKeysModal({ isOpen, onClose }: ApiKeysModalProps) {
                 {keys.map((k) => (
                   <div key={k.id} className="p-3 flex items-center justify-between gap-3 hover:bg-[var(--table-row-hover,rgba(255,255,255,0.05))] transition-colors">
                     <div className="min-w-0 space-y-0.5">
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 flex-wrap">
                         <span className="font-semibold text-[var(--foreground-color,#f8fafc)] truncate">{k.name}</span>
                         {k.revokedAt ? (
-                          <span className="text-[10px] px-1.5 py-0.5 rounded bg-rose-500/10 text-rose-500 dark:text-rose-400 border border-rose-500/20 font-medium">
+                          <span className="text-[10px] px-1.5 py-0.5 rounded bg-rose-500/10 text-rose-500 dark:text-rose-400 border border-rose-500/20 font-medium shrink-0">
                             Revoked
                           </span>
                         ) : (
-                          <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 font-medium">
+                          <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 font-medium shrink-0">
                             Active
                           </span>
                         )}
                       </div>
-                      <div className="flex items-center gap-2 text-[11px] text-[var(--table-header-color,#9ca3af)] font-mono">
+                      <div className="flex items-center gap-2 text-[11px] text-[var(--table-header-color,#9ca3af)] font-mono flex-wrap">
                         <span>{k.keyPrefix}</span>
                         <span>•</span>
                         <span>Created {new Date(k.createdAt).toLocaleDateString()}</span>
@@ -391,7 +391,7 @@ export function ApiKeysModal({ isOpen, onClose }: ApiKeysModalProps) {
                         variant="ghost"
                         onClick={() => handleRevokeKey(k.id)}
                         disabled={revokingId === k.id}
-                        className="text-rose-500 hover:text-rose-600 dark:text-rose-400 dark:hover:text-rose-300 hover:bg-rose-500/10 h-8 px-2.5 text-xs cursor-pointer"
+                        className="text-rose-500 hover:text-rose-600 dark:text-rose-400 dark:hover:text-rose-300 hover:bg-rose-500/10 h-8 px-2.5 text-xs cursor-pointer shrink-0"
                       >
                         {revokingId === k.id ? (
                           <div className="w-3.5 h-3.5 border-2 border-rose-400 border-t-transparent rounded-full animate-spin" />
@@ -412,7 +412,7 @@ export function ApiKeysModal({ isOpen, onClose }: ApiKeysModalProps) {
 
         {/* 1-Click Client Configuration Snippet */}
         <div className="space-y-2.5 pt-2 border-t border-[var(--border-color,#1f2937)]">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
             <span className="text-xs font-semibold text-[var(--foreground-color,#f8fafc)] flex items-center gap-1.5 shrink-0">
               <Terminal className="w-4 h-4 text-orange-500" />
               1-Click MCP Client Configuration
@@ -423,7 +423,7 @@ export function ApiKeysModal({ isOpen, onClose }: ApiKeysModalProps) {
                   key={agent.id}
                   type="button"
                   onClick={() => setConfigFormat(agent.id)}
-                  className={`px-2 py-0.5 rounded-md transition-colors cursor-pointer ${
+                  className={`px-2.5 py-1 rounded-md transition-colors cursor-pointer ${
                     configFormat === agent.id
                       ? 'bg-orange-600 text-white font-medium shadow-xs'
                       : 'text-[var(--table-header-color,#9ca3af)] hover:text-[var(--foreground-color,#f8fafc)]'
@@ -436,14 +436,14 @@ export function ApiKeysModal({ isOpen, onClose }: ApiKeysModalProps) {
           </div>
 
           <div className="relative">
-            <pre className="p-3 rounded-xl bg-[var(--card-bg-subtle,#111827)] border border-[var(--border-color,#1f2937)] text-[11px] font-mono text-[var(--foreground-color,#f8fafc)] overflow-x-auto selection:bg-orange-500/30">
+            <pre className="p-3 pr-24 rounded-xl bg-[var(--card-bg-subtle,#111827)] border border-[var(--border-color,#1f2937)] text-[11px] font-mono text-[var(--foreground-color,#f8fafc)] overflow-x-auto selection:bg-orange-500/30">
               <code>{generateConfigSnippet()}</code>
             </pre>
             <Button
               size="sm"
               variant="outline"
               onClick={() => copyToClipboard(generateConfigSnippet(), 'config')}
-              className="absolute top-2 right-2 bg-[var(--card-bg)]/90 hover:bg-[var(--card-bg-subtle)] text-[var(--foreground-color)] border-[var(--border-color)] h-7 px-2 text-[10px] shadow-xs cursor-pointer"
+              className="absolute top-2 right-2 bg-[var(--card-bg)]/90 hover:bg-[var(--card-bg-subtle)] text-[var(--foreground-color)] border-[var(--border-color)] h-7 px-2 text-[10px] shadow-xs cursor-pointer shrink-0"
             >
               {copiedConfig ? <Check className="w-3.5 h-3.5 text-emerald-500 mr-1" /> : <Copy className="w-3.5 h-3.5 mr-1" />}
               {copiedConfig ? 'Copied' : configFormat === 'gemini' ? 'Copy URL' : 'Copy Config'}

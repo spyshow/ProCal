@@ -5,7 +5,6 @@ import { phaseBalance } from '@/lib/calculations/phaseBalance';
 import { calculateShortCircuitCurrent, getTypicalImpedance } from '@/lib/calculations/shortCircuit';
 import { aggregateShortCircuitRows } from '@/lib/reports/aggregates';
 import { createFindBreaker, type FindBreaker, type EquipmentItem } from '@/lib/calculations/feeders';
-import { ShieldCheck, Zap } from 'lucide-react';
 import { TraceableCell } from '@/components/common/TraceableCell';
 import { buildShortCircuitTrace } from '@/lib/calculations/trace-engine';
 
@@ -171,7 +170,7 @@ export default function ShortCircuitScheduleTable({
               <td className="p-2 border-r border-slate-200 font-mono text-slate-500 text-center">{idx + 1}</td>
               <td className="p-2 border-r border-slate-200 font-bold text-slate-900 text-center">
                 <div className="flex items-center justify-center gap-1.5">
-                  <Zap size={12} className="text-amber-500 shrink-0" />
+                  <svg className="w-3 h-3 text-amber-500 shrink-0 inline-block" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
                   <span>{row.feeder}</span>
                 </div>
               </td>
@@ -235,7 +234,7 @@ export default function ShortCircuitScheduleTable({
                       : 'bg-rose-50 text-rose-800 border-rose-200'
                   }`}
                 >
-                  <ShieldCheck size={10} />
+                  <svg className="w-2.5 h-2.5 inline-block" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
                   {row.status} (Icu &ge; Isc)
                 </span>
               </td>

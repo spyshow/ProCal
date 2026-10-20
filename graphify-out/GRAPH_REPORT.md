@@ -1,16 +1,16 @@
 # Graph Report - ProCal  (2026-10-20)
 
 ## Corpus Check
-- 547 files · ~819,931 words
+- 547 files · ~819,994 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 6398 nodes · 10205 edges · 354 communities (227 shown, 127 thin omitted)
+- 6398 nodes · 10205 edges · 356 communities (228 shown, 128 thin omitted)
 - Extraction: 100% EXTRACTED · 0% INFERRED · 0% AMBIGUOUS · INFERRED: 50 edges (avg confidence: 0.7)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `10835d9c`
+- Built from commit: `b6c97f18`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -130,7 +130,7 @@
 - Logo Usage Rules
 - Prisma__BreakerFamilyClient
 - UI/UX Pro Max Skill
-- test_core.py
+- detect_domain
 - _select_palette_for_mode
 - Prisma__ApartmentTemplateClient
 - Prisma__BuildingClient
@@ -321,27 +321,29 @@
 - sm
 - muted
 - calculator/page.test.tsx
-- md
+- mcp/route.ts
 - nodemailer
 - lg
 - clsx
 - xl
 - @prisma/client
 - procal-mcp-stdio.ts
-- 12
+- none
 - verify-multiuser-e2e.ts
 - padding-y
 - .test_add_components_already_installed
-- 2
-- .test_get_installed_components_empty
+- 16
+- 1
 - react-hook-form
-- 4
+- 3
 - 8
 - destructive-foreground
 - .test_check_shadcn_config_exists
 - primary-foreground
 - secondary-foreground
-- bcryptjs
+- getProjectBOM
+- .test_add_components_no_components
+- class-variance-authority
 - PostgreSQL 16 Service (procal-db)
 - TODOS — ProCal
 - 6. Section 4: Prioritized Remediation Roadmap
@@ -376,25 +378,25 @@
 
 ## Import Cycles
 - 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/BreakerSettings.ts -> src/generated/prisma/internal/prismaNamespace.ts`
-- 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/Project.ts -> src/generated/prisma/internal/prismaNamespace.ts`
-- 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/FloorItem.ts -> src/generated/prisma/internal/prismaNamespace.ts`
-- 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/BuildingLoad.ts -> src/generated/prisma/internal/prismaNamespace.ts`
-- 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/ProjectReviewItem.ts -> src/generated/prisma/internal/prismaNamespace.ts`
-- 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/ApiKey.ts -> src/generated/prisma/internal/prismaNamespace.ts`
-- 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/ContactRequest.ts -> src/generated/prisma/internal/prismaNamespace.ts`
-- 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/LoadLibraryItem.ts -> src/generated/prisma/internal/prismaNamespace.ts`
-- 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/ProjectMember.ts -> src/generated/prisma/internal/prismaNamespace.ts`
-- 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/EquipmentCatalog.ts -> src/generated/prisma/internal/prismaNamespace.ts`
-- 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/ApartmentTemplate.ts -> src/generated/prisma/internal/prismaNamespace.ts`
 - 3-file cycle: `src/generated/prisma/commonInputTypes.ts -> src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/commonInputTypes.ts`
-- 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/ApartmentRoom.ts -> src/generated/prisma/internal/prismaNamespace.ts`
-- 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/AppSetting.ts -> src/generated/prisma/internal/prismaNamespace.ts`
+- 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/User.ts -> src/generated/prisma/internal/prismaNamespace.ts`
 - 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/BreakerFamily.ts -> src/generated/prisma/internal/prismaNamespace.ts`
-- 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/Building.ts -> src/generated/prisma/internal/prismaNamespace.ts`
-- 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/FloorDesign.ts -> src/generated/prisma/internal/prismaNamespace.ts`
-- 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/ProjectAuditLog.ts -> src/generated/prisma/internal/prismaNamespace.ts`
+- 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/LoadLibraryItem.ts -> src/generated/prisma/internal/prismaNamespace.ts`
 - 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/ProjectInvite.ts -> src/generated/prisma/internal/prismaNamespace.ts`
-- 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/ProjectRevision.ts -> src/generated/prisma/internal/prismaNamespace.ts`
+- 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/ApartmentTemplate.ts -> src/generated/prisma/internal/prismaNamespace.ts`
+- 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/ProjectReviewItem.ts -> src/generated/prisma/internal/prismaNamespace.ts`
+- 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/BuildingLoad.ts -> src/generated/prisma/internal/prismaNamespace.ts`
+- 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/ProjectAuditLog.ts -> src/generated/prisma/internal/prismaNamespace.ts`
+- 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/ApartmentRoom.ts -> src/generated/prisma/internal/prismaNamespace.ts`
+- 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/ApiKey.ts -> src/generated/prisma/internal/prismaNamespace.ts`
+- 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/AppSetting.ts -> src/generated/prisma/internal/prismaNamespace.ts`
+- 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/Building.ts -> src/generated/prisma/internal/prismaNamespace.ts`
+- 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/ContactRequest.ts -> src/generated/prisma/internal/prismaNamespace.ts`
+- 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/EquipmentCatalog.ts -> src/generated/prisma/internal/prismaNamespace.ts`
+- 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/FloorDesign.ts -> src/generated/prisma/internal/prismaNamespace.ts`
+- 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/FloorItem.ts -> src/generated/prisma/internal/prismaNamespace.ts`
+- 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/Project.ts -> src/generated/prisma/internal/prismaNamespace.ts`
+- 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/ProjectMember.ts -> src/generated/prisma/internal/prismaNamespace.ts`
 
 ## Hyperedges (group relationships)
 - **Complete Brand Identity Generation Flow** — agents_skills_design_skill_unified_design, agents_skills_design_references_logo_design_logo_generation_workflow, agents_skills_design_references_cip_design_cip_workflow, agents_skills_design_references_slides_slides_reference [EXTRACTED 1.00]
@@ -413,7 +415,7 @@
 - **Phase Balancing & Neutral Accounting Pipeline** — docs_explanation_phase_balancing_total_angle_neutral, docs_explanation_phase_balancing_current_unbalance_proxy, docs_explanation_phase_balancing_greedy_assignment_on_read, docs_reference_calc_engine_calc_engine_reference, uploads_3phase_pdh_course_e336, uploads_en50160_en_50160_standard [INFERRED 0.95]
 - **ProCal Core Engineering Workflow Feature Slides** — public_slides_slide_load_calc, public_slides_slide_cable_sizing, public_slides_slide_sld_diagram, public_slides_slide_breaker_schedule, public_slides_slide_pdf_reports [INFERRED 0.95]
 
-## Communities (354 total, 127 thin omitted)
+## Communities (356 total, 128 thin omitted)
 
 ### Community 0 - "Project.ts"
 Cohesion: 0.01
@@ -560,8 +562,8 @@ Cohesion: 0.10
 Nodes (31): ReportsPage(), FloorData, RiserPage(), AccessRestricted(), AccessRestrictedProps, WORKFLOW_STEPS, WorkflowStepper(), WorkflowStepperProps (+23 more)
 
 ### Community 36 - "design_system.py"
-Cohesion: 0.09
-Nodes (27): ansi_ljust(), _detect_page_type(), format_ascii_box(), format_markdown(), format_master_md(), format_page_override_md(), generate_design_system(), _generate_intelligent_overrides() (+19 more)
+Cohesion: 0.11
+Nodes (25): ansi_ljust(), _detect_page_type(), format_ascii_box(), format_markdown(), format_master_md(), format_page_override_md(), generate_design_system(), _generate_intelligent_overrides() (+17 more)
 
 ### Community 37 - "compilerOptions"
 Cohesion: 0.07
@@ -592,8 +594,8 @@ Cohesion: 0.11
 Nodes (19): BM25, detect_domain(), _load_csv(), Load CSV and return list of dicts, Core search function using BM25, Auto-detect the most relevant domain from query, Main search function with auto-domain detection, Search across all domains and combine results (+11 more)
 
 ### Community 44 - "search"
-Cohesion: 0.14
-Nodes (16): _domain_keywords(), _get_bm25(), _load_csv(), _load_product_keywords(), Load CSV and return list of dicts, with mtime-based caching., Fitted BM25 index for this file+columns, with mtime-based caching., Core search function using BM25. Returns (results, bm25_or_none)., Nearest known vocabulary terms for a query that returned 0 hits, so the caller… (+8 more)
+Cohesion: 0.12
+Nodes (18): _domain_keywords(), _get_bm25(), _load_csv(), _load_product_keywords(), Load CSV and return list of dicts, with mtime-based caching., Fitted BM25 index for this file+columns, with mtime-based caching., Core search function using BM25. Returns (results, bm25_or_none)., Nearest known vocabulary terms for a query that returned 0 hits, so the caller… (+10 more)
 
 ### Community 45 - "prismaNamespaceBrowser.ts"
 Cohesion: 0.06
@@ -693,7 +695,7 @@ Nodes (12): $type, $value, bg, bg, padding, shadow, card, bg (+4 more)
 
 ### Community 85 - "ShadcnInstaller"
 Cohesion: 0.20
-Nodes (7): main(), Handle shadcn/ui component installation., ShadcnInstaller, Tests for shadcn_add.py, Test listing installed components when they exist., Test getting installed components without config., Test adding components with empty list.
+Nodes (7): main(), Handle shadcn/ui component installation., ShadcnInstaller, Tests for shadcn_add.py, Test listing installed components when they exist., Test getting installed components when none exist., Test getting installed components without config.
 
 ### Community 86 - ".check_shadcn_config"
 Cohesion: 0.21
@@ -725,7 +727,7 @@ Nodes (8): Tests for tailwind_config_gen.py, Reduce a generated TS/JS config to 
 
 ### Community 93 - "dependencies"
 Cohesion: 0.06
-Nodes (31): class-variance-authority, html2canvas, html-to-image, motion-icons-react, dependencies, class-variance-authority, html2canvas, html-to-image (+23 more)
+Nodes (31): bcryptjs, html2canvas, html-to-image, motion-icons-react, dependencies, bcryptjs, html2canvas, html-to-image (+23 more)
 
 ### Community 94 - "ProCal Electrical Load & MDB Designer"
 Cohesion: 0.20
@@ -745,11 +747,11 @@ Nodes (9): flattenTokens(), fs, generateCSS(), generateTailwind(), main(), parse
 
 ### Community 99 - "build-project.ts"
 Cohesion: 0.09
-Nodes (28): ProjectCreatedResult, ApartmentTemplateSpec, ApartmentTemplateSpecInput, ApartmentTemplateSpecSchema, BuildingLoadCategoryEnum, BuildingSpec, BuildingSpecInput, BuildingSpecSchema (+20 more)
+Nodes (29): formatCreatedResult(), ProjectCreatedResult, ApartmentTemplateSpec, ApartmentTemplateSpecInput, ApartmentTemplateSpecSchema, BuildingLoadCategoryEnum, BuildingSpec, BuildingSpecInput (+21 more)
 
 ### Community 100 - "validate-spec.ts"
-Cohesion: 0.27
-Nodes (9): MaxDemandCalculatorPage(), createProjectFromSpec(), formatCreatedResult(), ProjectDrawingSpecSchema, AssumedField, validateProjectSpec(), ValidationResult, getBuildingDiversityFactor() (+1 more)
+Cohesion: 0.40
+Nodes (3): ProjectDrawingSpecSchema, AssumedField, ValidationResult
 
 ### Community 101 - "duration"
 Cohesion: 0.20
@@ -807,8 +809,8 @@ Nodes (28): Absolute Don'ts, Approved Backgrounds, Before Using Logo, Clear Spac
 Cohesion: 0.20
 Nodes (10): Design Dials (Variance, Motion, Density), Search & Design System Generator CLI, Master + Overrides Pattern, Professional UI Rules & Pre-Delivery Checklist, UI/UX Pro Max Skill, Claude Project Guidelines, Diataxis Documentation Structure, Frontend Design Stack Guidelines (+2 more)
 
-### Community 116 - "test_core.py"
-Cohesion: 0.39
+### Community 116 - "detect_domain"
+Cohesion: 0.43
 Nodes (3): detect_domain(), Auto-detect the most relevant domain from query. Matches are weighted by…, TestDomainDetection
 
 ### Community 117 - "_select_palette_for_mode"
@@ -908,8 +910,8 @@ Cohesion: 0.08
 Nodes (25): Accessibility, Archival, Asset Approval Checklist, Automation Support, Color Compliance, Common Issues & Fixes, Content Accessibility, Content Quality (+17 more)
 
 ### Community 154 - "server.ts"
-Cohesion: 0.11
-Nodes (25): CORS_HEADERS, GET(), OPTIONS(), POST(), { mockGetUserByApiKey, mockGetSessionUser }, attachBuildingLoadToDb(), getProjectBOM(), getProjectComplianceSummary() (+17 more)
+Cohesion: 0.15
+Nodes (23): MaxDemandCalculatorPage(), attachBuildingLoadToDb(), createProjectFromSpec(), getProjectComplianceSummary(), updateProjectLoads(), updateProjectSpec(), validateProjectSpec(), signReportDownloadToken() (+15 more)
 
 ### Community 155 - "button"
 Cohesion: 0.20
@@ -1175,9 +1177,9 @@ Nodes (3): muted, $type, $value
 Cohesion: 0.40
 Nodes (4): fetchMock, mockMutateProject, mockRefreshProject, renderPage()
 
-### Community 325 - "md"
-Cohesion: 0.67
-Nodes (4): $type, $value, md, md
+### Community 325 - "mcp/route.ts"
+Cohesion: 0.39
+Nodes (6): CORS_HEADERS, GET(), OPTIONS(), POST(), { mockGetUserByApiKey, mockGetSessionUser }, handleMcpRequest()
 
 ### Community 328 - "lg"
 Cohesion: 0.60
@@ -1187,9 +1189,9 @@ Nodes (5): lg, $type, $value, lg, lg
 Cohesion: 0.67
 Nodes (4): xl, xl, $type, $value
 
-### Community 333 - "12"
+### Community 333 - "none"
 Cohesion: 0.67
-Nodes (3): $type, $value, 12
+Nodes (4): $type, $value, none, none
 
 ### Community 334 - "verify-multiuser-e2e.ts"
 Cohesion: 0.67
@@ -1199,13 +1201,17 @@ Nodes (3): assert(), runE2ETests(), TestContext
 Cohesion: 0.67
 Nodes (4): padding-y, padding-y, $type, $value
 
-### Community 337 - "2"
+### Community 337 - "16"
 Cohesion: 0.67
-Nodes (3): $type, $value, 2
+Nodes (3): $type, $value, 16
 
-### Community 340 - "4"
+### Community 338 - "1"
 Cohesion: 0.67
-Nodes (3): $type, $value, 4
+Nodes (3): $type, $value, 1
+
+### Community 340 - "3"
+Cohesion: 0.67
+Nodes (3): $type, $value, 3
 
 ### Community 341 - "8"
 Cohesion: 0.67
@@ -1246,7 +1252,7 @@ Nodes (4): Fix 1: Main Incomer Protection & Overload Trip Elimination, Fix 2: Un
 ## Knowledge Gaps
 - **3414 isolated node(s):** `fs`, `path`, `fs`, `path`, `fs` (+3409 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **127 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **128 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_

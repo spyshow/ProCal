@@ -2,7 +2,6 @@ import { formatCableSizeFor } from '@/lib/calculations/cables';
 import { createFindBreaker, type FindBreaker, type EquipmentItem } from '@/lib/calculations/feeders';
 import { aggregateDetailedBOM, type BreakerSettingItem } from '@/lib/reports/aggregates';
 import type { Project } from '@/types';
-import { ShieldCheck } from 'lucide-react';
 
 export interface BOMScheduleTableProps {
   project: Project;
@@ -140,7 +139,7 @@ export default function BOMScheduleTable({
       <div className="rounded-xl border border-slate-200 bg-slate-50/40 overflow-hidden">
         <div className="w-full p-3 flex items-center justify-between bg-slate-100 border-b border-slate-200">
           <div className="flex items-center gap-2">
-            <ShieldCheck size={16} className="text-amber-500" />
+            <svg className="w-4 h-4 text-amber-500 shrink-0 inline-block" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
             <span className="text-xs font-bold text-slate-900 uppercase tracking-wide">
               3. Procurement Annex &amp; Engineering Specifications for Purchase Orders
             </span>

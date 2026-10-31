@@ -2,4 +2,4 @@
  * Application release version displayed in the UI.
  * Keep in sync with package.json version.
  */
-export const APP_VERSION = 'v1.7.0';
+export const APP_VERSION = 'v1.8.0';

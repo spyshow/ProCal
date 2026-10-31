@@ -22,10 +22,22 @@ const normalizeRoomType = (raw?: string): z.infer<typeof RoomTypeEnum> => {
   return "OTHER";
 };
 
+export const isHalfStep = (val: number): boolean => {
+  return Number.isFinite(val) && val > 0 && Math.abs(Math.round(val * 2) - val * 2) < 1e-5;
+};
+
 export const RoomSpecInputSchema = z.object({
   name: z.string().min(1).max(100),
   type: z.string().optional().default("OTHER"),
-  areaM2: z.number().positive().max(10000).optional(),
+  areaM2: z
+    .number()
+    .positive()
+    .max(10000)
+    .refine((val) => isHalfStep(val), {
+      message:
+        "Room areaM2 must be an integer or end in .5 (multiples of 0.5 m², e.g. 19 or 19.5). Values like 19.1 or 4.4 are not allowed.",
+    })
+    .optional(),
   length: z.number().positive().optional(),
   width: z.number().positive().optional(),
   hasAc: z.boolean().optional(),
@@ -39,7 +51,7 @@ export const RoomSpecInputSchema = z.object({
 export const RoomSpecSchema = RoomSpecInputSchema.transform((val) => {
   const calculatedArea =
     val.areaM2 ??
-    (val.length && val.width ? parseFloat((val.length * val.width).toFixed(2)) : 0);
+    (val.length && val.width ? Math.round(val.length * val.width * 2) / 2 : 0);
   return {
     name: val.name,
     type: normalizeRoomType(val.type),
@@ -52,6 +64,9 @@ export const RoomSpecSchema = RoomSpecInputSchema.transform((val) => {
   };
 }).refine((r) => r.areaM2 > 0, {
   message: "Room areaM2 must be positive, or positive length and width must be specified",
+}).refine((r) => isHalfStep(r.areaM2), {
+  message:
+    "Room areaM2 must be an integer or end in .5 (multiples of 0.5 m², e.g. 19 or 19.5). Values like 19.1 or 4.4 are not allowed.",
 });
 
 export const ApartmentTemplateSpecInputSchema = z.object({

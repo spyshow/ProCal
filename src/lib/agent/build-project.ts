@@ -24,6 +24,7 @@ import { sizeCableAndBreaker } from "@/lib/calculations/cables";
 import { phaseBalance } from "@/lib/calculations/phaseBalance";
 import { codeOf, nextBreakerRating } from "@/lib/calculations/codes";
 import { ENGINE_VERSION } from "@/lib/calculations/version";
+import { TRIAL_MAX_BUILDINGS, TRIAL_MAX_LEVELS, trialBuildingsError, trialLevelsError } from "@/lib/trial";
 import { recalculateProjectBuildings } from "@/lib/calculations/recalculate-project";
 import { resolveBreakerRating } from "@/lib/sld/generator";
 import { computeFeeders, createFindBreaker, type EquipmentItem } from "@/lib/calculations/feeders";
@@ -457,7 +458,7 @@ function formatCreatedResult(project: { id: string; name: string; buildings: { i
 }
 
 export async function updateProjectLoads(
-  user: { id: string },
+  user: { id: string; role?: string },
   rawSpec: UpdateProjectLoadsSpec | UpdateProjectLoadsSpecInput
 ) {
   const spec = UpdateProjectLoadsSpecSchema.parse(rawSpec);
@@ -468,6 +469,12 @@ export async function updateProjectLoads(
 
   if (!project) {
     throw new Error(`Project not found: ${spec.projectId}`);
+  }
+
+  if (project.userId && project.userId !== user.id && user.role !== "ADMIN") {
+    const error = new Error("Unauthorized to modify this project");
+    (error as unknown as { statusCode: number }).statusCode = 403;
+    throw error;
   }
 
   // If new building loads are specified, insert them
@@ -526,6 +533,33 @@ export async function updateProjectSpec(
     const error = new Error("Unauthorized to modify this project");
     (error as unknown as { statusCode: number }).statusCode = 403;
     throw error;
+  }
+
+  // Free trial caps (1 building, 2 levels) apply to agent edits too.
+  if (project.isTrial && spec.buildings && spec.buildings.length > 0) {
+    const exceedsBuildingLimit =
+      project.buildings.length > TRIAL_MAX_BUILDINGS ||
+      spec.buildings.length > TRIAL_MAX_BUILDINGS;
+    const trialError =
+      (exceedsBuildingLimit ? trialBuildingsError(TRIAL_MAX_BUILDINGS) : null) ||
+      spec.buildings
+        .map((b) => {
+          const existingBldg =
+            project.buildings.find((eb) => eb.name === b.name) ||
+            (project.buildings.length === 1 && spec.buildings!.length === 1 ? project.buildings[0] : null);
+          const levelErr = trialLevelsError(b.floors, existingBldg?.serviceFloors ?? 0);
+          if (levelErr) return levelErr;
+          const outOfBoundsFa = (b.floorAssignments || []).find((fa) => fa.floorNumber > TRIAL_MAX_LEVELS);
+          if (outOfBoundsFa) return trialLevelsError(outOfBoundsFa.floorNumber, 0);
+          return null;
+        })
+        .find(Boolean) ||
+      null;
+    if (trialError) {
+      const error = new Error(trialError);
+      (error as unknown as { statusCode: number }).statusCode = 402;
+      throw error;
+    }
   }
 
   const country = spec.country || project.country || "United Arab Emirates";
@@ -623,7 +657,7 @@ export async function updateProjectSpec(
           let bldgId: string;
           const existingBldg =
             project.buildings.find((b) => b.name === bldgSpec.name) ||
-            (project.buildings.length === 1 ? project.buildings[0] : null);
+            (project.buildings.length === 1 && spec.buildings.length === 1 ? project.buildings[0] : null);
 
           if (existingBldg) {
             bldgId = existingBldg.id;

@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { validateProjectSpec } from "../validate-spec";
+import { isHalfStep } from "../project-spec-schema";
 
 describe("validateProjectSpec pre-flight validator", () => {
   const minimalValidSpec = {
@@ -138,5 +139,75 @@ describe("validateProjectSpec pre-flight validator", () => {
     expect(res.estimatedTotals.totalApartments).toBe(40);
     expect(res.estimatedTotals.totalConnectedKw).toBeGreaterThan(0);
     expect(res.estimatedTotals.suggestedMainBreakerAmps).toBeGreaterThan(0);
+  });
+
+  it("rejects apartment template rooms with arbitrary decimal areas like .1, .4, .25", () => {
+    const invalidAreaSpec = {
+      name: "Complex with Invalid Room Areas",
+      apartmentTemplates: [
+        {
+          name: "Type A",
+          rooms: [
+            { name: "Reception", areaM2: 19.1 },
+            { name: "Bathroom", areaM2: 4.4 },
+          ],
+        },
+      ],
+      buildings: [
+        {
+          name: "Building 1",
+          floors: 1,
+          floorAssignments: [{ floorNumber: 1, templateName: "Type A", count: 1 }],
+        },
+      ],
+    };
+
+    const res = validateProjectSpec(invalidAreaSpec);
+    expect(res.valid).toBe(false);
+    expect(res.readyToCreate).toBe(false);
+    expect(res.errors?.some((e) => e.includes("must be an integer or end in .5"))).toBe(true);
+  });
+
+  it("accepts apartment template rooms with integer and .5 areas", () => {
+    const validAreaSpec = {
+      name: "Complex with Valid Half-Step Room Areas",
+      apartmentTemplates: [
+        {
+          name: "Type A",
+          rooms: [
+            { name: "Master bedroom", areaM2: 19.5 },
+            { name: "Kitchen", areaM2: 12.5 },
+            { name: "Laundry", areaM2: 4.0 },
+            { name: "Balcony", areaM2: 4.5 },
+          ],
+        },
+      ],
+      buildings: [
+        {
+          name: "Building 1",
+          floors: 1,
+          floorAssignments: [{ floorNumber: 1, templateName: "Type A", count: 1 }],
+        },
+      ],
+    };
+
+    const res = validateProjectSpec(validAreaSpec);
+    expect(res.valid).toBe(true);
+  });
+
+  it("isHalfStep validates integer and half-integer values strictly", () => {
+    expect(isHalfStep(19)).toBe(true);
+    expect(isHalfStep(19.5)).toBe(true);
+    expect(isHalfStep(4)).toBe(true);
+    expect(isHalfStep(4.5)).toBe(true);
+    expect(isHalfStep(0.5)).toBe(true);
+
+    expect(isHalfStep(19.1)).toBe(false);
+    expect(isHalfStep(4.4)).toBe(false);
+    expect(isHalfStep(2.25)).toBe(false);
+    expect(isHalfStep(0)).toBe(false);
+    expect(isHalfStep(-4.5)).toBe(false);
+    expect(isHalfStep(NaN)).toBe(false);
+    expect(isHalfStep(Infinity)).toBe(false);
   });
 });

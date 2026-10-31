@@ -196,5 +196,31 @@ describe('renderReportHtml', () => {
     // Check alternating table row classes and zebra styling
     expect(html).toContain('bg-slate-100');
   });
+
+  it('injects repeating watermark and copy-protection CSS when project.isTrial is true', () => {
+    const project = createSampleProject();
+    project.isTrial = true;
+    const html = renderReportHtml({
+      project,
+      equipment: mockEquipment,
+    });
+
+    expect(html).toContain('trial-watermark-overlay');
+    expect(html).toContain('PROCAL FREE TRIAL — NOT FOR CONSTRUCTION');
+    expect(html).toContain('user-select: none !important');
+    expect(html).toContain('FREE TRIAL EVALUATION');
+  });
+
+  it('does not inject watermark overlay when project is not a trial', () => {
+    const project = createSampleProject();
+    project.isTrial = false;
+    const html = renderReportHtml({
+      project,
+      equipment: mockEquipment,
+    });
+
+    expect(html).not.toContain('trial-watermark-overlay');
+    expect(html).not.toContain('PROCAL FREE TRIAL — NOT FOR CONSTRUCTION');
+  });
 });
 

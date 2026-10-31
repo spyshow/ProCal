@@ -105,9 +105,16 @@ export default function ReportHeader({
     >
       <div className="flex items-center justify-between gap-4">
         <div>
-          <h1 className="text-sm font-black tracking-tight text-white uppercase">
-            {displayTitle}
-          </h1>
+          <div className="flex items-center gap-2">
+            <h1 className="text-sm font-black tracking-tight text-white uppercase">
+              {displayTitle}
+            </h1>
+            {project.isTrial && (
+              <span className="px-1.5 py-0.5 bg-red-600 text-white font-mono text-[8.5px] font-bold rounded uppercase tracking-wider">
+                FREE TRIAL
+              </span>
+            )}
+          </div>
           <p className="text-[11px] font-semibold text-slate-300">
             {subtitle || "ELECTRICAL DESIGN & SCHEDULE PACKAGE"}
           </p>

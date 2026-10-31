@@ -15,6 +15,8 @@ export type CurrentUser = {
   name: string;
   role: string;
   credits: number;
+  /** One lifetime free trial project; optional so older payloads still type-check. */
+  hasUsedTrial?: boolean;
   email: string | null;
   theme?: string;
 };

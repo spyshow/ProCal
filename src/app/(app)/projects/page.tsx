@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation';
 import { useProject } from '@/context/ProjectContext';
 import { useUser } from '@/context/UserContext';
 import { useTranslation } from '@/i18n';
-import { Building2, Plus, Trash2, ArrowRight, ArrowLeft, Wallet, Search, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Building2, Plus, Trash2, ArrowRight, ArrowLeft, Wallet, Search, ChevronLeft, ChevronRight, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { COUNTRY_DEFAULTS } from '@/lib/country-defaults';
 
@@ -20,6 +20,7 @@ interface Project {
   location: string;
   engineer: string;
   preferredManufacturer: string;
+  isTrial?: boolean;
   buildings: { id: string; name: string; floors: number }[];
 }
 
@@ -63,7 +64,8 @@ export default function ProjectsPage() {
   // server-side, so they always see "New Project". The race (form open at 1
   // credit, spent elsewhere, then submit → 402) is handled by the branched else
   // in handleCreate; this gate only hides creation when credits are already 0.
-  const isZeroCredits = user != null && user.role !== 'ADMIN' && user.credits < 1;
+  const isEligibleForTrial = user != null && user.role !== 'ADMIN' && user.credits < 1 && !user.hasUsedTrial;
+  const isZeroCredits = user != null && user.role !== 'ADMIN' && user.credits < 1 && !isEligibleForTrial;
 
   const loadProjects = (targetPage = page, searchVal = search) => {
     setLoading(true);
@@ -125,6 +127,7 @@ export default function ProjectsPage() {
       });
       if (res.ok) {
         const project = await res.json();
+        await refreshUser();
         selectProject(project.id);
         setShowNew(false);
         setForm(DEFAULT_PROJECT_FORM);
@@ -171,7 +174,17 @@ export default function ProjectsPage() {
           <h1 className="text-2xl font-bold text-[var(--foreground-color,#f8fafc)] tracking-tight">{t('projects.title', 'Projects')}</h1>
           <p className="text-sm text-[var(--table-header-color,#9ca3af)] mt-1">{t('projects.subtitle', 'Manage your electrical design projects')}</p>
         </div>
-        {isZeroCredits ? (
+        {isEligibleForTrial ? (
+          <Button
+            onClick={() => setShowNew(!showNew)}
+            variant="glow"
+            className="gap-2 text-white-force bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 cursor-pointer"
+            title="Start your 1 free trial project"
+          >
+            <Sparkles className="w-4 h-4 text-amber-300" />
+            <span>Start Free Trial Project</span>
+          </Button>
+        ) : isZeroCredits ? (
           <Button
             asChild
             variant="glow"
@@ -195,6 +208,24 @@ export default function ProjectsPage() {
         )}
       </div>
 
+      {/* Free Trial Eligibility Notice */}
+      {isEligibleForTrial && !showNew && (
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-xl border border-amber-500/40 bg-amber-500/10 px-4 py-3 text-sm">
+          <div className="flex items-center gap-3">
+            <Sparkles size={18} className="flex-shrink-0 text-amber-400" />
+            <span className="text-amber-200">
+              Welcome to ProCal! You have <strong>1 Free Trial Project</strong> available (1 building, up to 2 floors).
+            </span>
+          </div>
+          <button
+            onClick={() => setShowNew(true)}
+            className="px-3 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-500 text-white text-xs font-semibold transition-colors cursor-pointer shrink-0"
+          >
+            Start Free Trial →
+          </button>
+        </div>
+      )}
+
       {/* Zero-credit notice — sits above the list, mirrors the button swap */}
       {isZeroCredits && !showNew && (
         <div className="flex items-center gap-3 rounded-xl border border-orange-800/60 bg-orange-900/15 px-4 py-3 text-sm">
@@ -211,7 +242,15 @@ export default function ProjectsPage() {
       {/* New Project Form */}
       {showNew && (
         <form onSubmit={handleCreate} className="rounded-xl border border-gray-800 bg-gray-900/60 p-5 space-y-4">
-          <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wider">{t('projects.newProject', 'New Project')}</h3>
+          <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wider">
+            {isEligibleForTrial ? 'Create Free Trial Project' : t('projects.newProject', 'New Project')}
+          </h3>
+          {isEligibleForTrial && (
+            <div className="flex items-center gap-2 rounded-lg border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-xs text-amber-200 font-mono">
+              <Sparkles size={14} className="text-amber-400 shrink-0" />
+              <span>Free Trial Mode: Limited to 1 building and up to 2 floors. Upgrade anytime to lift all limits.</span>
+            </div>
+          )}
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
             <div>
               <label className="block text-xs text-gray-400 mb-1">{t('projects.projectName', 'Project Name *')}</label>
@@ -407,9 +446,16 @@ export default function ProjectsPage() {
                   <Building2 size={18} className="text-orange-600 dark:text-orange-400" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-[var(--foreground-color,#f8fafc)] group-hover:text-orange-600 dark:group-hover:text-orange-400 truncate transition-colors">
-                    {proj.name}
-                  </p>
+                  <div className="flex items-center gap-2">
+                    <p className="text-sm font-semibold text-[var(--foreground-color,#f8fafc)] group-hover:text-orange-600 dark:group-hover:text-orange-400 truncate transition-colors">
+                      {proj.name}
+                    </p>
+                    {proj.isTrial && (
+                      <span className="px-1.5 py-0.5 rounded text-[10px] font-mono font-bold bg-amber-500/15 text-amber-500 border border-amber-500/30 shrink-0">
+                        Trial
+                      </span>
+                    )}
+                  </div>
                   <p className="text-xs text-[var(--table-header-color,#9ca3af)] truncate font-medium mt-0.5">
                     {proj.client || '—'} · {proj.location || '—'} · {proj.buildings.length} {t('calculator.buildingsCount', 'buildings')}
                   </p>

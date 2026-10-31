@@ -69,7 +69,7 @@ const MCP_TOOLS = [
   {
     name: "validate_project_spec",
     description:
-      "Pre-flight dry-run check of an architectural/electrical drawing schedule spec. Identifies missing electrical parameters, assigns regional IEC/NEMA engineering defaults, and returns an estimated loads preview with a confirmation table. The AI agent MUST confirm missing/assumed parameters with the engineer before calling create_project_from_spec.",
+      "Pre-flight dry-run check of an architectural/electrical drawing schedule spec. Identifies missing electrical parameters, assigns regional IEC/NEMA engineering defaults, and returns an estimated loads preview with a confirmation table. The AI agent MUST confirm missing/assumed parameters with the engineer before calling create_project_from_spec. CRITICAL: In apartmentTemplates, each room areaM2 MUST be an integer or end in .5 (multiples of 0.5 m², e.g. 19 or 19.5). Values like 19.1, 4.4, or 2.25 are strictly rejected.",
     inputSchema: {
       type: "object",
       required: ["name", "apartmentTemplates", "buildings"],
@@ -80,7 +80,11 @@ const MCP_TOOLS = [
         frequency: { type: "number", description: "Grid frequency (50 or 60 Hz)" },
         powerFactor: { type: "number", description: "Power factor (default 0.85)" },
         calculationStandard: { type: "string", enum: ["IEC", "NEMA"], description: "Calculation standard" },
-        apartmentTemplates: { type: "array", description: "Apartment load templates and room schedules" },
+        apartmentTemplates: {
+          type: "array",
+          description:
+            "Apartment load templates and room schedules. Each room in rooms[] must specify name and areaM2. IMPORTANT: areaM2 MUST be an integer or end in .5 (e.g. 19, 19.5, 20). Values with other decimals like .1, .2, .25, or .4 are strictly rejected.",
+        },
         buildings: { type: "array", description: "Buildings, floors, assignments, and mechanical loads" },
         isConfirmedByUser: { type: "boolean", description: "Set to true once the engineer confirms assumed parameters" },
       },
@@ -89,7 +93,7 @@ const MCP_TOOLS = [
   {
     name: "create_project_from_spec",
     description:
-      "Atomically creates a new project in ProCal from a confirmed drawing specification, sizing apartment loads, branch circuits, MDB incomers, and mechanical equipment under IEC/NEMA standards. Requires isConfirmedByUser: true and deducts 1 credit for non-admin users. CRITICAL: Use ONLY to create a brand-new project. If a project has already been created (you have a projectId), NEVER call this tool to make changes, fixes, or adjustments — ALWAYS call 'update_project_spec' with the existing projectId instead.",
+      "Atomically creates a new project in ProCal from a confirmed drawing specification, sizing apartment loads, branch circuits, MDB incomers, and mechanical equipment under IEC/NEMA standards. Requires isConfirmedByUser: true and deducts 1 credit for non-admin users. CRITICAL: Use ONLY to create a brand-new project. If a project has already been created (you have a projectId), NEVER call this tool to make changes, fixes, or adjustments — ALWAYS call 'update_project_spec' with the existing projectId instead. Room areaM2 in apartmentTemplates MUST be an integer or end in .5 (e.g. 19 or 19.5).",
     inputSchema: {
       type: "object",
       required: ["name", "apartmentTemplates", "buildings", "isConfirmedByUser"],
@@ -100,7 +104,11 @@ const MCP_TOOLS = [
         frequency: { type: "number", description: "Grid frequency (50 or 60 Hz)" },
         powerFactor: { type: "number", description: "Power factor (default 0.85)" },
         calculationStandard: { type: "string", enum: ["IEC", "NEMA"] },
-        apartmentTemplates: { type: "array" },
+        apartmentTemplates: {
+          type: "array",
+          description:
+            "Apartment load templates and room schedules. Room areaM2 MUST be an integer or end in .5 (e.g. 19, 19.5). Decimals like .1, .2, .25, or .4 are strictly rejected.",
+        },
         buildings: { type: "array" },
         isConfirmedByUser: { type: "boolean", description: "Must be true" },
         idempotencyKey: { type: "string", description: "Optional deduplication key" },
@@ -110,7 +118,7 @@ const MCP_TOOLS = [
   {
     name: "update_project_spec",
     description:
-      "Updates an existing project in-place when an engineer requests changes or corrections. Modifies apartment templates, rooms, floor counts, floor item assignments, building mechanical loads, or electrical parameters, and triggers automatic complex-wide recalculation across all buildings. Preserves the projectId and does NOT charge additional creation credits.",
+      "Updates an existing project in-place when an engineer requests changes or corrections. Modifies apartment templates, rooms, floor counts, floor item assignments, building mechanical loads, or electrical parameters, and triggers automatic complex-wide recalculation across all buildings. Preserves the projectId and does NOT charge additional creation credits. Room areaM2 in apartmentTemplates MUST be an integer or end in .5 (e.g. 19 or 19.5).",
     inputSchema: {
       type: "object",
       required: ["projectId"],
@@ -123,7 +131,11 @@ const MCP_TOOLS = [
         powerFactor: { type: "number", description: "Power factor (default 0.85)" },
         calculationStandard: { type: "string", enum: ["IEC", "NEMA"], description: "Calculation standard" },
         preferredManufacturer: { type: "string", description: "Preferred circuit breaker manufacturer (e.g. ABB, Schneider, Siemens, Eaton)" },
-        apartmentTemplates: { type: "array", description: "Apartment load templates and room schedules to create or update (matched by name)" },
+        apartmentTemplates: {
+          type: "array",
+          description:
+            "Apartment load templates and room schedules to create or update (matched by name). Room areaM2 MUST be an integer or end in .5 (e.g. 19 or 19.5). Decimals like .1, .2, .25, or .4 are strictly rejected.",
+        },
         buildings: { type: "array", description: "Buildings, floor counts, and assignments to update (matched by name)" },
         buildingLoads: { type: "array", description: "Common building mechanical loads (elevators, chillers, pumps) to add or update" },
         resetSizing: { type: "boolean", description: "Whether to re-run automated cable and breaker sizing across all buildings (default: true)" },
@@ -538,7 +550,7 @@ async function executeTool(
     }
 
     case "get_project_sld": {
-      requireAuth(user);
+      const authUser = requireAuth(user);
       const projectId = args.projectId as string;
       if (!projectId) throw new Error("projectId is required");
 
@@ -559,9 +571,20 @@ async function executeTool(
       });
 
       if (!project) throw new Error(`Project not found: ${projectId}`);
+      if (project.userId && project.userId !== authUser.id && authUser.role !== "ADMIN") {
+        throw new Error("Unauthorized to access this project");
+      }
+
+      const watermarkSvg = (svgStr: string) =>
+        (project as { isTrial?: boolean }).isTrial
+          ? svgStr.replace(
+              "</svg>",
+              `<g opacity="0.35" transform="rotate(-30 400 300)"><text x="100" y="300" font-family="sans-serif" font-size="32" font-weight="bold" fill="#ef4444">PROCAL FREE TRIAL — NOT FOR CONSTRUCTION</text></g></svg>`
+            )
+          : svgStr;
 
       const fullDsl = generateSLD(project as unknown as AppProject);
-      const fullSvg = render(fullDsl);
+      const fullSvg = watermarkSvg(render(fullDsl));
       const fullAst = parse(fullDsl);
 
       const pages = generateSLDPages(project as unknown as AppProject).map((p) => ({
@@ -570,7 +593,7 @@ async function executeTool(
         buildingName: p.buildingName,
         floorNumber: p.floorNumber,
         dsl: p.dsl,
-        svg: render(p.dsl),
+        svg: watermarkSvg(render(p.dsl)),
       }));
 
       return {
@@ -608,6 +631,9 @@ async function executeTool(
       });
 
       if (!project) throw new Error(`Project not found: ${projectId}`);
+      if (project.userId && project.userId !== authUser.id && authUser.role !== "ADMIN") {
+        throw new Error("Unauthorized to access this project");
+      }
 
       const compliance = await getProjectComplianceSummary(projectId);
       const downloadToken = await signReportDownloadToken(projectId, authUser.id);
@@ -616,12 +642,16 @@ async function executeTool(
       let base64Pdf: string | undefined;
       if (includeBase64) {
         try {
-          const company = await getCompanySettings().catch(() => null);
-          const fullHtml = wrapReportMarkup(
-            `<div><h1>${project.name}</h1><p>Executive Report</p></div>`,
-            `${project.name} - Executive Package`
+          const safeTitle = String(project.name || "Project").replace(/[<>&'"]/g, (c) =>
+            ({ "<": "&lt;", ">": "&gt;", "&": "&amp;", "'": "&apos;", '"': "&quot;" }[c] || c)
           );
-          const buffer = await generateServerPdf(fullHtml);
+          const isTrial = Boolean((project as { isTrial?: boolean }).isTrial);
+          const fullHtml = wrapReportMarkup(
+            `<div><h1>${safeTitle}</h1><p>Executive Report</p></div>`,
+            `${project.name} - Executive Package`,
+            isTrial
+          );
+          const buffer = await generateServerPdf(fullHtml, { isTrial });
           base64Pdf = buffer.toString("base64");
         } catch (err) {
           console.warn("Eager base64 PDF generation failed:", err);

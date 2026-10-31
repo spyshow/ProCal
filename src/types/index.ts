@@ -199,6 +199,7 @@ export interface Project {
   currentMemberRole?: "PROJECT_MANAGER" | "ENGINEER" | "QA";
   currentMemberPermissions?: Record<string, "VIEW" | "EDIT" | "NONE">;
   isOwner?: boolean;
+  isTrial?: boolean;
 }
 
 /**

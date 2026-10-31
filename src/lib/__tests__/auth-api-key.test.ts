@@ -121,6 +121,7 @@ describe("getSessionUser() with API Key and Cookie Auth", () => {
             email: true,
             theme: true,
             disabled: true,
+            hasUsedTrial: true,
           },
         },
       },

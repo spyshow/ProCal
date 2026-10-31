@@ -107,8 +107,8 @@ describe("ProjectsPage dead-button fix (Track 3 regression)", () => {
     expect(push).not.toHaveBeenCalled();
   });
 
-  it("T11 zero-credit non-admin → form hidden, 'Get credits' shown, links to /billing", async () => {
-    setUser({ id: "u1", username: "alice", name: "Alice", role: "USER", credits: 0, email: "alice@e.com" });
+  it("T11 zero-credit non-admin who used trial → form hidden, 'Get credits' shown, links to /billing", async () => {
+    setUser({ id: "u1", username: "alice", name: "Alice", role: "USER", credits: 0, email: "alice@e.com", hasUsedTrial: true });
 
     await renderPage();
     // The proactive gate swaps the button for a /billing link.
@@ -117,5 +117,13 @@ describe("ProjectsPage dead-button fix (Track 3 regression)", () => {
     // No "New Project" affordance exists.
     expect(screen.queryByRole("button", { name: /New Project/i })).toBeNull();
     await waitFor(() => expect(screen.queryByText("Loading…")).toBeNull());
+  });
+
+  it("T12 zero-credit non-admin eligible for trial → shows 'Start Free Trial Project' button", async () => {
+    setUser({ id: "u1", username: "alice", name: "Alice", role: "USER", credits: 0, email: "alice@e.com", hasUsedTrial: false });
+
+    await renderPage();
+    const trialBtn = await waitFor(() => screen.getByText(/Start Free Trial Project/i));
+    expect(trialBtn).toBeInTheDocument();
   });
 });

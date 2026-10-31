@@ -465,10 +465,17 @@ function CalculatorContent() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white flex items-center gap-2">
-            <Calculator size={22} className="text-orange-500" />
-            {t('calculator.title', 'Load Calculator & Floor Designer')}
-          </h1>
+          <div className="flex items-center gap-2">
+            <h1 className="text-2xl font-bold text-white flex items-center gap-2">
+              <Calculator size={22} className="text-orange-500" />
+              {t('calculator.title', 'Load Calculator & Floor Designer')}
+            </h1>
+            {project?.isTrial && (
+              <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-amber-500/15 text-amber-400 border border-amber-500/30">
+                Free Trial
+              </span>
+            )}
+          </div>
           <p className="text-sm text-gray-400 mt-1">
             {project ? `${project.name} — ${project.voltage}V, PF ${project.powerFactor}` : ''}
           </p>

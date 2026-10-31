@@ -4,6 +4,7 @@ import { verifyProjectAccess } from "@/lib/project-auth";
 import { logProjectActivity } from "@/lib/audit-logger";
 import { computeBuildingDiff } from "@/lib/audit-diff";
 import { errorResponse } from "@/lib/api-errors";
+import { trialLevelsError } from "@/lib/trial";
 
 export async function GET(
   request: Request,
@@ -58,6 +59,15 @@ export async function PUT(
     }
 
     const oldTotalFloors = building.floors + building.serviceFloors;
+
+    if (building.project.isTrial) {
+      const nextFloors = data.floors !== undefined ? parseInt(data.floors) : building.floors;
+      const nextService = data.serviceFloors !== undefined ? parseInt(data.serviceFloors) : building.serviceFloors;
+      const trialError = trialLevelsError(nextFloors, nextService);
+      if (trialError) {
+        return NextResponse.json({ error: trialError, code: "TRIAL_LIMIT" }, { status: 402 });
+      }
+    }
     
     const updatedBuilding = await db.building.update({
       where: { id },
@@ -153,6 +163,14 @@ export async function PATCH(
     }
 
     const updateData: Prisma.BuildingUpdateInput = {};
+    if (building.project?.isTrial && (data.floors !== undefined || data.serviceFloors !== undefined)) {
+      const nextFloors = data.floors !== undefined ? parseInt(data.floors, 10) : building.floors;
+      const nextService = data.serviceFloors !== undefined ? parseInt(data.serviceFloors, 10) : building.serviceFloors;
+      const trialError = trialLevelsError(nextFloors, nextService);
+      if (trialError) {
+        return NextResponse.json({ error: trialError, code: "TRIAL_LIMIT" }, { status: 402 });
+      }
+    }
     if (data.name !== undefined) updateData.name = data.name;
     if (data.floors !== undefined) updateData.floors = parseInt(data.floors, 10);
     if (data.serviceFloors !== undefined) updateData.serviceFloors = parseInt(data.serviceFloors, 10);

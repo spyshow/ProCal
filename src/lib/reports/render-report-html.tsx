@@ -124,10 +124,10 @@ export function renderReportHtml(options: RenderReportHtmlOptions): string {
     </div>
   );
 
-  return wrapReportMarkup(reportMarkup, `${project.name} - Engineering Package`);
+  return wrapReportMarkup(reportMarkup, `${project.name} - Engineering Package`, Boolean(project.isTrial));
 }
 
-export function wrapReportMarkup(markup: string, title = 'Engineering Package'): string {
+export function wrapReportMarkup(markup: string, title = 'Engineering Package', isTrial = false): string {
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -249,9 +249,50 @@ export function wrapReportMarkup(markup: string, title = 'Engineering Package'):
       height: auto !important;
       object-fit: contain !important;
     }
+    ${isTrial ? `
+    /* Free Trial Copy-Protection */
+    *, html, body, div, table, tr, td, th, p, span, h1, h2, h3 {
+      user-select: none !important;
+      -webkit-user-select: none !important;
+    }
+    /* Free Trial Repeating Watermark */
+    .trial-watermark-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 99999;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-around;
+      align-items: center;
+      opacity: 0.13;
+      overflow: hidden;
+    }
+    .trial-watermark-line {
+      font-size: 34px;
+      font-weight: 900;
+      letter-spacing: 5px;
+      color: #dc2626;
+      transform: rotate(-25deg);
+      white-space: nowrap;
+      text-transform: uppercase;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+    ` : ''}
   </style>
 </head>
 <body>
+  ${isTrial ? `
+  <div class="trial-watermark-overlay" aria-hidden="true">
+    <div class="trial-watermark-line">PROCAL FREE TRIAL — NOT FOR CONSTRUCTION</div>
+    <div class="trial-watermark-line">EVALUATION ONLY — NOT FOR CONSTRUCTION</div>
+    <div class="trial-watermark-line">PROCAL FREE TRIAL — NOT FOR CONSTRUCTION</div>
+    <div class="trial-watermark-line">EVALUATION ONLY — NOT FOR CONSTRUCTION</div>
+  </div>
+  ` : ''}
   <div class="report-root w-full bg-white text-slate-900">
     ${markup}
   </div>

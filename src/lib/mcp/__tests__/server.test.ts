@@ -226,6 +226,41 @@ describe("Zero-Dependency JSON-RPC 2.0 MCP Server", () => {
     expect(data.confirmationPrompt).toContain("Marina Heights");
   });
 
+  it("rejects non-half-step room areas like 19.1 in 'validate_project_spec'", async () => {
+    const req: JsonRpcRequest = {
+      jsonrpc: "2.0",
+      id: "call-validate-invalid-area",
+      method: "tools/call",
+      params: {
+        name: "validate_project_spec",
+        arguments: {
+          name: "Marina Heights",
+          country: "United Arab Emirates",
+          apartmentTemplates: [
+            {
+              name: "1-Bed",
+              rooms: [{ name: "Reception", type: "LIVING_ROOM", areaM2: 19.1 }],
+            },
+          ],
+          buildings: [
+            {
+              name: "Block A",
+              floors: 1,
+              floorAssignments: [{ floorNumber: 1, templateName: "1-Bed", count: 1 }],
+            },
+          ],
+        },
+      },
+    };
+
+    const res = await handleMcpRequest(req, testUser, baseUrl);
+    const content = (res.result as { content: { text: string }[] }).content[0].text;
+    const data = JSON.parse(content);
+    expect(data.valid).toBe(false);
+    expect(data.readyToCreate).toBe(false);
+    expect(data.errors.some((e: string) => e.includes("must be an integer or end in .5"))).toBe(true);
+  });
+
   it("executes 'get_project_sld' and returns DSL, standalone SVG, and parsed AST", async () => {
     mockDb.project.findUnique.mockResolvedValueOnce({
       id: "proj-sld-1",
@@ -596,5 +631,61 @@ describe("Zero-Dependency JSON-RPC 2.0 MCP Server", () => {
     expect(res.result).toHaveProperty("isError", true);
     expect(content).toContain("Authentication required");
     expect(content).toContain("procal_sk_");
+  });
+
+  it("watermarks SLD SVGs on trial projects and blocks cross-tenant access", async () => {
+    mockDb.project.findUnique.mockResolvedValueOnce({
+      id: "proj-sld-trial",
+      userId: testUser.id,
+      isTrial: true,
+      name: "Trial Villa",
+      voltage: 400,
+      frequency: 50,
+      powerFactor: 0.85,
+      calculationStandard: "IEC",
+      buildings: [
+        {
+          id: "b-1",
+          name: "Villa",
+          floors: 1,
+          floorDesigns: [{ floorNumber: 1, hasFloorSubPanels: false, items: [] }],
+          buildingLoads: [],
+        },
+      ],
+    });
+
+    const trialRes = await handleMcpRequest(
+      {
+        jsonrpc: "2.0",
+        id: 108,
+        method: "tools/call",
+        params: { name: "get_project_sld", arguments: { projectId: "proj-sld-trial" } },
+      },
+      testUser,
+      baseUrl
+    );
+    const trialData = JSON.parse((trialRes.result as { content: { text: string }[] }).content[0].text);
+    expect(trialData.overviewDiagram.svg).toContain("PROCAL FREE TRIAL");
+
+    mockDb.project.findUnique.mockResolvedValueOnce({
+      id: "proj-other-tenant",
+      userId: "someone-else",
+      name: "Private Tower",
+      buildings: [],
+    });
+    const unauthRes = await handleMcpRequest(
+      {
+        jsonrpc: "2.0",
+        id: 109,
+        method: "tools/call",
+        params: { name: "get_project_sld", arguments: { projectId: "proj-other-tenant" } },
+      },
+      testUser,
+      baseUrl
+    );
+    expect(unauthRes.result).toHaveProperty("isError", true);
+    expect((unauthRes.result as { content: { text: string }[] }).content[0].text).toContain(
+      "Unauthorized to access this project"
+    );
   });
 });

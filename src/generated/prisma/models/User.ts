@@ -43,6 +43,7 @@ export type UserMinAggregateOutputType = {
   role: string | null
   theme: string | null
   credits: number | null
+  hasUsedTrial: boolean | null
   disabled: boolean | null
   createdAt: Date | null
 }
@@ -56,6 +57,7 @@ export type UserMaxAggregateOutputType = {
   role: string | null
   theme: string | null
   credits: number | null
+  hasUsedTrial: boolean | null
   disabled: boolean | null
   createdAt: Date | null
 }
@@ -69,6 +71,7 @@ export type UserCountAggregateOutputType = {
   role: number
   theme: number
   credits: number
+  hasUsedTrial: number
   disabled: number
   createdAt: number
   _all: number
@@ -92,6 +95,7 @@ export type UserMinAggregateInputType = {
   role?: true
   theme?: true
   credits?: true
+  hasUsedTrial?: true
   disabled?: true
   createdAt?: true
 }
@@ -105,6 +109,7 @@ export type UserMaxAggregateInputType = {
   role?: true
   theme?: true
   credits?: true
+  hasUsedTrial?: true
   disabled?: true
   createdAt?: true
 }
@@ -118,6 +123,7 @@ export type UserCountAggregateInputType = {
   role?: true
   theme?: true
   credits?: true
+  hasUsedTrial?: true
   disabled?: true
   createdAt?: true
   _all?: true
@@ -218,6 +224,7 @@ export type UserGroupByOutputType = {
   role: string
   theme: string
   credits: number
+  hasUsedTrial: boolean
   disabled: boolean
   createdAt: Date
   _count: UserCountAggregateOutputType | null
@@ -254,6 +261,7 @@ export type UserWhereInput = {
   role?: Prisma.StringFilter<"User"> | string
   theme?: Prisma.StringFilter<"User"> | string
   credits?: Prisma.IntFilter<"User"> | number
+  hasUsedTrial?: Prisma.BoolFilter<"User"> | boolean
   disabled?: Prisma.BoolFilter<"User"> | boolean
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   projects?: Prisma.ProjectListRelationFilter
@@ -275,6 +283,7 @@ export type UserOrderByWithRelationInput = {
   role?: Prisma.SortOrder
   theme?: Prisma.SortOrder
   credits?: Prisma.SortOrder
+  hasUsedTrial?: Prisma.SortOrder
   disabled?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   projects?: Prisma.ProjectOrderByRelationAggregateInput
@@ -299,6 +308,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   role?: Prisma.StringFilter<"User"> | string
   theme?: Prisma.StringFilter<"User"> | string
   credits?: Prisma.IntFilter<"User"> | number
+  hasUsedTrial?: Prisma.BoolFilter<"User"> | boolean
   disabled?: Prisma.BoolFilter<"User"> | boolean
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   projects?: Prisma.ProjectListRelationFilter
@@ -320,6 +330,7 @@ export type UserOrderByWithAggregationInput = {
   role?: Prisma.SortOrder
   theme?: Prisma.SortOrder
   credits?: Prisma.SortOrder
+  hasUsedTrial?: Prisma.SortOrder
   disabled?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   _count?: Prisma.UserCountOrderByAggregateInput
@@ -341,6 +352,7 @@ export type UserScalarWhereWithAggregatesInput = {
   role?: Prisma.StringWithAggregatesFilter<"User"> | string
   theme?: Prisma.StringWithAggregatesFilter<"User"> | string
   credits?: Prisma.IntWithAggregatesFilter<"User"> | number
+  hasUsedTrial?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
   disabled?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
 }
@@ -354,6 +366,7 @@ export type UserCreateInput = {
   role?: string
   theme?: string
   credits?: number
+  hasUsedTrial?: boolean
   disabled?: boolean
   createdAt?: Date | string
   projects?: Prisma.ProjectCreateNestedManyWithoutUserInput
@@ -375,6 +388,7 @@ export type UserUncheckedCreateInput = {
   role?: string
   theme?: string
   credits?: number
+  hasUsedTrial?: boolean
   disabled?: boolean
   createdAt?: Date | string
   projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutUserInput
@@ -396,6 +410,7 @@ export type UserUpdateInput = {
   role?: Prisma.StringFieldUpdateOperationsInput | string
   theme?: Prisma.StringFieldUpdateOperationsInput | string
   credits?: Prisma.IntFieldUpdateOperationsInput | number
+  hasUsedTrial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   disabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   projects?: Prisma.ProjectUpdateManyWithoutUserNestedInput
@@ -417,6 +432,7 @@ export type UserUncheckedUpdateInput = {
   role?: Prisma.StringFieldUpdateOperationsInput | string
   theme?: Prisma.StringFieldUpdateOperationsInput | string
   credits?: Prisma.IntFieldUpdateOperationsInput | number
+  hasUsedTrial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   disabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   projects?: Prisma.ProjectUncheckedUpdateManyWithoutUserNestedInput
@@ -438,6 +454,7 @@ export type UserCreateManyInput = {
   role?: string
   theme?: string
   credits?: number
+  hasUsedTrial?: boolean
   disabled?: boolean
   createdAt?: Date | string
 }
@@ -451,6 +468,7 @@ export type UserUpdateManyMutationInput = {
   role?: Prisma.StringFieldUpdateOperationsInput | string
   theme?: Prisma.StringFieldUpdateOperationsInput | string
   credits?: Prisma.IntFieldUpdateOperationsInput | number
+  hasUsedTrial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   disabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -464,6 +482,7 @@ export type UserUncheckedUpdateManyInput = {
   role?: Prisma.StringFieldUpdateOperationsInput | string
   theme?: Prisma.StringFieldUpdateOperationsInput | string
   credits?: Prisma.IntFieldUpdateOperationsInput | number
+  hasUsedTrial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   disabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -477,6 +496,7 @@ export type UserCountOrderByAggregateInput = {
   role?: Prisma.SortOrder
   theme?: Prisma.SortOrder
   credits?: Prisma.SortOrder
+  hasUsedTrial?: Prisma.SortOrder
   disabled?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
@@ -494,6 +514,7 @@ export type UserMaxOrderByAggregateInput = {
   role?: Prisma.SortOrder
   theme?: Prisma.SortOrder
   credits?: Prisma.SortOrder
+  hasUsedTrial?: Prisma.SortOrder
   disabled?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
@@ -507,6 +528,7 @@ export type UserMinOrderByAggregateInput = {
   role?: Prisma.SortOrder
   theme?: Prisma.SortOrder
   credits?: Prisma.SortOrder
+  hasUsedTrial?: Prisma.SortOrder
   disabled?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
@@ -672,6 +694,7 @@ export type UserCreateWithoutContactRequestsInput = {
   role?: string
   theme?: string
   credits?: number
+  hasUsedTrial?: boolean
   disabled?: boolean
   createdAt?: Date | string
   projects?: Prisma.ProjectCreateNestedManyWithoutUserInput
@@ -692,6 +715,7 @@ export type UserUncheckedCreateWithoutContactRequestsInput = {
   role?: string
   theme?: string
   credits?: number
+  hasUsedTrial?: boolean
   disabled?: boolean
   createdAt?: Date | string
   projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutUserInput
@@ -728,6 +752,7 @@ export type UserUpdateWithoutContactRequestsInput = {
   role?: Prisma.StringFieldUpdateOperationsInput | string
   theme?: Prisma.StringFieldUpdateOperationsInput | string
   credits?: Prisma.IntFieldUpdateOperationsInput | number
+  hasUsedTrial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   disabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   projects?: Prisma.ProjectUpdateManyWithoutUserNestedInput
@@ -748,6 +773,7 @@ export type UserUncheckedUpdateWithoutContactRequestsInput = {
   role?: Prisma.StringFieldUpdateOperationsInput | string
   theme?: Prisma.StringFieldUpdateOperationsInput | string
   credits?: Prisma.IntFieldUpdateOperationsInput | number
+  hasUsedTrial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   disabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   projects?: Prisma.ProjectUncheckedUpdateManyWithoutUserNestedInput
@@ -768,6 +794,7 @@ export type UserCreateWithoutProjectsInput = {
   role?: string
   theme?: string
   credits?: number
+  hasUsedTrial?: boolean
   disabled?: boolean
   createdAt?: Date | string
   revisions?: Prisma.ProjectRevisionCreateNestedManyWithoutCreatedByInput
@@ -788,6 +815,7 @@ export type UserUncheckedCreateWithoutProjectsInput = {
   role?: string
   theme?: string
   credits?: number
+  hasUsedTrial?: boolean
   disabled?: boolean
   createdAt?: Date | string
   revisions?: Prisma.ProjectRevisionUncheckedCreateNestedManyWithoutCreatedByInput
@@ -824,6 +852,7 @@ export type UserUpdateWithoutProjectsInput = {
   role?: Prisma.StringFieldUpdateOperationsInput | string
   theme?: Prisma.StringFieldUpdateOperationsInput | string
   credits?: Prisma.IntFieldUpdateOperationsInput | number
+  hasUsedTrial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   disabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   revisions?: Prisma.ProjectRevisionUpdateManyWithoutCreatedByNestedInput
@@ -844,6 +873,7 @@ export type UserUncheckedUpdateWithoutProjectsInput = {
   role?: Prisma.StringFieldUpdateOperationsInput | string
   theme?: Prisma.StringFieldUpdateOperationsInput | string
   credits?: Prisma.IntFieldUpdateOperationsInput | number
+  hasUsedTrial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   disabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   revisions?: Prisma.ProjectRevisionUncheckedUpdateManyWithoutCreatedByNestedInput
@@ -864,6 +894,7 @@ export type UserCreateWithoutProjectMembersInput = {
   role?: string
   theme?: string
   credits?: number
+  hasUsedTrial?: boolean
   disabled?: boolean
   createdAt?: Date | string
   projects?: Prisma.ProjectCreateNestedManyWithoutUserInput
@@ -884,6 +915,7 @@ export type UserUncheckedCreateWithoutProjectMembersInput = {
   role?: string
   theme?: string
   credits?: number
+  hasUsedTrial?: boolean
   disabled?: boolean
   createdAt?: Date | string
   projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutUserInput
@@ -920,6 +952,7 @@ export type UserUpdateWithoutProjectMembersInput = {
   role?: Prisma.StringFieldUpdateOperationsInput | string
   theme?: Prisma.StringFieldUpdateOperationsInput | string
   credits?: Prisma.IntFieldUpdateOperationsInput | number
+  hasUsedTrial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   disabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   projects?: Prisma.ProjectUpdateManyWithoutUserNestedInput
@@ -940,6 +973,7 @@ export type UserUncheckedUpdateWithoutProjectMembersInput = {
   role?: Prisma.StringFieldUpdateOperationsInput | string
   theme?: Prisma.StringFieldUpdateOperationsInput | string
   credits?: Prisma.IntFieldUpdateOperationsInput | number
+  hasUsedTrial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   disabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   projects?: Prisma.ProjectUncheckedUpdateManyWithoutUserNestedInput
@@ -960,6 +994,7 @@ export type UserCreateWithoutSentInvitesInput = {
   role?: string
   theme?: string
   credits?: number
+  hasUsedTrial?: boolean
   disabled?: boolean
   createdAt?: Date | string
   projects?: Prisma.ProjectCreateNestedManyWithoutUserInput
@@ -980,6 +1015,7 @@ export type UserUncheckedCreateWithoutSentInvitesInput = {
   role?: string
   theme?: string
   credits?: number
+  hasUsedTrial?: boolean
   disabled?: boolean
   createdAt?: Date | string
   projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutUserInput
@@ -1016,6 +1052,7 @@ export type UserUpdateWithoutSentInvitesInput = {
   role?: Prisma.StringFieldUpdateOperationsInput | string
   theme?: Prisma.StringFieldUpdateOperationsInput | string
   credits?: Prisma.IntFieldUpdateOperationsInput | number
+  hasUsedTrial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   disabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   projects?: Prisma.ProjectUpdateManyWithoutUserNestedInput
@@ -1036,6 +1073,7 @@ export type UserUncheckedUpdateWithoutSentInvitesInput = {
   role?: Prisma.StringFieldUpdateOperationsInput | string
   theme?: Prisma.StringFieldUpdateOperationsInput | string
   credits?: Prisma.IntFieldUpdateOperationsInput | number
+  hasUsedTrial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   disabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   projects?: Prisma.ProjectUncheckedUpdateManyWithoutUserNestedInput
@@ -1056,6 +1094,7 @@ export type UserCreateWithoutAuditLogsInput = {
   role?: string
   theme?: string
   credits?: number
+  hasUsedTrial?: boolean
   disabled?: boolean
   createdAt?: Date | string
   projects?: Prisma.ProjectCreateNestedManyWithoutUserInput
@@ -1076,6 +1115,7 @@ export type UserUncheckedCreateWithoutAuditLogsInput = {
   role?: string
   theme?: string
   credits?: number
+  hasUsedTrial?: boolean
   disabled?: boolean
   createdAt?: Date | string
   projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutUserInput
@@ -1112,6 +1152,7 @@ export type UserUpdateWithoutAuditLogsInput = {
   role?: Prisma.StringFieldUpdateOperationsInput | string
   theme?: Prisma.StringFieldUpdateOperationsInput | string
   credits?: Prisma.IntFieldUpdateOperationsInput | number
+  hasUsedTrial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   disabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   projects?: Prisma.ProjectUpdateManyWithoutUserNestedInput
@@ -1132,6 +1173,7 @@ export type UserUncheckedUpdateWithoutAuditLogsInput = {
   role?: Prisma.StringFieldUpdateOperationsInput | string
   theme?: Prisma.StringFieldUpdateOperationsInput | string
   credits?: Prisma.IntFieldUpdateOperationsInput | number
+  hasUsedTrial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   disabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   projects?: Prisma.ProjectUncheckedUpdateManyWithoutUserNestedInput
@@ -1152,6 +1194,7 @@ export type UserCreateWithoutReviewItemsInput = {
   role?: string
   theme?: string
   credits?: number
+  hasUsedTrial?: boolean
   disabled?: boolean
   createdAt?: Date | string
   projects?: Prisma.ProjectCreateNestedManyWithoutUserInput
@@ -1172,6 +1215,7 @@ export type UserUncheckedCreateWithoutReviewItemsInput = {
   role?: string
   theme?: string
   credits?: number
+  hasUsedTrial?: boolean
   disabled?: boolean
   createdAt?: Date | string
   projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutUserInput
@@ -1208,6 +1252,7 @@ export type UserUpdateWithoutReviewItemsInput = {
   role?: Prisma.StringFieldUpdateOperationsInput | string
   theme?: Prisma.StringFieldUpdateOperationsInput | string
   credits?: Prisma.IntFieldUpdateOperationsInput | number
+  hasUsedTrial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   disabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   projects?: Prisma.ProjectUpdateManyWithoutUserNestedInput
@@ -1228,6 +1273,7 @@ export type UserUncheckedUpdateWithoutReviewItemsInput = {
   role?: Prisma.StringFieldUpdateOperationsInput | string
   theme?: Prisma.StringFieldUpdateOperationsInput | string
   credits?: Prisma.IntFieldUpdateOperationsInput | number
+  hasUsedTrial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   disabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   projects?: Prisma.ProjectUncheckedUpdateManyWithoutUserNestedInput
@@ -1248,6 +1294,7 @@ export type UserCreateWithoutRevisionsInput = {
   role?: string
   theme?: string
   credits?: number
+  hasUsedTrial?: boolean
   disabled?: boolean
   createdAt?: Date | string
   projects?: Prisma.ProjectCreateNestedManyWithoutUserInput
@@ -1268,6 +1315,7 @@ export type UserUncheckedCreateWithoutRevisionsInput = {
   role?: string
   theme?: string
   credits?: number
+  hasUsedTrial?: boolean
   disabled?: boolean
   createdAt?: Date | string
   projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutUserInput
@@ -1304,6 +1352,7 @@ export type UserUpdateWithoutRevisionsInput = {
   role?: Prisma.StringFieldUpdateOperationsInput | string
   theme?: Prisma.StringFieldUpdateOperationsInput | string
   credits?: Prisma.IntFieldUpdateOperationsInput | number
+  hasUsedTrial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   disabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   projects?: Prisma.ProjectUpdateManyWithoutUserNestedInput
@@ -1324,6 +1373,7 @@ export type UserUncheckedUpdateWithoutRevisionsInput = {
   role?: Prisma.StringFieldUpdateOperationsInput | string
   theme?: Prisma.StringFieldUpdateOperationsInput | string
   credits?: Prisma.IntFieldUpdateOperationsInput | number
+  hasUsedTrial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   disabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   projects?: Prisma.ProjectUncheckedUpdateManyWithoutUserNestedInput
@@ -1344,6 +1394,7 @@ export type UserCreateWithoutApiKeysInput = {
   role?: string
   theme?: string
   credits?: number
+  hasUsedTrial?: boolean
   disabled?: boolean
   createdAt?: Date | string
   projects?: Prisma.ProjectCreateNestedManyWithoutUserInput
@@ -1364,6 +1415,7 @@ export type UserUncheckedCreateWithoutApiKeysInput = {
   role?: string
   theme?: string
   credits?: number
+  hasUsedTrial?: boolean
   disabled?: boolean
   createdAt?: Date | string
   projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutUserInput
@@ -1400,6 +1452,7 @@ export type UserUpdateWithoutApiKeysInput = {
   role?: Prisma.StringFieldUpdateOperationsInput | string
   theme?: Prisma.StringFieldUpdateOperationsInput | string
   credits?: Prisma.IntFieldUpdateOperationsInput | number
+  hasUsedTrial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   disabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   projects?: Prisma.ProjectUpdateManyWithoutUserNestedInput
@@ -1420,6 +1473,7 @@ export type UserUncheckedUpdateWithoutApiKeysInput = {
   role?: Prisma.StringFieldUpdateOperationsInput | string
   theme?: Prisma.StringFieldUpdateOperationsInput | string
   credits?: Prisma.IntFieldUpdateOperationsInput | number
+  hasUsedTrial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   disabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   projects?: Prisma.ProjectUncheckedUpdateManyWithoutUserNestedInput
@@ -1534,6 +1588,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   role?: boolean
   theme?: boolean
   credits?: boolean
+  hasUsedTrial?: boolean
   disabled?: boolean
   createdAt?: boolean
   projects?: boolean | Prisma.User$projectsArgs<ExtArgs>
@@ -1556,6 +1611,7 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   role?: boolean
   theme?: boolean
   credits?: boolean
+  hasUsedTrial?: boolean
   disabled?: boolean
   createdAt?: boolean
 }, ExtArgs["result"]["user"]>
@@ -1569,6 +1625,7 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   role?: boolean
   theme?: boolean
   credits?: boolean
+  hasUsedTrial?: boolean
   disabled?: boolean
   createdAt?: boolean
 }, ExtArgs["result"]["user"]>
@@ -1582,11 +1639,12 @@ export type UserSelectScalar = {
   role?: boolean
   theme?: boolean
   credits?: boolean
+  hasUsedTrial?: boolean
   disabled?: boolean
   createdAt?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "username" | "passwordHash" | "name" | "email" | "role" | "theme" | "credits" | "disabled" | "createdAt", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "username" | "passwordHash" | "name" | "email" | "role" | "theme" | "credits" | "hasUsedTrial" | "disabled" | "createdAt", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   projects?: boolean | Prisma.User$projectsArgs<ExtArgs>
   revisions?: boolean | Prisma.User$revisionsArgs<ExtArgs>
@@ -1622,6 +1680,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     role: string
     theme: string
     credits: number
+    hasUsedTrial: boolean
     disabled: boolean
     createdAt: Date
   }, ExtArgs["result"]["user"]>
@@ -2063,6 +2122,7 @@ export interface UserFieldRefs {
   readonly role: Prisma.FieldRef<"User", 'String'>
   readonly theme: Prisma.FieldRef<"User", 'String'>
   readonly credits: Prisma.FieldRef<"User", 'Int'>
+  readonly hasUsedTrial: Prisma.FieldRef<"User", 'Boolean'>
   readonly disabled: Prisma.FieldRef<"User", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"User", 'DateTime'>
 }

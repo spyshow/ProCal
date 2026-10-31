@@ -3,6 +3,7 @@ import chromium from '@sparticuz/chromium';
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
+import crypto from 'crypto';
 
 /**
  * Resolves the appropriate Chromium executable path across environments:
@@ -42,8 +43,13 @@ export async function getChromiumExecutablePath(): Promise<string> {
 
   // 1. Fast path: check if the chromium binary is already inflated in /tmp
   const tmpChromium = path.join(os.tmpdir(), 'chromium');
-  if (fs.existsSync(tmpChromium)) {
-    return tmpChromium;
+  try {
+    if (fs.existsSync(tmpChromium) && fs.statSync(tmpChromium).isFile()) {
+      fs.accessSync(tmpChromium, fs.constants.X_OK);
+      return tmpChromium;
+    }
+  } catch {
+    // Not ready or not executable yet; proceed to chromium.executablePath
   }
 
   // 2. Check if a local node_modules/@sparticuz/chromium/bin directory exists (e.g. Docker container)
@@ -76,7 +82,7 @@ export async function getChromiumExecutablePath(): Promise<string> {
  * Guarantees native TrueType CIDFont embedding with complete /ToUnicode CMaps,
  * eliminating missing text, (cid:XX) extraction failures, and printer driver buffer limits.
  */
-export async function generateServerPdf(html: string): Promise<Buffer> {
+export async function generateServerPdf(html: string, options?: { isTrial?: boolean }): Promise<Buffer> {
   const executablePath = await getChromiumExecutablePath();
   const isServerlessLinux = process.platform === 'linux';
 
@@ -103,6 +109,18 @@ export async function generateServerPdf(html: string): Promise<Buffer> {
     const page = await browser.newPage();
     await page.setViewport({ width: 1400, height: 900, deviceScaleFactor: 2 });
 
+    if (typeof page.setRequestInterception === 'function') {
+      await page.setRequestInterception(true);
+      page.on('request', (req) => {
+        const reqUrl = req.url();
+        if (reqUrl.startsWith('data:') || reqUrl.startsWith('about:') || reqUrl.startsWith('blob:')) {
+          req.continue();
+        } else {
+          req.abort('blockedbyclient');
+        }
+      });
+    }
+
     // Set HTML content directly in memory (zero external network dependency)
     await page.setContent(html, {
       waitUntil: 'load',
@@ -125,6 +143,30 @@ export async function generateServerPdf(html: string): Promise<Buffer> {
         left: '12mm',
       },
     });
+
+    if (options?.isTrial) {
+      try {
+        const { encryptPDF } = await import('@pdfsmaller/pdf-encrypt');
+        const lockedBytes = await encryptPDF(new Uint8Array(pdfUint8), '', {
+          ownerPassword: crypto.randomUUID() + '-procal-trial-lock',
+          algorithm: 'AES-256',
+          allowPrinting: true,
+          allowModifying: false,
+          allowCopying: false,
+          allowAnnotating: false,
+          allowFillingForms: false,
+          allowExtraction: false,
+          allowAssembly: false,
+          allowHighQualityPrint: true,
+        });
+        return Buffer.from(lockedBytes);
+      } catch (encryptErr) {
+        console.error('PDF lock encryption error:', encryptErr);
+        throw new Error(
+          `Failed to apply trial copy-protection to PDF: ${encryptErr instanceof Error ? encryptErr.message : String(encryptErr)}`
+        );
+      }
+    }
 
     return Buffer.from(pdfUint8);
   } finally {

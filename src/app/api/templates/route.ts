@@ -44,6 +44,25 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Invalid country configuration" }, { status: 400 });
     }
 
+    // Validate rooms
+    for (const room of rooms) {
+      const areaNum = Number(room.area);
+      if (!Number.isFinite(areaNum) || areaNum <= 0) {
+        return NextResponse.json(
+          { error: `Room area must be positive for room "${room.name || 'unnamed'}"` },
+          { status: 400 }
+        );
+      }
+      if (Math.abs(Math.round(areaNum * 2) - areaNum * 2) >= 1e-5) {
+        return NextResponse.json(
+          {
+            error: `Room "${room.name || 'unnamed'}" area (${room.area} m²) must be an integer or end in .5 (e.g. 19 or 19.5). Decimals like .1 or .4 are not allowed.`,
+          },
+          { status: 400 }
+        );
+      }
+    }
+
     // Calculate connected load for each room
     const roomsWithLoad = rooms.map((room: RoomInput) => {
       const connectedLoad = calculateRoomLoad(

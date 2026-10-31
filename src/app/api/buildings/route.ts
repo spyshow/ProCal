@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { verifyProjectAccess } from "@/lib/project-auth";
+import { trialBuildingsError, trialLevelsError } from "@/lib/trial";
 
 export async function POST(request: Request) {
   try {
@@ -26,6 +27,16 @@ export async function POST(request: Request) {
       pageKey: "calculator",
     });
     if (auth instanceof NextResponse) return auth;
+
+    if (auth.project.isTrial) {
+      const existing = await db.building.count({ where: { projectId } });
+      const trialError =
+        trialBuildingsError(existing) ||
+        trialLevelsError(parseInt(floors) || 1, parseInt(serviceFloors) || 0);
+      if (trialError) {
+        return NextResponse.json({ error: trialError, code: "TRIAL_LIMIT" }, { status: 402 });
+      }
+    }
 
     // Create building
     const building = await db.building.create({

@@ -101,6 +101,11 @@ export default function CoverPage({
               <span className="px-2 py-0.5 bg-amber-500 text-slate-950 font-black text-[9px] rounded uppercase tracking-wider font-mono">
                 Executive Engineering Report
               </span>
+              {project.isTrial && (
+                <span className="px-2 py-0.5 bg-red-600 text-white font-black text-[9px] rounded uppercase tracking-wider font-mono">
+                  FREE TRIAL EVALUATION
+                </span>
+              )}
             </div>
             <h1 className="text-sm font-black tracking-tight text-white uppercase mt-0.5">
               {project.name}
@@ -134,6 +139,12 @@ export default function CoverPage({
             </div>
           </div>
         </div>
+
+        {project.isTrial && (
+          <div className="w-full bg-red-600/10 border-2 border-red-600 text-red-700 p-2 rounded-lg text-center font-bold font-mono text-xs uppercase tracking-wide">
+            ⚠ FREE TRIAL EVALUATION PACKAGE — NOT VALID FOR OFFICIAL SUBMITTAL, PERMIT, OR CONSTRUCTION USE
+          </div>
+        )}
 
         {/* Project Metadata Cards */}
         <div className="grid grid-cols-3 gap-2.5 border border-slate-200 rounded-lg p-1.5 bg-slate-50/80 text-xs">

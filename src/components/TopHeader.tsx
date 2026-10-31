@@ -21,6 +21,7 @@ import {
   Check,
   SlidersHorizontal,
   Bot,
+  Sparkles,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -28,13 +29,16 @@ interface Project {
   id: string;
   name: string;
   clientName?: string;
+  isTrial?: boolean;
+  isOwner?: boolean;
 }
 
 export function TopHeader() {
   const pathname = usePathname();
   const router = useRouter();
-  const { selectedProject, selectProject, currentMemberRole } = useProject();
-  const { user: currentUser } = useUser();
+  const { selectedProject, selectProject, currentMemberRole, refreshProject } = useProject();
+  const { user: currentUser, refreshUser } = useUser();
+  const [upgrading, setUpgrading] = useState(false);
   const { t, isRtl } = useTranslation();
 
   // Project Switcher Dropdown State
@@ -77,6 +81,39 @@ export function TopHeader() {
     }
     setProjectOpen((prev) => !prev);
     setUserMenuOpen(false);
+  };
+
+  const handleUpgradeProject = async () => {
+    if (!selectedProject) return;
+    const credits = currentUser?.credits ?? 0;
+    const isAdmin = currentUser?.role === 'ADMIN';
+    if (credits < 1 && !isAdmin) {
+      if (confirm('You need 1 project credit to upgrade this Free Trial project.\n\nWould you like to go to the billing page to request or purchase credits?')) {
+        router.push('/billing');
+      }
+      return;
+    }
+    if (!confirm('Upgrade this project to Full Project using 1 credit?\n\nThis will unlock unlimited buildings, unlimited floors, and remove all watermarks.')) {
+      return;
+    }
+    setUpgrading(true);
+    try {
+      const res = await fetch(`/api/projects/${selectedProject.id}/upgrade`, {
+        method: 'POST',
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        alert(err.error || 'Upgrade failed. Please try again.');
+        return;
+      }
+      await Promise.all([refreshUser(), refreshProject()]);
+      alert('Project successfully upgraded to Full Project!');
+    } catch (err) {
+      console.error(err);
+      alert('Unable to reach server. Please try again.');
+    } finally {
+      setUpgrading(false);
+    }
   };
 
   const handleSelectProject = (id: string) => {
@@ -146,6 +183,11 @@ export function TopHeader() {
               <span className="truncate text-xs font-semibold text-[var(--foreground-color,#f8fafc)]">
                 {selectedProject ? selectedProject.name : t('nav.selectProject', 'Select Project')}
               </span>
+              {selectedProject?.isTrial && (
+                <span className="px-1.5 py-0.5 rounded text-[9.5px] font-mono font-bold bg-amber-500/15 text-amber-500 border border-amber-500/30 shrink-0">
+                  Trial
+                </span>
+              )}
             </div>
 
             <ChevronDown
@@ -156,6 +198,20 @@ export function TopHeader() {
               )}
             />
           </button>
+
+          {/* Upgrade Trial Project Button */}
+          {selectedProject?.isTrial && (selectedProject.isOwner !== false || currentUser?.role === 'ADMIN') && (
+            <button
+              type="button"
+              onClick={handleUpgradeProject}
+              disabled={upgrading}
+              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white text-xs font-bold shadow-xs transition-all cursor-pointer shrink-0 disabled:opacity-50"
+              title="Upgrade this trial project using 1 credit"
+            >
+              <Sparkles size={13} className={upgrading ? "animate-spin" : ""} />
+              <span className="hidden sm:inline">{upgrading ? 'Upgrading…' : 'Upgrade Project'}</span>
+            </button>
+          )}
 
           {/* Project Switcher Dropdown Menu */}
           {projectOpen && (

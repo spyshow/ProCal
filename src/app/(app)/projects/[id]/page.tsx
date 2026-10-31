@@ -4,6 +4,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { useProject } from '@/context/ProjectContext';
+import { useUser } from '@/context/UserContext';
 import { useTranslation } from '@/i18n';
 import {
   Building2,
@@ -90,6 +91,8 @@ interface Project {
   countryDefaults?: CountryConfig;
   logoUrl: string | null;
   calculationStandard?: string;
+  isTrial?: boolean;
+  isOwner?: boolean;
   buildings: Building[];
   apartmentTemplates: any[];
   loadLibraryItems: any[];
@@ -100,6 +103,7 @@ export default function ProjectDetailPage() {
   const router = useRouter();
   const projectId = params.id as string;
   const { selectedProject, selectedProjectId, selectProject, refreshProject, mutateProject, isQA, canEdit, isProjectManager, currentMemberRole } = useProject();
+  const { user, refreshUser } = useUser();
   const { t, isRtl } = useTranslation();
 
   const isReadOnly = isQA || !canEdit('calculator') || currentMemberRole === 'QA';
@@ -112,6 +116,7 @@ export default function ProjectDetailPage() {
   });
   const searchParams = useSearchParams();
   const [loading, setLoading] = useState(() => !(selectedProject && selectedProject.id === projectId));
+  const [upgrading, setUpgrading] = useState(false);
 
   type ProjectDetailTab = 'buildings' | 'templates' | 'loads' | 'team' | 'qa' | 'activity' | 'settings';
   const [activeTab, setActiveTab] = useState<ProjectDetailTab>(() => {
@@ -321,7 +326,8 @@ export default function ProjectDetailPage() {
       });
 
       if (!res.ok) {
-        alert('Failed to update building');
+        const err = await res.json().catch(() => ({}));
+        alert(err.error || 'Failed to update building');
         loadProject();
         refreshProject();
         return;
@@ -341,11 +347,16 @@ export default function ProjectDetailPage() {
     const data = Object.fromEntries(fd.entries());
     data.projectId = projectId;
 
-    await fetch('/api/buildings', {
+    const res = await fetch('/api/buildings', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),
     });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      alert(err.error || 'Failed to create building');
+      return;
+    }
     setShowNewBuilding(false);
     loadProject();
     refreshProject();
@@ -487,7 +498,7 @@ export default function ProjectDetailPage() {
         id: r.id || Math.random().toString(36).substring(2, 9),
         type: r.type,
         name: r.name || '',
-        area: r.area || 0,
+        area: r.area != null ? Math.round(Number(r.area) * 2) / 2 : 0,
         hasAc: r.hasAc || false,
         loadDensity: r.loadDensity || 70,
         connectedLoad: r.connectedLoad || 0,
@@ -565,6 +576,59 @@ export default function ProjectDetailPage() {
 
   return (
     <div className="p-3 sm:p-5 space-y-6 w-full max-w-[1680px] mx-auto min-h-[80vh]">
+      {/* Free Trial Project Banner */}
+      {project.isTrial && (
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-xl border border-amber-500/40 bg-amber-500/10 p-4">
+          <div className="flex items-start gap-3">
+            <Sparkles className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
+            <div>
+              <div className="text-sm font-bold text-amber-200">
+                Free Trial Evaluation Project
+              </div>
+              <p className="text-xs text-amber-300/80 mt-0.5">
+                Limited to 1 building and up to 2 floors total. Official PDF reports and drawing exports include evaluation watermarks.
+              </p>
+            </div>
+          </div>
+          {(project.isOwner !== false || user?.role === 'ADMIN') && (
+            <button
+              onClick={async () => {
+              const credits = user?.credits ?? 0;
+              const isAdmin = user?.role === 'ADMIN';
+              if (credits < 1 && !isAdmin) {
+                if (confirm('You need 1 project credit to upgrade this Free Trial project.\n\nWould you like to visit the billing page to request or purchase credits?')) {
+                  router.push('/billing');
+                }
+                return;
+              }
+              if (!confirm('Upgrade this project to Full Project using 1 credit?\n\nThis will unlock unlimited buildings, unlimited floors, and remove all watermarks.')) {
+                return;
+              }
+              setUpgrading(true);
+              try {
+                const res = await fetch(`/api/projects/${project.id}/upgrade`, { method: 'POST' });
+                if (!res.ok) {
+                  const err = await res.json().catch(() => ({}));
+                  alert(err.error || 'Upgrade failed');
+                  return;
+                }
+                await Promise.all([refreshUser(), refreshProject()]);
+                loadProject();
+                alert('Project upgraded to Full Project successfully!');
+              } finally {
+                setUpgrading(false);
+              }
+            }}
+            disabled={upgrading}
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white text-xs font-bold shadow-xs transition-all cursor-pointer shrink-0 disabled:opacity-50"
+          >
+            <Sparkles size={13} className={upgrading ? "animate-spin" : ""} />
+            <span>{upgrading ? 'Upgrading…' : 'Upgrade to Full Project'}</span>
+          </button>
+          )}
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex items-start justify-between">
         <div>
@@ -752,14 +816,33 @@ export default function ProjectDetailPage() {
       {activeTab === 'buildings' && (
         <div className="space-y-3">
           {!isReadOnly && (
-            <div className="flex justify-end">
-              <button
-                onClick={() => setShowNewBuilding(!showNewBuilding)}
-                className="flex items-center gap-2 px-3 py-2 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-sm font-semibold"
-              >
-                <Plus size={14} />
-                {t('projects.addBuilding', 'Add Building')}
-              </button>
+            <div className="flex items-center justify-between gap-3">
+              {project.isTrial && (
+                <div className="text-xs font-mono text-amber-400 bg-amber-500/10 border border-amber-500/30 px-3 py-1.5 rounded-lg flex items-center gap-2">
+                  <Sparkles size={14} className="shrink-0" />
+                  <span>Free Trial Limit: 1 building, up to 2 floors total.</span>
+                </div>
+              )}
+              <div className="ms-auto">
+                {project.isTrial && (project.buildings?.length || 0) >= 1 ? (
+                  <button
+                    disabled
+                    className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-800 text-gray-500 text-sm font-semibold cursor-not-allowed opacity-60"
+                    title="Free trial projects are limited to 1 building. Upgrade project to add more."
+                  >
+                    <Plus size={14} />
+                    {t('projects.addBuilding', 'Add Building')} (Limit Reached)
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => setShowNewBuilding(!showNewBuilding)}
+                    className="flex items-center gap-2 px-3 py-2 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-sm font-semibold cursor-pointer"
+                  >
+                    <Plus size={14} />
+                    {t('projects.addBuilding', 'Add Building')}
+                  </button>
+                )}
+              </div>
             </div>
           )}
 

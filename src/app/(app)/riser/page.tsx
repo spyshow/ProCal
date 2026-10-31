@@ -18,6 +18,7 @@ import { phaseBalance } from '@/lib/calculations/phaseBalance';
 import { computeFeeders, createFindBreaker } from '@/lib/calculations/feeders';
 import { useEquipmentCatalog } from '@/hooks/useEquipmentCatalog';
 import { computeFloorRiserVd, type RiserFloorVd } from '@/lib/calculations/riser';
+import { convertSvgElementToDxf, downloadDxfFile } from '@/lib/dxf/svg-to-dxf';
 import { PageSkeleton } from '@/components/ui/skeleton';
 import type { Building, FloorDesign, Project } from '@/types';
 import WorkflowStepper from '@/components/layout/WorkflowStepper';
@@ -243,10 +244,25 @@ export default function RiserPage() {
   const bandColor = (pct: number, limit: number, hasData: boolean) =>
     !hasData ? '#6b7280' : pct > limit ? '#ef4444' : pct > limit * 0.8 ? '#f59e0b' : '#3b82f6';
 
+  const handleExportDXF = () => {
+    if (!svgRef.current || project?.isTrial) return;
+    const dxfContent = convertSvgElementToDxf(svgRef.current, {
+      isTrial: Boolean(project?.isTrial),
+      title: `${project?.name || 'Project'} - ${bldg.name} Riser Diagram`,
+      canvasHeight: svgHeight,
+    });
+    downloadDxfFile(dxfContent, `${bldg.name}-riser.dxf`);
+  };
+
   const handleExportSVG = () => {
     if (!svgRef.current) return;
     const svgData = new XMLSerializer().serializeToString(svgRef.current);
-    const blob = new Blob([svgData], { type: 'image/svg+xml' });
+    let finalSvg = svgData;
+    if (project?.isTrial) {
+      const watermarkTag = `<g opacity="0.35" transform="rotate(-30 400 300)"><text x="100" y="300" font-family="sans-serif" font-size="32" font-weight="bold" fill="#ef4444">PROCAL FREE TRIAL — NOT FOR CONSTRUCTION</text></g></svg>`;
+      finalSvg = finalSvg.replace('</svg>', watermarkTag);
+    }
+    const blob = new Blob([finalSvg], { type: 'image/svg+xml' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
@@ -276,7 +292,14 @@ export default function RiserPage() {
             <GitBranch size={22} className="text-orange-500" />
             {t('riser.title', 'Vertical Riser Diagram')}
           </h1>
-          <p className="text-sm text-[var(--text-muted)] mt-1">{project.name} &mdash; {bldg.name}</p>
+          <p className="text-sm text-[var(--text-muted)] mt-1">
+            {project.name} &mdash; {bldg.name}
+            {project.isTrial && (
+              <span className="ml-2 inline-flex items-center text-[10px] font-mono px-1.5 py-0.5 rounded bg-red-500/15 text-red-600 dark:text-red-400 border border-red-500/30 font-bold">
+                FREE TRIAL
+              </span>
+            )}
+          </p>
         </div>
         <div className="flex gap-2">
           <button
@@ -299,6 +322,23 @@ export default function RiserPage() {
             title="Reset zoom"
           >
             <RotateCcw size={16} />
+          </button>
+          <button
+            onClick={handleExportDXF}
+            disabled={Boolean(project.isTrial)}
+            title={
+              project.isTrial
+                ? t('sld.dxfLockedTrial', 'AutoCAD DXF export is locked on Free Trial projects — upgrade to unlock CAD drawings')
+                : t('sld.exportDxf', 'Export AutoCAD (.DXF)')
+            }
+            className={`flex items-center gap-2 px-3 py-2 rounded-lg border text-sm font-semibold shadow-sm transition-all ${
+              project.isTrial
+                ? 'bg-[var(--card-bg)] border-[var(--border-color)] text-[var(--text-muted)] opacity-50 cursor-not-allowed'
+                : 'bg-[var(--card-bg)] border-[var(--border-color)] hover:border-orange-500/50 text-[var(--foreground-color)] cursor-pointer'
+            }`}
+          >
+            <Download size={14} className="text-amber-500" />
+            {t('sld.exportDxf', 'Export AutoCAD (.DXF)')}
           </button>
           <button
             onClick={handleExportSVG}

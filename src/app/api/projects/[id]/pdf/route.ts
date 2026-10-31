@@ -41,7 +41,9 @@ async function inlineImagesInHtml(html: string): Promise<string> {
       if (src.startsWith("/uploads/") || src.includes("/uploads/")) {
         const cleanPath = src.split("?")[0]?.split("#")[0] || "";
         const relativeUpload = cleanPath.startsWith("/") ? cleanPath.slice(1) : cleanPath;
-        const filePath = path.join(process.cwd(), "public", relativeUpload);
+        const uploadsRoot = path.resolve(process.cwd(), "public", "uploads");
+        const filePath = path.resolve(process.cwd(), "public", relativeUpload);
+        if (!filePath.startsWith(uploadsRoot + path.sep)) continue;
         if (fs.existsSync(filePath)) {
           const bytes = await fs.promises.readFile(filePath);
           const ext = path.extname(filePath).toLowerCase();
@@ -87,7 +89,7 @@ export async function POST(
 
     const project = await db.project.findUnique({
       where: { id },
-      select: { name: true },
+      select: { name: true, isTrial: true },
     });
 
     if (!project) {
@@ -105,8 +107,8 @@ export async function POST(
     }
 
     const inlinedHtml = await inlineImagesInHtml(htmlContent);
-    const fullHtml = wrapReportMarkup(inlinedHtml, `${project.name} - Executive Engineering Package`);
-    const pdfBuffer = await generateServerPdf(fullHtml);
+    const fullHtml = wrapReportMarkup(inlinedHtml, `${project.name} - Executive Engineering Package`, Boolean(project.isTrial));
+    const pdfBuffer = await generateServerPdf(fullHtml, { isTrial: Boolean(project.isTrial) });
 
     const safeProjectName = project.name.replace(/[^a-zA-Z0-9_-]/g, "_");
     const filename = `${safeProjectName}_Executive_Engineering_Package.pdf`;
@@ -238,7 +240,7 @@ export async function GET(
       companyLogoUrl: company?.logoUrl || undefined,
     });
 
-    const pdfBuffer = await generateServerPdf(html);
+    const pdfBuffer = await generateServerPdf(html, { isTrial: Boolean(project.isTrial) });
 
     const safeProjectName = project.name.replace(/[^a-zA-Z0-9_-]/g, "_");
     const filename = `${safeProjectName}_Executive_Engineering_Package.pdf`;

@@ -77,6 +77,7 @@ export type ProjectMinAggregateOutputType = {
   ambientTemp: number | null
   groupingCount: number | null
   engineVersion: string | null
+  isTrial: boolean | null
   userId: string | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -109,6 +110,7 @@ export type ProjectMaxAggregateOutputType = {
   ambientTemp: number | null
   groupingCount: number | null
   engineVersion: string | null
+  isTrial: boolean | null
   userId: string | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -141,6 +143,7 @@ export type ProjectCountAggregateOutputType = {
   ambientTemp: number
   groupingCount: number
   engineVersion: number
+  isTrial: number
   userId: number
   createdAt: number
   updatedAt: number
@@ -199,6 +202,7 @@ export type ProjectMinAggregateInputType = {
   ambientTemp?: true
   groupingCount?: true
   engineVersion?: true
+  isTrial?: true
   userId?: true
   createdAt?: true
   updatedAt?: true
@@ -231,6 +235,7 @@ export type ProjectMaxAggregateInputType = {
   ambientTemp?: true
   groupingCount?: true
   engineVersion?: true
+  isTrial?: true
   userId?: true
   createdAt?: true
   updatedAt?: true
@@ -263,6 +268,7 @@ export type ProjectCountAggregateInputType = {
   ambientTemp?: true
   groupingCount?: true
   engineVersion?: true
+  isTrial?: true
   userId?: true
   createdAt?: true
   updatedAt?: true
@@ -382,6 +388,7 @@ export type ProjectGroupByOutputType = {
   ambientTemp: number | null
   groupingCount: number | null
   engineVersion: string | null
+  isTrial: boolean
   userId: string
   createdAt: Date
   updatedAt: Date
@@ -437,6 +444,7 @@ export type ProjectWhereInput = {
   ambientTemp?: Prisma.FloatNullableFilter<"Project"> | number | null
   groupingCount?: Prisma.IntNullableFilter<"Project"> | number | null
   engineVersion?: Prisma.StringNullableFilter<"Project"> | string | null
+  isTrial?: Prisma.BoolFilter<"Project"> | boolean
   userId?: Prisma.StringFilter<"Project"> | string
   createdAt?: Prisma.DateTimeFilter<"Project"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Project"> | Date | string
@@ -481,6 +489,7 @@ export type ProjectOrderByWithRelationInput = {
   ambientTemp?: Prisma.SortOrderInput | Prisma.SortOrder
   groupingCount?: Prisma.SortOrderInput | Prisma.SortOrder
   engineVersion?: Prisma.SortOrderInput | Prisma.SortOrder
+  isTrial?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -528,6 +537,7 @@ export type ProjectWhereUniqueInput = Prisma.AtLeast<{
   ambientTemp?: Prisma.FloatNullableFilter<"Project"> | number | null
   groupingCount?: Prisma.IntNullableFilter<"Project"> | number | null
   engineVersion?: Prisma.StringNullableFilter<"Project"> | string | null
+  isTrial?: Prisma.BoolFilter<"Project"> | boolean
   userId?: Prisma.StringFilter<"Project"> | string
   createdAt?: Prisma.DateTimeFilter<"Project"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Project"> | Date | string
@@ -572,6 +582,7 @@ export type ProjectOrderByWithAggregationInput = {
   ambientTemp?: Prisma.SortOrderInput | Prisma.SortOrder
   groupingCount?: Prisma.SortOrderInput | Prisma.SortOrder
   engineVersion?: Prisma.SortOrderInput | Prisma.SortOrder
+  isTrial?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -612,6 +623,7 @@ export type ProjectScalarWhereWithAggregatesInput = {
   ambientTemp?: Prisma.FloatNullableWithAggregatesFilter<"Project"> | number | null
   groupingCount?: Prisma.IntNullableWithAggregatesFilter<"Project"> | number | null
   engineVersion?: Prisma.StringNullableWithAggregatesFilter<"Project"> | string | null
+  isTrial?: Prisma.BoolWithAggregatesFilter<"Project"> | boolean
   userId?: Prisma.StringWithAggregatesFilter<"Project"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Project"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Project"> | Date | string
@@ -641,6 +653,7 @@ export type ProjectCreateInput = {
   ambientTemp?: number | null
   groupingCount?: number | null
   engineVersion?: string | null
+  isTrial?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   defaultAcbFamily?: Prisma.BreakerFamilyCreateNestedOneWithoutDefaultAcbInput
@@ -684,6 +697,7 @@ export type ProjectUncheckedCreateInput = {
   ambientTemp?: number | null
   groupingCount?: number | null
   engineVersion?: string | null
+  isTrial?: boolean
   userId: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -721,6 +735,7 @@ export type ProjectUpdateInput = {
   ambientTemp?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   groupingCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   engineVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isTrial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   defaultAcbFamily?: Prisma.BreakerFamilyUpdateOneWithoutDefaultAcbNestedInput
@@ -764,6 +779,7 @@ export type ProjectUncheckedUpdateInput = {
   ambientTemp?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   groupingCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   engineVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isTrial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -804,6 +820,7 @@ export type ProjectCreateManyInput = {
   ambientTemp?: number | null
   groupingCount?: number | null
   engineVersion?: string | null
+  isTrial?: boolean
   userId: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -833,6 +850,7 @@ export type ProjectUpdateManyMutationInput = {
   ambientTemp?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   groupingCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   engineVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isTrial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -864,6 +882,7 @@ export type ProjectUncheckedUpdateManyInput = {
   ambientTemp?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   groupingCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   engineVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isTrial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -906,6 +925,7 @@ export type ProjectCountOrderByAggregateInput = {
   ambientTemp?: Prisma.SortOrder
   groupingCount?: Prisma.SortOrder
   engineVersion?: Prisma.SortOrder
+  isTrial?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -950,6 +970,7 @@ export type ProjectMaxOrderByAggregateInput = {
   ambientTemp?: Prisma.SortOrder
   groupingCount?: Prisma.SortOrder
   engineVersion?: Prisma.SortOrder
+  isTrial?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -982,6 +1003,7 @@ export type ProjectMinOrderByAggregateInput = {
   ambientTemp?: Prisma.SortOrder
   groupingCount?: Prisma.SortOrder
   engineVersion?: Prisma.SortOrder
+  isTrial?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -1324,6 +1346,7 @@ export type ProjectCreateWithoutUserInput = {
   ambientTemp?: number | null
   groupingCount?: number | null
   engineVersion?: string | null
+  isTrial?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   defaultAcbFamily?: Prisma.BreakerFamilyCreateNestedOneWithoutDefaultAcbInput
@@ -1366,6 +1389,7 @@ export type ProjectUncheckedCreateWithoutUserInput = {
   ambientTemp?: number | null
   groupingCount?: number | null
   engineVersion?: string | null
+  isTrial?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   buildings?: Prisma.BuildingUncheckedCreateNestedManyWithoutProjectInput
@@ -1434,6 +1458,7 @@ export type ProjectScalarWhereInput = {
   ambientTemp?: Prisma.FloatNullableFilter<"Project"> | number | null
   groupingCount?: Prisma.IntNullableFilter<"Project"> | number | null
   engineVersion?: Prisma.StringNullableFilter<"Project"> | string | null
+  isTrial?: Prisma.BoolFilter<"Project"> | boolean
   userId?: Prisma.StringFilter<"Project"> | string
   createdAt?: Prisma.DateTimeFilter<"Project"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Project"> | Date | string
@@ -1463,6 +1488,7 @@ export type ProjectCreateWithoutMembersInput = {
   ambientTemp?: number | null
   groupingCount?: number | null
   engineVersion?: string | null
+  isTrial?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   defaultAcbFamily?: Prisma.BreakerFamilyCreateNestedOneWithoutDefaultAcbInput
@@ -1505,6 +1531,7 @@ export type ProjectUncheckedCreateWithoutMembersInput = {
   ambientTemp?: number | null
   groupingCount?: number | null
   engineVersion?: string | null
+  isTrial?: boolean
   userId: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1557,6 +1584,7 @@ export type ProjectUpdateWithoutMembersInput = {
   ambientTemp?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   groupingCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   engineVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isTrial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   defaultAcbFamily?: Prisma.BreakerFamilyUpdateOneWithoutDefaultAcbNestedInput
@@ -1599,6 +1627,7 @@ export type ProjectUncheckedUpdateWithoutMembersInput = {
   ambientTemp?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   groupingCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   engineVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isTrial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1635,6 +1664,7 @@ export type ProjectCreateWithoutInvitesInput = {
   ambientTemp?: number | null
   groupingCount?: number | null
   engineVersion?: string | null
+  isTrial?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   defaultAcbFamily?: Prisma.BreakerFamilyCreateNestedOneWithoutDefaultAcbInput
@@ -1677,6 +1707,7 @@ export type ProjectUncheckedCreateWithoutInvitesInput = {
   ambientTemp?: number | null
   groupingCount?: number | null
   engineVersion?: string | null
+  isTrial?: boolean
   userId: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1729,6 +1760,7 @@ export type ProjectUpdateWithoutInvitesInput = {
   ambientTemp?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   groupingCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   engineVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isTrial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   defaultAcbFamily?: Prisma.BreakerFamilyUpdateOneWithoutDefaultAcbNestedInput
@@ -1771,6 +1803,7 @@ export type ProjectUncheckedUpdateWithoutInvitesInput = {
   ambientTemp?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   groupingCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   engineVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isTrial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1807,6 +1840,7 @@ export type ProjectCreateWithoutAuditLogsInput = {
   ambientTemp?: number | null
   groupingCount?: number | null
   engineVersion?: string | null
+  isTrial?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   defaultAcbFamily?: Prisma.BreakerFamilyCreateNestedOneWithoutDefaultAcbInput
@@ -1849,6 +1883,7 @@ export type ProjectUncheckedCreateWithoutAuditLogsInput = {
   ambientTemp?: number | null
   groupingCount?: number | null
   engineVersion?: string | null
+  isTrial?: boolean
   userId: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1901,6 +1936,7 @@ export type ProjectUpdateWithoutAuditLogsInput = {
   ambientTemp?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   groupingCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   engineVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isTrial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   defaultAcbFamily?: Prisma.BreakerFamilyUpdateOneWithoutDefaultAcbNestedInput
@@ -1943,6 +1979,7 @@ export type ProjectUncheckedUpdateWithoutAuditLogsInput = {
   ambientTemp?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   groupingCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   engineVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isTrial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1979,6 +2016,7 @@ export type ProjectCreateWithoutReviewItemsInput = {
   ambientTemp?: number | null
   groupingCount?: number | null
   engineVersion?: string | null
+  isTrial?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   defaultAcbFamily?: Prisma.BreakerFamilyCreateNestedOneWithoutDefaultAcbInput
@@ -2021,6 +2059,7 @@ export type ProjectUncheckedCreateWithoutReviewItemsInput = {
   ambientTemp?: number | null
   groupingCount?: number | null
   engineVersion?: string | null
+  isTrial?: boolean
   userId: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -2073,6 +2112,7 @@ export type ProjectUpdateWithoutReviewItemsInput = {
   ambientTemp?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   groupingCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   engineVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isTrial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   defaultAcbFamily?: Prisma.BreakerFamilyUpdateOneWithoutDefaultAcbNestedInput
@@ -2115,6 +2155,7 @@ export type ProjectUncheckedUpdateWithoutReviewItemsInput = {
   ambientTemp?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   groupingCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   engineVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isTrial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2151,6 +2192,7 @@ export type ProjectCreateWithoutRevisionsInput = {
   ambientTemp?: number | null
   groupingCount?: number | null
   engineVersion?: string | null
+  isTrial?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   defaultAcbFamily?: Prisma.BreakerFamilyCreateNestedOneWithoutDefaultAcbInput
@@ -2193,6 +2235,7 @@ export type ProjectUncheckedCreateWithoutRevisionsInput = {
   ambientTemp?: number | null
   groupingCount?: number | null
   engineVersion?: string | null
+  isTrial?: boolean
   userId: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -2245,6 +2288,7 @@ export type ProjectUpdateWithoutRevisionsInput = {
   ambientTemp?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   groupingCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   engineVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isTrial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   defaultAcbFamily?: Prisma.BreakerFamilyUpdateOneWithoutDefaultAcbNestedInput
@@ -2287,6 +2331,7 @@ export type ProjectUncheckedUpdateWithoutRevisionsInput = {
   ambientTemp?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   groupingCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   engineVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isTrial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2323,6 +2368,7 @@ export type ProjectCreateWithoutBuildingsInput = {
   ambientTemp?: number | null
   groupingCount?: number | null
   engineVersion?: string | null
+  isTrial?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   defaultAcbFamily?: Prisma.BreakerFamilyCreateNestedOneWithoutDefaultAcbInput
@@ -2365,6 +2411,7 @@ export type ProjectUncheckedCreateWithoutBuildingsInput = {
   ambientTemp?: number | null
   groupingCount?: number | null
   engineVersion?: string | null
+  isTrial?: boolean
   userId: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -2417,6 +2464,7 @@ export type ProjectUpdateWithoutBuildingsInput = {
   ambientTemp?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   groupingCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   engineVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isTrial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   defaultAcbFamily?: Prisma.BreakerFamilyUpdateOneWithoutDefaultAcbNestedInput
@@ -2459,6 +2507,7 @@ export type ProjectUncheckedUpdateWithoutBuildingsInput = {
   ambientTemp?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   groupingCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   engineVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isTrial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2495,6 +2544,7 @@ export type ProjectCreateWithoutApartmentTemplatesInput = {
   ambientTemp?: number | null
   groupingCount?: number | null
   engineVersion?: string | null
+  isTrial?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   defaultAcbFamily?: Prisma.BreakerFamilyCreateNestedOneWithoutDefaultAcbInput
@@ -2537,6 +2587,7 @@ export type ProjectUncheckedCreateWithoutApartmentTemplatesInput = {
   ambientTemp?: number | null
   groupingCount?: number | null
   engineVersion?: string | null
+  isTrial?: boolean
   userId: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -2589,6 +2640,7 @@ export type ProjectUpdateWithoutApartmentTemplatesInput = {
   ambientTemp?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   groupingCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   engineVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isTrial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   defaultAcbFamily?: Prisma.BreakerFamilyUpdateOneWithoutDefaultAcbNestedInput
@@ -2631,6 +2683,7 @@ export type ProjectUncheckedUpdateWithoutApartmentTemplatesInput = {
   ambientTemp?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   groupingCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   engineVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isTrial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2667,6 +2720,7 @@ export type ProjectCreateWithoutLoadLibraryItemsInput = {
   ambientTemp?: number | null
   groupingCount?: number | null
   engineVersion?: string | null
+  isTrial?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   defaultAcbFamily?: Prisma.BreakerFamilyCreateNestedOneWithoutDefaultAcbInput
@@ -2709,6 +2763,7 @@ export type ProjectUncheckedCreateWithoutLoadLibraryItemsInput = {
   ambientTemp?: number | null
   groupingCount?: number | null
   engineVersion?: string | null
+  isTrial?: boolean
   userId: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -2761,6 +2816,7 @@ export type ProjectUpdateWithoutLoadLibraryItemsInput = {
   ambientTemp?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   groupingCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   engineVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isTrial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   defaultAcbFamily?: Prisma.BreakerFamilyUpdateOneWithoutDefaultAcbNestedInput
@@ -2803,6 +2859,7 @@ export type ProjectUncheckedUpdateWithoutLoadLibraryItemsInput = {
   ambientTemp?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   groupingCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   engineVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isTrial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2839,6 +2896,7 @@ export type ProjectCreateWithoutDefaultAcbFamilyInput = {
   ambientTemp?: number | null
   groupingCount?: number | null
   engineVersion?: string | null
+  isTrial?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   defaultMccbFamily?: Prisma.BreakerFamilyCreateNestedOneWithoutDefaultMccbInput
@@ -2880,6 +2938,7 @@ export type ProjectUncheckedCreateWithoutDefaultAcbFamilyInput = {
   ambientTemp?: number | null
   groupingCount?: number | null
   engineVersion?: string | null
+  isTrial?: boolean
   userId: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -2927,6 +2986,7 @@ export type ProjectCreateWithoutDefaultMccbFamilyInput = {
   ambientTemp?: number | null
   groupingCount?: number | null
   engineVersion?: string | null
+  isTrial?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   defaultAcbFamily?: Prisma.BreakerFamilyCreateNestedOneWithoutDefaultAcbInput
@@ -2968,6 +3028,7 @@ export type ProjectUncheckedCreateWithoutDefaultMccbFamilyInput = {
   ambientTemp?: number | null
   groupingCount?: number | null
   engineVersion?: string | null
+  isTrial?: boolean
   userId: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -3015,6 +3076,7 @@ export type ProjectCreateWithoutDefaultMcbFamilyInput = {
   ambientTemp?: number | null
   groupingCount?: number | null
   engineVersion?: string | null
+  isTrial?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   defaultAcbFamily?: Prisma.BreakerFamilyCreateNestedOneWithoutDefaultAcbInput
@@ -3056,6 +3118,7 @@ export type ProjectUncheckedCreateWithoutDefaultMcbFamilyInput = {
   ambientTemp?: number | null
   groupingCount?: number | null
   engineVersion?: string | null
+  isTrial?: boolean
   userId: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -3154,6 +3217,7 @@ export type ProjectCreateManyUserInput = {
   ambientTemp?: number | null
   groupingCount?: number | null
   engineVersion?: string | null
+  isTrial?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -3182,6 +3246,7 @@ export type ProjectUpdateWithoutUserInput = {
   ambientTemp?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   groupingCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   engineVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isTrial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   defaultAcbFamily?: Prisma.BreakerFamilyUpdateOneWithoutDefaultAcbNestedInput
@@ -3224,6 +3289,7 @@ export type ProjectUncheckedUpdateWithoutUserInput = {
   ambientTemp?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   groupingCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   engineVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isTrial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   buildings?: Prisma.BuildingUncheckedUpdateManyWithoutProjectNestedInput
@@ -3263,6 +3329,7 @@ export type ProjectUncheckedUpdateManyWithoutUserInput = {
   ambientTemp?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   groupingCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   engineVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isTrial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -3293,6 +3360,7 @@ export type ProjectCreateManyDefaultAcbFamilyInput = {
   ambientTemp?: number | null
   groupingCount?: number | null
   engineVersion?: string | null
+  isTrial?: boolean
   userId: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -3324,6 +3392,7 @@ export type ProjectCreateManyDefaultMccbFamilyInput = {
   ambientTemp?: number | null
   groupingCount?: number | null
   engineVersion?: string | null
+  isTrial?: boolean
   userId: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -3355,6 +3424,7 @@ export type ProjectCreateManyDefaultMcbFamilyInput = {
   ambientTemp?: number | null
   groupingCount?: number | null
   engineVersion?: string | null
+  isTrial?: boolean
   userId: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -3384,6 +3454,7 @@ export type ProjectUpdateWithoutDefaultAcbFamilyInput = {
   ambientTemp?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   groupingCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   engineVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isTrial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   defaultMccbFamily?: Prisma.BreakerFamilyUpdateOneWithoutDefaultMccbNestedInput
@@ -3425,6 +3496,7 @@ export type ProjectUncheckedUpdateWithoutDefaultAcbFamilyInput = {
   ambientTemp?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   groupingCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   engineVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isTrial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3464,6 +3536,7 @@ export type ProjectUncheckedUpdateManyWithoutDefaultAcbFamilyInput = {
   ambientTemp?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   groupingCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   engineVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isTrial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3493,6 +3566,7 @@ export type ProjectUpdateWithoutDefaultMccbFamilyInput = {
   ambientTemp?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   groupingCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   engineVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isTrial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   defaultAcbFamily?: Prisma.BreakerFamilyUpdateOneWithoutDefaultAcbNestedInput
@@ -3534,6 +3608,7 @@ export type ProjectUncheckedUpdateWithoutDefaultMccbFamilyInput = {
   ambientTemp?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   groupingCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   engineVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isTrial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3573,6 +3648,7 @@ export type ProjectUncheckedUpdateManyWithoutDefaultMccbFamilyInput = {
   ambientTemp?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   groupingCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   engineVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isTrial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3602,6 +3678,7 @@ export type ProjectUpdateWithoutDefaultMcbFamilyInput = {
   ambientTemp?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   groupingCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   engineVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isTrial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   defaultAcbFamily?: Prisma.BreakerFamilyUpdateOneWithoutDefaultAcbNestedInput
@@ -3643,6 +3720,7 @@ export type ProjectUncheckedUpdateWithoutDefaultMcbFamilyInput = {
   ambientTemp?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   groupingCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   engineVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isTrial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3682,6 +3760,7 @@ export type ProjectUncheckedUpdateManyWithoutDefaultMcbFamilyInput = {
   ambientTemp?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   groupingCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   engineVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isTrial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3808,6 +3887,7 @@ export type ProjectSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   ambientTemp?: boolean
   groupingCount?: boolean
   engineVersion?: boolean
+  isTrial?: boolean
   userId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -3853,6 +3933,7 @@ export type ProjectSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   ambientTemp?: boolean
   groupingCount?: boolean
   engineVersion?: boolean
+  isTrial?: boolean
   userId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -3889,6 +3970,7 @@ export type ProjectSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   ambientTemp?: boolean
   groupingCount?: boolean
   engineVersion?: boolean
+  isTrial?: boolean
   userId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -3925,12 +4007,13 @@ export type ProjectSelectScalar = {
   ambientTemp?: boolean
   groupingCount?: boolean
   engineVersion?: boolean
+  isTrial?: boolean
   userId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type ProjectOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "client" | "consultant" | "contractor" | "location" | "engineer" | "date" | "voltage" | "frequency" | "powerFactor" | "maxDemandFactor" | "transformerSize" | "notes" | "preferredManufacturer" | "defaultAcbFamilyId" | "defaultMccbFamilyId" | "defaultMcbFamilyId" | "country" | "logoUrl" | "calculationStandard" | "maxVoltageDropLighting" | "maxVoltageDropPower" | "ambientTemp" | "groupingCount" | "engineVersion" | "userId" | "createdAt" | "updatedAt", ExtArgs["result"]["project"]>
+export type ProjectOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "client" | "consultant" | "contractor" | "location" | "engineer" | "date" | "voltage" | "frequency" | "powerFactor" | "maxDemandFactor" | "transformerSize" | "notes" | "preferredManufacturer" | "defaultAcbFamilyId" | "defaultMccbFamilyId" | "defaultMcbFamilyId" | "country" | "logoUrl" | "calculationStandard" | "maxVoltageDropLighting" | "maxVoltageDropPower" | "ambientTemp" | "groupingCount" | "engineVersion" | "isTrial" | "userId" | "createdAt" | "updatedAt", ExtArgs["result"]["project"]>
 export type ProjectInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   defaultAcbFamily?: boolean | Prisma.Project$defaultAcbFamilyArgs<ExtArgs>
   defaultMccbFamily?: boolean | Prisma.Project$defaultMccbFamilyArgs<ExtArgs>
@@ -4002,6 +4085,7 @@ export type $ProjectPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     ambientTemp: number | null
     groupingCount: number | null
     engineVersion: string | null
+    isTrial: boolean
     userId: string
     createdAt: Date
     updatedAt: Date
@@ -4466,6 +4550,7 @@ export interface ProjectFieldRefs {
   readonly ambientTemp: Prisma.FieldRef<"Project", 'Float'>
   readonly groupingCount: Prisma.FieldRef<"Project", 'Int'>
   readonly engineVersion: Prisma.FieldRef<"Project", 'String'>
+  readonly isTrial: Prisma.FieldRef<"Project", 'Boolean'>
   readonly userId: Prisma.FieldRef<"Project", 'String'>
   readonly createdAt: Prisma.FieldRef<"Project", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Project", 'DateTime'>

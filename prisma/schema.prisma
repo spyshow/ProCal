@@ -16,6 +16,7 @@ model User {
   role            String              @default("USER") // "USER" | "ADMIN" — gates /api/admin/*
   theme           String              @default("dark")
   credits         Int                 @default(0)      // project credits; decremented on project create
+  hasUsedTrial    Boolean             @default(false)  // lifetime flag: one free trial project per account
   disabled        Boolean             @default(false)  // soft-delete; preserves project history
   createdAt       DateTime            @default(now())
   projects        Project[]
@@ -80,6 +81,7 @@ model Project {
   ambientTemp           Float?              @default(30) // °C — default ambient temperature
   groupingCount         Int?                @default(1)  // default number of grouped circuits
   engineVersion         String?             // ENGINE_VERSION stamped by the last recalculate; null = pre-versioning design
+  isTrial               Boolean             @default(false) // free trial: 1 building, 2 levels, watermarked exports
   userId                String
   user                  User                @relation(fields: [userId], references: [id], onDelete: Cascade)
   buildings             Building[]

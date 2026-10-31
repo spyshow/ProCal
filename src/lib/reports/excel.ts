@@ -177,7 +177,15 @@ function buildProjectRows(project: Project): Record<string, string | number>[] {
         ? perBuildingTxSum
         : sizeTransformer(demandKva, 1.2, perPhaseKva);
 
-  const rows: Record<string, string | number>[] = [
+  const rows: Record<string, string | number>[] = [];
+  if (project.isTrial) {
+    rows.push({
+      Field: "⚠ NOTICE",
+      Value: "PROCAL FREE TRIAL — EVALUATION ONLY — NOT FOR CONSTRUCTION OR PROCUREMENT",
+    });
+    rows.push({ Field: "", Value: "" });
+  }
+  rows.push(
     { Field: "Project", Value: project.name },
     { Field: "Client", Value: project.client },
     { Field: "Consultant", Value: project.consultant },
@@ -189,7 +197,7 @@ function buildProjectRows(project: Project): Record<string, string | number>[] {
     { Field: "Calculation Standard", Value: project.calculationStandard ?? "IEC" },
     { Field: "Transformer", Value: `${transformerKva} kVA` },
     { Field: "", Value: "" },
-  ];
+  );
 
   // Building summary block (same numbers as the Project Summary tab).
   for (const bldg of project.buildings) {
@@ -217,6 +225,11 @@ export function buildBomAoa(
 ): (string | number)[][] {
   const detailed = aggregateDetailedBOM(project, findBreaker, breakerSettings);
   const aoa: (string | number)[][] = [];
+
+  if (project.isTrial) {
+    aoa.push(["⚠ PROCAL FREE TRIAL — EVALUATION ONLY — NOT FOR CONSTRUCTION OR PROCUREMENT"]);
+    aoa.push([]);
+  }
 
   // --- Section 1: Cable Drums & Total Conductor Sizing BOQ ---
   aoa.push([

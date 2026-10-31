@@ -105,6 +105,23 @@ describe("updateProjectSpec & UpdateProjectSpecSchema", () => {
         expect(res.data.resetSizing).toBe(true);
       }
     });
+
+    it("rejects apartment template updates with non-half-step room areas like 19.1", () => {
+      const invalid = {
+        projectId: "proj-123",
+        apartmentTemplates: [
+          {
+            name: "Type A",
+            rooms: [{ name: "Reception", areaM2: 19.1 }],
+          },
+        ],
+      };
+      const res = UpdateProjectSpecSchema.safeParse(invalid);
+      expect(res.success).toBe(false);
+      if (!res.success) {
+        expect(res.error.issues.some((i) => i.message.includes("must be an integer or end in .5"))).toBe(true);
+      }
+    });
   });
 
   describe("updateProjectSpec Service", () => {
@@ -288,6 +305,117 @@ describe("updateProjectSpec & UpdateProjectSpecSchema", () => {
       expect(mockDb.floorItem.create).toHaveBeenCalledTimes(3);
       // Chiller was attached to building
       expect(mockDb.buildingLoad.create).toHaveBeenCalled();
+    });
+
+    it("throws 402 when a trial project specifies 2 buildings (even with 1 existing building)", async () => {
+      mockDb.project.findUnique.mockResolvedValue({
+        id: "proj-trial-1",
+        userId: testUser.id,
+        name: "Trial Project",
+        isTrial: true,
+        voltage: 400,
+        frequency: 50,
+        powerFactor: 0.85,
+        calculationStandard: "IEC",
+        apartmentTemplates: [],
+        buildings: [
+          {
+            id: "bldg-1",
+            name: "Block A",
+            floors: 1,
+            serviceFloors: 0,
+            floorDesigns: [],
+            buildingLoads: [],
+          },
+        ],
+      });
+
+      await expect(
+        updateProjectSpec(testUser, {
+          projectId: "proj-trial-1",
+          buildings: [
+            { name: "Block A", floors: 1 },
+            { name: "Block B", floors: 1 },
+          ],
+        })
+      ).rejects.toMatchObject({
+        message: expect.stringContaining("Free trial projects are limited to 1 building"),
+        statusCode: 402,
+      });
+    });
+
+    it("throws 402 when a trial project specifies floors: 2 while existing building has serviceFloors: 1", async () => {
+      mockDb.project.findUnique.mockResolvedValue({
+        id: "proj-trial-2",
+        userId: testUser.id,
+        name: "Trial Project",
+        isTrial: true,
+        voltage: 400,
+        frequency: 50,
+        powerFactor: 0.85,
+        calculationStandard: "IEC",
+        apartmentTemplates: [],
+        buildings: [
+          {
+            id: "bldg-1",
+            name: "Block A",
+            floors: 1,
+            serviceFloors: 1,
+            floorDesigns: [],
+            buildingLoads: [],
+          },
+        ],
+      });
+
+      await expect(
+        updateProjectSpec(testUser, {
+          projectId: "proj-trial-2",
+          buildings: [{ name: "Block A", floors: 2 }],
+        })
+      ).rejects.toMatchObject({
+        message: expect.stringContaining("Free trial projects are limited to 2 levels"),
+        statusCode: 402,
+      });
+    });
+
+    it("throws 402 when a trial project specifies a floorAssignment with floorNumber > TRIAL_MAX_LEVELS", async () => {
+      mockDb.project.findUnique.mockResolvedValue({
+        id: "proj-trial-3",
+        userId: testUser.id,
+        name: "Trial Project",
+        isTrial: true,
+        voltage: 400,
+        frequency: 50,
+        powerFactor: 0.85,
+        calculationStandard: "IEC",
+        apartmentTemplates: [{ id: "tpl-a", name: "Type A", phases: 1, rooms: [] }],
+        buildings: [
+          {
+            id: "bldg-1",
+            name: "Block A",
+            floors: 2,
+            serviceFloors: 0,
+            floorDesigns: [],
+            buildingLoads: [],
+          },
+        ],
+      });
+
+      await expect(
+        updateProjectSpec(testUser, {
+          projectId: "proj-trial-3",
+          buildings: [
+            {
+              name: "Block A",
+              floors: 2,
+              floorAssignments: [{ floorNumber: 3, templateName: "Type A", count: 1 }],
+            },
+          ],
+        })
+      ).rejects.toMatchObject({
+        message: expect.stringContaining("Free trial projects are limited to 2 levels"),
+        statusCode: 402,
+      });
     });
   });
 });

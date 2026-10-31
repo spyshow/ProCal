@@ -1,6 +1,32 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { calculateRoomLoad } from '@/lib/country-defaults';
 import { COUNTRY_DEFAULTS } from '@/lib/country-defaults';
+
+vi.mock('@/lib/project-auth', () => ({
+  verifyProjectAccess: vi.fn(async () => ({
+    project: { country: 'Syria', powerFactor: 0.85, voltage: 400 },
+  })),
+}));
+
+vi.mock('@/lib/country-overrides', () => ({
+  getEffectiveCountrySettings: vi.fn(async () => ({})),
+}));
+
+vi.mock('@/lib/db', () => ({
+  db: {
+    apartmentTemplate: {
+      create: vi.fn(async () => ({ id: 'tpl-1' })),
+      findUnique: vi.fn(async () => ({ id: 'tpl-1', projectId: 'p1', phases: 1, project: { country: 'Syria' } })),
+      update: vi.fn(async () => ({ id: 'tpl-1', rooms: [] })),
+    },
+    apartmentRoom: {
+      deleteMany: vi.fn(async () => {}),
+    },
+    floorItem: {
+      findMany: vi.fn(async () => []),
+    },
+  },
+}));
 
 describe('Template API - Room-based calculations', () => {
   const syriaDefaults = COUNTRY_DEFAULTS.Syria;
@@ -122,6 +148,69 @@ describe('Template API - Room-based calculations', () => {
       const floorItem3PhCurrent = maxDemandKw / (Math.sqrt(3) * (voltageLL / 1000) * powerFactor);
       expect(template3PhCurrent).toBeCloseTo(floorItem3PhCurrent, 4);
       expect(parseFloat(template3PhCurrent.toFixed(2))).toBe(4.56);
+    });
+  });
+
+  describe('Template API Route - Area Validation', () => {
+    it('POST /api/templates rejects room area with .1', async () => {
+      const { POST } = await import('./route');
+      const req = new Request('http://localhost/api/templates', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          projectId: 'p1',
+          name: 'Template 1',
+          phases: 1,
+          rooms: [
+            { name: 'Reception', type: 'OTHER', area: 19.1, loadDensity: 70, hasAc: false },
+          ],
+        }),
+      });
+
+      const res = await POST(req);
+      expect(res.status).toBe(400);
+      const json = await res.json();
+      expect(json.error).toContain('must be an integer or end in .5');
+    });
+
+    it('POST /api/templates accepts room area with integer or .5', async () => {
+      const { POST } = await import('./route');
+      const req = new Request('http://localhost/api/templates', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          projectId: 'p1',
+          name: 'Template 1',
+          phases: 1,
+          rooms: [
+            { name: 'Master Bed', type: 'BEDROOM', area: 19.5, loadDensity: 70, hasAc: true },
+            { name: 'Kitchen', type: 'KITCHEN', area: 12, loadDensity: 70, hasAc: false },
+          ],
+        }),
+      });
+
+      const res = await POST(req);
+      expect(res.status).toBe(200);
+    });
+
+    it('PUT /api/templates/[id] rejects room area with .1', async () => {
+      const { PUT } = await import('./[id]/route');
+      const req = new Request('http://localhost/api/templates/tpl-1', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: 'Template 1',
+          phases: 1,
+          rooms: [
+            { name: 'Reception', type: 'OTHER', area: 19.1, loadDensity: 70, hasAc: false },
+          ],
+        }),
+      });
+
+      const res = await PUT(req, { params: Promise.resolve({ id: 'tpl-1' }) });
+      expect(res.status).toBe(400);
+      const json = await res.json();
+      expect(json.error).toContain('must be an integer or end in .5');
     });
   });
 });

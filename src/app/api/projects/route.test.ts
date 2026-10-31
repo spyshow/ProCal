@@ -1,12 +1,13 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
 const mocks = {
-  user: null as null | { id: string; username: string; name: string; role: string; credits: number },
+  user: null as null | { id: string; username: string; name: string; role: string; credits: number; hasUsedTrial?: boolean },
   projectCreate: vi.fn(),
   projectFindMany: vi.fn(),
   projectCount: vi.fn(),
   userFindUnique: vi.fn(),
   userUpdate: vi.fn(),
+  userUpdateMany: vi.fn(),
   projectMemberCreate: vi.fn(),
   transaction: vi.fn(),
   seedDefaultProjectTemplates: vi.fn(),
@@ -22,6 +23,7 @@ vi.mock("@/lib/db", () => ({
     user: {
       findUnique: vi.fn(async () => mocks.userFindUnique()),
       update: vi.fn(async (...args) => mocks.userUpdate(...args)),
+      updateMany: vi.fn(async (...args) => mocks.userUpdateMany(...args)),
     },
     project: {
       create: vi.fn(async (...args) => mocks.projectCreate(...args)),
@@ -68,6 +70,20 @@ beforeEach(() => {
   mocks.projectFindMany.mockResolvedValue([]);
   mocks.projectCount.mockResolvedValue(0);
   mocks.projectMemberCreate.mockResolvedValue({ id: "pm1" });
+  mocks.userFindUnique.mockResolvedValue({ credits: 10, hasUsedTrial: false });
+  mocks.userUpdateMany.mockResolvedValue({ count: 1 });
+  mocks.transaction.mockImplementation(async (ops) => {
+    if (Array.isArray(ops)) {
+      return [null, { id: "p1", name: "Test Project" }];
+    }
+    if (typeof ops === "function") {
+      return ops({
+        user: { update: mocks.userUpdate, updateMany: mocks.userUpdateMany },
+        project: { create: mocks.projectCreate },
+      });
+    }
+    return ops;
+  });
 });
 
 describe("POST /api/projects - Electrical Input Validation (UI-CRIT-02)", () => {
@@ -336,3 +352,60 @@ describe("GET /api/projects - Pagination & Filtering", () => {
 });
 
 
+
+describe("POST /api/projects - Free Trial & Credit Enforcement", () => {
+  it("allows a non-admin with 0 credits and !hasUsedTrial to create a trial project", async () => {
+    mocks.user = { id: "u2", username: "newbie", name: "Newbie", role: "USER", credits: 0, hasUsedTrial: false };
+    mocks.userFindUnique.mockResolvedValue({ credits: 0, hasUsedTrial: false });
+    mocks.userUpdateMany.mockResolvedValue({ count: 1 });
+
+    const res = await post({ name: "My First Trial" });
+    expect(res.status).toBe(200);
+    const data = await res.json();
+    expect(data.id).toBe("p1");
+
+    expect(mocks.userUpdateMany).toHaveBeenCalledWith({
+      where: { id: "u2", hasUsedTrial: false },
+      data: { hasUsedTrial: true },
+    });
+    expect(mocks.projectCreate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          name: "My First Trial",
+          isTrial: true,
+          userId: "u2",
+        }),
+      })
+    );
+  });
+
+  it("rejects non-admin with 0 credits who has already used their trial", async () => {
+    mocks.user = { id: "u2", username: "used-trial", name: "Used Trial", role: "USER", credits: 0, hasUsedTrial: true };
+    mocks.userFindUnique.mockResolvedValue({ credits: 0, hasUsedTrial: true });
+
+    const res = await post({ name: "Another Trial Attempt" });
+    expect(res.status).toBe(402);
+    const data = await res.json();
+    expect(data.error).toContain("No credits remaining");
+    expect(mocks.projectCreate).not.toHaveBeenCalled();
+  });
+
+  it("rejects if atomic claim of trial fails due to race condition", async () => {
+    mocks.user = { id: "u2", username: "racer", name: "Racer", role: "USER", credits: 0, hasUsedTrial: false };
+    mocks.userFindUnique.mockResolvedValue({ credits: 0, hasUsedTrial: false });
+    mocks.userUpdateMany.mockResolvedValue({ count: 0 }); // raced out
+
+    const res = await post({ name: "Racing Trial" });
+    expect(res.status).toBe(402);
+    expect(mocks.projectCreate).not.toHaveBeenCalled();
+  });
+
+  it("decrements credits when non-admin has available credits", async () => {
+    mocks.user = { id: "u3", username: "paid-user", name: "Paid User", role: "USER", credits: 5, hasUsedTrial: true };
+    mocks.userFindUnique.mockResolvedValue({ credits: 5, hasUsedTrial: true });
+
+    const res = await post({ name: "Paid Project" });
+    expect(res.status).toBe(200);
+    expect(mocks.transaction).toHaveBeenCalled();
+  });
+});

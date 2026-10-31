@@ -88,7 +88,7 @@ export async function getUserByApiKey(rawKey: string) {
       where: { keyHash },
       include: {
         user: {
-          select: { id: true, username: true, name: true, role: true, credits: true, email: true, theme: true, disabled: true },
+          select: { id: true, username: true, name: true, role: true, credits: true, hasUsedTrial: true, email: true, theme: true, disabled: true },
         },
       },
     });
@@ -124,7 +124,7 @@ export async function getSessionUser() {
       if (payload) {
         const user = await db.user.findUnique({
           where: { id: payload.userId },
-          select: { id: true, username: true, name: true, role: true, credits: true, email: true, theme: true, disabled: true },
+          select: { id: true, username: true, name: true, role: true, credits: true, hasUsedTrial: true, email: true, theme: true, disabled: true },
         });
         if (user && !user.disabled) {
           return user;

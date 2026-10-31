@@ -1951,6 +1951,7 @@ export const UserScalarFieldEnum = {
   role: 'role',
   theme: 'theme',
   credits: 'credits',
+  hasUsedTrial: 'hasUsedTrial',
   disabled: 'disabled',
   createdAt: 'createdAt'
 } as const
@@ -1999,6 +2000,7 @@ export const ProjectScalarFieldEnum = {
   ambientTemp: 'ambientTemp',
   groupingCount: 'groupingCount',
   engineVersion: 'engineVersion',
+  isTrial: 'isTrial',
   userId: 'userId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'

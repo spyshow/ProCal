@@ -6,6 +6,13 @@ import { useProject } from '@/context/ProjectContext';
 import { useTranslation } from '@/i18n';
 import { SchematexDiagram } from 'schematex/react';
 import { generateSLDPages, generateSLD, resolveBreakerRating, type SLDPage as SLDPageType } from '@/lib/sld/generator';
+import { render as renderSchematexSvg } from 'schematex';
+import {
+  convertSvgElementToDxf,
+  convertSvgStringToDxf,
+  convertMultipleSvgStringsToDxf,
+  downloadDxfFile,
+} from '@/lib/dxf/svg-to-dxf';
 import { sizeTransformer } from '@/lib/calculations/loads';
 import { phaseBalance } from '@/lib/calculations/phaseBalance';
 import { codeOf } from '@/lib/calculations/codes';
@@ -485,6 +492,47 @@ export default function SLDPage() {
   );
 
   // Export handlers
+  const [dxfMenuOpen, setDxfMenuOpen] = useState(false);
+  const exportDXF = () => {
+    setDxfMenuOpen(false);
+    if (!project || project.isTrial) return;
+    const currentPage = pages[activePage];
+    if (currentPage?.dsl) {
+      const rawSvg = renderSchematexSvg(currentPage.dsl);
+      const dxfContent = convertSvgStringToDxf(rawSvg, {
+        isTrial: Boolean(project.isTrial),
+        title: `${project.name || 'SLD'} - ${currentPage.floors || currentPage.title}`,
+      });
+      downloadDxfFile(dxfContent, `${project.name || 'sld'}-page${activePage + 1}.dxf`);
+      return;
+    }
+    if (!svgContainerRef.current) return;
+    const svg = svgContainerRef.current.querySelector('svg');
+    if (!svg) return;
+    const dxfContent = convertSvgElementToDxf(svg, {
+      isTrial: Boolean(project.isTrial),
+      title: `${project.name || 'SLD'} - Page ${activePage + 1}`,
+    });
+    downloadDxfFile(dxfContent, `${project.name || 'sld'}-page${activePage + 1}.dxf`);
+  };
+
+  const exportAllDXF = () => {
+    setDxfMenuOpen(false);
+    if (!project || project.isTrial || pages.length === 0) return;
+
+    const sheets = pages.map((p) => ({
+      title: `${p.floors || p.title}`,
+      subtitle: `${project.name} | ${project.voltage}V 3-Phase | ${project.frequency || 50}Hz | ${project.calculationStandard || 'IEC 60364'}`,
+      svgMarkup: renderSchematexSvg(p.dsl),
+    }));
+
+    const dxfContent = convertMultipleSvgStringsToDxf(sheets, {
+      isTrial: Boolean(project.isTrial),
+      title: `${project.name} - Complete SLD Package`,
+    });
+    downloadDxfFile(dxfContent, `${project.name || 'sld'}-all-sld-pages.dxf`);
+  };
+
   const exportPNG = async () => {
     if (!svgContainerRef.current) return;
     const svg = svgContainerRef.current.querySelector('svg');
@@ -527,6 +575,18 @@ export default function SLDPage() {
       ctx.fillStyle = '#020617';
       ctx.fillRect(0, 0, fullWidth, fullHeight);
       ctx.drawImage(img, 0, 0, fullWidth, fullHeight);
+
+      if (project?.isTrial) {
+        ctx.save();
+        ctx.translate(fullWidth / 2, fullHeight / 2);
+        ctx.rotate(-Math.PI / 6);
+        ctx.font = 'bold 36px monospace';
+        ctx.fillStyle = 'rgba(239, 68, 68, 0.45)';
+        ctx.textAlign = 'center';
+        ctx.fillText('PROCAL FREE TRIAL — NOT FOR CONSTRUCTION', 0, 0);
+        ctx.fillText('EVALUATION ONLY — NOT FOR CONSTRUCTION', 0, 50);
+        ctx.restore();
+      }
 
       canvas.toBlob((blob) => {
         if (!blob) return;
@@ -813,6 +873,11 @@ export default function SLDPage() {
               <span className="hidden lg:inline text-xs text-[var(--text-secondary)] font-medium truncate max-w-[140px] xl:max-w-[200px]">
                 {project.name}
               </span>
+              {project.isTrial && (
+                <span className="inline-flex items-center gap-1 text-[10px] font-mono px-2 py-0.5 rounded bg-red-500/15 text-red-600 dark:text-red-400 border border-red-500/30 font-bold whitespace-nowrap">
+                  FREE TRIAL
+                </span>
+              )}
             </div>
           </div>
         </div>
@@ -903,6 +968,62 @@ export default function SLDPage() {
             <FileImage size={14} className="text-emerald-600 dark:text-emerald-400" />
             <span className="hidden lg:inline">{t('sld.exportPng', 'Export PNG')}</span>
           </button>
+
+          <button
+            onClick={() => {
+              if (!project.isTrial) setDxfMenuOpen((prev) => !prev);
+            }}
+            disabled={Boolean(project.isTrial)}
+            className={`p-1.5 rounded-lg bg-[var(--card-bg-subtle)] border border-[var(--border-color)] text-xs flex items-center gap-1 font-semibold shadow-xs transition-all whitespace-nowrap ${
+              project.isTrial
+                ? 'opacity-50 cursor-not-allowed text-[var(--text-muted)]'
+                : 'hover:border-orange-500/50 text-[var(--foreground-color)] cursor-pointer'
+            }`}
+            title={
+              project.isTrial
+                ? t('sld.dxfLockedTrial', 'AutoCAD DXF export is locked on Free Trial projects — upgrade to unlock CAD drawings')
+                : t('sld.exportDxf', 'Export AutoCAD (.DXF)')
+            }
+          >
+            <FileCode size={14} className="text-amber-500 dark:text-amber-400" />
+            <span className="hidden lg:inline">{t('sld.exportDxf', 'Export AutoCAD (.DXF)')}</span>
+            <ChevronDown size={12} className="text-[var(--text-muted)]" />
+          </button>
+
+          {dxfMenuOpen && !project.isTrial && (
+            <>
+              <div
+                className="fixed inset-0 z-40"
+                onClick={() => setDxfMenuOpen(false)}
+              />
+              <div className="absolute top-12 end-24 mt-1 w-64 rounded-xl bg-[var(--card-bg)] border border-[var(--border-color)] shadow-xl py-1.5 z-50 text-xs">
+                <button
+                  onClick={exportDXF}
+                  className="w-full px-3 py-2 text-start hover:bg-orange-500/10 flex items-center justify-between gap-2 text-[var(--foreground-color)] transition-colors cursor-pointer"
+                >
+                  <span className="flex items-center gap-2 font-medium">
+                    <FileCode size={14} className="text-amber-500 shrink-0" />
+                    <span>{t('sld.exportDxfPage', 'Current SLD Page (.DXF)')}</span>
+                  </span>
+                  <span className="text-[10px] font-mono text-[var(--text-muted)]">
+                    P{activePage + 1}
+                  </span>
+                </button>
+                <button
+                  onClick={exportAllDXF}
+                  className="w-full px-3 py-2 text-start hover:bg-orange-500/10 flex items-center justify-between gap-2 text-[var(--foreground-color)] transition-colors cursor-pointer border-t border-[var(--border-color)]/60"
+                >
+                  <span className="flex items-center gap-2 font-semibold text-orange-500 dark:text-orange-400">
+                    <Layers size={14} className="text-orange-500 shrink-0" />
+                    <span>{t('sld.exportDxfAll', 'All SLD Pages in One File (.DXF)')}</span>
+                  </span>
+                  <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-orange-500/15 text-orange-500 font-bold">
+                    {pages.length}
+                  </span>
+                </button>
+              </div>
+            </>
+          )}
 
           <button
             onClick={exportPDF}
@@ -1471,6 +1592,19 @@ export default function SLDPage() {
       </div>
 
       {/* ================= PRINT ALL COMPLETE PROJECT PACKAGE ================= */}
+      {project?.isTrial && (
+        <div
+          aria-hidden="true"
+          className="hidden print:flex fixed inset-0 pointer-events-none z-[99999] flex-col justify-around items-center opacity-15 overflow-hidden"
+        >
+          <div className="text-3xl font-black tracking-widest text-red-600 -rotate-25 whitespace-nowrap uppercase font-mono">
+            PROCAL FREE TRIAL — NOT FOR CONSTRUCTION
+          </div>
+          <div className="text-3xl font-black tracking-widest text-red-600 -rotate-25 whitespace-nowrap uppercase font-mono">
+            EVALUATION ONLY — NOT FOR CONSTRUCTION
+          </div>
+        </div>
+      )}
       {isPrintingAll && (
         <div id="print-sld-complete-package" className="hidden print:block bg-white text-black p-0 font-sans">
           {/* PAGE 1: EXECUTIVE PROJECT & ENGINEERING SUMMARY REPORT */}

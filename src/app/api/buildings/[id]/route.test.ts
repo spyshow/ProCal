@@ -123,6 +123,23 @@ describe("Building API /api/buildings/[id]", () => {
       expect(mocks.buildingUpdate).not.toHaveBeenCalled();
     });
 
+    it("returns 402 TRIAL_LIMIT when increasing floors > 2 on a trial building", async () => {
+      mocks.buildingFindUnique.mockResolvedValue({
+        ...validBuilding,
+        floors: 1,
+        serviceFloors: 0,
+        project: { id: "proj-1", userId: "user-1", isTrial: true },
+      });
+
+      const res = await patchBuilding("bldg-1", { floors: 3 });
+
+      expect(res.status).toBe(402);
+      const data = await res.json();
+      expect(data.code).toBe("TRIAL_LIMIT");
+      expect(data.error).toContain("Free trial projects are limited to 2 levels");
+      expect(mocks.buildingUpdate).not.toHaveBeenCalled();
+    });
+
     it("returns 403 when user is QA", async () => {
       mocks.verifyProjectAccess.mockResolvedValue({
         user: { id: "qa-1", role: "USER" },
@@ -161,6 +178,59 @@ describe("Building API /api/buildings/[id]", () => {
           name: "Renamed Building",
           incomerCableSize: "4 × 500 kcmil",
         }),
+      });
+    });
+
+    describe("Trial Project Enforcement", () => {
+      const trialBuilding = {
+        ...validBuilding,
+        floors: 1,
+        serviceFloors: 0,
+        project: { id: "proj-1", userId: "user-1", isTrial: true },
+      };
+
+      beforeEach(() => {
+        mocks.buildingFindUnique.mockResolvedValue(trialBuilding);
+      });
+
+      it("rejects increasing floors beyond 2 levels on a trial project", async () => {
+        const res = await putBuilding("bldg-1", { floors: 3 });
+        expect(res.status).toBe(402);
+        const data = await res.json();
+        expect(data.code).toBe("TRIAL_LIMIT");
+        expect(data.error).toContain("Free trial projects are limited to 2 levels");
+        expect(mocks.buildingUpdate).not.toHaveBeenCalled();
+      });
+
+      it("rejects updating serviceFloors such that floors + serviceFloors > 2", async () => {
+        const res = await putBuilding("bldg-1", { serviceFloors: 2 });
+        expect(res.status).toBe(402);
+        const data = await res.json();
+        expect(data.code).toBe("TRIAL_LIMIT");
+        expect(mocks.buildingUpdate).not.toHaveBeenCalled();
+      });
+
+      it("allows updating within the 2-level cap on trial project", async () => {
+        mocks.buildingUpdate.mockResolvedValue({
+          ...trialBuilding,
+          floors: 1,
+          serviceFloors: 1,
+        });
+
+        const res = await putBuilding("bldg-1", { floors: 1, serviceFloors: 1 });
+        expect(res.status).toBe(200);
+        expect(mocks.buildingUpdate).toHaveBeenCalled();
+      });
+
+      it("allows updating name without changing floors on trial project", async () => {
+        mocks.buildingUpdate.mockResolvedValue({
+          ...trialBuilding,
+          name: "Renamed Trial Tower",
+        });
+
+        const res = await putBuilding("bldg-1", { name: "Renamed Trial Tower" });
+        expect(res.status).toBe(200);
+        expect(mocks.buildingUpdate).toHaveBeenCalled();
       });
     });
   });

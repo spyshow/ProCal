@@ -5,6 +5,7 @@ import { parseMemberPermissions } from "@/lib/project-permissions";
 import { logProjectActivity } from "@/lib/audit-logger";
 import { seedDefaultProjectTemplates, seedDefaultLoadLibrary } from "@/lib/project-defaults";
 import { validateProjectSettings } from "@/lib/calculations/validate";
+import { canStartTrial } from "@/lib/trial";
 
 export async function GET(request?: Request) {
   try {
@@ -74,6 +75,7 @@ export async function GET(request?: Request) {
           preferredManufacturer: true,
           updatedAt: true,
           userId: true,
+          isTrial: true,
           buildings: {
             select: { id: true, name: true, floors: true, apartmentsPerFloor: true },
           },
@@ -185,9 +187,16 @@ export async function POST(request: Request) {
     }
 
     // Admins bypass the credit gate (they manage the system).
+    // Non-admins with no credits may start ONE lifetime free trial project.
+    let isTrial = false;
     if (user.role !== "ADMIN") {
-      const fresh = await db.user.findUnique({ where: { id: user.id }, select: { credits: true } });
-      if (!fresh || fresh.credits < 1) {
+      const fresh = await db.user.findUnique({ where: { id: user.id }, select: { credits: true, hasUsedTrial: true } });
+      if (!fresh) {
+        return NextResponse.json({ error: "No credits remaining" }, { status: 402 });
+      }
+      if (canStartTrial({ role: user.role, credits: fresh.credits, hasUsedTrial: fresh.hasUsedTrial })) {
+        isTrial = true;
+      } else if (fresh.credits < 1) {
         return NextResponse.json({ error: "No credits remaining" }, { status: 402 });
       }
     }
@@ -213,11 +222,33 @@ export async function POST(request: Request) {
           ? calculationStandard
           : "IEC",
       userId: user.id,
+      isTrial,
     };
 
     let project;
+    let claimedProject: Awaited<ReturnType<typeof db.project.create>> | null = null;
     if (user.role === "ADMIN") {
-      project = await db.project.create({ data: projectData });
+      project = claimedProject ?? await db.project.create({ data: projectData });
+    } else if (isTrial) {
+      // Conditional flip guards the double-submit race: only one request can
+      // move hasUsedTrial false -> true; the loser gets 402.
+      const claimed = await db.$transaction(async (tx) => {
+        const res = await tx.user.updateMany({
+          where: { id: user.id, hasUsedTrial: false },
+          data: { hasUsedTrial: true },
+        });
+        if (res.count !== 1) return { count: 0, project: null };
+        const created = await tx.project.create({ data: projectData });
+        return { count: 1, project: created };
+      });
+      claimedProject = claimed.project; /*
+
+
+      });
+      */ if (claimed.count !== 1) {
+        return NextResponse.json({ error: "No credits remaining" }, { status: 402 });
+      }
+      project = claimedProject ?? await db.project.create({ data: projectData });
     } else {
       [, project] = await db.$transaction([
         db.user.update({ where: { id: user.id }, data: { credits: { decrement: 1 } } }),

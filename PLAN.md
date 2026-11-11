@@ -76,3 +76,22 @@ Serialize ProCal's Single-Line Diagram (SLD) and Vertical Riser Diagram SVG layo
 
 ## FEAT-07 Status
 - [x] 1  - [x] 2
+
+---
+
+# Supabase RLS Remediation Plan: `public.ApiKey` (`rls_disabled_in_public`, 2026-11-11)
+
+## Goal
+Resolve Supabase security linter error `0013_rls_disabled_in_public` on `public."ApiKey"` permanently in the repository and database by creating an idempotent Prisma migration and updating startup/sync scripts.
+
+## Steps
+1. **Create Prisma Migration (`prisma/migrations/20261111082600_enable_rls_and_api_key/migration.sql`)**
+   - Idempotently ensure `"ApiKey"` table, indexes (`"ApiKey_keyHash_key"`, `"ApiKey_userId_idx"`, `"ApiKey_keyHash_idx"`), and foreign key (`"ApiKey_userId_fkey"`) exist.
+   - Enable Row Level Security (`ALTER TABLE ... ENABLE ROW LEVEL SECURITY;`) on `public."ApiKey"` and all public application tables.
+   - *Proof:* `npx prisma migrate deploy` and `npx prisma migrate status` succeed cleanly.
+2. **Update `scripts/pre-start.js` & `scripts/db-sync.ts`**
+   - Include idempotent `ENABLE ROW LEVEL SECURITY` on `"ApiKey"` in `scripts/pre-start.js` and `scripts/db-sync.ts` so every deployment enforces RLS.
+   - *Proof:* `npx prisma validate` and `npm test` pass.
+
+## Status
+- [x] 1  - [x] 2

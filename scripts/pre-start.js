@@ -43,6 +43,28 @@ async function ensureMigrationReady() {
         ALTER TABLE "Building" ADD COLUMN IF NOT EXISTS "incomerCableMaterial" TEXT DEFAULT 'copper';
         ALTER TABLE "Building" ADD COLUMN IF NOT EXISTS "incomerAmbientTemp" DOUBLE PRECISION DEFAULT 30;
         ALTER TABLE "Building" ADD COLUMN IF NOT EXISTS "incomerGroupingCount" INTEGER DEFAULT 1;
+
+        -- Ensure ApiKey table exists and Row Level Security (RLS) is enabled
+        CREATE TABLE IF NOT EXISTS "ApiKey" (
+          "id" TEXT NOT NULL,
+          "userId" TEXT NOT NULL,
+          "name" TEXT NOT NULL,
+          "keyPrefix" TEXT NOT NULL,
+          "keyHash" TEXT NOT NULL,
+          "lastUsedAt" TIMESTAMP(3),
+          "revokedAt" TIMESTAMP(3),
+          "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+          CONSTRAINT "ApiKey_pkey" PRIMARY KEY ("id")
+        );
+        CREATE UNIQUE INDEX IF NOT EXISTS "ApiKey_keyHash_key" ON "ApiKey"("keyHash");
+        CREATE INDEX IF NOT EXISTS "ApiKey_userId_idx" ON "ApiKey"("userId");
+        CREATE INDEX IF NOT EXISTS "ApiKey_keyHash_idx" ON "ApiKey"("keyHash");
+        DO $$ BEGIN
+          IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'ApiKey_userId_fkey') THEN
+            ALTER TABLE "ApiKey" ADD CONSTRAINT "ApiKey_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+          END IF;
+        END $$;
+        ALTER TABLE "ApiKey" ENABLE ROW LEVEL SECURITY;
       `);
       console.log('[pre-start] Schema verification and migration cleanup complete.');
     } finally {

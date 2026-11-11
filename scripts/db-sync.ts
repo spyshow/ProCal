@@ -96,6 +96,28 @@ async function main() {
       `ALTER TABLE "Building" ADD COLUMN IF NOT EXISTS "incomerAmbientTemp" DOUBLE PRECISION DEFAULT 30;`,
       `ALTER TABLE "Building" ADD COLUMN IF NOT EXISTS "incomerGroupingCount" INTEGER DEFAULT 1;`,
 
+      // ApiKey table & RLS
+      `CREATE TABLE IF NOT EXISTS "ApiKey" (
+        "id" TEXT NOT NULL,
+        "userId" TEXT NOT NULL,
+        "name" TEXT NOT NULL,
+        "keyPrefix" TEXT NOT NULL,
+        "keyHash" TEXT NOT NULL,
+        "lastUsedAt" TIMESTAMP(3),
+        "revokedAt" TIMESTAMP(3),
+        "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        CONSTRAINT "ApiKey_pkey" PRIMARY KEY ("id")
+      );`,
+      `CREATE UNIQUE INDEX IF NOT EXISTS "ApiKey_keyHash_key" ON "ApiKey"("keyHash");`,
+      `CREATE INDEX IF NOT EXISTS "ApiKey_userId_idx" ON "ApiKey"("userId");`,
+      `CREATE INDEX IF NOT EXISTS "ApiKey_keyHash_idx" ON "ApiKey"("keyHash");`,
+      `DO $$ BEGIN
+        IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'ApiKey_userId_fkey') THEN
+          ALTER TABLE "ApiKey" ADD CONSTRAINT "ApiKey_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+        END IF;
+      END $$;`,
+      `ALTER TABLE "ApiKey" ENABLE ROW LEVEL SECURITY;`,
+
       // Fix any failed migration records in _prisma_migrations
       `DO $$ BEGIN
         IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = '_prisma_migrations') THEN

@@ -1,4 +1,8 @@
 import { z } from "zod";
+import {
+  isHalfStepArea,
+  HALF_STEP_AREA_MESSAGE,
+} from "@/lib/validation/room-area";
 
 export const RoomTypeEnum = z.enum([
   "LIVING_ROOM",
@@ -22,9 +26,7 @@ const normalizeRoomType = (raw?: string): z.infer<typeof RoomTypeEnum> => {
   return "OTHER";
 };
 
-export const isHalfStep = (val: number): boolean => {
-  return Number.isFinite(val) && val > 0 && Math.abs(Math.round(val * 2) - val * 2) < 1e-5;
-};
+export const isHalfStep = isHalfStepArea;
 
 export const RoomSpecInputSchema = z.object({
   name: z.string().min(1).max(100),
@@ -33,9 +35,8 @@ export const RoomSpecInputSchema = z.object({
     .number()
     .positive()
     .max(10000)
-    .refine((val) => isHalfStep(val), {
-      message:
-        "Room areaM2 must be an integer or end in .5 (multiples of 0.5 m², e.g. 19 or 19.5). Values like 19.1 or 4.4 are not allowed.",
+    .refine((val) => isHalfStepArea(val), {
+      message: HALF_STEP_AREA_MESSAGE,
     })
     .optional(),
   length: z.number().positive().optional(),
@@ -64,9 +65,8 @@ export const RoomSpecSchema = RoomSpecInputSchema.transform((val) => {
   };
 }).refine((r) => r.areaM2 > 0, {
   message: "Room areaM2 must be positive, or positive length and width must be specified",
-}).refine((r) => isHalfStep(r.areaM2), {
-  message:
-    "Room areaM2 must be an integer or end in .5 (multiples of 0.5 m², e.g. 19 or 19.5). Values like 19.1 or 4.4 are not allowed.",
+}).refine((r) => isHalfStepArea(r.areaM2), {
+  message: HALF_STEP_AREA_MESSAGE,
 });
 
 export const ApartmentTemplateSpecInputSchema = z.object({

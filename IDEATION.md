@@ -158,8 +158,10 @@ Split the five largest multi-responsibility files — projects/[id]/page.tsx (1,
 - **Proposed Change:** Split src/lib/agent/build-project.ts into create-spec.ts, update-spec.ts, cables-spec.ts, selectivity-check.ts, and bom.ts (re-exported via index.ts), and extract feature panels/hooks from the 4 largest page controllers.
 - **Affected Files:** `src/app/(app)/projects/[id]/page.tsx`, `src/app/(app)/cable-schedule/page.tsx`, `src/app/(app)/sld/page.tsx`, `src/app/(app)/coordination/page.tsx`, `src/lib/agent/build-project.ts`
 
-### [CQ-002] Centralize 0.5 m² Room Area Validator (isHalfStep) Across REST Routes & MCP Schemas
+### [CQ-002] Centralize 0.5 m² Room Area Validator (isHalfStep) Across REST Routes & MCP Schemas ✅ COMPLETED
 Share the 0.5 m² room area step validator (isHalfStep) between MCP Zod schemas (src/lib/agent/project-spec-schema.ts) and REST apartment template routes (/api/templates).
+
+- **Status:** `completed`
 
 - **Severity:** `MINOR` | **Category:** `duplication` | **Effort:** `small`
 - **Best Practice:** Single Source of Truth for Domain Invariants

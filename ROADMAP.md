@@ -98,7 +98,7 @@ Modularize 1,600+ line page views and agent spec builders into focused component
   - *"As a ProCal Developer, I want modular <500 LOC files and a single source of truth for domain validation rules so that new features can be shipped rapidly without regression risk."*
 - **Acceptance Criteria:**
   - [ ] Extract shared useUpgradeTrialProject hook used by both TopHeader.tsx and projects/[id]/page.tsx
-  - [ ] Centralize 0.5 m² room area validation (isHalfStepArea) into src/lib/validation/room-area.ts and reuse across project-spec-schema.ts and /api/templates routes
+  - [x] Centralize 0.5 m² room area validation (isHalfStepArea) into src/lib/validation/room-area.ts and reuse across project-spec-schema.ts and /api/templates routes
   - [ ] Decompose projects/[id]/page.tsx (1,978 LOC), sld/page.tsx (1,678 LOC), and build-project.ts (1,613 LOC) into focused domain sub-modules
 
 ### Phase 3: CAD Ecosystem Integration & Autonomous Optimization (50% complete)
@@ -143,7 +143,7 @@ Account for per-phase imbalance in main transformer kVA sizing, normalize FloorI
 - [x] **[PERF-004]** In-Memory TTL Cache & Admin Invalidation for `EquipmentCatalog`
 - [x] **[PERF-001]** Warm Singleton Chromium Browser Pool & Concurrency Semaphore in `server-pdf.ts`
 - [x] **[PERF-002]** Bulk `createMany()` Batching for Rooms & Floor Items in `build-project.ts`
-- [ ] **[CQ-002]** Centralize 0.5 m² Room Area Validator (`isHalfStepArea`) Across REST & MCP Schemas
+- [x] **[CQ-002]** Centralize 0.5 m² Room Area Validator (`isHalfStepArea`) Across REST & MCP Schemas
 - [ ] **[CQ-003]** Shared `loadProjectReportHtml` Service & Removal of Dead MCP Imports
 - [ ] **[CI-002]** Unified Full 8-Section Executive Report Rendering for MCP Base64 & Stdio Exports
 - [ ] **[CI-001]** MCP Agent Free Trial Provisioning & In-Chat `upgrade_trial_project` Tool

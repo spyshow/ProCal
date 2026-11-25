@@ -5,6 +5,7 @@ import { verifyProjectAccess } from "@/lib/project-auth";
 import { assertOneOf } from "@/lib/calculations/validate";
 import { calculateRoomLoad, getCountryDefaults } from "@/lib/country-defaults";
 import { getEffectiveCountrySettings } from "@/lib/country-overrides";
+import { isHalfStepArea, formatRoomHalfStepError } from "@/lib/validation/room-area";
 import { getApartmentDiversityFactor } from "@/lib/calculations/loads";
 
 interface RoomInput {
@@ -96,10 +97,10 @@ export async function PUT(
           { status: 400 }
         );
       }
-      if (Math.abs(Math.round(areaNum * 2) - areaNum * 2) >= 1e-5) {
+      if (!isHalfStepArea(areaNum)) {
         return NextResponse.json(
           {
-            error: `Room "${room.name || 'unnamed'}" area (${room.area} m²) must be an integer or end in .5 (e.g. 19 or 19.5). Decimals like .1 or .4 are not allowed.`,
+            error: formatRoomHalfStepError(room.name, room.area),
           },
           { status: 400 }
         );

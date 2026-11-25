@@ -219,6 +219,8 @@ model Building {
   buildingLoads       BuildingLoad[]
   createdAt           DateTime      @default(now())
   updatedAt           DateTime      @updatedAt
+
+  @@index([projectId])
 }
 
 model BuildingLoad {
@@ -242,6 +244,9 @@ model BuildingLoad {
   assignedPhase     Int?
   createdAt         DateTime         @default(now())
   updatedAt         DateTime         @updatedAt
+
+  @@index([buildingId])
+  @@index([loadLibraryItemId])
 }
 
 model ApartmentTemplate {
@@ -254,6 +259,8 @@ model ApartmentTemplate {
   floorItems  FloorItem[]
   createdAt   DateTime        @default(now())
   updatedAt   DateTime        @updatedAt
+
+  @@index([projectId])
 }
 
 model ApartmentRoom {
@@ -267,6 +274,8 @@ model ApartmentRoom {
   connectedLoad Float // Calculated: area × loadDensity + AC watts
   templateId    String
   template      ApartmentTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
+
+  @@index([templateId])
 }
 
 model LoadLibraryItem {
@@ -286,6 +295,8 @@ model LoadLibraryItem {
   project         Project     @relation(fields: [projectId], references: [id], onDelete: Cascade)
   floorItems      FloorItem[]
   buildingLoads   BuildingLoad[]
+
+  @@index([projectId])
 }
 
 model FloorDesign {
@@ -303,6 +314,8 @@ model FloorDesign {
   buildingId          String
   building            Building    @relation(fields: [buildingId], references: [id], onDelete: Cascade)
   items               FloorItem[]
+
+  @@index([buildingId, floorNumber])
 }
 
 model FloorItem {
@@ -333,6 +346,10 @@ model FloorItem {
   // meaningful for 1-phase loads; 3-phase loads draw from all three and ignore
   // this. See design doc §premise 2.
   assignedPhase           Int?
+
+  @@index([floorDesignId])
+  @@index([apartmentTemplateId])
+  @@index([loadLibraryItemId])
 }
 
 model EquipmentCatalog {

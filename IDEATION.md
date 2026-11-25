@@ -78,8 +78,10 @@ Replace sequential per-room tx.apartmentRoom.create and per-item tx.floorItem.cr
 - **Expected Improvement:** Reduces multi-building transaction time by 70-85% (<450ms) and eliminates interactive transaction timeout pressure
 - **Implementation:** Pre-compute ApartmentRoom and FloorItem row arrays in memory with generated UUIDs and execute single tx.apartmentRoom.createMany and tx.floorItem.createMany calls per batch.
 
-### [PERF-003] Add Missing PostgreSQL Foreign-Key & Composite Indexes on Core Hierarchy Tables
+### [PERF-003] Add Missing PostgreSQL Foreign-Key & Composite Indexes on Core Hierarchy Tables ✅ COMPLETED
 Add @@index declarations on Building(projectId), FloorDesign(buildingId, floorNumber), FloorItem(floorDesignId), FloorItem(apartmentTemplateId), BuildingLoad(buildingId), and ApartmentRoom(templateId) in prisma/schema.prisma.
+
+- **Status:** `completed`
 
 - **Impact:** `MEDIUM` | **Category:** `io` | **Effort:** `trivial`
 - **Current Metric:** Sequential table scans across FloorItem, FloorDesign, and ApartmentRoom joins on nested project queries

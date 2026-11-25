@@ -57,7 +57,7 @@ Eliminate cold Chromium launch overhead via a warm singleton browser pool in ser
 - **Acceptance Criteria:**
   - [ ] src/lib/reports/server-pdf.ts maintains a warm singleton Chromium Browser instance using isolated per-request BrowserContext pages, cutting PDF export latency by 50–65%
   - [ ] createProjectFromSpec and updateProjectSpec in src/lib/agent/build-project.ts batch room and floor item inserts via tx.apartmentRoom.createMany and tx.floorItem.createMany, reducing multi-building build latency to <400ms
-  - [ ] prisma/schema.prisma adds @@index([buildingId, floorNumber]) on FloorDesign, @@index([floorDesignId]) on FloorItem, and @@index([templateId]) on ApartmentRoom
+  - [x] prisma/schema.prisma adds @@index([buildingId, floorNumber]) on FloorDesign, @@index([floorDesignId]) on FloorItem, and @@index([templateId]) on ApartmentRoom
 
 ### Phase 2: AI Agent Parity & Advanced IEC Protection Verification (0% complete)
 *Full MCP agent trial parity, unified 8-section executive report rendering, IEC 60364-4-43 adiabatic thermal withstand (I²t <= k²S²), and modular codebase refactoring.*
@@ -139,7 +139,7 @@ Account for per-phase imbalance in main transformer kVA sizing, normalize FloorI
 - [x] **[SEC-002]** Atomic Conditional Credit Decrement (`credits >= 1`) on Paid Project Creation (TOCTOU)
 - [x] **[SEC-003]** Server-Rendered Trial PDFs & `<script>` Sanitization in `POST /api/projects/[id]/pdf`
 - [x] **[CQ-004]** Dedicated Route-Level Security & Token Unit Tests for `/api/projects/[id]/pdf`
-- [ ] **[PERF-003]** PostgreSQL Foreign-Key & Composite `@@index` Declarations on Core Hierarchy Tables
+- [x] **[PERF-003]** PostgreSQL Foreign-Key & Composite `@@index` Declarations on Core Hierarchy Tables
 - [ ] **[PERF-004]** In-Memory TTL Cache & Admin Invalidation for `EquipmentCatalog`
 - [ ] **[PERF-001]** Warm Singleton Chromium Browser Pool & Concurrency Semaphore in `server-pdf.ts`
 - [ ] **[PERF-002]** Bulk `createMany()` Batching for Rooms & Floor Items in `build-project.ts`

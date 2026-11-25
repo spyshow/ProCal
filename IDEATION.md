@@ -50,10 +50,10 @@ Expose ProCal v1.8.0's new SVG-to-DXF CAD serializer (src/lib/dxf/svg-to-dxf.ts)
 - **Rationale:** ProCal v1.8.0 shipped client-side AutoCAD DXF export in src/lib/dxf/svg-to-dxf.ts (1,167 LOC), and get_project_sld in src/lib/mcp/server.ts (lines 586-597) already generates standalone Schematex SVGs server-side. Bridging the two gives Claude/Cursor agents native CAD deliverables.
 - **Implementation Approach:** Add includeDxf / outputDxfPath options on get_project_sld (or a dedicated get_project_dxf MCP tool) that converts rendered overview/floor SVGs via svg-to-dxf.ts while rejecting trial projects with a clear upgrade prompt.
 
-### [CI-005] Engineering Revision Diff Comparison & Pre-Mutation MCP Snapshot Tool
+### [CI-005] Engineering Revision Diff Comparison & Pre-Mutation MCP Snapshot Tool ✅ COMPLETED
 Surface side-by-side engineering delta tables (load totals, breaker frames, cable sizes, voltage drop changes) between ProjectRevision snapshots and add an MCP snapshot tool before bulk spec updates.
 
-- **Effort:** `MEDIUM` | **Status:** `draft`
+- **Effort:** `MEDIUM` | **Status:** `completed`
 - **Builds Upon:** `src/lib/audit-diff.ts`, `src/app/api/projects/[id]/revisions/route.ts`, `src/lib/mcp/server.ts`
 - **Affected Files:** `src/lib/audit-diff.ts`, `src/app/api/projects/[id]/revisions/route.ts`, `src/lib/mcp/server.ts`
 - **Rationale:** ProjectRevision (prisma/schema.prisma:183-195) stores full project JSON snapshots and src/lib/audit-diff.ts (901 LOC) already computes structured entity diffs, but engineers and MCP agents cannot yet compare R0 vs R1 schedules side-by-side or checkpoint before update_project_spec.

@@ -62,6 +62,10 @@ const { mockDb } = vi.hoisted(() => ({
       findFirst: vi.fn(),
       create: vi.fn().mockResolvedValue({}),
     },
+    projectRevision: {
+      count: vi.fn().mockResolvedValue(0),
+      create: vi.fn(),
+    },
     $transaction: vi.fn(async (cb: (tx: unknown) => Promise<unknown>) => cb(mockDb)),
   },
 }));
@@ -141,7 +145,7 @@ describe("Zero-Dependency JSON-RPC 2.0 MCP Server", () => {
 
     const res = await handleMcpRequest(req, testUser, baseUrl);
     const tools = (res.result as { tools: { name: string }[] }).tools;
-    expect(tools).toHaveLength(13);
+    expect(tools).toHaveLength(14);
 
     const names = tools.map((t) => t.name);
     expect(names).toContain("get_engineering_catalog");
@@ -155,6 +159,7 @@ describe("Zero-Dependency JSON-RPC 2.0 MCP Server", () => {
     expect(names).toContain("get_project_bom");
     expect(names).toContain("get_project_sld");
     expect(names).toContain("get_project_dxf");
+    expect(names).toContain("create_project_revision");
     expect(names).toContain("upgrade_trial_project");
     expect(names).toContain("get_project_report");
   });
@@ -468,7 +473,7 @@ describe("Zero-Dependency JSON-RPC 2.0 MCP Server", () => {
     expect(toolsRes.id).toBe(102);
     expect(toolsRes.error).toBeUndefined();
     const tools = (toolsRes.result as { tools: unknown[] }).tools;
-    expect(tools.length).toBe(13);
+    expect(tools.length).toBe(14);
   });
 
   it("returns the 5-stage workflow prompt in 'prompts/get'", async () => {
@@ -932,5 +937,77 @@ describe("Zero-Dependency JSON-RPC 2.0 MCP Server", () => {
     expect((res.result as { content: { text: string }[] }).content[0].text).toMatch(
       /locked on Free Trial projects/i
     );
+  });
+
+  it("executes 'create_project_revision' to checkpoint full snapshot R0 and blocks QA read-only members", async () => {
+    mockDb.project.findUnique.mockResolvedValueOnce({
+      id: "proj-rev-1",
+      name: "Revision Tower",
+      userId: testUser.id,
+      buildings: [],
+      apartmentTemplates: [],
+      loadLibraryItems: [],
+    });
+    mockDb.projectRevision.count.mockResolvedValueOnce(1);
+    mockDb.projectRevision.create.mockResolvedValueOnce({
+      id: "rev-row-2",
+      projectId: "proj-rev-1",
+      rev: "R1",
+      description: "Pre-cable update checkpoint",
+      createdAt: new Date("2026-11-25T10:00:00.000Z"),
+    });
+
+    const okRes = await handleMcpRequest(
+      {
+        jsonrpc: "2.0",
+        id: "rev-ok",
+        method: "tools/call",
+        params: {
+          name: "create_project_revision",
+          arguments: { projectId: "proj-rev-1", description: "Pre-cable update checkpoint" },
+        },
+      },
+      testUser,
+      baseUrl
+    );
+    expect(okRes.result).toHaveProperty("isError", false);
+    const data = JSON.parse((okRes.result as { content: { text: string }[] }).content[0].text);
+    expect(data).toMatchObject({
+      id: "rev-row-2",
+      projectId: "proj-rev-1",
+      rev: "R1",
+      description: "Pre-cable update checkpoint",
+    });
+
+    // Non-owner QA member cannot create a revision
+    mockDb.project.findUnique.mockResolvedValueOnce({
+      id: "proj-rev-other",
+      name: "Other Project",
+      userId: "other-owner",
+      buildings: [],
+    });
+    mockDb.projectMember.findUnique.mockResolvedValueOnce({
+      id: "pm-qa-rev",
+      projectId: "proj-rev-other",
+      userId: testUser.id,
+      role: "QA",
+      permissions: null,
+    });
+
+    const deniedRes = await handleMcpRequest(
+      {
+        jsonrpc: "2.0",
+        id: "rev-deny",
+        method: "tools/call",
+        params: {
+          name: "create_project_revision",
+          arguments: { projectId: "proj-rev-other", description: "Unauthorized snapshot" },
+        },
+      },
+      testUser,
+      baseUrl
+    );
+    expect(deniedRes.result).toHaveProperty("isError", true);
+    expect((deniedRes.result as { content: { text: string }[] }).content[0].text).toContain("Unauthorized");
   });
 });

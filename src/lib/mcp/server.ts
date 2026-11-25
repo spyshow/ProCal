@@ -25,6 +25,7 @@ import { generateServerPdf } from "@/lib/reports/server-pdf";
 import { wrapReportMarkup } from "@/lib/reports/render-report-html";
 import { loadProjectReportHtml } from "@/lib/reports/load-project-report";
 import { assertMcpProjectAccess } from "@/lib/project-auth";
+import { PROJECT_SNAPSHOT_INCLUDE } from "@/lib/revisions";
 import { APP_VERSION } from "@/lib/version";
 import type { Project as AppProject } from "@/types";
 
@@ -271,6 +272,19 @@ const MCP_TOOLS = [
           enum: ["all", "overview", "floors"],
           description: "Which sheets to include in ModelSpace grid (default: all)",
         },
+      },
+    },
+  },
+  {
+    name: "create_project_revision",
+    description:
+      "Captures a timestamped immutable ProjectRevision snapshot (R0, R1, ...) of the full project state before or after engineering mutations so changes can be compared side-by-side or restored.",
+    inputSchema: {
+      type: "object",
+      required: ["projectId", "description"],
+      properties: {
+        projectId: { type: "string", description: "Project ID to snapshot" },
+        description: { type: "string", description: "Revision note / reason (e.g. Pre-spec update checkpoint)" },
       },
     },
   },
@@ -728,6 +742,42 @@ async function executeTool(
         sheetCount: sheets.length,
         layers: CAD_LAYERS.map((l) => l.name),
         dxf: dxfContent,
+      };
+    }
+
+    case "create_project_revision": {
+      const authUser = requireAuth(user);
+      const projectId = args.projectId as string;
+      const description = String(args.description ?? "").trim();
+      if (!projectId) throw new Error("projectId is required");
+      if (!description) throw new Error("description is required");
+
+      const project = await db.project.findUnique({
+        where: { id: projectId },
+        include: PROJECT_SNAPSHOT_INCLUDE,
+      });
+      if (!project) throw new Error(`Project not found: ${projectId}`);
+      await assertMcpProjectAccess(project, authUser, { requireWrite: true });
+
+      const existingCount = await db.projectRevision.count({
+        where: { projectId },
+      });
+      const revision = await db.projectRevision.create({
+        data: {
+          projectId,
+          rev: `R${existingCount}`,
+          description,
+          createdById: authUser.id,
+          snapshotJson: JSON.stringify(project),
+        },
+      });
+
+      return {
+        id: revision.id,
+        projectId: revision.projectId,
+        rev: revision.rev,
+        description: revision.description,
+        createdAt: revision.createdAt instanceof Date ? revision.createdAt.toISOString() : String(revision.createdAt),
       };
     }
 

@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { X, FileDiff, Loader2, ArrowRight, PlusCircle, MinusCircle, PencilLine } from 'lucide-react';
 import type { ProjectRevision } from '@/types';
 import type { SnapshotProject } from '@/lib/revisions';
-import { diffProjectSnapshots, summarizeChanges, type RevisionDiffChange } from '@/lib/revisions-diff';
+import { diffProjectSnapshots, summarizeChanges, computeRevisionScheduleDelta, type RevisionDiffChange } from '@/lib/revisions-diff';
 
 export interface RevisionDiffModalProps {
   projectId: string;
@@ -92,16 +92,17 @@ export default function RevisionDiffModal({
 
   const targetSnapshot = useMemo(() => parseSnapshot(targetRevision.snapshotJson), [targetRevision]);
 
-  const { changes, summary, baseLabel } = useMemo(() => {
+  const { changes, summary, scheduleDelta, baseLabel } = useMemo(() => {
     if (!baseSnapshot || !targetSnapshot) {
-      return { changes: [] as RevisionDiffChange[], summary: null, baseLabel: '' };
+      return { changes: [] as RevisionDiffChange[], summary: null, scheduleDelta: null, baseLabel: '' };
     }
     const changes = diffProjectSnapshots(baseSnapshot, targetSnapshot);
+    const scheduleDelta = computeRevisionScheduleDelta(baseSnapshot, targetSnapshot);
     const baseLabel =
       baseRevId === 'live'
         ? 'Current live state'
         : revisions.find((r) => r.id === baseRevId)?.rev ?? 'Unknown';
-    return { changes, summary: summarizeChanges(changes), baseLabel };
+    return { changes, summary: summarizeChanges(changes), scheduleDelta, baseLabel };
   }, [baseSnapshot, targetSnapshot, baseRevId, revisions]);
 
   const groups: { kind: RevisionDiffChange['kind']; items: RevisionDiffChange[] }[] = (
@@ -190,6 +191,67 @@ export default function RevisionDiffModal({
               })}
             </div>
           ) : null}
+
+          {/* Engineering Schedule Delta Table (CI-005) */}
+          {scheduleDelta && (
+            scheduleDelta.totals.connectedKw.delta !== 0 ||
+            scheduleDelta.totals.maxDemandKw.delta !== 0 ||
+            scheduleDelta.totals.circuits.delta !== 0 ||
+            scheduleDelta.circuitDeltas.length > 0
+          ) && (
+            <div className="rounded-lg border border-[var(--border-color)] bg-[var(--card-bg-subtle)] p-3 shadow-xs space-y-3">
+              <div className="text-xs font-bold uppercase tracking-wide text-[var(--foreground-color)]">
+                Engineering Schedule Delta
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+                {([
+                  { label: 'Connected Load (kW)', metric: scheduleDelta.totals.connectedKw },
+                  { label: 'Max Demand (kW)', metric: scheduleDelta.totals.maxDemandKw },
+                  { label: 'Buildings', metric: scheduleDelta.totals.buildings },
+                  { label: 'Circuits', metric: scheduleDelta.totals.circuits },
+                ]).map(({ label, metric }) => {
+                  const sign = metric.delta > 0 ? '+' : '';
+                  return (
+                    <div key={label} className="rounded border border-[var(--border-color)] bg-[var(--card-bg)] px-2.5 py-2">
+                      <div className="text-[10px] text-[var(--text-secondary)]">{label}</div>
+                      <div className="mt-0.5 font-mono font-semibold text-[var(--foreground-color)]">
+                        {metric.from} → {metric.to}{' '}
+                        <span className={metric.delta === 0 ? 'text-[var(--text-secondary)]' : metric.delta > 0 ? 'text-amber-600 dark:text-amber-400' : 'text-emerald-600 dark:text-emerald-400'}>
+                          ({sign}{metric.delta})
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+              {scheduleDelta.circuitDeltas.length > 0 && (
+                <div className="overflow-x-auto max-h-56">
+                  <table className="w-full text-left text-xs border-collapse">
+                    <thead>
+                      <tr className="border-b border-[var(--border-color)] text-[10px] uppercase text-[var(--text-secondary)]">
+                        <th className="py-1.5 pr-2">Circuit</th>
+                        <th className="py-1.5 px-2">Breaker</th>
+                        <th className="py-1.5 px-2">Cable</th>
+                        <th className="py-1.5 px-2">Vd %</th>
+                        <th className="py-1.5 pl-2">Current</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-[var(--border-color)] font-mono">
+                      {scheduleDelta.circuitDeltas.map((row) => (
+                        <tr key={row.id}>
+                          <td className="py-1.5 pr-2 font-sans font-medium text-[var(--foreground-color)]">{row.label}</td>
+                          <td className="py-1.5 px-2 text-[var(--text-secondary)]">{row.breakerFrom} → {row.breakerTo}</td>
+                          <td className="py-1.5 px-2 text-[var(--text-secondary)]">{row.cableFrom} → {row.cableTo}</td>
+                          <td className="py-1.5 px-2 text-[var(--text-secondary)]">{row.vdFrom} → {row.vdTo}</td>
+                          <td className="py-1.5 pl-2 text-[var(--text-secondary)]">{row.currentFrom} → {row.currentTo}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Change list */}
           {groups.length > 0 && (

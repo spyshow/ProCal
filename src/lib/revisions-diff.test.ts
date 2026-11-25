@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { diffProjectSnapshots, summarizeChanges } from "./revisions-diff";
+import { diffProjectSnapshots, summarizeChanges, computeRevisionScheduleDelta } from "./revisions-diff";
 import type { SnapshotProject } from "./revisions";
 
 function baseProject(): SnapshotProject {
@@ -350,5 +350,38 @@ describe("diffProjectSnapshots", () => {
     expect(summary.added).toBe(1);
     expect(summary.removed).toBe(1);
     expect(summary.changed).toBeGreaterThan(0);
+  });
+});
+
+
+describe("computeRevisionScheduleDelta (CI-005)", () => {
+  it("computes connected kW, max demand kW, circuit counts, and breaker/cable/Vd deltas", () => {
+    const a = baseProject();
+    const b = clone(a);
+    b.buildings![0].floorDesigns![0].items![0].calculatedConnectedLoad = 12000;
+    b.buildings![0].floorDesigns![0].items![0].calculatedMaxDemand = 6000;
+    b.buildings![0].floorDesigns![0].items![0].breakerSize = "32A";
+    b.buildings![0].floorDesigns![0].items![0].cableSize = "6 mm²";
+    b.buildings![0].floorDesigns![0].items![0].voltageDrop = 2.1;
+    b.buildings![0].floorDesigns![0].items![0].calculatedCurrent = 26.1;
+
+    const delta = computeRevisionScheduleDelta(a, b);
+    expect(delta.totals.connectedKw.delta).toBe(3000);
+    expect(delta.totals.maxDemandKw.delta).toBe(2000);
+    expect(delta.totals.circuits.delta).toBe(0);
+    expect(delta.circuitDeltas).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: "item:i1",
+          kind: "changed",
+          breakerFrom: "20A",
+          breakerTo: "32A",
+          cableFrom: "2.5 mm²",
+          cableTo: "6 mm²",
+          vdFrom: "1.2%",
+          vdTo: "2.1%",
+        }),
+      ])
+    );
   });
 });

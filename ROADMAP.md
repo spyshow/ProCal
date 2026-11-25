@@ -128,7 +128,7 @@ Account for per-phase imbalance in main transformer kVA sizing, normalize FloorI
 - **Acceptance Criteria:**
   - [ ] Normalize FloorItem.calculatedCurrent derivation across all load categories and evaluate transformer kVA sizing under worst-case per-phase imbalance (L1/L2/L3 max phase current)
   - [x] Simulated annealing / combinatorial phase optimizer achieves <3% phase deviation across 100+ circuit panelboards in <50ms
-  - [ ] Interactive multi-user project collaboration with role-based permissions (Owner, Editor, Viewer) and revision snapshot comparison
+  - [x] Interactive multi-user project collaboration with role-based permissions (Owner, Editor, Viewer) and revision snapshot comparison
 
 ---
 
@@ -149,7 +149,7 @@ Account for per-phase imbalance in main transformer kVA sizing, normalize FloorI
 - [x] **[CI-001]** MCP Agent Free Trial Provisioning & In-Chat `upgrade_trial_project` Tool
 - [x] **[CI-004]** MCP Native AutoCAD DXF Schematic Export Tool (`get_project_dxf`)
 - [x] **[CI-003]** Combinatorial Min-Neutral Per-Phase Optimizer & 3φ Apartment Room Decomposition
-- [ ] **[CI-005]** Engineering Revision Diff Comparison & Pre-Mutation MCP Snapshot Tool
+- [x] **[CI-005]** Engineering Revision Diff Comparison & Pre-Mutation MCP Snapshot Tool
 - [ ] **[CQ-001]** Decompose 1,470–1,887 LOC Monolithic Views & Agent Spec Builder Modules
 
 ---

@@ -417,3 +417,201 @@ export function summarizeChanges(changes: RevisionDiffChange[]): {
     changed: changes.filter((c) => c.kind === "changed").length,
   };
 }
+
+
+export interface ScheduleMetricDelta {
+  from: number;
+  to: number;
+  delta: number;
+}
+
+export interface CircuitScheduleDelta {
+  id: string;
+  label: string;
+  kind: DiffKind;
+  breakerFrom: string;
+  breakerTo: string;
+  cableFrom: string;
+  cableTo: string;
+  vdFrom: string;
+  vdTo: string;
+  currentFrom: string;
+  currentTo: string;
+}
+
+export interface RevisionScheduleDelta {
+  totals: {
+    connectedKw: ScheduleMetricDelta;
+    maxDemandKw: ScheduleMetricDelta;
+    buildings: ScheduleMetricDelta;
+    circuits: ScheduleMetricDelta;
+  };
+  circuitDeltas: CircuitScheduleDelta[];
+}
+
+function round2(n: number): number {
+  return Math.round(n * 100) / 100;
+}
+
+interface IndexedCircuit {
+  id: string;
+  label: string;
+  breaker: string;
+  cable: string;
+  vd: string;
+  current: string;
+}
+
+function collectSnapshotKpis(project: SnapshotProject): {
+  connectedKw: number;
+  maxDemandKw: number;
+  buildings: number;
+  circuits: number;
+  circuitMap: Map<string, IndexedCircuit>;
+} {
+  let connectedKw = 0;
+  let maxDemandKw = 0;
+  let circuits = 0;
+  const circuitMap = new Map<string, IndexedCircuit>();
+
+  for (const b of project.buildings ?? []) {
+    for (const fd of b.floorDesigns ?? []) {
+      for (const it of fd.items ?? []) {
+        circuits += 1;
+        connectedKw += Number(it.calculatedConnectedLoad ?? 0);
+        maxDemandKw += Number(it.calculatedMaxDemand ?? 0);
+        circuitMap.set(`item:${it.id}`, {
+          id: `item:${it.id}`,
+          label: `${b.name} / F${fd.floorNumber} / ${it.name}`,
+          breaker: fmt(it.breakerSize),
+          cable: fmt(it.cableSize),
+          vd: it.voltageDrop != null ? `${round2(it.voltageDrop)}%` : "—",
+          current: it.calculatedCurrent != null ? `${round2(it.calculatedCurrent)} A` : "—",
+        });
+      }
+    }
+    for (const bl of b.buildingLoads ?? []) {
+      circuits += 1;
+      const lib = bl.loadLibraryItem;
+      const qty = Number(bl.quantity ?? 1);
+      const kw = Number(lib?.power ?? 0) * qty;
+      const df = Number(lib?.demandFactor ?? 1);
+      connectedKw += kw;
+      maxDemandKw += kw * df;
+      const runningA = lib?.runningCurrent != null ? round2(lib.runningCurrent * qty) : null;
+      circuitMap.set(`bl:${bl.id}`, {
+        id: `bl:${bl.id}`,
+        label: `${b.name} / Load: ${lib?.name ?? "Mechanical Load"}`,
+        breaker: "—",
+        cable: fmt(bl.cableSize),
+        vd: "—",
+        current: runningA != null ? `${runningA} A` : "—",
+      });
+    }
+  }
+
+  return {
+    connectedKw: round2(connectedKw),
+    maxDemandKw: round2(maxDemandKw),
+    buildings: (project.buildings ?? []).length,
+    circuits,
+    circuitMap,
+  };
+}
+
+/**
+ * Computes side-by-side engineering KPI deltas and circuit-level schedule
+ * changes (breaker frame, cable size, voltage drop %, design current) between
+ * two project snapshots or revisions.
+ */
+export function computeRevisionScheduleDelta(
+  from: SnapshotProject,
+  to: SnapshotProject
+): RevisionScheduleDelta {
+  const fromKpi = collectSnapshotKpis(from);
+  const toKpi = collectSnapshotKpis(to);
+
+  const circuitDeltas: CircuitScheduleDelta[] = [];
+
+  for (const [id, tc] of toKpi.circuitMap) {
+    const fc = fromKpi.circuitMap.get(id);
+    if (!fc) {
+      circuitDeltas.push({
+        id,
+        label: tc.label,
+        kind: "added",
+        breakerFrom: "—",
+        breakerTo: tc.breaker,
+        cableFrom: "—",
+        cableTo: tc.cable,
+        vdFrom: "—",
+        vdTo: tc.vd,
+        currentFrom: "—",
+        currentTo: tc.current,
+      });
+    } else if (
+      fc.breaker !== tc.breaker ||
+      fc.cable !== tc.cable ||
+      fc.vd !== tc.vd ||
+      fc.current !== tc.current
+    ) {
+      circuitDeltas.push({
+        id,
+        label: tc.label,
+        kind: "changed",
+        breakerFrom: fc.breaker,
+        breakerTo: tc.breaker,
+        cableFrom: fc.cable,
+        cableTo: tc.cable,
+        vdFrom: fc.vd,
+        vdTo: tc.vd,
+        currentFrom: fc.current,
+        currentTo: tc.current,
+      });
+    }
+  }
+
+  for (const [id, fc] of fromKpi.circuitMap) {
+    if (!toKpi.circuitMap.has(id)) {
+      circuitDeltas.push({
+        id,
+        label: fc.label,
+        kind: "removed",
+        breakerFrom: fc.breaker,
+        breakerTo: "—",
+        cableFrom: fc.cable,
+        cableTo: "—",
+        vdFrom: fc.vd,
+        vdTo: "—",
+        currentFrom: fc.current,
+        currentTo: "—",
+      });
+    }
+  }
+
+  return {
+    totals: {
+      connectedKw: {
+        from: fromKpi.connectedKw,
+        to: toKpi.connectedKw,
+        delta: round2(toKpi.connectedKw - fromKpi.connectedKw),
+      },
+      maxDemandKw: {
+        from: fromKpi.maxDemandKw,
+        to: toKpi.maxDemandKw,
+        delta: round2(toKpi.maxDemandKw - fromKpi.maxDemandKw),
+      },
+      buildings: {
+        from: fromKpi.buildings,
+        to: toKpi.buildings,
+        delta: toKpi.buildings - fromKpi.buildings,
+      },
+      circuits: {
+        from: fromKpi.circuits,
+        to: toKpi.circuits,
+        delta: toKpi.circuits - fromKpi.circuits,
+      },
+    },
+    circuitDeltas,
+  };
+}

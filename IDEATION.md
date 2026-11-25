@@ -166,8 +166,10 @@ Remove dead imports (renderReportHtml, getCompanySettings) in src/lib/mcp/server
 - **Proposed Change:** Extract loadProjectReportHtml(projectId, opts) into src/lib/reports/load-project-report.ts and consume it from both the REST PDF endpoint and MCP get_project_report.
 - **Affected Files:** `src/lib/mcp/server.ts`, `src/app/api/projects/[id]/pdf/route.ts`
 
-### [CQ-004] Add Route-Level Security & Regression Unit Tests for /api/projects/[id]/pdf
+### [CQ-004] Add Route-Level Security & Regression Unit Tests for /api/projects/[id]/pdf ✅ COMPLETED
 Create src/app/api/projects/[id]/pdf/route.test.ts covering signed JWT report download tokens, CWE-22 path-traversal containment in inlineImagesInHtml, and trial encryption/watermark flags.
+
+- **Status:** `completed`
 
 - **Severity:** `MINOR` | **Category:** `test_coverage` | **Effort:** `small`
 - **Best Practice:** Automated Boundary & Security Regression Testing

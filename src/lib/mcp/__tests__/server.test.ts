@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { handleMcpRequest, type JsonRpcRequest, type McpUser } from "../server";
 import { APP_VERSION } from "@/lib/version";
+import { generateServerPdf } from "@/lib/reports/server-pdf";
 
 const { mockDb } = vi.hoisted(() => ({
   mockDb: {
@@ -383,6 +384,14 @@ describe("Zero-Dependency JSON-RPC 2.0 MCP Server", () => {
     const data = JSON.parse(content);
 
     expect(data.base64Pdf).toBe(Buffer.from("mock-pdf-bytes").toString("base64"));
+    expect(vi.mocked(generateServerPdf)).toHaveBeenCalledWith(
+      expect.stringContaining("MAIN DISTRIBUTION BOARD"),
+      { isTrial: false }
+    );
+    expect(vi.mocked(generateServerPdf)).toHaveBeenCalledWith(
+      expect.stringContaining("SHORT-CIRCUIT FAULT ANALYSIS"),
+      { isTrial: false }
+    );
   });
 
   it("executes 'update_project_spec' tool and updates project in-place", async () => {

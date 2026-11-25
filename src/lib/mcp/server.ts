@@ -21,6 +21,7 @@ import { db } from "@/lib/db";
 import { signReportDownloadToken } from "@/lib/auth";
 import { generateServerPdf } from "@/lib/reports/server-pdf";
 import { wrapReportMarkup } from "@/lib/reports/render-report-html";
+import { loadProjectReportHtml } from "@/lib/reports/load-project-report";
 import { assertMcpProjectAccess } from "@/lib/project-auth";
 import { APP_VERSION } from "@/lib/version";
 import type { Project as AppProject } from "@/types";
@@ -638,16 +639,22 @@ async function executeTool(
       let base64Pdf: string | undefined;
       if (includeBase64) {
         try {
-          const safeTitle = String(project.name || "Project").replace(/[<>&'"]/g, (c) =>
-            ({ "<": "&lt;", ">": "&gt;", "&": "&amp;", "'": "&apos;", '"': "&quot;" }[c] || c)
-          );
           const isTrial = Boolean((project as { isTrial?: boolean }).isTrial);
-          const fullHtml = wrapReportMarkup(
-            `<div><h1>${safeTitle}</h1><p>Executive Report</p></div>`,
-            `${project.name} - Executive Package`,
-            isTrial
-          );
-          const buffer = await generateServerPdf(fullHtml, { isTrial });
+          const rendered = await loadProjectReportHtml(projectId);
+          let fullHtml: string;
+          if (rendered) {
+            fullHtml = rendered.html;
+          } else {
+            const safeTitle = String(project.name || "Project").replace(/[<>&'"]/g, (c) =>
+              ({ "<": "&lt;", ">": "&gt;", "&": "&amp;", "'": "&apos;", '"': "&quot;" }[c] || c)
+            );
+            fullHtml = wrapReportMarkup(
+              `<div><h1>${safeTitle}</h1><p>Executive Report</p></div>`,
+              `${project.name} - Executive Package`,
+              isTrial
+            );
+          }
+          const buffer = await generateServerPdf(fullHtml, { isTrial: rendered?.isTrial ?? isTrial });
           base64Pdf = buffer.toString("base64");
         } catch (err) {
           console.warn("Eager base64 PDF generation failed:", err);

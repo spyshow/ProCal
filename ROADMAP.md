@@ -73,7 +73,7 @@ Enable zero-credit Free Trial project creation directly through create_project_f
 - **Acceptance Criteria:**
   - [ ] createProjectFromSpec in src/lib/agent/build-project.ts provisions a Free Trial project (isTrial: true) when credits < 1 and canStartTrial(user) is true, enforcing TRIAL_MAX_BUILDINGS (1) and TRIAL_MAX_LEVELS (4)
   - [ ] New upgrade_trial_project MCP tool in src/lib/mcp/server.ts atomically deducts 1 credit and unlocks isTrial: false in-chat
-  - [ ] get_project_report (when includeBase64=true) renders the full 8-section executive report via renderReportHtml(reportData) instead of the simplified fallback header
+  - [x] get_project_report (when includeBase64=true) renders the full 8-section executive report via renderReportHtml(reportData) instead of the simplified fallback header
 
 #### [ ] [FEAT-05] IEC 60364-4-43 Adiabatic Short-Circuit Thermal Withstand (I²t <= k²S²) Engine (ci-003) `(SHOULD)`
 Extend short-circuit and cable sizing engines to verify conductor adiabatic thermal withstand (I²t <= k²S²) against ABB and Schneider breaker let-through energy limits per IEC 60364-4-43.
@@ -145,7 +145,7 @@ Account for per-phase imbalance in main transformer kVA sizing, normalize FloorI
 - [x] **[PERF-002]** Bulk `createMany()` Batching for Rooms & Floor Items in `build-project.ts`
 - [x] **[CQ-002]** Centralize 0.5 m² Room Area Validator (`isHalfStepArea`) Across REST & MCP Schemas
 - [x] **[CQ-003]** Shared `loadProjectReportHtml` Service & Removal of Dead MCP Imports
-- [ ] **[CI-002]** Unified Full 8-Section Executive Report Rendering for MCP Base64 & Stdio Exports
+- [x] **[CI-002]** Unified Full 8-Section Executive Report Rendering for MCP Base64 & Stdio Exports
 - [ ] **[CI-001]** MCP Agent Free Trial Provisioning & In-Chat `upgrade_trial_project` Tool
 - [ ] **[CI-004]** MCP Native AutoCAD DXF Schematic Export Tool (`get_project_dxf`)
 - [ ] **[CI-003]** Combinatorial Min-Neutral Per-Phase Optimizer & 3φ Apartment Room Decomposition

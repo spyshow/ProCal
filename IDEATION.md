@@ -23,10 +23,10 @@ Allow AI agents calling create_project_from_spec to automatically provision a ze
 - **Rationale:** POST /api/projects (src/app/api/projects/route.ts:197-244) and POST /api/projects/[id]/upgrade/route.ts already support atomic lifetime Free Trial onboarding and 1-credit upgrades in the web UI, whereas createProjectFromSpec (src/lib/agent/build-project.ts:178) still rejects non-admin users with credits < 1.
 - **Implementation Approach:** Update createProjectFromSpec in src/lib/agent/build-project.ts to check canStartTrial(freshUser) when credits < 1, enforce TRIAL_MAX_BUILDINGS and TRIAL_MAX_LEVELS inside db.$transaction, and register upgrade_trial_project in src/lib/mcp/server.ts.
 
-### [CI-002] Unified Full 8-Section Executive Report Rendering for MCP Base64 & Stdio Exports
+### [CI-002] Unified Full 8-Section Executive Report Rendering for MCP Base64 & Stdio Exports ✅ COMPLETED
 Wire get_project_report (when includeBase64=true or outputFilePath is set) in src/lib/mcp/server.ts to render the full 8-section executive engineering report via renderReportHtml(reportData) instead of the placeholder header.
 
-- **Effort:** `SMALL` | **Status:** `draft`
+- **Effort:** `SMALL` | **Status:** `completed`
 - **Builds Upon:** `src/lib/reports/render-report-html.tsx`, `src/app/api/projects/[id]/pdf/route.ts`, `src/lib/mcp/server.ts`
 - **Affected Files:** `src/lib/mcp/server.ts`, `src/app/api/projects/[id]/pdf/route.ts`, `src/lib/reports/render-report-html.tsx`
 - **Rationale:** src/lib/mcp/server.ts already imports renderReportHtml and getCompanySettings (lines 23-24), yet lines 649-653 still wrap a minimal '<h1>Project</h1><p>Executive Report</p>' stub while GET /api/projects/[id]/pdf renders the full 8-section package.

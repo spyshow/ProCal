@@ -140,7 +140,7 @@ Account for per-phase imbalance in main transformer kVA sizing, normalize FloorI
 - [x] **[SEC-003]** Server-Rendered Trial PDFs & `<script>` Sanitization in `POST /api/projects/[id]/pdf`
 - [x] **[CQ-004]** Dedicated Route-Level Security & Token Unit Tests for `/api/projects/[id]/pdf`
 - [x] **[PERF-003]** PostgreSQL Foreign-Key & Composite `@@index` Declarations on Core Hierarchy Tables
-- [ ] **[PERF-004]** In-Memory TTL Cache & Admin Invalidation for `EquipmentCatalog`
+- [x] **[PERF-004]** In-Memory TTL Cache & Admin Invalidation for `EquipmentCatalog`
 - [ ] **[PERF-001]** Warm Singleton Chromium Browser Pool & Concurrency Semaphore in `server-pdf.ts`
 - [ ] **[PERF-002]** Bulk `createMany()` Batching for Rooms & Floor Items in `build-project.ts`
 - [ ] **[CQ-002]** Centralize 0.5 m² Room Area Validator (`isHalfStepArea`) Across REST & MCP Schemas

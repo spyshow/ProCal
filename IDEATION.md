@@ -88,8 +88,10 @@ Add @@index declarations on Building(projectId), FloorDesign(buildingId, floorNu
 - **Expected Improvement:** Sub-5ms index scans on deep project fetches, PDF report queries, and ON DELETE CASCADE operations
 - **Implementation:** Add @@index([projectId]) on Building, @@index([buildingId, floorNumber]) on FloorDesign, @@index([floorDesignId]) and @@index([apartmentTemplateId]) on FloorItem, @@index([buildingId]) on BuildingLoad, and @@index([templateId]) on ApartmentRoom.
 
-### [PERF-004] In-Memory TTL Cache for Static EquipmentCatalog & CompanySettings Queries
+### [PERF-004] In-Memory TTL Cache for Static EquipmentCatalog & CompanySettings Queries ✅ COMPLETED
 Cache db.equipmentCatalog.findMany({ include: { family: true } }) in memory with TTL and admin-mutation invalidation instead of re-querying all ABB/Schneider breaker rows on every PDF export and selectivity run.
+
+- **Status:** `completed`
 
 - **Impact:** `LOW` | **Category:** `network` | **Effort:** `trivial`
 - **Current Metric:** Full EquipmentCatalog + BreakerFamily table transfer on every report and selectivity invocation

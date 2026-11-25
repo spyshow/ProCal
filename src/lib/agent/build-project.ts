@@ -29,6 +29,7 @@ import { recalculateProjectBuildings } from "@/lib/calculations/recalculate-proj
 import { resolveBreakerRating } from "@/lib/sld/generator";
 import { computeFeeders, createFindBreaker, type EquipmentItem } from "@/lib/calculations/feeders";
 import { assertMcpProjectAccess } from "@/lib/project-auth";
+import { getCachedEquipmentCatalog } from "@/lib/catalog-cache";
 import type { Building, FloorItem, BuildingLoad, Project as AppProject } from "@/types";
 
 export interface ProjectCreatedResult {
@@ -1014,11 +1015,7 @@ export async function checkProjectSelectivity(
   }
 
   const rawCatalog =
-    (await db.equipmentCatalog
-      ?.findMany?.({
-        include: { family: true },
-      })
-      .catch(() => [])) ?? [];
+    (await getCachedEquipmentCatalog().catch(() => [])) ?? [];
 
   const catalog: EquipmentItem[] = rawCatalog.map((e: any) => ({
     id: e.id,

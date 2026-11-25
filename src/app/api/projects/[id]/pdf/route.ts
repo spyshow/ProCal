@@ -8,6 +8,7 @@ import { getCompanySettings, getLogoAsset } from "@/lib/app-settings";
 import { renderReportHtml, wrapReportMarkup } from "@/lib/reports/render-report-html";
 import { generateServerPdf } from "@/lib/reports/server-pdf";
 import { sanitizeClientReportHtml } from "@/lib/reports/sanitize-report-html";
+import { getCachedEquipmentCatalog } from "@/lib/catalog-cache";
 import type { Project, ProjectRevision } from "@/types";
 import type { EquipmentItem } from "@/lib/calculations/feeders";
 
@@ -123,14 +124,7 @@ async function renderServerAuthoritativeHtml(
         },
         orderBy: { createdAt: "desc" },
       }),
-      db.equipmentCatalog.findMany({
-        include: { family: true },
-        orderBy: [
-          { manufacturer: "asc" },
-          { category: "asc" },
-          { ratedCurrent: "asc" },
-        ],
-      }),
+      getCachedEquipmentCatalog(),
       db.breakerSettings.findMany({
         orderBy: { model: "asc" },
       }),

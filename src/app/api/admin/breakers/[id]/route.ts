@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { requireAdmin } from "@/lib/auth";
 import { upsertBreakerFamilies, getFamilyKey } from "@/lib/breaker-families";
+import { invalidateEquipmentCatalogCache } from "@/lib/catalog-cache";
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -62,6 +63,7 @@ export async function PUT(request: Request, { params }: RouteParams) {
       data: { ...parsed, familyId },
       include: { family: true },
     });
+    invalidateEquipmentCatalogCache();
 
     return NextResponse.json({
       ...item,
@@ -81,6 +83,7 @@ export async function DELETE(request: Request, { params }: RouteParams) {
 
     const { id } = await params;
     await db.equipmentCatalog.delete({ where: { id } });
+    invalidateEquipmentCatalogCache();
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("DELETE admin/breakers/[id] error:", error);

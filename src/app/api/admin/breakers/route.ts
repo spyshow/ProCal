@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { requireAdmin } from "@/lib/auth";
 import { upsertBreakerFamilies, getFamilyKey } from "@/lib/breaker-families";
+import { invalidateEquipmentCatalogCache } from "@/lib/catalog-cache";
 
 type Where = {
   category?: string | { in: string[] };
@@ -114,6 +115,7 @@ export async function POST(request: Request) {
       data: { ...parsed, familyId },
       include: { family: true },
     });
+    invalidateEquipmentCatalogCache();
 
     return NextResponse.json(
       { ...item, familyId: item.family?.id ?? null, familyName: item.family?.name ?? null },
@@ -135,6 +137,7 @@ export async function DELETE(request: Request) {
 
     if (singleId) {
       await db.equipmentCatalog.delete({ where: { id: singleId } });
+      invalidateEquipmentCatalogCache();
       return NextResponse.json({ success: true });
     }
 
@@ -145,6 +148,7 @@ export async function DELETE(request: Request) {
     }
 
     const result = await db.equipmentCatalog.deleteMany({ where: { id: { in: ids } } });
+    invalidateEquipmentCatalogCache();
     return NextResponse.json({ success: true, deleted: result.count });
   } catch (error) {
     console.error("DELETE admin/breakers error:", error);

@@ -144,7 +144,7 @@ Account for per-phase imbalance in main transformer kVA sizing, normalize FloorI
 - [x] **[PERF-001]** Warm Singleton Chromium Browser Pool & Concurrency Semaphore in `server-pdf.ts`
 - [x] **[PERF-002]** Bulk `createMany()` Batching for Rooms & Floor Items in `build-project.ts`
 - [x] **[CQ-002]** Centralize 0.5 m² Room Area Validator (`isHalfStepArea`) Across REST & MCP Schemas
-- [ ] **[CQ-003]** Shared `loadProjectReportHtml` Service & Removal of Dead MCP Imports
+- [x] **[CQ-003]** Shared `loadProjectReportHtml` Service & Removal of Dead MCP Imports
 - [ ] **[CI-002]** Unified Full 8-Section Executive Report Rendering for MCP Base64 & Stdio Exports
 - [ ] **[CI-001]** MCP Agent Free Trial Provisioning & In-Chat `upgrade_trial_project` Tool
 - [ ] **[CI-004]** MCP Native AutoCAD DXF Schematic Export Tool (`get_project_dxf`)

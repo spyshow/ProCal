@@ -168,8 +168,10 @@ Share the 0.5 m² room area step validator (isHalfStep) between MCP Zod schemas 
 - **Proposed Change:** Extract isHalfStepArea and HALF_STEP_AREA_MESSAGE into src/lib/validation/room-area.ts and validate every room area in both /api/templates routes and project-spec-schema.ts.
 - **Affected Files:** `src/lib/agent/project-spec-schema.ts`, `src/app/api/templates/route.ts`, `src/app/api/templates/[id]/route.ts`
 
-### [CQ-003] Eliminate Unused Imports & Duplicate Report Data Assembly in MCP Server
+### [CQ-003] Eliminate Unused Imports & Duplicate Report Data Assembly in MCP Server ✅ COMPLETED
 Remove dead imports (renderReportHtml, getCompanySettings) in src/lib/mcp/server.ts by extracting a shared report-assembly service reused by both GET /api/projects/[id]/pdf and MCP get_project_report.
+
+- **Status:** `completed`
 
 - **Severity:** `MINOR` | **Category:** `duplication` | **Effort:** `small`
 - **Best Practice:** DRY Service Layer & Zero Unused Imports

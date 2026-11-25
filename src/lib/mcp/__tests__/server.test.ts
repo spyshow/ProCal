@@ -14,6 +14,7 @@ const { mockDb } = vi.hoisted(() => ({
     },
     user: {
       update: vi.fn().mockResolvedValue({}),
+      updateMany: vi.fn().mockResolvedValue({ count: 1 }),
     },
     apartmentTemplate: {
       create: vi.fn(),
@@ -81,6 +82,7 @@ describe("Zero-Dependency JSON-RPC 2.0 MCP Server", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    mockDb.user.updateMany.mockResolvedValue({ count: 1 });
   });
 
   it("handles 'initialize' method with protocolVersion and serverInfo", async () => {

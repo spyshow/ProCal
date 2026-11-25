@@ -42,7 +42,7 @@ Enforce unified owner/ProjectMember authorization across all 10 MCP tools, atomi
   - *"As a SaaS Platform Operator, I want every MCP tool and credit transaction guarded atomically so that tenant data and credit balances remain strictly isolated under concurrent load."*
 - **Acceptance Criteria:**
   - [x] assertMcpProjectAccess(projectId, ctx) enforced across check_project_compliance, check_project_selectivity, update_project_cables, and get_project_bom in src/lib/mcp/server.ts
-  - [ ] Paid project creation (POST /api/projects, createProjectFromSpec) and trial upgrade (POST /api/projects/[id]/upgrade-trial) use atomic conditional updateMany({ where: { id: user.id, credits: { gte: 1 } } }) inside db.$transaction
+  - [x] Paid project creation (POST /api/projects, createProjectFromSpec) and trial upgrade (POST /api/projects/[id]/upgrade-trial) use atomic conditional updateMany({ where: { id: user.id, credits: { gte: 1 } } }) inside db.$transaction
   - [ ] POST /api/projects/[id]/pdf sanitizes untrusted <style>/<script> tags so .trial-watermark-overlay cannot be suppressed via CSS injection
   - [ ] Dedicated unit test suite src/app/api/projects/[id]/pdf/route.test.ts verifies signed JWT report tokens and CWE-22 path containment
 
@@ -136,7 +136,7 @@ Account for per-phase imbalance in main transformer kVA sizing, normalize FloorI
 *Tracking sequential execution of [IDEATION.md](IDEATION.md) (`SEC-004` excluded per user direction).*
 
 - [x] **[SEC-001]** Unified Tenant & `ProjectMember` Authorization Guard on MCP Tools (IDOR)
-- [ ] **[SEC-002]** Atomic Conditional Credit Decrement (`credits >= 1`) on Paid Project Creation (TOCTOU)
+- [x] **[SEC-002]** Atomic Conditional Credit Decrement (`credits >= 1`) on Paid Project Creation (TOCTOU)
 - [ ] **[SEC-003]** Server-Rendered Trial PDFs & `<script>` Sanitization in `POST /api/projects/[id]/pdf`
 - [ ] **[CQ-004]** Dedicated Route-Level Security & Token Unit Tests for `/api/projects/[id]/pdf`
 - [ ] **[PERF-003]** PostgreSQL Foreign-Key & Composite `@@index` Declarations on Core Hierarchy Tables

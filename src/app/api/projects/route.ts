@@ -250,10 +250,19 @@ export async function POST(request: Request) {
       }
       project = claimedProject ?? await db.project.create({ data: projectData });
     } else {
-      [, project] = await db.$transaction([
-        db.user.update({ where: { id: user.id }, data: { credits: { decrement: 1 } } }),
-        db.project.create({ data: projectData }),
-      ]);
+      const paid = await db.$transaction(async (tx) => {
+        const spent = await tx.user.updateMany({
+          where: { id: user.id, credits: { gte: 1 } },
+          data: { credits: { decrement: 1 } },
+        });
+        if (spent.count !== 1) return { count: 0, project: null };
+        const created = await tx.project.create({ data: projectData });
+        return { count: 1, project: created };
+      });
+      if (paid.count !== 1 || !paid.project) {
+        return NextResponse.json({ error: "No credits remaining" }, { status: 402 });
+      }
+      project = paid.project;
     }
 
     // Automatically create ProjectMember record for creator as PROJECT_MANAGER

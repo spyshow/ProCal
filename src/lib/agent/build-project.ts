@@ -199,12 +199,19 @@ export async function createProjectFromSpec(
   // 4. Interactive Prisma Transaction (15s timeout)
   const result = await db.$transaction(
     async (tx) => {
-      // Decrement credit if non-ADMIN
+      // Atomically decrement credit if non-ADMIN (guards TOCTOU negative balances)
       if (user.role !== "ADMIN") {
-        await tx.user.update({
-          where: { id: user.id },
+        const spent = await tx.user.updateMany({
+          where: { id: user.id, credits: { gte: 1 } },
           data: { credits: { decrement: 1 } },
         });
+        if (spent.count !== 1) {
+          const error = new Error(
+            "No credits remaining. Please upgrade your subscription to generate additional projects."
+          );
+          (error as unknown as { statusCode: number }).statusCode = 402;
+          throw error;
+        }
       }
 
       // Create Project

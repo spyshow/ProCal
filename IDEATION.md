@@ -108,8 +108,10 @@ Enforce a unified assertMcpProjectAccess(projectId, authUser, requiredRole) chec
 - **Compliance Standards:** OWASP Top 10 A01:2021 - Broken Access Control, CWE-639
 - **Affected Files:** `src/lib/mcp/server.ts`, `src/lib/agent/build-project.ts`, `src/lib/project-auth.ts`
 
-### [SEC-002] Non-Conditional Credit Decrement Race Condition (TOCTOU) on Paid Project Creation `(MEDIUM SEVERITY)`
+### [SEC-002] Non-Conditional Credit Decrement Race Condition (TOCTOU) on Paid Project Creation `(MEDIUM SEVERITY)` ✅ COMPLETED
 Replace unconditional user.update({ credits: { decrement: 1 } }) in POST /api/projects and createProjectFromSpec with an atomic conditional updateMany({ where: { id: user.id, credits: { gte: 1 } } }) inside the creation transaction.
+
+- **Status:** `completed`
 
 - **Vulnerability:** CWE-367: Time-of-Check Time-of-Use (TOCTOU) Race Condition
 - **Current Risk:** Concurrent REST or MCP paid project creation requests from an account with 1 credit can both pass the pre-check and drive User.credits negative.

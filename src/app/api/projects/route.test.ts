@@ -400,12 +400,27 @@ describe("POST /api/projects - Free Trial & Credit Enforcement", () => {
     expect(mocks.projectCreate).not.toHaveBeenCalled();
   });
 
-  it("decrements credits when non-admin has available credits", async () => {
+  it("decrements credits atomically when non-admin has available credits", async () => {
     mocks.user = { id: "u3", username: "paid-user", name: "Paid User", role: "USER", credits: 5, hasUsedTrial: true };
     mocks.userFindUnique.mockResolvedValue({ credits: 5, hasUsedTrial: true });
+    mocks.userUpdateMany.mockResolvedValue({ count: 1 });
 
     const res = await post({ name: "Paid Project" });
     expect(res.status).toBe(200);
     expect(mocks.transaction).toHaveBeenCalled();
+    expect(mocks.userUpdateMany).toHaveBeenCalledWith({
+      where: { id: "u3", credits: { gte: 1 } },
+      data: { credits: { decrement: 1 } },
+    });
+  });
+
+  it("rejects with 402 if concurrent paid project creation loses the conditional credit decrement", async () => {
+    mocks.user = { id: "u3", username: "racer-paid", name: "Racer Paid", role: "USER", credits: 1, hasUsedTrial: true };
+    mocks.userFindUnique.mockResolvedValue({ credits: 1, hasUsedTrial: true });
+    mocks.userUpdateMany.mockResolvedValue({ count: 0 });
+
+    const res = await post({ name: "Racing Paid Project" });
+    expect(res.status).toBe(402);
+    expect(mocks.projectCreate).not.toHaveBeenCalled();
   });
 });

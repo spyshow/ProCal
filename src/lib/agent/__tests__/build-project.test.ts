@@ -14,6 +14,7 @@ const { mockDb } = vi.hoisted(() => ({
     },
     user: {
       update: vi.fn().mockResolvedValue({ id: "user-1", credits: 4 }),
+      updateMany: vi.fn().mockResolvedValue({ count: 1 }),
     },
     project: {
       create: vi.fn(),
@@ -101,12 +102,22 @@ describe("build-project service", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    mockDb.user.updateMany.mockResolvedValue({ count: 1 });
   });
 
   describe("createProjectFromSpec", () => {
     it("throws 402 error when non-ADMIN user has 0 credits", async () => {
       const zeroCreditUser = { ...testUser, credits: 0 };
       await expect(createProjectFromSpec(zeroCreditUser, sampleSpec)).rejects.toMatchObject({
+        message: expect.stringContaining("No credits remaining"),
+        statusCode: 402,
+      });
+      expect(mockDb.project.create).not.toHaveBeenCalled();
+    });
+
+    it("throws 402 and rolls back if conditional credit decrement loses a TOCTOU race", async () => {
+      mockDb.user.updateMany.mockResolvedValueOnce({ count: 0 });
+      await expect(createProjectFromSpec(testUser, sampleSpec)).rejects.toMatchObject({
         message: expect.stringContaining("No credits remaining"),
         statusCode: 402,
       });
@@ -237,9 +248,9 @@ describe("build-project service", () => {
       expect(res.buildings).toHaveLength(1);
       expect(res.deepLinks.calculator).toBe("/calculator?projectId=proj-emerald-1");
 
-      // Verify user credit decrement
-      expect(mockDb.user.update).toHaveBeenCalledWith({
-        where: { id: "user-eng-1" },
+      // Verify atomic conditional user credit decrement
+      expect(mockDb.user.updateMany).toHaveBeenCalledWith({
+        where: { id: "user-eng-1", credits: { gte: 1 } },
         data: { credits: { decrement: 1 } },
       });
 

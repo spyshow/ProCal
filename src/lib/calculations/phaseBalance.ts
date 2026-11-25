@@ -130,6 +130,266 @@ export interface PhaseBalance {
  *                          balance. When provided, auto-assignment uses these
  *                          pre-computed phases instead of round-robin.
  */
+
+export interface OptimizePhaseBalanceOptions {
+  /** Optional building-level phase seed map (item ID -> 1|2|3). */
+  buildingPhaseMap?: Map<string, number>;
+  /** Ignore existing manual assignedPhase pins and re-optimize all 1-phase loads. */
+  ignorePins?: boolean;
+  /**
+   * When true, 3-phase APARTMENT items with populated apartmentTemplate.rooms
+   * have their room connected loads decomposed into individual 1-phase loads
+   * balanced across L1/L2/L3 (clearing internalImbalanceNotModeled).
+   */
+  decomposeThreePhaseApartments?: boolean;
+}
+
+interface ExpandResult {
+  loads: PhaseLoad[];
+  fixedParentAssignments: PhaseBalance["assignments"];
+}
+
+function normalizeWithDecomposition(
+  items: (FloorItem | BuildingLoad)[],
+  project: Project,
+  decomposeThreePhaseApartments: boolean
+): ExpandResult {
+  const loads: PhaseLoad[] = [];
+  const fixedParentAssignments: PhaseBalance["assignments"] = [];
+
+  for (const item of items) {
+    if (!("type" in item)) {
+      loads.push(fromBuildingLoad(item));
+      continue;
+    }
+
+    const isThreePhaseApt =
+      item.type === "APARTMENT" && (item.apartmentTemplate?.phases ?? 1) === 3;
+    const rooms = item.apartmentTemplate?.rooms ?? [];
+
+    if (decomposeThreePhaseApartments && isThreePhaseApt && rooms.length > 0) {
+      const totalRoomWatts = rooms.reduce((sum, r) => sum + Math.max(0, r.connectedLoad || 0), 0);
+      if (totalRoomWatts > 0) {
+        fixedParentAssignments.push({ id: item.id, assignedPhase: 0, phaseCount: 3 });
+        const itemKw = item.calculatedMaxDemand ?? 0;
+        const itemLineCurrent = item.calculatedCurrent ?? 0;
+        const itemAngle = pfAngleForItem(item, project);
+
+        rooms.forEach((room, idx) => {
+          const share = Math.max(0, room.connectedLoad || 0) / totalRoomWatts;
+          if (share <= 0) return;
+          loads.push({
+            id: `${item.id}::room::${room.id || idx}`,
+            phaseCount: 1,
+            // Sum of L-N branch currents on a 3-phase wye apartment equals 3 * line current at balanced split
+            current: 3 * itemLineCurrent * share,
+            kw: itemKw * share,
+            angle: itemAngle,
+            assignedPhase: null,
+            internalImbalanceNotModeled: false,
+          });
+        });
+        continue;
+      }
+    }
+
+    loads.push(fromFloorItem(item, project));
+  }
+
+  return { loads, fixedParentAssignments };
+}
+
+function balanceObjective(phaseCurrent: [number, number, number], nx: number, ny: number): number {
+  const maxI = Math.max(phaseCurrent[0], phaseCurrent[1], phaseCurrent[2]);
+  const neutralI = Math.sqrt(nx * nx + ny * ny);
+  const unbal = currentUnbalancePct(phaseCurrent);
+  return maxI + 0.15 * neutralI + 0.05 * unbal;
+}
+
+/**
+ * Combinatorial min-neutral per-phase optimizer extending greedy LPT with
+ * steepest-descent single-relocation and pairwise Kempe swap local search over
+ * true 120-degree + displacement phasors.
+ */
+export function optimizePhaseBalance(
+  items: (FloorItem | BuildingLoad)[],
+  project: Project,
+  options?: OptimizePhaseBalanceOptions
+): PhaseBalance {
+  const decompose = Boolean(options?.decomposeThreePhaseApartments);
+  const ignorePins = Boolean(options?.ignorePins);
+  const buildingPhaseMap = options?.buildingPhaseMap;
+
+  const { loads, fixedParentAssignments } = normalizeWithDecomposition(items, project, decompose);
+
+  const phaseCurrent: [number, number, number] = [0, 0, 0];
+  const phaseKw: [number, number, number] = [0, 0, 0];
+  let neutralX = 0;
+  let neutralY = 0;
+  const fixedAssignments: PhaseBalance["assignments"] = [...fixedParentAssignments];
+  let internalImbalanceNotModeled = false;
+
+  const movable: PhaseLoad[] = [];
+  for (const load of loads) {
+    if (load.phaseCount === 3) {
+      placeThreePhase(load, phaseCurrent, phaseKw, (ox, oy) => {
+        neutralX += ox;
+        neutralY += oy;
+      });
+      fixedAssignments.push({ id: load.id, assignedPhase: 0, phaseCount: 3 });
+      if (load.internalImbalanceNotModeled) internalImbalanceNotModeled = true;
+      continue;
+    }
+
+    if (!ignorePins && load.assignedPhase != null && load.assignedPhase >= 1 && load.assignedPhase <= 3) {
+      const p = (load.assignedPhase - 1) as PhaseIdx;
+      placeOnePhase(load, p, phaseCurrent, phaseKw, (ox, oy) => {
+        neutralX += ox;
+        neutralY += oy;
+      });
+      fixedAssignments.push({ id: load.id, assignedPhase: load.assignedPhase, phaseCount: 1 });
+      continue;
+    }
+
+    movable.push(load);
+  }
+
+  // Sort largest-first for deterministic greedy LPT seed
+  const sortedMovable = [...movable].sort((a, b) => b.current - a.current);
+  const n = sortedMovable.length;
+  const assigned: PhaseIdx[] = new Array(n);
+
+  // Seed with buildingPhaseMap or LPT least-loaded phase
+  for (let i = 0; i < n; i++) {
+    const load = sortedMovable[i];
+    const mapped = buildingPhaseMap?.get(load.id);
+    const phase: PhaseIdx =
+      mapped != null && mapped >= 1 && mapped <= 3
+        ? ((mapped - 1) as PhaseIdx)
+        : leastLoadedPhase(phaseCurrent);
+    assigned[i] = phase;
+    placeOnePhase(load, phase, phaseCurrent, phaseKw, (ox, oy) => {
+      neutralX += ox;
+      neutralY += oy;
+    });
+  }
+
+  // Precompute phasor vectors per movable load for O(1) move/swap evaluation
+  const px = sortedMovable.map((l) => [
+    l.current * Math.cos(PHASE_OFFSET_RAD[0] - l.angle),
+    l.current * Math.cos(PHASE_OFFSET_RAD[1] - l.angle),
+    l.current * Math.cos(PHASE_OFFSET_RAD[2] - l.angle),
+  ] as [number, number, number]);
+  const py = sortedMovable.map((l) => [
+    l.current * Math.sin(PHASE_OFFSET_RAD[0] - l.angle),
+    l.current * Math.sin(PHASE_OFFSET_RAD[1] - l.angle),
+    l.current * Math.sin(PHASE_OFFSET_RAD[2] - l.angle),
+  ] as [number, number, number]);
+
+  let currentCost = balanceObjective(phaseCurrent, neutralX, neutralY);
+  const maxIters = 150;
+  for (let iter = 0; iter < maxIters && n > 0; iter++) {
+    let bestCost = currentCost - 1e-9;
+    let bestMove: { kind: "relocate"; i: number; to: PhaseIdx } | { kind: "swap"; i: number; j: number } | null = null;
+
+    // 1. Evaluate all single-load relocations
+    for (let i = 0; i < n; i++) {
+      const from = assigned[i];
+      const ci = sortedMovable[i].current;
+      for (let to = 0; to < 3; to++) {
+        if (to === from) continue;
+        phaseCurrent[from] -= ci;
+        phaseCurrent[to] += ci;
+        const nx = neutralX - px[i][from] + px[i][to];
+        const ny = neutralY - py[i][from] + py[i][to];
+        const cost = balanceObjective(phaseCurrent, nx, ny);
+        if (cost < bestCost) {
+          bestCost = cost;
+          bestMove = { kind: "relocate", i, to: to as PhaseIdx };
+        }
+        phaseCurrent[from] += ci;
+        phaseCurrent[to] -= ci;
+      }
+    }
+
+    // 2. Evaluate all 1-for-1 Kempe swaps across distinct phases
+    // Cap inner scan at 160 items to keep worst-case runtime strictly < 20ms even on huge boards
+    const scanLimit = Math.min(n, 160);
+    for (let i = 0; i < scanLimit; i++) {
+      const pi = assigned[i];
+      const ci = sortedMovable[i].current;
+      for (let j = i + 1; j < scanLimit; j++) {
+        const pj = assigned[j];
+        if (pi === pj) continue;
+        const cj = sortedMovable[j].current;
+        if (Math.abs(ci - cj) < 1e-9 && Math.abs(sortedMovable[i].angle - sortedMovable[j].angle) < 1e-9) {
+          continue;
+        }
+        phaseCurrent[pi] += cj - ci;
+        phaseCurrent[pj] += ci - cj;
+        const nx = neutralX - px[i][pi] + px[i][pj] - px[j][pj] + px[j][pi];
+        const ny = neutralY - py[i][pi] + py[i][pj] - py[j][pj] + py[j][pi];
+        const cost = balanceObjective(phaseCurrent, nx, ny);
+        if (cost < bestCost) {
+          bestCost = cost;
+          bestMove = { kind: "swap", i, j };
+        }
+        phaseCurrent[pi] += ci - cj;
+        phaseCurrent[pj] += cj - ci;
+      }
+    }
+
+    if (!bestMove) break;
+
+    if (bestMove.kind === "relocate") {
+      const { i, to } = bestMove;
+      const from = assigned[i];
+      const load = sortedMovable[i];
+      phaseCurrent[from] -= load.current;
+      phaseCurrent[to] += load.current;
+      phaseKw[from] -= load.kw;
+      phaseKw[to] += load.kw;
+      neutralX = neutralX - px[i][from] + px[i][to];
+      neutralY = neutralY - py[i][from] + py[i][to];
+      assigned[i] = to;
+    } else {
+      const { i, j } = bestMove;
+      const pi = assigned[i];
+      const pj = assigned[j];
+      const li = sortedMovable[i];
+      const lj = sortedMovable[j];
+      phaseCurrent[pi] += lj.current - li.current;
+      phaseCurrent[pj] += li.current - lj.current;
+      phaseKw[pi] += lj.kw - li.kw;
+      phaseKw[pj] += li.kw - lj.kw;
+      neutralX = neutralX - px[i][pi] + px[i][pj] - px[j][pj] + px[j][pi];
+      neutralY = neutralY - py[i][pi] + py[i][pj] - py[j][pj] + py[j][pi];
+      assigned[i] = pj;
+      assigned[j] = pi;
+    }
+    currentCost = bestCost;
+  }
+
+  const allAssignments: PhaseBalance["assignments"] = [...fixedAssignments];
+  for (let i = 0; i < n; i++) {
+    const load = sortedMovable[i];
+    // Decomposed sub-room virtual IDs stay internal to calculation; parent already recorded
+    if (!load.id.includes("::room::")) {
+      allAssignments.push({ id: load.id, assignedPhase: assigned[i] + 1, phaseCount: 1 });
+    }
+  }
+
+  return finalize(
+    phaseCurrent,
+    phaseKw,
+    neutralX,
+    neutralY,
+    project,
+    allAssignments,
+    internalImbalanceNotModeled
+  );
+}
+
 export function phaseBalance(
   items: (FloorItem | BuildingLoad)[],
   project: Project,

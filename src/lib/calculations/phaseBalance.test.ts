@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { phaseBalance } from './phaseBalance';
+import { phaseBalance, optimizePhaseBalance } from './phaseBalance';
 import type { BuildingLoad, FloorItem, LoadLibraryItem, Project } from '@/types';
 
 /**
@@ -596,5 +596,83 @@ describe('phaseBalance', () => {
       expect(mixed.assignments.find((a) => a.id === 'pump1')?.phaseCount).toBe(3);
       expect(mixed.assignments.find((a) => a.id === 'a1')?.phaseCount).toBe(1);
     }
+  });
+});
+
+describe('optimizePhaseBalance (CI-003)', () => {
+  it('solves the classic Graham LPT counterexample [11,11,9,9,8,6,6] to 0% unbalance and 0A neutral', () => {
+    const project = projectFixture({ powerFactor: 1 });
+    const loads = [11, 11, 9, 9, 8, 6, 6].map((amps, i) =>
+      item(`g-${i}`, amps, amps * 0.23, 'APARTMENT')
+    );
+
+    const greedy = phaseBalance(loads, project);
+    expect(greedy.maxPhaseCurrent).toBe(23); // LPT strands [19, 23, 18]
+
+    const optimized = optimizePhaseBalance(loads, project);
+    expect(optimized.phaseCurrent).toEqual([20, 20, 20]);
+    expect(optimized.maxPhaseCurrent).toBe(20);
+    expect(optimized.unbalancePct).toBeCloseTo(0, 6);
+    expect(optimized.neutralCurrent).toBeCloseTo(0, 6);
+  });
+
+  it('minimizes neutral current across mixed power factor 1-phase loads and honors manual pins', () => {
+    const project = projectFixture({ powerFactor: 0.85 });
+    const loads = [
+      item('pinned', 25, 5, 'APARTMENT', { assignedPhase: 3 }),
+      item('l1', 35, 8, 'APARTMENT'),
+      item('l2', 30, 7, 'APARTMENT'),
+      item('l3', 20, 4.5, 'APARTMENT'),
+      item('l4', 15, 3.5, 'APARTMENT'),
+      item('l5', 10, 2.3, 'APARTMENT'),
+    ];
+
+    const opt = optimizePhaseBalance(loads, project);
+    expect(opt.assignments.find((a) => a.id === 'pinned')?.assignedPhase).toBe(3);
+    expect(opt.unbalancePct).toBeLessThan(10);
+  });
+
+  it('decomposes 3-phase apartment rooms across L1/L2/L3 when decomposeThreePhaseApartments is enabled', () => {
+    const project = projectFixture({ powerFactor: 1 });
+    const apt3ph = item('apt-3ph', 20, 13.856, 'APARTMENT', {
+      apartmentTemplate: {
+        id: 'tpl-3ph',
+        name: '3PH Luxury Unit',
+        phases: 3,
+        rooms: [
+          { id: 'r1', type: 'LIVING_ROOM', name: 'Living', area: 30, hasAc: true, acBtu: null, loadDensity: 50, connectedLoad: 5000 },
+          { id: 'r2', type: 'KITCHEN', name: 'Kitchen', area: 15, hasAc: false, acBtu: null, loadDensity: 100, connectedLoad: 5000 },
+          { id: 'r3', type: 'BEDROOM', name: 'Master', area: 20, hasAc: true, acBtu: null, loadDensity: 40, connectedLoad: 5000 },
+        ],
+        createdAt: '',
+        updatedAt: '',
+      },
+    });
+
+    const opt = optimizePhaseBalance([apt3ph], project, {
+      decomposeThreePhaseApartments: true,
+    });
+
+    expect(opt.internalImbalanceNotModeled).toBe(false);
+    expect(opt.assignments).toEqual([{ id: 'apt-3ph', assignedPhase: 0, phaseCount: 3 }]);
+    // Equal 1/3 room shares cancel out symmetrically to 20A/phase and ~0A neutral
+    expect(opt.phaseCurrent[0]).toBeCloseTo(20, 4);
+    expect(opt.phaseCurrent[1]).toBeCloseTo(20, 4);
+    expect(opt.phaseCurrent[2]).toBeCloseTo(20, 4);
+    expect(opt.neutralCurrent).toBeCloseTo(0, 4);
+  });
+
+  it('optimizes 120 circuits across a panelboard in <50ms with <3% current unbalance', () => {
+    const project = projectFixture({ powerFactor: 0.9 });
+    const loads = Array.from({ length: 120 }, (_, i) =>
+      item(`c-${i}`, 12 + ((i * 7) % 23), (12 + ((i * 7) % 23)) * 0.21, 'APARTMENT')
+    );
+
+    const t0 = performance.now();
+    const opt = optimizePhaseBalance(loads, project);
+    const elapsedMs = performance.now() - t0;
+
+    expect(elapsedMs).toBeLessThan(50);
+    expect(opt.unbalancePct).toBeLessThan(3);
   });
 });

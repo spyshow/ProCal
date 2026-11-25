@@ -32,10 +32,10 @@ Wire get_project_report (when includeBase64=true or outputFilePath is set) in sr
 - **Rationale:** src/lib/mcp/server.ts already imports renderReportHtml and getCompanySettings (lines 23-24), yet lines 649-653 still wrap a minimal '<h1>Project</h1><p>Executive Report</p>' stub while GET /api/projects/[id]/pdf renders the full 8-section package.
 - **Implementation Approach:** Extract a shared buildExecutiveReportHtml(projectId, options) helper used by both GET /api/projects/[id]/pdf and get_project_report in src/lib/mcp/server.ts so Base64/stdio MCP exports match signed-URL PDFs byte-for-byte.
 
-### [CI-003] Combinatorial Min-Neutral Per-Phase Optimizer & 3-Phase Apartment Room Decomposition
+### [CI-003] Combinatorial Min-Neutral Per-Phase Optimizer & 3-Phase Apartment Room Decomposition ✅ COMPLETED
 Extend phaseBalance.ts beyond single-pass greedy LPT with a fast combinatorial swap/annealing solver that minimizes 120-degree vector neutral current (IN) and optionally decomposes 3-phase apartment templates across room loads.
 
-- **Effort:** `MEDIUM` | **Status:** `draft`
+- **Effort:** `MEDIUM` | **Status:** `completed`
 - **Builds Upon:** `src/lib/calculations/phaseBalance.ts`, `src/app/api/floors/[id]/rebalance/route.ts`
 - **Affected Files:** `src/lib/calculations/phaseBalance.ts`, `src/app/api/floors/[id]/rebalance/route.ts`, `src/app/(app)/calculator/page.tsx`
 - **Rationale:** src/lib/calculations/phaseBalance.ts currently assigns null phases via single-pass greedy kW order and flags 3-phase apartments with internalImbalanceNotModeled: true (lines 24-34). A swap refinement pass over phasor angles (120 deg + arccos PF) achieves <3% current unbalance and minimal neutral current in <5ms.

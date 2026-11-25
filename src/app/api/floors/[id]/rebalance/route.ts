@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { verifyProjectAccess } from "@/lib/project-auth";
-import { phaseBalance } from "@/lib/calculations/phaseBalance";
+import { optimizePhaseBalance } from "@/lib/calculations/phaseBalance";
 import type { FloorItem, Project } from "@/types";
 
 /**
@@ -22,7 +22,7 @@ export async function POST(
       include: {
         items: {
           include: {
-            apartmentTemplate: true,
+            apartmentTemplate: { include: { rooms: true } },
             loadLibraryItem: true,
           },
         },
@@ -40,16 +40,28 @@ export async function POST(
     });
     if (auth instanceof NextResponse) return auth;
 
-    const project = floorDesign.building.project;
-    const balance = phaseBalance(floorDesign.items as unknown as FloorItem[], project as unknown as Project);
+    const body = (await request.json().catch(() => ({}))) as {
+      decomposeThreePhaseApartments?: boolean;
+      ignorePins?: boolean;
+    };
+    const decomposeThreePhaseApartments = Boolean(body?.decomposeThreePhaseApartments);
+    const ignorePins = Boolean(body?.ignorePins);
 
-    // Persist assignments for 1-phase items only, but preserve manual overrides.
-    // Items with an existing assignedPhase in the DB are pinned — skip them.
-    const pinnedIds = new Set(
-      floorDesign.items
-        .filter((item) => item.assignedPhase != null)
-        .map((item) => item.id)
+    const project = floorDesign.building.project;
+    const balance = optimizePhaseBalance(
+      floorDesign.items as unknown as FloorItem[],
+      project as unknown as Project,
+      { decomposeThreePhaseApartments, ignorePins }
     );
+
+    // Persist assignments for 1-phase items only, preserving manual overrides unless ignorePins=true.
+    const pinnedIds = ignorePins
+      ? new Set<string>()
+      : new Set(
+          floorDesign.items
+            .filter((item) => item.assignedPhase != null)
+            .map((item) => item.id)
+        );
     const updates = balance.assignments
       .filter((a) => a.phaseCount === 1 && a.assignedPhase >= 1 && a.assignedPhase <= 3 && !pinnedIds.has(a.id))
       .map((a) =>

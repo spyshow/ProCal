@@ -249,22 +249,24 @@ export async function createProjectFromSpec(
         });
 
         let totalTplWatts = 0;
+        const roomRows: Prisma.ApartmentRoomCreateManyInput[] = [];
         for (const room of tpl.rooms) {
           const { targetWatts, loadDensity } = calculateRoomParameters(room, countryDefaults, powerFactor);
           totalTplWatts += targetWatts;
 
-          await tx.apartmentRoom.create({
-            data: {
-              templateId: createdTpl.id,
-              name: room.name,
-              type: room.type || "OTHER",
-              area: room.areaM2,
-              hasAc: room.hasAc ?? true,
-              acBtu: room.acBtu ?? null,
-              loadDensity,
-              connectedLoad: targetWatts,
-            },
+          roomRows.push({
+            templateId: createdTpl.id,
+            name: room.name,
+            type: room.type || "OTHER",
+            area: room.areaM2,
+            hasAc: room.hasAc ?? true,
+            acBtu: room.acBtu ?? null,
+            loadDensity,
+            connectedLoad: targetWatts,
           });
+        }
+        if (roomRows.length > 0) {
+          await tx.apartmentRoom.createMany({ data: roomRows });
         }
 
         createdTemplates.set(tpl.name, {
@@ -323,6 +325,7 @@ export async function createProjectFromSpec(
 
         // Create Floors and Items (consolidated by floorNumber to prevent duplicate F1 cards and buses)
         const floorDesignMap = new Map<number, { id: string }>();
+        const floorItemRows: Prisma.FloorItemCreateManyInput[] = [];
 
         for (const fa of bldg.floorAssignments) {
           const tpl = createdTemplates.get(fa.templateName);
@@ -366,21 +369,23 @@ export async function createProjectFromSpec(
           });
 
           for (let u = 1; u <= fa.count; u++) {
-            await tx.floorItem.create({
-              data: {
-                floorDesignId: fd.id,
-                type: "APARTMENT",
-                name: `${fa.templateName} - ${u}`,
-                apartmentTemplateId: tpl.id,
-                calculatedConnectedLoad: connectedKw,
-                calculatedMaxDemand: maxDemandKw,
-                calculatedCurrent: parseFloat(calculatedCurrent.toFixed(2)),
-                breakerSize: `${sizing.breakerSize}A`,
-                cableSize: sizing.formattedCableSize,
-                cableLength: 20,
-              },
+            floorItemRows.push({
+              floorDesignId: fd.id,
+              type: "APARTMENT",
+              name: `${fa.templateName} - ${u}`,
+              apartmentTemplateId: tpl.id,
+              calculatedConnectedLoad: connectedKw,
+              calculatedMaxDemand: maxDemandKw,
+              calculatedCurrent: parseFloat(calculatedCurrent.toFixed(2)),
+              breakerSize: `${sizing.breakerSize}A`,
+              cableSize: sizing.formattedCableSize,
+              cableLength: 20,
             });
           }
+        }
+
+        if (floorItemRows.length > 0) {
+          await tx.floorItem.createMany({ data: floorItemRows });
         }
 
         // Create Common Building Loads
@@ -626,22 +631,24 @@ export async function updateProjectSpec(
           }
 
           let totalWatts = 0;
+          const roomRows: Prisma.ApartmentRoomCreateManyInput[] = [];
           for (const room of tplSpec.rooms) {
             const { targetWatts, loadDensity } = calculateRoomParameters(room, countryDefaults, powerFactor);
             totalWatts += targetWatts;
 
-            await tx.apartmentRoom.create({
-              data: {
-                templateId: tplId,
-                name: room.name,
-                type: room.type || "OTHER",
-                area: room.areaM2,
-                hasAc: room.hasAc ?? true,
-                acBtu: room.acBtu ?? null,
-                loadDensity,
-                connectedLoad: targetWatts,
-              },
+            roomRows.push({
+              templateId: tplId,
+              name: room.name,
+              type: room.type || "OTHER",
+              area: room.areaM2,
+              hasAc: room.hasAc ?? true,
+              acBtu: room.acBtu ?? null,
+              loadDensity,
+              connectedLoad: targetWatts,
             });
+          }
+          if (roomRows.length > 0) {
+            await tx.apartmentRoom.createMany({ data: roomRows });
           }
 
           templateMap.set(tplSpec.name, {
@@ -695,6 +702,7 @@ export async function updateProjectSpec(
 
             const floorDesignMap = new Map<number, { id: string }>();
             const clearedFloors = new Set<number>();
+            const floorItemRows: Prisma.FloorItemCreateManyInput[] = [];
 
             for (const fa of bldgSpec.floorAssignments) {
               const tpl = templateMap.get(fa.templateName);
@@ -753,19 +761,21 @@ export async function updateProjectSpec(
               }
 
               for (let u = 1; u <= fa.count; u++) {
-                await tx.floorItem.create({
-                  data: {
-                    floorDesignId,
-                    type: "APARTMENT",
-                    name: `${fa.templateName} - ${u}`,
-                    apartmentTemplateId: tpl.id,
-                    calculatedConnectedLoad: tpl.connectedKw,
-                    calculatedMaxDemand: tpl.connectedKw,
-                    calculatedCurrent: 0,
-                    cableLength: 20,
-                  },
+                floorItemRows.push({
+                  floorDesignId,
+                  type: "APARTMENT",
+                  name: `${fa.templateName} - ${u}`,
+                  apartmentTemplateId: tpl.id,
+                  calculatedConnectedLoad: tpl.connectedKw,
+                  calculatedMaxDemand: tpl.connectedKw,
+                  calculatedCurrent: 0,
+                  cableLength: 20,
                 });
               }
+            }
+
+            if (floorItemRows.length > 0) {
+              await tx.floorItem.createMany({ data: floorItemRows });
             }
           }
 

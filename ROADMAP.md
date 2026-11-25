@@ -46,17 +46,17 @@ Enforce unified owner/ProjectMember authorization across all 10 MCP tools, atomi
   - [x] POST /api/projects/[id]/pdf sanitizes untrusted <style>/<script> tags so .trial-watermark-overlay cannot be suppressed via CSS injection
   - [x] Dedicated unit test suite src/app/api/projects/[id]/pdf/route.test.ts verifies signed JWT report tokens and CWE-22 path containment
 
-#### [ ] [FEAT-03] Warm Chromium PDF Pool, Bulk Prisma createMany() Spec Builder & Foreign-Key Indexing (perf-001..003) `(MUST)`
+#### [x] [FEAT-03] Warm Chromium PDF Pool, Bulk Prisma createMany() Spec Builder & Foreign-Key Indexing (perf-001..003) `(MUST)`
 Eliminate cold Chromium launch overhead via a warm singleton browser pool in server-pdf.ts, replace sequential room/item INSERT loops in build-project.ts with batched createMany(), and index foreign keys in prisma/schema.prisma.
 
-- **Status:** `planned` | **Complexity:** `medium` | **Impact:** `high`
+- **Status:** `completed` | **Complexity:** `medium` | **Impact:** `high`
 - **Addresses Competitor Pain Points:** `CP-02`, `CP-03`
 - **Rationale:** Directly addresses the top runtime and database bottlenecks identified in the codebase ideation audit (perf-001, perf-002, perf-003).
 - **User Story:**
   - *"As an Electrical Engineer exporting submittals or building multi-tower specs via AI, I want sub-second database transactions and fast PDF rendering without timeouts."*
 - **Acceptance Criteria:**
   - [x] src/lib/reports/server-pdf.ts maintains a warm singleton Chromium Browser instance using isolated per-request BrowserContext pages, cutting PDF export latency by 50–65%
-  - [ ] createProjectFromSpec and updateProjectSpec in src/lib/agent/build-project.ts batch room and floor item inserts via tx.apartmentRoom.createMany and tx.floorItem.createMany, reducing multi-building build latency to <400ms
+  - [x] createProjectFromSpec and updateProjectSpec in src/lib/agent/build-project.ts batch room and floor item inserts via tx.apartmentRoom.createMany and tx.floorItem.createMany, reducing multi-building build latency to <400ms
   - [x] prisma/schema.prisma adds @@index([buildingId, floorNumber]) on FloorDesign, @@index([floorDesignId]) on FloorItem, and @@index([templateId]) on ApartmentRoom
 
 ### Phase 2: AI Agent Parity & Advanced IEC Protection Verification (0% complete)
@@ -142,7 +142,7 @@ Account for per-phase imbalance in main transformer kVA sizing, normalize FloorI
 - [x] **[PERF-003]** PostgreSQL Foreign-Key & Composite `@@index` Declarations on Core Hierarchy Tables
 - [x] **[PERF-004]** In-Memory TTL Cache & Admin Invalidation for `EquipmentCatalog`
 - [x] **[PERF-001]** Warm Singleton Chromium Browser Pool & Concurrency Semaphore in `server-pdf.ts`
-- [ ] **[PERF-002]** Bulk `createMany()` Batching for Rooms & Floor Items in `build-project.ts`
+- [x] **[PERF-002]** Bulk `createMany()` Batching for Rooms & Floor Items in `build-project.ts`
 - [ ] **[CQ-002]** Centralize 0.5 m² Room Area Validator (`isHalfStepArea`) Across REST & MCP Schemas
 - [ ] **[CQ-003]** Shared `loadProjectReportHtml` Service & Removal of Dead MCP Imports
 - [ ] **[CI-002]** Unified Full 8-Section Executive Report Rendering for MCP Base64 & Stdio Exports

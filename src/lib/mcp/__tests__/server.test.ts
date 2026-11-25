@@ -21,6 +21,7 @@ const { mockDb } = vi.hoisted(() => ({
     },
     apartmentRoom: {
       create: vi.fn(),
+      createMany: vi.fn().mockResolvedValue({ count: 1 }),
     },
     building: {
       create: vi.fn(),
@@ -35,6 +36,7 @@ const { mockDb } = vi.hoisted(() => ({
     },
     floorItem: {
       create: vi.fn(),
+      createMany: vi.fn().mockResolvedValue({ count: 1 }),
       update: vi.fn().mockResolvedValue({}),
       updateMany: vi.fn().mockResolvedValue({}),
     },

@@ -19,6 +19,7 @@ const { mockDb } = vi.hoisted(() => ({
     apartmentRoom: {
       deleteMany: vi.fn().mockResolvedValue({ count: 0 }),
       create: vi.fn().mockResolvedValue({}),
+      createMany: vi.fn().mockResolvedValue({ count: 1 }),
     },
     building: {
       findMany: vi.fn().mockResolvedValue([]),
@@ -32,6 +33,7 @@ const { mockDb } = vi.hoisted(() => ({
     },
     floorItem: {
       create: vi.fn(),
+      createMany: vi.fn().mockResolvedValue({ count: 1 }),
       update: vi.fn().mockResolvedValue({}),
       deleteMany: vi.fn().mockResolvedValue({ count: 0 }),
     },
@@ -230,7 +232,8 @@ describe("updateProjectSpec & UpdateProjectSpecSchema", () => {
       expect(mockDb.apartmentRoom.deleteMany).toHaveBeenCalledWith({
         where: { templateId: "tpl-1" },
       });
-      expect(mockDb.apartmentRoom.create).toHaveBeenCalledTimes(2);
+      expect(mockDb.apartmentRoom.createMany).toHaveBeenCalledTimes(1);
+      expect(mockDb.apartmentRoom.createMany.mock.calls[0][0].data).toHaveLength(2);
       expect(mockDb.apartmentTemplate.update).toHaveBeenCalledWith(
         expect.objectContaining({
           where: { id: "tpl-1" },
@@ -302,7 +305,8 @@ describe("updateProjectSpec & UpdateProjectSpecSchema", () => {
       expect(mockDb.floorItem.deleteMany).toHaveBeenCalledWith({
         where: { floorDesignId: "fd-1" },
       });
-      expect(mockDb.floorItem.create).toHaveBeenCalledTimes(3);
+      expect(mockDb.floorItem.createMany).toHaveBeenCalledTimes(1);
+      expect(mockDb.floorItem.createMany.mock.calls[0][0].data).toHaveLength(3);
       // Chiller was attached to building
       expect(mockDb.buildingLoad.create).toHaveBeenCalled();
     });

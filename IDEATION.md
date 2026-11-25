@@ -72,8 +72,10 @@ Reuse a warm module-scoped Puppeteer Browser instance in src/lib/reports/server-
 - **Expected Improvement:** Cuts warm PDF generation latency by 50-65% (~0.9s-1.2s) and bounds concurrent Chromium memory usage via semaphore
 - **Implementation:** Cache a singleton Promise<Browser> with disconnect recovery and allocate an isolated browser.createBrowserContext() per PDF render guarded by a max-concurrency semaphore.
 
-### [PERF-002] Bulk createMany() Batching for Rooms & Floor Items in MCP Spec Builders
+### [PERF-002] Bulk createMany() Batching for Rooms & Floor Items in MCP Spec Builders ✅ COMPLETED
 Replace sequential per-room tx.apartmentRoom.create and per-item tx.floorItem.create loops inside createProjectFromSpec and updateProjectSpec with batched createMany() inserts.
+
+- **Status:** `completed`
 
 - **Impact:** `HIGH` | **Category:** `io` | **Effort:** `small`
 - **Current Metric:** 150-400 sequential INSERT round-trips per multi-tower MCP spec build (~2.5s-4.5s)

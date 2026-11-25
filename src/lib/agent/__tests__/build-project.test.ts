@@ -26,6 +26,7 @@ const { mockDb } = vi.hoisted(() => ({
     },
     apartmentRoom: {
       create: vi.fn(),
+      createMany: vi.fn().mockResolvedValue({ count: 1 }),
     },
     building: {
       create: vi.fn(),
@@ -36,6 +37,7 @@ const { mockDb } = vi.hoisted(() => ({
     },
     floorItem: {
       create: vi.fn(),
+      createMany: vi.fn().mockResolvedValue({ count: 1 }),
     },
     loadLibraryItem: {
       create: vi.fn(),
@@ -191,23 +193,20 @@ describe("build-project service", () => {
         })
       );
 
-      // Both apartments created with the same floorDesignId
-      expect(mockDb.floorItem.create).toHaveBeenCalledWith(
-        expect.objectContaining({
-          data: expect.objectContaining({
+      // Both apartments batched into a single floorItem.createMany with the same floorDesignId
+      expect(mockDb.floorItem.createMany).toHaveBeenCalledTimes(1);
+      expect(mockDb.floorItem.createMany).toHaveBeenCalledWith({
+        data: expect.arrayContaining([
+          expect.objectContaining({
             floorDesignId: "fd-floor-1",
             name: "Apartment 1 (Upper Unit) - 1",
           }),
-        })
-      );
-      expect(mockDb.floorItem.create).toHaveBeenCalledWith(
-        expect.objectContaining({
-          data: expect.objectContaining({
+          expect.objectContaining({
             floorDesignId: "fd-floor-1",
             name: "Apartment 2 (Lower Unit) - 1",
           }),
-        })
-      );
+        ]),
+      });
     });
 
     it("decrements 1 credit and creates project, templates, rooms, buildings, and items in transaction", async () => {
@@ -254,15 +253,19 @@ describe("build-project service", () => {
         data: { credits: { decrement: 1 } },
       });
 
-      // Verify explicitLoadKva conversion: 5 kVA * 0.85 = 4250 W
-      expect(mockDb.apartmentRoom.create).toHaveBeenCalledWith(
-        expect.objectContaining({
-          data: expect.objectContaining({
+      // Verify explicitLoadKva conversion: 5 kVA * 0.85 = 4250 W via bulk createMany
+      expect(mockDb.apartmentRoom.createMany).toHaveBeenCalledTimes(1);
+      expect(mockDb.apartmentRoom.createMany).toHaveBeenCalledWith({
+        data: expect.arrayContaining([
+          expect.objectContaining({
             name: "Special Lab",
             connectedLoad: 4250,
           }),
-        })
-      );
+        ]),
+      });
+      // All 4 apartments across 2 floors batched into one floorItem.createMany call
+      expect(mockDb.floorItem.createMany).toHaveBeenCalledTimes(1);
+      expect(mockDb.floorItem.createMany.mock.calls[0][0].data).toHaveLength(4);
     });
 
     it("deduplicates requests with same idempotencyKey within 60s without decrementing credit", async () => {

@@ -62,8 +62,10 @@ Surface side-by-side engineering delta tables (load totals, breaker frames, cabl
 ## ⚡ Performance Optimizations (4)
 *Bottlenecks, synchronous I/O, and bundle efficiency gains.*
 
-### [PERF-001] Warm Singleton Chromium Browser Pool for Server-Side PDF Generation
+### [PERF-001] Warm Singleton Chromium Browser Pool for Server-Side PDF Generation ✅ COMPLETED
 Reuse a warm module-scoped Puppeteer Browser instance in src/lib/reports/server-pdf.ts with isolated BrowserContext pages per export instead of cold-launching Chromium on every request.
+
+- **Status:** `completed`
 
 - **Impact:** `HIGH` | **Category:** `runtime` | **Effort:** `small`
 - **Current Metric:** Cold puppeteer.launch() + browser.close() per PDF request (~2.5s-3.5s total latency)

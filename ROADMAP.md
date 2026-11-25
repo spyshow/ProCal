@@ -55,7 +55,7 @@ Eliminate cold Chromium launch overhead via a warm singleton browser pool in ser
 - **User Story:**
   - *"As an Electrical Engineer exporting submittals or building multi-tower specs via AI, I want sub-second database transactions and fast PDF rendering without timeouts."*
 - **Acceptance Criteria:**
-  - [ ] src/lib/reports/server-pdf.ts maintains a warm singleton Chromium Browser instance using isolated per-request BrowserContext pages, cutting PDF export latency by 50–65%
+  - [x] src/lib/reports/server-pdf.ts maintains a warm singleton Chromium Browser instance using isolated per-request BrowserContext pages, cutting PDF export latency by 50–65%
   - [ ] createProjectFromSpec and updateProjectSpec in src/lib/agent/build-project.ts batch room and floor item inserts via tx.apartmentRoom.createMany and tx.floorItem.createMany, reducing multi-building build latency to <400ms
   - [x] prisma/schema.prisma adds @@index([buildingId, floorNumber]) on FloorDesign, @@index([floorDesignId]) on FloorItem, and @@index([templateId]) on ApartmentRoom
 
@@ -141,7 +141,7 @@ Account for per-phase imbalance in main transformer kVA sizing, normalize FloorI
 - [x] **[CQ-004]** Dedicated Route-Level Security & Token Unit Tests for `/api/projects/[id]/pdf`
 - [x] **[PERF-003]** PostgreSQL Foreign-Key & Composite `@@index` Declarations on Core Hierarchy Tables
 - [x] **[PERF-004]** In-Memory TTL Cache & Admin Invalidation for `EquipmentCatalog`
-- [ ] **[PERF-001]** Warm Singleton Chromium Browser Pool & Concurrency Semaphore in `server-pdf.ts`
+- [x] **[PERF-001]** Warm Singleton Chromium Browser Pool & Concurrency Semaphore in `server-pdf.ts`
 - [ ] **[PERF-002]** Bulk `createMany()` Batching for Rooms & Floor Items in `build-project.ts`
 - [ ] **[CQ-002]** Centralize 0.5 m² Room Area Validator (`isHalfStepArea`) Across REST & MCP Schemas
 - [ ] **[CQ-003]** Shared `loadProjectReportHtml` Service & Removal of Dead MCP Imports

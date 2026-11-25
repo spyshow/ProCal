@@ -1,4 +1,4 @@
-import puppeteer from 'puppeteer-core';
+import puppeteer, { type Browser, type BrowserContext } from 'puppeteer-core';
 import chromium from '@sparticuz/chromium';
 import fs from 'fs';
 import os from 'os';
@@ -77,12 +77,31 @@ export async function getChromiumExecutablePath(): Promise<string> {
   return await chromium.executablePath(packUrl);
 }
 
-/**
- * Generates an executive engineering package PDF in memory using Headless Chromium.
- * Guarantees native TrueType CIDFont embedding with complete /ToUnicode CMaps,
- * eliminating missing text, (cid:XX) extraction failures, and printer driver buffer limits.
- */
-export async function generateServerPdf(html: string, options?: { isTrial?: boolean }): Promise<Buffer> {
+const MAX_CONCURRENT_PDF_RENDERS = 4;
+let activePdfRenders = 0;
+const pdfSlotQueue: Array<() => void> = [];
+let warmBrowserPromise: Promise<Browser> | null = null;
+
+async function acquirePdfSlot(): Promise<void> {
+  if (activePdfRenders < MAX_CONCURRENT_PDF_RENDERS) {
+    activePdfRenders++;
+    return;
+  }
+  await new Promise<void>((resolve) => {
+    pdfSlotQueue.push(() => {
+      activePdfRenders++;
+      resolve();
+    });
+  });
+}
+
+function releasePdfSlot(): void {
+  activePdfRenders = Math.max(0, activePdfRenders - 1);
+  const next = pdfSlotQueue.shift();
+  if (next) next();
+}
+
+async function launchWarmBrowser(): Promise<Browser> {
   const executablePath = await getChromiumExecutablePath();
   const isServerlessLinux = process.platform === 'linux';
 
@@ -105,71 +124,138 @@ export async function generateServerPdf(html: string, options?: { isTrial?: bool
     },
   });
 
+  browser.on('disconnected', () => {
+    warmBrowserPromise = null;
+  });
+
+  return browser;
+}
+
+async function getWarmBrowser(): Promise<Browser> {
+  if (warmBrowserPromise) {
+    try {
+      const existing = await warmBrowserPromise;
+      if (existing.connected) return existing;
+    } catch {
+      // Previous launch failed; relaunch below
+    }
+    warmBrowserPromise = null;
+  }
+
+  const pending = launchWarmBrowser().catch((err) => {
+    if (warmBrowserPromise === pending) {
+      warmBrowserPromise = null;
+    }
+    throw err;
+  });
+  warmBrowserPromise = pending;
+  return pending;
+}
+
+/**
+ * Closes the shared warm Chromium browser instance if open (useful for tests/shutdown).
+ */
+export async function closeWarmBrowser(): Promise<void> {
+  const pending = warmBrowserPromise;
+  warmBrowserPromise = null;
+  if (!pending) return;
   try {
-    const page = await browser.newPage();
-    await page.setViewport({ width: 1400, height: 900, deviceScaleFactor: 2 });
+    const browser = await pending;
+    if (browser.connected) {
+      await browser.close();
+    }
+  } catch {
+    // Ignore close errors during cleanup
+  }
+}
 
-    if (typeof page.setRequestInterception === 'function') {
-      await page.setRequestInterception(true);
-      page.on('request', (req) => {
-        const reqUrl = req.url();
-        if (reqUrl.startsWith('data:') || reqUrl.startsWith('about:') || reqUrl.startsWith('blob:')) {
-          req.continue();
-        } else {
-          req.abort('blockedbyclient');
-        }
-      });
+/**
+ * Generates an executive engineering package PDF in memory using Headless Chromium.
+ * Reuses a warm singleton Browser instance with isolated per-request BrowserContext pages
+ * guarded by a concurrency semaphore, and guarantees native TrueType CIDFont embedding.
+ */
+export async function generateServerPdf(html: string, options?: { isTrial?: boolean }): Promise<Buffer> {
+  await acquirePdfSlot();
+
+  try {
+    let browser = await getWarmBrowser();
+    let context: BrowserContext;
+    try {
+      context = await browser.createBrowserContext();
+    } catch {
+      warmBrowserPromise = null;
+      browser = await getWarmBrowser();
+      context = await browser.createBrowserContext();
     }
 
-    // Set HTML content directly in memory (zero external network dependency)
-    await page.setContent(html, {
-      waitUntil: 'load',
-      timeout: 45000,
-    });
+    try {
+      const page = await context.newPage();
+      await page.setViewport({ width: 1400, height: 900, deviceScaleFactor: 2 });
 
-    // Ensure all web and system fonts are completely parsed and painted
-    await page.evaluate(() => document.fonts.ready);
-
-    // Landscape A4 submittal format with professional engineering margins
-    const pdfUint8 = await page.pdf({
-      format: 'A4',
-      landscape: true,
-      printBackground: true,
-      preferCSSPageSize: true,
-      margin: {
-        top: '15mm',
-        right: '12mm',
-        bottom: '15mm',
-        left: '12mm',
-      },
-    });
-
-    if (options?.isTrial) {
-      try {
-        const { encryptPDF } = await import('@pdfsmaller/pdf-encrypt');
-        const lockedBytes = await encryptPDF(new Uint8Array(pdfUint8), '', {
-          ownerPassword: crypto.randomUUID() + '-procal-trial-lock',
-          algorithm: 'AES-256',
-          allowPrinting: true,
-          allowModifying: false,
-          allowCopying: false,
-          allowAnnotating: false,
-          allowFillingForms: false,
-          allowExtraction: false,
-          allowAssembly: false,
-          allowHighQualityPrint: true,
+      if (typeof page.setRequestInterception === 'function') {
+        await page.setRequestInterception(true);
+        page.on('request', (req) => {
+          const reqUrl = req.url();
+          if (reqUrl.startsWith('data:') || reqUrl.startsWith('about:') || reqUrl.startsWith('blob:')) {
+            req.continue();
+          } else {
+            req.abort('blockedbyclient');
+          }
         });
-        return Buffer.from(lockedBytes);
-      } catch (encryptErr) {
-        console.error('PDF lock encryption error:', encryptErr);
-        throw new Error(
-          `Failed to apply trial copy-protection to PDF: ${encryptErr instanceof Error ? encryptErr.message : String(encryptErr)}`
-        );
       }
-    }
 
-    return Buffer.from(pdfUint8);
+      // Set HTML content directly in memory (zero external network dependency)
+      await page.setContent(html, {
+        waitUntil: 'load',
+        timeout: 45000,
+      });
+
+      // Ensure all web and system fonts are completely parsed and painted
+      await page.evaluate(() => document.fonts.ready);
+
+      // Landscape A4 submittal format with professional engineering margins
+      const pdfUint8 = await page.pdf({
+        format: 'A4',
+        landscape: true,
+        printBackground: true,
+        preferCSSPageSize: true,
+        margin: {
+          top: '15mm',
+          right: '12mm',
+          bottom: '15mm',
+          left: '12mm',
+        },
+      });
+
+      if (options?.isTrial) {
+        try {
+          const { encryptPDF } = await import('@pdfsmaller/pdf-encrypt');
+          const lockedBytes = await encryptPDF(new Uint8Array(pdfUint8), '', {
+            ownerPassword: crypto.randomUUID() + '-procal-trial-lock',
+            algorithm: 'AES-256',
+            allowPrinting: true,
+            allowModifying: false,
+            allowCopying: false,
+            allowAnnotating: false,
+            allowFillingForms: false,
+            allowExtraction: false,
+            allowAssembly: false,
+            allowHighQualityPrint: true,
+          });
+          return Buffer.from(lockedBytes);
+        } catch (encryptErr) {
+          console.error('PDF lock encryption error:', encryptErr);
+          throw new Error(
+            `Failed to apply trial copy-protection to PDF: ${encryptErr instanceof Error ? encryptErr.message : String(encryptErr)}`
+          );
+        }
+      }
+
+      return Buffer.from(pdfUint8);
+    } finally {
+      await context.close().catch(() => {});
+    }
   } finally {
-    await browser.close();
+    releasePdfSlot();
   }
 }

@@ -150,8 +150,10 @@ Read Authorization: Bearer and x-api-key directly from Request headers in /api/m
 ## 🧹 Code Quality & Technical Debt (4)
 *Large files, code duplication, and architectural anti-patterns.*
 
-### [CQ-001] Decompose 1,470–1,887 LOC Monolithic Views & Agent Spec Builder Modules
+### [CQ-001] Decompose 1,470–1,887 LOC Monolithic Views & Agent Spec Builder Modules ✅ COMPLETED
 Split the five largest multi-responsibility files — projects/[id]/page.tsx (1,887 LOC), cable-schedule/page.tsx (1,771 LOC), sld/page.tsx (1,639 LOC), coordination/page.tsx (1,516 LOC), and build-project.ts (1,478 LOC) — into focused sub-modules.
+
+- **Status:** `completed`
 
 - **Severity:** `MAJOR` | **Category:** `large_files` | **Effort:** `medium`
 - **Best Practice:** Single Responsibility Principle & Bounded Module Size (<500 LOC)

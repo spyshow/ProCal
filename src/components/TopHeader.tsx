@@ -24,6 +24,7 @@ import {
   Sparkles,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useUpgradeTrialProject } from '@/hooks/useUpgradeTrialProject';
 
 interface Project {
   id: string;
@@ -36,9 +37,9 @@ interface Project {
 export function TopHeader() {
   const pathname = usePathname();
   const router = useRouter();
-  const { selectedProject, selectProject, currentMemberRole, refreshProject } = useProject();
-  const { user: currentUser, refreshUser } = useUser();
-  const [upgrading, setUpgrading] = useState(false);
+  const { selectedProject, selectProject, currentMemberRole } = useProject();
+  const { user: currentUser } = useUser();
+  const { upgrading, upgradeTrialProject } = useUpgradeTrialProject();
   const { t, isRtl } = useTranslation();
 
   // Project Switcher Dropdown State
@@ -85,35 +86,7 @@ export function TopHeader() {
 
   const handleUpgradeProject = async () => {
     if (!selectedProject) return;
-    const credits = currentUser?.credits ?? 0;
-    const isAdmin = currentUser?.role === 'ADMIN';
-    if (credits < 1 && !isAdmin) {
-      if (confirm('You need 1 project credit to upgrade this Free Trial project.\n\nWould you like to go to the billing page to request or purchase credits?')) {
-        router.push('/billing');
-      }
-      return;
-    }
-    if (!confirm('Upgrade this project to Full Project using 1 credit?\n\nThis will unlock unlimited buildings, unlimited floors, and remove all watermarks.')) {
-      return;
-    }
-    setUpgrading(true);
-    try {
-      const res = await fetch(`/api/projects/${selectedProject.id}/upgrade`, {
-        method: 'POST',
-      });
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        alert(err.error || 'Upgrade failed. Please try again.');
-        return;
-      }
-      await Promise.all([refreshUser(), refreshProject()]);
-      alert('Project successfully upgraded to Full Project!');
-    } catch (err) {
-      console.error(err);
-      alert('Unable to reach server. Please try again.');
-    } finally {
-      setUpgrading(false);
-    }
+    await upgradeTrialProject(selectedProject.id);
   };
 
   const handleSelectProject = (id: string) => {

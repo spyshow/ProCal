@@ -88,18 +88,18 @@ Extend short-circuit and cable sizing engines to verify conductor adiabatic ther
   - [ ] ShortCircuitScheduleTable.tsx and Calculation Trace popovers display let-through energy margins and minimum adiabatic cross-section S_min (mm²)
   - [ ] check_project_compliance MCP tool includes adiabatic thermal withstand pass/fail status in its compliance report
 
-#### [ ] [FEAT-06] Domain View Decomposition, Shared Trial Upgrade Hook & Centralized 0.5 m² Validator (cq-001, cq-002) `(SHOULD)`
+#### [x] [FEAT-06] Domain View Decomposition, Shared Trial Upgrade Hook & Centralized 0.5 m² Validator (cq-001, cq-002) `(SHOULD)`
 Modularize 1,600+ line page views and agent spec builders into focused components/modules, share the useUpgradeTrialProject hook, and unify the 0.5 m² room area validator across REST and MCP schemas.
 
-- **Status:** `planned` | **Complexity:** `medium` | **Impact:** `medium`
+- **Status:** `completed` | **Complexity:** `medium` | **Impact:** `medium`
 - **Addresses Competitor Pain Points:** `CP-03`
 - **Rationale:** Pays down structural technical debt (cq-001, cq-002) and prevents validation drift between REST APIs and MCP tools.
 - **User Story:**
   - *"As a ProCal Developer, I want modular <500 LOC files and a single source of truth for domain validation rules so that new features can be shipped rapidly without regression risk."*
 - **Acceptance Criteria:**
-  - [ ] Extract shared useUpgradeTrialProject hook used by both TopHeader.tsx and projects/[id]/page.tsx
+  - [x] Extract shared useUpgradeTrialProject hook used by both TopHeader.tsx and projects/[id]/page.tsx
   - [x] Centralize 0.5 m² room area validation (isHalfStepArea) into src/lib/validation/room-area.ts and reuse across project-spec-schema.ts and /api/templates routes
-  - [ ] Decompose projects/[id]/page.tsx (1,978 LOC), sld/page.tsx (1,678 LOC), and build-project.ts (1,613 LOC) into focused domain sub-modules
+  - [x] Decompose projects/[id]/page.tsx (1,978 LOC), sld/page.tsx (1,678 LOC), and build-project.ts (1,613 LOC) into focused domain sub-modules
 
 ### Phase 3: CAD Ecosystem Integration & Autonomous Optimization (50% complete)
 *Native AutoCAD DXF schematic exports, imbalance-aware transformer kVA sizing, combinatorial phase optimization, and multi-tenant team revision workflows.*
@@ -150,7 +150,7 @@ Account for per-phase imbalance in main transformer kVA sizing, normalize FloorI
 - [x] **[CI-004]** MCP Native AutoCAD DXF Schematic Export Tool (`get_project_dxf`)
 - [x] **[CI-003]** Combinatorial Min-Neutral Per-Phase Optimizer & 3φ Apartment Room Decomposition
 - [x] **[CI-005]** Engineering Revision Diff Comparison & Pre-Mutation MCP Snapshot Tool
-- [ ] **[CQ-001]** Decompose 1,470–1,887 LOC Monolithic Views & Agent Spec Builder Modules
+- [x] **[CQ-001]** Decompose 1,470–1,887 LOC Monolithic Views & Agent Spec Builder Modules
 
 ---
 *Generated autonomously by Antigravity Tools — Built with MoSCoW & Competitor Analysis Architecture.*

@@ -119,8 +119,10 @@ Replace unconditional user.update({ credits: { decrement: 1 } }) in POST /api/pr
 - **Compliance Standards:** OWASP Top 10 A04:2021 - Insecure Design, CWE-367
 - **Affected Files:** `src/app/api/projects/route.ts`, `src/lib/agent/build-project.ts`
 
-### [SEC-003] Client-Supplied HTML/CSS Watermark Suppression in POST /api/projects/[id]/pdf `(MEDIUM SEVERITY)`
+### [SEC-003] Client-Supplied HTML/CSS Watermark Suppression in POST /api/projects/[id]/pdf `(MEDIUM SEVERITY)` ✅ COMPLETED
 Sanitize untrusted <style>/<script> blocks in POST /api/projects/[id]/pdf or render trial PDFs exclusively server-side via renderReportHtml so trial watermarks cannot be hidden via CSS injection.
+
+- **Status:** `completed`
 
 - **Vulnerability:** CWE-284: Improper Access Control / Client-Side Enforcement of Trial Watermark
 - **Current Risk:** Authenticated Free Trial users can craft a POST /api/projects/[id]/pdf payload with custom CSS rules to suppress visual 'FREE TRIAL — NOT FOR CONSTRUCTION' watermarks.

@@ -7,6 +7,7 @@ import { verifyReportDownloadToken } from "@/lib/auth";
 import { getCompanySettings, getLogoAsset } from "@/lib/app-settings";
 import { renderReportHtml, wrapReportMarkup } from "@/lib/reports/render-report-html";
 import { generateServerPdf } from "@/lib/reports/server-pdf";
+import { sanitizeClientReportHtml } from "@/lib/reports/sanitize-report-html";
 import type { Project, ProjectRevision } from "@/types";
 import type { EquipmentItem } from "@/lib/calculations/feeders";
 
@@ -78,6 +79,101 @@ async function inlineImagesInHtml(html: string): Promise<string> {
   return result;
 }
 
+async function renderServerAuthoritativeHtml(
+  projectId: string,
+  options?: { buildingId?: string; manufacturer?: string }
+): Promise<{ projectName: string; isTrial: boolean; html: string } | null> {
+  const [project, company, rawRevisions, rawEquipment, breakerSettings] =
+    await Promise.all([
+      db.project.findUnique({
+        where: { id: projectId },
+        include: {
+          buildings: {
+            include: {
+              floorDesigns: {
+                include: {
+                  items: {
+                    include: {
+                      apartmentTemplate: {
+                        include: { rooms: true },
+                      },
+                      loadLibraryItem: true,
+                    },
+                  },
+                },
+              },
+              buildingLoads: {
+                include: {
+                  loadLibraryItem: true,
+                },
+              },
+            },
+          },
+          apartmentTemplates: {
+            include: { rooms: true },
+          },
+          loadLibraryItems: true,
+        },
+      }),
+      getCompanySettings().catch(() => null),
+      db.projectRevision.findMany({
+        where: { projectId },
+        include: {
+          createdBy: { select: { username: true } },
+        },
+        orderBy: { createdAt: "desc" },
+      }),
+      db.equipmentCatalog.findMany({
+        include: { family: true },
+        orderBy: [
+          { manufacturer: "asc" },
+          { category: "asc" },
+          { ratedCurrent: "asc" },
+        ],
+      }),
+      db.breakerSettings.findMany({
+        orderBy: { model: "asc" },
+      }),
+    ]);
+
+  if (!project) return null;
+
+  const revisions = rawRevisions.map((r) => ({
+    id: r.id,
+    projectId: r.projectId,
+    rev: r.rev,
+    description: r.description,
+    createdById: r.createdById,
+    createdByUsername: r.createdBy?.username,
+    createdAt: r.createdAt.toISOString(),
+  }));
+
+  const equipment = rawEquipment.map((e) => ({
+    ...e,
+    familyId: e.family?.id ?? null,
+    familyName: e.family?.name ?? null,
+  }));
+
+  const rawHtml = renderReportHtml({
+    project: project as unknown as Project,
+    buildingId: options?.buildingId,
+    manufacturer: options?.manufacturer,
+    equipment: equipment as unknown as EquipmentItem[],
+    breakerSettings,
+    revisions: revisions as unknown as ProjectRevision[],
+    companyName: company?.companyName || "ProCal — Low Voltage Electrical Design , Solved",
+    companyLogoUrl: company?.logoUrl || undefined,
+  });
+
+  const html = await inlineImagesInHtml(rawHtml);
+
+  return {
+    projectName: project.name,
+    isTrial: Boolean(project.isTrial),
+    html,
+  };
+}
+
 export async function POST(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
@@ -97,17 +193,32 @@ export async function POST(
     }
 
     const body = await request.json().catch(() => ({}));
-    const htmlContent = body.html;
+    let fullHtml: string;
 
-    if (!htmlContent || typeof htmlContent !== "string") {
-      return NextResponse.json(
-        { error: "Missing or invalid 'html' in request body" },
-        { status: 400 }
-      );
+    if (Boolean(project.isTrial)) {
+      // Trial PDFs always use server-authoritative HTML so client CSS cannot suppress watermarks
+      const rendered = await renderServerAuthoritativeHtml(id, {
+        buildingId: typeof body.buildingId === "string" ? body.buildingId : undefined,
+        manufacturer: typeof body.manufacturer === "string" ? body.manufacturer : undefined,
+      });
+      if (!rendered) {
+        return NextResponse.json({ error: "Project not found" }, { status: 404 });
+      }
+      fullHtml = rendered.html;
+    } else {
+      const htmlContent = body.html;
+      if (!htmlContent || typeof htmlContent !== "string") {
+        return NextResponse.json(
+          { error: "Missing or invalid 'html' in request body" },
+          { status: 400 }
+        );
+      }
+
+      const sanitizedHtml = sanitizeClientReportHtml(htmlContent);
+      const inlinedHtml = await inlineImagesInHtml(sanitizedHtml);
+      fullHtml = wrapReportMarkup(inlinedHtml, `${project.name} - Executive Engineering Package`, false);
     }
 
-    const inlinedHtml = await inlineImagesInHtml(htmlContent);
-    const fullHtml = wrapReportMarkup(inlinedHtml, `${project.name} - Executive Engineering Package`, Boolean(project.isTrial));
     const pdfBuffer = await generateServerPdf(fullHtml, { isTrial: Boolean(project.isTrial) });
 
     const safeProjectName = project.name.replace(/[^a-zA-Z0-9_-]/g, "_");
@@ -156,93 +267,14 @@ export async function GET(
     const buildingId = searchParams.get("buildingId") || undefined;
     const manufacturer = searchParams.get("manufacturer") || undefined;
 
-    const [project, company, rawRevisions, rawEquipment, breakerSettings] =
-      await Promise.all([
-        db.project.findUnique({
-          where: { id },
-          include: {
-            buildings: {
-              include: {
-                floorDesigns: {
-                  include: {
-                    items: {
-                      include: {
-                        apartmentTemplate: {
-                          include: { rooms: true },
-                        },
-                        loadLibraryItem: true,
-                      },
-                    },
-                  },
-                },
-                buildingLoads: {
-                  include: {
-                    loadLibraryItem: true,
-                  },
-                },
-              },
-            },
-            apartmentTemplates: {
-              include: { rooms: true },
-            },
-            loadLibraryItems: true,
-          },
-        }),
-        getCompanySettings().catch(() => null),
-        db.projectRevision.findMany({
-          where: { projectId: id },
-          include: {
-            createdBy: { select: { username: true } },
-          },
-          orderBy: { createdAt: "desc" },
-        }),
-        db.equipmentCatalog.findMany({
-          include: { family: true },
-          orderBy: [
-            { manufacturer: "asc" },
-            { category: "asc" },
-            { ratedCurrent: "asc" },
-          ],
-        }),
-        db.breakerSettings.findMany({
-          orderBy: { model: "asc" },
-        }),
-      ]);
-
-    if (!project) {
+    const rendered = await renderServerAuthoritativeHtml(id, { buildingId, manufacturer });
+    if (!rendered) {
       return NextResponse.json({ error: "Project not found" }, { status: 404 });
     }
 
-    const revisions = rawRevisions.map((r) => ({
-      id: r.id,
-      projectId: r.projectId,
-      rev: r.rev,
-      description: r.description,
-      createdById: r.createdById,
-      createdByUsername: r.createdBy?.username,
-      createdAt: r.createdAt.toISOString(),
-    }));
+    const pdfBuffer = await generateServerPdf(rendered.html, { isTrial: rendered.isTrial });
 
-    const equipment = rawEquipment.map((e) => ({
-      ...e,
-      familyId: e.family?.id ?? null,
-      familyName: e.family?.name ?? null,
-    }));
-
-    const html = renderReportHtml({
-      project: project as unknown as Project,
-      buildingId,
-      manufacturer,
-      equipment: equipment as unknown as EquipmentItem[],
-      breakerSettings,
-      revisions: revisions as unknown as ProjectRevision[],
-      companyName: company?.companyName || "ProCal — Low Voltage Electrical Design , Solved",
-      companyLogoUrl: company?.logoUrl || undefined,
-    });
-
-    const pdfBuffer = await generateServerPdf(html, { isTrial: Boolean(project.isTrial) });
-
-    const safeProjectName = project.name.replace(/[^a-zA-Z0-9_-]/g, "_");
+    const safeProjectName = rendered.projectName.replace(/[^a-zA-Z0-9_-]/g, "_");
     const filename = `${safeProjectName}_Executive_Engineering_Package.pdf`;
 
     return new Response(pdfBuffer as unknown as BodyInit, {

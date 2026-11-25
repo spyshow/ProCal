@@ -43,7 +43,7 @@ Enforce unified owner/ProjectMember authorization across all 10 MCP tools, atomi
 - **Acceptance Criteria:**
   - [x] assertMcpProjectAccess(projectId, ctx) enforced across check_project_compliance, check_project_selectivity, update_project_cables, and get_project_bom in src/lib/mcp/server.ts
   - [x] Paid project creation (POST /api/projects, createProjectFromSpec) and trial upgrade (POST /api/projects/[id]/upgrade-trial) use atomic conditional updateMany({ where: { id: user.id, credits: { gte: 1 } } }) inside db.$transaction
-  - [ ] POST /api/projects/[id]/pdf sanitizes untrusted <style>/<script> tags so .trial-watermark-overlay cannot be suppressed via CSS injection
+  - [x] POST /api/projects/[id]/pdf sanitizes untrusted <style>/<script> tags so .trial-watermark-overlay cannot be suppressed via CSS injection
   - [ ] Dedicated unit test suite src/app/api/projects/[id]/pdf/route.test.ts verifies signed JWT report tokens and CWE-22 path containment
 
 #### [ ] [FEAT-03] Warm Chromium PDF Pool, Bulk Prisma createMany() Spec Builder & Foreign-Key Indexing (perf-001..003) `(MUST)`
@@ -137,7 +137,7 @@ Account for per-phase imbalance in main transformer kVA sizing, normalize FloorI
 
 - [x] **[SEC-001]** Unified Tenant & `ProjectMember` Authorization Guard on MCP Tools (IDOR)
 - [x] **[SEC-002]** Atomic Conditional Credit Decrement (`credits >= 1`) on Paid Project Creation (TOCTOU)
-- [ ] **[SEC-003]** Server-Rendered Trial PDFs & `<script>` Sanitization in `POST /api/projects/[id]/pdf`
+- [x] **[SEC-003]** Server-Rendered Trial PDFs & `<script>` Sanitization in `POST /api/projects/[id]/pdf`
 - [ ] **[CQ-004]** Dedicated Route-Level Security & Token Unit Tests for `/api/projects/[id]/pdf`
 - [ ] **[PERF-003]** PostgreSQL Foreign-Key & Composite `@@index` Declarations on Core Hierarchy Tables
 - [ ] **[PERF-004]** In-Memory TTL Cache & Admin Invalidation for `EquipmentCatalog`

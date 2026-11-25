@@ -24,7 +24,8 @@ import { sizeCableAndBreaker } from "@/lib/calculations/cables";
 import { phaseBalance } from "@/lib/calculations/phaseBalance";
 import { codeOf, nextBreakerRating } from "@/lib/calculations/codes";
 import { ENGINE_VERSION } from "@/lib/calculations/version";
-import { TRIAL_MAX_BUILDINGS, TRIAL_MAX_LEVELS, trialBuildingsError, trialLevelsError } from "@/lib/trial";
+import { TRIAL_MAX_BUILDINGS, TRIAL_MAX_LEVELS, canStartTrial, trialBuildingsError, trialLevelsError } from "@/lib/trial";
+import { logProjectActivity } from "@/lib/audit-logger";
 import { recalculateProjectBuildings } from "@/lib/calculations/recalculate-project";
 import { resolveBreakerRating } from "@/lib/sld/generator";
 import { computeFeeders, createFindBreaker, type EquipmentItem } from "@/lib/calculations/feeders";
@@ -36,6 +37,7 @@ export interface ProjectCreatedResult {
   success: boolean;
   projectId: string;
   projectName: string;
+  isTrial?: boolean;
   instructionsForUpdates?: string;
   buildings: {
     id: string;
@@ -141,7 +143,7 @@ async function attachBuildingLoadToDb(
 }
 
 export async function createProjectFromSpec(
-  user: { id: string; role: string; credits: number; name?: string; username?: string },
+  user: { id: string; role: string; credits: number; hasUsedTrial?: boolean | null; name?: string; username?: string },
   rawSpec: ProjectDrawingSpec | ProjectDrawingSpecInput
 ): Promise<ProjectCreatedResult> {
   const spec = ProjectDrawingSpecSchema.parse(rawSpec);
@@ -176,17 +178,55 @@ export async function createProjectFromSpec(
     }
   }
 
-  // 2. User Credit Gate (non-ADMIN users require at least 1 credit)
+  // 2. User Credit / Free Trial Gate
+  let startAsTrial = false;
   if (user.role !== "ADMIN" && user.credits < 1) {
-    const error = new Error("No credits remaining. Please upgrade your subscription to generate additional projects.");
-    (error as unknown as { statusCode: number }).statusCode = 402;
-    throw error;
+    const resolvedHasUsedTrial =
+      user.hasUsedTrial !== undefined && user.hasUsedTrial !== null
+        ? Boolean(user.hasUsedTrial)
+        : Boolean(
+            (
+              await db.user
+                ?.findUnique?.({ where: { id: user.id }, select: { hasUsedTrial: true } })
+                .catch(() => null)
+            )?.hasUsedTrial ?? true
+          );
+
+    if (!canStartTrial({ role: user.role, credits: user.credits, hasUsedTrial: resolvedHasUsedTrial })) {
+      const error = new Error("No credits remaining. Please upgrade your subscription to generate additional projects.");
+      (error as unknown as { statusCode: number }).statusCode = 402;
+      throw error;
+    }
+    startAsTrial = true;
   }
 
   // 3. Pre-flight dry-run validation
   const validation = validateProjectSpec(spec);
   if (!validation.valid || validation.errors) {
     throw new Error(`Invalid project specification: ${validation.errors?.join(", ")}`);
+  }
+
+  if (startAsTrial) {
+    if (spec.buildings.length > TRIAL_MAX_BUILDINGS) {
+      throw new Error(
+        trialBuildingsError(TRIAL_MAX_BUILDINGS) ||
+          `Free trial projects are limited to ${TRIAL_MAX_BUILDINGS} building.`
+      );
+    }
+    for (const b of spec.buildings) {
+      const lvlErr = trialLevelsError(b.floors, 0);
+      if (lvlErr) {
+        throw new Error(lvlErr);
+      }
+      for (const fa of b.floorAssignments || []) {
+        if (fa.floorNumber > TRIAL_MAX_LEVELS) {
+          throw new Error(
+            trialLevelsError(fa.floorNumber, 0) ||
+              `Free trial projects are limited to ${TRIAL_MAX_LEVELS} levels.`
+          );
+        }
+      }
+    }
   }
 
   const country = spec.country || "United Arab Emirates";
@@ -200,8 +240,20 @@ export async function createProjectFromSpec(
   // 4. Interactive Prisma Transaction (15s timeout)
   const result = await db.$transaction(
     async (tx) => {
-      // Atomically decrement credit if non-ADMIN (guards TOCTOU negative balances)
-      if (user.role !== "ADMIN") {
+      // Atomically claim trial OR decrement credit inside the transaction
+      if (startAsTrial) {
+        const claimed = await tx.user.updateMany({
+          where: { id: user.id, hasUsedTrial: false },
+          data: { hasUsedTrial: true },
+        });
+        if (claimed.count !== 1) {
+          const error = new Error(
+            "Free trial already used. Please purchase credits to create additional projects."
+          );
+          (error as unknown as { statusCode: number }).statusCode = 402;
+          throw error;
+        }
+      } else if (user.role !== "ADMIN") {
         const spent = await tx.user.updateMany({
           where: { id: user.id, credits: { gte: 1 } },
           data: { credits: { decrement: 1 } },
@@ -233,6 +285,7 @@ export async function createProjectFromSpec(
           calculationStandard,
           preferredManufacturer: spec.preferredManufacturer || "MIXED",
           engineVersion: ENGINE_VERSION,
+          isTrial: startAsTrial,
         },
       });
 
@@ -425,6 +478,7 @@ export async function createProjectFromSpec(
     success: true,
     projectId: result.project.id,
     projectName: result.project.name,
+    isTrial: Boolean((result.project as { isTrial?: boolean }).isTrial ?? startAsTrial),
     instructionsForUpdates: `To modify, correct, or adjust any entry in this project (room areas, templates, floor schedules, loads, or voltage), call 'update_project_spec' with projectId: '${result.project.id}'. NEVER call 'create_project_from_spec' again for this project.`,
     buildings: result.createdBuildingsList.map((b) => ({
       id: b.id,
@@ -443,11 +497,12 @@ export async function createProjectFromSpec(
   };
 }
 
-function formatCreatedResult(project: { id: string; name: string; buildings: { id: string; name: string; floors: number }[] }): ProjectCreatedResult {
+function formatCreatedResult(project: { id: string; name: string; isTrial?: boolean | null; buildings: { id: string; name: string; floors: number }[] }): ProjectCreatedResult {
   return {
     success: true,
     projectId: project.id,
     projectName: project.name,
+    isTrial: Boolean(project.isTrial),
     buildings: project.buildings.map((b) => ({
       id: b.id,
       name: b.name,
@@ -468,6 +523,88 @@ function formatCreatedResult(project: { id: string; name: string; buildings: { i
       sld: `/projects/${project.id}?tab=sld`,
       pdfReport: `/api/projects/${project.id}/pdf`,
     },
+  };
+}
+
+export interface UpgradeTrialResult {
+  success: boolean;
+  projectId: string;
+  projectName: string;
+  isTrial: false;
+  alreadyUpgraded: boolean;
+}
+
+/**
+ * Atomically upgrades a Free Trial project to a full project using 1 credit
+ * (admins bypass credit deduction). Mirrors POST /api/projects/[id]/upgrade.
+ */
+export async function upgradeProjectFromTrial(
+  user: { id: string; role: string; credits: number; name?: string; username?: string },
+  projectId: string
+): Promise<UpgradeTrialResult> {
+  const project = await db.project.findUnique({
+    where: { id: projectId },
+    select: { id: true, name: true, userId: true, isTrial: true },
+  });
+  if (!project) {
+    throw new Error(`Project not found: ${projectId}`);
+  }
+  if (project.userId !== user.id && user.role !== "ADMIN") {
+    const err = new Error("Only the project owner can upgrade this project");
+    (err as unknown as { statusCode: number }).statusCode = 403;
+    throw err;
+  }
+  if (!project.isTrial) {
+    return {
+      success: true,
+      projectId: project.id,
+      projectName: project.name,
+      isTrial: false,
+      alreadyUpgraded: true,
+    };
+  }
+
+  let alreadyUpgraded = false;
+  await db.$transaction(async (tx) => {
+    if (user.role !== "ADMIN") {
+      const spent = await tx.user.updateMany({
+        where: { id: user.id, credits: { gte: 1 } },
+        data: { credits: { decrement: 1 } },
+      });
+      if (spent.count !== 1) {
+        const err = new Error("No credits remaining. Please purchase credits to upgrade this Free Trial project.");
+        (err as unknown as { statusCode: number }).statusCode = 402;
+        throw err;
+      }
+    }
+    const flipped = await tx.project.updateMany({
+      where: { id: projectId, isTrial: true },
+      data: { isTrial: false },
+    });
+    if (flipped.count !== 1) {
+      alreadyUpgraded = true;
+    }
+  });
+
+  if (!alreadyUpgraded) {
+    await logProjectActivity({
+      projectId: project.id,
+      userId: user.id,
+      userName: user.name || user.username || "AI Agent",
+      userRole: user.role === "ADMIN" ? "ADMIN" : "PROJECT_MANAGER",
+      action: "UPDATE",
+      entityType: "PROJECT",
+      entityId: project.id,
+      description: "Upgraded Free Trial project to full project via MCP (1 credit)",
+    });
+  }
+
+  return {
+    success: true,
+    projectId: project.id,
+    projectName: project.name,
+    isTrial: false,
+    alreadyUpgraded,
   };
 }
 

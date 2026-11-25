@@ -9,11 +9,13 @@ const { mockDb } = vi.hoisted(() => ({
       findUnique: vi.fn(),
       create: vi.fn(),
       update: vi.fn().mockResolvedValue({}),
+      updateMany: vi.fn().mockResolvedValue({ count: 1 }),
     },
     projectMember: {
       findUnique: vi.fn().mockResolvedValue(null),
     },
     user: {
+      findUnique: vi.fn().mockResolvedValue(null),
       update: vi.fn().mockResolvedValue({}),
       updateMany: vi.fn().mockResolvedValue({ count: 1 }),
     },
@@ -86,6 +88,7 @@ describe("Zero-Dependency JSON-RPC 2.0 MCP Server", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockDb.user.updateMany.mockResolvedValue({ count: 1 });
+    mockDb.project.updateMany.mockResolvedValue({ count: 1 });
   });
 
   it("handles 'initialize' method with protocolVersion and serverInfo", async () => {
@@ -138,7 +141,7 @@ describe("Zero-Dependency JSON-RPC 2.0 MCP Server", () => {
 
     const res = await handleMcpRequest(req, testUser, baseUrl);
     const tools = (res.result as { tools: { name: string }[] }).tools;
-    expect(tools).toHaveLength(11);
+    expect(tools).toHaveLength(12);
 
     const names = tools.map((t) => t.name);
     expect(names).toContain("get_engineering_catalog");
@@ -151,6 +154,7 @@ describe("Zero-Dependency JSON-RPC 2.0 MCP Server", () => {
     expect(names).toContain("update_project_cables");
     expect(names).toContain("get_project_bom");
     expect(names).toContain("get_project_sld");
+    expect(names).toContain("upgrade_trial_project");
     expect(names).toContain("get_project_report");
   });
 
@@ -463,7 +467,7 @@ describe("Zero-Dependency JSON-RPC 2.0 MCP Server", () => {
     expect(toolsRes.id).toBe(102);
     expect(toolsRes.error).toBeUndefined();
     const tools = (toolsRes.result as { tools: unknown[] }).tools;
-    expect(tools.length).toBe(11);
+    expect(tools.length).toBe(12);
   });
 
   it("returns the 5-stage workflow prompt in 'prompts/get'", async () => {
@@ -806,5 +810,37 @@ describe("Zero-Dependency JSON-RPC 2.0 MCP Server", () => {
     expect((qaUpdate.result as { content: { text: string }[] }).content[0].text).toContain(
       "Unauthorized to modify this project"
     );
+  });
+
+  it("executes 'upgrade_trial_project' to convert a Free Trial project to a full project", async () => {
+    mockDb.project.findUnique.mockResolvedValueOnce({
+      id: "proj-trial-mcp",
+      name: "Trial Villa",
+      userId: testUser.id,
+      isTrial: true,
+    });
+
+    const res = await handleMcpRequest(
+      {
+        jsonrpc: "2.0",
+        id: "upgrade-trial-1",
+        method: "tools/call",
+        params: {
+          name: "upgrade_trial_project",
+          arguments: { projectId: "proj-trial-mcp" },
+        },
+      },
+      testUser,
+      baseUrl
+    );
+
+    expect(res.result).toHaveProperty("isError", false);
+    const data = JSON.parse((res.result as { content: { text: string }[] }).content[0].text);
+    expect(data).toMatchObject({
+      success: true,
+      projectId: "proj-trial-mcp",
+      isTrial: false,
+      alreadyUpgraded: false,
+    });
   });
 });

@@ -14,10 +14,10 @@
 ## 🚀 Code-Revealed Feature Discoveries (5)
 *Opportunities that naturally emerge from existing patterns, architecture, and extension points.*
 
-### [CI-001] MCP Agent Free Trial Provisioning & In-Chat Trial Upgrade Tool
+### [CI-001] MCP Agent Free Trial Provisioning & In-Chat Trial Upgrade Tool ✅ COMPLETED
 Allow AI agents calling create_project_from_spec to automatically provision a zero-credit Free Trial project (isTrial: true) when canStartTrial(user) holds, and expose an upgrade_trial_project MCP tool to unlock full projects in-chat.
 
-- **Effort:** `SMALL` | **Status:** `draft`
+- **Effort:** `SMALL` | **Status:** `completed`
 - **Builds Upon:** `src/lib/trial.ts`, `src/app/api/projects/[id]/upgrade/route.ts`, `src/lib/agent/build-project.ts`
 - **Affected Files:** `src/lib/agent/build-project.ts`, `src/lib/mcp/server.ts`, `src/lib/trial.ts`
 - **Rationale:** POST /api/projects (src/app/api/projects/route.ts:197-244) and POST /api/projects/[id]/upgrade/route.ts already support atomic lifetime Free Trial onboarding and 1-credit upgrades in the web UI, whereas createProjectFromSpec (src/lib/agent/build-project.ts:178) still rejects non-admin users with credits < 1.

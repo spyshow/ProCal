@@ -14,6 +14,7 @@ import {
   checkProjectSelectivity,
   getProjectComplianceSummary,
   getProjectBOM,
+  upgradeProjectFromTrial,
 } from "@/lib/agent/build-project";
 import { generateSLD, generateSLDPages } from "@/lib/sld/generator";
 import { render, parse } from "schematex";
@@ -30,6 +31,7 @@ export interface McpUser {
   id: string;
   role: string;
   credits: number;
+  hasUsedTrial?: boolean | null;
   name?: string;
   username?: string;
 }
@@ -250,6 +252,18 @@ const MCP_TOOLS = [
         buildingId: { type: "string", description: "Optional building ID filter" },
         floorNumber: { type: "number", description: "Optional floor number filter" },
         outputFilePath: { type: "string", description: "Optional local file path to save SVG when using stdio bridge (e.g. sld.svg)" },
+      },
+    },
+  },
+  {
+    name: "upgrade_trial_project",
+    description:
+      "Upgrades a Free Trial project (isTrial: true) to a full unlocked project in-chat by atomically consuming 1 credit from the project owner (admins bypass credits). Preserves all existing buildings, loads, and calculations.",
+    inputSchema: {
+      type: "object",
+      required: ["projectId"],
+      properties: {
+        projectId: { type: "string", description: "The Free Trial project ID to upgrade" },
       },
     },
   },
@@ -605,6 +619,13 @@ async function executeTool(
         },
         floorPages: pages,
       };
+    }
+
+    case "upgrade_trial_project": {
+      const authUser = requireAuth(user);
+      const projectId = args.projectId as string;
+      if (!projectId) throw new Error("projectId is required");
+      return await upgradeProjectFromTrial(authUser, projectId);
     }
 
     case "get_project_report": {

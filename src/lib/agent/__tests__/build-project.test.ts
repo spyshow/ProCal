@@ -3,6 +3,7 @@ import {
   createProjectFromSpec,
   getProjectComplianceSummary,
   getProjectBOM,
+  upgradeProjectFromTrial,
 } from "../build-project";
 import type { ProjectDrawingSpec, ProjectDrawingSpecInput } from "../project-spec-schema";
 
@@ -13,6 +14,7 @@ const { mockDb } = vi.hoisted(() => ({
       create: vi.fn().mockResolvedValue({ id: "log-1" }),
     },
     user: {
+      findUnique: vi.fn().mockResolvedValue(null),
       update: vi.fn().mockResolvedValue({ id: "user-1", credits: 4 }),
       updateMany: vi.fn().mockResolvedValue({ count: 1 }),
     },
@@ -20,6 +22,7 @@ const { mockDb } = vi.hoisted(() => ({
       create: vi.fn(),
       findUnique: vi.fn(),
       update: vi.fn().mockResolvedValue({}),
+      updateMany: vi.fn().mockResolvedValue({ count: 1 }),
     },
     apartmentTemplate: {
       create: vi.fn(),
@@ -105,6 +108,8 @@ describe("build-project service", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockDb.user.updateMany.mockResolvedValue({ count: 1 });
+    mockDb.project.updateMany.mockResolvedValue({ count: 1 });
+    mockDb.user.findUnique.mockResolvedValue(null);
   });
 
   describe("createProjectFromSpec", () => {
@@ -290,6 +295,102 @@ describe("build-project service", () => {
       expect(res.projectId).toBe("existing-proj-id");
       expect(mockDb.user.update).not.toHaveBeenCalled();
       expect(mockDb.project.create).not.toHaveBeenCalled();
+    });
+
+    it("provisions a Free Trial project (isTrial: true) when user has 0 credits and hasUsedTrial=false", async () => {
+      const eligibleTrialUser = { ...testUser, credits: 0, hasUsedTrial: false };
+      mockDb.project.create.mockResolvedValueOnce({
+        id: "proj-trial-1",
+        name: "Emerald Tower",
+        isTrial: true,
+      });
+      mockDb.apartmentTemplate.create.mockResolvedValueOnce({ id: "tpl-t1", name: "Type 2BR" });
+      mockDb.building.create.mockResolvedValueOnce({ id: "bldg-t1", name: "Tower 1", floors: 2 });
+      mockDb.floorDesign.create
+        .mockResolvedValueOnce({ id: "fd-t1", floorNumber: 1 })
+        .mockResolvedValueOnce({ id: "fd-t2", floorNumber: 2 });
+      mockDb.loadLibraryItem.create.mockResolvedValueOnce({ id: "lib-t1", name: "Passenger Elevator" });
+
+      const res = await createProjectFromSpec(eligibleTrialUser, sampleSpec);
+      expect(res.success).toBe(true);
+      expect(res.isTrial).toBe(true);
+      expect(mockDb.user.updateMany).toHaveBeenCalledWith({
+        where: { id: "user-eng-1", hasUsedTrial: false },
+        data: { hasUsedTrial: true },
+      });
+      expect(mockDb.project.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({ isTrial: true }),
+        })
+      );
+    });
+
+    it("rejects Free Trial creation exceeding 1 building or 2 levels", async () => {
+      const eligibleTrialUser = { ...testUser, credits: 0, hasUsedTrial: false };
+      const multiFloorSpec: ProjectDrawingSpecInput = {
+        ...sampleSpec,
+        buildings: [
+          {
+            name: "Tower 1",
+            floors: 3,
+            floorAssignments: [{ floorNumber: 1, templateName: "Type 2BR", count: 1 }],
+          },
+        ],
+      };
+      await expect(createProjectFromSpec(eligibleTrialUser, multiFloorSpec)).rejects.toThrow(
+        /limited to 2 levels/i
+      );
+      expect(mockDb.project.create).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("upgradeProjectFromTrial", () => {
+    it("atomically deducts 1 credit and clears isTrial for owner", async () => {
+      mockDb.project.findUnique.mockResolvedValueOnce({
+        id: "proj-trial-1",
+        name: "Trial Tower",
+        userId: testUser.id,
+        isTrial: true,
+      });
+      const res = await upgradeProjectFromTrial(testUser, "proj-trial-1");
+      expect(res).toEqual({
+        success: true,
+        projectId: "proj-trial-1",
+        projectName: "Trial Tower",
+        isTrial: false,
+        alreadyUpgraded: false,
+      });
+      expect(mockDb.user.updateMany).toHaveBeenCalledWith({
+        where: { id: testUser.id, credits: { gte: 1 } },
+        data: { credits: { decrement: 1 } },
+      });
+      expect(mockDb.project.updateMany).toHaveBeenCalledWith({
+        where: { id: "proj-trial-1", isTrial: true },
+        data: { isTrial: false },
+      });
+    });
+
+    it("rejects non-owner upgrade with 403 and 0-credit upgrade with 402", async () => {
+      mockDb.project.findUnique.mockResolvedValueOnce({
+        id: "proj-trial-2",
+        name: "Other Trial",
+        userId: "other-user",
+        isTrial: true,
+      });
+      await expect(upgradeProjectFromTrial(testUser, "proj-trial-2")).rejects.toMatchObject({
+        statusCode: 403,
+      });
+
+      mockDb.project.findUnique.mockResolvedValueOnce({
+        id: "proj-trial-3",
+        name: "Empty Wallet Trial",
+        userId: testUser.id,
+        isTrial: true,
+      });
+      mockDb.user.updateMany.mockResolvedValueOnce({ count: 0 });
+      await expect(upgradeProjectFromTrial({ ...testUser, credits: 0 }, "proj-trial-3")).rejects.toMatchObject({
+        statusCode: 402,
+      });
     });
   });
 

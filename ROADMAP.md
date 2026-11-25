@@ -62,17 +62,17 @@ Eliminate cold Chromium launch overhead via a warm singleton browser pool in ser
 ### Phase 2: AI Agent Parity & Advanced IEC Protection Verification (0% complete)
 *Full MCP agent trial parity, unified 8-section executive report rendering, IEC 60364-4-43 adiabatic thermal withstand (I²t <= k²S²), and modular codebase refactoring.*
 
-#### [ ] [FEAT-04] MCP Agent Free Trial Provisioning, In-Chat Trial Upgrade & Unified 8-Section Base64 Report (ci-001, ci-002) `(SHOULD)`
+#### [x] [FEAT-04] MCP Agent Free Trial Provisioning, In-Chat Trial Upgrade & Unified 8-Section Base64 Report (ci-001, ci-002) `(SHOULD)`
 Enable zero-credit Free Trial project creation directly through create_project_from_spec, add an in-chat upgrade_trial_project MCP tool, and unify get_project_report Base64 exports with the full 8-section renderReportHtml pipeline.
 
-- **Status:** `planned` | **Complexity:** `medium` | **Impact:** `high`
+- **Status:** `completed` | **Complexity:** `medium` | **Impact:** `high`
 - **Addresses Competitor Pain Points:** `CP-01`, `CP-02`, `CP-06`
 - **Rationale:** Completes parity between the web UI and the 5-stage MCP AI workflow (ci-001, ci-002).
 - **User Story:**
   - *"As an Engineer using Claude or Cursor with ProCal MCP, I want to start my Free Trial project, inspect the full 8-section PDF report, and upgrade my trial directly from chat."*
 - **Acceptance Criteria:**
-  - [ ] createProjectFromSpec in src/lib/agent/build-project.ts provisions a Free Trial project (isTrial: true) when credits < 1 and canStartTrial(user) is true, enforcing TRIAL_MAX_BUILDINGS (1) and TRIAL_MAX_LEVELS (4)
-  - [ ] New upgrade_trial_project MCP tool in src/lib/mcp/server.ts atomically deducts 1 credit and unlocks isTrial: false in-chat
+  - [x] createProjectFromSpec in src/lib/agent/build-project.ts provisions a Free Trial project (isTrial: true) when credits < 1 and canStartTrial(user) is true, enforcing TRIAL_MAX_BUILDINGS (1) and TRIAL_MAX_LEVELS (2)
+  - [x] New upgrade_trial_project MCP tool in src/lib/mcp/server.ts atomically deducts 1 credit and unlocks isTrial: false in-chat
   - [x] get_project_report (when includeBase64=true) renders the full 8-section executive report via renderReportHtml(reportData) instead of the simplified fallback header
 
 #### [ ] [FEAT-05] IEC 60364-4-43 Adiabatic Short-Circuit Thermal Withstand (I²t <= k²S²) Engine (ci-003) `(SHOULD)`
@@ -146,7 +146,7 @@ Account for per-phase imbalance in main transformer kVA sizing, normalize FloorI
 - [x] **[CQ-002]** Centralize 0.5 m² Room Area Validator (`isHalfStepArea`) Across REST & MCP Schemas
 - [x] **[CQ-003]** Shared `loadProjectReportHtml` Service & Removal of Dead MCP Imports
 - [x] **[CI-002]** Unified Full 8-Section Executive Report Rendering for MCP Base64 & Stdio Exports
-- [ ] **[CI-001]** MCP Agent Free Trial Provisioning & In-Chat `upgrade_trial_project` Tool
+- [x] **[CI-001]** MCP Agent Free Trial Provisioning & In-Chat `upgrade_trial_project` Tool
 - [ ] **[CI-004]** MCP Native AutoCAD DXF Schematic Export Tool (`get_project_dxf`)
 - [ ] **[CI-003]** Combinatorial Min-Neutral Per-Phase Optimizer & 3φ Apartment Room Decomposition
 - [ ] **[CI-005]** Engineering Revision Diff Comparison & Pre-Mutation MCP Snapshot Tool

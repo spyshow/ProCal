@@ -22,6 +22,7 @@ import { signReportDownloadToken } from "@/lib/auth";
 import { generateServerPdf } from "@/lib/reports/server-pdf";
 import { renderReportHtml, wrapReportMarkup } from "@/lib/reports/render-report-html";
 import { getCompanySettings } from "@/lib/app-settings";
+import { assertMcpProjectAccess } from "@/lib/project-auth";
 import { APP_VERSION } from "@/lib/version";
 import type { Project as AppProject } from "@/types";
 
@@ -523,17 +524,17 @@ async function executeTool(
     }
 
     case "check_project_compliance": {
-      requireAuth(user);
+      const authUser = requireAuth(user);
       const projectId = args.projectId as string;
       if (!projectId) throw new Error("projectId is required");
-      return await getProjectComplianceSummary(projectId);
+      return await getProjectComplianceSummary(projectId, authUser);
     }
 
     case "check_project_selectivity": {
-      requireAuth(user);
+      const authUser = requireAuth(user);
       const projectId = args.projectId as string;
       if (!projectId) throw new Error("projectId is required");
-      return await checkProjectSelectivity(projectId);
+      return await checkProjectSelectivity(projectId, authUser);
     }
 
     case "update_project_cables": {
@@ -543,10 +544,10 @@ async function executeTool(
     }
 
     case "get_project_bom": {
-      requireAuth(user);
+      const authUser = requireAuth(user);
       const projectId = args.projectId as string;
       if (!projectId) throw new Error("projectId is required");
-      return await getProjectBOM(projectId);
+      return await getProjectBOM(projectId, authUser);
     }
 
     case "get_project_sld": {
@@ -571,9 +572,7 @@ async function executeTool(
       });
 
       if (!project) throw new Error(`Project not found: ${projectId}`);
-      if (project.userId && project.userId !== authUser.id && authUser.role !== "ADMIN") {
-        throw new Error("Unauthorized to access this project");
-      }
+      await assertMcpProjectAccess(project, authUser, { requireWrite: false });
 
       const watermarkSvg = (svgStr: string) =>
         (project as { isTrial?: boolean }).isTrial
@@ -631,11 +630,9 @@ async function executeTool(
       });
 
       if (!project) throw new Error(`Project not found: ${projectId}`);
-      if (project.userId && project.userId !== authUser.id && authUser.role !== "ADMIN") {
-        throw new Error("Unauthorized to access this project");
-      }
+      await assertMcpProjectAccess(project, authUser, { requireWrite: false });
 
-      const compliance = await getProjectComplianceSummary(projectId);
+      const compliance = await getProjectComplianceSummary(projectId, authUser);
       const downloadToken = await signReportDownloadToken(projectId, authUser.id);
       const signedDownloadUrl = `${baseUrl}/api/projects/${projectId}/pdf?token=${downloadToken}`;
 

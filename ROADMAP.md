@@ -41,7 +41,7 @@ Enforce unified owner/ProjectMember authorization across all 10 MCP tools, atomi
 - **User Story:**
   - *"As a SaaS Platform Operator, I want every MCP tool and credit transaction guarded atomically so that tenant data and credit balances remain strictly isolated under concurrent load."*
 - **Acceptance Criteria:**
-  - [ ] assertMcpProjectAccess(projectId, ctx) enforced across check_project_compliance, check_project_selectivity, update_project_cables, and get_project_bom in src/lib/mcp/server.ts
+  - [x] assertMcpProjectAccess(projectId, ctx) enforced across check_project_compliance, check_project_selectivity, update_project_cables, and get_project_bom in src/lib/mcp/server.ts
   - [ ] Paid project creation (POST /api/projects, createProjectFromSpec) and trial upgrade (POST /api/projects/[id]/upgrade-trial) use atomic conditional updateMany({ where: { id: user.id, credits: { gte: 1 } } }) inside db.$transaction
   - [ ] POST /api/projects/[id]/pdf sanitizes untrusted <style>/<script> tags so .trial-watermark-overlay cannot be suppressed via CSS injection
   - [ ] Dedicated unit test suite src/app/api/projects/[id]/pdf/route.test.ts verifies signed JWT report tokens and CWE-22 path containment
@@ -129,6 +129,28 @@ Account for per-phase imbalance in main transformer kVA sizing, normalize FloorI
   - [ ] Normalize FloorItem.calculatedCurrent derivation across all load categories and evaluate transformer kVA sizing under worst-case per-phase imbalance (L1/L2/L3 max phase current)
   - [ ] Simulated annealing / combinatorial phase optimizer achieves <3% phase deviation across 100+ circuit panelboards in <50ms
   - [ ] Interactive multi-user project collaboration with role-based permissions (Owner, Editor, Viewer) and revision snapshot comparison
+
+---
+
+## ✅ v1.8.0 Ideation Execution Tracker (16 Items)
+*Tracking sequential execution of [IDEATION.md](IDEATION.md) (`SEC-004` excluded per user direction).*
+
+- [x] **[SEC-001]** Unified Tenant & `ProjectMember` Authorization Guard on MCP Tools (IDOR)
+- [ ] **[SEC-002]** Atomic Conditional Credit Decrement (`credits >= 1`) on Paid Project Creation (TOCTOU)
+- [ ] **[SEC-003]** Server-Rendered Trial PDFs & `<script>` Sanitization in `POST /api/projects/[id]/pdf`
+- [ ] **[CQ-004]** Dedicated Route-Level Security & Token Unit Tests for `/api/projects/[id]/pdf`
+- [ ] **[PERF-003]** PostgreSQL Foreign-Key & Composite `@@index` Declarations on Core Hierarchy Tables
+- [ ] **[PERF-004]** In-Memory TTL Cache & Admin Invalidation for `EquipmentCatalog`
+- [ ] **[PERF-001]** Warm Singleton Chromium Browser Pool & Concurrency Semaphore in `server-pdf.ts`
+- [ ] **[PERF-002]** Bulk `createMany()` Batching for Rooms & Floor Items in `build-project.ts`
+- [ ] **[CQ-002]** Centralize 0.5 m² Room Area Validator (`isHalfStepArea`) Across REST & MCP Schemas
+- [ ] **[CQ-003]** Shared `loadProjectReportHtml` Service & Removal of Dead MCP Imports
+- [ ] **[CI-002]** Unified Full 8-Section Executive Report Rendering for MCP Base64 & Stdio Exports
+- [ ] **[CI-001]** MCP Agent Free Trial Provisioning & In-Chat `upgrade_trial_project` Tool
+- [ ] **[CI-004]** MCP Native AutoCAD DXF Schematic Export Tool (`get_project_dxf`)
+- [ ] **[CI-003]** Combinatorial Min-Neutral Per-Phase Optimizer & 3φ Apartment Room Decomposition
+- [ ] **[CI-005]** Engineering Revision Diff Comparison & Pre-Mutation MCP Snapshot Tool
+- [ ] **[CQ-001]** Decompose 1,470–1,887 LOC Monolithic Views & Agent Spec Builder Modules
 
 ---
 *Generated autonomously by Antigravity Tools — Built with MoSCoW & Competitor Analysis Architecture.*

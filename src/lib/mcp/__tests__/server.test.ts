@@ -9,6 +9,9 @@ const { mockDb } = vi.hoisted(() => ({
       create: vi.fn(),
       update: vi.fn().mockResolvedValue({}),
     },
+    projectMember: {
+      findUnique: vi.fn().mockResolvedValue(null),
+    },
     user: {
       update: vi.fn().mockResolvedValue({}),
     },
@@ -686,6 +689,109 @@ describe("Zero-Dependency JSON-RPC 2.0 MCP Server", () => {
     expect(unauthRes.result).toHaveProperty("isError", true);
     expect((unauthRes.result as { content: { text: string }[] }).content[0].text).toContain(
       "Unauthorized to access this project"
+    );
+  });
+
+  it("enforces tenant and ProjectMember authorization across compliance, selectivity, BOM, and spec updates", async () => {
+    const otherProject = {
+      id: "proj-tenant-other",
+      userId: "other-owner",
+      name: "Other Tenant Tower",
+      voltage: 400,
+      frequency: 50,
+      powerFactor: 0.85,
+      calculationStandard: "IEC",
+      preferredManufacturer: "ABB",
+      buildings: [],
+      apartmentTemplates: [],
+    };
+
+    mockDb.projectMember.findUnique.mockResolvedValue(null);
+
+    for (const toolName of ["check_project_compliance", "check_project_selectivity", "get_project_bom"]) {
+      mockDb.project.findUnique.mockResolvedValueOnce(otherProject);
+      const res = await handleMcpRequest(
+        {
+          jsonrpc: "2.0",
+          id: `unauth-${toolName}`,
+          method: "tools/call",
+          params: { name: toolName, arguments: { projectId: otherProject.id } },
+        },
+        testUser,
+        baseUrl
+      );
+      expect(res.result).toHaveProperty("isError", true);
+      expect((res.result as { content: { text: string }[] }).content[0].text).toContain("Unauthorized");
+    }
+
+    // Invited ENGINEER ProjectMember can read BOM and update spec
+    mockDb.projectMember.findUnique.mockResolvedValue({
+      id: "pm-eng",
+      projectId: otherProject.id,
+      userId: testUser.id,
+      role: "ENGINEER",
+      permissions: null,
+    });
+    mockDb.project.findUnique.mockResolvedValue(otherProject);
+
+    const engBom = await handleMcpRequest(
+      {
+        jsonrpc: "2.0",
+        id: "eng-bom",
+        method: "tools/call",
+        params: { name: "get_project_bom", arguments: { projectId: otherProject.id } },
+      },
+      testUser,
+      baseUrl
+    );
+    expect(engBom.result).toHaveProperty("isError", false);
+
+    const engUpdate = await handleMcpRequest(
+      {
+        jsonrpc: "2.0",
+        id: "eng-update",
+        method: "tools/call",
+        params: { name: "update_project_spec", arguments: { projectId: otherProject.id, voltage: 380, resetSizing: false } },
+      },
+      testUser,
+      baseUrl
+    );
+    expect(engUpdate.result).toHaveProperty("isError", false);
+
+    // Invited QA ProjectMember can read BOM but cannot update spec
+    mockDb.projectMember.findUnique.mockResolvedValue({
+      id: "pm-qa",
+      projectId: otherProject.id,
+      userId: testUser.id,
+      role: "QA",
+      permissions: null,
+    });
+
+    const qaBom = await handleMcpRequest(
+      {
+        jsonrpc: "2.0",
+        id: "qa-bom",
+        method: "tools/call",
+        params: { name: "get_project_bom", arguments: { projectId: otherProject.id } },
+      },
+      testUser,
+      baseUrl
+    );
+    expect(qaBom.result).toHaveProperty("isError", false);
+
+    const qaUpdate = await handleMcpRequest(
+      {
+        jsonrpc: "2.0",
+        id: "qa-update",
+        method: "tools/call",
+        params: { name: "update_project_spec", arguments: { projectId: otherProject.id, voltage: 380, resetSizing: false } },
+      },
+      testUser,
+      baseUrl
+    );
+    expect(qaUpdate.result).toHaveProperty("isError", true);
+    expect((qaUpdate.result as { content: { text: string }[] }).content[0].text).toContain(
+      "Unauthorized to modify this project"
     );
   });
 });

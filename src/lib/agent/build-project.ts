@@ -28,6 +28,7 @@ import { TRIAL_MAX_BUILDINGS, TRIAL_MAX_LEVELS, trialBuildingsError, trialLevels
 import { recalculateProjectBuildings } from "@/lib/calculations/recalculate-project";
 import { resolveBreakerRating } from "@/lib/sld/generator";
 import { computeFeeders, createFindBreaker, type EquipmentItem } from "@/lib/calculations/feeders";
+import { assertMcpProjectAccess } from "@/lib/project-auth";
 import type { Building, FloorItem, BuildingLoad, Project as AppProject } from "@/types";
 
 export interface ProjectCreatedResult {
@@ -471,11 +472,7 @@ export async function updateProjectLoads(
     throw new Error(`Project not found: ${spec.projectId}`);
   }
 
-  if (project.userId && project.userId !== user.id && user.role !== "ADMIN") {
-    const error = new Error("Unauthorized to modify this project");
-    (error as unknown as { statusCode: number }).statusCode = 403;
-    throw error;
-  }
+  await assertMcpProjectAccess(project, user, { requireWrite: true });
 
   // If new building loads are specified, insert them
   if (spec.buildingLoads && spec.buildingLoads.length > 0) {
@@ -529,11 +526,7 @@ export async function updateProjectSpec(
     throw new Error(`Project not found: ${spec.projectId}`);
   }
 
-  if (project.userId && project.userId !== user.id && user.role !== "ADMIN") {
-    const error = new Error("Unauthorized to modify this project");
-    (error as unknown as { statusCode: number }).statusCode = 403;
-    throw error;
-  }
+  await assertMcpProjectAccess(project, user, { requireWrite: true });
 
   // Free trial caps (1 building, 2 levels) apply to agent edits too.
   if (project.isTrial && spec.buildings && spec.buildings.length > 0) {
@@ -839,7 +832,10 @@ export async function updateProjectSpec(
   };
 }
 
-export async function getProjectComplianceSummary(projectId: string) {
+export async function getProjectComplianceSummary(
+  projectId: string,
+  user?: { id: string; role?: string }
+) {
   const project = await db.project.findUnique({
     where: { id: projectId },
     include: {
@@ -868,6 +864,10 @@ export async function getProjectComplianceSummary(projectId: string) {
 
   if (!project) {
     throw new Error(`Project not found: ${projectId}`);
+  }
+
+  if (user) {
+    await assertMcpProjectAccess(project, user, { requireWrite: false });
   }
 
   const allItems: (FloorItem | BuildingLoad)[] = [];
@@ -966,7 +966,10 @@ export async function getProjectComplianceSummary(projectId: string) {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export async function checkProjectSelectivity(projectIdOrProject: string | any) {
+export async function checkProjectSelectivity(
+  projectIdOrProject: string | any,
+  user?: { id: string; role?: string }
+) {
   const project =
     typeof projectIdOrProject === "string"
       ? await db.project.findUnique({
@@ -997,6 +1000,10 @@ export async function checkProjectSelectivity(projectIdOrProject: string | any) 
 
   if (!project) {
     throw new Error(`Project not found: ${projectIdOrProject}`);
+  }
+
+  if (user) {
+    await assertMcpProjectAccess(project, user, { requireWrite: true });
   }
 
   const rawCatalog =
@@ -1194,11 +1201,7 @@ export async function updateProjectCables(
     throw new Error(`Project not found: ${spec.projectId}`);
   }
 
-  if (project.userId && project.userId !== user.id && user.role !== "ADMIN") {
-    const error = new Error("Unauthorized to modify this project");
-    (error as unknown as { statusCode: number }).statusCode = 403;
-    throw error;
-  }
+  await assertMcpProjectAccess(project, user, { requireWrite: true });
 
   const code = codeOf(project.calculationStandard);
   const voltage = project.voltage;
@@ -1523,7 +1526,10 @@ export async function updateProjectCables(
   };
 }
 
-export async function getProjectBOM(projectId: string) {
+export async function getProjectBOM(
+  projectId: string,
+  user?: { id: string; role?: string }
+) {
   const project = await db.project.findUnique({
     where: { id: projectId },
     include: {
@@ -1546,6 +1552,10 @@ export async function getProjectBOM(projectId: string) {
 
   if (!project) {
     throw new Error(`Project not found: ${projectId}`);
+  }
+
+  if (user) {
+    await assertMcpProjectAccess(project, user, { requireWrite: false });
   }
 
   const breakersMap = new Map<string, { category: string; rating: string; quantity: number }>();

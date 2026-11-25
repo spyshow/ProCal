@@ -1,138 +1,174 @@
 # 💡 Codebase Ideation & Audit Report: procal
 
-**Generated:** 10/31/2026 | **Files Analyzed:** 444 | **Estimated Lines:** ~162258
+**Generated:** 11/25/2026 | **Files Analyzed:** 508 | **Estimated Lines:** ~195019
 
 ## 🩺 Project Health Dashboard
 
 | Dimension | Score | Status | Description |
 | :--- | :--- | :--- | :--- |
-| 🛡️ **Security Posture** | **76/100** | 🟢 Good | Vulnerability scan & risk assessment |
+| 🛡️ **Security Posture** | **74/100** | 🟡 Needs Hardening | Vulnerability scan & risk assessment |
 | ⚡ **Runtime Performance** | **70/100** | 🟡 Optimization Opportunities | I/O, bundle size, and algorithmic bottlenecks |
-| 🧹 **Code Quality** | **76/100** | 🟡 Technical Debt | Modularity, test coverage, and design patterns |
-| 🚀 **Innovation Index** | **92/100** | 🌟 High Potential | Code-revealed feature extension opportunities |
+| 🧹 **Code Quality** | **72/100** | 🟡 Technical Debt | Modularity, test coverage, and design patterns |
+| 🚀 **Innovation Index** | **98/100** | 🌟 High Potential | Code-revealed feature extension opportunities |
 
-## 🚀 Code-Revealed Feature Discoveries (4)
+## 🚀 Code-Revealed Feature Discoveries (5)
 *Opportunities that naturally emerge from existing patterns, architecture, and extension points.*
 
 ### [CI-001] MCP Agent Free Trial Provisioning & In-Chat Trial Upgrade Tool
-Allow AI agents using create_project_from_spec to automatically provision a 1-building, 4-level Free Trial project when a user has 0 credits and hasUsedTrial === false, and add an upgrade_trial_project MCP tool to unlock full capabilities in-chat.
+Allow AI agents calling create_project_from_spec to automatically provision a zero-credit Free Trial project (isTrial: true) when canStartTrial(user) holds, and expose an upgrade_trial_project MCP tool to unlock full projects in-chat.
 
 - **Effort:** `SMALL` | **Status:** `draft`
-- **Builds Upon:** `src/lib/trial.ts`, `src/app/api/projects/[id]/upgrade-trial/route.ts`, `src/lib/agent/build-project.ts`
+- **Builds Upon:** `src/lib/trial.ts`, `src/app/api/projects/[id]/upgrade/route.ts`, `src/lib/agent/build-project.ts`
 - **Affected Files:** `src/lib/agent/build-project.ts`, `src/lib/mcp/server.ts`, `src/lib/trial.ts`
-- **Rationale:** Currently POST /api/projects supports zero-credit trial onboarding via canStartTrial(), whereas createProjectFromSpec rejects any non-admin with credits < 1. Aligning the MCP spec builder removes onboarding friction for Claude/Cursor users.
-- **Implementation Approach:** Update createProjectFromSpec in src/lib/agent/build-project.ts to evaluate canStartTrial(user) when credits < 1, enforce TRIAL_MAX_BUILDINGS and TRIAL_MAX_LEVELS inside a Prisma $transaction, and register upgrade_trial_project in src/lib/mcp/server.ts.
+- **Rationale:** POST /api/projects (src/app/api/projects/route.ts:197-244) and POST /api/projects/[id]/upgrade/route.ts already support atomic lifetime Free Trial onboarding and 1-credit upgrades in the web UI, whereas createProjectFromSpec (src/lib/agent/build-project.ts:178) still rejects non-admin users with credits < 1.
+- **Implementation Approach:** Update createProjectFromSpec in src/lib/agent/build-project.ts to check canStartTrial(freshUser) when credits < 1, enforce TRIAL_MAX_BUILDINGS and TRIAL_MAX_LEVELS inside db.$transaction, and register upgrade_trial_project in src/lib/mcp/server.ts.
 
-### [CI-002] Unified Full 8-Section Executive Report Rendering for MCP Base64 Exports
-Wire get_project_report (when includeBase64=true) in src/lib/mcp/server.ts to render the complete 8-section engineering report via renderReportHtml(reportData) instead of the simplified fallback HTML header.
+### [CI-002] Unified Full 8-Section Executive Report Rendering for MCP Base64 & Stdio Exports
+Wire get_project_report (when includeBase64=true or outputFilePath is set) in src/lib/mcp/server.ts to render the full 8-section executive engineering report via renderReportHtml(reportData) instead of the placeholder header.
 
 - **Effort:** `SMALL` | **Status:** `draft`
-- **Builds Upon:** `src/lib/reports/render-report-html.tsx`, `src/lib/reports/server-pdf.ts`
-- **Affected Files:** `src/lib/mcp/server.ts`, `src/lib/reports/render-report-html.tsx`
-- **Rationale:** The token-authenticated GET /api/projects/[id]/pdf route already renders the full executive report via renderReportHtml, while the direct Base64 MCP fallback renders a minimal placeholder header. Unifying both paths guarantees identical submittal PDFs.
-- **Implementation Approach:** Assemble the full ReportData payload inside get_project_report and pass renderReportHtml(reportData) into wrapReportMarkup before invoking generateServerPdf.
+- **Builds Upon:** `src/lib/reports/render-report-html.tsx`, `src/app/api/projects/[id]/pdf/route.ts`, `src/lib/mcp/server.ts`
+- **Affected Files:** `src/lib/mcp/server.ts`, `src/app/api/projects/[id]/pdf/route.ts`, `src/lib/reports/render-report-html.tsx`
+- **Rationale:** src/lib/mcp/server.ts already imports renderReportHtml and getCompanySettings (lines 23-24), yet lines 649-653 still wrap a minimal '<h1>Project</h1><p>Executive Report</p>' stub while GET /api/projects/[id]/pdf renders the full 8-section package.
+- **Implementation Approach:** Extract a shared buildExecutiveReportHtml(projectId, options) helper used by both GET /api/projects/[id]/pdf and get_project_report in src/lib/mcp/server.ts so Base64/stdio MCP exports match signed-URL PDFs byte-for-byte.
 
-### [CI-003] IEC 60364-4-43 Adiabatic Short-Circuit Thermal Withstand (I²t <= k²S²) Engine
-Extend cable and breaker verification to check prospective adiabatic short-circuit thermal withstand (I²t <= k²S²) against manufacturer breaker let-through energy curves per IEC 60364-4-43.
-
-- **Effort:** `MEDIUM` | **Status:** `draft`
-- **Builds Upon:** `src/lib/calculations/cables.ts`, `src/lib/breaker-families.ts`
-- **Affected Files:** `src/lib/calculations/cables.ts`, `src/lib/breaker-families.ts`, `src/components/report/ShortCircuitScheduleTable.tsx`
-- **Rationale:** ProCal already computes prospective fault currents (Isc) and breaker breaking capacities (Icu/Ics). Adding adiabatic thermal withstand verification completes the IEC 60364-4-43 protection chain alongside Ib <= Ir <= In <= Iz.
-- **Implementation Approach:** Add checkAdiabaticThermalWithstand(cable, breaker, faultCurrentKa) in src/lib/calculations/cables.ts using k=115 (PVC Cu) and k=143 (XLPE Cu) constants and surface pass/fail badges in ShortCircuitScheduleTable.tsx.
-
-### [CI-004] Native AutoCAD DXF Vector Export for SLD & Vertical Riser Diagrams
-Add native AutoCAD DXF vector export alongside SVG/PDF exports for Single-Line Diagrams (SLD) and Vertical Riser Diagrams, gated behind non-trial project status.
+### [CI-003] Combinatorial Min-Neutral Per-Phase Optimizer & 3-Phase Apartment Room Decomposition
+Extend phaseBalance.ts beyond single-pass greedy LPT with a fast combinatorial swap/annealing solver that minimizes 120-degree vector neutral current (IN) and optionally decomposes 3-phase apartment templates across room loads.
 
 - **Effort:** `MEDIUM` | **Status:** `draft`
-- **Builds Upon:** `src/app/(app)/sld/page.tsx`, `src/app/(app)/riser/page.tsx`
-- **Affected Files:** `src/app/(app)/sld/page.tsx`, `src/app/(app)/riser/page.tsx`
-- **Rationale:** MEP consultants routinely import SLD and riser schematics into AutoCAD/Revit title blocks. Because ProCal already computes deterministic X/Y coordinates for busbars, breakers, and feeders, DXF serialization is a natural high-value extension.
-- **Implementation Approach:** Serialize the computed Schematex node/edge layout geometry into standard ASCII DXF entities (LINE, LWPOLYLINE, TEXT, INSERT blocks) for direct consultant CAD import.
+- **Builds Upon:** `src/lib/calculations/phaseBalance.ts`, `src/app/api/floors/[id]/rebalance/route.ts`
+- **Affected Files:** `src/lib/calculations/phaseBalance.ts`, `src/app/api/floors/[id]/rebalance/route.ts`, `src/app/(app)/calculator/page.tsx`
+- **Rationale:** src/lib/calculations/phaseBalance.ts currently assigns null phases via single-pass greedy kW order and flags 3-phase apartments with internalImbalanceNotModeled: true (lines 24-34). A swap refinement pass over phasor angles (120 deg + arccos PF) achieves <3% current unbalance and minimal neutral current in <5ms.
+- **Implementation Approach:** Add optimizePhaseAssignments(items, project) in phaseBalance.ts using pairwise/3-way Kempe-chain swaps minimizing maxPhaseCurrent and vector neutralCurrent, wired to the existing Rebalance endpoints.
 
-## ⚡ Performance Optimizations (3)
+### [CI-004] MCP Native AutoCAD DXF Schematic Export Tool (get_project_dxf)
+Expose ProCal v1.8.0's new SVG-to-DXF CAD serializer (src/lib/dxf/svg-to-dxf.ts) through the MCP server so AI agents can export layered AutoCAD .dxf Single-Line and Riser drawings directly in chat.
+
+- **Effort:** `SMALL` | **Status:** `draft`
+- **Builds Upon:** `src/lib/dxf/svg-to-dxf.ts`, `src/lib/mcp/server.ts`, `src/lib/sld/generator.ts`
+- **Affected Files:** `src/lib/mcp/server.ts`, `src/lib/dxf/svg-to-dxf.ts`
+- **Rationale:** ProCal v1.8.0 shipped client-side AutoCAD DXF export in src/lib/dxf/svg-to-dxf.ts (1,167 LOC), and get_project_sld in src/lib/mcp/server.ts (lines 586-597) already generates standalone Schematex SVGs server-side. Bridging the two gives Claude/Cursor agents native CAD deliverables.
+- **Implementation Approach:** Add includeDxf / outputDxfPath options on get_project_sld (or a dedicated get_project_dxf MCP tool) that converts rendered overview/floor SVGs via svg-to-dxf.ts while rejecting trial projects with a clear upgrade prompt.
+
+### [CI-005] Engineering Revision Diff Comparison & Pre-Mutation MCP Snapshot Tool
+Surface side-by-side engineering delta tables (load totals, breaker frames, cable sizes, voltage drop changes) between ProjectRevision snapshots and add an MCP snapshot tool before bulk spec updates.
+
+- **Effort:** `MEDIUM` | **Status:** `draft`
+- **Builds Upon:** `src/lib/audit-diff.ts`, `src/app/api/projects/[id]/revisions/route.ts`, `src/lib/mcp/server.ts`
+- **Affected Files:** `src/lib/audit-diff.ts`, `src/app/api/projects/[id]/revisions/route.ts`, `src/lib/mcp/server.ts`
+- **Rationale:** ProjectRevision (prisma/schema.prisma:183-195) stores full project JSON snapshots and src/lib/audit-diff.ts (901 LOC) already computes structured entity diffs, but engineers and MCP agents cannot yet compare R0 vs R1 schedules side-by-side or checkpoint before update_project_spec.
+- **Implementation Approach:** Build a computeRevisionScheduleDiff(revA, revB) helper over snapshotJson payloads and expose both a Revision Diff drawer on /projects/[id] and a create_project_revision MCP tool.
+
+## ⚡ Performance Optimizations (4)
 *Bottlenecks, synchronous I/O, and bundle efficiency gains.*
 
 ### [PERF-001] Warm Singleton Chromium Browser Pool for Server-Side PDF Generation
-Maintain a warm singleton Puppeteer Browser instance in src/lib/reports/server-pdf.ts and allocate isolated BrowserContext pages per PDF export request.
+Reuse a warm module-scoped Puppeteer Browser instance in src/lib/reports/server-pdf.ts with isolated BrowserContext pages per export instead of cold-launching Chromium on every request.
 
 - **Impact:** `HIGH` | **Category:** `runtime` | **Effort:** `small`
-- **Current Metric:** Cold browser.launch() + browser.close() on every PDF generation (~1.2s–2.5s startup overhead per export)
-- **Expected Improvement:** Cuts server-side PDF generation latency by 50–65% (from ~3.0s to ~1.1s per report) and reduces memory spikes under concurrent exports
-- **Implementation:** Cache a module-scoped Promise<Browser> with automatic reconnect on disconnect, and use browser.createBrowserContext() per generateServerPdf call with a concurrency semaphore.
+- **Current Metric:** Cold puppeteer.launch() + browser.close() per PDF request (~2.5s-3.5s total latency)
+- **Expected Improvement:** Cuts warm PDF generation latency by 50-65% (~0.9s-1.2s) and bounds concurrent Chromium memory usage via semaphore
+- **Implementation:** Cache a singleton Promise<Browser> with disconnect recovery and allocate an isolated browser.createBrowserContext() per PDF render guarded by a max-concurrency semaphore.
 
-### [PERF-002] Bulk createMany() for Apartment Rooms & Floor Items in MCP Spec Builders
-Replace sequential per-room tx.apartmentRoom.create and per-item tx.floorItem.create loops in createProjectFromSpec and updateProjectSpec with batched tx.apartmentRoom.createMany and tx.floorItem.createMany calls.
+### [PERF-002] Bulk createMany() Batching for Rooms & Floor Items in MCP Spec Builders
+Replace sequential per-room tx.apartmentRoom.create and per-item tx.floorItem.create loops inside createProjectFromSpec and updateProjectSpec with batched createMany() inserts.
 
-- **Impact:** `HIGH` | **Category:** `runtime` | **Effort:** `small`
-- **Current Metric:** Sequential awaits (150–400 individual INSERT queries) inside interactive transaction when creating multi-building projects
-- **Expected Improvement:** Reduces MCP multi-building spec build transaction time by 70–85% (from 2.5–4.0s down to <400ms) and prevents interactive transaction timeouts
-- **Implementation:** Pre-compute room and floorItem payload arrays in memory and execute a single createMany() per template/floor inside the Prisma transaction.
+- **Impact:** `HIGH` | **Category:** `io` | **Effort:** `small`
+- **Current Metric:** 150-400 sequential INSERT round-trips per multi-tower MCP spec build (~2.5s-4.5s)
+- **Expected Improvement:** Reduces multi-building transaction time by 70-85% (<450ms) and eliminates interactive transaction timeout pressure
+- **Implementation:** Pre-compute ApartmentRoom and FloorItem row arrays in memory with generated UUIDs and execute single tx.apartmentRoom.createMany and tx.floorItem.createMany calls per batch.
 
-### [PERF-003] PostgreSQL Foreign-Key & Composite Indexes on FloorDesign, FloorItem, and ApartmentRoom
-Add composite and foreign-key indexes @@index([buildingId, floorNumber]) on FloorDesign, @@index([floorDesignId]) on FloorItem, and @@index([templateId]) on ApartmentRoom in prisma/schema.prisma.
+### [PERF-003] Add Missing PostgreSQL Foreign-Key & Composite Indexes on Core Hierarchy Tables
+Add @@index declarations on Building(projectId), FloorDesign(buildingId, floorNumber), FloorItem(floorDesignId), FloorItem(apartmentTemplateId), BuildingLoad(buildingId), and ApartmentRoom(templateId) in prisma/schema.prisma.
 
-- **Impact:** `MEDIUM` | **Category:** `runtime` | **Effort:** `small`
-- **Current Metric:** Sequential index scans on FloorDesign and FloorItem foreign keys during full-building recalculation and cascade deletes
-- **Expected Improvement:** Sub-5ms indexed lookups during /api/buildings/[id]/recalculate and multi-building load aggregation
-- **Implementation:** Add @@index annotations to FloorDesign, FloorItem, and ApartmentRoom models in prisma/schema.prisma and apply via migration.
+- **Impact:** `MEDIUM` | **Category:** `io` | **Effort:** `trivial`
+- **Current Metric:** Sequential table scans across FloorItem, FloorDesign, and ApartmentRoom joins on nested project queries
+- **Expected Improvement:** Sub-5ms index scans on deep project fetches, PDF report queries, and ON DELETE CASCADE operations
+- **Implementation:** Add @@index([projectId]) on Building, @@index([buildingId, floorNumber]) on FloorDesign, @@index([floorDesignId]) and @@index([apartmentTemplateId]) on FloorItem, @@index([buildingId]) on BuildingLoad, and @@index([templateId]) on ApartmentRoom.
 
-## 🛡️ Security Vulnerabilities & Hardening (3)
+### [PERF-004] In-Memory TTL Cache for Static EquipmentCatalog & CompanySettings Queries
+Cache db.equipmentCatalog.findMany({ include: { family: true } }) in memory with TTL and admin-mutation invalidation instead of re-querying all ABB/Schneider breaker rows on every PDF export and selectivity run.
+
+- **Impact:** `LOW` | **Category:** `network` | **Effort:** `trivial`
+- **Current Metric:** Full EquipmentCatalog + BreakerFamily table transfer on every report and selectivity invocation
+- **Expected Improvement:** Zero DB round-trips for warm catalog reads (<0.1ms lookup) with instant invalidation on admin edits
+- **Implementation:** Create getCachedEquipmentCatalog() with a 5-minute TTL and explicit invalidateEquipmentCatalogCache() hook called by admin breaker CRUD routes.
+
+## 🛡️ Security Vulnerabilities & Hardening (4)
 *Identified risks, authorization gaps, input validation, and credential handling.*
 
-### [SEC-001] Unified Tenant & Team-Member Authorization Guard Across All Project-Scoped MCP Tools `(HIGH SEVERITY)`
-Enforce a shared assertMcpProjectAccess(projectId, ctx) guard across all project-scoped MCP tools (check_project_compliance, check_project_selectivity, update_project_cables, get_project_bom) supporting both owner and ProjectMember access.
+### [SEC-001] Missing Tenant & ProjectMember Authorization Guard on MCP Tools (IDOR) `(HIGH SEVERITY)` ✅ COMPLETED
+Enforce a unified assertMcpProjectAccess(projectId, authUser, requiredRole) check across check_project_compliance, check_project_selectivity, get_project_bom, get_project_sld, and get_project_report.
 
-- **Vulnerability:** CWE-639: Authorization Bypass Through User-Controlled Key (IDOR) in Remaining MCP Tools
-- **Current Risk:** check_project_compliance, check_project_selectivity, update_project_cables, and get_project_bom query by projectId without verifying that ctx.userId owns or is a member of the project.
-- **Remediation:** Extract a reusable authorization helper in src/lib/mcp/server.ts that verifies project.userId === ctx.userId, ADMIN role, or ProjectMember membership before reading or mutating project data.
+- **Status:** `completed`
+
+- **Vulnerability:** CWE-639: Authorization Bypass Through User-Controlled Key (IDOR)
+- **Current Risk:** Any authenticated MCP API-key holder who knows or guesses another tenant's projectId UUID can read its BOM/compliance summary or trigger selectivity trip-unit mutations.
+- **Remediation:** Create assertMcpProjectAccess(projectId, user, { allowMembers: true, requireWrite?: boolean }) verifying owner, ADMIN, or ProjectMember access before executing any project-scoped MCP tool.
 - **Compliance Standards:** OWASP Top 10 A01:2021 - Broken Access Control, CWE-639
-- **Affected Files:** `src/lib/mcp/server.ts`, `src/lib/project-auth.ts`
+- **Affected Files:** `src/lib/mcp/server.ts`, `src/lib/agent/build-project.ts`, `src/lib/project-auth.ts`
 
-### [SEC-002] Atomic Conditional Credit Decrement (credits >= 1) on Paid Project Creation & Trial Upgrade `(MEDIUM SEVERITY)`
-Replace non-conditional credit decrement (credits: { decrement: 1 }) with an atomic conditional updateMany({ where: { id: user.id, credits: { gte: 1 } } }) inside a single database transaction with project creation/upgrade.
+### [SEC-002] Non-Conditional Credit Decrement Race Condition (TOCTOU) on Paid Project Creation `(MEDIUM SEVERITY)`
+Replace unconditional user.update({ credits: { decrement: 1 } }) in POST /api/projects and createProjectFromSpec with an atomic conditional updateMany({ where: { id: user.id, credits: { gte: 1 } } }) inside the creation transaction.
 
-- **Vulnerability:** CWE-367: Time-of-Check Time-of-Use (TOCTOU) Race Condition on Credit Balance Deduction
-- **Current Risk:** Concurrent paid project creation or trial upgrade requests with 1 remaining credit can pass the initial credits >= 1 check simultaneously and decrement credits below zero.
-- **Remediation:** Wrap paid project creation and trial upgrade in db.$transaction and verify that user.updateMany({ where: { id: user.id, credits: { gte: 1 } }, data: { credits: { decrement: 1 } } }) returns count === 1.
-- **Compliance Standards:** OWASP Top 10 A04:2021 - Insecure Design (Race Condition / TOCTOU), CWE-367
-- **Affected Files:** `src/app/api/projects/route.ts`, `src/lib/agent/build-project.ts`, `src/app/api/projects/[id]/upgrade-trial/route.ts`
+- **Vulnerability:** CWE-367: Time-of-Check Time-of-Use (TOCTOU) Race Condition
+- **Current Risk:** Concurrent REST or MCP paid project creation requests from an account with 1 credit can both pass the pre-check and drive User.credits negative.
+- **Remediation:** Inside db.$transaction, execute tx.user.updateMany({ where: { id: user.id, credits: { gte: 1 } }, data: { credits: { decrement: 1 } } }) and abort with 402 if count !== 1.
+- **Compliance Standards:** OWASP Top 10 A04:2021 - Insecure Design, CWE-367
+- **Affected Files:** `src/app/api/projects/route.ts`, `src/lib/agent/build-project.ts`
 
-### [SEC-003] Server-Driven HTML Rendering & Watermark Style Integrity in POST /api/projects/[id]/pdf `(MEDIUM SEVERITY)`
-Sanitize or reject untrusted <style>/<script> overrides in POST /api/projects/[id]/pdf when project.isTrial is true, or render report HTML exclusively server-side via renderReportHtml(projectId).
+### [SEC-003] Client-Supplied HTML/CSS Watermark Suppression in POST /api/projects/[id]/pdf `(MEDIUM SEVERITY)`
+Sanitize untrusted <style>/<script> blocks in POST /api/projects/[id]/pdf or render trial PDFs exclusively server-side via renderReportHtml so trial watermarks cannot be hidden via CSS injection.
 
-- **Vulnerability:** CWE-284: Client-Supplied HTML/CSS Watermark Suppression in POST /api/projects/[id]/pdf
-- **Current Risk:** An authenticated trial user calling POST /api/projects/[id]/pdf directly with crafted HTML/CSS could inject a <style>.trial-watermark-overlay { display: none !important; }</style> rule to hide the visual trial watermark.
-- **Remediation:** Strip user-supplied <script> tags and disallow CSS selectors targeting .trial-watermark-overlay in POST /api/projects/[id]/pdf, or deprecate raw client HTML submission in favor of server-rendered report markup.
-- **Compliance Standards:** OWASP Top 10 A03:2021 - Injection, CWE-79
-- **Affected Files:** `src/app/api/projects/[id]/pdf/route.ts`
+- **Vulnerability:** CWE-284: Improper Access Control / Client-Side Enforcement of Trial Watermark
+- **Current Risk:** Authenticated Free Trial users can craft a POST /api/projects/[id]/pdf payload with custom CSS rules to suppress visual 'FREE TRIAL — NOT FOR CONSTRUCTION' watermarks.
+- **Remediation:** When project.isTrial is true, ignore client-supplied body.html and render server-authoritative HTML via renderReportHtml (matching GET /api/projects/[id]/pdf), and strip <script> tags on all POST payloads.
+- **Compliance Standards:** OWASP Top 10 A03:2021 - Injection, CWE-284
+- **Affected Files:** `src/app/api/projects/[id]/pdf/route.ts`, `src/lib/reports/render-report-html.tsx`
 
-## 🧹 Code Quality & Technical Debt (3)
+### [SEC-004] API Key Exposure Risk in MCP Query-String URLs (?key=procal_sk_...) `(LOW SEVERITY)`
+Read Authorization: Bearer and x-api-key directly from Request headers in /api/mcp and deprecate ?key=procal_sk_... query-parameter authentication in user-facing error prompts.
+
+- **Vulnerability:** CWE-598: Use of GET/POST Request Method With Sensitive Query Strings
+- **Current Risk:** Long-lived procal_sk_ API keys passed via ?key= are recorded in plaintext HTTP request logs on reverse proxies and hosting providers.
+- **Remediation:** Extract Bearer/x-api-key headers directly on the incoming Request in POST /api/mcp, update onboarding docs/error messages to recommend header auth first, and redact key=/apiKey= in any server log middleware.
+- **Compliance Standards:** OWASP Top 10 A02:2021 - Cryptographic & Credential Hygiene, CWE-598
+- **Affected Files:** `src/app/api/mcp/route.ts`, `src/lib/mcp/server.ts`
+
+## 🧹 Code Quality & Technical Debt (4)
 *Large files, code duplication, and architectural anti-patterns.*
 
-### [CQ-001] Decompose 1,600+ Line Monolithic Views & Extract Shared Trial Upgrade Hook
-Split 1,600+ line monolithic views and agent spec builders into focused domain modules and extract a shared useUpgradeTrialProject hook used by both TopHeader and ProjectDetailPage.
+### [CQ-001] Decompose 1,470–1,887 LOC Monolithic Views & Agent Spec Builder Modules
+Split the five largest multi-responsibility files — projects/[id]/page.tsx (1,887 LOC), cable-schedule/page.tsx (1,771 LOC), sld/page.tsx (1,639 LOC), coordination/page.tsx (1,516 LOC), and build-project.ts (1,478 LOC) — into focused sub-modules.
 
 - **Severity:** `MAJOR` | **Category:** `large_files` | **Effort:** `medium`
-- **Best Practice:** Single Responsibility Principle & Modular Feature Composition
-- **Proposed Change:** Extract BuildingListPanel, TemplateManagerModal, and BoqSummarySection from projects/[id]/page.tsx; split createProjectFromSpec and updateProjectSpec into dedicated modules under src/lib/agent/; share useUpgradeTrialProject.
-- **Affected Files:** `src/app/(app)/projects/[id]/page.tsx`, `src/app/(app)/sld/page.tsx`, `src/lib/agent/build-project.ts`, `src/components/TopHeader.tsx`
+- **Best Practice:** Single Responsibility Principle & Bounded Module Size (<500 LOC)
+- **Proposed Change:** Split src/lib/agent/build-project.ts into create-spec.ts, update-spec.ts, cables-spec.ts, selectivity-check.ts, and bom.ts (re-exported via index.ts), and extract feature panels/hooks from the 4 largest page controllers.
+- **Affected Files:** `src/app/(app)/projects/[id]/page.tsx`, `src/app/(app)/cable-schedule/page.tsx`, `src/app/(app)/sld/page.tsx`, `src/app/(app)/coordination/page.tsx`, `src/lib/agent/build-project.ts`
 
 ### [CQ-002] Centralize 0.5 m² Room Area Validator (isHalfStep) Across REST Routes & MCP Schemas
-Consolidate the 0.5 m² room area step validator (isHalfStep) into a single shared validation helper imported by both REST API routes and MCP Zod schemas.
+Share the 0.5 m² room area step validator (isHalfStep) between MCP Zod schemas (src/lib/agent/project-spec-schema.ts) and REST apartment template routes (/api/templates).
 
 - **Severity:** `MINOR` | **Category:** `duplication` | **Effort:** `small`
-- **Best Practice:** DRY Domain Validation Primitives
-- **Proposed Change:** Export isHalfStepArea and HALF_STEP_AREA_ERROR from src/lib/validation/room-area.ts and reuse across all template and spec endpoints.
+- **Best Practice:** Single Source of Truth for Domain Invariants
+- **Proposed Change:** Extract isHalfStepArea and HALF_STEP_AREA_MESSAGE into src/lib/validation/room-area.ts and validate every room area in both /api/templates routes and project-spec-schema.ts.
 - **Affected Files:** `src/lib/agent/project-spec-schema.ts`, `src/app/api/templates/route.ts`, `src/app/api/templates/[id]/route.ts`
 
-### [CQ-003] Add Dedicated Route Unit Tests for /api/projects/[id]/pdf & Image Inlining
-Add dedicated Vitest unit tests for GET/POST /api/projects/[id]/pdf covering signed report token verification, trial flag propagation, and inlineImagesInHtml path-traversal containment.
+### [CQ-003] Eliminate Unused Imports & Duplicate Report Data Assembly in MCP Server
+Remove dead imports (renderReportHtml, getCompanySettings) in src/lib/mcp/server.ts by extracting a shared report-assembly service reused by both GET /api/projects/[id]/pdf and MCP get_project_report.
+
+- **Severity:** `MINOR` | **Category:** `duplication` | **Effort:** `small`
+- **Best Practice:** DRY Service Layer & Zero Unused Imports
+- **Proposed Change:** Extract loadProjectReportHtml(projectId, opts) into src/lib/reports/load-project-report.ts and consume it from both the REST PDF endpoint and MCP get_project_report.
+- **Affected Files:** `src/lib/mcp/server.ts`, `src/app/api/projects/[id]/pdf/route.ts`
+
+### [CQ-004] Add Route-Level Security & Regression Unit Tests for /api/projects/[id]/pdf
+Create src/app/api/projects/[id]/pdf/route.test.ts covering signed JWT report download tokens, CWE-22 path-traversal containment in inlineImagesInHtml, and trial encryption/watermark flags.
 
 - **Severity:** `MINOR` | **Category:** `test_coverage` | **Effort:** `small`
-- **Best Practice:** Automated Security & Regression Boundary Testing
-- **Proposed Change:** Create src/app/api/projects/[id]/pdf/route.test.ts with mocked generateServerPdf and filesystem fixtures verifying CWE-22 traversal rejection and trial encryption error handling.
+- **Best Practice:** Automated Boundary & Security Regression Testing
+- **Proposed Change:** Add src/app/api/projects/[id]/pdf/route.test.ts mocking generateServerPdf to verify 401 on expired/cross-project tokens, traversal rejection on '../' image paths, and isTrial propagation.
 - **Affected Files:** `src/app/api/projects/[id]/pdf/route.ts`, `src/lib/reports/server-pdf.ts`
 
 ---
-*Generated autonomously by Antigravity Tools Ideation Engine — Inspired by Aperant.*
+*Generated by Antigravity AI Agent (Code-Aware v1.8.0 Audit) — Inspired by Aperant.*

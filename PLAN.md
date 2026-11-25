@@ -95,3 +95,48 @@ Resolve Supabase security linter error `0013_rls_disabled_in_public` on `public.
 
 ## Status
 - [x] 1  - [x] 2
+
+---
+
+# Ideation v1.8.0 Execution Plan (16 Items — Excluding SEC-004, 2026-11-25)
+
+## Goal
+Implement 16 verified findings from [IDEATION.md](IDEATION.md) sequentially one-by-one, verifying each with unit tests and TypeScript checks, marking each completed across `PLAN.md`, `IDEATION.md`, `.antigravity/ideation.json`, `ROADMAP.md`, and `.antigravity/roadmap.json`, and committing after each item. (`SEC-004` excluded per user instruction.)
+
+## Steps & Verification Proofs
+1. **SEC-001** — Unified `assertMcpProjectAccess` across project-scoped MCP tools (`src/lib/project-auth.ts`, `src/lib/agent/build-project.ts`, `src/lib/mcp/server.ts`)
+   *Proof:* `npx vitest run src/lib/mcp/__tests__/server.test.ts src/lib/agent/__tests__/build-project.test.ts src/lib/agent/__tests__/update-project-spec.test.ts && npx tsc --noEmit`
+2. **SEC-002** — Atomic conditional credit decrement (`credits >= 1`) in `POST /api/projects` & `createProjectFromSpec` (`src/app/api/projects/route.ts`, `src/lib/agent/build-project.ts`)
+   *Proof:* `npx vitest run src/app/api/projects/route.test.ts src/lib/agent/__tests__/build-project.test.ts src/lib/mcp/__tests__/server.test.ts && npx tsc --noEmit`
+3. **SEC-003** — Server-rendered trial PDFs & `<script>` sanitization in `POST /api/projects/[id]/pdf` (`src/lib/reports/sanitize-report-html.ts`, `src/app/api/projects/[id]/pdf/route.ts`)
+   *Proof:* `npx vitest run src/lib/reports/render-report-html.test.ts && npx tsc --noEmit`
+4. **CQ-004** — Route-level security & token unit tests (`src/app/api/projects/[id]/pdf/route.test.ts`)
+   *Proof:* `npx vitest run 'src/app/api/projects/[id]/pdf/route.test.ts' && npx tsc --noEmit`
+5. **PERF-003** — PostgreSQL foreign-key & composite `@@index` declarations + idempotent migration (`prisma/schema.prisma`, `prisma/migrations/20261125090000_add_hierarchy_fk_indexes/migration.sql`)
+   *Proof:* `npx prisma validate && npx prisma generate && npx tsc --noEmit`
+6. **PERF-004** — In-memory TTL cache + admin invalidation for `EquipmentCatalog` (`src/lib/catalog-cache.ts`, `src/app/api/projects/[id]/pdf/route.ts`, `src/lib/agent/build-project.ts`, `src/app/api/admin/breakers/*.ts`)
+   *Proof:* `npx vitest run src/lib/__tests__/catalog-cache.test.ts 'src/app/api/projects/[id]/pdf/route.test.ts' src/lib/mcp/__tests__/server.test.ts && npx tsc --noEmit`
+7. **PERF-001** — Warm singleton Chromium browser pool + concurrency semaphore in `server-pdf.ts` (`src/lib/reports/server-pdf.ts`, `src/lib/reports/server-pdf.test.ts`)
+   *Proof:* `npx vitest run src/lib/reports/server-pdf.test.ts 'src/app/api/projects/[id]/pdf/route.test.ts' && npx tsc --noEmit`
+8. **PERF-002** — Bulk `createMany()` batching for rooms & floor items in `build-project.ts` (`src/lib/agent/build-project.ts`)
+   *Proof:* `npx vitest run src/lib/agent/__tests__/build-project.test.ts src/lib/agent/__tests__/update-project-spec.test.ts src/lib/agent/__tests__/update-project-cables.test.ts src/lib/mcp/__tests__/server.test.ts && npx tsc --noEmit`
+9. **CQ-002** — Shared `isHalfStepArea` validator (`src/lib/validation/room-area.ts`, `src/lib/agent/project-spec-schema.ts`, `src/app/api/templates/*.ts`)
+   *Proof:* Vitest template & schema validation suites + `npx tsc --noEmit`
+10. **CQ-003** — Shared `loadProjectReportHtml` service & removal of dead MCP imports (`src/lib/reports/load-project-report.ts`, `src/lib/mcp/server.ts`, `src/app/api/projects/[id]/pdf/route.ts`)
+    *Proof:* Vitest PDF & MCP server suites + `npx tsc --noEmit`
+11. **CI-002** — Full 8-section executive report rendering for MCP Base64/stdio exports (`src/lib/mcp/server.ts`)
+    *Proof:* `npx vitest run src/lib/mcp/__tests__/server.test.ts && npx tsc --noEmit`
+12. **CI-001** — Zero-credit Free Trial in `createProjectFromSpec` + `upgrade_trial_project` MCP tool (`src/lib/agent/build-project.ts`, `src/lib/mcp/server.ts`)
+    *Proof:* Vitest build-project & MCP server suites + `npx tsc --noEmit`
+13. **CI-004** — Native AutoCAD `.dxf` export via MCP (`get_project_dxf` / `get_project_sld`) gated on `!isTrial`
+    *Proof:* Vitest DXF & MCP server suites + `npx tsc --noEmit`
+14. **CI-003** — Combinatorial min-neutral phase optimizer & optional 3φ room decomposition (`src/lib/calculations/phaseBalance.ts`)
+    *Proof:* Vitest phaseBalance & rebalance route suites + `npx tsc --noEmit`
+15. **CI-005** — Side-by-side `ProjectRevision` schedule diff (`src/lib/audit-diff.ts` + UI + `create_project_revision` MCP tool)
+    *Proof:* Vitest audit-diff & MCP server suites + `npx tsc --noEmit`
+16. **CQ-001** — Decompose 5 monolithic modules (`build-project.ts`, `projects/[id]/page.tsx`, `cable-schedule/page.tsx`, `sld/page.tsx`, `coordination/page.tsx`)
+    *Proof:* Full `npm test` + `npx tsc --noEmit`
+
+## Ideation v1.8.0 Status
+- [x] 1  - [ ] 2  - [ ] 3  - [ ] 4  - [ ] 5  - [ ] 6  - [ ] 7  - [ ] 8
+- [ ] 9  - [ ] 10 - [ ] 11 - [ ] 12 - [ ] 13 - [ ] 14 - [ ] 15 - [ ] 16

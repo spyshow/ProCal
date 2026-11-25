@@ -143,3 +143,50 @@ export async function verifyProjectAccess(
     project,
   };
 }
+
+/**
+ * Authorization guard for MCP tool calls. Verifies project ownership, ADMIN role,
+ * or ProjectMember membership (enforcing write permissions when requireWrite is true).
+ */
+export async function assertMcpProjectAccess(
+  project: { id: string; userId?: string | null },
+  user: { id: string; role?: string },
+  options?: { requireWrite?: boolean }
+): Promise<void> {
+  if (!project.userId || project.userId === user.id || user.role === "ADMIN") {
+    return;
+  }
+
+  const member = await db.projectMember
+    ?.findUnique?.({
+      where: {
+        projectId_userId: {
+          projectId: project.id,
+          userId: user.id,
+        },
+      },
+    })
+    .catch(() => null);
+
+  if (!member) {
+    const err = new Error(
+      options?.requireWrite
+        ? "Unauthorized to modify this project"
+        : "Unauthorized to access this project"
+    );
+    (err as unknown as { statusCode: number }).statusCode = 403;
+    throw err;
+  }
+
+  if (options?.requireWrite) {
+    const perms = parseMemberPermissions(member.permissions, member.role);
+    if (
+      member.role === "QA" &&
+      !hasProjectPagePermission(member.role, perms, "calculator", "EDIT")
+    ) {
+      const err = new Error("Unauthorized to modify this project");
+      (err as unknown as { statusCode: number }).statusCode = 403;
+      throw err;
+    }
+  }
+}

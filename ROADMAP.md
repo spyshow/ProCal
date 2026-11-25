@@ -113,9 +113,9 @@ Serialize Schematex Single-Line Diagram (SLD) and Vertical Riser geometry direct
 - **User Story:**
   - *"As an MEP CAD Coordinator, I want to export Single-Line and Riser diagrams directly as layered AutoCAD .DXF files so that I can drop them into our firm's DWG sheet sets without redrawing."*
 - **Acceptance Criteria:**
-  - [ ] SLD (src/app/(app)/sld/page.tsx) and Riser (src/app/(app)/riser/page.tsx) views expose an "Export AutoCAD (.DXF)" action alongside SVG and PDF exports
-  - [ ] Generated ASCII .dxf files organize busbars, breakers, cables, and text annotations into standard AIA/ISO CAD layers (E-SLD-BUS, E-SLD-BRKR, E-SLD-TEXT)
-  - [ ] DXF export is gated behind non-trial project status (isTrial === false) consistent with SVG and Excel export gating
+  - [x] SLD (src/app/(app)/sld/page.tsx) and Riser (src/app/(app)/riser/page.tsx) views expose an "Export AutoCAD (.DXF)" action alongside SVG and PDF exports
+  - [x] Generated ASCII .dxf files organize busbars, breakers, cables, and text annotations into standard AIA/ISO CAD layers (E-SLD-BUS, E-SLD-BRKR, E-SLD-TEXT)
+  - [x] DXF export is gated behind non-trial project status (isTrial === false) consistent with SVG and Excel export gating
 
 #### [ ] [FEAT-08] Imbalance-Aware Transformer Sizing, Combinatorial Phase Optimizer & Team Revision Snapshots `(COULD)`
 Account for per-phase imbalance in main transformer kVA sizing, normalize FloorItem.calculatedCurrent derivation across all item types, and add combinatorial per-phase load optimization with team revision snapshots.
@@ -147,7 +147,7 @@ Account for per-phase imbalance in main transformer kVA sizing, normalize FloorI
 - [x] **[CQ-003]** Shared `loadProjectReportHtml` Service & Removal of Dead MCP Imports
 - [x] **[CI-002]** Unified Full 8-Section Executive Report Rendering for MCP Base64 & Stdio Exports
 - [x] **[CI-001]** MCP Agent Free Trial Provisioning & In-Chat `upgrade_trial_project` Tool
-- [ ] **[CI-004]** MCP Native AutoCAD DXF Schematic Export Tool (`get_project_dxf`)
+- [x] **[CI-004]** MCP Native AutoCAD DXF Schematic Export Tool (`get_project_dxf`)
 - [ ] **[CI-003]** Combinatorial Min-Neutral Per-Phase Optimizer & 3φ Apartment Room Decomposition
 - [ ] **[CI-005]** Engineering Revision Diff Comparison & Pre-Mutation MCP Snapshot Tool
 - [ ] **[CQ-001]** Decompose 1,470–1,887 LOC Monolithic Views & Agent Spec Builder Modules

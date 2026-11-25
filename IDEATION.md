@@ -41,10 +41,10 @@ Extend phaseBalance.ts beyond single-pass greedy LPT with a fast combinatorial s
 - **Rationale:** src/lib/calculations/phaseBalance.ts currently assigns null phases via single-pass greedy kW order and flags 3-phase apartments with internalImbalanceNotModeled: true (lines 24-34). A swap refinement pass over phasor angles (120 deg + arccos PF) achieves <3% current unbalance and minimal neutral current in <5ms.
 - **Implementation Approach:** Add optimizePhaseAssignments(items, project) in phaseBalance.ts using pairwise/3-way Kempe-chain swaps minimizing maxPhaseCurrent and vector neutralCurrent, wired to the existing Rebalance endpoints.
 
-### [CI-004] MCP Native AutoCAD DXF Schematic Export Tool (get_project_dxf)
+### [CI-004] MCP Native AutoCAD DXF Schematic Export Tool (get_project_dxf) ✅ COMPLETED
 Expose ProCal v1.8.0's new SVG-to-DXF CAD serializer (src/lib/dxf/svg-to-dxf.ts) through the MCP server so AI agents can export layered AutoCAD .dxf Single-Line and Riser drawings directly in chat.
 
-- **Effort:** `SMALL` | **Status:** `draft`
+- **Effort:** `SMALL` | **Status:** `completed`
 - **Builds Upon:** `src/lib/dxf/svg-to-dxf.ts`, `src/lib/mcp/server.ts`, `src/lib/sld/generator.ts`
 - **Affected Files:** `src/lib/mcp/server.ts`, `src/lib/dxf/svg-to-dxf.ts`
 - **Rationale:** ProCal v1.8.0 shipped client-side AutoCAD DXF export in src/lib/dxf/svg-to-dxf.ts (1,167 LOC), and get_project_sld in src/lib/mcp/server.ts (lines 586-597) already generates standalone Schematex SVGs server-side. Bridging the two gives Claude/Cursor agents native CAD deliverables.

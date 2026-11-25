@@ -4,6 +4,7 @@ import {
   convertSvgStringToDxf,
   convertSvgElementToDxf,
   convertMultipleSvgStringsToDxf,
+  parseSvgMarkupFallback,
   parseSvgTransform,
   parseSvgPathData,
   applyMatrix2D,
@@ -147,5 +148,37 @@ describe('svg-to-dxf CAD Vector Exporter (FEAT-07)', () => {
     // Only one "25A" per sheet (the rating at y=372), not two per sheet
     const count25A = (dxf.match(/\n25A\n/g) || []).length;
     expect(count25A).toBe(2);
+  });
+
+  it('parses SVG and converts multi-sheet DXF in pure Node runtime when DOMParser is undefined', () => {
+    const svg = `<?xml version="1.0" encoding="UTF-8"?>
+    <!-- SLD export -->
+    <svg width="600" height="400" viewBox="0 0 600 400" xmlns="http://www.w3.org/2000/svg">
+      <line x1="50" y1="80" x2="550" y2="80" class="lt-sld-bus" />
+      <g transform="translate(100, 140)">
+        <rect x="-10" y="-12" width="20" height="24" stroke="#38bdf8" />
+        <text x="0" y="30" class="lt-sld-id">63A</text>
+        <text x="0" y="75" class="lt-sld-rating">63A</text>
+      </g>
+    </svg>`;
+
+    const parsed = parseSvgMarkupFallback(svg);
+    expect(parsed).not.toBeNull();
+    expect(parsed!.querySelectorAll('text.lt-sld-rating')).toHaveLength(1);
+
+    const prevDomParser = globalThis.DOMParser;
+    // Simulate Node.js MCP server environment where DOMParser is unavailable
+    (globalThis as unknown as { DOMParser?: typeof DOMParser }).DOMParser = undefined;
+    try {
+      const dxf = convertMultipleSvgStringsToDxf([
+        { title: 'Node MDB Sheet', subtitle: '400V 3-Phase', svgMarkup: svg },
+      ]);
+      expect(dxf).toContain('E-SLD-BUS');
+      expect(dxf).toContain('E-SLD-BRKR');
+      expect(dxf).toContain('DRAWING 01/01 - Node MDB Sheet');
+      expect(dxf).toContain('63A');
+    } finally {
+      (globalThis as unknown as { DOMParser?: typeof DOMParser }).DOMParser = prevDomParser;
+    }
   });
 });

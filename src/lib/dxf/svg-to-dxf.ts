@@ -1114,6 +1114,163 @@ export function convertSvgElementToDxf(
 /**
  * Parse an SVG markup string using DOMParser and convert it into an AutoCAD ASCII DXF string.
  */
+
+function decodeXmlEntities(text: string): string {
+  return text
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&apos;/g, "'")
+    .replace(/&#(\d+);/g, (_, dec) => String.fromCharCode(Number(dec)))
+    .replace(/&#x([0-9a-fA-F]+);/g, (_, hex) => String.fromCharCode(parseInt(hex, 16)))
+    .replace(/&amp;/g, '&');
+}
+
+interface LiteSvgNode {
+  tagName: string;
+  attributes: Record<string, string>;
+  children: LiteSvgNode[];
+  _directText: string[];
+  getAttribute(name: string): string | null;
+  hasAttribute(name: string): boolean;
+  readonly textContent: string;
+  querySelector(selector: string): Element | null;
+  querySelectorAll(selector: string): Element[];
+}
+
+function matchesSimpleSelector(node: LiteSvgNode, selector: string): boolean {
+  const s = selector.trim();
+  if (!s) return false;
+  const dotIdx = s.indexOf('.');
+  if (dotIdx === -1) {
+    return node.tagName.toLowerCase() === s.toLowerCase();
+  }
+  const tagPart = s.slice(0, dotIdx);
+  const classPart = s.slice(dotIdx + 1);
+  if (tagPart && node.tagName.toLowerCase() !== tagPart.toLowerCase()) {
+    return false;
+  }
+  const classAttr = node.attributes['class'] || '';
+  const classList = classAttr.split(/\s+/).filter(Boolean);
+  return classList.includes(classPart);
+}
+
+function collectMatchingNodes(node: LiteSvgNode, selector: string, out: LiteSvgNode[]): void {
+  if (matchesSimpleSelector(node, selector)) {
+    out.push(node);
+  }
+  for (const child of node.children) {
+    collectMatchingNodes(child, selector, out);
+  }
+}
+
+function makeLiteNode(tagName: string, attributes: Record<string, string>): LiteSvgNode {
+  const node: LiteSvgNode = {
+    tagName,
+    attributes,
+    children: [],
+    _directText: [],
+    getAttribute(name: string) {
+      return Object.prototype.hasOwnProperty.call(this.attributes, name) ? this.attributes[name] : null;
+    },
+    hasAttribute(name: string) {
+      return Object.prototype.hasOwnProperty.call(this.attributes, name);
+    },
+    get textContent() {
+      let buf = this._directText.join('');
+      for (const ch of this.children) {
+        buf += ch.textContent;
+      }
+      return buf;
+    },
+    querySelector(selector: string) {
+      const list = this.querySelectorAll(selector);
+      return list[0] ?? null;
+    },
+    querySelectorAll(selector: string) {
+      const out: LiteSvgNode[] = [];
+      for (const ch of this.children) {
+        collectMatchingNodes(ch, selector, out);
+      }
+      if (out.length === 0 && matchesSimpleSelector(this, selector)) {
+        out.push(this);
+      }
+      return out as unknown as Element[];
+    },
+  };
+  return node;
+}
+
+function parseAttributes(raw: string): Record<string, string> {
+  const attrs: Record<string, string> = {};
+  const attrRe = /([A-Za-z_:][\w:.-]*)\s*=\s*(?:"([^"]*)"|'([^']*)')/g;
+  let m: RegExpExecArray | null;
+  while ((m = attrRe.exec(raw)) !== null) {
+    attrs[m[1]] = decodeXmlEntities(m[2] ?? m[3] ?? '');
+  }
+  return attrs;
+}
+
+/**
+ * Pure-JS SVG markup parser fallback for Node.js server environments (where global DOMParser is undefined).
+ * Produces an Element-compatible tree implementing tagName, attributes, children, textContent, and querySelectorAll.
+ */
+export function parseSvgMarkupFallback(svgMarkup: string): Element | null {
+  const root = makeLiteNode('__root__', {});
+  const stack: LiteSvgNode[] = [root];
+
+  // Strip XML declaration, DOCTYPE, and comments before tokenizing
+  const cleaned = svgMarkup
+    .replace(/<\?[\s\S]*?\?>/g, '')
+    .replace(/<!DOCTYPE[\s\S]*?>/gi, '')
+    .replace(/<!--[\s\S]*?-->/g, '');
+
+  const tokenRe = /<(\/?)([A-Za-z_][\w:.-]*)([^>]*?)(\/?)\s*>|([^<]+)/g;
+  let match: RegExpExecArray | null;
+  while ((match = tokenRe.exec(cleaned)) !== null) {
+    if (match[5] !== undefined) {
+      const top = stack[stack.length - 1];
+      top._directText.push(decodeXmlEntities(match[5]));
+      continue;
+    }
+    const isClosing = match[1] === '/';
+    const tag = match[2];
+    const attrStr = match[3] || '';
+    const selfClosing = match[4] === '/';
+
+    if (isClosing) {
+      for (let i = stack.length - 1; i >= 1; i--) {
+        if (stack[i].tagName.toLowerCase() === tag.toLowerCase()) {
+          stack.length = i;
+          break;
+        }
+      }
+    } else {
+      const node = makeLiteNode(tag, parseAttributes(attrStr));
+      stack[stack.length - 1].children.push(node);
+      if (!selfClosing) {
+        stack.push(node);
+      }
+    }
+  }
+
+  for (const child of root.children) {
+    if (child.tagName.toLowerCase() === 'svg') {
+      return child as unknown as Element;
+    }
+  }
+  return root.querySelector('svg');
+}
+
+export function parseSvgMarkupToElement(svgMarkup: string): Element | null {
+  if (typeof DOMParser !== 'undefined') {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(svgMarkup, 'image/svg+xml');
+    return doc.querySelector('svg');
+  }
+  return parseSvgMarkupFallback(svgMarkup);
+}
+
 export function convertSvgStringToDxf(
   svgMarkup: string,
   options?: DxfExportOptions
@@ -1123,9 +1280,7 @@ export function convertSvgStringToDxf(
       'AutoCAD DXF export is locked on Free Trial projects. Upgrade project to unlock CAD exports.'
     );
   }
-  const parser = new DOMParser();
-  const doc = parser.parseFromString(svgMarkup, 'image/svg+xml');
-  const svgEl = doc.querySelector('svg');
+  const svgEl = parseSvgMarkupToElement(svgMarkup);
   if (!svgEl) {
     throw new Error('Invalid SVG markup: no root <svg> element found.');
   }
@@ -1265,10 +1420,8 @@ export function convertMultipleSvgStringsToDxf(
       'AutoCAD DXF export is locked on Free Trial projects. Upgrade project to unlock CAD exports.'
     );
   }
-  const parser = new DOMParser();
   const parsedSheets: DxfSheetElementInput[] = sheets.map((s, idx) => {
-    const doc = parser.parseFromString(s.svgMarkup, 'image/svg+xml');
-    const svgEl = doc.querySelector('svg');
+    const svgEl = parseSvgMarkupToElement(s.svgMarkup);
     if (!svgEl) {
       throw new Error(`Invalid SVG markup in sheet ${idx + 1}: no root <svg> element found.`);
     }

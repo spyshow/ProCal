@@ -17,6 +17,7 @@ import {
   upgradeProjectFromTrial,
 } from "@/lib/agent/build-project";
 import { generateSLD, generateSLDPages } from "@/lib/sld/generator";
+import { convertMultipleSvgStringsToDxf, CAD_LAYERS } from "@/lib/dxf/svg-to-dxf";
 import { render, parse } from "schematex";
 import { db } from "@/lib/db";
 import { signReportDownloadToken } from "@/lib/auth";
@@ -252,6 +253,24 @@ const MCP_TOOLS = [
         buildingId: { type: "string", description: "Optional building ID filter" },
         floorNumber: { type: "number", description: "Optional floor number filter" },
         outputFilePath: { type: "string", description: "Optional local file path to save SVG when using stdio bridge (e.g. sld.svg)" },
+        includeDxf: { type: "boolean", description: "When true, also converts the SLD diagrams into a multi-sheet AutoCAD .dxf drawing (non-trial projects only)" },
+      },
+    },
+  },
+  {
+    name: "get_project_dxf",
+    description:
+      "Exports Schematex Single-Line Diagrams (overview MDB + per-floor sub-panels) into a layered ASCII AutoCAD .dxf drawing organized by standard AIA electrical CAD layers (E-SLD-BUS, E-SLD-BRKR, E-SLD-CABL, E-SLD-TEXT, E-SLD-SYMB, E-SLD-GRID, E-SLD-BORD). Requires a non-trial full project.",
+    inputSchema: {
+      type: "object",
+      required: ["projectId"],
+      properties: {
+        projectId: { type: "string", description: "Project ID" },
+        scope: {
+          type: "string",
+          enum: ["all", "overview", "floors"],
+          description: "Which sheets to include in ModelSpace grid (default: all)",
+        },
       },
     },
   },
@@ -609,6 +628,22 @@ async function executeTool(
         svg: watermarkSvg(render(p.dsl)),
       }));
 
+      const includeDxf = args.includeDxf === true;
+      let dxfContent: string | undefined;
+      if (includeDxf) {
+        if ((project as { isTrial?: boolean }).isTrial) {
+          throw new Error("AutoCAD DXF export is locked on Free Trial projects. Upgrade project to unlock CAD exports.");
+        }
+        const sheets = [
+          { title: `${project.name} - Main Distribution Overview`, svgMarkup: render(fullDsl) },
+          ...pages.map((p) => ({
+            title: `${p.buildingName || project.name} - Floor ${p.floorNumber ?? ""}`.trim(),
+            svgMarkup: render(p.dsl),
+          })),
+        ];
+        dxfContent = convertMultipleSvgStringsToDxf(sheets, { isTrial: false });
+      }
+
       return {
         projectId,
         projectName: project.name,
@@ -618,6 +653,81 @@ async function executeTool(
           ast: fullAst,
         },
         floorPages: pages,
+        ...(dxfContent ? { dxf: dxfContent } : {}),
+      };
+    }
+
+    case "get_project_dxf": {
+      const authUser = requireAuth(user);
+      const projectId = args.projectId as string;
+      if (!projectId) throw new Error("projectId is required");
+      const scope = (args.scope as "all" | "overview" | "floors" | undefined) || "all";
+
+      const project = await db.project.findUnique({
+        where: { id: projectId },
+        include: {
+          buildings: {
+            include: {
+              floorDesigns: {
+                include: { items: true },
+              },
+              buildingLoads: {
+                include: { loadLibraryItem: true },
+              },
+            },
+          },
+        },
+      });
+
+      if (!project) throw new Error(`Project not found: ${projectId}`);
+      await assertMcpProjectAccess(project, authUser, { requireWrite: false });
+
+      if ((project as { isTrial?: boolean }).isTrial) {
+        throw new Error(
+          "AutoCAD DXF export is locked on Free Trial projects. Upgrade project with 'upgrade_trial_project' to unlock CAD exports."
+        );
+      }
+
+      const fullDsl = generateSLD(project as unknown as AppProject);
+      const rawPages = generateSLDPages(project as unknown as AppProject);
+      const subtitle = `${project.name} | ${project.voltage}V 3-Phase | ${project.frequency || 50}Hz | ${project.calculationStandard || "IEC"}`;
+
+      const sheets: { title: string; subtitle?: string; svgMarkup: string }[] = [];
+      if (scope === "all" || scope === "overview") {
+        sheets.push({
+          title: `${project.name} - Main Distribution Overview`,
+          subtitle,
+          svgMarkup: render(fullDsl),
+        });
+      }
+      if (scope === "all" || scope === "floors") {
+        for (const p of rawPages) {
+          sheets.push({
+            title: p.title || `${p.buildingName || "Building"} - Floor ${p.floorNumber ?? ""}`.trim(),
+            subtitle,
+            svgMarkup: render(p.dsl),
+          });
+        }
+      }
+      if (sheets.length === 0) {
+        sheets.push({
+          title: `${project.name} - Main Distribution Overview`,
+          subtitle,
+          svgMarkup: render(fullDsl),
+        });
+      }
+
+      const dxfContent = convertMultipleSvgStringsToDxf(sheets, { isTrial: false });
+      const safeFileBase = (project.name || "procal-sld").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+
+      return {
+        projectId,
+        projectName: project.name,
+        fileName: `${safeFileBase || "procal"}-sld.dxf`,
+        scope,
+        sheetCount: sheets.length,
+        layers: CAD_LAYERS.map((l) => l.name),
+        dxf: dxfContent,
       };
     }
 

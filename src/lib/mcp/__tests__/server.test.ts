@@ -141,7 +141,7 @@ describe("Zero-Dependency JSON-RPC 2.0 MCP Server", () => {
 
     const res = await handleMcpRequest(req, testUser, baseUrl);
     const tools = (res.result as { tools: { name: string }[] }).tools;
-    expect(tools).toHaveLength(12);
+    expect(tools).toHaveLength(13);
 
     const names = tools.map((t) => t.name);
     expect(names).toContain("get_engineering_catalog");
@@ -154,6 +154,7 @@ describe("Zero-Dependency JSON-RPC 2.0 MCP Server", () => {
     expect(names).toContain("update_project_cables");
     expect(names).toContain("get_project_bom");
     expect(names).toContain("get_project_sld");
+    expect(names).toContain("get_project_dxf");
     expect(names).toContain("upgrade_trial_project");
     expect(names).toContain("get_project_report");
   });
@@ -467,7 +468,7 @@ describe("Zero-Dependency JSON-RPC 2.0 MCP Server", () => {
     expect(toolsRes.id).toBe(102);
     expect(toolsRes.error).toBeUndefined();
     const tools = (toolsRes.result as { tools: unknown[] }).tools;
-    expect(tools.length).toBe(12);
+    expect(tools.length).toBe(13);
   });
 
   it("returns the 5-stage workflow prompt in 'prompts/get'", async () => {
@@ -842,5 +843,94 @@ describe("Zero-Dependency JSON-RPC 2.0 MCP Server", () => {
       isTrial: false,
       alreadyUpgraded: false,
     });
+  });
+
+  it("executes 'get_project_dxf' and returns layered AutoCAD DXF output for full projects", async () => {
+    mockDb.project.findUnique.mockResolvedValueOnce({
+      id: "proj-dxf-1",
+      name: "Emerald Plaza",
+      userId: testUser.id,
+      isTrial: false,
+      voltage: 400,
+      frequency: 50,
+      powerFactor: 0.85,
+      calculationStandard: "IEC",
+      buildings: [
+        {
+          id: "b-1",
+          name: "Tower A",
+          floors: 1,
+          floorDesigns: [
+            {
+              floorNumber: 1,
+              hasFloorSubPanels: false,
+              items: [
+                {
+                  id: "it-1",
+                  name: "Apt 1A",
+                  type: "APARTMENT",
+                  calculatedMaxDemand: 6,
+                  calculatedCurrent: 26.1,
+                  breakerSize: "32A",
+                  cableSize: "6 mm²",
+                },
+              ],
+            },
+          ],
+          buildingLoads: [],
+        },
+      ],
+    });
+
+    const res = await handleMcpRequest(
+      {
+        jsonrpc: "2.0",
+        id: "dxf-1",
+        method: "tools/call",
+        params: { name: "get_project_dxf", arguments: { projectId: "proj-dxf-1", scope: "all" } },
+      },
+      testUser,
+      baseUrl
+    );
+
+    expect(res.result).toHaveProperty("isError", false);
+    const data = JSON.parse((res.result as { content: { text: string }[] }).content[0].text);
+    expect(data.projectId).toBe("proj-dxf-1");
+    expect(data.fileName).toBe("emerald-plaza-sld.dxf");
+    expect(data.sheetCount).toBeGreaterThanOrEqual(2);
+    expect(data.layers).toEqual(expect.arrayContaining(["E-SLD-BUS", "E-SLD-BRKR", "E-SLD-TEXT"]));
+    expect(data.dxf).toContain("SECTION");
+    expect(data.dxf).toContain("E-SLD-BUS");
+    expect(data.dxf).toContain("EOF");
+  });
+
+  it("blocks 'get_project_dxf' on Free Trial projects", async () => {
+    mockDb.project.findUnique.mockResolvedValueOnce({
+      id: "proj-dxf-trial",
+      name: "Trial House",
+      userId: testUser.id,
+      isTrial: true,
+      voltage: 400,
+      frequency: 50,
+      powerFactor: 0.85,
+      calculationStandard: "IEC",
+      buildings: [],
+    });
+
+    const res = await handleMcpRequest(
+      {
+        jsonrpc: "2.0",
+        id: "dxf-trial",
+        method: "tools/call",
+        params: { name: "get_project_dxf", arguments: { projectId: "proj-dxf-trial" } },
+      },
+      testUser,
+      baseUrl
+    );
+
+    expect(res.result).toHaveProperty("isError", true);
+    expect((res.result as { content: { text: string }[] }).content[0].text).toMatch(
+      /locked on Free Trial projects/i
+    );
   });
 });

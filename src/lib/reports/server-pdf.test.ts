@@ -31,7 +31,7 @@ describe("generateServerPdf - Trial PDF Locking", () => {
     expect(pdfString).not.toContain("/Encrypt");
   }, 30000);
 
-  it("renders concurrent PDF exports cleanly via warm Chromium BrowserContext pool", async () => {
+  it("renders concurrent PDF exports cleanly via warm Chromium browser pool", async () => {
     const [buf1, buf2] = await Promise.all([
       generateServerPdf("<!DOCTYPE html><html><body><h1>Concurrent 1</h1></body></html>", { isTrial: false }),
       generateServerPdf("<!DOCTYPE html><html><body><h1>Concurrent 2</h1></body></html>", { isTrial: false }),

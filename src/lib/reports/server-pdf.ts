@@ -1,4 +1,4 @@
-import puppeteer, { type Browser, type BrowserContext } from 'puppeteer-core';
+import puppeteer, { type Browser, type Page } from 'puppeteer-core';
 import chromium from '@sparticuz/chromium';
 import fs from 'fs';
 import os from 'os';
@@ -77,7 +77,8 @@ export async function getChromiumExecutablePath(): Promise<string> {
   return await chromium.executablePath(packUrl);
 }
 
-const MAX_CONCURRENT_PDF_RENDERS = 4;
+// Linux serverless Chromium runs with --single-process; serialize renders there.
+const MAX_CONCURRENT_PDF_RENDERS = process.platform === 'linux' ? 1 : 4;
 let activePdfRenders = 0;
 const pdfSlotQueue: Array<() => void> = [];
 let warmBrowserPromise: Promise<Browser> | null = null;
@@ -179,17 +180,16 @@ export async function generateServerPdf(html: string, options?: { isTrial?: bool
 
   try {
     let browser = await getWarmBrowser();
-    let context: BrowserContext;
+    let page: Page;
     try {
-      context = await browser.createBrowserContext();
+      page = await browser.newPage();
     } catch {
-      warmBrowserPromise = null;
+      await closeWarmBrowser();
       browser = await getWarmBrowser();
-      context = await browser.createBrowserContext();
+      page = await browser.newPage();
     }
 
     try {
-      const page = await context.newPage();
       await page.setViewport({ width: 1400, height: 900, deviceScaleFactor: 2 });
 
       if (typeof page.setRequestInterception === 'function') {
@@ -253,7 +253,7 @@ export async function generateServerPdf(html: string, options?: { isTrial?: bool
 
       return Buffer.from(pdfUint8);
     } finally {
-      await context.close().catch(() => {});
+      await page.close().catch(() => {});
     }
   } finally {
     releasePdfSlot();
